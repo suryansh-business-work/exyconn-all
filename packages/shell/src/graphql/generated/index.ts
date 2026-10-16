@@ -22,9 +22,13 @@ export type Scalars = {
 
 export type Activity = {
   __typename?: 'Activity';
+  /** Photos, documents and call or meeting recordings. */
+  attachments: Array<FileAttachment>;
   createdAt: Scalars['DateTime']['output'];
   done: Scalars['Boolean']['output'];
   dueDate?: Maybe<Scalars['DateTime']['output']>;
+  /** How long a call or meeting lasted, in seconds, when logged. */
+  durationSeconds?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
@@ -37,8 +41,10 @@ export type Activity = {
 };
 
 export type ActivityInput = {
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  durationSeconds?: InputMaybe<Scalars['Int']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   relatedId?: InputMaybe<Scalars['String']['input']>;
@@ -2973,6 +2979,43 @@ export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+/** One touchpoint with a contact or company, from whichever module recorded it. */
+export type CrmTimelineItem = {
+  __typename?: 'CrmTimelineItem';
+  /** Who on our side did it or owns it; empty when nobody did. */
+  actor: Scalars['String']['output'];
+  at: Scalars['DateTime']['output'];
+  attachments: Array<FileAttachment>;
+  id: Scalars['ID']['output'];
+  kind: CrmTimelineKind;
+  status: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  /** Where to open it in the portals; empty when it has no page. */
+  url: Scalars['String']['output'];
+};
+
+export enum CrmTimelineKind {
+  Call = 'CALL',
+  CampaignEmail = 'CAMPAIGN_EMAIL',
+  Deal = 'DEAL',
+  Email = 'EMAIL',
+  FormSubmission = 'FORM_SUBMISSION',
+  Lead = 'LEAD',
+  Meeting = 'MEETING',
+  Note = 'NOTE',
+  SupportTicket = 'SUPPORT_TICKET',
+  SystemEmail = 'SYSTEM_EMAIL',
+  Task = 'TASK',
+  WebsiteChat = 'WEBSITE_CHAT',
+  WhatsappLead = 'WHATSAPP_LEAD'
+}
+
+export enum CrmTimelineObject {
+  Company = 'COMPANY',
+  Contact = 'CONTACT'
+}
 
 export type CrmView = {
   __typename?: 'CrmView';
@@ -6766,6 +6809,8 @@ export type Mutation = {
   updateWebsiteChatSettings: WebsiteChatSettings;
   uploadAvatar: Scalars['String']['output'];
   uploadCmsAsset: CmsAsset;
+  /** Uploads a photo, PDF or audio / video recording (10 MB at most) and returns its URL. */
+  uploadCrmMedia: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
   /** Public: exchanges the emailed code for a client hub pass. */
@@ -9987,6 +10032,12 @@ export type MutationUploadCmsAssetArgs = {
 };
 
 
+export type MutationUploadCrmMediaArgs = {
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+};
+
+
 export type MutationUploadImageArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
@@ -11664,6 +11715,8 @@ export type Query = {
   contractToSign?: Maybe<ContractToSign>;
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
+  /** Everything that happened with the contact or company, newest first (at most 200). */
+  crmTimeline: Array<CrmTimelineItem>;
   crmViews: Array<CrmView>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
@@ -12674,6 +12727,13 @@ export type QueryCrmObjectSchemaArgs = {
 
 export type QueryCrmPropertiesArgs = {
   object: CrmObject;
+};
+
+
+export type QueryCrmTimelineArgs = {
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  object: CrmTimelineObject;
 };
 
 
@@ -19430,7 +19490,7 @@ export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: 
 
 export type DealFieldsFragment = { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string };
 
-export type ActivityFieldsFragment = { __typename?: 'Activity', id: string, type: ActivityType, subject: string, notes: string, relatedType: ActivitySubject, relatedId: string, relatedName: string, dueDate?: string | null, done: boolean, owner: string };
+export type ActivityFieldsFragment = { __typename?: 'Activity', id: string, type: ActivityType, subject: string, notes: string, relatedType: ActivitySubject, relatedId: string, relatedName: string, dueDate?: string | null, done: boolean, owner: string, durationSeconds?: number | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
 export type CrmStatsFragment = { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> };
 
@@ -19574,14 +19634,14 @@ export type SetDealStageMutation = { __typename?: 'Mutation', setDealStage: { __
 export type ListActivitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListActivitiesQuery = { __typename?: 'Query', listActivities: Array<{ __typename?: 'Activity', id: string, type: ActivityType, subject: string, notes: string, relatedType: ActivitySubject, relatedId: string, relatedName: string, dueDate?: string | null, done: boolean, owner: string }> };
+export type ListActivitiesQuery = { __typename?: 'Query', listActivities: Array<{ __typename?: 'Activity', id: string, type: ActivityType, subject: string, notes: string, relatedType: ActivitySubject, relatedId: string, relatedName: string, dueDate?: string | null, done: boolean, owner: string, durationSeconds?: number | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> };
 
 export type ListActivitiesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListActivitiesPagedQuery = { __typename?: 'Query', listActivitiesPaged: { __typename?: 'ActivityPage', totalCount: number, rows: Array<{ __typename?: 'Activity', id: string, type: ActivityType, subject: string, notes: string, relatedType: ActivitySubject, relatedId: string, relatedName: string, dueDate?: string | null, done: boolean, owner: string }> } };
+export type ListActivitiesPagedQuery = { __typename?: 'Query', listActivitiesPaged: { __typename?: 'ActivityPage', totalCount: number, rows: Array<{ __typename?: 'Activity', id: string, type: ActivityType, subject: string, notes: string, relatedType: ActivitySubject, relatedId: string, relatedName: string, dueDate?: string | null, done: boolean, owner: string, durationSeconds?: number | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
 
 export type ListActivitiesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -19609,6 +19669,37 @@ export type DeleteActivityMutationVariables = Exact<{
 
 
 export type DeleteActivityMutation = { __typename?: 'Mutation', deleteActivity: boolean };
+
+export type GetContactQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+
+export type GetCompanyQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+
+export type CrmTimelineQueryVariables = Exact<{
+  object: CrmTimelineObject;
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type CrmTimelineQuery = { __typename?: 'Query', crmTimeline: Array<{ __typename?: 'CrmTimelineItem', id: string, kind: CrmTimelineKind, at: string, title: string, summary: string, actor: string, status: string, url: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> };
+
+export type UploadCrmMediaMutationVariables = Exact<{
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+}>;
+
+
+export type UploadCrmMediaMutation = { __typename?: 'Mutation', uploadCrmMedia: string };
 
 export type CrmPropertyInfoFieldsFragment = { __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
 
@@ -26122,6 +26213,14 @@ export const ActivityFieldsFragmentDoc = gql`
   dueDate
   done
   owner
+  attachments {
+    url
+    name
+    contentType
+    uploadedBy
+    uploadedAt
+  }
+  durationSeconds
 }
     `;
 export const CrmStatsFragmentDoc = gql`
@@ -37999,6 +38098,181 @@ export function useDeleteActivityMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<DeleteActivityMutation, DeleteActivityMutationVariables>(DeleteActivityDocument, options);
       }
 export type DeleteActivityMutationHookResult = ReturnType<typeof useDeleteActivityMutation>;
+export const GetContactDocument = gql`
+    query GetContact($id: ID!) {
+  getContact(id: $id) {
+    ...ContactFields
+  }
+}
+    ${ContactFieldsFragmentDoc}`;
+
+/**
+ * __useGetContactQuery__
+ *
+ * To run a query within a React component, call `useGetContactQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContactQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetContactQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetContactQuery, GetContactQueryVariables> & ({ variables: GetContactQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetContactQuery, GetContactQueryVariables>(GetContactDocument, options);
+      }
+export function useGetContactLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetContactQuery, GetContactQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetContactQuery, GetContactQueryVariables>(GetContactDocument, options);
+        }
+// @ts-ignore
+export function useGetContactSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetContactQuery, GetContactQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetContactQuery, GetContactQueryVariables>;
+// @ts-ignore
+export function useGetContactSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetContactQuery, GetContactQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetContactQuery | undefined, GetContactQueryVariables>;
+export function useGetContactSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetContactQuery, GetContactQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetContactQuery, GetContactQueryVariables>(GetContactDocument, options);
+        }
+export type GetContactQueryHookResult = ReturnType<typeof useGetContactQuery>;
+export type GetContactLazyQueryHookResult = ReturnType<typeof useGetContactLazyQuery>;
+export type GetContactSuspenseQueryHookResult = ReturnType<typeof useGetContactSuspenseQuery>;
+export const GetCompanyDocument = gql`
+    query GetCompany($id: ID!) {
+  getCompany(id: $id) {
+    ...CompanyFields
+  }
+}
+    ${CompanyFieldsFragmentDoc}`;
+
+/**
+ * __useGetCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCompanyQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetCompanyQuery, GetCompanyQueryVariables> & ({ variables: GetCompanyQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetCompanyQuery, GetCompanyQueryVariables>(GetCompanyDocument, options);
+      }
+export function useGetCompanyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetCompanyQuery, GetCompanyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetCompanyQuery, GetCompanyQueryVariables>(GetCompanyDocument, options);
+        }
+// @ts-ignore
+export function useGetCompanySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetCompanyQuery, GetCompanyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetCompanyQuery, GetCompanyQueryVariables>;
+// @ts-ignore
+export function useGetCompanySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetCompanyQuery, GetCompanyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetCompanyQuery | undefined, GetCompanyQueryVariables>;
+export function useGetCompanySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetCompanyQuery, GetCompanyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetCompanyQuery, GetCompanyQueryVariables>(GetCompanyDocument, options);
+        }
+export type GetCompanyQueryHookResult = ReturnType<typeof useGetCompanyQuery>;
+export type GetCompanyLazyQueryHookResult = ReturnType<typeof useGetCompanyLazyQuery>;
+export type GetCompanySuspenseQueryHookResult = ReturnType<typeof useGetCompanySuspenseQuery>;
+export const CrmTimelineDocument = gql`
+    query CrmTimeline($object: CrmTimelineObject!, $id: ID!, $limit: Int) {
+  crmTimeline(object: $object, id: $id, limit: $limit) {
+    id
+    kind
+    at
+    title
+    summary
+    actor
+    status
+    url
+    attachments {
+      url
+      name
+      contentType
+    }
+  }
+}
+    `;
+
+/**
+ * __useCrmTimelineQuery__
+ *
+ * To run a query within a React component, call `useCrmTimelineQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmTimelineQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmTimelineQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useCrmTimelineQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmTimelineQuery, CrmTimelineQueryVariables> & ({ variables: CrmTimelineQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmTimelineQuery, CrmTimelineQueryVariables>(CrmTimelineDocument, options);
+      }
+export function useCrmTimelineLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmTimelineQuery, CrmTimelineQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmTimelineQuery, CrmTimelineQueryVariables>(CrmTimelineDocument, options);
+        }
+// @ts-ignore
+export function useCrmTimelineSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmTimelineQuery, CrmTimelineQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmTimelineQuery, CrmTimelineQueryVariables>;
+// @ts-ignore
+export function useCrmTimelineSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmTimelineQuery, CrmTimelineQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmTimelineQuery | undefined, CrmTimelineQueryVariables>;
+export function useCrmTimelineSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmTimelineQuery, CrmTimelineQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmTimelineQuery, CrmTimelineQueryVariables>(CrmTimelineDocument, options);
+        }
+export type CrmTimelineQueryHookResult = ReturnType<typeof useCrmTimelineQuery>;
+export type CrmTimelineLazyQueryHookResult = ReturnType<typeof useCrmTimelineLazyQuery>;
+export type CrmTimelineSuspenseQueryHookResult = ReturnType<typeof useCrmTimelineSuspenseQuery>;
+export const UploadCrmMediaDocument = gql`
+    mutation UploadCrmMedia($file: String!, $fileName: String!) {
+  uploadCrmMedia(file: $file, fileName: $fileName)
+}
+    `;
+
+/**
+ * __useUploadCrmMediaMutation__
+ *
+ * To run a mutation, you first call `useUploadCrmMediaMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUploadCrmMediaMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [uploadCrmMediaMutation, { data, loading, error }] = useUploadCrmMediaMutation({
+ *   variables: {
+ *      file: // value for 'file'
+ *      fileName: // value for 'fileName'
+ *   },
+ * });
+ */
+export function useUploadCrmMediaMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UploadCrmMediaMutation, UploadCrmMediaMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UploadCrmMediaMutation, UploadCrmMediaMutationVariables>(UploadCrmMediaDocument, options);
+      }
+export type UploadCrmMediaMutationHookResult = ReturnType<typeof useUploadCrmMediaMutation>;
 export const CrmObjectSchemaDocument = gql`
     query CrmObjectSchema($object: CrmObject!) {
   crmObjectSchema(object: $object) {

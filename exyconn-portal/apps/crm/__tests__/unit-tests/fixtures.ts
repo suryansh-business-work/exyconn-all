@@ -161,6 +161,8 @@ export function activityRow(
     dueDate: null,
     done: false,
     owner: 'Priya',
+    attachments: [],
+    durationSeconds: null,
     ...overrides,
   };
 }

@@ -18,8 +18,10 @@ export type Scalars = {
 };
 
 export type ActivityInput = {
+  attachments: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate: InputMaybe<Scalars['DateTime']['input']>;
+  durationSeconds: InputMaybe<Scalars['Int']['input']>;
   notes: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   relatedId: InputMaybe<Scalars['String']['input']>;
@@ -1065,6 +1067,25 @@ export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+export type CrmTimelineKind =
+  | 'CALL'
+  | 'CAMPAIGN_EMAIL'
+  | 'DEAL'
+  | 'EMAIL'
+  | 'FORM_SUBMISSION'
+  | 'LEAD'
+  | 'MEETING'
+  | 'NOTE'
+  | 'SUPPORT_TICKET'
+  | 'SYSTEM_EMAIL'
+  | 'TASK'
+  | 'WEBSITE_CHAT'
+  | 'WHATSAPP_LEAD';
+
+export type CrmTimelineObject =
+  | 'COMPANY'
+  | 'CONTACT';
 
 export type CrmViewInput = {
   columns: Array<Scalars['String']['input']>;

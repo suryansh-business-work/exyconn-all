@@ -15,7 +15,7 @@ const contactSchema = new Schema(
     email: { type: String, required: true, lowercase: true, trim: true },
     phone: { type: String, default: '', trim: true },
     title: { type: String, default: '', trim: true },
-    companyId: { type: String, default: '', trim: true },
+    companyId: { type: String, default: '', trim: true, index: true },
     companyName: { type: String, default: '', trim: true },
     status: { type: String, enum: CONTACT_STATUSES, required: true, default: 'ACTIVE' },
     owner: { type: String, required: true, trim: true },
@@ -26,6 +26,10 @@ const contactSchema = new Schema(
   },
   { timestamps: true },
 );
+
+/** Finding the contact behind an address, whichever of theirs it is (timeline, Gmail, bookings). */
+contactSchema.index({ 'emails.address': 1 });
+contactSchema.index({ email: 1 });
 
 export type ContactDocument = InferSchemaType<typeof contactSchema>;
 export const ContactModel: Model<ContactDocument> = model<ContactDocument>(

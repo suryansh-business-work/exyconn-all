@@ -1,0 +1,62 @@
+import { useParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
+import { Alert, Box, Button, Skeleton } from '@exyconn/shell/components/ui';
+import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
+import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { CrmTimelineObject, useGetContactQuery } from '@exyconn/shell/graphql/generated';
+import { Tabber, type TabberItem } from '@exyconn/tabber';
+import { DetailLayout, Timeline } from '../../../records/detail';
+import { ContactOverview } from './ContactOverview';
+import { ContactProfile } from './ContactProfile';
+
+/** A contact's own page: profile, overview and the full activity, at /crm/contacts/:id/:tab. */
+export function ContactDetailPage() {
+  const t = useT();
+  const { id = '' } = useParams();
+  const { data, error, refetch } = useGetContactQuery({
+    variables: { id },
+    fetchPolicy: 'cache-and-network',
+  });
+  const contact = data?.getContact;
+  usePageTitle(contact?.name ?? t('Contact'));
+  const reload = () => {
+    refetch().catch((reloadError: unknown) =>
+      portalLogger.warn('crm: reloading the contact failed', reloadError),
+    );
+  };
+
+  if (error && !contact) {
+    return (
+      <Alert
+        severity="error"
+        action={
+          <Button color="inherit" size="small" onClick={reload}>
+            {t('Retry')}
+          </Button>
+        }
+      >
+        {errorMessage(error, t('Could not load the contact.'))}
+      </Alert>
+    );
+  }
+  if (!contact) {
+    return <Skeleton variant="rounded" height={420} aria-busy />;
+  }
+
+  const tabs: TabberItem[] = [
+    { slug: 'overview', label: 'Overview', content: <ContactOverview contact={contact} /> },
+    {
+      slug: 'activity',
+      label: 'Activity',
+      content: <Timeline object={CrmTimelineObject.Contact} id={contact.id} limit={200} />,
+    },
+  ];
+  return (
+    <Box>
+      <DetailLayout aside={<ContactProfile contact={contact} onSaved={reload} />}>
+        <Tabber basePath={`/crm/contacts/${contact.id}`} items={tabs} ariaLabel="Contact" />
+      </DetailLayout>
+    </Box>
+  );
+}

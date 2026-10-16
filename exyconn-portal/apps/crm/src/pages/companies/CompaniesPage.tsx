@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -19,6 +20,7 @@ import { RecordActions } from '../../records/RecordActions';
 
 /** CRM → Companies: the accounts contacts and deals hang off. */
 export function CompaniesPage() {
+  const navigate = useNavigate();
   const {
     data: statsData,
     loading: statsLoading,
@@ -89,6 +91,7 @@ export function CompaniesPage() {
         <CompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
       columnDefs={records.columnDefs}
+      onRowClick={(row) => navigate(`/crm/companies/${row.id}`)}
       fetchRows={records.fetchRows}
       context={gridContext}
       searchPlaceholder="Search by name, domain, industry or owner…"

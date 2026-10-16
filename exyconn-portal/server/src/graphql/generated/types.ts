@@ -21,9 +21,13 @@ export type Scalars = {
 
 export type Activity = {
   __typename?: 'Activity';
+  /** Photos, documents and call or meeting recordings. */
+  attachments: Array<FileAttachment>;
   createdAt: Scalars['DateTime']['output'];
   done: Scalars['Boolean']['output'];
   dueDate?: Maybe<Scalars['DateTime']['output']>;
+  /** How long a call or meeting lasted, in seconds, when logged. */
+  durationSeconds?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
@@ -36,8 +40,10 @@ export type Activity = {
 };
 
 export type ActivityInput = {
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  durationSeconds?: InputMaybe<Scalars['Int']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   relatedId?: InputMaybe<Scalars['String']['input']>;
@@ -2972,6 +2978,43 @@ export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+/** One touchpoint with a contact or company, from whichever module recorded it. */
+export type CrmTimelineItem = {
+  __typename?: 'CrmTimelineItem';
+  /** Who on our side did it or owns it; empty when nobody did. */
+  actor: Scalars['String']['output'];
+  at: Scalars['DateTime']['output'];
+  attachments: Array<FileAttachment>;
+  id: Scalars['ID']['output'];
+  kind: CrmTimelineKind;
+  status: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  /** Where to open it in the portals; empty when it has no page. */
+  url: Scalars['String']['output'];
+};
+
+export enum CrmTimelineKind {
+  Call = 'CALL',
+  CampaignEmail = 'CAMPAIGN_EMAIL',
+  Deal = 'DEAL',
+  Email = 'EMAIL',
+  FormSubmission = 'FORM_SUBMISSION',
+  Lead = 'LEAD',
+  Meeting = 'MEETING',
+  Note = 'NOTE',
+  SupportTicket = 'SUPPORT_TICKET',
+  SystemEmail = 'SYSTEM_EMAIL',
+  Task = 'TASK',
+  WebsiteChat = 'WEBSITE_CHAT',
+  WhatsappLead = 'WHATSAPP_LEAD'
+}
+
+export enum CrmTimelineObject {
+  Company = 'COMPANY',
+  Contact = 'CONTACT'
+}
 
 export type CrmView = {
   __typename?: 'CrmView';
@@ -6765,6 +6808,8 @@ export type Mutation = {
   updateWebsiteChatSettings: WebsiteChatSettings;
   uploadAvatar: Scalars['String']['output'];
   uploadCmsAsset: CmsAsset;
+  /** Uploads a photo, PDF or audio / video recording (10 MB at most) and returns its URL. */
+  uploadCrmMedia: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
   /** Public: exchanges the emailed code for a client hub pass. */
@@ -9986,6 +10031,12 @@ export type MutationUploadCmsAssetArgs = {
 };
 
 
+export type MutationUploadCrmMediaArgs = {
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+};
+
+
 export type MutationUploadImageArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
@@ -11663,6 +11714,8 @@ export type Query = {
   contractToSign?: Maybe<ContractToSign>;
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
+  /** Everything that happened with the contact or company, newest first (at most 200). */
+  crmTimeline: Array<CrmTimelineItem>;
   crmViews: Array<CrmView>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
@@ -12673,6 +12726,13 @@ export type QueryCrmObjectSchemaArgs = {
 
 export type QueryCrmPropertiesArgs = {
   object: CrmObject;
+};
+
+
+export type QueryCrmTimelineArgs = {
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  object: CrmTimelineObject;
 };
 
 
@@ -18145,6 +18205,9 @@ export type ResolversTypes = ResolversObject<{
   CrmQueryInput: CrmQueryInput;
   CrmSort: ResolverTypeWrapper<CrmSort>;
   CrmSortInput: CrmSortInput;
+  CrmTimelineItem: ResolverTypeWrapper<CrmTimelineItem>;
+  CrmTimelineKind: CrmTimelineKind;
+  CrmTimelineObject: CrmTimelineObject;
   CrmView: ResolverTypeWrapper<CrmView>;
   CrmViewInput: CrmViewInput;
   DatabaseInfo: ResolverTypeWrapper<DatabaseInfo>;
@@ -19045,6 +19108,7 @@ export type ResolversParentTypes = ResolversObject<{
   CrmQueryInput: CrmQueryInput;
   CrmSort: CrmSort;
   CrmSortInput: CrmSortInput;
+  CrmTimelineItem: CrmTimelineItem;
   CrmView: CrmView;
   CrmViewInput: CrmViewInput;
   DatabaseInfo: DatabaseInfo;
@@ -19603,9 +19667,11 @@ export type ResolversParentTypes = ResolversObject<{
 }>;
 
 export type ActivityResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Activity'] = ResolversParentTypes['Activity']> = ResolversObject<{
+  attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   done?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   dueDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  durationSeconds?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21168,6 +21234,19 @@ export type CrmPropertyOptionResolvers<ContextType = GraphQLContext, ParentType 
 export type CrmSortResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmSort'] = ResolversParentTypes['CrmSort']> = ResolversObject<{
   dir?: Resolver<ResolversTypes['SortDir'], ParentType, ContextType>;
   property?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmTimelineItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmTimelineItem'] = ResolversParentTypes['CrmTimelineItem']> = ResolversObject<{
+  actor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['CrmTimelineKind'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23374,6 +23453,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateWebsiteChatSettings?: Resolver<ResolversTypes['WebsiteChatSettings'], ParentType, ContextType, RequireFields<MutationUpdateWebsiteChatSettingsArgs, 'input'>>;
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
   uploadCmsAsset?: Resolver<ResolversTypes['CmsAsset'], ParentType, ContextType, RequireFields<MutationUploadCmsAssetArgs, 'input'>>;
+  uploadCrmMedia?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadCrmMediaArgs, 'file' | 'fileName'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
   verifyClientHubCode?: Resolver<ResolversTypes['ClientHubSignIn'], ParentType, ContextType, RequireFields<MutationVerifyClientHubCodeArgs, 'code' | 'email'>>;
@@ -24240,6 +24320,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
   crmObjectSchema?: Resolver<ResolversTypes['CrmObjectSchema'], ParentType, ContextType, RequireFields<QueryCrmObjectSchemaArgs, 'object'>>;
   crmProperties?: Resolver<Array<ResolversTypes['CrmProperty']>, ParentType, ContextType, RequireFields<QueryCrmPropertiesArgs, 'object'>>;
+  crmTimeline?: Resolver<Array<ResolversTypes['CrmTimelineItem']>, ParentType, ContextType, RequireFields<QueryCrmTimelineArgs, 'id' | 'object'>>;
   crmViews?: Resolver<Array<ResolversTypes['CrmView']>, ParentType, ContextType, RequireFields<QueryCrmViewsArgs, 'object'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
   dnsDomains?: Resolver<Array<ResolversTypes['DnsDomain']>, ParentType, ContextType>;
@@ -26960,6 +27041,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CrmPropertyInfo?: CrmPropertyInfoResolvers<ContextType>;
   CrmPropertyOption?: CrmPropertyOptionResolvers<ContextType>;
   CrmSort?: CrmSortResolvers<ContextType>;
+  CrmTimelineItem?: CrmTimelineItemResolvers<ContextType>;
   CrmView?: CrmViewResolvers<ContextType>;
   DatabaseInfo?: DatabaseInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;

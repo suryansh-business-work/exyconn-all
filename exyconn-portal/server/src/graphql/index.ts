@@ -64,6 +64,8 @@ import { aiTypeDefs, aiResolvers } from '../modules/ai';
 import {
   crmEntitiesTypeDefs,
   crmProfileTypeDefs,
+  crmMediaTypeDefs,
+  crmTimelineTypeDefs,
   crmEntitiesResolvers,
   crmTypeDefs,
   crmResolvers,
@@ -245,6 +247,8 @@ export const typeDefs = [
   licencesTypeDefs,
   crmEntitiesTypeDefs,
   crmProfileTypeDefs,
+  crmMediaTypeDefs,
+  crmTimelineTypeDefs,
   crmRecordsTypeDefs,
   productsInventoryTypeDefs,
   productsPurchasingTypeDefs,

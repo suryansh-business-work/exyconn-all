@@ -6,7 +6,9 @@ import { Login } from '@exyconn/login';
 import { App } from '../../src/App';
 import { CrmOverviewPage, CrmPage } from '../../src/pages/crm';
 import { CompaniesPage } from '../../src/pages/companies';
+import { CompanyDetailPage } from '../../src/pages/companies/detail';
 import { ContactsPage } from '../../src/pages/contacts';
+import { ContactDetailPage } from '../../src/pages/contacts/detail';
 import { DealsListPage, DealsPage } from '../../src/pages/deals';
 import { ActivitiesPage } from '../../src/pages/activities';
 import { EmailVerifierPage } from '../../src/pages/email-verifier';
@@ -58,7 +60,9 @@ describe('App', () => {
       ['/crm', CrmOverviewPage],
       ['/crm/leads', CrmPage],
       ['/crm/companies', CompaniesPage],
+      ['/crm/companies/:id/:tab?', CompanyDetailPage],
       ['/crm/contacts', ContactsPage],
+      ['/crm/contacts/:id/:tab?', ContactDetailPage],
       ['/crm/deals', DealsPage],
       ['/crm/deals/list', DealsListPage],
       ['/crm/activities', ActivitiesPage],

@@ -74,6 +74,15 @@ export const CHAT_UPLOAD: UploadPolicy = {
   maxBytes: 10 * MB,
 };
 
+/**
+ * A file on a CRM activity: a photo, a document, or a call / meeting recording (Chrome records
+ * WebM, Safari MP4). 10 MB keeps the base64 body inside the /graphql limit.
+ */
+export const CRM_MEDIA_UPLOAD: UploadPolicy = {
+  kinds: new Set<UploadKind>([...RASTER_KINDS, 'pdf', 'mp4', 'webm', 'ogg', 'mp3', 'wav']),
+  maxBytes: 10 * MB,
+};
+
 /** A web font for a site's design system (Website › Design System): WOFF2, WOFF, TTF or OTF. */
 export const FONT_UPLOAD: UploadPolicy = {
   kinds: new Set<UploadKind>(['woff2', 'woff', 'ttf', 'otf']),

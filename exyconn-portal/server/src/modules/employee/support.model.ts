@@ -40,7 +40,7 @@ const supportTicketSchema = new Schema(
     clientName: { type: String, default: '', trim: true },
     /** Who to write back to on a customer ticket. Empty on an employee ticket. */
     requesterName: { type: String, default: '', trim: true },
-    requesterEmail: { type: String, default: '', trim: true, lowercase: true },
+    requesterEmail: { type: String, default: '', trim: true, lowercase: true, index: true },
     subject: { type: String, required: true, trim: true },
     category: { type: String, enum: SUPPORT_CATEGORIES, required: true, default: 'OTHER' },
     description: { type: String, required: true, trim: true },

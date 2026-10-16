@@ -12,6 +12,8 @@ import { ROLES } from '../../constants/roles';
 import { emitWebhookBestEffort } from '../integrations';
 import { sanitizeCustom } from './records';
 import { withPrimaries, crmProfileResolvers, type PointsInput } from './crm.profile';
+import { crmMediaResolvers, withAttachments } from './crm.media';
+import { crmTimelineResolvers } from './timeline';
 import type { CrmObject } from './records/crm.objects';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
@@ -69,6 +71,8 @@ interface ActivityInput {
   dueDate?: Date | null;
   done: boolean;
   owner: string;
+  attachments?: unknown[];
+  durationSeconds?: number | null;
 }
 
 export const companiesService = createCrudService<CompanyInput>(CompanyModel as never, 'Company');
@@ -97,7 +101,7 @@ const contacts = createCrudResolvers(contactsService, {
   roles: crmRoles,
   table: {
     searchFields: ['name', 'email', 'companyName', 'title', 'owner'],
-    filterFields: ['name', 'email', 'companyName', 'status', 'owner'],
+    filterFields: ['name', 'email', 'companyId', 'companyName', 'status', 'owner'],
     sortFields: ['name', 'email', 'companyName', 'status', 'owner', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
@@ -253,6 +257,7 @@ const withCustom =
 export const crmEntitiesResolvers = {
   /** Written before the field existed, a `.lean()` row comes back without it. */
   Contact: crmProfileResolvers.Contact,
+  Activity: crmMediaResolvers.Activity,
   Company: {
     ...crmProfileResolvers.Company,
     clientId: (company: { clientId?: string | null }) => company.clientId ?? '',
@@ -263,6 +268,7 @@ export const crmEntitiesResolvers = {
   },
   Query: {
     dealForecast,
+    ...crmTimelineResolvers.Query,
     ...companies.Query,
     ...contacts.Query,
     ...deals.Query,
@@ -277,6 +283,9 @@ export const crmEntitiesResolvers = {
     updateContact: withCustom('CONTACT', contacts.Mutation.updateContact),
     ...deals.Mutation,
     ...activities.Mutation,
+    createActivity: withAttachments(activities.Mutation.createActivity),
+    updateActivity: withAttachments(activities.Mutation.updateActivity),
+    ...crmMediaResolvers.Mutation,
     updateDeal,
     setDealStage,
     promoteCompanyToClient,
