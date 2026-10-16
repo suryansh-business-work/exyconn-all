@@ -1,0 +1,96 @@
+# Google Maps: the keys in Tech > Environment Variables, the CRM lead generator
+# (CRM > Tools > Lead generator) and the map on a company or contact.
+
+fragment GoogleMapsConfigFields on GoogleMapsConfig {
+  id
+  label
+  hasBrowserKey
+  browserKeyHint
+  hasServerKey
+  serverKeyHint
+  isActive
+  updatedAt
+}
+
+query GoogleMapsConfigs {
+  googleMapsConfigs {
+    ...GoogleMapsConfigFields
+  }
+}
+
+mutation CreateGoogleMapsConfig($input: GoogleMapsConfigInput!) {
+  createGoogleMapsConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateGoogleMapsConfig($id: ID!, $input: GoogleMapsConfigInput!) {
+  updateGoogleMapsConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation TestGoogleMapsConfig($id: ID!) {
+  testGoogleMapsConfig(id: $id)
+}
+
+mutation DeleteGoogleMapsConfig($id: ID!) {
+  deleteGoogleMapsConfig(id: $id)
+}
+
+query GoogleMapsClientConfig {
+  googleMapsClientConfig {
+    browserKey
+    placesReady
+  }
+}
+
+fragment LeadPlaceFields on LeadPlace {
+  placeId
+  name
+  address
+  city
+  country
+  phone
+  website
+  rating
+  ratingCount
+  lat
+  lng
+  mapUrl
+  primaryType
+  existingCompanyId
+}
+
+query SearchLeadPlaces($input: LeadSearchInput!) {
+  searchLeadPlaces(input: $input) {
+    nextPageToken
+    places {
+      ...LeadPlaceFields
+    }
+  }
+}
+
+mutation FindLeadEmails($website: String!) {
+  findLeadEmails(website: $website) {
+    emails
+    status
+    message
+  }
+}
+
+mutation ImportLeadsToCrm($leads: [LeadImportInput!]!) {
+  importLeadsToCrm(leads: $leads) {
+    created
+    skipped
+    filed {
+      placeId
+      companyId
+    }
+    skips {
+      placeId
+      name
+      reason
+    }
+  }
+}

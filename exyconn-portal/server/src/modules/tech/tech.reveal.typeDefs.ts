@@ -26,6 +26,8 @@ export const techRevealTypeDefs = gql`
     SOCIAL_APP_CLIENT_SECRET
     GOOGLE_SIGN_IN_CLIENT_SECRET
     GMAIL_CLIENT_SECRET
+    GOOGLE_MAPS_BROWSER_KEY
+    GOOGLE_MAPS_SERVER_KEY
   }
 
   extend type Mutation {

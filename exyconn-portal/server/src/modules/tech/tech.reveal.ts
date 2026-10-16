@@ -16,6 +16,7 @@ import {
 import { CloudflareConfigModel } from '../dns/cloudflare-config.model';
 import { GodaddyConfigModel } from '../dns/godaddy-config.model';
 import { EmailVerifierConfigModel } from '../email-verification/email-verifier-config.model';
+import { GoogleMapsConfigModel } from '../google-maps/google-maps-config.model';
 import { SonarConfigModel } from '../security/sonar-config.model';
 import { SocialAppConfigModel } from '../social-accounts/social.models';
 import { GoogleSignInConfigModel } from '../auth/google/google-sign-in.models';
@@ -88,6 +89,8 @@ const SECRETS: Readonly<Record<string, SecretSource>> = {
     'proxyPassword',
     'proxy password',
   ),
+  GOOGLE_MAPS_BROWSER_KEY: source(GoogleMapsConfigModel, 'browserKey', 'Google Maps browser key'),
+  GOOGLE_MAPS_SERVER_KEY: source(GoogleMapsConfigModel, 'serverKey', 'Google Places server key'),
   GOOGLE_SIGN_IN_CLIENT_SECRET: source(
     GoogleSignInConfigModel,
     'clientSecret',

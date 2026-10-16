@@ -51,6 +51,7 @@ const CONNECTION_TESTS: ReadonlySet<string> = new Set([
   'testPayoneerConnection',
   'testSocialAppConfig',
   'testEmailVerifierConfig',
+  'testGoogleMapsConfig',
   'testGoogleSignInConfig',
   'testGmailConfig',
   'sendCrmEmail',
