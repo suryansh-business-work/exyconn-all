@@ -88,6 +88,7 @@ export {
   StepContent,
   FormControlLabel,
   FormHelperText,
+  FormLabel,
   useMediaQuery,
 } from '@mui/material';
 export type {

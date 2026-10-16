@@ -21,6 +21,7 @@ import {
   useListDealsQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { ActivityRow } from './activity.types';
+import { RelatedPicker } from './related-picker.fields';
 
 const TYPE_OPTIONS = enumOptions(Object.values(ActivityType));
 const SUBJECT_OPTIONS = enumOptions(Object.values(ActivitySubject));
@@ -64,8 +65,8 @@ export function ActivityForm({ initial, onDone, onCancel }: Readonly<ActivityFor
   const [createActivity] = useCreateActivityMutation();
   const [updateActivity] = useUpdateActivityMutation();
   const { data: dealsData } = useListDealsQuery();
-  const { data: contactsData } = useListContactsQuery();
-  const { data: companiesData } = useListCompaniesQuery();
+  const { data: contactsData, refetch: refetchContacts } = useListContactsQuery();
+  const { data: companiesData, refetch: refetchCompanies } = useListCompaniesQuery();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
@@ -111,7 +112,12 @@ export function ActivityForm({ initial, onDone, onCancel }: Readonly<ActivityFor
       <RhfTextField name="subject" label="Subject" />
       <RhfSelect name="type" label="Type" options={TYPE_OPTIONS} />
       <RhfSelect name="relatedType" label="About" options={SUBJECT_OPTIONS} />
-      <RhfSelect name="relatedId" label="Related to" options={options} />
+      <RelatedPicker
+        relatedType={relatedType}
+        options={options}
+        refetchContacts={refetchContacts}
+        refetchCompanies={refetchCompanies}
+      />
       <RhfDatePicker name="dueDate" label="Due" />
       <RhfSelect
         name="done"

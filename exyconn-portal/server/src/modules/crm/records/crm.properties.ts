@@ -3,6 +3,7 @@ import { badRequest, notFound } from '../../../utils/errors';
 import type { GraphQLContext } from '../../../middleware/auth';
 import { CrmPropertyModel } from './crm-property.model';
 import {
+  CHOICE_TYPES,
   isBuiltInKey,
   OBJECT_DEFS,
   type CrmObject,
@@ -61,13 +62,13 @@ const present = (row: PropertyRow) => ({
 });
 
 function cleanOptions(type: PropertyType, options: PropertyOption[]): PropertyOption[] {
-  if (type !== 'ENUM') {
+  if (!CHOICE_TYPES.has(type)) {
     return [];
   }
   const cleaned = options.map((o) => ({ value: o.value.trim(), label: o.label.trim() }));
   const values = new Set(cleaned.map((o) => o.value.toLowerCase()));
   if (cleaned.length === 0 || cleaned.length > MAX_OPTIONS) {
-    badRequest(`A dropdown needs 1 to ${MAX_OPTIONS} choices`);
+    badRequest(`A dropdown, radio or multi-select needs 1 to ${MAX_OPTIONS} choices`);
   }
   if (cleaned.some((o) => !o.value || !o.label) || values.size !== cleaned.length) {
     badRequest('Every choice needs a value and a label, and no two choices may share a value');

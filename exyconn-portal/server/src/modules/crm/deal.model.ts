@@ -21,9 +21,9 @@ export const CLOSED_DEAL_STAGES: ReadonlySet<string> = new Set(['WON', 'LOST']);
 const dealSchema = new Schema(
   {
     title: { type: String, required: true, trim: true },
-    companyId: { type: String, default: '', trim: true },
+    companyId: { type: String, default: '', trim: true, index: true },
     companyName: { type: String, default: '', trim: true },
-    contactId: { type: String, default: '', trim: true },
+    contactId: { type: String, default: '', trim: true, index: true },
     contactName: { type: String, default: '', trim: true },
     stage: { type: String, enum: DEAL_STAGES, required: true, default: 'QUALIFYING' },
     value: { type: Number, required: true, min: 0, default: 0 },

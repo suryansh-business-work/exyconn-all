@@ -19,7 +19,7 @@ const campaignSendSchema = new Schema(
   {
     campaignId: { type: String, required: true, trim: true, index: true },
     audienceListId: { type: String, required: true, trim: true },
-    to: { type: String, required: true, trim: true },
+    to: { type: String, required: true, trim: true, index: true },
     recipientName: { type: String, default: '', trim: true },
     status: { type: String, enum: CAMPAIGN_SEND_STATUSES, required: true },
     /** Why it failed, in the transport's own words — or why it was skipped. Empty on success. */

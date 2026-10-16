@@ -6,7 +6,7 @@ export const LEAD_STAGES = ['NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'LOST'] as c
 const leadSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, lowercase: true, trim: true },
+    email: { type: String, required: true, lowercase: true, trim: true, index: true },
     source: { type: String, enum: LEAD_SOURCES, required: true, default: 'WEBSITE' },
     stage: { type: String, enum: LEAD_STAGES, required: true, default: 'NEW' },
     value: { type: Number, required: true, min: 0 },

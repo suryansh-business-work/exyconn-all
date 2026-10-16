@@ -482,6 +482,14 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Pipeline',
       },
       {
+        // Calendly-style meeting types with a public booking link, and their bookings.
+        key: 'crm-meetings',
+        label: 'Meetings',
+        path: '/crm/meetings',
+        icon: EventAvailableIcon,
+        group: 'Pipeline',
+      },
+      {
         key: 'crm-companies',
         label: 'Companies',
         path: '/crm/companies',
@@ -506,7 +514,7 @@ export const MODULES: ModuleDefinition[] = [
       {
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
-        label: 'Properties',
+        label: 'Custom Properties',
         path: '/crm/settings/properties',
         icon: TuneIcon,
         group: 'Configuration',

@@ -1,0 +1,125 @@
+# CRM > Meetings: meeting types people book from a public link, and the bookings they make.
+fragment MeetingTypeFields on MeetingType {
+  id
+  title
+  slug
+  bookingPath
+  description
+  durationMinutes
+  location
+  hostName
+  hostEmail
+  timezone
+  weeklyHours {
+    day
+    enabled
+    start
+    end
+  }
+  bufferMinutes
+  minNoticeHours
+  maxDaysAhead
+  active
+  createdAt
+}
+
+query MeetingTypes {
+  meetingTypes {
+    ...MeetingTypeFields
+  }
+}
+
+mutation CreateMeetingType($input: MeetingTypeInput!) {
+  createMeetingType(input: $input) {
+    ...MeetingTypeFields
+  }
+}
+
+mutation UpdateMeetingType($id: ID!, $input: MeetingTypeInput!) {
+  updateMeetingType(id: $id, input: $input) {
+    ...MeetingTypeFields
+  }
+}
+
+mutation DeleteMeetingType($id: ID!) {
+  deleteMeetingType(id: $id)
+}
+
+fragment MeetingBookingFields on MeetingBooking {
+  id
+  meetingTypeId
+  meetingTitle
+  hostName
+  startAt
+  endAt
+  name
+  email
+  notes
+  guests
+  timezone
+  status
+  contactId
+  createdAt
+}
+
+query MeetingBookings($page: Int!, $pageSize: Int!) {
+  meetingBookings(page: $page, pageSize: $pageSize) {
+    totalCount
+    rows {
+      ...MeetingBookingFields
+    }
+  }
+}
+
+mutation CancelMeetingBooking($id: ID!) {
+  cancelMeetingBooking(id: $id) {
+    ...MeetingBookingFields
+  }
+}
+
+query MeetingBookingPagePath {
+  meetingBookingPagePath
+}
+
+# The public booking pages (crm.exyconn.com/book/:org and /book/:org/:slug): no sign-in.
+fragment PublicMeetingFields on PublicMeeting {
+  slug
+  title
+  description
+  durationMinutes
+  hostName
+  timezone
+  organizationName
+  organizationSlug
+  hasLocation
+}
+
+query PublicBookingPage($org: String!) {
+  publicBookingPage(org: $org) {
+    organizationName
+    organizationSlug
+    meetings {
+      ...PublicMeetingFields
+    }
+  }
+}
+
+query PublicMeeting($org: String!, $slug: String!) {
+  publicMeeting(org: $org, slug: $slug) {
+    ...PublicMeetingFields
+  }
+}
+
+query PublicMeetingSlots($org: String!, $slug: String!, $from: DateTime!, $to: DateTime!) {
+  publicMeetingSlots(org: $org, slug: $slug, from: $from, to: $to)
+}
+
+mutation BookMeeting($org: String!, $slug: String!, $input: BookMeetingInput!) {
+  bookMeeting(org: $org, slug: $slug, input: $input) {
+    title
+    hostName
+    startAt
+    endAt
+    location
+  }
+}

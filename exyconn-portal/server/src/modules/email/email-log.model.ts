@@ -18,7 +18,7 @@ const emailLogSchema = new Schema(
   {
     templateKey: { type: String, required: true, trim: true, index: true },
     templateName: { type: String, default: '', trim: true },
-    to: { type: String, required: true, trim: true },
+    to: { type: String, required: true, trim: true, index: true },
     subject: { type: String, required: true, trim: true },
     status: { type: String, enum: EMAIL_LOG_STATUSES, required: true },
     /** The failure reason, in the words the transport gave. Empty on success. */

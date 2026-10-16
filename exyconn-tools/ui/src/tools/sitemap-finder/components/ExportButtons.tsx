@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Button, Paper, Typography, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { Download, Code, TableChart, Description, ContentCopy, CheckCircle } from '@mui/icons-material';
 import { SitemapResult } from '../types';
+import { useCopiedFlag } from '../../../shared/hooks/useCopiedFlag';
 
 interface ExportButtonsProps {
   result: SitemapResult;
@@ -9,7 +10,7 @@ interface ExportButtonsProps {
 
 const ExportButtons: React.FC<ExportButtonsProps> = ({ result }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [copied, setCopied] = React.useState(false);
+  const { copied, flashCopied } = useCopiedFlag();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -86,8 +87,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ result }) => {
   const copyAllUrls = () => {
     const urls = result.sitemapsFound.map((s) => s.url).join('\n');
     navigator.clipboard.writeText(urls);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    flashCopied();
     handleClose();
   };
 

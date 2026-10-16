@@ -21,6 +21,9 @@ const websiteSubmissionSchema = new Schema(
   { timestamps: true },
 );
 
+/** The CRM timeline finds a person's submissions by the email they typed. */
+websiteSubmissionSchema.index({ 'submissionData.email': 1 });
+
 export type WebsiteSubmissionDocument = InferSchemaType<typeof websiteSubmissionSchema>;
 export const WebsiteSubmissionModel: Model<WebsiteSubmissionDocument> =
   model<WebsiteSubmissionDocument>('WebsiteSubmission', websiteSubmissionSchema);

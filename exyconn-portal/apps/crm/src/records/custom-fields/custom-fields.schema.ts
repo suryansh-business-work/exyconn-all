@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EMAIL, HTTP_URL, PHONE } from '@exyconn/regex';
 import { CrmPropertyType } from '@exyconn/shell/graphql/generated';
-import type { CrmPropertyInfo } from '../schema';
+import { CHOICE_TYPES, type CrmPropertyInfo } from '../schema';
 
 /** What the forms need to know about a custom property; both property queries return it. */
 export type CustomPropertyDef = Pick<
@@ -16,7 +16,10 @@ export type CustomPropertyDef = Pick<
  */
 export type CustomFormValues = Record<string, string>;
 /** A custom value as the server stores it. */
-export type CustomInputValue = string | number | boolean;
+export type CustomInputValue = string | number | boolean | string[];
+
+/** How a multi-select's choices sit in the form's one string: one value per line. */
+export const MULTI_SEPARATOR = '\n';
 
 /** The longest text the server keeps in one value. */
 const MAX_TEXT = 10_000;
@@ -30,6 +33,7 @@ export const CUSTOM_FIELD_MESSAGES = {
   url: 'Enter a full web address, starting with https://',
   number: 'Enter a number',
   choice: 'Pick one of the choices',
+  file: 'Upload the file again',
 } as const;
 
 const PATTERNS: Partial<Record<CrmPropertyType, { pattern: RegExp; message: string }>> = {
@@ -48,7 +52,14 @@ function acceptsValue(property: CustomPropertyDef, value: string): boolean {
     case CrmPropertyType.Number:
       return isNumber(value);
     case CrmPropertyType.Enum:
+    case CrmPropertyType.Radio:
       return property.options.some((option) => option.value === value);
+    case CrmPropertyType.MultiSelect:
+      return value
+        .split(MULTI_SEPARATOR)
+        .every((one) => property.options.some((option) => option.value === one));
+    case CrmPropertyType.File:
+      return value.startsWith('https://');
     case CrmPropertyType.Boolean:
       return BOOLEAN_VALUES.has(value);
     default:
@@ -60,8 +71,11 @@ function invalidMessage(type: CrmPropertyType): string {
   if (type === CrmPropertyType.Number) {
     return CUSTOM_FIELD_MESSAGES.number;
   }
-  if (type === CrmPropertyType.Enum || type === CrmPropertyType.Boolean) {
+  if (CHOICE_TYPES.has(type) || type === CrmPropertyType.Boolean) {
     return CUSTOM_FIELD_MESSAGES.choice;
+  }
+  if (type === CrmPropertyType.File) {
+    return CUSTOM_FIELD_MESSAGES.file;
   }
   return PATTERNS[type]?.message ?? CUSTOM_FIELD_MESSAGES.required;
 }
@@ -95,6 +109,9 @@ function toFormValue(property: CustomPropertyDef, stored: unknown): string {
     // Stored as an ISO date or date-time; the form edits the calendar day.
     return String(stored).slice(0, 10);
   }
+  if (Array.isArray(stored)) {
+    return stored.map(String).join(MULTI_SEPARATOR);
+  }
   return String(stored);
 }
 
@@ -119,6 +136,9 @@ function toInputValue(property: CustomPropertyDef, value: string): CustomInputVa
   }
   if (property.type === CrmPropertyType.Boolean) {
     return value === 'true';
+  }
+  if (property.type === CrmPropertyType.MultiSelect) {
+    return value.split(MULTI_SEPARATOR).filter(Boolean);
   }
   return value;
 }

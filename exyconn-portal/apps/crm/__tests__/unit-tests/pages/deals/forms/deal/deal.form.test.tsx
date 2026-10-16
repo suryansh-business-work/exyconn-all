@@ -79,7 +79,12 @@ describe('DealForm', () => {
   it('labels each contact with their company when they have one', async () => {
     renderForm();
 
-    expect(await optionsOf('Contact')).toEqual(['Asha Rao — Acme', 'Lone Freelancer']);
+    expect(await optionsOf('Contact')).toEqual([
+      'Create Contact',
+      'None',
+      'Asha Rao — Acme',
+      'Lone Freelancer',
+    ]);
   });
 
   it('creates a qualifying deal, carrying the company and contact names', async () => {

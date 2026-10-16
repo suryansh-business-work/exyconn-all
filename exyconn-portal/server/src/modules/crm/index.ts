@@ -78,6 +78,9 @@ export const crmResolvers = {
 
 export { crmTypeDefs } from './crm.typeDefs';
 export { crmEntitiesTypeDefs } from './crm.entities.typeDefs';
+export { crmProfileTypeDefs } from './crm.profile.typeDefs';
+export { crmMediaTypeDefs } from './crm.media.typeDefs';
+export { crmTimelineTypeDefs } from './timeline';
 export { crmRecordsTypeDefs, crmRecordsResolvers } from './records';
 export {
   crmEntitiesResolvers,

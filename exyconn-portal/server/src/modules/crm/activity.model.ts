@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { attachmentSchema } from '../../lib/attachments';
 
 /** What happened, or is meant to happen. */
 export const ACTIVITY_TYPES = ['CALL', 'EMAIL', 'MEETING', 'NOTE', 'TASK'] as const;
@@ -17,11 +18,15 @@ const activitySchema = new Schema(
     subject: { type: String, required: true, trim: true },
     notes: { type: String, default: '' },
     relatedType: { type: String, enum: ACTIVITY_SUBJECTS, required: true, default: 'DEAL' },
-    relatedId: { type: String, default: '', trim: true },
+    relatedId: { type: String, default: '', trim: true, index: true },
     relatedName: { type: String, default: '', trim: true },
     dueDate: { type: Date, default: null },
     done: { type: Boolean, required: true, default: false },
     owner: { type: String, required: true, trim: true },
+    /** Photos, documents and call or meeting recordings (audio or video). */
+    attachments: { type: [attachmentSchema], default: [] },
+    /** How long a call or meeting lasted, when someone logged it. */
+    durationSeconds: { type: Number, default: null },
   },
   { timestamps: true },
 );

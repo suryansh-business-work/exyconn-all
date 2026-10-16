@@ -22,6 +22,7 @@ import { Biotech, Search, OpenInNew, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
+import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
 
 interface RelatedSite {
   domain: string;
@@ -40,7 +41,7 @@ const CompetitorFinder: React.FC = () => {
   const [result, setResult] = useState<CompetitorResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, flashCopied } = useCopiedFlag();
 
   const handleFind = async () => {
     if (!domain.trim()) return;
@@ -72,8 +73,7 @@ const CompetitorFinder: React.FC = () => {
   const handleCopy = (sites: RelatedSite[]) => {
     const text = sites.map((r) => r.domain).join('\n');
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    flashCopied();
   };
 
   return (

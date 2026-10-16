@@ -11,6 +11,9 @@ import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { emitWebhookBestEffort } from '../integrations';
 import { sanitizeCustom } from './records';
+import { withPrimaries, crmProfileResolvers, type PointsInput } from './crm.profile';
+import { crmMediaResolvers, withAttachments } from './crm.media';
+import { crmTimelineResolvers } from './timeline';
 import type { CrmObject } from './records/crm.objects';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
@@ -33,7 +36,7 @@ interface CompanyInput {
 
 interface ContactInput {
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
   title?: string;
   companyId?: string;
@@ -68,6 +71,8 @@ interface ActivityInput {
   dueDate?: Date | null;
   done: boolean;
   owner: string;
+  attachments?: unknown[];
+  durationSeconds?: number | null;
 }
 
 export const companiesService = createCrudService<CompanyInput>(CompanyModel as never, 'Company');
@@ -96,7 +101,7 @@ const contacts = createCrudResolvers(contactsService, {
   roles: crmRoles,
   table: {
     searchFields: ['name', 'email', 'companyName', 'title', 'owner'],
-    filterFields: ['name', 'email', 'companyName', 'status', 'owner'],
+    filterFields: ['name', 'email', 'companyId', 'companyName', 'status', 'owner'],
     sortFields: ['name', 'email', 'companyName', 'status', 'owner', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
@@ -236,18 +241,25 @@ const dealForecast = async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
 
 type Save = (p: unknown, a: never, c: GraphQLContext) => unknown;
 
-/** A create or update whose custom values are checked against the company's properties first. */
+/**
+ * A create or update whose custom values are checked against the company's properties first, and
+ * whose email and phone lists are tidied with the primary copied into `email` / `phone`.
+ */
 const withCustom =
   (object: CrmObject, save: Save): Save =>
   async (p, args, ctx) => {
-    const { input, ...rest } = args as unknown as { input: { custom?: unknown } };
+    const { input, ...rest } = args as unknown as { input: PointsInput & { custom?: unknown } };
     const custom = await sanitizeCustom(object, input.custom);
-    return save(p, { ...rest, input: { ...input, custom } } as unknown as never, ctx);
+    const profiled = withPrimaries({ ...input, custom }, object === 'CONTACT');
+    return save(p, { ...rest, input: profiled } as unknown as never, ctx);
   };
 
 export const crmEntitiesResolvers = {
   /** Written before the field existed, a `.lean()` row comes back without it. */
+  Contact: crmProfileResolvers.Contact,
+  Activity: crmMediaResolvers.Activity,
   Company: {
+    ...crmProfileResolvers.Company,
     clientId: (company: { clientId?: string | null }) => company.clientId ?? '',
     isClient: (company: { clientId?: string | null }) => Boolean(company.clientId),
   },
@@ -256,6 +268,7 @@ export const crmEntitiesResolvers = {
   },
   Query: {
     dealForecast,
+    ...crmTimelineResolvers.Query,
     ...companies.Query,
     ...contacts.Query,
     ...deals.Query,
@@ -270,6 +283,9 @@ export const crmEntitiesResolvers = {
     updateContact: withCustom('CONTACT', contacts.Mutation.updateContact),
     ...deals.Mutation,
     ...activities.Mutation,
+    createActivity: withAttachments(activities.Mutation.createActivity),
+    updateActivity: withAttachments(activities.Mutation.updateActivity),
+    ...crmMediaResolvers.Mutation,
     updateDeal,
     setDealStage,
     promoteCompanyToClient,

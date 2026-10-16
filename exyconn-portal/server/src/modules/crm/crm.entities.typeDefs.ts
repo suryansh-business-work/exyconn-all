@@ -127,7 +127,8 @@ export const crmEntitiesTypeDefs = gql`
 
   input ContactInput {
     name: String!
-    email: String!
+    "The primary address; or send emails instead."
+    email: String
     phone: String
     title: String
     companyId: String

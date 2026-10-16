@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { ContentCopy, CheckCircle, Download } from '@mui/icons-material';
 import { toText } from '../../utils/toText';
+import { useCopiedFlag } from '../../hooks/useCopiedFlag';
 
 interface ResultDisplayProps {
   title: string;
@@ -38,14 +39,13 @@ const ResultValue: React.FC<Readonly<{ value: unknown }>> = ({ value }) => {
 };
 
 const DomainResultDisplay: React.FC<ResultDisplayProps> = ({ title, icon, data, children }) => {
-  const [copied, setCopied] = React.useState(false);
+  const { copied, flashCopied } = useCopiedFlag();
 
   if (!data) return null;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    flashCopied();
   };
 
   const handleDownload = () => {

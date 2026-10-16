@@ -53,8 +53,8 @@ export function PropertiesPage() {
   return (
     <Box>
       <PageHeader
-        title="Properties"
-        subtitle="The fields kept on every lead, company and contact"
+        title="Custom Properties"
+        subtitle="The fields kept on every lead, company and contact: text, dropdowns, radio buttons, checkboxes, files and more"
       />
       <Box sx={readingPanel}>
         <Tabber basePath={PROPERTIES_PATH} items={TABS} ariaLabel="Record types" />

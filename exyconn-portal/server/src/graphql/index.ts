@@ -4,6 +4,8 @@ import { baseTypeDefs } from './base.typeDefs';
 import { authTypeDefs } from '../modules/auth/auth.typeDefs';
 import { authResolvers } from '../modules/auth/auth.resolvers';
 import { googleSignInTypeDefs, googleSignInResolvers } from '../modules/auth/google';
+import { gmailTypeDefs, gmailResolvers } from '../modules/gmail';
+import { meetingTypeDefs, meetingResolvers } from '../modules/crm/meetings';
 import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
@@ -63,6 +65,9 @@ import '../modules/search/providers';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
 import {
   crmEntitiesTypeDefs,
+  crmProfileTypeDefs,
+  crmMediaTypeDefs,
+  crmTimelineTypeDefs,
   crmEntitiesResolvers,
   crmTypeDefs,
   crmResolvers,
@@ -228,6 +233,8 @@ export const typeDefs = [
   baseTypeDefs,
   authTypeDefs,
   googleSignInTypeDefs,
+  gmailTypeDefs,
+  meetingTypeDefs,
   organizationsTypeDefs,
   adminTypeDefs,
   financeTypeDefs,
@@ -243,6 +250,9 @@ export const typeDefs = [
   assetsTypeDefs,
   licencesTypeDefs,
   crmEntitiesTypeDefs,
+  crmProfileTypeDefs,
+  crmMediaTypeDefs,
+  crmTimelineTypeDefs,
   crmRecordsTypeDefs,
   productsInventoryTypeDefs,
   productsPurchasingTypeDefs,
@@ -324,6 +334,8 @@ export const typeDefs = [
 export const resolvers = mergeResolvers([
   authResolvers,
   googleSignInResolvers,
+  gmailResolvers,
+  meetingResolvers,
   organizationsResolvers,
   adminResolvers,
   reportingResolvers,

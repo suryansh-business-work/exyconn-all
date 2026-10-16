@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
-import { ContactStatus } from '@exyconn/shell/graphql/generated';
+import { ContactStatus, LifecycleStage } from '@exyconn/shell/graphql/generated';
 import { ContactForm } from '../../../../../../src/pages/contacts/forms/contact';
 import { renderWithProviders } from '../../../../test-utils';
 import { companyRow, contactRow } from '../../../../fixtures';
@@ -34,11 +34,38 @@ function renderForm(initial: ReturnType<typeof contactRow> | null = null) {
   return { onDone, onCancel };
 }
 
+async function addEmail(address: string) {
+  await press('Add email');
+  await fillField('Email', address);
+}
+
+async function addPhone(number: string) {
+  await press('Add phone');
+  await fillField('Phone', number);
+}
+
 async function fillRequired() {
   await fillField('Full name', 'Ravi Menon');
-  await fillField('Email', 'ravi@globex.com');
+  await addEmail('ravi@globex.com');
   await fillField('Owner', 'Priya');
 }
+
+/** Everything a new contact sends beyond what a test fills in. */
+const BLANK_PROFILE = {
+  phones: [],
+  website: '',
+  linkedinUrl: '',
+  twitterUrl: '',
+  address: '',
+  city: '',
+  country: '',
+  timezone: '',
+  description: '',
+  department: '',
+  lifecycleStage: LifecycleStage.Lead,
+  leadSource: '',
+  languages: [],
+};
 
 describe('ContactForm', () => {
   beforeEach(() => {
@@ -54,7 +81,7 @@ describe('ContactForm', () => {
     await press('Create');
 
     expect(await screen.findByText('Name is required')).toBeInTheDocument();
-    expect(screen.getByText('Email is required')).toBeInTheDocument();
+    expect(screen.getByText('Add at least one email address')).toBeInTheDocument();
     expect(screen.getByText('Owner is required')).toBeInTheDocument();
     expect(gql.create).not.toHaveBeenCalled();
   });
@@ -63,7 +90,7 @@ describe('ContactForm', () => {
     renderForm();
     await fillRequired();
     await fillField('Email', 'ravi.globex');
-    await fillField('Phone', 'call me');
+    await addPhone('call me');
 
     await press('Create');
 
@@ -75,13 +102,13 @@ describe('ContactForm', () => {
   it('offers the accounts as companies', async () => {
     renderForm();
 
-    expect(await optionsOf('Company')).toEqual(['Acme', 'Globex']);
+    expect(await optionsOf('Company')).toEqual(['Create Company', 'None', 'Acme', 'Globex']);
   });
 
   it('creates a contact, storing the chosen company name beside its id', async () => {
     const { onDone } = renderForm();
     await fillRequired();
-    await fillField('Phone', '+91 98765 43210');
+    await addPhone('+91 98765 43210');
     await chooseOption('Company', 'Globex');
 
     await press('Create');
@@ -90,9 +117,10 @@ describe('ContactForm', () => {
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
         input: {
+          ...BLANK_PROFILE,
           name: 'Ravi Menon',
-          email: 'ravi@globex.com',
-          phone: '+91 98765 43210',
+          emails: [{ address: 'ravi@globex.com', label: 'Work', primary: true }],
+          phones: [{ number: '+91 98765 43210', label: 'Work', primary: true }],
           title: '',
           companyId: 'company-2',
           companyName: 'Globex',

@@ -55,6 +55,7 @@ describe('CompanyForm', () => {
     renderForm();
     await fillRequired();
     await fillField('Domain', 'https://globex.com/about');
+    await press('Add phone');
     await fillField('Phone', '12');
 
     await press('Create');
@@ -94,8 +95,20 @@ describe('CompanyForm', () => {
           industry: 'Manufacturing',
           size: '1-10',
           status: CompanyStatus.Prospect,
-          phone: '',
+          emails: [],
+          phones: [],
+          website: '',
+          linkedinUrl: '',
+          twitterUrl: '',
+          address: '',
+          city: '',
+          country: '',
+          timezone: '',
+          description: '',
           location: '',
+          annualRevenue: null,
+          employeeCount: null,
+          foundedYear: null,
           owner: 'Priya',
           notes: '',
           custom: {},

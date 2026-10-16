@@ -92,6 +92,7 @@ describe('EnvironmentVariablesPage', () => {
       'Payoneer',
       'SonarQube',
       'Google sign-in',
+      'Gmail',
     ]);
   });
 

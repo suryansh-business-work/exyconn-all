@@ -1,5 +1,5 @@
 import { CrmPropertyType } from '@exyconn/shell/graphql/generated';
-import type { CrmPropertyInfo } from '../../records/schema';
+import { CHOICE_TYPES, type CrmPropertyInfo } from '../../records/schema';
 import type { CrmPropertyRow } from './forms/crm-property';
 
 /** One line of the properties table: a custom property, or a built-in one shown read-only. */
@@ -9,7 +9,7 @@ export interface PropertyTableRow {
   label: string;
   type: CrmPropertyType;
   required: boolean;
-  /** How many choices a dropdown offers; null for every other type. */
+  /** How many choices a dropdown, radio or multi-select offers; null for every other type. */
   choices: number | null;
   description: string;
   /** The saved custom property behind the row; null on a built-in one. */
@@ -17,7 +17,7 @@ export interface PropertyTableRow {
 }
 
 const choicesOf = (type: CrmPropertyType, options: readonly unknown[]) =>
-  type === CrmPropertyType.Enum ? options.length : null;
+  CHOICE_TYPES.has(type) ? options.length : null;
 
 const fromCustom = (property: CrmPropertyRow): PropertyTableRow => ({
   id: property.id,

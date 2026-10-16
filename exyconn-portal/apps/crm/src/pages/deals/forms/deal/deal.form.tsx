@@ -18,6 +18,11 @@ import {
   useListContactsQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { DealRow } from './deal.types';
+import {
+  CreateCompanyPanel,
+  CreateContactPanel,
+  QuickCreateSelect,
+} from '../../../../records/quick-create';
 
 const STAGE_OPTIONS = enumOptions(Object.values(DealStage));
 
@@ -59,8 +64,8 @@ interface DealFormProps {
 export function DealForm({ initial, onDone, onCancel }: Readonly<DealFormProps>) {
   const [createDeal] = useCreateDealMutation();
   const [updateDeal] = useUpdateDealMutation();
-  const { data: companiesData } = useListCompaniesQuery();
-  const { data: contactsData } = useListContactsQuery();
+  const { data: companiesData, refetch: refetchCompanies } = useListCompaniesQuery();
+  const { data: contactsData, refetch: refetchContacts } = useListContactsQuery();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
@@ -94,8 +99,22 @@ export function DealForm({ initial, onDone, onCancel }: Readonly<DealFormProps>)
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="Deal" />
-      <RhfSelect name="companyId" label="Company" options={companyOptions} />
-      <RhfSelect name="contactId" label="Contact" options={contactOptions} />
+      <QuickCreateSelect
+        name="companyId"
+        label="Company"
+        options={companyOptions}
+        createLabel="Create Company"
+        onRefresh={refetchCompanies}
+        renderCreate={(done, cancel) => <CreateCompanyPanel done={done} cancel={cancel} />}
+      />
+      <QuickCreateSelect
+        name="contactId"
+        label="Contact"
+        options={contactOptions}
+        createLabel="Create Contact"
+        onRefresh={refetchContacts}
+        renderCreate={(done, cancel) => <CreateContactPanel done={done} cancel={cancel} />}
+      />
       <RhfSelect name="stage" label="Stage" options={STAGE_OPTIONS} />
       <RhfTextField name="value" label="Value" type="number" />
       <RhfTextField

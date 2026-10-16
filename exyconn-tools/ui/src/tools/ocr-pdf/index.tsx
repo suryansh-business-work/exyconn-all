@@ -16,6 +16,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import Tesseract from 'tesseract.js';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
+import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
@@ -36,7 +37,7 @@ export default function OcrPdf() {
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [extractedText, setExtractedText] = useState('');
   const [language, setLanguage] = useState('eng');
-  const [copied, setCopied] = useState(false);
+  const { copied, flashCopied, resetCopied } = useCopiedFlag();
 
   const handleFile = useCallback((f: File) => {
     if (f.type !== 'application/pdf') return;
@@ -84,9 +85,8 @@ export default function OcrPdf() {
 
   const copyText = useCallback(() => {
     navigator.clipboard.writeText(extractedText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [extractedText]);
+    flashCopied();
+  }, [extractedText, flashCopied]);
 
   const downloadTxt = useCallback(() => {
     const blob = new Blob([extractedText], { type: 'text/plain' });
@@ -102,8 +102,8 @@ export default function OcrPdf() {
     setProcessing(false);
     setProgress({ current: 0, total: 0 });
     setExtractedText('');
-    setCopied(false);
-  }, []);
+    resetCopied();
+  }, [resetCopied]);
 
   return (
     <ToolLayout toolName="OCR PDF" toolIcon={<DocumentScanner />} toolColor={COLOR}>

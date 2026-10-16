@@ -14,15 +14,22 @@ export type CrmObject = (typeof CRM_OBJECTS)[number];
 
 export const PROPERTY_TYPES = [
   'TEXT',
+  'TEXTAREA',
   'EMAIL',
   'PHONE',
   'URL',
   'NUMBER',
   'DATE',
   'ENUM',
+  'RADIO',
+  'MULTI_SELECT',
   'BOOLEAN',
+  'FILE',
 ] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
+
+/** The types whose values come from a fixed list of choices the property defines. */
+export const CHOICE_TYPES: ReadonlySet<PropertyType> = new Set(['ENUM', 'RADIO', 'MULTI_SELECT']);
 
 export interface PropertyOption {
   value: string;

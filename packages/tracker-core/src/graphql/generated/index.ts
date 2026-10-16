@@ -18,8 +18,10 @@ export type Scalars = {
 };
 
 export type ActivityInput = {
+  attachments: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate: InputMaybe<Scalars['DateTime']['input']>;
+  durationSeconds: InputMaybe<Scalars['Int']['input']>;
   notes: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   relatedId: InputMaybe<Scalars['String']['input']>;
@@ -345,6 +347,17 @@ export type BlogPostInput = {
   summary: InputMaybe<Scalars['String']['input']>;
   tags: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
+};
+
+export type BookMeetingInput = {
+  email: Scalars['String']['input'];
+  /** Others to invite (at most 10); each gets the confirmation. */
+  guests: InputMaybe<Array<Scalars['String']['input']>>;
+  name: Scalars['String']['input'];
+  notes: InputMaybe<Scalars['String']['input']>;
+  startAt: Scalars['DateTime']['input'];
+  /** The booker's IANA time zone, for their confirmation email. */
+  timezone: InputMaybe<Scalars['String']['input']>;
 };
 
 export type BrandingInput = {
@@ -786,17 +799,30 @@ export type CompanyExpenseInput = {
 };
 
 export type CompanyInput = {
+  address: InputMaybe<Scalars['String']['input']>;
+  annualRevenue: InputMaybe<Scalars['Float']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
   custom: InputMaybe<Scalars['JSON']['input']>;
+  description: InputMaybe<Scalars['String']['input']>;
   domain: Scalars['String']['input'];
+  emails: InputMaybe<Array<CrmEmailAddressInput>>;
+  employeeCount: InputMaybe<Scalars['Int']['input']>;
+  foundedYear: InputMaybe<Scalars['Int']['input']>;
   industry: InputMaybe<Scalars['String']['input']>;
+  linkedinUrl: InputMaybe<Scalars['String']['input']>;
   location: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone: InputMaybe<Scalars['String']['input']>;
+  phones: InputMaybe<Array<CrmPhoneNumberInput>>;
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['input'];
   status: CompanyStatus;
+  timezone: InputMaybe<Scalars['String']['input']>;
+  twitterUrl: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CompanySocialLinksInput = {
@@ -825,16 +851,31 @@ export type ComplianceCategory =
   | 'SUPPLIER';
 
 export type ContactInput = {
+  address: InputMaybe<Scalars['String']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
   companyId: InputMaybe<Scalars['String']['input']>;
   companyName: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
   custom: InputMaybe<Scalars['JSON']['input']>;
-  email: Scalars['String']['input'];
+  department: InputMaybe<Scalars['String']['input']>;
+  description: InputMaybe<Scalars['String']['input']>;
+  /** The primary address; or send emails instead. */
+  email: InputMaybe<Scalars['String']['input']>;
+  emails: InputMaybe<Array<CrmEmailAddressInput>>;
+  languages: InputMaybe<Array<Scalars['String']['input']>>;
+  leadSource: InputMaybe<Scalars['String']['input']>;
+  lifecycleStage: InputMaybe<LifecycleStage>;
+  linkedinUrl: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone: InputMaybe<Scalars['String']['input']>;
+  phones: InputMaybe<Array<CrmPhoneNumberInput>>;
   status: ContactStatus;
+  timezone: InputMaybe<Scalars['String']['input']>;
   title: InputMaybe<Scalars['String']['input']>;
+  twitterUrl: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ContactStatus =
@@ -933,6 +974,16 @@ export type CrmConditionInput = {
   values: Array<Scalars['String']['input']>;
 };
 
+export type CrmEmailAddressInput = {
+  address: Scalars['String']['input'];
+  label: InputMaybe<Scalars['String']['input']>;
+  primary: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type CrmEmailDirection =
+  | 'IN'
+  | 'OUT';
+
 /** Conditions in a group must all hold; a record matches when any group does. */
 export type CrmFilterGroupInput = {
   conditions: Array<CrmConditionInput>;
@@ -979,6 +1030,12 @@ export type CrmOp =
   | 'NOT_IN'
   | 'STARTS_WITH';
 
+export type CrmPhoneNumberInput = {
+  label: InputMaybe<Scalars['String']['input']>;
+  number: Scalars['String']['input'];
+  primary: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type CrmPropertyInput = {
   description: Scalars['String']['input'];
   key: Scalars['String']['input'];
@@ -998,10 +1055,19 @@ export type CrmPropertyType =
   | 'BOOLEAN'
   | 'DATE'
   | 'EMAIL'
+  /** A dropdown: one of the choices. */
   | 'ENUM'
+  /** An uploaded file; the value is its address. */
+  | 'FILE'
+  /** Checkboxes: any number of the choices. */
+  | 'MULTI_SELECT'
   | 'NUMBER'
   | 'PHONE'
+  /** Radio buttons: one of the choices, all shown at once. */
+  | 'RADIO'
   | 'TEXT'
+  /** Several lines of text. */
+  | 'TEXTAREA'
   | 'URL';
 
 /** The key, type and record type of a property are fixed once it exists. */
@@ -1025,6 +1091,25 @@ export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+export type CrmTimelineKind =
+  | 'CALL'
+  | 'CAMPAIGN_EMAIL'
+  | 'DEAL'
+  | 'EMAIL'
+  | 'FORM_SUBMISSION'
+  | 'LEAD'
+  | 'MEETING'
+  | 'NOTE'
+  | 'SUPPORT_TICKET'
+  | 'SYSTEM_EMAIL'
+  | 'TASK'
+  | 'WEBSITE_CHAT'
+  | 'WHATSAPP_LEAD';
+
+export type CrmTimelineObject =
+  | 'COMPANY'
+  | 'CONTACT';
 
 export type CrmViewInput = {
   columns: Array<Scalars['String']['input']>;
@@ -1096,6 +1181,14 @@ export type DocumentStatus =
   | 'ARCHIVED'
   | 'DRAFT'
   | 'FINAL';
+
+export type DraftCrmEmailInput = {
+  id: Scalars['ID']['input'];
+  /** What the email should say, in a few words. */
+  instruction: Scalars['String']['input'];
+  object: CrmTimelineObject;
+  threadId: InputMaybe<Scalars['String']['input']>;
+};
 
 export type EmailConfigInput = {
   fromAddress: Scalars['String']['input'];
@@ -1387,6 +1480,13 @@ export type GithubConfigInput = {
   repo: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   token: Scalars['String']['input'];
+};
+
+export type GmailConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
 };
 
 export type GoalInput = {
@@ -1934,6 +2034,16 @@ export type LicenceStatus =
   | 'ACTIVE'
   | 'CANCELLED';
 
+export type LifecycleStage =
+  | 'CUSTOMER'
+  | 'EVANGELIST'
+  | 'LEAD'
+  | 'MARKETING_QUALIFIED'
+  | 'OPPORTUNITY'
+  | 'OTHER'
+  | 'SALES_QUALIFIED'
+  | 'SUBSCRIBER';
+
 export type LocationInput = {
   active: Scalars['Boolean']['input'];
   address: Scalars['String']['input'];
@@ -1995,6 +2105,31 @@ export type MarketingSuppressionInput = {
   email: Scalars['String']['input'];
   reason: SuppressionReason;
   source: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MeetingBookingStatus =
+  | 'CANCELLED'
+  | 'CONFIRMED';
+
+export type MeetingTypeInput = {
+  active: Scalars['Boolean']['input'];
+  bufferMinutes: Scalars['Int']['input'];
+  description: InputMaybe<Scalars['String']['input']>;
+  durationMinutes: Scalars['Int']['input'];
+  location: InputMaybe<Scalars['String']['input']>;
+  maxDaysAhead: Scalars['Int']['input'];
+  minNoticeHours: Scalars['Int']['input'];
+  slug: Scalars['String']['input'];
+  timezone: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  weeklyHours: Array<MeetingWeeklyHoursInput>;
+};
+
+export type MeetingWeeklyHoursInput = {
+  day: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  end: Scalars['String']['input'];
+  start: Scalars['String']['input'];
 };
 
 export type MilestoneInput = {
@@ -2688,6 +2823,16 @@ export type SalaryStructureInput = {
   tdsPercent: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type SendCrmEmailInput = {
+  body: Scalars['String']['input'];
+  cc: InputMaybe<Array<Scalars['String']['input']>>;
+  inReplyTo: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  /** Replying: Gmail's thread id and the Message-ID being answered. */
+  threadId: InputMaybe<Scalars['String']['input']>;
+  to: Array<Scalars['String']['input']>;
+};
+
 export type SendMailInput = {
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
@@ -3101,6 +3246,7 @@ export type TechSecret =
   | 'EMAIL_PASSWORD'
   | 'EMAIL_VERIFIER_PROXY_PASSWORD'
   | 'GITHUB_TOKEN'
+  | 'GMAIL_CLIENT_SECRET'
   | 'GODADDY_API_KEY'
   | 'GODADDY_API_SECRET'
   | 'GOOGLE_SIGN_IN_CLIENT_SECRET'

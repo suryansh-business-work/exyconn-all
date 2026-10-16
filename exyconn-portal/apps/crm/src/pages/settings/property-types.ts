@@ -8,13 +8,17 @@ import {
 /** Each property type in plain language, in the order the type picker offers them. */
 export const PROPERTY_TYPE_LABELS: Readonly<Record<CrmPropertyType, string>> = {
   [CrmPropertyType.Text]: 'Single-line text',
+  [CrmPropertyType.Textarea]: 'Multi-line text',
   [CrmPropertyType.Email]: 'Email',
   [CrmPropertyType.Phone]: 'Phone number',
   [CrmPropertyType.Url]: 'Website',
   [CrmPropertyType.Number]: 'Number',
   [CrmPropertyType.Date]: 'Date',
   [CrmPropertyType.Enum]: 'Dropdown select',
+  [CrmPropertyType.Radio]: 'Radio buttons',
+  [CrmPropertyType.MultiSelect]: 'Checkboxes (pick several)',
   [CrmPropertyType.Boolean]: 'Yes/No',
+  [CrmPropertyType.File]: 'File upload',
 };
 
 /** The permission module properties are restricted under in Admin > Roles & Permissions. */

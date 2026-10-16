@@ -14,6 +14,28 @@ fragment CompanyFields on Company {
   custom
   createdAt
   updatedAt
+  email
+  emails {
+    address
+    label
+    primary
+  }
+  phones {
+    number
+    label
+    primary
+  }
+  website
+  linkedinUrl
+  twitterUrl
+  address
+  city
+  country
+  timezone
+  description
+  annualRevenue
+  employeeCount
+  foundedYear
 }
 
 fragment ContactFields on Contact {
@@ -30,6 +52,28 @@ fragment ContactFields on Contact {
   custom
   createdAt
   updatedAt
+  emails {
+    address
+    label
+    primary
+  }
+  phones {
+    number
+    label
+    primary
+  }
+  website
+  linkedinUrl
+  twitterUrl
+  address
+  city
+  country
+  timezone
+  description
+  department
+  lifecycleStage
+  leadSource
+  languages
 }
 
 fragment DealFields on Deal {
@@ -59,6 +103,14 @@ fragment ActivityFields on Activity {
   dueDate
   done
   owner
+  attachments {
+    url
+    name
+    contentType
+    uploadedBy
+    uploadedAt
+  }
+  durationSeconds
 }
 
 fragment CrmStats on TableStats {
@@ -100,6 +152,7 @@ query ListCompaniesStats {
 mutation CreateCompany($input: CompanyInput!) {
   createCompany(input: $input) {
     id
+    name
   }
 }
 
@@ -148,6 +201,7 @@ query ListContactsStats {
 mutation CreateContact($input: ContactInput!) {
   createContact(input: $input) {
     id
+    name
   }
 }
 
@@ -248,4 +302,39 @@ mutation UpdateActivity($id: ID!, $input: ActivityInput!) {
 
 mutation DeleteActivity($id: ID!) {
   deleteActivity(id: $id)
+}
+
+# A contact's and a company's own page: the record, and everything that happened with it.
+query GetContact($id: ID!) {
+  getContact(id: $id) {
+    ...ContactFields
+  }
+}
+
+query GetCompany($id: ID!) {
+  getCompany(id: $id) {
+    ...CompanyFields
+  }
+}
+
+query CrmTimeline($object: CrmTimelineObject!, $id: ID!, $limit: Int) {
+  crmTimeline(object: $object, id: $id, limit: $limit) {
+    id
+    kind
+    at
+    title
+    summary
+    actor
+    status
+    url
+    attachments {
+      url
+      name
+      contentType
+    }
+  }
+}
+
+mutation UploadCrmMedia($file: String!, $fileName: String!) {
+  uploadCrmMedia(file: $file, fileName: $fileName)
 }

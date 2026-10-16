@@ -4,12 +4,14 @@ import { TRACKER_LIMITS } from '../modules/tracker/tracker.constants';
 import {
   AVATAR_UPLOAD,
   CHAT_UPLOAD,
+  CRM_MEDIA_UPLOAD,
   FONT_UPLOAD,
   MEDIA_UPLOAD,
   RESUME_UPLOAD,
   TEST_UPLOAD,
   assertUpload,
   screenshotUpload,
+  type UploadPolicy,
 } from './uploadValidation';
 import { ConfigurationError } from './errors';
 
@@ -120,14 +122,23 @@ class ImageUploader {
    * by guessing another's.
    */
   async uploadChatMedia(file: string, fileName: string): Promise<string> {
-    assertUpload(file, CHAT_UPLOAD);
+    return this.uploadChecked(file, fileName, CHAT_UPLOAD, CHAT_FOLDER);
+  }
+
+  /** A photo, document or recording on a CRM activity (see CRM_MEDIA_UPLOAD). */
+  async uploadCrmMedia(file: string, fileName: string): Promise<string> {
+    return this.uploadChecked(file, fileName, CRM_MEDIA_UPLOAD, this.mediaFolder('crm'));
+  }
+
+  private async uploadChecked(
+    file: string,
+    fileName: string,
+    policy: UploadPolicy,
+    folder: string,
+  ): Promise<string> {
+    assertUpload(file, policy);
     const client = await this.getClient();
-    const result = await client.upload({
-      file,
-      fileName,
-      folder: CHAT_FOLDER,
-      useUniqueFileName: true,
-    });
+    const result = await client.upload({ file, fileName, folder, useUniqueFileName: true });
     return result.url;
   }
 
