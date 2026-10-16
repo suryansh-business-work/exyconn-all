@@ -16,11 +16,15 @@ export function propertyLabel(t: Translate, property: CrmPropertyInfo): string {
 /** What kind of value a property holds, as the property pickers name it (translate with `t`). */
 export const PROPERTY_TYPE_LABEL: Readonly<Record<CrmPropertyType, string>> = {
   [CrmPropertyType.Text]: 'Text',
+  [CrmPropertyType.Textarea]: 'Long text',
   [CrmPropertyType.Email]: 'Email',
   [CrmPropertyType.Phone]: 'Phone',
   [CrmPropertyType.Url]: 'URL',
   [CrmPropertyType.Number]: 'Number',
   [CrmPropertyType.Date]: 'Date',
   [CrmPropertyType.Enum]: 'Dropdown',
+  [CrmPropertyType.Radio]: 'Radio',
+  [CrmPropertyType.MultiSelect]: 'Multi-select',
   [CrmPropertyType.Boolean]: 'Yes/No',
+  [CrmPropertyType.File]: 'File',
 };

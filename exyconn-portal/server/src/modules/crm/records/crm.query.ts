@@ -2,7 +2,7 @@ import type { FilterQuery } from 'mongoose';
 import { badRequest } from '../../../utils/errors';
 import { escapeRegex } from '../../../utils/tableQuery';
 import { withIds } from '../../../utils/serialize';
-import { OBJECT_DEFS, type CrmObject, type PropertyDef } from './crm.objects';
+import { CHOICE_TYPES, OBJECT_DEFS, type CrmObject, type PropertyDef } from './crm.objects';
 import { OPS_BY_TYPE, propertyIndex, type CrmOp } from './crm.schema';
 import { coerceValue } from './crm.values';
 
@@ -63,7 +63,8 @@ function first(condition: CrmCondition, label: string): string {
 
 /** Reads every value as the property's type; one that cannot be read refuses the query. */
 function typed(property: PropertyDef, values: string[]): unknown[] {
-  return values.map((raw) => {
+  // flatMap: a multi-select coerces each filter value to a one-item list.
+  return values.flatMap((raw) => {
     const result = coerceValue(property, raw);
     if (!result.ok) {
       badRequest(result.error);
@@ -120,7 +121,7 @@ const COMPARE: Partial<Record<CrmOp, string>> = {
 function valueCondition(property: PropertyDef, condition: CrmCondition): Condition {
   const { op, values } = condition;
   const { path, type, label } = property;
-  if (type === 'ENUM') {
+  if (CHOICE_TYPES.has(type)) {
     if (values.length === 0) {
       badRequest(`Choose at least one ${label}`);
     }

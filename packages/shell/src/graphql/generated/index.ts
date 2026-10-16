@@ -2975,10 +2975,19 @@ export enum CrmPropertyType {
   Boolean = 'BOOLEAN',
   Date = 'DATE',
   Email = 'EMAIL',
+  /** A dropdown: one of the choices. */
   Enum = 'ENUM',
+  /** An uploaded file; the value is its address. */
+  File = 'FILE',
+  /** Checkboxes: any number of the choices. */
+  MultiSelect = 'MULTI_SELECT',
   Number = 'NUMBER',
   Phone = 'PHONE',
+  /** Radio buttons: one of the choices, all shown at once. */
+  Radio = 'RADIO',
   Text = 'TEXT',
+  /** Several lines of text. */
+  Textarea = 'TEXTAREA',
   Url = 'URL'
 }
 

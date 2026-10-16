@@ -506,7 +506,7 @@ export const MODULES: ModuleDefinition[] = [
       {
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
-        label: 'Properties',
+        label: 'Custom Properties',
         path: '/crm/settings/properties',
         icon: TuneIcon,
         group: 'Configuration',

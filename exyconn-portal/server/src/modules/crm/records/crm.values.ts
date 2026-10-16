@@ -111,6 +111,32 @@ function bool(property: PropertyDef, raw: unknown): Coerced {
     : fail(`${property.label} "${String(raw)}" is not yes or no`);
 }
 
+/**
+ * Several choices: an array from a form, or "A; B" / "A, B" from a CSV cell. Each must be one
+ * of the property's choices; the stored value keeps them in the property's order.
+ */
+function choices(property: PropertyDef, raw: unknown): Coerced {
+  const parts = Array.isArray(raw) ? raw : String(raw).split(/[;,]/);
+  const values: string[] = [];
+  for (const part of parts.filter((item) => !isBlank(item))) {
+    const one = choice(property, part);
+    if (!one.ok) {
+      return one;
+    }
+    values.push(one.value as string);
+  }
+  const chosen = new Set(values);
+  return ok(property.options.map((option) => option.value).filter((value) => chosen.has(value)));
+}
+
+/** A file is the https address it was uploaded to. */
+function file(property: PropertyDef, raw: unknown): Coerced {
+  const value = String(raw).trim();
+  return value.startsWith('https://') && value.length <= 2000
+    ? ok(value)
+    : fail(`${property.label} must be an uploaded file`);
+}
+
 /** A blank value is `null`; whether a blank is allowed is the caller's to decide. */
 export function coerceValue(property: PropertyDef, raw: unknown): Coerced {
   if (isBlank(raw)) {
@@ -122,7 +148,12 @@ export function coerceValue(property: PropertyDef, raw: unknown): Coerced {
     case 'DATE':
       return date(property, raw);
     case 'ENUM':
+    case 'RADIO':
       return choice(property, raw);
+    case 'MULTI_SELECT':
+      return choices(property, raw);
+    case 'FILE':
+      return file(property, raw);
     case 'BOOLEAN':
       return bool(property, raw);
     default:

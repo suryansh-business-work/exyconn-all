@@ -40,13 +40,18 @@ const TEXT_OPS: readonly CrmOp[] = [
 
 export const OPS_BY_TYPE: Readonly<Record<PropertyType, readonly CrmOp[]>> = {
   TEXT: TEXT_OPS,
+  TEXTAREA: TEXT_OPS,
   EMAIL: TEXT_OPS,
   PHONE: TEXT_OPS,
   URL: TEXT_OPS,
   NUMBER: ['EQ', 'NEQ', 'GT', 'GTE', 'LT', 'LTE', 'BETWEEN', 'IS_EMPTY', 'IS_NOT_EMPTY'],
   DATE: ['BEFORE', 'AFTER', 'BETWEEN', 'LAST_DAYS', 'IS_EMPTY', 'IS_NOT_EMPTY'],
   ENUM: ['IN', 'NOT_IN', 'IS_EMPTY', 'IS_NOT_EMPTY'],
+  RADIO: ['IN', 'NOT_IN', 'IS_EMPTY', 'IS_NOT_EMPTY'],
+  /** IN: has any of the chosen; NOT_IN: has none of them. */
+  MULTI_SELECT: ['IN', 'NOT_IN', 'IS_EMPTY', 'IS_NOT_EMPTY'],
   BOOLEAN: ['EQ', 'IS_EMPTY', 'IS_NOT_EMPTY'],
+  FILE: ['IS_EMPTY', 'IS_NOT_EMPTY'],
 };
 
 /** A company's custom properties for one object, in their display order. */

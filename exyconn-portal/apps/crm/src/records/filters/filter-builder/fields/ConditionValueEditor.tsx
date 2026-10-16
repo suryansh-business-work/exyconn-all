@@ -2,7 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { Flex } from '@exyconn/shell/components/ui';
 import { CrmOp, CrmPropertyType } from '@exyconn/shell/graphql/generated';
-import type { CrmPropertyInfo } from '../../../schema';
+import { CHOICE_TYPES, type CrmPropertyInfo } from '../../../schema';
 import { opArity } from '../../operators';
 import type { ConditionPath } from '../filter-builder.types';
 import { DateValueField } from './DateValueField';
@@ -60,7 +60,7 @@ export function ConditionValueEditor({ path, property, op }: Readonly<ConditionV
     ];
     return <RhfSelect name={single} label="Value" options={options} />;
   }
-  if (property.type === CrmPropertyType.Enum) {
+  if (CHOICE_TYPES.has(property.type)) {
     return <RhfSelect name={single} label="Value" options={property.options} />;
   }
   const type = property.type === CrmPropertyType.Number ? 'number' : 'text';

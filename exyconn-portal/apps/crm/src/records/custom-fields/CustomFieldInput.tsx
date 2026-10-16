@@ -1,9 +1,11 @@
-import { Controller, useFormContext, type ControllerFieldState } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 import { format, isValid, parseISO } from 'date-fns';
 import { useT } from '@exyconn/i18n';
 import { DatePicker, MenuItem, TextField } from '@exyconn/shell/components/ui';
 import { CrmPropertyType } from '@exyconn/shell/graphql/generated';
-import type { CustomPropertyDef } from './custom-fields.schema';
+import { CustomChoiceGroup } from './CustomChoiceGroup';
+import { CustomFileInput } from './CustomFileInput';
+import { useHint, type FieldProps } from './field-hint';
 
 /** How a DATE value is kept in the form and sent: the calendar day, with no time or zone. */
 const ISO_DAY = 'yyyy-MM-dd';
@@ -15,23 +17,6 @@ const INPUT_TYPES: Partial<Record<CrmPropertyType, string>> = {
   [CrmPropertyType.Url]: 'url',
   [CrmPropertyType.Number]: 'number',
 };
-
-interface FieldProps {
-  property: CustomPropertyDef;
-  /** The form path, `custom.<key>`. */
-  name: string;
-}
-
-/**
- * The hint under a field: the error when there is one, else the property's help text. The
- * label and help text are the company's own words, so they are shown as typed; the error is
- * one of the form's English sources and is translated.
- */
-function useHint() {
-  const t = useT();
-  return (property: CustomPropertyDef, fieldState: ControllerFieldState) =>
-    fieldState.error?.message ? t(fieldState.error.message) : property.description;
-}
 
 function CustomTextInput({ property, name }: Readonly<FieldProps>) {
   const { control } = useFormContext();
@@ -45,6 +30,8 @@ function CustomTextInput({ property, name }: Readonly<FieldProps>) {
           {...field}
           value={field.value ?? ''}
           type={INPUT_TYPES[property.type] ?? 'text'}
+          multiline={property.type === CrmPropertyType.Textarea}
+          minRows={property.type === CrmPropertyType.Textarea ? 3 : undefined}
           label={property.label}
           required={property.required}
           fullWidth
@@ -137,6 +124,11 @@ export function CustomFieldInput({ property, name }: Readonly<FieldProps>) {
     case CrmPropertyType.Enum:
     case CrmPropertyType.Boolean:
       return <CustomChoiceInput property={property} name={name} />;
+    case CrmPropertyType.Radio:
+    case CrmPropertyType.MultiSelect:
+      return <CustomChoiceGroup property={property} name={name} />;
+    case CrmPropertyType.File:
+      return <CustomFileInput property={property} name={name} />;
     default:
       return <CustomTextInput property={property} name={name} />;
   }

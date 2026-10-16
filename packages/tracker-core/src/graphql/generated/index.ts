@@ -1044,10 +1044,19 @@ export type CrmPropertyType =
   | 'BOOLEAN'
   | 'DATE'
   | 'EMAIL'
+  /** A dropdown: one of the choices. */
   | 'ENUM'
+  /** An uploaded file; the value is its address. */
+  | 'FILE'
+  /** Checkboxes: any number of the choices. */
+  | 'MULTI_SELECT'
   | 'NUMBER'
   | 'PHONE'
+  /** Radio buttons: one of the choices, all shown at once. */
+  | 'RADIO'
   | 'TEXT'
+  /** Several lines of text. */
+  | 'TEXTAREA'
   | 'URL';
 
 /** The key, type and record type of a property are fixed once it exists. */

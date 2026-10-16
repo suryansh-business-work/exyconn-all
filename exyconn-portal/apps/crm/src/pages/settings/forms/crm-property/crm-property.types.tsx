@@ -7,6 +7,7 @@ import {
   type CrmPropertyInput,
   type CrmPropertyUpdateInput,
 } from '@exyconn/shell/graphql/generated';
+import { CHOICE_TYPES } from '../../../../records/schema';
 
 /** A custom property as the settings screen lists and edits it. */
 export type CrmPropertyRow = CrmPropertyFieldsFragment;
@@ -81,7 +82,7 @@ export function crmPropertySchema(builtInKeys: ReadonlySet<string>) {
       description: z.string().trim().max(MAX_DESCRIPTION, 'Help text is at most 300 characters'),
     })
     .superRefine((values, ctx) => {
-      if (values.type === CrmPropertyType.Enum) {
+      if (CHOICE_TYPES.has(values.type)) {
         checkOptions(values.options, ctx);
       }
     });
@@ -98,12 +99,11 @@ export const toPropertyFormValues = (row: CrmPropertyRow | null): CrmPropertyFor
   description: row?.description ?? '',
 });
 
-/** What every save sends: choices only for a dropdown, without the form's own bookkeeping. */
+/** What every save sends: choices only for a choice type, without the form's own bookkeeping. */
 export function toPropertyUpdateInput(values: CrmPropertyFormValues): CrmPropertyUpdateInput {
-  const options =
-    values.type === CrmPropertyType.Enum
-      ? values.options.map(({ value, label }) => ({ value, label }))
-      : [];
+  const options = CHOICE_TYPES.has(values.type)
+    ? values.options.map(({ value, label }) => ({ value, label }))
+    : [];
   return {
     label: values.label,
     options,

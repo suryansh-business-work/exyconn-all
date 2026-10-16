@@ -26,6 +26,7 @@ import {
   type CrmPropertyFormValues,
   type CrmPropertyRow,
 } from './crm-property.types';
+import { CHOICE_TYPES } from '../../../../records/schema';
 
 const KEY_HINT = 'Used in imports, exports and the API. It cannot change once saved.';
 
@@ -65,7 +66,7 @@ function IdentityFields({ isEdit }: Readonly<{ isEdit: boolean }>) {
       ) : (
         <RhfSelect name="type" label="Type" options={typeOptions} />
       )}
-      {type === CrmPropertyType.Enum && <CrmPropertyOptionsFields />}
+      {CHOICE_TYPES.has(type) && <CrmPropertyOptionsFields />}
     </>
   );
 }

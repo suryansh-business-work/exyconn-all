@@ -13,13 +13,22 @@ export const crmRecordsTypeDefs = gql`
 
   enum CrmPropertyType {
     TEXT
+    "Several lines of text."
+    TEXTAREA
     EMAIL
     PHONE
     URL
     NUMBER
     DATE
+    "A dropdown: one of the choices."
     ENUM
+    "Radio buttons: one of the choices, all shown at once."
+    RADIO
+    "Checkboxes: any number of the choices."
+    MULTI_SELECT
     BOOLEAN
+    "An uploaded file; the value is its address."
+    FILE
   }
 
   "What a filter condition asks of a property; which ones apply depends on its type."

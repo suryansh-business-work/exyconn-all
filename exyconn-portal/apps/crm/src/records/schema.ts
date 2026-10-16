@@ -11,6 +11,17 @@ import {
  * all built from this, so a new property shows up everywhere without code.
  */
 export type CrmPropertyInfo = CrmObjectSchemaQuery['crmObjectSchema']['properties'][number];
+/** The types whose values are picked from the property's own choices. */
+export const CHOICE_TYPES: ReadonlySet<CrmPropertyType> = new Set([
+  CrmPropertyType.Enum,
+  CrmPropertyType.Radio,
+  CrmPropertyType.MultiSelect,
+]);
+
+/** The file name at the end of an uploaded file's address. */
+export const fileNameOf = (url: string) =>
+  decodeURIComponent(url.split('?')[0].split('/').pop() ?? url);
+
 export type CrmRecordRow = Record<string, unknown> & { id: string; custom?: unknown };
 
 /** One record type's properties, cached for the session; refetched when properties change. */
@@ -66,7 +77,14 @@ export function displayValue(
   }
   switch (property.type) {
     case CrmPropertyType.Enum:
+    case CrmPropertyType.Radio:
       return optionLabel(property, value);
+    case CrmPropertyType.MultiSelect:
+      return (Array.isArray(value) ? value : [value])
+        .map((one) => optionLabel(property, one))
+        .join(', ');
+    case CrmPropertyType.File:
+      return fileNameOf(String(value));
     case CrmPropertyType.Boolean:
       return value === true ? formatters.yes : formatters.no;
     case CrmPropertyType.Date:
