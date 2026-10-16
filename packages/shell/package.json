@@ -22,6 +22,7 @@
     "@emotion/styled": "^11.14.0",
     "@exyconn/code-editor": "workspace:*",
     "@exyconn/config": "workspace:*",
+    "@exyconn/csv": "workspace:*",
     "@exyconn/i18n": "workspace:*",
     "@exyconn/logger": "workspace:*",
     "@exyconn/regex": "workspace:*",

@@ -10,6 +10,7 @@ import {
   type TableQueryInput,
 } from '../../utils/tableQuery';
 import { dayKeyOf, EMPTY_BRIEF, projectDaysFilter, trackerBriefs } from './attendance.tracker';
+import { registerTable } from '../table-transfer/registry';
 
 /**
  * The register's whitelist. Search is handled here rather than by the table engine, because
@@ -21,6 +22,7 @@ const ATTENDANCE_TABLE: TableConfig = {
   sortFields: ['date', 'status', 'employeeId', 'createdAt'],
   defaultSort: { field: 'date', dir: 'DESC' },
 };
+registerTable('listAttendancePaged', ATTENDANCE_TABLE);
 
 /** Filters the register reads itself, because they are not a plain field comparison. */
 export const ATTENDANCE_FILTER = Object.freeze({

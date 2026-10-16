@@ -9,6 +9,7 @@ import { withId, withIds } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
+import { registerTable } from '../table-transfer/registry';
 
 const productsRoles = [ROLES.PRODUCTS];
 
@@ -45,6 +46,7 @@ const suppliers = createCrudResolvers(suppliersService, {
     sortFields: ['name', 'code', 'status', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  import: { matchFields: ['code'] },
   stats: { countBy: ['status'] },
 });
 
@@ -55,6 +57,7 @@ const MOVEMENT_TABLE: TableConfig = {
   sortFields: ['productName', 'reason', 'quantity', 'createdAt'],
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
+registerTable('listStockMovementsPaged', MOVEMENT_TABLE);
 
 /** What a movement does to the level. A stocktake sets it; the rest add or remove. */
 function levelAfter(current: number, reason: string, quantity: number): number {

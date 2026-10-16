@@ -13,6 +13,7 @@ import { notFound } from '../../utils/errors';
 import { ROLES } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
+import { registerTable } from '../table-transfer/registry';
 
 interface OnboardingTemplateInput {
   name: string;
@@ -59,6 +60,7 @@ const CHECKLIST_TABLE = {
   sortFields: ['employeeName', 'templateName', 'joinDate', 'createdAt'],
   defaultSort: { field: 'joinDate', dir: 'DESC' as const },
 };
+registerTable('listOnboardingChecklistsPaged', CHECKLIST_TABLE);
 
 const hrOnly = [ROLES.HR];
 

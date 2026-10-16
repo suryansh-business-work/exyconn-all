@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cellText } from '@/utils/cellText';
+import { cellText } from '../src/cellText';
 
 describe('cellText', () => {
   it('shows nothing for null and undefined', () => {

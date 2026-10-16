@@ -15,6 +15,7 @@ import { toStaffSession } from './chat.serialize';
 import { agentLoads } from './chat.assign';
 import { UserModel } from '../admin/user.model';
 import { ROLES } from '../../constants/roles';
+import { registerTable } from '../table-transfer/registry';
 
 const SESSION_TABLE = {
   searchFields: ['name', 'email', 'phone', 'ticketReference', 'lastMessagePreview'],
@@ -22,6 +23,7 @@ const SESSION_TABLE = {
   sortFields: ['name', 'email', 'status', 'site', 'createdAt', 'lastMessageAt', 'messageCount'],
   defaultSort: { field: 'lastMessageAt', dir: 'DESC' as const },
 };
+registerTable('websiteChatSessionsPaged', SESSION_TABLE);
 
 /** Checks the caller may do `action` in Website > Chatbot, then works in the chat owner's company. */
 async function asAgent<T>(

@@ -1,12 +1,7 @@
-import type { CrmPropertyInfo } from '../schema';
-import { propertyLabel, type Translate } from '../propertyText';
-import { HEADER_SYNONYMS } from './synonyms';
+import type { ImportFieldOption, ImportRow } from './import.types';
 
-/** For each CSV column, the property key it imports into, or null when it is not imported. */
+/** For each file column, the field key it imports into, or null when it is not imported. */
 export type ColumnMapping = (string | null)[];
-
-/** A cell value as the server receives it: property key to the trimmed cell text. */
-export type ImportRow = Record<string, string>;
 
 const NON_ALPHANUMERIC = /[\W_]/g;
 
@@ -15,42 +10,37 @@ export function normaliseHeader(text: string): string {
   return text.toLowerCase().replaceAll(NON_ALPHANUMERIC, '');
 }
 
-/** The properties a file may fill: only these keys may be sent to the importer. */
-export function importableProperties(properties: readonly CrmPropertyInfo[]): CrmPropertyInfo[] {
-  return properties.filter((property) => property.importable);
-}
-
-/** Every normalised name a property answers to: its key, its label and its translated label. */
-function namesOf(t: Translate, property: CrmPropertyInfo): string[] {
-  return [property.key, property.label, propertyLabel(t, property)].map(normaliseHeader);
+/** Every normalised name a field answers to: its key, its label and its aliases. */
+function namesOf(field: ImportFieldOption): string[] {
+  return [field.key, field.label, ...(field.aliases ?? [])].map(normaliseHeader);
 }
 
 function matchHeader(
   header: string,
-  properties: readonly CrmPropertyInfo[],
-  t: Translate,
+  fields: readonly ImportFieldOption[],
+  synonyms: Readonly<Record<string, string>>,
 ): string | null {
   const name = normaliseHeader(header);
   if (name === '') {
     return null;
   }
-  const direct = properties.find((property) => namesOf(t, property).includes(name));
+  const direct = fields.find((field) => namesOf(field).includes(name));
   if (direct) {
     return direct.key;
   }
-  const synonym = HEADER_SYNONYMS[name];
-  return properties.some((property) => property.key === synonym) ? synonym : null;
+  const synonym = synonyms[name];
+  return fields.some((field) => field.key === synonym) ? synonym : null;
 }
 
-/** A first guess at the mapping; a property is given to the first column that matches it. */
+/** A first guess at the mapping; a field is given to the first column that matches it. */
 export function autoMap(
   headers: readonly string[],
-  properties: readonly CrmPropertyInfo[],
-  t: Translate,
+  fields: readonly ImportFieldOption[],
+  synonyms: Readonly<Record<string, string>> = {},
 ): ColumnMapping {
   const taken = new Set<string>();
   return headers.map((header) => {
-    const key = matchHeader(header, properties, t);
+    const key = matchHeader(header, fields, synonyms);
     if (key === null || taken.has(key)) {
       return null;
     }
@@ -59,7 +49,7 @@ export function autoMap(
   });
 }
 
-/** Maps one column; a property can only be filled by one column, so any other loses it. */
+/** Maps one column; a field can only be filled by one column, so any other loses it. */
 export function assignColumn(
   mapping: ColumnMapping,
   column: number,
@@ -73,13 +63,13 @@ export function assignColumn(
   });
 }
 
-/** Required properties no column fills yet; the import cannot start until this is empty. */
+/** Required fields no column fills yet; the import cannot start until this is empty. */
 export function unmappedRequired(
   mapping: ColumnMapping,
-  properties: readonly CrmPropertyInfo[],
-): CrmPropertyInfo[] {
+  fields: readonly ImportFieldOption[],
+): ImportFieldOption[] {
   const mapped = new Set(mapping);
-  return properties.filter((property) => property.required && !mapped.has(property.key));
+  return fields.filter((field) => field.required && !mapped.has(field.key));
 }
 
 /** The first few non-empty values of a column, so a person can tell what it holds. */

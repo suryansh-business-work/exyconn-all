@@ -43,3 +43,14 @@ export {
 } from './page/ExportCsvButton';
 export { csvColumnsFromDefs, fetchAllRows, EXPORT_PAGE_SIZE } from './page/export';
 export { assertExportAllowed, contextWithoutActions, deniedActionKeys } from './page/permissions';
+export { ImportDialog, downloadCsvTemplate } from './import';
+export type {
+  ImportChunkResult,
+  ImportFieldOption,
+  ImportIssue,
+  ImportModeOption,
+  ImportRow,
+  ImportSource,
+} from './import';
+export { GridTransferBar } from './transfer/GridTransferBar';
+export { useGridTransfer } from './transfer/useGridTransfer';

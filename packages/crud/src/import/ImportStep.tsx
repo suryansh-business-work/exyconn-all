@@ -1,6 +1,5 @@
-import type { CrmImportMode } from '@exyconn/shell/graphql/generated';
-import type { CrmPropertyInfo } from '../schema';
-import type { CsvFile } from './csvFile';
+import type { TableFileFormat } from '@exyconn/shell/graphql/generated';
+import type { ImportFieldOption, ImportFile, ImportModeOption } from './import.types';
 import type { ColumnMapping } from './mapping';
 import { MapStep } from './steps/MapStep';
 import { OptionsStep } from './steps/OptionsStep';
@@ -10,31 +9,33 @@ import { UploadStep } from './steps/UploadStep';
 import type { ImportRunState } from './useImportRun';
 import { MAP, OPTIONS, RUNNING } from './wizardSteps';
 
-interface ImportStepProps {
+interface ImportStepProps<Mode extends string> {
   step: number;
-  file: CsvFile | null;
+  file: ImportFile | null;
   mapping: ColumnMapping;
-  mode: CrmImportMode;
-  properties: readonly CrmPropertyInfo[];
-  matchLabel: string;
+  mode: Mode;
+  modes: readonly ImportModeOption<Mode>[];
+  fields: readonly ImportFieldOption[];
+  matchLabel: string | null;
   run: ImportRunState;
   cancelling: boolean;
-  onFile: (file: CsvFile) => void;
-  onDownloadTemplate: () => void;
+  templateFormats: readonly TableFileFormat[];
+  onFile: (file: ImportFile) => void;
+  onDownloadTemplate: (format: TableFileFormat) => void;
   onAssign: (column: number, key: string | null) => void;
-  onModeChange: (mode: CrmImportMode) => void;
+  onModeChange: (mode: Mode) => void;
   onDownloadIssues: () => void;
 }
 
 /** The body of the wizard's current step. */
-export function ImportStep(props: Readonly<ImportStepProps>) {
+export function ImportStep<Mode extends string>(props: Readonly<ImportStepProps<Mode>>) {
   const { step, file } = props;
   if (step === MAP && file) {
     return (
       <MapStep
         file={file}
         mapping={props.mapping}
-        properties={props.properties}
+        fields={props.fields}
         onAssign={props.onAssign}
       />
     );
@@ -43,6 +44,7 @@ export function ImportStep(props: Readonly<ImportStepProps>) {
     return (
       <OptionsStep
         mode={props.mode}
+        modes={props.modes}
         matchLabel={props.matchLabel}
         onModeChange={props.onModeChange}
       />
@@ -57,6 +59,11 @@ export function ImportStep(props: Readonly<ImportStepProps>) {
     return <ResultStep state={props.run} onDownloadIssues={props.onDownloadIssues} />;
   }
   return (
-    <UploadStep file={file} onFile={props.onFile} onDownloadTemplate={props.onDownloadTemplate} />
+    <UploadStep
+      file={file}
+      onFile={props.onFile}
+      templateFormats={props.templateFormats}
+      onDownloadTemplate={props.onDownloadTemplate}
+    />
   );
 }

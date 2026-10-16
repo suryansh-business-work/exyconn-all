@@ -1,0 +1,82 @@
+# Export, import and the import template for every paged grid (server module table-transfer).
+
+query TableExport(
+  $list: String!
+  $input: TableQueryInput!
+  $columns: [TableExportColumnInput!]!
+  $format: TableFileFormat!
+  $fileName: String!
+) {
+  tableExport(list: $list, input: $input, columns: $columns, format: $format, fileName: $fileName) {
+    fileName
+    mimeType
+    contentBase64
+    rowCount
+  }
+}
+
+query TableInfo($list: String!) {
+  tableInfo(list: $list) {
+    filters {
+      field
+      kind
+      options
+    }
+    sortFields
+    importable
+    matchFields
+    importFields {
+      field
+      required
+      kind
+      options
+      description
+    }
+  }
+}
+
+query TableImportTemplate(
+  $list: String!
+  $format: TableFileFormat!
+  $fileName: String!
+  $columns: [TableExportColumnInput!]
+) {
+  tableImportTemplate(list: $list, format: $format, fileName: $fileName, columns: $columns) {
+    fileName
+    mimeType
+    contentBase64
+    rowCount
+  }
+}
+
+mutation ParseTableFile($fileName: String!, $contentBase64: String!) {
+  parseTableFile(fileName: $fileName, contentBase64: $contentBase64) {
+    headers
+    rows
+  }
+}
+
+mutation ImportTableRows(
+  $list: String!
+  $mode: TableImportMode!
+  $matchField: String
+  $rows: [JSON!]!
+  $firstRowNumber: Int!
+) {
+  importTableRows(
+    list: $list
+    mode: $mode
+    matchField: $matchField
+    rows: $rows
+    firstRowNumber: $firstRowNumber
+  ) {
+    created
+    updated
+    skipped
+    issues {
+      row
+      message
+      skipped
+    }
+  }
+}

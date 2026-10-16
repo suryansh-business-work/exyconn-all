@@ -39,6 +39,7 @@ const crud = createCrudResolvers(productsService, {
     ],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  import: { matchFields: ['sku'] },
   stats: { countBy: ['status', 'category'], sum: ['stock'] },
 });
 

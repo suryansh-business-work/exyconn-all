@@ -7,10 +7,19 @@ export interface TablePageResult<T> {
   totalCount: number;
 }
 
+/** Fetches one page from the server for the given query. */
+export type GridFetcher<T> = ((input: TableQueryInput) => Promise<TablePageResult<T>>) & {
+  /**
+   * The paged list query it reads (`listClientsPaged`), set by `usePagedFetcher`. With it the
+   * grid asks the server which columns filter and sort (`tableInfo`), and the list can be
+   * exported and imported on the server; a fetcher on its own query input leaves it unset.
+   */
+  readonly list?: string;
+};
+
 export interface ServerDataGridProps<T> {
   columnDefs: ColDef<T>[];
-  /** Fetches one page from the server for the given query. */
-  fetchRows: (input: TableQueryInput) => Promise<TablePageResult<T>>;
+  fetchRows: GridFetcher<T>;
   pageSize?: number;
   searchPlaceholder?: string;
   /** What the search box holds when the grid mounts — a saved view's search, say. */

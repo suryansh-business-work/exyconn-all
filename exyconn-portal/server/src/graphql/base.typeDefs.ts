@@ -14,10 +14,21 @@ export const baseTypeDefs = gql`
 
   enum FilterOp {
     CONTAINS
+    NOT_CONTAINS
     STARTS_WITH
+    ENDS_WITH
     EQUALS
+    NOT_EQUALS
     GT
+    GTE
     LT
+    LTE
+    "Nothing stored, or an empty string; the filter's value is ignored."
+    BLANK
+    "Anything but blank; the filter's value is ignored."
+    NOT_BLANK
+    "Any of the filter's values; its value is ignored."
+    IN
   }
 
   input TableSortInput {
@@ -29,6 +40,8 @@ export const baseTypeDefs = gql`
     field: String!
     op: FilterOp!
     value: String!
+    "The values an IN filter matches any of; other operators ignore it."
+    values: [String!]
   }
 
   "Server-side pagination/sort/filter/search request. \`page\` is zero-indexed."
@@ -38,6 +51,8 @@ export const baseTypeDefs = gql`
     pageSize: Int!
     search: String
     sort: TableSortInput
+    "Several sort columns, most significant first. When set it wins over sort."
+    sorts: [TableSortInput!]
     filters: [TableFilterInput!]
   }
 

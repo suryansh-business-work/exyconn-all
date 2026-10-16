@@ -1,4 +1,5 @@
-import { Alert, Box, TextField } from '@/components/ui';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import { Alert, Box, Button, TextField } from '@/components/ui';
 import { useT } from '@exyconn/i18n';
 import { TableRefreshButton } from './TableRefreshButton';
 
@@ -10,9 +11,14 @@ interface ServerGridToolbarProps {
   loading: boolean;
   /** The last page request's failure, shown until a later request succeeds. */
   loadError: string | null;
+  /** Set while any column filter is applied: offers "Clear filters". */
+  onClearFilters?: () => void;
 }
 
-/** The search box, refresh button and load-failure notice above a {@link ServerDataGrid}. */
+/**
+ * The search box, refresh and clear-filters buttons and load-failure notice above a
+ * {@link ServerDataGrid}.
+ */
 export function ServerGridToolbar({
   search,
   onSearchChange,
@@ -20,6 +26,7 @@ export function ServerGridToolbar({
   onRefresh,
   loading,
   loadError,
+  onClearFilters,
 }: Readonly<ServerGridToolbarProps>) {
   const t = useT();
   return (
@@ -34,6 +41,16 @@ export function ServerGridToolbar({
           sx={{ width: { xs: '100%', sm: 320 } }}
         />
         <TableRefreshButton onRefresh={onRefresh} disabled={loading} />
+        {onClearFilters && (
+          <Button
+            size="small"
+            startIcon={<FilterAltOffIcon />}
+            onClick={onClearFilters}
+            disabled={loading}
+          >
+            {t('Clear filters')}
+          </Button>
+        )}
       </Box>
       {loadError && (
         <Alert severity="error" sx={{ mb: 1.5 }}>

@@ -26,6 +26,7 @@ COPY packages/config/package.json packages/config/
 COPY packages/bot-studio/package.json packages/bot-studio/
 COPY packages/crud/package.json packages/crud/
 COPY packages/gcc-cost/package.json packages/gcc-cost/
+COPY packages/csv/package.json packages/csv/
 COPY packages/demo-visitor/package.json packages/demo-visitor/
 COPY packages/i18n/package.json packages/i18n/
 COPY packages/live-editor/package.json packages/live-editor/

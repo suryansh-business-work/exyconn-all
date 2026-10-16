@@ -1,3 +1,6 @@
+// First: the audit import below reaches modules that call createCrudResolvers while this file
+// is still loading, and the registry (which imports nothing at runtime) must be ready by then.
+import { registerTable } from '../modules/table-transfer/registry';
 import { assertPermission, PERMISSION_MODULES } from './permissions';
 import { diffChanges, entityLabelOf, recordAudit } from '../modules/audit';
 import { withId, withIds } from '../utils/serialize';
@@ -28,6 +31,12 @@ interface CrudResolverConfig {
    * number, title…), e.g. ['vendor'] for a bill.
    */
   labelFields?: string[];
+  /**
+   * Opens the paged grid to file imports (needs `table`). `matchFields` identify an existing
+   * record for UPDATE and UPSERT, and must be `table.filterFields`; leave it empty for CREATE
+   * only. Each row is written through `create<Name>` / `update<Name>`, guards included.
+   */
+  import?: { matchFields: string[] };
 }
 
 type ResolverMap = Record<string, (p: unknown, a: never, c: GraphQLContext) => unknown>;
@@ -41,7 +50,7 @@ type LeanDoc = { _id: unknown };
  */
 export function createCrudResolvers<TInput extends object>(
   service: CrudService<TInput>,
-  { name, roles, plural, table, stats, labelFields }: CrudResolverConfig,
+  { name, roles, plural, table, stats, labelFields, import: importConfig }: CrudResolverConfig,
 ): { Query: ResolverMap; Mutation: ResolverMap } {
   PERMISSION_MODULES.add(name);
   const guard = (ctx: GraphQLContext, action: 'VIEW' | 'CREATE' | 'EDIT' | 'DELETE') =>
@@ -60,6 +69,7 @@ export function createCrudResolvers<TInput extends object>(
   };
 
   if (table) {
+    registerTable(`list${listName}Paged`, table, importConfig?.matchFields ?? null);
     query[`list${listName}Paged`] = async (_p, { input }: { input: TableQueryInput }, ctx) => {
       await guard(ctx, 'VIEW');
       const page = await service.paged(input, table);

@@ -10,23 +10,21 @@ import {
   TableRow,
   Text,
 } from '@exyconn/shell/components/ui';
-import type { CrmPropertyInfo } from '../../schema';
-import type { CsvFile } from '../csvFile';
+import type { ImportFieldOption, ImportFile } from '../import.types';
 import { sampleValues, unmappedRequired, type ColumnMapping } from '../mapping';
-import { propertyLabel } from '../../propertyText';
-import { PropertySelect } from './PropertySelect';
+import { FieldSelect } from './FieldSelect';
 
 interface MapStepProps {
-  file: CsvFile;
+  file: ImportFile;
   mapping: ColumnMapping;
-  properties: readonly CrmPropertyInfo[];
+  fields: readonly ImportFieldOption[];
   onAssign: (column: number, key: string | null) => void;
 }
 
-/** Step 2: say which property each column fills. Required properties must all be mapped. */
-export function MapStep({ file, mapping, properties, onAssign }: Readonly<MapStepProps>) {
+/** Step 2: say which field each column fills. Required fields must all be mapped. */
+export function MapStep({ file, mapping, fields, onAssign }: Readonly<MapStepProps>) {
   const t = useT();
-  const missing = unmappedRequired(mapping, properties);
+  const missing = unmappedRequired(mapping, fields);
   const columns = file.headers.map((header, index) => ({
     id: `${index}:${header}`,
     index,
@@ -37,8 +35,8 @@ export function MapStep({ file, mapping, properties, onAssign }: Readonly<MapSte
     <Stack spacing={2}>
       {missing.length > 0 && (
         <Alert severity="warning" role="status">
-          {t('Map a column to each required property: {names}.', {
-            names: missing.map((property) => propertyLabel(t, property)).join(', '),
+          {t('Map a column to each required field: {names}.', {
+            names: missing.map((field) => field.label).join(', '),
           })}
         </Alert>
       )}
@@ -63,10 +61,10 @@ export function MapStep({ file, mapping, properties, onAssign }: Readonly<MapSte
                   </Text>
                 </TableCell>
                 <TableCell>
-                  <PropertySelect
+                  <FieldSelect
                     column={column.header || t('(no heading)')}
                     value={mapping[column.index] ?? null}
-                    properties={properties}
+                    fields={fields}
                     onChange={(key) => onAssign(column.index, key)}
                   />
                 </TableCell>

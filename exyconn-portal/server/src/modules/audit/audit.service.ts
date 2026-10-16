@@ -11,6 +11,7 @@ import {
   type TableQueryInput,
 } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
+import { registerTable } from '../table-transfer/registry';
 
 /** Whitelist of the columns the Audit Log grid may search / filter / sort. */
 const AUDIT_TABLE_CONFIG: TableConfig = {
@@ -19,6 +20,8 @@ const AUDIT_TABLE_CONFIG: TableConfig = {
   sortFields: ['createdAt', 'action', 'module', 'actorName'],
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
+registerTable('listAuditLogsPaged', AUDIT_TABLE_CONFIG);
+registerTable('listFinanceChangeLogPaged', AUDIT_TABLE_CONFIG);
 
 const AUDIT_STATS_CONFIG: StatsConfig = { countBy: ['action', 'module'] };
 

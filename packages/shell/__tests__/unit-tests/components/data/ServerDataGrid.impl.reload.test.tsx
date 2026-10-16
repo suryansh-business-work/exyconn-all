@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, screen } from '@testing-library/react';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { I18nProvider } from '@exyconn/i18n';
 import ServerDataGridImpl from '@/components/data/ServerDataGrid.impl';
 import { agGrid, resetFakeGrid } from './fakeAgGrid';
@@ -49,25 +50,31 @@ describe('ServerDataGridImpl reloads', () => {
     expect(agGrid.purge).toHaveBeenCalledTimes(1);
 
     rerender(
-      <I18nProvider locale="en" messages={{}}>
-        <ServerDataGridImpl columnDefs={[]} fetchRows={fetchRows} refreshSignal={1} />
-      </I18nProvider>,
+      <MockedProvider>
+        <I18nProvider locale="en" messages={{}}>
+          <ServerDataGridImpl columnDefs={[]} fetchRows={fetchRows} refreshSignal={1} />
+        </I18nProvider>
+      </MockedProvider>,
     );
     expect(agGrid.purge).toHaveBeenCalledTimes(2);
   });
 
-  it('does nothing on refresh before the grid api exists', () => {
+  it('does nothing on refresh or clear-filters before the grid api exists', () => {
     agGrid.withApi = false;
-    renderGrid(vi.fn());
+    renderGrid(vi.fn<Fetch>());
     fireEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
     expect(agGrid.purge).not.toHaveBeenCalled();
+
+    act(() => agGrid.props.onFilterChanged({ api: { isAnyFilterPresent: () => true } }));
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(agGrid.setFilterModel).not.toHaveBeenCalled();
   });
 });
 
 describe('ServerDataGridImpl row clicks', () => {
   it('opens a loaded row and ignores a placeholder row', () => {
     const onRowClick = vi.fn();
-    renderGrid(vi.fn(), { onRowClick });
+    renderGrid(vi.fn<Fetch>(), { onRowClick });
 
     expect(agGrid.props.rowStyle).toEqual({ cursor: 'pointer' });
     act(() => agGrid.props.onRowClicked?.({ data: { id: 'r1' } }));

@@ -1,18 +1,15 @@
-import { useMemo, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import type { ColDef } from 'ag-grid-community';
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { Flex, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
+import { useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import type { TableQueryInput } from '@exyconn/shell/graphql/generated';
+import { ServerDataGrid, type GridFetcher } from '@exyconn/shell/components/data/ServerDataGrid';
 import { usePermissions, type PermissionActionKey } from '@exyconn/shell/hooks/usePermissions';
 import type { CrudResource } from './useCrudResource';
-import { GridExportButton, useGridQuery } from './ExportCsvButton';
+import { useGridQuery } from './ExportCsvButton';
+import { CrudTransferBar } from './CrudTransferBar';
 import { contextWithoutActions, deniedActionKeys } from './permissions';
 import { RecordCardList } from '../list/RecordCardList';
 
@@ -38,7 +35,7 @@ interface CrudDashboardProps<TRow, TPaged> {
   /** Re-reads the grid when there is no `crud` to carry the signal. */
   refreshSignal?: number;
   columnDefs: ColDef<TPaged>[];
-  fetchRows: (input: TableQueryInput) => Promise<TablePageResult<TPaged>>;
+  fetchRows: GridFetcher<TPaged>;
   /** Handed to ag-grid so the shared cells can reach this page's row handlers. */
   context: object;
   searchPlaceholder: string;
@@ -110,6 +107,11 @@ export function CrudDashboard<TRow, TPaged>({
     [permissionModule, can],
   );
   const gridContext = useMemo(() => contextWithoutActions(context, denied), [context, denied]);
+  // Imported rows re-read the grid: through the resource when there is one, else locally.
+  const [imported, setImported] = useState(0);
+  const reload = crud?.reload;
+  const onImported = useCallback(() => (reload ? reload() : setImported((n) => n + 1)), [reload]);
+  const gridRefresh = (crud?.refreshSignal ?? refreshSignal ?? 0) + imported;
   // Built from placeholders rather than by joining words: "New {entity}" is one string a
   // translator can put in their own order, where 'New ' + entityLabel is two they cannot.
   // The noun is translated too — "risk", "invoice" — before it is put into the pattern.
@@ -151,24 +153,23 @@ export function CrudDashboard<TRow, TPaged>({
       dialog={extraDialogs}
     >
       {toolbar}
-      {exportFileName && may('export') && (
-        <Flex direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
-          <GridExportButton
-            fileName={exportFileName}
-            columnDefs={columnDefs}
-            fetchRows={fetchRows}
-            getQuery={gridQuery.getQuery}
-            context={gridContext}
-            permissionModule={permissionModule}
-          />
-        </Flex>
-      )}
+      <CrudTransferBar
+        fetchRows={fetchRows}
+        columnDefs={columnDefs}
+        exportFileName={exportFileName}
+        entityLabel={entityLabel}
+        gridQuery={gridQuery}
+        gridContext={gridContext}
+        permissionModule={permissionModule}
+        may={may}
+        onImported={onImported}
+      />
       {onPhone ? (
         <RecordCardList<TPaged>
           columnDefs={columnDefs}
           fetchRows={fetchRows}
           context={gridContext}
-          refreshSignal={crud?.refreshSignal ?? refreshSignal}
+          refreshSignal={gridRefresh}
           onRowClick={onRowClick}
           searchPlaceholder={searchPlaceholder}
           initialSearch={initialSearch}
@@ -178,7 +179,7 @@ export function CrudDashboard<TRow, TPaged>({
           columnDefs={columnDefs}
           fetchRows={fetchRows}
           context={gridContext}
-          refreshSignal={crud?.refreshSignal ?? refreshSignal}
+          refreshSignal={gridRefresh}
           onRowClick={onRowClick}
           searchPlaceholder={searchPlaceholder}
           initialSearch={initialSearch}

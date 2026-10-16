@@ -1,6 +1,6 @@
 import { downloadCsv, toCsv, type CsvColumn } from '@exyconn/shell/utils/csv';
-import { FIRST_DATA_LINE, type CsvFile } from './csvFile';
-import type { ImportIssue } from './useImportRun';
+import { FIRST_DATA_LINE } from './importFile';
+import type { ImportFile, ImportIssue } from './import.types';
 
 interface IssueRow {
   cells: readonly string[];
@@ -12,12 +12,14 @@ interface IssueHeadings {
   issue: string;
 }
 
+const FILE_EXTENSION = /\.(csv|xlsx)$/i;
+
 /**
  * The rows that had a problem, as they were in the file, with the line and the reason added —
  * fix them in a spreadsheet and import that file again.
  */
 export function downloadIssuesCsv(
-  file: CsvFile,
+  file: ImportFile,
   issues: readonly ImportIssue[],
   headings: IssueHeadings,
 ): void {
@@ -33,6 +35,6 @@ export function downloadIssuesCsv(
     { header: headings.line, value: (row) => row.issue.row },
     { header: headings.issue, value: (row) => row.issue.message },
   ];
-  const base = file.name.replace(/\.csv$/i, '');
+  const base = file.name.replace(FILE_EXTENSION, '');
   downloadCsv(`${base}-issues`, toCsv(rows, columns));
 }

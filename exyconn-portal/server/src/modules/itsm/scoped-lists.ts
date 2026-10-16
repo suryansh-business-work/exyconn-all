@@ -8,6 +8,10 @@ import { ANNOUNCEMENT_TABLE } from '../announcements';
 import { IT_POLICY_CATEGORIES, PolicyModel } from '../legal/policy.model';
 import { POLICY_TABLE } from '../legal/policy.resolvers';
 import { IT_ANNOUNCEMENT } from './itsm.queries';
+import { registerTable } from '../table-transfer/registry';
+
+registerTable('listItAnnouncementsPaged', ANNOUNCEMENT_TABLE);
+registerTable('listItPoliciesPaged', POLICY_TABLE);
 
 type PageArgs = { input: TableQueryInput };
 

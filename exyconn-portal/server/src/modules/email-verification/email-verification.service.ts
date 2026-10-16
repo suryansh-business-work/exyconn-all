@@ -10,6 +10,7 @@ import {
 } from './email-verification.model';
 import { EmailVerifierConfigModel } from './email-verifier-config.model';
 import { checkWithReacher, type CheckResult, type ReacherProxy } from './reacher.client';
+import { registerTable } from '../table-transfer/registry';
 
 /** A CSV is checked in the background; past this many addresses it is split into several. */
 export const MAX_BATCH_EMAILS = 5000;
@@ -24,6 +25,7 @@ const RECORD_TABLE: TableConfig = {
   sortFields: ['email', 'status', 'source', 'checkedAt'],
   defaultSort: { field: 'checkedAt', dir: 'DESC' },
 };
+registerTable('emailVerificationsPaged', RECORD_TABLE);
 
 /** One address as stored: trimmed and lower-cased. */
 export const normalizeEmail = (email: string): string => email.trim().toLowerCase();

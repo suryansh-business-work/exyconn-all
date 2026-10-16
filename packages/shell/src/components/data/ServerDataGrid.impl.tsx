@@ -4,23 +4,17 @@ import {
   ModuleRegistry,
   AllCommunityModule,
   type ColDef,
+  type FilterChangedEvent,
   type GridReadyEvent,
-  type IDatasource,
-  type IGetRowsParams,
   type RowClickedEvent,
 } from 'ag-grid-community';
 import { useT } from '@exyconn/i18n';
 import { Box, useMediaQuery, useTheme } from '@/components/ui';
-import type { TableQueryInput } from '@/graphql/generated';
-import { errorMessage } from '@/utils/errorMessage';
-import {
-  SEARCH_DEBOUNCE_MS,
-  TEXT_FILTER_PARAMS,
-  toFilters,
-  toSort,
-  type GridQuery,
-} from './serverGridQuery';
+import { SEARCH_DEBOUNCE_MS, TEXT_FILTER_PARAMS } from './serverGridQuery';
 import { skeletonWhileLoading } from './GridSkeletonCell';
+import { applyTableInfo } from './tableColumns';
+import { useServerDatasource } from './useServerDatasource';
+import { useTableInfo } from './useTableInfo';
 
 /**
  * What a grid gets on a phone: most of the viewport, minus the chrome above it, so the page
@@ -37,9 +31,11 @@ import type { ServerDataGridProps } from './ServerDataGrid.types';
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const DEFAULT_PAGE_SIZE = 25;
+/** What the pager offers; a grid built with another size gets that size offered first. */
+const PAGE_SIZE_OPTIONS = [25, 50, 100];
 
 export type { GridQuery } from './serverGridQuery';
-export type { ServerDataGridProps, TablePageResult } from './ServerDataGrid.types';
+export type { GridFetcher, ServerDataGridProps, TablePageResult } from './ServerDataGrid.types';
 
 /**
  * Server-driven data grid (implementation): ag-grid Community in its infinite row model, so
@@ -68,20 +64,22 @@ function ServerDataGridImpl({
   // scroll usable instead of burying the paginator below the fold.
   const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const t = useT();
+  const tableInfo = useTableInfo(fetchRows.list);
   // Column headings are English strings in each module's column model; translating them here
   // means a register reads in the person's language without sixty files knowing about it.
-  const headings = useMemo(
-    () =>
-      columnDefs.map((column) =>
-        column.headerName ? { ...column, headerName: t(column.headerName) } : column,
-      ),
-    [columnDefs, t],
-  );
+  // Filters and sorts then follow what the server says the list honours.
+  const headings = useMemo(() => {
+    const translated = columnDefs.map((column) =>
+      column.headerName ? { ...column, headerName: t(column.headerName) } : column,
+    );
+    return tableInfo ? applyTableInfo(translated, tableInfo) : translated;
+  }, [columnDefs, t, tableInfo]);
   const gridRef = useRef<AgGridReact<unknown>>(null);
   // The trimmed search the grid last loaded with; the box's live text debounces into it.
   const searchRef = useRef(initialSearch.trim());
   const [search, setSearch] = useState(initialSearch);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [filtered, setFiltered] = useState(false);
   const lock = useLoadingLock();
 
   const defaultColDef = useMemo<ColDef<unknown>>(
@@ -99,38 +97,14 @@ function ServerDataGridImpl({
   );
 
   const { begin, end } = lock;
-  const datasource = useMemo<IDatasource>(
-    () => ({
-      getRows: (params: IGetRowsParams) => {
-        const query: GridQuery = {
-          search: searchRef.current === '' ? null : searchRef.current,
-          sort: toSort(params.sortModel),
-          filters: toFilters(
-            params.filterModel as Record<string, { type?: string; filter?: unknown }>,
-          ),
-        };
-        onQuery?.(query);
-        const input: TableQueryInput = {
-          ...query,
-          page: Math.floor(params.startRow / pageSize),
-          pageSize,
-        };
-        begin();
-        fetchRows(input)
-          .then((page) => {
-            setLoadError(null);
-            params.successCallback(page.rows, page.totalCount);
-          })
-          .catch((error: unknown) => {
-            console.error('Could not load the grid page', error);
-            setLoadError(errorMessage(error, 'The server did not answer'));
-            params.failCallback();
-          })
-          .finally(end);
-      },
-    }),
-    [fetchRows, pageSize, onQuery, begin, end],
-  );
+  const datasource = useServerDatasource({
+    fetchRows,
+    searchRef,
+    onQuery,
+    begin,
+    end,
+    onLoadError: setLoadError,
+  });
 
   const onGridReady = useCallback(
     (event: GridReadyEvent) => event.api.setGridOption('datasource', datasource),
@@ -138,6 +112,14 @@ function ServerDataGridImpl({
   );
 
   const reload = useCallback(() => gridRef.current?.api?.purgeInfiniteCache(), []);
+  const clearFilters = useCallback(() => gridRef.current?.api?.setFilterModel(null), []);
+  const onFilterChanged = useCallback(
+    (event: FilterChangedEvent) => setFiltered(event.api.isAnyFilterPresent()),
+    [],
+  );
+  const pageSizes = PAGE_SIZE_OPTIONS.includes(pageSize)
+    ? PAGE_SIZE_OPTIONS
+    : [pageSize, ...PAGE_SIZE_OPTIONS];
 
   // Debounce the search box, then reload from the first row — but only when the text the
   // grid would search for actually changed, so mounting or re-typing the same value is free.
@@ -178,6 +160,7 @@ function ServerDataGridImpl({
         onRefresh={reload}
         loading={lock.loading}
         loadError={loadError}
+        onClearFilters={filtered ? clearFilters : undefined}
       />
       <Box sx={{ height: onPhone ? PHONE_GRID_HEIGHT : height, width: '100%' }}>
         <AgGridReact<unknown>
@@ -191,8 +174,9 @@ function ServerDataGridImpl({
           infiniteInitialRowCount={pageSize}
           pagination
           paginationPageSize={pageSize}
-          paginationPageSizeSelector={false}
+          paginationPageSizeSelector={pageSizes}
           onGridReady={onGridReady}
+          onFilterChanged={onFilterChanged}
           onRowClicked={onRowClick ? handleRowClicked : undefined}
           rowStyle={onRowClick ? { cursor: 'pointer' } : undefined}
         />

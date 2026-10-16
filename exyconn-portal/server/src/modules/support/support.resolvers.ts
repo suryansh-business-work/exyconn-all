@@ -29,6 +29,7 @@ import {
   type TableQueryInput,
 } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
+import { registerTable } from '../table-transfer/registry';
 
 /** What the console grid may search, filter and sort on. */
 const TICKET_TABLE: TableConfig = {
@@ -63,6 +64,7 @@ const TICKET_TABLE: TableConfig = {
   ],
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
+registerTable('listSupportTicketsPaged', TICKET_TABLE);
 
 const TICKET_STATS = { countBy: ['status', 'priority', 'category', 'requesterType', 'channel'] };
 

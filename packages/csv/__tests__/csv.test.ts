@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toCsv } from '../../src/utils/csv';
+import { toCsv } from '../src/csv';
 
 type Row = { name: string; amount: number | null; note?: string; when?: Date };
 const cols = [

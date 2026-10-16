@@ -15,6 +15,7 @@ import {
   type TableConfig,
   type TableQueryInput,
 } from '../../../../exyconn-portal/server/src/utils/tableQuery';
+import { registerTable } from '../../../../exyconn-portal/server/src/modules/table-transfer/registry';
 
 /** The most events one session's detail returns. */
 const DETAIL_EVENT_LIMIT = 2000;
@@ -34,6 +35,7 @@ const SESSIONS_TABLE: TableConfig = {
   ],
   defaultSort: { field: 'startedAt', dir: 'DESC' },
 };
+registerTable('whatsappDemoSessions', SESSIONS_TABLE);
 
 /**
  * `status` is computed (an event in the last 30 minutes), so its filter becomes a condition on

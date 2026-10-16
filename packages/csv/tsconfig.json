@@ -1,0 +1,4 @@
+{
+  "extends": "@exyconn/config/tsconfig.app.json",
+  "include": ["src", "__tests__"]
+}
