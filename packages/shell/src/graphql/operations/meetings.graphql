@@ -1,0 +1,102 @@
+# CRM > Meetings: meeting types people book from a public link, and the bookings they make.
+fragment MeetingTypeFields on MeetingType {
+  id
+  title
+  slug
+  description
+  durationMinutes
+  location
+  hostName
+  hostEmail
+  timezone
+  weeklyHours {
+    day
+    enabled
+    start
+    end
+  }
+  bufferMinutes
+  minNoticeHours
+  maxDaysAhead
+  active
+  createdAt
+}
+
+query MeetingTypes {
+  meetingTypes {
+    ...MeetingTypeFields
+  }
+}
+
+mutation CreateMeetingType($input: MeetingTypeInput!) {
+  createMeetingType(input: $input) {
+    ...MeetingTypeFields
+  }
+}
+
+mutation UpdateMeetingType($id: ID!, $input: MeetingTypeInput!) {
+  updateMeetingType(id: $id, input: $input) {
+    ...MeetingTypeFields
+  }
+}
+
+mutation DeleteMeetingType($id: ID!) {
+  deleteMeetingType(id: $id)
+}
+
+fragment MeetingBookingFields on MeetingBooking {
+  id
+  meetingTypeId
+  meetingTitle
+  hostName
+  startAt
+  endAt
+  name
+  email
+  notes
+  timezone
+  status
+  contactId
+  createdAt
+}
+
+query MeetingBookings($page: Int!, $pageSize: Int!) {
+  meetingBookings(page: $page, pageSize: $pageSize) {
+    totalCount
+    rows {
+      ...MeetingBookingFields
+    }
+  }
+}
+
+mutation CancelMeetingBooking($id: ID!) {
+  cancelMeetingBooking(id: $id) {
+    ...MeetingBookingFields
+  }
+}
+
+# The public booking page (status.exyconn.com/book/:slug): no sign-in.
+query PublicMeeting($slug: String!) {
+  publicMeeting(slug: $slug) {
+    slug
+    title
+    description
+    durationMinutes
+    hostName
+    timezone
+  }
+}
+
+query PublicMeetingSlots($slug: String!, $from: DateTime!, $to: DateTime!) {
+  publicMeetingSlots(slug: $slug, from: $from, to: $to)
+}
+
+mutation BookMeeting($slug: String!, $input: BookMeetingInput!) {
+  bookMeeting(slug: $slug, input: $input) {
+    title
+    hostName
+    startAt
+    endAt
+    location
+  }
+}

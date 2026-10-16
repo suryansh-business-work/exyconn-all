@@ -980,6 +980,25 @@ export type BoardColumn = {
   order: Scalars['Int']['output'];
 };
 
+export type BookMeetingInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  startAt: Scalars['DateTime']['input'];
+  /** The booker's IANA time zone, for their confirmation email. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BookedMeeting = {
+  __typename?: 'BookedMeeting';
+  endAt: Scalars['DateTime']['output'];
+  hostName: Scalars['String']['output'];
+  /** Where it happens, now that it is booked. */
+  location: Scalars['String']['output'];
+  startAt: Scalars['DateTime']['output'];
+  title: Scalars['String']['output'];
+};
+
 export type Branding = {
   __typename?: 'Branding';
   accentColor: Scalars['String']['output'];
@@ -5889,6 +5908,85 @@ export type MarketingSuppressionPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type MeetingBooking = {
+  __typename?: 'MeetingBooking';
+  contactId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  endAt: Scalars['DateTime']['output'];
+  hostName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  meetingTitle: Scalars['String']['output'];
+  meetingTypeId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  startAt: Scalars['DateTime']['output'];
+  status: MeetingBookingStatus;
+  timezone: Scalars['String']['output'];
+};
+
+export type MeetingBookingPage = {
+  __typename?: 'MeetingBookingPage';
+  rows: Array<MeetingBooking>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum MeetingBookingStatus {
+  Cancelled = 'CANCELLED',
+  Confirmed = 'CONFIRMED'
+}
+
+export type MeetingType = {
+  __typename?: 'MeetingType';
+  active: Scalars['Boolean']['output'];
+  bufferMinutes: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  durationMinutes: Scalars['Int']['output'];
+  hostEmail: Scalars['String']['output'];
+  hostName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  location: Scalars['String']['output'];
+  maxDaysAhead: Scalars['Int']['output'];
+  minNoticeHours: Scalars['Int']['output'];
+  /** The public link is status.exyconn.com/book/<slug>. */
+  slug: Scalars['String']['output'];
+  timezone: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  weeklyHours: Array<MeetingWeeklyHours>;
+};
+
+export type MeetingTypeInput = {
+  active: Scalars['Boolean']['input'];
+  bufferMinutes: Scalars['Int']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  durationMinutes: Scalars['Int']['input'];
+  location?: InputMaybe<Scalars['String']['input']>;
+  maxDaysAhead: Scalars['Int']['input'];
+  minNoticeHours: Scalars['Int']['input'];
+  slug: Scalars['String']['input'];
+  timezone: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  weeklyHours: Array<MeetingWeeklyHoursInput>;
+};
+
+export type MeetingWeeklyHours = {
+  __typename?: 'MeetingWeeklyHours';
+  /** 0 = Sunday. */
+  day: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  end: Scalars['String']['output'];
+  /** HH:mm, 24-hour, in the meeting type's time zone. */
+  start: Scalars['String']['output'];
+};
+
+export type MeetingWeeklyHoursInput = {
+  day: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  end: Scalars['String']['input'];
+  start: Scalars['String']['input'];
+};
+
 /** What an authenticator app needs to start producing codes. */
 export type MfaEnrolment = {
   __typename?: 'MfaEnrolment';
@@ -5986,8 +6084,11 @@ export type Mutation = {
   assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
+  /** Public: books a free start from a booking link. */
+  bookMeeting: BookedMeeting;
   /** Withdraw a request that has not been carried out. */
   cancelItAccessRequest: ItAccessRequest;
+  cancelMeetingBooking: MeetingBooking;
   changePassword: Scalars['Boolean']['output'];
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
@@ -6109,6 +6210,7 @@ export type Mutation = {
   createLocation: Location;
   createManagementReview: ManagementReview;
   createMarketingSuppression: MarketingSuppression;
+  createMeetingType: MeetingType;
   createMilestone: Milestone;
   /**
    * Filed by the employee for themselves: id from the token, always SUBMITTED,
@@ -6274,6 +6376,7 @@ export type Mutation = {
   deleteManagementReview: Scalars['Boolean']['output'];
   /** Deleting the row is how somebody is re-subscribed; there is no other way back. */
   deleteMarketingSuppression: Scalars['Boolean']['output'];
+  deleteMeetingType: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deleteNewsletterIssue: Scalars['Boolean']['output'];
@@ -6828,6 +6931,7 @@ export type Mutation = {
   updateLocation: Location;
   updateManagementReview: ManagementReview;
   updateMarketingSuppression: MarketingSuppression;
+  updateMeetingType: MeetingType;
   updateMilestone: Milestone;
   /**
    * Employee self-update. Only progress moves; weightage, dates and the manager's
@@ -6998,7 +7102,18 @@ export type MutationAssignSupportTicketArgs = {
 };
 
 
+export type MutationBookMeetingArgs = {
+  input: BookMeetingInput;
+  slug: Scalars['String']['input'];
+};
+
+
 export type MutationCancelItAccessRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationCancelMeetingBookingArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7482,6 +7597,11 @@ export type MutationCreateManagementReviewArgs = {
 
 export type MutationCreateMarketingSuppressionArgs = {
   input: MarketingSuppressionInput;
+};
+
+
+export type MutationCreateMeetingTypeArgs = {
+  input: MeetingTypeInput;
 };
 
 
@@ -8178,6 +8298,11 @@ export type MutationDeleteManagementReviewArgs = {
 
 
 export type MutationDeleteMarketingSuppressionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteMeetingTypeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9828,6 +9953,12 @@ export type MutationUpdateManagementReviewArgs = {
 export type MutationUpdateMarketingSuppressionArgs = {
   id: Scalars['ID']['input'];
   input: MarketingSuppressionInput;
+};
+
+
+export type MutationUpdateMeetingTypeArgs = {
+  id: Scalars['ID']['input'];
+  input: MeetingTypeInput;
 };
 
 
@@ -11603,6 +11734,17 @@ export type PromptVariableInput = {
   value: Scalars['String']['input'];
 };
 
+/** What the public booking page shows before anything is booked. */
+export type PublicMeeting = {
+  __typename?: 'PublicMeeting';
+  description: Scalars['String']['output'];
+  durationMinutes: Scalars['Int']['output'];
+  hostName: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  timezone: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
 /** A published PUBLIC policy, for the website. No authentication. */
 export type PublicPolicy = {
   __typename?: 'PublicPolicy';
@@ -12309,6 +12451,8 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  meetingBookings: MeetingBookingPage;
+  meetingTypes: Array<MeetingType>;
   /** Delegations this person has arranged, and the ones they are covering. */
   myApprovalDelegations: MyApprovalDelegations;
   /**
@@ -12455,6 +12599,10 @@ export type Query = {
   publicJobCompanies: Array<JobCompany>;
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
+  /** Public: the meeting behind a booking link. */
+  publicMeeting: PublicMeeting;
+  /** Public: the free starts between two times (at most 62 days apart). */
+  publicMeetingSlots: Array<Scalars['DateTime']['output']>;
   publicNavLinks: Array<NavLink>;
   publicNewsletterIssue?: Maybe<NewsletterIssue>;
   publicNewsletterIssues: Array<NewsletterIssue>;
@@ -13843,6 +13991,12 @@ export type QueryLocaleBundleArgs = {
 };
 
 
+export type QueryMeetingBookingsArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+};
+
+
 export type QueryMyApprovalsArgs = {
   kind?: InputMaybe<Scalars['String']['input']>;
 };
@@ -14078,6 +14232,18 @@ export type QueryPublicJobCompanyArgs = {
 export type QueryPublicJobsArgs = {
   companySlug?: InputMaybe<Scalars['String']['input']>;
   site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicMeetingArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicMeetingSlotsArgs = {
+  from: Scalars['DateTime']['input'];
+  slug: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
 };
 
 
@@ -18170,6 +18336,8 @@ export type ResolversTypes = ResolversObject<{
   BlogPostInput: BlogPostInput;
   BlogPostPage: ResolverTypeWrapper<BlogPostPage>;
   BoardColumn: ResolverTypeWrapper<BoardColumn>;
+  BookMeetingInput: BookMeetingInput;
+  BookedMeeting: ResolverTypeWrapper<BookedMeeting>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Branding: ResolverTypeWrapper<Branding>;
   BrandingInput: BrandingInput;
@@ -18600,6 +18768,13 @@ export type ResolversTypes = ResolversObject<{
   MarketingSuppression: ResolverTypeWrapper<MarketingSuppression>;
   MarketingSuppressionInput: MarketingSuppressionInput;
   MarketingSuppressionPage: ResolverTypeWrapper<MarketingSuppressionPage>;
+  MeetingBooking: ResolverTypeWrapper<MeetingBooking>;
+  MeetingBookingPage: ResolverTypeWrapper<MeetingBookingPage>;
+  MeetingBookingStatus: MeetingBookingStatus;
+  MeetingType: ResolverTypeWrapper<MeetingType>;
+  MeetingTypeInput: MeetingTypeInput;
+  MeetingWeeklyHours: ResolverTypeWrapper<MeetingWeeklyHours>;
+  MeetingWeeklyHoursInput: MeetingWeeklyHoursInput;
   MfaEnrolment: ResolverTypeWrapper<MfaEnrolment>;
   MfaStatus: ResolverTypeWrapper<MfaStatus>;
   Milestone: ResolverTypeWrapper<Milestone>;
@@ -18727,6 +18902,7 @@ export type ResolversTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
+  PublicMeeting: ResolverTypeWrapper<PublicMeeting>;
   PublicPolicy: ResolverTypeWrapper<PublicPolicy>;
   PublicTaskView: ResolverTypeWrapper<PublicTaskView>;
   PurchaseOrder: ResolverTypeWrapper<PurchaseOrder>;
@@ -19107,6 +19283,8 @@ export type ResolversParentTypes = ResolversObject<{
   BlogPostInput: BlogPostInput;
   BlogPostPage: BlogPostPage;
   BoardColumn: BoardColumn;
+  BookMeetingInput: BookMeetingInput;
+  BookedMeeting: BookedMeeting;
   Boolean: Scalars['Boolean']['output'];
   Branding: Branding;
   BrandingInput: BrandingInput;
@@ -19455,6 +19633,12 @@ export type ResolversParentTypes = ResolversObject<{
   MarketingSuppression: MarketingSuppression;
   MarketingSuppressionInput: MarketingSuppressionInput;
   MarketingSuppressionPage: MarketingSuppressionPage;
+  MeetingBooking: MeetingBooking;
+  MeetingBookingPage: MeetingBookingPage;
+  MeetingType: MeetingType;
+  MeetingTypeInput: MeetingTypeInput;
+  MeetingWeeklyHours: MeetingWeeklyHours;
+  MeetingWeeklyHoursInput: MeetingWeeklyHoursInput;
   MfaEnrolment: MfaEnrolment;
   MfaStatus: MfaStatus;
   Milestone: Milestone;
@@ -19553,6 +19737,7 @@ export type ResolversParentTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
+  PublicMeeting: PublicMeeting;
   PublicPolicy: PublicPolicy;
   PublicTaskView: PublicTaskView;
   PurchaseOrder: PurchaseOrder;
@@ -20335,6 +20520,15 @@ export type BoardColumnResolvers<ContextType = GraphQLContext, ParentType extend
   isDone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BookedMeetingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BookedMeeting'] = ResolversParentTypes['BookedMeeting']> = ResolversObject<{
+  endAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23007,6 +23201,56 @@ export type MarketingSuppressionPageResolvers<ContextType = GraphQLContext, Pare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MeetingBookingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBooking'] = ResolversParentTypes['MeetingBooking']> = ResolversObject<{
+  contactId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  meetingTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  meetingTypeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['MeetingBookingStatus'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingBookingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBookingPage'] = ResolversParentTypes['MeetingBookingPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['MeetingBooking']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingTypeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingType'] = ResolversParentTypes['MeetingType']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  bufferMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  durationMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  hostEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  maxDaysAhead?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  minNoticeHours?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  weeklyHours?: Resolver<Array<ResolversTypes['MeetingWeeklyHours']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingWeeklyHoursResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingWeeklyHours'] = ResolversParentTypes['MeetingWeeklyHours']> = ResolversObject<{
+  day?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  end?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  start?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MfaEnrolmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MfaEnrolment'] = ResolversParentTypes['MfaEnrolment']> = ResolversObject<{
   secret?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   uri?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -23059,7 +23303,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
+  bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'slug'>>;
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
+  cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   claimWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationClaimWebsiteChatSessionArgs, 'id'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
@@ -23153,6 +23399,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationCreateLocationArgs, 'input'>>;
   createManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationCreateManagementReviewArgs, 'input'>>;
   createMarketingSuppression?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationCreateMarketingSuppressionArgs, 'input'>>;
+  createMeetingType?: Resolver<ResolversTypes['MeetingType'], ParentType, ContextType, RequireFields<MutationCreateMeetingTypeArgs, 'input'>>;
   createMilestone?: Resolver<ResolversTypes['Milestone'], ParentType, ContextType, RequireFields<MutationCreateMilestoneArgs, 'input' | 'projectId'>>;
   createMyExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateMyExpenseClaimArgs, 'input'>>;
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
@@ -23288,6 +23535,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteManagementReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteManagementReviewArgs, 'id'>>;
   deleteMarketingSuppression?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMarketingSuppressionArgs, 'id'>>;
+  deleteMeetingType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMeetingTypeArgs, 'id'>>;
   deleteMilestone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMilestoneArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
   deleteNewsletterIssue?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterIssueArgs, 'id'>>;
@@ -23592,6 +23840,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
   updateManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationUpdateManagementReviewArgs, 'id' | 'input'>>;
   updateMarketingSuppression?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationUpdateMarketingSuppressionArgs, 'id' | 'input'>>;
+  updateMeetingType?: Resolver<ResolversTypes['MeetingType'], ParentType, ContextType, RequireFields<MutationUpdateMeetingTypeArgs, 'id' | 'input'>>;
   updateMilestone?: Resolver<ResolversTypes['Milestone'], ParentType, ContextType, RequireFields<MutationUpdateMilestoneArgs, 'id' | 'input'>>;
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
@@ -24388,6 +24637,16 @@ export type PromptPageResolvers<ContextType = GraphQLContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PublicMeetingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicMeeting'] = ResolversParentTypes['PublicMeeting']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  durationMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PublicPolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicPolicy'] = ResolversParentTypes['PublicPolicy']> = ResolversObject<{
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -24930,6 +25189,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   localeBundle?: Resolver<ResolversTypes['LocaleBundle'], ParentType, ContextType, RequireFields<QueryLocaleBundleArgs, 'locale'>>;
   localeOptions?: Resolver<Array<ResolversTypes['LocaleOption']>, ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  meetingBookings?: Resolver<ResolversTypes['MeetingBookingPage'], ParentType, ContextType, RequireFields<QueryMeetingBookingsArgs, 'page' | 'pageSize'>>;
+  meetingTypes?: Resolver<Array<ResolversTypes['MeetingType']>, ParentType, ContextType>;
   myApprovalDelegations?: Resolver<ResolversTypes['MyApprovalDelegations'], ParentType, ContextType>;
   myApprovals?: Resolver<ResolversTypes['ApprovalQueue'], ParentType, ContextType, Partial<QueryMyApprovalsArgs>>;
   myAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
@@ -25010,6 +25271,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicJobCompanies?: Resolver<Array<ResolversTypes['JobCompany']>, ParentType, ContextType, Partial<QueryPublicJobCompaniesArgs>>;
   publicJobCompany?: Resolver<Maybe<ResolversTypes['JobCompany']>, ParentType, ContextType, RequireFields<QueryPublicJobCompanyArgs, 'slug'>>;
   publicJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryPublicJobsArgs>>;
+  publicMeeting?: Resolver<ResolversTypes['PublicMeeting'], ParentType, ContextType, RequireFields<QueryPublicMeetingArgs, 'slug'>>;
+  publicMeetingSlots?: Resolver<Array<ResolversTypes['DateTime']>, ParentType, ContextType, RequireFields<QueryPublicMeetingSlotsArgs, 'from' | 'slug' | 'to'>>;
   publicNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType, Partial<QueryPublicNavLinksArgs>>;
   publicNewsletterIssue?: Resolver<Maybe<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, RequireFields<QueryPublicNewsletterIssueArgs, 'slug'>>;
   publicNewsletterIssues?: Resolver<Array<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, Partial<QueryPublicNewsletterIssuesArgs>>;
@@ -27139,6 +27402,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   BlogPost?: BlogPostResolvers<ContextType>;
   BlogPostPage?: BlogPostPageResolvers<ContextType>;
   BoardColumn?: BoardColumnResolvers<ContextType>;
+  BookedMeeting?: BookedMeetingResolvers<ContextType>;
   Branding?: BrandingResolvers<ContextType>;
   Budget?: BudgetResolvers<ContextType>;
   BudgetPage?: BudgetPageResolvers<ContextType>;
@@ -27382,6 +27646,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ManagementReviewPage?: ManagementReviewPageResolvers<ContextType>;
   MarketingSuppression?: MarketingSuppressionResolvers<ContextType>;
   MarketingSuppressionPage?: MarketingSuppressionPageResolvers<ContextType>;
+  MeetingBooking?: MeetingBookingResolvers<ContextType>;
+  MeetingBookingPage?: MeetingBookingPageResolvers<ContextType>;
+  MeetingType?: MeetingTypeResolvers<ContextType>;
+  MeetingWeeklyHours?: MeetingWeeklyHoursResolvers<ContextType>;
   MfaEnrolment?: MfaEnrolmentResolvers<ContextType>;
   MfaStatus?: MfaStatusResolvers<ContextType>;
   Milestone?: MilestoneResolvers<ContextType>;
@@ -27450,6 +27718,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ProjectWorkflow?: ProjectWorkflowResolvers<ContextType>;
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
+  PublicMeeting?: PublicMeetingResolvers<ContextType>;
   PublicPolicy?: PublicPolicyResolvers<ContextType>;
   PublicTaskView?: PublicTaskViewResolvers<ContextType>;
   PurchaseOrder?: PurchaseOrderResolvers<ContextType>;

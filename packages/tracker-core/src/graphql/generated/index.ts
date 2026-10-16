@@ -349,6 +349,15 @@ export type BlogPostInput = {
   title: Scalars['String']['input'];
 };
 
+export type BookMeetingInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  notes: InputMaybe<Scalars['String']['input']>;
+  startAt: Scalars['DateTime']['input'];
+  /** The booker's IANA time zone, for their confirmation email. */
+  timezone: InputMaybe<Scalars['String']['input']>;
+};
+
 export type BrandingInput = {
   accentColor: InputMaybe<Scalars['String']['input']>;
   address: InputMaybe<Scalars['String']['input']>;
@@ -2094,6 +2103,31 @@ export type MarketingSuppressionInput = {
   email: Scalars['String']['input'];
   reason: SuppressionReason;
   source: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MeetingBookingStatus =
+  | 'CANCELLED'
+  | 'CONFIRMED';
+
+export type MeetingTypeInput = {
+  active: Scalars['Boolean']['input'];
+  bufferMinutes: Scalars['Int']['input'];
+  description: InputMaybe<Scalars['String']['input']>;
+  durationMinutes: Scalars['Int']['input'];
+  location: InputMaybe<Scalars['String']['input']>;
+  maxDaysAhead: Scalars['Int']['input'];
+  minNoticeHours: Scalars['Int']['input'];
+  slug: Scalars['String']['input'];
+  timezone: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  weeklyHours: Array<MeetingWeeklyHoursInput>;
+};
+
+export type MeetingWeeklyHoursInput = {
+  day: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  end: Scalars['String']['input'];
+  start: Scalars['String']['input'];
 };
 
 export type MilestoneInput = {

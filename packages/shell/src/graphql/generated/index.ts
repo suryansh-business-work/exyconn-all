@@ -981,6 +981,25 @@ export type BoardColumn = {
   order: Scalars['Int']['output'];
 };
 
+export type BookMeetingInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  startAt: Scalars['DateTime']['input'];
+  /** The booker's IANA time zone, for their confirmation email. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BookedMeeting = {
+  __typename?: 'BookedMeeting';
+  endAt: Scalars['DateTime']['output'];
+  hostName: Scalars['String']['output'];
+  /** Where it happens, now that it is booked. */
+  location: Scalars['String']['output'];
+  startAt: Scalars['DateTime']['output'];
+  title: Scalars['String']['output'];
+};
+
 export type Branding = {
   __typename?: 'Branding';
   accentColor: Scalars['String']['output'];
@@ -5890,6 +5909,85 @@ export type MarketingSuppressionPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type MeetingBooking = {
+  __typename?: 'MeetingBooking';
+  contactId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  endAt: Scalars['DateTime']['output'];
+  hostName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  meetingTitle: Scalars['String']['output'];
+  meetingTypeId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  startAt: Scalars['DateTime']['output'];
+  status: MeetingBookingStatus;
+  timezone: Scalars['String']['output'];
+};
+
+export type MeetingBookingPage = {
+  __typename?: 'MeetingBookingPage';
+  rows: Array<MeetingBooking>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum MeetingBookingStatus {
+  Cancelled = 'CANCELLED',
+  Confirmed = 'CONFIRMED'
+}
+
+export type MeetingType = {
+  __typename?: 'MeetingType';
+  active: Scalars['Boolean']['output'];
+  bufferMinutes: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  durationMinutes: Scalars['Int']['output'];
+  hostEmail: Scalars['String']['output'];
+  hostName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  location: Scalars['String']['output'];
+  maxDaysAhead: Scalars['Int']['output'];
+  minNoticeHours: Scalars['Int']['output'];
+  /** The public link is status.exyconn.com/book/<slug>. */
+  slug: Scalars['String']['output'];
+  timezone: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  weeklyHours: Array<MeetingWeeklyHours>;
+};
+
+export type MeetingTypeInput = {
+  active: Scalars['Boolean']['input'];
+  bufferMinutes: Scalars['Int']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  durationMinutes: Scalars['Int']['input'];
+  location?: InputMaybe<Scalars['String']['input']>;
+  maxDaysAhead: Scalars['Int']['input'];
+  minNoticeHours: Scalars['Int']['input'];
+  slug: Scalars['String']['input'];
+  timezone: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  weeklyHours: Array<MeetingWeeklyHoursInput>;
+};
+
+export type MeetingWeeklyHours = {
+  __typename?: 'MeetingWeeklyHours';
+  /** 0 = Sunday. */
+  day: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  end: Scalars['String']['output'];
+  /** HH:mm, 24-hour, in the meeting type's time zone. */
+  start: Scalars['String']['output'];
+};
+
+export type MeetingWeeklyHoursInput = {
+  day: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  end: Scalars['String']['input'];
+  start: Scalars['String']['input'];
+};
+
 /** What an authenticator app needs to start producing codes. */
 export type MfaEnrolment = {
   __typename?: 'MfaEnrolment';
@@ -5987,8 +6085,11 @@ export type Mutation = {
   assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
+  /** Public: books a free start from a booking link. */
+  bookMeeting: BookedMeeting;
   /** Withdraw a request that has not been carried out. */
   cancelItAccessRequest: ItAccessRequest;
+  cancelMeetingBooking: MeetingBooking;
   changePassword: Scalars['Boolean']['output'];
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
@@ -6110,6 +6211,7 @@ export type Mutation = {
   createLocation: Location;
   createManagementReview: ManagementReview;
   createMarketingSuppression: MarketingSuppression;
+  createMeetingType: MeetingType;
   createMilestone: Milestone;
   /**
    * Filed by the employee for themselves: id from the token, always SUBMITTED,
@@ -6275,6 +6377,7 @@ export type Mutation = {
   deleteManagementReview: Scalars['Boolean']['output'];
   /** Deleting the row is how somebody is re-subscribed; there is no other way back. */
   deleteMarketingSuppression: Scalars['Boolean']['output'];
+  deleteMeetingType: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deleteNewsletterIssue: Scalars['Boolean']['output'];
@@ -6829,6 +6932,7 @@ export type Mutation = {
   updateLocation: Location;
   updateManagementReview: ManagementReview;
   updateMarketingSuppression: MarketingSuppression;
+  updateMeetingType: MeetingType;
   updateMilestone: Milestone;
   /**
    * Employee self-update. Only progress moves; weightage, dates and the manager's
@@ -6999,7 +7103,18 @@ export type MutationAssignSupportTicketArgs = {
 };
 
 
+export type MutationBookMeetingArgs = {
+  input: BookMeetingInput;
+  slug: Scalars['String']['input'];
+};
+
+
 export type MutationCancelItAccessRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationCancelMeetingBookingArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7483,6 +7598,11 @@ export type MutationCreateManagementReviewArgs = {
 
 export type MutationCreateMarketingSuppressionArgs = {
   input: MarketingSuppressionInput;
+};
+
+
+export type MutationCreateMeetingTypeArgs = {
+  input: MeetingTypeInput;
 };
 
 
@@ -8179,6 +8299,11 @@ export type MutationDeleteManagementReviewArgs = {
 
 
 export type MutationDeleteMarketingSuppressionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteMeetingTypeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9829,6 +9954,12 @@ export type MutationUpdateManagementReviewArgs = {
 export type MutationUpdateMarketingSuppressionArgs = {
   id: Scalars['ID']['input'];
   input: MarketingSuppressionInput;
+};
+
+
+export type MutationUpdateMeetingTypeArgs = {
+  id: Scalars['ID']['input'];
+  input: MeetingTypeInput;
 };
 
 
@@ -11604,6 +11735,17 @@ export type PromptVariableInput = {
   value: Scalars['String']['input'];
 };
 
+/** What the public booking page shows before anything is booked. */
+export type PublicMeeting = {
+  __typename?: 'PublicMeeting';
+  description: Scalars['String']['output'];
+  durationMinutes: Scalars['Int']['output'];
+  hostName: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  timezone: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
 /** A published PUBLIC policy, for the website. No authentication. */
 export type PublicPolicy = {
   __typename?: 'PublicPolicy';
@@ -12310,6 +12452,8 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  meetingBookings: MeetingBookingPage;
+  meetingTypes: Array<MeetingType>;
   /** Delegations this person has arranged, and the ones they are covering. */
   myApprovalDelegations: MyApprovalDelegations;
   /**
@@ -12456,6 +12600,10 @@ export type Query = {
   publicJobCompanies: Array<JobCompany>;
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
+  /** Public: the meeting behind a booking link. */
+  publicMeeting: PublicMeeting;
+  /** Public: the free starts between two times (at most 62 days apart). */
+  publicMeetingSlots: Array<Scalars['DateTime']['output']>;
   publicNavLinks: Array<NavLink>;
   publicNewsletterIssue?: Maybe<NewsletterIssue>;
   publicNewsletterIssues: Array<NewsletterIssue>;
@@ -13844,6 +13992,12 @@ export type QueryLocaleBundleArgs = {
 };
 
 
+export type QueryMeetingBookingsArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+};
+
+
 export type QueryMyApprovalsArgs = {
   kind?: InputMaybe<Scalars['String']['input']>;
 };
@@ -14079,6 +14233,18 @@ export type QueryPublicJobCompanyArgs = {
 export type QueryPublicJobsArgs = {
   companySlug?: InputMaybe<Scalars['String']['input']>;
   site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicMeetingArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicMeetingSlotsArgs = {
+  from: Scalars['DateTime']['input'];
+  slug: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
 };
 
 
@@ -22341,6 +22507,76 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
+export type MeetingTypeFieldsFragment = { __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> };
+
+export type MeetingTypesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeetingTypesQuery = { __typename?: 'Query', meetingTypes: Array<{ __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> }> };
+
+export type CreateMeetingTypeMutationVariables = Exact<{
+  input: MeetingTypeInput;
+}>;
+
+
+export type CreateMeetingTypeMutation = { __typename?: 'Mutation', createMeetingType: { __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> } };
+
+export type UpdateMeetingTypeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: MeetingTypeInput;
+}>;
+
+
+export type UpdateMeetingTypeMutation = { __typename?: 'Mutation', updateMeetingType: { __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> } };
+
+export type DeleteMeetingTypeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteMeetingTypeMutation = { __typename?: 'Mutation', deleteMeetingType: boolean };
+
+export type MeetingBookingFieldsFragment = { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string };
+
+export type MeetingBookingsQueryVariables = Exact<{
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+}>;
+
+
+export type MeetingBookingsQuery = { __typename?: 'Query', meetingBookings: { __typename?: 'MeetingBookingPage', totalCount: number, rows: Array<{ __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string }> } };
+
+export type CancelMeetingBookingMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CancelMeetingBookingMutation = { __typename?: 'Mutation', cancelMeetingBooking: { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string } };
+
+export type PublicMeetingQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type PublicMeetingQuery = { __typename?: 'Query', publicMeeting: { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string } };
+
+export type PublicMeetingSlotsQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type PublicMeetingSlotsQuery = { __typename?: 'Query', publicMeetingSlots: Array<string> };
+
+export type BookMeetingMutationVariables = Exact<{
+  slug: Scalars['String']['input'];
+  input: BookMeetingInput;
+}>;
+
+
+export type BookMeetingMutation = { __typename?: 'Mutation', bookMeeting: { __typename?: 'BookedMeeting', title: string, hostName: string, startAt: string, endAt: string, location: string } };
+
 export type NewsletterIssueFieldsFragment = { __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
 export type NewsletterIssuesQueryVariables = Exact<{
@@ -27134,6 +27370,47 @@ export const MarketingSuppressionFieldsFragmentDoc = gql`
   email
   reason
   source
+  createdAt
+}
+    `;
+export const MeetingTypeFieldsFragmentDoc = gql`
+    fragment MeetingTypeFields on MeetingType {
+  id
+  title
+  slug
+  description
+  durationMinutes
+  location
+  hostName
+  hostEmail
+  timezone
+  weeklyHours {
+    day
+    enabled
+    start
+    end
+  }
+  bufferMinutes
+  minNoticeHours
+  maxDaysAhead
+  active
+  createdAt
+}
+    `;
+export const MeetingBookingFieldsFragmentDoc = gql`
+    fragment MeetingBookingFields on MeetingBooking {
+  id
+  meetingTypeId
+  meetingTitle
+  hostName
+  startAt
+  endAt
+  name
+  email
+  notes
+  timezone
+  status
+  contactId
   createdAt
 }
     `;
@@ -52889,6 +53166,344 @@ export function useCampaignMetricsSuspenseQuery(baseOptions?: ApolloReactHooks.S
 export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
 export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
 export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
+export const MeetingTypesDocument = gql`
+    query MeetingTypes {
+  meetingTypes {
+    ...MeetingTypeFields
+  }
+}
+    ${MeetingTypeFieldsFragmentDoc}`;
+
+/**
+ * __useMeetingTypesQuery__
+ *
+ * To run a query within a React component, call `useMeetingTypesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingTypesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeetingTypesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MeetingTypesQuery, MeetingTypesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingTypesQuery, MeetingTypesQueryVariables>(MeetingTypesDocument, options);
+      }
+export function useMeetingTypesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingTypesQuery, MeetingTypesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingTypesQuery, MeetingTypesQueryVariables>(MeetingTypesDocument, options);
+        }
+// @ts-ignore
+export function useMeetingTypesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingTypesQuery, MeetingTypesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingTypesQuery, MeetingTypesQueryVariables>;
+// @ts-ignore
+export function useMeetingTypesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingTypesQuery, MeetingTypesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingTypesQuery | undefined, MeetingTypesQueryVariables>;
+export function useMeetingTypesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingTypesQuery, MeetingTypesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingTypesQuery, MeetingTypesQueryVariables>(MeetingTypesDocument, options);
+        }
+export type MeetingTypesQueryHookResult = ReturnType<typeof useMeetingTypesQuery>;
+export type MeetingTypesLazyQueryHookResult = ReturnType<typeof useMeetingTypesLazyQuery>;
+export type MeetingTypesSuspenseQueryHookResult = ReturnType<typeof useMeetingTypesSuspenseQuery>;
+export const CreateMeetingTypeDocument = gql`
+    mutation CreateMeetingType($input: MeetingTypeInput!) {
+  createMeetingType(input: $input) {
+    ...MeetingTypeFields
+  }
+}
+    ${MeetingTypeFieldsFragmentDoc}`;
+
+/**
+ * __useCreateMeetingTypeMutation__
+ *
+ * To run a mutation, you first call `useCreateMeetingTypeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMeetingTypeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMeetingTypeMutation, { data, loading, error }] = useCreateMeetingTypeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateMeetingTypeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateMeetingTypeMutation, CreateMeetingTypeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateMeetingTypeMutation, CreateMeetingTypeMutationVariables>(CreateMeetingTypeDocument, options);
+      }
+export type CreateMeetingTypeMutationHookResult = ReturnType<typeof useCreateMeetingTypeMutation>;
+export const UpdateMeetingTypeDocument = gql`
+    mutation UpdateMeetingType($id: ID!, $input: MeetingTypeInput!) {
+  updateMeetingType(id: $id, input: $input) {
+    ...MeetingTypeFields
+  }
+}
+    ${MeetingTypeFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateMeetingTypeMutation__
+ *
+ * To run a mutation, you first call `useUpdateMeetingTypeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMeetingTypeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMeetingTypeMutation, { data, loading, error }] = useUpdateMeetingTypeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateMeetingTypeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateMeetingTypeMutation, UpdateMeetingTypeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateMeetingTypeMutation, UpdateMeetingTypeMutationVariables>(UpdateMeetingTypeDocument, options);
+      }
+export type UpdateMeetingTypeMutationHookResult = ReturnType<typeof useUpdateMeetingTypeMutation>;
+export const DeleteMeetingTypeDocument = gql`
+    mutation DeleteMeetingType($id: ID!) {
+  deleteMeetingType(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteMeetingTypeMutation__
+ *
+ * To run a mutation, you first call `useDeleteMeetingTypeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMeetingTypeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMeetingTypeMutation, { data, loading, error }] = useDeleteMeetingTypeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteMeetingTypeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteMeetingTypeMutation, DeleteMeetingTypeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteMeetingTypeMutation, DeleteMeetingTypeMutationVariables>(DeleteMeetingTypeDocument, options);
+      }
+export type DeleteMeetingTypeMutationHookResult = ReturnType<typeof useDeleteMeetingTypeMutation>;
+export const MeetingBookingsDocument = gql`
+    query MeetingBookings($page: Int!, $pageSize: Int!) {
+  meetingBookings(page: $page, pageSize: $pageSize) {
+    totalCount
+    rows {
+      ...MeetingBookingFields
+    }
+  }
+}
+    ${MeetingBookingFieldsFragmentDoc}`;
+
+/**
+ * __useMeetingBookingsQuery__
+ *
+ * To run a query within a React component, call `useMeetingBookingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingBookingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingBookingsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      pageSize: // value for 'pageSize'
+ *   },
+ * });
+ */
+export function useMeetingBookingsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MeetingBookingsQuery, MeetingBookingsQueryVariables> & ({ variables: MeetingBookingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingBookingsQuery, MeetingBookingsQueryVariables>(MeetingBookingsDocument, options);
+      }
+export function useMeetingBookingsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingBookingsQuery, MeetingBookingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingBookingsQuery, MeetingBookingsQueryVariables>(MeetingBookingsDocument, options);
+        }
+// @ts-ignore
+export function useMeetingBookingsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingBookingsQuery, MeetingBookingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBookingsQuery, MeetingBookingsQueryVariables>;
+// @ts-ignore
+export function useMeetingBookingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBookingsQuery, MeetingBookingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBookingsQuery | undefined, MeetingBookingsQueryVariables>;
+export function useMeetingBookingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBookingsQuery, MeetingBookingsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingBookingsQuery, MeetingBookingsQueryVariables>(MeetingBookingsDocument, options);
+        }
+export type MeetingBookingsQueryHookResult = ReturnType<typeof useMeetingBookingsQuery>;
+export type MeetingBookingsLazyQueryHookResult = ReturnType<typeof useMeetingBookingsLazyQuery>;
+export type MeetingBookingsSuspenseQueryHookResult = ReturnType<typeof useMeetingBookingsSuspenseQuery>;
+export const CancelMeetingBookingDocument = gql`
+    mutation CancelMeetingBooking($id: ID!) {
+  cancelMeetingBooking(id: $id) {
+    ...MeetingBookingFields
+  }
+}
+    ${MeetingBookingFieldsFragmentDoc}`;
+
+/**
+ * __useCancelMeetingBookingMutation__
+ *
+ * To run a mutation, you first call `useCancelMeetingBookingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelMeetingBookingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelMeetingBookingMutation, { data, loading, error }] = useCancelMeetingBookingMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCancelMeetingBookingMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CancelMeetingBookingMutation, CancelMeetingBookingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CancelMeetingBookingMutation, CancelMeetingBookingMutationVariables>(CancelMeetingBookingDocument, options);
+      }
+export type CancelMeetingBookingMutationHookResult = ReturnType<typeof useCancelMeetingBookingMutation>;
+export const PublicMeetingDocument = gql`
+    query PublicMeeting($slug: String!) {
+  publicMeeting(slug: $slug) {
+    slug
+    title
+    description
+    durationMinutes
+    hostName
+    timezone
+  }
+}
+    `;
+
+/**
+ * __usePublicMeetingQuery__
+ *
+ * To run a query within a React component, call `usePublicMeetingQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicMeetingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicMeetingQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function usePublicMeetingQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PublicMeetingQuery, PublicMeetingQueryVariables> & ({ variables: PublicMeetingQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PublicMeetingQuery, PublicMeetingQueryVariables>(PublicMeetingDocument, options);
+      }
+export function usePublicMeetingLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PublicMeetingQuery, PublicMeetingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PublicMeetingQuery, PublicMeetingQueryVariables>(PublicMeetingDocument, options);
+        }
+// @ts-ignore
+export function usePublicMeetingSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PublicMeetingQuery, PublicMeetingQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicMeetingQuery, PublicMeetingQueryVariables>;
+// @ts-ignore
+export function usePublicMeetingSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicMeetingQuery, PublicMeetingQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicMeetingQuery | undefined, PublicMeetingQueryVariables>;
+export function usePublicMeetingSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicMeetingQuery, PublicMeetingQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PublicMeetingQuery, PublicMeetingQueryVariables>(PublicMeetingDocument, options);
+        }
+export type PublicMeetingQueryHookResult = ReturnType<typeof usePublicMeetingQuery>;
+export type PublicMeetingLazyQueryHookResult = ReturnType<typeof usePublicMeetingLazyQuery>;
+export type PublicMeetingSuspenseQueryHookResult = ReturnType<typeof usePublicMeetingSuspenseQuery>;
+export const PublicMeetingSlotsDocument = gql`
+    query PublicMeetingSlots($slug: String!, $from: DateTime!, $to: DateTime!) {
+  publicMeetingSlots(slug: $slug, from: $from, to: $to)
+}
+    `;
+
+/**
+ * __usePublicMeetingSlotsQuery__
+ *
+ * To run a query within a React component, call `usePublicMeetingSlotsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicMeetingSlotsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicMeetingSlotsQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function usePublicMeetingSlotsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables> & ({ variables: PublicMeetingSlotsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>(PublicMeetingSlotsDocument, options);
+      }
+export function usePublicMeetingSlotsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>(PublicMeetingSlotsDocument, options);
+        }
+// @ts-ignore
+export function usePublicMeetingSlotsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>;
+// @ts-ignore
+export function usePublicMeetingSlotsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicMeetingSlotsQuery | undefined, PublicMeetingSlotsQueryVariables>;
+export function usePublicMeetingSlotsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PublicMeetingSlotsQuery, PublicMeetingSlotsQueryVariables>(PublicMeetingSlotsDocument, options);
+        }
+export type PublicMeetingSlotsQueryHookResult = ReturnType<typeof usePublicMeetingSlotsQuery>;
+export type PublicMeetingSlotsLazyQueryHookResult = ReturnType<typeof usePublicMeetingSlotsLazyQuery>;
+export type PublicMeetingSlotsSuspenseQueryHookResult = ReturnType<typeof usePublicMeetingSlotsSuspenseQuery>;
+export const BookMeetingDocument = gql`
+    mutation BookMeeting($slug: String!, $input: BookMeetingInput!) {
+  bookMeeting(slug: $slug, input: $input) {
+    title
+    hostName
+    startAt
+    endAt
+    location
+  }
+}
+    `;
+
+/**
+ * __useBookMeetingMutation__
+ *
+ * To run a mutation, you first call `useBookMeetingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useBookMeetingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [bookMeetingMutation, { data, loading, error }] = useBookMeetingMutation({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useBookMeetingMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<BookMeetingMutation, BookMeetingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<BookMeetingMutation, BookMeetingMutationVariables>(BookMeetingDocument, options);
+      }
+export type BookMeetingMutationHookResult = ReturnType<typeof useBookMeetingMutation>;
 export const NewsletterIssuesDocument = gql`
     query NewsletterIssues($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
   newsletterIssues(
