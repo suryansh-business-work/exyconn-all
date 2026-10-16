@@ -22,6 +22,7 @@ import { Search, TrendingUp, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
+import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
 
 interface KeywordSuggestion {
   keyword: string;
@@ -35,7 +36,7 @@ const KeywordTool: React.FC = () => {
   const [totalSuggestions, setTotalSuggestions] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, flashCopied } = useCopiedFlag();
 
   const handleSearch = async () => {
     if (!seed.trim()) return;
@@ -62,8 +63,7 @@ const KeywordTool: React.FC = () => {
   const handleCopy = () => {
     const text = results.map((r) => r.keyword).join('\n');
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    flashCopied();
   };
 
   return (

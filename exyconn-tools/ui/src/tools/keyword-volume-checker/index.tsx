@@ -22,6 +22,7 @@ import { Analytics, Search, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
+import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
 
 interface SuggestionResult {
   keyword: string;
@@ -34,7 +35,7 @@ const KeywordVolumeChecker: React.FC = () => {
   const [results, setResults] = useState<SuggestionResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, flashCopied } = useCopiedFlag();
 
   const handleCheck = async () => {
     const kwList = keywords
@@ -72,8 +73,7 @@ const KeywordVolumeChecker: React.FC = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(results.map((r) => r.keyword).join('\n'));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    flashCopied();
   };
 
   return (

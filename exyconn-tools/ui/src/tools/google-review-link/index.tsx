@@ -25,6 +25,7 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { APIs } from '../../shared/config/apis';
 import { readSecret } from '../../shared/services/secrets';
+import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
 
 const PLACES_KEY = 'google_places_api_key';
 
@@ -39,7 +40,7 @@ interface PlaceResult {
 const GoogleReviewLink: React.FC = () => {
   const [placeId, setPlaceId] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
-  const [copied, setCopied] = useState(false);
+  const { copied, flashCopied } = useCopiedFlag(1500);
   const [businessQuery, setBusinessQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -87,8 +88,7 @@ const GoogleReviewLink: React.FC = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    flashCopied();
   };
 
   return (

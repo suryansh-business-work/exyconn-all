@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Paper, Typography, IconButton, Tooltip, Chip, Stack } from '@mui/material';
 import { ContentCopy, CheckCircle, AutoAwesome, Token } from '@mui/icons-material';
 import { TokenUsage } from '../../services/openai';
+import { useCopiedFlag } from '../../hooks/useCopiedFlag';
 
 interface AIResultDisplayProps {
   result: string;
@@ -10,12 +11,11 @@ interface AIResultDisplayProps {
 }
 
 const AIResultDisplay: React.FC<AIResultDisplayProps> = ({ result, title = 'Generated Result', tokenUsage }) => {
-  const [copied, setCopied] = React.useState(false);
+  const { copied, flashCopied } = useCopiedFlag();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    flashCopied();
   };
 
   if (!result) return null;

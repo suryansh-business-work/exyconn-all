@@ -16,6 +16,7 @@ import Grid from '@mui/material/Grid';
 import { AutoAwesome, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
 
 const AITextGenerator: React.FC = () => {
   const [topic, setTopic] = useState('');
@@ -24,7 +25,7 @@ const AITextGenerator: React.FC = () => {
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, flashCopied } = useCopiedFlag();
 
   const contentTypes = [
     { value: 'blog-intro', label: 'Blog Introduction' },
@@ -84,8 +85,7 @@ const AITextGenerator: React.FC = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    flashCopied();
   };
 
   return (
