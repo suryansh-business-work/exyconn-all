@@ -27,8 +27,12 @@ describe('buildPortalEntries', () => {
     expect(byLabel.every((e) => /track/i.test(`${e.label} ${e.description}`))).toBe(true);
     expect(byLabel.length).toBeGreaterThan(0);
 
-    const byDescription = buildPortalEntries([ROLES.ADMIN], 'hub', 'invoices');
+    const byDescription = buildPortalEntries([ROLES.ADMIN], 'hub', 'REIMBURSEMENTS');
     expect(byDescription.map((e) => e.key)).toEqual(['finance']);
+
+    // Client Hub's description names invoices too, so both match.
+    const shared = buildPortalEntries([ROLES.ADMIN], 'hub', 'invoices');
+    expect(shared.map((e) => e.key)).toEqual(['finance', 'clienthub']);
   });
 
   it('returns nothing when the query matches no portal', () => {
@@ -42,7 +46,7 @@ describe('allPortalEntries', () => {
   });
 
   it('marks the asking app as current and still filters on the query', () => {
-    const entries = allPortalEntries('finance', 'invoices');
+    const entries = allPortalEntries('finance', 'reimbursements');
     expect(entries.map((e) => e.key)).toEqual(['finance']);
     expect(entries[0].isCurrent).toBe(true);
   });

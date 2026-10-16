@@ -26,6 +26,7 @@ import { CommandPalette, useCommandPalette } from '../CommandPalette';
 import { OrganizationSwitcher } from '../OrganizationSwitcher';
 import { NotificationBell } from './NotificationBell';
 import { ApprovalsBell } from './ApprovalsBell';
+import { AllAppsButton } from './AllAppsButton';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
@@ -140,6 +141,7 @@ export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
           </Typography>
         </Box>
         <Box sx={roundActions}>
+          {user && <AllAppsButton />}
           <ApprovalsBell />
           <NotificationBell />
           <IconButton onClick={toggle} aria-label={t('Toggle colour mode')}>

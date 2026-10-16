@@ -61,6 +61,8 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -110,7 +112,6 @@ import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import HttpsIcon from '@mui/icons-material/Https';
-import ChatIcon from '@mui/icons-material/Chat';
 import { ROLES, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
 import type { NavGroup } from './navGroups';
@@ -512,11 +513,27 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Tools',
       },
       {
+        // Businesses found on Google Places, enriched and filed as CRM companies.
+        key: 'crm-lead-generator',
+        label: 'Lead generator',
+        path: '/crm/tools/lead-generator',
+        icon: TravelExploreIcon,
+        group: 'Tools',
+      },
+      {
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
         label: 'Custom Properties',
         path: '/crm/settings/properties',
         icon: TuneIcon,
+        group: 'Configuration',
+      },
+      {
+        // The Gmail accounts the CRM reads contacts' threads from and sends as.
+        key: 'crm-connect-gmail',
+        label: 'Connect Gmail',
+        path: '/crm/settings/gmail',
+        icon: AlternateEmailIcon,
         group: 'Configuration',
       },
     ],
@@ -1531,15 +1548,15 @@ export const MODULES: ModuleDefinition[] = [
     ],
   },
   {
-    // Keyed to EMPLOYEE like Social: anyone in the company may walk a client through it.
-    // The app renders without portal chrome; its /admin analytics are ADMIN-only on the server.
-    key: 'whatsapp-demo',
-    label: 'WhatsApp Demo',
-    path: '/whatsapp-demo',
+    // Listed for everyone in the company so a client can be pointed at it; the hub itself signs
+    // clients in with an emailed code, not with a portal role.
+    key: 'clienthub',
+    label: 'Client Hub',
+    path: '/dashboard',
     role: ROLES.EMPLOYEE,
-    icon: ChatIcon,
-    description: 'WhatsApp Business automation demos for client walkthroughs',
-    accent: color.green[600],
+    icon: StorefrontIcon,
+    description: 'Where clients see invoices, payments, projects and support',
+    accent: color.indigo[400],
   },
 ];
 
