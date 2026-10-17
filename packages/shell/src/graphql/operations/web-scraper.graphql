@@ -1,0 +1,102 @@
+# Firecrawl: the key in Tech > Environment Variables, and the CRM website scraper
+# (CRM > Tools > Website scraper), whose pages can be handed to the AI.
+
+fragment FirecrawlConfigFields on FirecrawlConfig {
+  id
+  label
+  baseUrl
+  hasApiKey
+  apiKeyHint
+  isActive
+  updatedAt
+}
+
+query FirecrawlConfigs {
+  firecrawlConfigs {
+    ...FirecrawlConfigFields
+  }
+}
+
+mutation CreateFirecrawlConfig($input: FirecrawlConfigInput!) {
+  createFirecrawlConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateFirecrawlConfig($id: ID!, $input: FirecrawlConfigInput!) {
+  updateFirecrawlConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation TestFirecrawlConfig($id: ID!) {
+  testFirecrawlConfig(id: $id)
+}
+
+mutation DeleteFirecrawlConfig($id: ID!) {
+  deleteFirecrawlConfig(id: $id)
+}
+
+query FirecrawlReady {
+  firecrawlReady
+}
+
+fragment WebScrapeRowFields on WebScrape {
+  id
+  url
+  title
+  charCount
+  createdByName
+  analyzedAt
+  createdAt
+}
+
+fragment WebScrapeFields on WebScrape {
+  ...WebScrapeRowFields
+  markdown
+  aiInstruction
+  aiResponse
+  aiCostUsd
+}
+
+query ListWebScrapesPaged($input: TableQueryInput!) {
+  listWebScrapesPaged(input: $input) {
+    rows {
+      ...WebScrapeRowFields
+    }
+    totalCount
+  }
+}
+
+query GetWebScrape($id: ID!) {
+  getWebScrape(id: $id) {
+    ...WebScrapeFields
+  }
+}
+
+query WebScrapeAiEstimate($id: ID!, $instruction: String!) {
+  webScrapeAiEstimate(id: $id, instruction: $instruction) {
+    model
+    inputTokens
+    outputTokens
+    costUsd
+    priced
+    truncated
+  }
+}
+
+mutation ScrapeWebsite($url: String!) {
+  scrapeWebsite(url: $url) {
+    ...WebScrapeFields
+  }
+}
+
+mutation DeleteWebScrape($id: ID!) {
+  deleteWebScrape(id: $id)
+}
+
+mutation AnalyzeWebScrape($id: ID!, $instruction: String!) {
+  analyzeWebScrape(id: $id, instruction: $instruction) {
+    ...WebScrapeFields
+  }
+}

@@ -62,6 +62,11 @@ function assertText(value: string, label: string): string {
  * grid, where nobody is.
  */
 export async function runAssist(name: string, prompt: string, actor: AiActor): Promise<string> {
+  return (await runAssistJob(name, prompt, actor)).response;
+}
+
+/** {@link runAssist}, returning the finished job — for a caller that reports what it cost. */
+export async function runAssistJob(name: string, prompt: string, actor: AiActor) {
   await assertWithinAiBudget(actor.id);
   const model = await defaultAiModel();
   const job = await AiJobModel.create({
@@ -75,7 +80,7 @@ export async function runAssist(name: string, prompt: string, actor: AiActor): P
   if (finished.status === 'FAILED') {
     badRequest(finished.error);
   }
-  return finished.response;
+  return finished;
 }
 
 /** Condenses text a caller already has. Reusable by any module that holds long prose. */

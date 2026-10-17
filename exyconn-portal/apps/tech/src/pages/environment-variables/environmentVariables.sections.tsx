@@ -19,6 +19,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PublicIcon from '@mui/icons-material/Public';
 import MapIcon from '@mui/icons-material/Map';
+import WebIcon from '@mui/icons-material/Web';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { GoogleMapsConfigsPanel } from './GoogleMapsConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
@@ -28,6 +29,7 @@ import { GithubConfigsPanel } from './GithubConfigsPanel';
 import { PexelsConfigsPanel } from './PexelsConfigsPanel';
 import { OpenAiConfigsPanel } from './OpenAiConfigsPanel';
 import { AiPricingPanel } from './AiPricingPanel';
+import { FirecrawlConfigsPanel } from './FirecrawlConfigsPanel';
 import { GodaddyConfigsPanel } from './GodaddyConfigsPanel';
 import { CloudflareConfigsPanel } from './CloudflareConfigsPanel';
 import { StripeConfigsPanel } from './StripeConfigsPanel';
@@ -125,6 +127,13 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     category: AI,
     icon: <PriceChangeIcon />,
     panel: <AiPricingPanel />,
+  },
+  {
+    slug: 'firecrawl',
+    label: 'Firecrawl',
+    category: AI,
+    icon: <WebIcon />,
+    panel: <FirecrawlConfigsPanel />,
   },
   {
     slug: 'stripe',
