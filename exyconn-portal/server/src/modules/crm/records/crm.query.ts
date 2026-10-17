@@ -1,9 +1,10 @@
 import type { FilterQuery } from 'mongoose';
+import { archivedFilter } from '../../../lib/archivable';
 import { badRequest } from '../../../utils/errors';
 import { escapeRegex } from '../../../utils/tableQuery';
 import { withIds } from '../../../utils/serialize';
 import { CHOICE_TYPES, OBJECT_DEFS, type CrmObject, type PropertyDef } from './crm.objects';
-import { OPS_BY_TYPE, propertyIndex, type CrmOp } from './crm.schema';
+import { opsOf, propertyIndex, type CrmOp } from './crm.schema';
 import { coerceValue } from './crm.values';
 
 /**
@@ -30,6 +31,7 @@ export interface CrmQueryInput {
   search?: string | null;
   groups?: CrmFilterGroup[] | null;
   sorts?: CrmSort[] | null;
+  archived?: boolean | null;
 }
 
 export const CRM_QUERY_LIMITS = Object.freeze({
@@ -140,8 +142,20 @@ function valueCondition(property: PropertyDef, condition: CrmCondition): Conditi
   return { [path]: { [COMPARE[op] as string]: value } };
 }
 
+const hasValue = (path: string): Condition => ({ [path]: { $exists: true, $nin: [null, ''] } });
+
+/** "Has email is Yes": any of the property's paths holds a value; "No": none of them does. */
+function presenceCondition(paths: string[], condition: CrmCondition, label: string): Condition {
+  const wanted = first(condition, label);
+  if (wanted !== 'true' && wanted !== 'false') {
+    badRequest(`${label} is Yes or No`);
+  }
+  const present = paths.map(hasValue);
+  return wanted === 'true' ? { $or: present } : { $nor: present };
+}
+
 function compileCondition(property: PropertyDef, condition: CrmCondition): Condition {
-  if (!OPS_BY_TYPE[property.type].includes(condition.op)) {
+  if (!opsOf(property).includes(condition.op)) {
     badRequest(`${property.label} cannot be filtered with ${condition.op}`);
   }
   if (condition.values.length > CRM_QUERY_LIMITS.maxValues) {
@@ -150,11 +164,14 @@ function compileCondition(property: PropertyDef, condition: CrmCondition): Condi
   if (condition.values.some((value) => value.length > CRM_QUERY_LIMITS.maxValueLength)) {
     badRequest(`A filter value is limited to ${CRM_QUERY_LIMITS.maxValueLength} characters`);
   }
+  if (property.presencePaths) {
+    return presenceCondition(property.presencePaths, condition, property.label);
+  }
   if (condition.op === 'IS_EMPTY') {
     return isEmpty(property.path);
   }
   if (condition.op === 'IS_NOT_EMPTY') {
-    return { [property.path]: { $exists: true, $nin: [null, ''] } };
+    return hasValue(property.path);
   }
   return TEXT_TYPES.has(property.type)
     ? textCondition(property.path, condition.op, first(condition, property.label))
@@ -212,7 +229,11 @@ export function compileSort(
   }
   const sort: Record<string, 1 | -1> = {};
   for (const { property, dir } of requested) {
-    sort[propertyOf(properties, property).path] = dir === 'DESC' ? -1 : 1;
+    const def = propertyOf(properties, property);
+    if (def.filterOnly) {
+      badRequest(`${def.label} cannot be sorted on`);
+    }
+    sort[def.path] = dir === 'DESC' ? -1 : 1;
   }
   if (requested.length === 0) {
     sort.createdAt = -1;
@@ -232,7 +253,7 @@ export async function searchRecords(object: CrmObject, input: CrmQueryInput) {
     badRequest('That page is too far in; narrow the search or filters instead');
   }
   const properties = await propertyIndex(object);
-  const filter = compileFilter(object, properties, input);
+  const filter = { ...compileFilter(object, properties, input), ...archivedFilter(input.archived) };
   const { model } = OBJECT_DEFS[object];
   const [rows, totalCount] = await Promise.all([
     model

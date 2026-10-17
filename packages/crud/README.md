@@ -20,6 +20,14 @@ const fetchRows = usePagedFetcher(
 `CrudDashboard` (and `RecordCardList`) take an optional `initialSearch` that seeds the
 search box when they mount — the CRM lists use it for a saved view's search.
 
+Bulk actions come for free: when the server's `tableBulkInfo` says the grid's list
+(`fetchRows.list`, or the optional `bulkList` prop for a fetcher that names none — the CRM's
+`searchCompanies`, say) is deletable or archivable, `ServerDataGrid` adds row checkboxes, a
+"Select page" button, an Archived switch and a bar with "Delete / Archive / Restore selected"
+(confirmed first, run through `tableBulkAction`, 200 ids per request). The dashboard's stat
+tiles re-read afterwards through the resource's `reload`. Phones keep the card list, without
+bulk actions.
+
 Depends on `@exyconn/shell`; nothing depends on it but the apps.
 
 Full reference, including a module end to end:

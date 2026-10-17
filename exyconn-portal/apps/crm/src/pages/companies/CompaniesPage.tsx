@@ -93,6 +93,7 @@ export function CompaniesPage() {
       columnDefs={records.columnDefs}
       onRowClick={(row) => navigate(`/crm/companies/${row.id}`)}
       fetchRows={records.fetchRows}
+      bulkList="searchCompanies"
       context={gridContext}
       searchPlaceholder="Search by name, domain, industry or owner…"
       initialSearch={records.initialSearch}

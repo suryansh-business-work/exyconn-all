@@ -1,4 +1,5 @@
 import type { FilterQuery, Model, PipelineStage } from 'mongoose';
+import { archivedFilter } from '../lib/archivable';
 import { badRequest } from './errors';
 
 /**
@@ -49,6 +50,8 @@ export interface TableQueryInput {
   /** Several sort columns, most significant first; when set it wins over `sort`. */
   sorts?: TableSortInput[] | null;
   filters?: TableFilterInput[] | null;
+  /** True lists only archived rows; otherwise archived rows are left out. */
+  archived?: boolean | null;
 }
 
 export interface TableConfig {
@@ -293,7 +296,7 @@ export async function tableQuery<T>(
   const page = Math.max(0, input.page);
   const skip = page * pageSize;
   assertWithinLimits(input, skip);
-  const filter = buildFilter(input, config, baseFilter);
+  const filter = buildFilter(input, config, { ...archivedFilter(input.archived), ...baseFilter });
   const sort = buildSort(input, config);
 
   const [rows, totalCount] = await Promise.all([

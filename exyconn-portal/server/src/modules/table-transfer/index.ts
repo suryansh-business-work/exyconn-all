@@ -2,6 +2,7 @@ import type { GraphQLResolveInfo } from 'graphql';
 import type { GraphQLContext } from '../../middleware/auth';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { exportTable, type ExportArgs } from './tableExport';
+import { runBulkAction, tableBulkInfo, type BulkArgs } from './tableBulk';
 import { parseTableFile } from './tableFiles';
 import { importRows, type ImportArgs } from './tableImport';
 import { tableInfo } from './tableInfo';
@@ -23,6 +24,15 @@ export const tableTransferResolvers = {
     ) => {
       assertAuthenticated(ctx);
       return tableInfo(info.schema, list);
+    },
+    tableBulkInfo: (
+      _p: unknown,
+      { list }: { list: string },
+      ctx: GraphQLContext,
+      info: GraphQLResolveInfo,
+    ) => {
+      assertAuthenticated(ctx);
+      return tableBulkInfo(info.schema, list);
     },
     tableImportTemplate: (
       _p: unknown,
@@ -49,8 +59,17 @@ export const tableTransferResolvers = {
       assertAuthenticated(ctx);
       return importRows(info.schema, ctx, args);
     },
+    tableBulkAction: (
+      _p: unknown,
+      args: BulkArgs,
+      ctx: GraphQLContext,
+      info: GraphQLResolveInfo,
+    ) => {
+      assertAuthenticated(ctx);
+      return runBulkAction(info.schema, ctx, args);
+    },
   },
 };
 
 export { tableTransferTypeDefs } from './tableTransfer.typeDefs';
-export { registerTable } from './registry';
+export { registerBulkTarget, registerTable } from './registry';

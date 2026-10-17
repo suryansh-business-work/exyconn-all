@@ -1,3 +1,4 @@
+import type { GraphQLContext } from '../../middleware/auth';
 import type { TableConfig } from '../../utils/tableQuery';
 
 /**
@@ -45,4 +46,36 @@ export function registerTable(
 /** The registered list, or null for a name no list registered. */
 export function registeredTable(list: string): RegisteredTable | null {
   return tables.get(list) ?? null;
+}
+
+/**
+ * Archives or restores records of a list as the caller: checks the module's EDIT permission,
+ * writes, audits, and returns how many changed.
+ */
+export type TableArchiver = (
+  ctx: GraphQLContext,
+  ids: string[],
+  archived: boolean,
+) => Promise<number>;
+
+/** What a grid's "Delete selected" and "Archive selected" act on for one list. */
+export interface BulkTarget {
+  /** The record type: deleting runs its own `delete<Entity>(id)` mutation. */
+  entity: string;
+  archive: TableArchiver | null;
+}
+
+const bulkTargets = new Map<string, BulkTarget>();
+
+/**
+ * Opens a list to bulk actions. `createCrudResolvers` registers its paged lists; a hand-written
+ * list (the CRM's) registers its own. Delete needs nothing more than the module's own delete
+ * mutation, so a paged list left out still deletes in bulk — only archiving needs this.
+ */
+export function registerBulkTarget(list: string, target: BulkTarget): void {
+  bulkTargets.set(list, target);
+}
+
+export function registeredBulkTarget(list: string): BulkTarget | null {
+  return bulkTargets.get(list) ?? null;
 }

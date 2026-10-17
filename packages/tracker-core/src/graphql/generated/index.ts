@@ -1092,6 +1092,8 @@ export type CrmPropertyUpdateInput = {
 };
 
 export type CrmQueryInput = {
+  /** True lists only archived records; otherwise archived records are left out. */
+  archived: InputMaybe<Scalars['Boolean']['input']>;
   groups: InputMaybe<Array<CrmFilterGroupInput>>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
@@ -1453,6 +1455,15 @@ export type FindingType =
   | 'MINOR_NONCONFORMITY'
   | 'OBSERVATION'
   | 'OPPORTUNITY';
+
+export type FirecrawlConfigInput = {
+  /** Leave empty when editing to keep it. */
+  apiKey: Scalars['String']['input'];
+  /** https://api.firecrawl.dev, or a self-hosted Firecrawl. */
+  baseUrl: Scalars['String']['input'];
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 /** Whether a gateway account talks to the gateway's test environment or takes real money. */
 export type GatewayMode =
@@ -1974,6 +1985,11 @@ export type KbArticleInput = {
   title: Scalars['String']['input'];
 };
 
+export type LatLngInput = {
+  lat: Scalars['Float']['input'];
+  lng: Scalars['Float']['input'];
+};
+
 export type LeadEmailStatus =
   | 'BLOCKED'
   | 'FOUND'
@@ -2014,6 +2030,8 @@ export type LeadSearchInput = {
   /** Where, as text (e.g. Pune, India). Ignored when lat and lng are given. */
   location: InputMaybe<Scalars['String']['input']>;
   pageToken: InputMaybe<Scalars['String']['input']>;
+  /** An area drawn on the map (3 to 50 points): only places inside it. Wins over location and lat/lng. */
+  polygon: InputMaybe<Array<LatLngInput>>;
   /** What to look for, e.g. dentists. */
   query: Scalars['String']['input'];
   /** Radius around lat/lng in metres, at most 50000. */
@@ -3199,6 +3217,15 @@ export type SuppressionReason =
   | 'MANUAL'
   | 'UNSUBSCRIBED';
 
+/** What a grid may do with the rows a person selects. */
+export type TableBulkAction =
+  /** Hides the rows from the table and keeps them; they can be restored. */
+  | 'ARCHIVE'
+  /** Deletes each row through the module's own delete, guards and audit included. */
+  | 'DELETE'
+  /** Brings archived rows back into the table. */
+  | 'RESTORE';
+
 /** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
 export type TableExportColumnInput = {
   field: Scalars['String']['input'];
@@ -3237,6 +3264,8 @@ export type TableImportMode =
 
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
 export type TableQueryInput = {
+  /** True lists only archived rows; otherwise archived rows are left out. */
+  archived: InputMaybe<Scalars['Boolean']['input']>;
   filters: InputMaybe<Array<TableFilterInput>>;
   /** Zero-based: 0 is the first page, so the first pageSize rows. */
   page: Scalars['Int']['input'];

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { Alert, Box, Button, TextField } from '@/components/ui';
 import { useT } from '@exyconn/i18n';
@@ -13,6 +14,8 @@ interface ServerGridToolbarProps {
   loadError: string | null;
   /** Set while any column filter is applied: offers "Clear filters". */
   onClearFilters?: () => void;
+  /** Further controls after the built-in ones — the grid's selection controls. */
+  children?: ReactNode;
 }
 
 /**
@@ -27,11 +30,12 @@ export function ServerGridToolbar({
   loading,
   loadError,
   onClearFilters,
+  children,
 }: Readonly<ServerGridToolbarProps>) {
   const t = useT();
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1.5 }}>
         <TextField
           size="small"
           placeholder={t(searchPlaceholder)}
@@ -51,6 +55,7 @@ export function ServerGridToolbar({
             {t('Clear filters')}
           </Button>
         )}
+        {children}
       </Box>
       {loadError && (
         <Alert severity="error" sx={{ mb: 1.5 }}>

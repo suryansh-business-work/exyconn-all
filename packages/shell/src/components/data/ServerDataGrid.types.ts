@@ -35,4 +35,12 @@ export interface ServerDataGridProps<T> {
    * ALL rows with exactly the query the person is looking at.
    */
   onQuery?: (query: GridQuery) => void;
+  /**
+   * The list `tableBulkInfo` / `tableBulkAction` know the rows by, when the fetcher names
+   * none (a CRM search, say). Defaults to `fetchRows.list`. When the server says the list is
+   * deletable or archivable, rows get checkboxes and "Delete / Archive selected".
+   */
+  bulkList?: string;
+  /** Told after a bulk action changed rows, so the host can re-read its stats. */
+  onBulkDone?: () => void;
 }

@@ -1,4 +1,5 @@
 import mongoose, { type Schema } from 'mongoose';
+import { archivablePlugin } from '../archivable';
 import { PLATFORM_MODELS } from './platform-models';
 import { ORGANIZATION_FIELD, tenantPlugin } from './tenant-plugin';
 
@@ -17,6 +18,8 @@ function installTenantScope(): void {
   const patched = (name: string, schema?: Schema, ...rest: unknown[]): unknown => {
     if (schema !== undefined && !PLATFORM_MODELS.has(name)) {
       schema.plugin(tenantPlugin, { name });
+      // A company's records can be archived from their table (lib/archivable).
+      schema.plugin(archivablePlugin);
     }
     return (original as (...args: unknown[]) => unknown)(name, schema, ...rest);
   };

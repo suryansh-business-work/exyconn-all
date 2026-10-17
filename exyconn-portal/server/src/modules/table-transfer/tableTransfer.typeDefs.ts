@@ -89,7 +89,35 @@ export const tableTransferTypeDefs = gql`
     issues: [TableImportIssue!]!
   }
 
+  "What a grid may do with the rows a person selects."
+  enum TableBulkAction {
+    "Deletes each row through the module's own delete, guards and audit included."
+    DELETE
+    "Hides the rows from the table and keeps them; they can be restored."
+    ARCHIVE
+    "Brings archived rows back into the table."
+    RESTORE
+  }
+
+  type TableBulkInfo {
+    deletable: Boolean!
+    archivable: Boolean!
+  }
+
+  type TableBulkFailure {
+    id: ID!
+    message: String!
+  }
+
+  type TableBulkResult {
+    succeeded: Int!
+    "Rows that could not be deleted, with why; the rest were."
+    failures: [TableBulkFailure!]!
+  }
+
   extend type Query {
+    "Whether a list's selected rows can be deleted and archived."
+    tableBulkInfo(list: String!): TableBulkInfo!
     "Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT."
     tableExport(
       list: String!
@@ -119,5 +147,7 @@ export const tableTransferTypeDefs = gql`
       rows: [JSON!]!
       firstRowNumber: Int!
     ): TableImportResult!
+    "Deletes, archives or restores up to 200 selected rows of a list."
+    tableBulkAction(list: String!, ids: [ID!]!, action: TableBulkAction!): TableBulkResult!
   }
 `;

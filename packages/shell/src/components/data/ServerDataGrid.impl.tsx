@@ -3,24 +3,25 @@ import { AgGridReact } from 'ag-grid-react';
 import {
   ModuleRegistry,
   AllCommunityModule,
-  type ColDef,
   type FilterChangedEvent,
   type GridReadyEvent,
   type RowClickedEvent,
 } from 'ag-grid-community';
 import { useT } from '@exyconn/i18n';
 import { Box, useMediaQuery, useTheme } from '@/components/ui';
-import { SEARCH_DEBOUNCE_MS, TEXT_FILTER_PARAMS } from './serverGridQuery';
-import { skeletonWhileLoading } from './GridSkeletonCell';
+import {
+  BULK_SELECTION,
+  DEFAULT_PAGE_SIZE,
+  PHONE_GRID_HEIGHT,
+  defaultColDefFor,
+  pageSizesFor,
+} from './gridDefaults';
 import { applyTableInfo } from './tableColumns';
+import { GridBulkBar, GridBulkControls } from './GridBulkBar';
+import { useGridSearch } from './useGridSearch';
 import { useServerDatasource } from './useServerDatasource';
+import { useTableBulk } from './useTableBulk';
 import { useTableInfo } from './useTableInfo';
-
-/**
- * What a grid gets on a phone: most of the viewport, minus the chrome above it, so the page
- * scrolls once rather than nesting a second scroll inside a third.
- */
-const PHONE_GRID_HEIGHT = 'calc(100dvh - 240px)';
 import { ServerGridToolbar } from './ServerGridToolbar';
 import { useGridTheme } from './useGridTheme';
 import { useLoadingLock } from './useLoadingLock';
@@ -29,10 +30,6 @@ import type { ServerDataGridProps } from './ServerDataGrid.types';
 // ag-grid v33+ requires explicit module registration; the Community bundle covers the
 // infinite row model, sorting and column text filters this grid relies on.
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-const DEFAULT_PAGE_SIZE = 25;
-/** What the pager offers; a grid built with another size gets that size offered first. */
-const PAGE_SIZE_OPTIONS = [25, 50, 100];
 
 export type { GridQuery } from './serverGridQuery';
 export type { GridFetcher, ServerDataGridProps, TablePageResult } from './ServerDataGrid.types';
@@ -56,6 +53,8 @@ function ServerDataGridImpl({
   refreshSignal = 0,
   height = 560,
   onQuery,
+  bulkList,
+  onBulkDone,
 }: Readonly<ServerDataGridProps<unknown>>) {
   const gridTheme = useGridTheme();
   const theme = useTheme();
@@ -75,31 +74,31 @@ function ServerDataGridImpl({
     return tableInfo ? applyTableInfo(translated, tableInfo) : translated;
   }, [columnDefs, t, tableInfo]);
   const gridRef = useRef<AgGridReact<unknown>>(null);
-  // The trimmed search the grid last loaded with; the box's live text debounces into it.
-  const searchRef = useRef(initialSearch.trim());
-  const [search, setSearch] = useState(initialSearch);
+  const purge = useCallback(() => gridRef.current?.api?.purgeInfiniteCache(), []);
+  const bulk = useTableBulk({
+    list: bulkList ?? fetchRows.list,
+    gridRef,
+    reload: purge,
+    onDone: onBulkDone,
+  });
+  const { clearSelection } = bulk;
+  // Rows are selected by position, so whatever re-reads them drops the selection first.
+  const reload = useCallback(() => {
+    clearSelection();
+    purge();
+  }, [clearSelection, purge]);
+  const { search, setSearch, searchRef } = useGridSearch(initialSearch, reload);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [filtered, setFiltered] = useState(false);
   const lock = useLoadingLock();
 
-  const defaultColDef = useMemo<ColDef<unknown>>(
-    () => ({
-      sortable: true,
-      filter: 'agTextColumnFilter',
-      filterParams: TEXT_FILTER_PARAMS,
-      floatingFilter: !onPhone,
-      resizable: true,
-      flex: 1,
-      minWidth: 120,
-      cellRendererSelector: skeletonWhileLoading,
-    }),
-    [onPhone],
-  );
+  const defaultColDef = useMemo(() => defaultColDefFor(onPhone), [onPhone]);
 
   const { begin, end } = lock;
   const datasource = useServerDatasource({
     fetchRows,
     searchRef,
+    archivedRef: bulk.archivedRef,
     onQuery,
     begin,
     end,
@@ -111,29 +110,15 @@ function ServerDataGridImpl({
     [datasource],
   );
 
-  const reload = useCallback(() => gridRef.current?.api?.purgeInfiniteCache(), []);
   const clearFilters = useCallback(() => gridRef.current?.api?.setFilterModel(null), []);
   const onFilterChanged = useCallback(
-    (event: FilterChangedEvent) => setFiltered(event.api.isAnyFilterPresent()),
-    [],
+    (event: FilterChangedEvent) => {
+      clearSelection();
+      setFiltered(event.api.isAnyFilterPresent());
+    },
+    [clearSelection],
   );
-  const pageSizes = PAGE_SIZE_OPTIONS.includes(pageSize)
-    ? PAGE_SIZE_OPTIONS
-    : [pageSize, ...PAGE_SIZE_OPTIONS];
-
-  // Debounce the search box, then reload from the first row — but only when the text the
-  // grid would search for actually changed, so mounting or re-typing the same value is free.
-  useEffect(() => {
-    const next = search.trim();
-    if (next === searchRef.current) {
-      return undefined;
-    }
-    const id = setTimeout(() => {
-      searchRef.current = next;
-      reload();
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(id);
-  }, [search, reload]);
+  const pageSizes = pageSizesFor(pageSize);
 
   // Reload when the host signals an external data change (create/update/delete).
   useEffect(() => {
@@ -161,7 +146,10 @@ function ServerDataGridImpl({
         loading={lock.loading}
         loadError={loadError}
         onClearFilters={filtered ? clearFilters : undefined}
-      />
+      >
+        {bulk.enabled && <GridBulkControls bulk={bulk} loading={lock.loading} />}
+      </ServerGridToolbar>
+      {bulk.enabled && <GridBulkBar bulk={bulk} loading={lock.loading} />}
       <Box sx={{ height: onPhone ? PHONE_GRID_HEIGHT : height, width: '100%' }}>
         <AgGridReact<unknown>
           ref={gridRef}
@@ -177,6 +165,9 @@ function ServerDataGridImpl({
           paginationPageSizeSelector={pageSizes}
           onGridReady={onGridReady}
           onFilterChanged={onFilterChanged}
+          onSortChanged={clearSelection}
+          rowSelection={bulk.enabled ? BULK_SELECTION : undefined}
+          onSelectionChanged={bulk.onSelectionChanged}
           onRowClicked={onRowClick ? handleRowClicked : undefined}
           rowStyle={onRowClick ? { cursor: 'pointer' } : undefined}
         />
