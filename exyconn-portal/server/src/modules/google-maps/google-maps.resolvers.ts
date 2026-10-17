@@ -16,6 +16,8 @@ import { googleMapsConfigs, type GoogleMapsConfigInput } from './google-maps-con
 import { importLeads, LEAD_SOURCE, type LeadImportInput } from './lead-import.service';
 import { activeServerKey, searchText, type LeadSearchInput } from './places.client';
 import { findWebsiteEmails } from './website-emails';
+import { MAX_SUGGEST_LENGTH, MIN_SUGGEST_LENGTH, suggestLocations } from './places.autocomplete';
+import { assertPolygon } from './search-area';
 
 const HOUR = 60 * 60;
 
@@ -23,6 +25,12 @@ const HOUR = 60 * 60;
 const searchLimiter = createLimiter({ keyPrefix: 'lead_search', points: 200, durationSec: HOUR });
 /** Each lookup reads up to four pages of somebody else's website. */
 const emailLimiter = createLimiter({ keyPrefix: 'lead_emails', points: 400, durationSec: HOUR });
+/** A suggestion per keystroke pause: generous, but still a ceiling on the Google bill. */
+const suggestLimiter = createLimiter({
+  keyPrefix: 'lead_suggest',
+  points: 1000,
+  durationSec: HOUR,
+});
 
 /** The keys sit with the install's other credentials: the platform's own Tech staff only. */
 const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
@@ -75,9 +83,25 @@ export const googleMapsResolvers = {
       if (input.query.trim().length < 2 || input.query.length > 200) {
         badRequest('Describe what to look for in 2–200 characters.');
       }
+      if (input.polygon?.length) {
+        assertPolygon(input.polygon);
+      }
       await enforceLimit(searchLimiter, user.id, 'lead searches');
       const page = await searchText(await activeServerKey(), input);
       return { ...page, places: await withExisting(page.places) };
+    },
+    leadLocationSuggestions: async (
+      _p: unknown,
+      { input }: { input: string },
+      ctx: GraphQLContext,
+    ) => {
+      const user = crmDesk(ctx);
+      const text = input.trim();
+      if (text.length < MIN_SUGGEST_LENGTH || text.length > MAX_SUGGEST_LENGTH) {
+        return [];
+      }
+      await enforceLimit(suggestLimiter, user.id, 'place suggestions');
+      return suggestLocations(await activeServerKey(), text);
     },
   },
   Mutation: {

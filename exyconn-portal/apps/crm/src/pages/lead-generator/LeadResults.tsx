@@ -5,7 +5,10 @@ import { LeadRow } from './LeadRow';
 import type { EmailLookup, LeadPlace } from './leadTypes';
 
 interface LeadResultsProps {
+  /** The places that pass the filters. */
   places: LeadPlace[];
+  /** How many were loaded before filtering. */
+  total: number;
   loading: boolean;
   error: string | null;
   searched: boolean;
@@ -21,6 +24,7 @@ interface LeadResultsProps {
 /** The businesses found, numbered like their markers on the map. */
 export function LeadResults({
   places,
+  total,
   loading,
   error,
   searched,
@@ -36,10 +40,10 @@ export function LeadResults({
   if (error) {
     return <Alert severity="error">{error}</Alert>;
   }
-  if (loading && places.length === 0) {
+  if (loading && total === 0) {
     return <ListSkeleton toolbar={false} rows={4} columns={2} label="Searching for businesses" />;
   }
-  if (places.length === 0) {
+  if (total === 0) {
     return (
       <Text color="text.secondary" role="status">
         {searched
@@ -50,6 +54,11 @@ export function LeadResults({
   }
   return (
     <Stack spacing={1}>
+      {places.length === 0 && (
+        <Text color="text.secondary" role="status">
+          {t('No businesses match these filters.')}
+        </Text>
+      )}
       <List aria-label={t('Businesses found')} disablePadding>
         {places.map((place, index) => (
           <LeadRow

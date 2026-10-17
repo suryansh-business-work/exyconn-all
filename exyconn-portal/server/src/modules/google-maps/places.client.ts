@@ -1,5 +1,6 @@
 import { ConfigurationError } from '../../utils/errors';
 import { GoogleMapsConfigModel } from './google-maps-config.model';
+import { boundsOf, insidePolygon, type LatLngPoint } from './search-area';
 
 /**
  * Google Places API (New) — Text Search, called from this server with the active config's server
@@ -43,6 +44,8 @@ export interface LeadSearchInput {
   lat?: number | null;
   lng?: number | null;
   radiusMeters?: number | null;
+  /** An area drawn on the map: only places inside it are returned. Wins over the rest. */
+  polygon?: LatLngPoint[] | null;
   /** A Places type, e.g. "dentist". */
   type?: string | null;
   pageToken?: string | null;
@@ -149,6 +152,13 @@ export function toLeadPlace(place: PlacePayload): LeadPlace | null {
 
 /** The Text Search body: the place goes into the text, or the centre into a location bias. */
 export function searchBody(input: LeadSearchInput): Record<string, unknown> {
+  if (input.polygon && input.polygon.length > 0) {
+    return withPaging(input, {
+      textQuery: input.query.trim(),
+      pageSize: PAGE_SIZE,
+      locationRestriction: { rectangle: boundsOf(input.polygon) },
+    });
+  }
   const hasCentre = typeof input.lat === 'number' && typeof input.lng === 'number';
   const location = input.location?.trim();
   const textQuery = !hasCentre && location ? `${input.query.trim()} in ${location}` : input.query;
@@ -159,6 +169,11 @@ export function searchBody(input: LeadSearchInput): Record<string, unknown> {
       circle: { center: { latitude: input.lat, longitude: input.lng }, radius },
     };
   }
+  return withPaging(input, body);
+}
+
+/** The type and the next-page token, which every kind of search carries the same way. */
+function withPaging(input: LeadSearchInput, body: Record<string, unknown>) {
   if (input.type) {
     body.includedType = input.type;
   }
@@ -185,8 +200,10 @@ export async function searchText(apiKey: string, input: LeadSearchInput): Promis
     throw new Error(`Google Places search failed (${response.status}): ${detail}`);
   }
   const data = (await response.json()) as SearchPayload;
+  const { polygon } = input;
   const places = (data.places ?? [])
     .map(toLeadPlace)
-    .filter((place): place is LeadPlace => place !== null);
+    .filter((place): place is LeadPlace => place !== null)
+    .filter((place) => !polygon?.length || insidePolygon(place, polygon));
   return { places, nextPageToken: data.nextPageToken ?? null };
 }

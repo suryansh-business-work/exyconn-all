@@ -3,7 +3,7 @@ import { Alert, Link } from '@exyconn/shell/components/ui';
 import { appUrl } from '@exyconn/shell/config/apps';
 
 /** Where Tech saves the Google Maps keys. */
-const TECH_GOOGLE_MAPS_PATH = '/tech/environment-variables/google-maps';
+export const TECH_GOOGLE_MAPS_PATH = '/tech/environment-variables/google-maps';
 
 /** Tech has not saved a Places key yet, so nothing can be searched. */
 export function PlacesNotConfigured() {

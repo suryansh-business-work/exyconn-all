@@ -17,6 +17,10 @@ import { LeadEmailChip } from './LeadEmailChip';
 import { emailsOf } from './useLeadEmails';
 import type { EmailLookup, LeadPlace } from './leadTypes';
 
+/** The CRM's website scraper, opened on this business's site. */
+const scraperLink = (website: string) =>
+  `/crm/tools/website-scraper?url=${encodeURIComponent(website)}`;
+
 interface LeadRowProps {
   place: LeadPlace;
   /** The marker number on the map. */
@@ -96,6 +100,16 @@ export function LeadRow({
           {website && (
             <Link href={website} target="_blank" rel="noopener noreferrer" variant="caption">
               {t('Website')}
+            </Link>
+          )}
+          {website && (
+            <Link
+              component={RouterLink}
+              to={scraperLink(website)}
+              variant="caption"
+              aria-label={t("Scrape {name}'s website", { name: place.name })}
+            >
+              {t('Scrape')}
             </Link>
           )}
           {rating && (

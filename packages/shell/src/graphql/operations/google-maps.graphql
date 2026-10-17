@@ -94,3 +94,12 @@ mutation ImportLeadsToCrm($leads: [LeadImportInput!]!) {
     }
   }
 }
+
+query LeadLocationSuggestions($input: String!) {
+  leadLocationSuggestions(input: $input) {
+    placeId
+    text
+    mainText
+    secondaryText
+  }
+}
