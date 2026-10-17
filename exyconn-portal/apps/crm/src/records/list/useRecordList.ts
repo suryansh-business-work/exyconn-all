@@ -37,7 +37,7 @@ export function useRecordList<TQuery, TRow extends CrmRecordRow>({
   const schema = useObjectSchema(object);
   const list = useRecordQuery(object);
   const fetchRows = useRecordFetcher(document, select, list.queryRef, list.record);
-  const view = useRecordColumns(columns, schema.properties, list.query.columns, list.query.sorts);
+  const view = useRecordColumns(columns, schema.fields, list.query.columns, list.query.sorts);
   const snapshot = useMemo<RecordQuerySnapshot>(
     () => ({ ...toSnapshot(list.query), columns: view.exportColumns }),
     [list.query, view.exportColumns],

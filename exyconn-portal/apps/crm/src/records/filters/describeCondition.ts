@@ -33,6 +33,14 @@ function valueText(property: CrmPropertyInfo, condition: FilterCondition, tools:
   return tools.formatList(shown);
 }
 
+/** A Yes/No check (Has email) reads as itself when Yes, and as "Has email: No" otherwise. */
+function presenceText(condition: FilterCondition, name: string, t: Translate) {
+  if (condition.values[0] === 'true') {
+    return name;
+  }
+  return t('{property}: No', { property: name });
+}
+
 /**
  * A condition as a sentence for its chip — "Stage is any of New, Contacted". A condition on a
  * property that no longer exists still names its key, so it can be seen and removed.
@@ -45,6 +53,9 @@ export function describeCondition(
   const { t } = tools;
   const name = property ? propertyLabel(t, property) : condition.property;
   const operator = t(OP_LABELS[condition.op]);
+  if (property?.filterOnly && condition.op === CrmOp.Eq) {
+    return presenceText(condition, name, t);
+  }
   if (!property || opArity(condition.op) === 'none') {
     return t('{property} {operator}', { property: name, operator });
   }

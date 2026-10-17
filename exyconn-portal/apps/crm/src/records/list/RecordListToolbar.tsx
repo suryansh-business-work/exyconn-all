@@ -6,16 +6,21 @@ import type { ColumnChoice } from '../columns/buildColumns';
 import { ColumnsButton } from '../columns/ColumnsButton';
 import { ActiveFilterChips } from '../filters/ActiveFilterChips';
 import { FiltersButton } from '../filters/FiltersButton';
+import { PresenceChips } from '../filters/PresenceChips';
 import type { CrmPropertyInfo } from '../schema';
 import { ViewBar } from '../views/ViewBar';
-import { withoutCondition, type RecordQuerySnapshot } from './recordQuery';
+import { withoutCondition, type FilterGroup, type RecordQuerySnapshot } from './recordQuery';
 import { SortButton } from './sort';
 import type { RecordQuery } from './useRecordQuery';
 
 /** The parts of `useRecordList`'s result the toolbar reads; pass the whole result. */
 export interface RecordListToolbarSource {
   object: CrmObject;
-  schema: { properties: readonly CrmPropertyInfo[]; error?: unknown };
+  schema: {
+    properties: readonly CrmPropertyInfo[];
+    fields: readonly CrmPropertyInfo[];
+    error?: unknown;
+  };
   list: RecordQuery;
   view: {
     choices: readonly ColumnChoice[];
@@ -36,7 +41,7 @@ interface RecordListToolbarProps {
   renderActions?: (query: RecordQuerySnapshot) => ReactNode;
 }
 
-/** Saved views, then Filters / Sort / Columns and the page's actions, then the active filters. */
+/** Saved views, then Filters / the Has email-style toggles / Sort / Columns and the page's actions, then the active filters. */
 export function RecordListToolbar({
   records,
   allLabel,
@@ -44,7 +49,8 @@ export function RecordListToolbar({
 }: Readonly<RecordListToolbarProps>) {
   const t = useT();
   const { object, schema, list, view, snapshot } = records;
-  const { properties } = schema;
+  const { properties, fields } = schema;
+  const applyGroups = (next: FilterGroup[]) => list.apply({ groups: next });
   const { groups, sorts } = list.query;
 
   return (
@@ -56,13 +62,10 @@ export function RecordListToolbar({
         </Alert>
       )}
       <Flex direction="row" wrap spacing={1} alignItems="center">
-        <FiltersButton
-          properties={properties}
-          groups={groups}
-          onApply={(next) => list.apply({ groups: next })}
-        />
+        <FiltersButton properties={properties} groups={groups} onApply={applyGroups} />
+        <PresenceChips properties={properties} groups={groups} onApply={applyGroups} />
         <SortButton
-          properties={properties}
+          properties={fields}
           sorts={sorts}
           onApply={(next) => list.apply({ sorts: next }, true)}
         />

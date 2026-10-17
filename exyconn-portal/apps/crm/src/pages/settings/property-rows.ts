@@ -1,5 +1,5 @@
 import { CrmPropertyType } from '@exyconn/shell/graphql/generated';
-import { CHOICE_TYPES, type CrmPropertyInfo } from '../../records/schema';
+import { CHOICE_TYPES, recordFields, type CrmPropertyInfo } from '../../records/schema';
 import type { CrmPropertyRow } from './forms/crm-property';
 
 /** One line of the properties table: a custom property, or a built-in one shown read-only. */
@@ -47,6 +47,6 @@ export function propertyTableRows(
   custom: readonly CrmPropertyRow[],
   schema: readonly CrmPropertyInfo[],
 ): PropertyTableRow[] {
-  const builtIn = schema.filter((property) => property.builtIn);
+  const builtIn = recordFields(schema).filter((property) => property.builtIn);
   return [...custom.map(fromCustom), ...builtIn.map(fromBuiltIn)];
 }

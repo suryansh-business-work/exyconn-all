@@ -54,6 +54,13 @@ export const OPS_BY_TYPE: Readonly<Record<PropertyType, readonly CrmOp[]>> = {
   FILE: ['IS_EMPTY', 'IS_NOT_EMPTY'],
 };
 
+/** A filter-only Yes/No property is asked one thing: is it Yes or No. */
+const PRESENCE_OPS: readonly CrmOp[] = ['EQ'];
+
+/** The operators a property takes. */
+export const opsOf = (property: PropertyDef): readonly CrmOp[] =>
+  property.filterOnly ? PRESENCE_OPS : OPS_BY_TYPE[property.type];
+
 /** A company's custom properties for one object, in their display order. */
 export async function customProperties(object: CrmObject): Promise<PropertyDef[]> {
   const rows = await CrmPropertyModel.find({ object }).sort({ order: 1, createdAt: 1 }).lean();
@@ -67,6 +74,7 @@ export async function customProperties(object: CrmObject): Promise<PropertyDef[]
     path: `custom.${row.key}`,
     importable: true,
     description: row.description ?? '',
+    filterOnly: false,
   }));
 }
 

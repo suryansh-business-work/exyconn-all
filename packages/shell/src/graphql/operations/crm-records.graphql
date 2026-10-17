@@ -12,6 +12,7 @@ fragment CrmPropertyInfoFields on CrmPropertyInfo {
   builtIn
   importable
   description
+  filterOnly
   ops
 }
 

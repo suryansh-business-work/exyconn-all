@@ -3,6 +3,7 @@ export { CustomValues } from './CustomValues';
 export { DetailActions } from './DetailActions';
 export { DetailField } from './DetailField';
 export { DetailLayout } from './DetailLayout';
+export { EditRecordButton } from './EditRecordButton';
 export { LocalTime } from './LocalTime';
 export { Timeline } from './timeline/Timeline';
 export { initialsOf } from './initials';

@@ -5,6 +5,7 @@ import {
   ContactPointList,
   DetailActions,
   DetailField,
+  EditRecordButton,
   EmailButton,
   LocalTime,
   RecordAvatar,
@@ -35,7 +36,7 @@ export function CompanyProfile({
           variant="rounded"
           sx={{ width: 56, height: 56 }}
         />
-        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
+        <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
           <Text component="h1" size="lg" weight="bold">
             {company.name}
           </Text>
@@ -47,6 +48,11 @@ export function CompanyProfile({
             {company.isClient && <Chip size="small" color="success" label={t('Client')} />}
           </Flex>
         </Stack>
+        <EditRecordButton
+          label="Edit company"
+          onSaved={onSaved}
+          renderForm={(handlers) => <CompanyForm initial={company} {...handlers} />}
+        />
       </Flex>
       <DetailActions
         target={{ relatedType: 'COMPANY', relatedId: company.id, relatedName: company.name }}
@@ -55,16 +61,6 @@ export function CompanyProfile({
             context={{ object: 'COMPANY', id: company.id, to: [company.email].filter(Boolean) }}
           />
         }
-        renderEdit={(close) => (
-          <CompanyForm
-            initial={company}
-            onCancel={close}
-            onDone={() => {
-              close();
-              onSaved();
-            }}
-          />
-        )}
       />
       <Divider />
       <Text component="h2" size="label" weight="bold">
