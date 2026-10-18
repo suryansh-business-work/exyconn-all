@@ -13,7 +13,14 @@ import { CompanyModel } from '../crm/company.model';
 import type { PermissionAction } from '../permissions/permission.model';
 import { secretHint } from '../tech/tech.secrets';
 import { googleMapsConfigs, type GoogleMapsConfigInput } from './google-maps-config.service';
-import { importLeads, LEAD_SOURCE, type LeadImportInput } from './lead-import.service';
+import {
+  importLeads,
+  LEAD_SOURCE,
+  previewLeads,
+  type LeadImportInput,
+  type LeadImportResult,
+  type LeadMergeInput,
+} from './lead-import.service';
 import { activeServerKey, searchText, type LeadSearchInput } from './places.client';
 import { findWebsiteEmails } from './website-emails';
 import { MAX_SUGGEST_LENGTH, MIN_SUGGEST_LENGTH, suggestLocations } from './places.autocomplete';
@@ -38,6 +45,33 @@ const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
 
 /** The lead generator and the CRM maps are the sales desk's. */
 const crmDesk = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.CRM]);
+
+/** Filing leads creates companies; merging extra details also edits existing ones. */
+const leadImportDesk = async (ctx: GraphQLContext, merging: boolean) => {
+  await assertPermission(ctx, 'Company', [ROLES.CRM], 'CREATE');
+  if (merging) {
+    await assertPermission(ctx, 'Company', [ROLES.CRM], 'EDIT');
+  }
+};
+
+/** One audit row per company that got extra details: the field names, never the values. */
+async function auditMerges(ctx: GraphQLContext, result: LeadImportResult) {
+  for (const merge of result.merges) {
+    const fields = [...new Set(merge.added.map((extra) => extra.field))];
+    await recordAudit(ctx, {
+      action: 'UPDATE',
+      module: 'Company',
+      entityId: merge.companyId,
+      entityLabel: merge.name,
+      summary: `Added details from ${LEAD_SOURCE}: ${fields.join(', ')}`,
+    });
+  }
+}
+
+const importSummary = (result: LeadImportResult) => {
+  const updated = result.merged > 0 ? `${result.merged} updated, ` : '';
+  return `Imported ${result.created} companies from ${LEAD_SOURCE} (${updated}${result.skipped} skipped)`;
+};
 
 type ConfigRow = { browserKey?: string; serverKey?: string };
 
@@ -103,6 +137,14 @@ export const googleMapsResolvers = {
       await enforceLimit(suggestLimiter, user.id, 'place suggestions');
       return suggestLocations(await activeServerKey(), text);
     },
+    previewLeadImport: async (
+      _p: unknown,
+      { leads }: { leads: LeadImportInput[] },
+      ctx: GraphQLContext,
+    ) => {
+      await leadImportDesk(ctx, false);
+      return previewLeads(leads);
+    },
   },
   Mutation: {
     createGoogleMapsConfig: async (
@@ -143,17 +185,19 @@ export const googleMapsResolvers = {
     },
     importLeadsToCrm: async (
       _p: unknown,
-      { leads }: { leads: LeadImportInput[] },
+      { leads, mergeInto }: { leads: LeadImportInput[]; mergeInto?: LeadMergeInput[] | null },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, 'Company', [ROLES.CRM], 'CREATE');
-      const result = await importLeads(leads, await actorNameOf(ctx));
+      const merges = mergeInto ?? [];
+      await leadImportDesk(ctx, merges.length > 0);
+      const result = await importLeads(leads, await actorNameOf(ctx), merges);
       await recordAudit(ctx, {
         action: 'IMPORT',
         module: 'Company',
         entityLabel: LEAD_SOURCE,
-        summary: `Imported ${result.created} companies from ${LEAD_SOURCE} (${result.skipped} skipped)`,
+        summary: importSummary(result),
       });
+      await auditMerges(ctx, result);
       return result;
     },
   },

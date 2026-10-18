@@ -74,8 +74,8 @@ describe('importLeads', () => {
       [
         lead({ name: 'Again' }),
         lead({ placeId: 'place-2', name: 'Acme branch', website: 'https://acme.example' }),
-        lead({ placeId: 'place-3', name: 'No site', website: '' }),
-        lead({ placeId: 'place-3', name: 'No site', website: '' }),
+        lead({ placeId: 'place-3', name: 'No site', website: '', phone: '+91 22 5555 0000' }),
+        lead({ placeId: 'place-3', name: 'No site', website: '', phone: '+91 22 5555 0000' }),
       ],
       'Asha',
     );

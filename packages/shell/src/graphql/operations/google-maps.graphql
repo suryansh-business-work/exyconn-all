@@ -79,18 +79,48 @@ mutation FindLeadEmails($website: String!) {
   }
 }
 
-mutation ImportLeadsToCrm($leads: [LeadImportInput!]!) {
-  importLeadsToCrm(leads: $leads) {
+fragment LeadImportExtraFields on LeadImportExtra {
+  field
+  label
+  current
+  incoming
+}
+
+query PreviewLeadImport($leads: [LeadImportInput!]!) {
+  previewLeadImport(leads: $leads) {
+    placeId
+    name
+    status
+    existingCompanyId
+    existingName
+    extras {
+      ...LeadImportExtraFields
+    }
+  }
+}
+
+mutation ImportLeadsToCrm($leads: [LeadImportInput!]!, $mergeInto: [LeadMergeInput!]) {
+  importLeadsToCrm(leads: $leads, mergeInto: $mergeInto) {
     created
     skipped
+    merged
     filed {
       placeId
       companyId
+    }
+    merges {
+      placeId
+      companyId
+      name
+      added {
+        ...LeadImportExtraFields
+      }
     }
     skips {
       placeId
       name
       reason
+      companyId
     }
   }
 }
