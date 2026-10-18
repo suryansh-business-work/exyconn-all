@@ -45,6 +45,11 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'GmailConfig',
   'GmailAccount',
   'GmailOAuthState',
+  // The same for Microsoft (Outlook / Microsoft 365): the Entra app, the operator CRM's
+  // connected mailboxes and a connection in progress.
+  'MicrosoftMailConfig',
+  'MicrosoftMailAccount',
+  'MicrosoftOAuthState',
   'TrackerBuildSettings',
   // The AI calling bot demo (demos.exyconn.com/calling-bot-demo): its settings and its calls
   // belong to the install, and its voice server reads and writes them with no company in scope.

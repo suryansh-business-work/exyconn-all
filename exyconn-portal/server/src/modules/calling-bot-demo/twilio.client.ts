@@ -3,10 +3,10 @@ import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 
 /** Twilio's REST API for one account (twilio.com/docs/voice/api). */
-const accountUrl = (accountSid: string): string =>
+export const accountUrl = (accountSid: string): string =>
   `https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(accountSid)}`;
 
-const basicAuth = (accountSid: string, authToken: string): string =>
+export const basicAuth = (accountSid: string, authToken: string): string =>
   `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString('base64')}`;
 
 export interface PlaceTwilioCall {

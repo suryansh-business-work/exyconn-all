@@ -62,9 +62,8 @@ async function replyThreading(input: SendCrmEmailInput, mailbox: AccountMailbox)
   };
 }
 
-/** Sends from the chosen account and keeps the sent message, with its thread, on the record. */
-export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string) {
-  await assertOperatorCrm();
+/** The recipients and subject of an email the CRM sends, checked whichever mailbox sends it. */
+export function checkedRecipients(input: SendCrmEmailInput) {
   const to = cleanAddresses(input.to);
   const cc = cleanAddresses(input.cc);
   if (to.length === 0 || [...to, ...cc].some((address) => !isEmailAddress(address))) {
@@ -73,6 +72,13 @@ export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string)
   if (input.subject.trim() === '' || input.body.trim() === '') {
     badRequest('Write a subject and a message.');
   }
+  return { to, cc, subject: input.subject.trim() };
+}
+
+/** Sends from the chosen account and keeps the sent message, with its thread, on the record. */
+export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string) {
+  await assertOperatorCrm();
+  const { to, cc, subject } = checkedRecipients(input);
   const mailbox = await sendingMailbox(input.fromAccountId);
   const threading = await replyThreading(input, mailbox);
   try {
@@ -82,7 +88,7 @@ export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string)
         from: mailbox.email,
         to,
         cc,
-        subject: input.subject.trim(),
+        subject,
         body: input.body,
         inReplyTo: threading.inReplyTo,
         references: threading.references,
@@ -101,20 +107,26 @@ export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string)
 /**
  * Which account a new email to the record goes from by default: the one that last wrote to
  * them, while it is still enabled; otherwise the newest connected one; null when there is none.
+ * `mailboxIds` are the usable senders across providers (Gmail and Microsoft), in order of
+ * preference; without them, the enabled Gmail accounts.
  */
-export async function crmEmailSender(object: 'CONTACT' | 'COMPANY', id: string) {
-  const mailboxes = await enabledMailboxes();
-  if (mailboxes.length === 0) {
+export async function crmEmailSender(
+  object: 'CONTACT' | 'COMPANY',
+  id: string,
+  mailboxIds?: string[],
+) {
+  const ids = mailboxIds ?? (await enabledMailboxes()).map((mailbox) => mailbox.id);
+  if (ids.length === 0) {
     return null;
   }
   const { addresses } = await timelineTarget(object, id, 1);
   const last = await CrmEmailMessageModel.findOne({
     direction: 'OUT',
     participants: { $in: addresses },
-    accountId: { $in: mailboxes.map((mailbox) => mailbox.id) },
+    accountId: { $in: ids },
   })
     .sort({ sentAt: -1 })
     .select('accountId')
     .lean();
-  return last?.accountId ?? mailboxes[0].id;
+  return last?.accountId ?? ids[0];
 }

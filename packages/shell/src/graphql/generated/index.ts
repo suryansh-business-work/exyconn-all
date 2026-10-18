@@ -2812,6 +2812,60 @@ export type CreatedWebhook = {
   webhook: Webhook;
 };
 
+/** A company's calling account. The auth token never leaves the server. */
+export type CrmCallConfig = {
+  __typename?: 'CrmCallConfig';
+  /** Twilio Account SID or Vobiz Auth ID. */
+  accountId: Scalars['String']['output'];
+  authTokenHint?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The number calls come from, in E.164. */
+  fromNumber: Scalars['String']['output'];
+  hasAuthToken: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  provider: CrmCallProvider;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  updatedByName: Scalars['String']['output'];
+};
+
+export type CrmCallConfigInput = {
+  /** Twilio Account SID or Vobiz Auth ID. */
+  accountId: Scalars['String']['input'];
+  /** Twilio or Vobiz Auth Token. Blank keeps the stored one when editing. */
+  authToken: Scalars['String']['input'];
+  /** The number calls come from, in E.164, e.g. +14155550100. */
+  fromNumber: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  provider: CrmCallProvider;
+};
+
+export enum CrmCallProvider {
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
+}
+
+export type CrmCallResult = {
+  __typename?: 'CrmCallResult';
+  /** The CALL activity logged on the record's timeline. */
+  activityId: Scalars['ID']['output'];
+  /** The provider's id for the call. */
+  callId: Scalars['String']['output'];
+  provider: CrmCallProvider;
+  /** The provider's status when the call was queued. */
+  status: Scalars['String']['output'];
+};
+
+export type CrmChannelStatus = {
+  __typename?: 'CrmChannelStatus';
+  /** The active account's provider; null when there is none. */
+  provider?: Maybe<Scalars['String']['output']>;
+  /** Whether the company has an active account for this channel. */
+  ready: Scalars['Boolean']['output'];
+};
+
 export type CrmCondition = {
   __typename?: 'CrmCondition';
   op: CrmOp;
@@ -2863,6 +2917,27 @@ export type CrmEmailMessage = {
   subject: Scalars['String']['output'];
   threadId: Scalars['String']['output'];
   to: Array<Scalars['String']['output']>;
+};
+
+export enum CrmEmailProvider {
+  Gmail = 'GMAIL',
+  Microsoft = 'MICROSOFT'
+}
+
+/** A mailbox a CRM email can be sent from. */
+export type CrmEmailSenderOption = {
+  __typename?: 'CrmEmailSenderOption';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  provider: CrmEmailProvider;
+};
+
+export type CrmEmailStatus = {
+  __typename?: 'CrmEmailStatus';
+  /** A Gmail mailbox is connected and enabled, and this is the operator's CRM. */
+  gmail: Scalars['Boolean']['output'];
+  /** A Microsoft mailbox is connected and enabled, and this is the operator's CRM. */
+  microsoft: Scalars['Boolean']['output'];
 };
 
 /** One conversation in one connected mailbox (Gmail thread ids are per mailbox). */
@@ -2917,6 +2992,14 @@ export type CrmImportResult = {
   issues: Array<CrmImportIssue>;
   skipped: Scalars['Int']['output'];
   updated: Scalars['Int']['output'];
+};
+
+/** Which contact actions a record page can offer. */
+export type CrmIntegrationStatus = {
+  __typename?: 'CrmIntegrationStatus';
+  call: CrmChannelStatus;
+  email: CrmEmailStatus;
+  sms: CrmChannelStatus;
 };
 
 export enum CrmObject {
@@ -3069,6 +3152,63 @@ export type CrmQueryInput = {
   pageSize: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   sorts?: InputMaybe<Array<CrmSortInput>>;
+};
+
+/** A company's SMS account. The auth token never leaves the server. */
+export type CrmSmsConfig = {
+  __typename?: 'CrmSmsConfig';
+  /** Twilio: the Account SID. */
+  accountId: Scalars['String']['output'];
+  authTokenHint?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Twilio: the sending number in E.164. */
+  fromNumber: Scalars['String']['output'];
+  hasAuthToken: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  /** MSG91: the template variable that carries the message. */
+  messageVariable: Scalars['String']['output'];
+  provider: CrmSmsProvider;
+  /** MSG91: the DLT sender id. */
+  senderId: Scalars['String']['output'];
+  /** MSG91: the DLT-approved flow template id. */
+  templateId: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  updatedByName: Scalars['String']['output'];
+};
+
+export type CrmSmsConfigInput = {
+  /** Twilio only: the Account SID. */
+  accountId?: InputMaybe<Scalars['String']['input']>;
+  /** Twilio Auth Token or MSG91 auth key. Blank keeps the stored one when editing. */
+  authToken: Scalars['String']['input'];
+  /** Twilio only: the sending number in E.164. */
+  fromNumber?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  /** MSG91 only: the template variable that carries the message, e.g. message. */
+  messageVariable?: InputMaybe<Scalars['String']['input']>;
+  provider: CrmSmsProvider;
+  /** MSG91 only: the DLT sender id. */
+  senderId?: InputMaybe<Scalars['String']['input']>;
+  /** MSG91 only: the DLT-approved flow template id. */
+  templateId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum CrmSmsProvider {
+  Msg91 = 'MSG91',
+  Twilio = 'TWILIO'
+}
+
+export type CrmSmsResult = {
+  __typename?: 'CrmSmsResult';
+  /** The activity logged on the record's timeline. */
+  activityId: Scalars['ID']['output'];
+  /** The provider's id for the message (MSG91: its request id). */
+  messageId: Scalars['String']['output'];
+  provider: CrmSmsProvider;
+  status: Scalars['String']['output'];
 };
 
 export type CrmSort = {
@@ -4114,7 +4254,7 @@ export enum FindingType {
   Opportunity = 'OPPORTUNITY'
 }
 
-/** The install's Firecrawl account (Tech > Environment Variables). The API key is write-only. */
+/** The install's Firecrawl account (Tech > Environment Variables). The API key is write-only, and a self-hosted Firecrawl may have none. */
 export type FirecrawlConfig = {
   __typename?: 'FirecrawlConfig';
   apiKeyHint?: Maybe<Scalars['String']['output']>;
@@ -4127,9 +4267,9 @@ export type FirecrawlConfig = {
 };
 
 export type FirecrawlConfigInput = {
-  /** Leave empty when editing to keep it. */
+  /** Required for the hosted API at api.firecrawl.dev; empty for a self-hosted Firecrawl without authentication. Leave empty when editing to keep it. */
   apiKey: Scalars['String']['input'];
-  /** https://api.firecrawl.dev, or a self-hosted Firecrawl. */
+  /** https://api.firecrawl.dev, or the http(s) address of a self-hosted Firecrawl. */
   baseUrl: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
@@ -6239,6 +6379,47 @@ export type MfaStatus = {
   recoveryCodesLeft: Scalars['Int']['output'];
 };
 
+/** A Microsoft mailbox connected to the CRM. Its token never leaves the server. */
+export type MicrosoftMailAccount = {
+  __typename?: 'MicrosoftMailAccount';
+  connectedAt?: Maybe<Scalars['DateTime']['output']>;
+  connectedByName: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  /** Whether the CRM sends from it. */
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Why the last call to Microsoft failed; empty when it worked. */
+  lastError: Scalars['String']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: GmailAccountStatus;
+};
+
+/** The Microsoft Entra app the CRM's Microsoft mailboxes connect through. Secrets stay on the server. */
+export type MicrosoftMailConfig = {
+  __typename?: 'MicrosoftMailConfig';
+  /** How many Microsoft mailboxes are connected to the CRM. */
+  accountCount: Scalars['Int']['output'];
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Register this exact address as a Web redirect URI on the Entra app. */
+  redirectUri: Scalars['String']['output'];
+  /** The Entra tenant signed in against: common, organizations, consumers or a tenant id. */
+  tenant: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type MicrosoftMailConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  /** Blank means common. */
+  tenant: Scalars['String']['input'];
+};
+
 /** A dated commitment on a project — a launch, a review, a hand-over. */
 export type Milestone = {
   __typename?: 'Milestone';
@@ -6391,9 +6572,11 @@ export type Mutation = {
   createContact: Contact;
   createContract: Contract;
   createCostCenter: CostCenter;
+  createCrmCallConfig: CrmCallConfig;
   /** Creates the property on every chosen record type, or on none when any of them cannot take the key. */
   createCrmProperties: Array<CrmProperty>;
   createCrmProperty: CrmProperty;
+  createCrmSmsConfig: CrmSmsConfig;
   createCrmView: CrmView;
   createDeal: Deal;
   createDepartment: Department;
@@ -6570,8 +6753,10 @@ export type Mutation = {
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
   deleteCostCenter: Scalars['Boolean']['output'];
+  deleteCrmCallConfig: Scalars['Boolean']['output'];
   /** Deletes the property and its values on every record. */
   deleteCrmProperty: Scalars['Boolean']['output'];
+  deleteCrmSmsConfig: Scalars['Boolean']['output'];
   deleteCrmView: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
@@ -6683,6 +6868,8 @@ export type Mutation = {
   discardWhatsappWorkflowDraft: WhatsappWorkflow;
   /** Removes the account and its token; mail already synced stays on the records. */
   disconnectGmailAccount: Scalars['Boolean']['output'];
+  /** Removes the mailbox and its token; mail already sent stays on the records. */
+  disconnectMicrosoftMailAccount: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
@@ -6861,6 +7048,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
+  saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
@@ -6881,6 +7069,7 @@ export type Mutation = {
    */
   sendCampaign: CampaignSendResult;
   sendCrmEmail: CrmEmailMessage;
+  sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -6929,6 +7118,8 @@ export type Mutation = {
   setGmailAccountEnabled: GmailAccount;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /** Turns a mailbox on or off for the CRM. */
+  setMicrosoftMailAccountEnabled: MicrosoftMailAccount;
   /** Sets where one kind reaches this person. Returns the whole set, so a screen stays in step. */
   setMyNotificationPreference: Array<NotificationPreference>;
   /**
@@ -6990,12 +7181,16 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
+  /** Click-to-call: rings the caller's own phone, then bridges to the record's number. */
+  startCrmCall: CrmCallResult;
   /** Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. */
   startGmailConnect: Scalars['String']['output'];
   /** Google's consent page for a sign-in that returns to this portal page. Public. */
   startGoogleSignIn: Scalars['String']['output'];
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
   startMfaEnrolment: MfaEnrolment;
+  /** Microsoft's consent page to connect one more mailbox (or renew one); comes back to returnTo. */
+  startMicrosoftMailConnect: Scalars['String']['output'];
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
    * already has a checklist that is not finished — two open checklists is two answers to
@@ -7038,6 +7233,10 @@ export type Mutation = {
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
   testCallingBotKey: Scalars['String']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
+  /** Checks the stored credentials with the provider; places no call. */
+  testCrmCallConfig: Scalars['String']['output'];
+  /** Checks the stored credentials with the provider; sends nothing. */
+  testCrmSmsConfig: Scalars['String']['output'];
   /** Connects to the proxy and signs in; says what worked, or why not. */
   testEmailVerifierConfig: Scalars['String']['output'];
   /** Scrapes example.com with this config; says what worked, or why not. */
@@ -7053,6 +7252,8 @@ export type Mutation = {
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
+  /** Reads every enabled mailbox's address with its stored connection. */
+  testMicrosoftMailConfig: Scalars['String']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPayoneerConnection: Scalars['Boolean']['output'];
   testPaypalConnection: Scalars['Boolean']['output'];
@@ -7149,7 +7350,9 @@ export type Mutation = {
   updateContact: Contact;
   updateContract: Contract;
   updateCostCenter: CostCenter;
+  updateCrmCallConfig: CrmCallConfig;
   updateCrmProperty: CrmProperty;
+  updateCrmSmsConfig: CrmSmsConfig;
   updateCrmView: CrmView;
   updateDeal: Deal;
   updateDepartment: Department;
@@ -7626,6 +7829,11 @@ export type MutationCreateCostCenterArgs = {
 };
 
 
+export type MutationCreateCrmCallConfigArgs = {
+  input: CrmCallConfigInput;
+};
+
+
 export type MutationCreateCrmPropertiesArgs = {
   input: CrmPropertiesInput;
 };
@@ -7633,6 +7841,11 @@ export type MutationCreateCrmPropertiesArgs = {
 
 export type MutationCreateCrmPropertyArgs = {
   input: CrmPropertyInput;
+};
+
+
+export type MutationCreateCrmSmsConfigArgs = {
+  input: CrmSmsConfigInput;
 };
 
 
@@ -8369,7 +8582,17 @@ export type MutationDeleteCostCenterArgs = {
 };
 
 
+export type MutationDeleteCrmCallConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteCrmPropertyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCrmSmsConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8889,6 +9112,11 @@ export type MutationDisconnectGmailAccountArgs = {
 };
 
 
+export type MutationDisconnectMicrosoftMailAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -9293,6 +9521,11 @@ export type MutationSaveGoogleSignInConfigArgs = {
 };
 
 
+export type MutationSaveMicrosoftMailConfigArgs = {
+  input: MicrosoftMailConfigInput;
+};
+
+
 export type MutationSaveProjectWorkflowGraphArgs = {
   graph: WorkflowGraphInput;
   id: Scalars['ID']['input'];
@@ -9335,6 +9568,11 @@ export type MutationSendCampaignArgs = {
 
 export type MutationSendCrmEmailArgs = {
   input: SendCrmEmailInput;
+};
+
+
+export type MutationSendCrmSmsArgs = {
+  input: SendCrmSmsInput;
 };
 
 
@@ -9470,6 +9708,12 @@ export type MutationSetGmailAccountEnabledArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetMicrosoftMailAccountEnabledArgs = {
+  enabled: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -9615,12 +9859,22 @@ export type MutationStartCallingBotCallArgs = {
 };
 
 
+export type MutationStartCrmCallArgs = {
+  input: StartCrmCallInput;
+};
+
+
 export type MutationStartGmailConnectArgs = {
   returnTo: Scalars['String']['input'];
 };
 
 
 export type MutationStartGoogleSignInArgs = {
+  returnTo: Scalars['String']['input'];
+};
+
+
+export type MutationStartMicrosoftMailConnectArgs = {
   returnTo: Scalars['String']['input'];
 };
 
@@ -9699,6 +9953,16 @@ export type MutationTestCallingBotKeyArgs = {
 
 
 export type MutationTestCloudflareConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestCrmCallConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestCrmSmsConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -10046,9 +10310,21 @@ export type MutationUpdateCostCenterArgs = {
 };
 
 
+export type MutationUpdateCrmCallConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmCallConfigInput;
+};
+
+
 export type MutationUpdateCrmPropertyArgs = {
   id: Scalars['ID']['input'];
   input: CrmPropertyUpdateInput;
+};
+
+
+export type MutationUpdateCrmSmsConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmSmsConfigInput;
 };
 
 
@@ -12355,14 +12631,19 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
-  /** The account a new email to the record goes from by default; null when none is enabled. */
+  crmCallConfigs: Array<CrmCallConfig>;
+  /** The mailbox (Gmail or Microsoft) a new email to the record goes from by default; null when none is enabled. */
   crmEmailSender?: Maybe<Scalars['ID']['output']>;
+  /** Every Gmail and Microsoft mailbox a CRM email may go from; empty outside the operator's CRM. */
+  crmEmailSenders: Array<CrmEmailSenderOption>;
   /** The record's Gmail threads across every enabled account, synced from Gmail first. */
   crmEmailThreads: Array<CrmEmailThread>;
   /** Whether the CRM can email through Gmail (an enabled account, and this is the operator's CRM). */
   crmGmailReady: Scalars['Boolean']['output'];
+  crmIntegrationStatus: CrmIntegrationStatus;
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
+  crmSmsConfigs: Array<CrmSmsConfig>;
   /** Everything that happened with the contact or company, newest first (at most 200). */
   crmTimeline: Array<CrmTimelineItem>;
   crmViews: Array<CrmView>;
@@ -12391,7 +12672,7 @@ export type Query = {
    */
   employeeSalary?: Maybe<SalaryStructure>;
   firecrawlConfigs: Array<FirecrawlConfig>;
-  /** Whether the website scraper can run: a Firecrawl key is configured. */
+  /** Whether the website scraper can run: an active Firecrawl config with a key, or a self-hosted one that needs none. */
   firecrawlReady: Scalars['Boolean']['output'];
   getActivity: Activity;
   getAiJob: AiJob;
@@ -12861,6 +13142,11 @@ export type Query = {
   meetingBookingPagePath: Scalars['String']['output'];
   meetingBookings: MeetingBookingPage;
   meetingTypes: Array<MeetingType>;
+  /** The Microsoft mailboxes connected to the CRM, newest first. */
+  microsoftMailAccounts: Array<MicrosoftMailAccount>;
+  /** Whether Tech has saved and turned on the Entra app the mailboxes connect through. */
+  microsoftMailClientReady: Scalars['Boolean']['output'];
+  microsoftMailConfig: MicrosoftMailConfig;
   /** Delegations this person has arranged, and the ones they are covering. */
   myApprovalDelegations: MyApprovalDelegations;
   /**
@@ -15442,13 +15728,22 @@ export type SearchHit = {
 export type SendCrmEmailInput = {
   body: Scalars['String']['input'];
   cc?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** The connected account to send from; it has to be enabled for the CRM. */
+  /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM. */
   fromAccountId: Scalars['ID']['input'];
   inReplyTo?: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
   threadId?: InputMaybe<Scalars['String']['input']>;
   to: Array<Scalars['String']['input']>;
+};
+
+export type SendCrmSmsInput = {
+  /** 1 to 1000 characters. */
+  body: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+  /** The record's number to text, in E.164. */
+  to: Scalars['String']['input'];
 };
 
 export type SendMailInput = {
@@ -16069,6 +16364,15 @@ export type StartCallingBotCallInput = {
   phone?: InputMaybe<Scalars['String']['input']>;
   /** The example the bot plays (from callingBotScenarios); none keeps the bot's own prompt. */
   scenarioId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type StartCrmCallInput = {
+  /** The CRM user's own phone, in E.164: it rings first, then the call is bridged to the record. */
+  agentPhone: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+  /** The record's number to call, in E.164. */
+  to: Scalars['String']['input'];
 };
 
 export type StatBucket = {
@@ -20649,6 +20953,102 @@ export type UploadCrmMediaMutationVariables = Exact<{
 
 export type UploadCrmMediaMutation = { __typename?: 'Mutation', uploadCrmMedia: string };
 
+export type CrmIntegrationStatusQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CrmIntegrationStatusQuery = { __typename?: 'Query', crmIntegrationStatus: { __typename?: 'CrmIntegrationStatus', call: { __typename?: 'CrmChannelStatus', ready: boolean, provider?: string | null }, sms: { __typename?: 'CrmChannelStatus', ready: boolean, provider?: string | null }, email: { __typename?: 'CrmEmailStatus', gmail: boolean, microsoft: boolean } } };
+
+export type CrmCallConfigFieldsFragment = { __typename?: 'CrmCallConfig', id: string, label: string, provider: CrmCallProvider, fromNumber: string, accountId: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null };
+
+export type CrmCallConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CrmCallConfigsQuery = { __typename?: 'Query', crmCallConfigs: Array<{ __typename?: 'CrmCallConfig', id: string, label: string, provider: CrmCallProvider, fromNumber: string, accountId: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null }> };
+
+export type CreateCrmCallConfigMutationVariables = Exact<{
+  input: CrmCallConfigInput;
+}>;
+
+
+export type CreateCrmCallConfigMutation = { __typename?: 'Mutation', createCrmCallConfig: { __typename?: 'CrmCallConfig', id: string, label: string, provider: CrmCallProvider, fromNumber: string, accountId: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null } };
+
+export type UpdateCrmCallConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CrmCallConfigInput;
+}>;
+
+
+export type UpdateCrmCallConfigMutation = { __typename?: 'Mutation', updateCrmCallConfig: { __typename?: 'CrmCallConfig', id: string, label: string, provider: CrmCallProvider, fromNumber: string, accountId: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null } };
+
+export type DeleteCrmCallConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCrmCallConfigMutation = { __typename?: 'Mutation', deleteCrmCallConfig: boolean };
+
+export type TestCrmCallConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestCrmCallConfigMutation = { __typename?: 'Mutation', testCrmCallConfig: string };
+
+export type CrmSmsConfigFieldsFragment = { __typename?: 'CrmSmsConfig', id: string, label: string, provider: CrmSmsProvider, fromNumber: string, accountId: string, senderId: string, templateId: string, messageVariable: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null };
+
+export type CrmSmsConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CrmSmsConfigsQuery = { __typename?: 'Query', crmSmsConfigs: Array<{ __typename?: 'CrmSmsConfig', id: string, label: string, provider: CrmSmsProvider, fromNumber: string, accountId: string, senderId: string, templateId: string, messageVariable: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null }> };
+
+export type CreateCrmSmsConfigMutationVariables = Exact<{
+  input: CrmSmsConfigInput;
+}>;
+
+
+export type CreateCrmSmsConfigMutation = { __typename?: 'Mutation', createCrmSmsConfig: { __typename?: 'CrmSmsConfig', id: string, label: string, provider: CrmSmsProvider, fromNumber: string, accountId: string, senderId: string, templateId: string, messageVariable: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null } };
+
+export type UpdateCrmSmsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CrmSmsConfigInput;
+}>;
+
+
+export type UpdateCrmSmsConfigMutation = { __typename?: 'Mutation', updateCrmSmsConfig: { __typename?: 'CrmSmsConfig', id: string, label: string, provider: CrmSmsProvider, fromNumber: string, accountId: string, senderId: string, templateId: string, messageVariable: string, hasAuthToken: boolean, authTokenHint?: string | null, isActive: boolean, updatedByName: string, updatedAt?: string | null } };
+
+export type DeleteCrmSmsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCrmSmsConfigMutation = { __typename?: 'Mutation', deleteCrmSmsConfig: boolean };
+
+export type TestCrmSmsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestCrmSmsConfigMutation = { __typename?: 'Mutation', testCrmSmsConfig: string };
+
+export type StartCrmCallMutationVariables = Exact<{
+  input: StartCrmCallInput;
+}>;
+
+
+export type StartCrmCallMutation = { __typename?: 'Mutation', startCrmCall: { __typename?: 'CrmCallResult', provider: CrmCallProvider, callId: string, status: string, activityId: string } };
+
+export type SendCrmSmsMutationVariables = Exact<{
+  input: SendCrmSmsInput;
+}>;
+
+
+export type SendCrmSmsMutation = { __typename?: 'Mutation', sendCrmSms: { __typename?: 'CrmSmsResult', provider: CrmSmsProvider, messageId: string, status: string, activityId: string } };
+
+export type CrmEmailSendersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CrmEmailSendersQuery = { __typename?: 'Query', crmEmailSenders: Array<{ __typename?: 'CrmEmailSenderOption', id: string, email: string, provider: CrmEmailProvider }> };
+
 export type CrmPropertyInfoFieldsFragment = { __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, filterOnly: boolean, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
 
 export type CrmPropertyFieldsFragment = { __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
@@ -23346,6 +23746,54 @@ export type BookMeetingMutationVariables = Exact<{
 
 
 export type BookMeetingMutation = { __typename?: 'Mutation', bookMeeting: { __typename?: 'BookedMeeting', title: string, hostName: string, startAt: string, endAt: string, location: string } };
+
+export type MicrosoftMailConfigFieldsFragment = { __typename?: 'MicrosoftMailConfig', id: string, clientId: string, tenant: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null };
+
+export type MicrosoftMailConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MicrosoftMailConfigQuery = { __typename?: 'Query', microsoftMailConfig: { __typename?: 'MicrosoftMailConfig', id: string, clientId: string, tenant: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null } };
+
+export type SaveMicrosoftMailConfigMutationVariables = Exact<{
+  input: MicrosoftMailConfigInput;
+}>;
+
+
+export type SaveMicrosoftMailConfigMutation = { __typename?: 'Mutation', saveMicrosoftMailConfig: { __typename?: 'MicrosoftMailConfig', id: string, clientId: string, tenant: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null } };
+
+export type TestMicrosoftMailConfigMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TestMicrosoftMailConfigMutation = { __typename?: 'Mutation', testMicrosoftMailConfig: string };
+
+export type MicrosoftMailAccountFieldsFragment = { __typename?: 'MicrosoftMailAccount', id: string, email: string, enabled: boolean, status: GmailAccountStatus, lastError: string, connectedAt?: string | null, connectedByName: string, lastUsedAt?: string | null };
+
+export type MicrosoftMailAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MicrosoftMailAccountsQuery = { __typename?: 'Query', microsoftMailClientReady: boolean, microsoftMailAccounts: Array<{ __typename?: 'MicrosoftMailAccount', id: string, email: string, enabled: boolean, status: GmailAccountStatus, lastError: string, connectedAt?: string | null, connectedByName: string, lastUsedAt?: string | null }> };
+
+export type StartMicrosoftMailConnectMutationVariables = Exact<{
+  returnTo: Scalars['String']['input'];
+}>;
+
+
+export type StartMicrosoftMailConnectMutation = { __typename?: 'Mutation', startMicrosoftMailConnect: string };
+
+export type SetMicrosoftMailAccountEnabledMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  enabled: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetMicrosoftMailAccountEnabledMutation = { __typename?: 'Mutation', setMicrosoftMailAccountEnabled: { __typename?: 'MicrosoftMailAccount', id: string, email: string, enabled: boolean, status: GmailAccountStatus, lastError: string, connectedAt?: string | null, connectedByName: string, lastUsedAt?: string | null } };
+
+export type DisconnectMicrosoftMailAccountMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DisconnectMicrosoftMailAccountMutation = { __typename?: 'Mutation', disconnectMicrosoftMailAccount: boolean };
 
 export type NewsletterIssueFieldsFragment = { __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
@@ -27608,6 +28056,37 @@ export const CrmStatsFragmentDoc = gql`
   }
 }
     `;
+export const CrmCallConfigFieldsFragmentDoc = gql`
+    fragment CrmCallConfigFields on CrmCallConfig {
+  id
+  label
+  provider
+  fromNumber
+  accountId
+  hasAuthToken
+  authTokenHint
+  isActive
+  updatedByName
+  updatedAt
+}
+    `;
+export const CrmSmsConfigFieldsFragmentDoc = gql`
+    fragment CrmSmsConfigFields on CrmSmsConfig {
+  id
+  label
+  provider
+  fromNumber
+  accountId
+  senderId
+  templateId
+  messageVariable
+  hasAuthToken
+  authTokenHint
+  isActive
+  updatedByName
+  updatedAt
+}
+    `;
 export const CrmPropertyInfoFieldsFragmentDoc = gql`
     fragment CrmPropertyInfoFields on CrmPropertyInfo {
   key
@@ -28402,6 +28881,31 @@ export const PublicMeetingFieldsFragmentDoc = gql`
   organizationName
   organizationSlug
   hasLocation
+}
+    `;
+export const MicrosoftMailConfigFieldsFragmentDoc = gql`
+    fragment MicrosoftMailConfigFields on MicrosoftMailConfig {
+  id
+  clientId
+  tenant
+  hasClientSecret
+  clientSecretHint
+  enabled
+  accountCount
+  redirectUri
+  updatedAt
+}
+    `;
+export const MicrosoftMailAccountFieldsFragmentDoc = gql`
+    fragment MicrosoftMailAccountFields on MicrosoftMailAccount {
+  id
+  email
+  enabled
+  status
+  lastError
+  connectedAt
+  connectedByName
+  lastUsedAt
 }
     `;
 export const ItemSeoFieldsFragmentDoc = gql`
@@ -39805,6 +40309,491 @@ export function useUploadCrmMediaMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<UploadCrmMediaMutation, UploadCrmMediaMutationVariables>(UploadCrmMediaDocument, options);
       }
 export type UploadCrmMediaMutationHookResult = ReturnType<typeof useUploadCrmMediaMutation>;
+export const CrmIntegrationStatusDocument = gql`
+    query CrmIntegrationStatus {
+  crmIntegrationStatus {
+    call {
+      ready
+      provider
+    }
+    sms {
+      ready
+      provider
+    }
+    email {
+      gmail
+      microsoft
+    }
+  }
+}
+    `;
+
+/**
+ * __useCrmIntegrationStatusQuery__
+ *
+ * To run a query within a React component, call `useCrmIntegrationStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmIntegrationStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmIntegrationStatusQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCrmIntegrationStatusQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>(CrmIntegrationStatusDocument, options);
+      }
+export function useCrmIntegrationStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>(CrmIntegrationStatusDocument, options);
+        }
+// @ts-ignore
+export function useCrmIntegrationStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>;
+// @ts-ignore
+export function useCrmIntegrationStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmIntegrationStatusQuery | undefined, CrmIntegrationStatusQueryVariables>;
+export function useCrmIntegrationStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmIntegrationStatusQuery, CrmIntegrationStatusQueryVariables>(CrmIntegrationStatusDocument, options);
+        }
+export type CrmIntegrationStatusQueryHookResult = ReturnType<typeof useCrmIntegrationStatusQuery>;
+export type CrmIntegrationStatusLazyQueryHookResult = ReturnType<typeof useCrmIntegrationStatusLazyQuery>;
+export type CrmIntegrationStatusSuspenseQueryHookResult = ReturnType<typeof useCrmIntegrationStatusSuspenseQuery>;
+export const CrmCallConfigsDocument = gql`
+    query CrmCallConfigs {
+  crmCallConfigs {
+    ...CrmCallConfigFields
+  }
+}
+    ${CrmCallConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCrmCallConfigsQuery__
+ *
+ * To run a query within a React component, call `useCrmCallConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmCallConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmCallConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCrmCallConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>(CrmCallConfigsDocument, options);
+      }
+export function useCrmCallConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>(CrmCallConfigsDocument, options);
+        }
+// @ts-ignore
+export function useCrmCallConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>;
+// @ts-ignore
+export function useCrmCallConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmCallConfigsQuery | undefined, CrmCallConfigsQueryVariables>;
+export function useCrmCallConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmCallConfigsQuery, CrmCallConfigsQueryVariables>(CrmCallConfigsDocument, options);
+        }
+export type CrmCallConfigsQueryHookResult = ReturnType<typeof useCrmCallConfigsQuery>;
+export type CrmCallConfigsLazyQueryHookResult = ReturnType<typeof useCrmCallConfigsLazyQuery>;
+export type CrmCallConfigsSuspenseQueryHookResult = ReturnType<typeof useCrmCallConfigsSuspenseQuery>;
+export const CreateCrmCallConfigDocument = gql`
+    mutation CreateCrmCallConfig($input: CrmCallConfigInput!) {
+  createCrmCallConfig(input: $input) {
+    ...CrmCallConfigFields
+  }
+}
+    ${CrmCallConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCrmCallConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateCrmCallConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCrmCallConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCrmCallConfigMutation, { data, loading, error }] = useCreateCrmCallConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCrmCallConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCrmCallConfigMutation, CreateCrmCallConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCrmCallConfigMutation, CreateCrmCallConfigMutationVariables>(CreateCrmCallConfigDocument, options);
+      }
+export type CreateCrmCallConfigMutationHookResult = ReturnType<typeof useCreateCrmCallConfigMutation>;
+export const UpdateCrmCallConfigDocument = gql`
+    mutation UpdateCrmCallConfig($id: ID!, $input: CrmCallConfigInput!) {
+  updateCrmCallConfig(id: $id, input: $input) {
+    ...CrmCallConfigFields
+  }
+}
+    ${CrmCallConfigFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCrmCallConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateCrmCallConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCrmCallConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCrmCallConfigMutation, { data, loading, error }] = useUpdateCrmCallConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCrmCallConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCrmCallConfigMutation, UpdateCrmCallConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCrmCallConfigMutation, UpdateCrmCallConfigMutationVariables>(UpdateCrmCallConfigDocument, options);
+      }
+export type UpdateCrmCallConfigMutationHookResult = ReturnType<typeof useUpdateCrmCallConfigMutation>;
+export const DeleteCrmCallConfigDocument = gql`
+    mutation DeleteCrmCallConfig($id: ID!) {
+  deleteCrmCallConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCrmCallConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteCrmCallConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCrmCallConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCrmCallConfigMutation, { data, loading, error }] = useDeleteCrmCallConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCrmCallConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCrmCallConfigMutation, DeleteCrmCallConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCrmCallConfigMutation, DeleteCrmCallConfigMutationVariables>(DeleteCrmCallConfigDocument, options);
+      }
+export type DeleteCrmCallConfigMutationHookResult = ReturnType<typeof useDeleteCrmCallConfigMutation>;
+export const TestCrmCallConfigDocument = gql`
+    mutation TestCrmCallConfig($id: ID!) {
+  testCrmCallConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestCrmCallConfigMutation__
+ *
+ * To run a mutation, you first call `useTestCrmCallConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestCrmCallConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testCrmCallConfigMutation, { data, loading, error }] = useTestCrmCallConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestCrmCallConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestCrmCallConfigMutation, TestCrmCallConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestCrmCallConfigMutation, TestCrmCallConfigMutationVariables>(TestCrmCallConfigDocument, options);
+      }
+export type TestCrmCallConfigMutationHookResult = ReturnType<typeof useTestCrmCallConfigMutation>;
+export const CrmSmsConfigsDocument = gql`
+    query CrmSmsConfigs {
+  crmSmsConfigs {
+    ...CrmSmsConfigFields
+  }
+}
+    ${CrmSmsConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCrmSmsConfigsQuery__
+ *
+ * To run a query within a React component, call `useCrmSmsConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmSmsConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmSmsConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCrmSmsConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>(CrmSmsConfigsDocument, options);
+      }
+export function useCrmSmsConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>(CrmSmsConfigsDocument, options);
+        }
+// @ts-ignore
+export function useCrmSmsConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>;
+// @ts-ignore
+export function useCrmSmsConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmSmsConfigsQuery | undefined, CrmSmsConfigsQueryVariables>;
+export function useCrmSmsConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmSmsConfigsQuery, CrmSmsConfigsQueryVariables>(CrmSmsConfigsDocument, options);
+        }
+export type CrmSmsConfigsQueryHookResult = ReturnType<typeof useCrmSmsConfigsQuery>;
+export type CrmSmsConfigsLazyQueryHookResult = ReturnType<typeof useCrmSmsConfigsLazyQuery>;
+export type CrmSmsConfigsSuspenseQueryHookResult = ReturnType<typeof useCrmSmsConfigsSuspenseQuery>;
+export const CreateCrmSmsConfigDocument = gql`
+    mutation CreateCrmSmsConfig($input: CrmSmsConfigInput!) {
+  createCrmSmsConfig(input: $input) {
+    ...CrmSmsConfigFields
+  }
+}
+    ${CrmSmsConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCrmSmsConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateCrmSmsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCrmSmsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCrmSmsConfigMutation, { data, loading, error }] = useCreateCrmSmsConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCrmSmsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCrmSmsConfigMutation, CreateCrmSmsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCrmSmsConfigMutation, CreateCrmSmsConfigMutationVariables>(CreateCrmSmsConfigDocument, options);
+      }
+export type CreateCrmSmsConfigMutationHookResult = ReturnType<typeof useCreateCrmSmsConfigMutation>;
+export const UpdateCrmSmsConfigDocument = gql`
+    mutation UpdateCrmSmsConfig($id: ID!, $input: CrmSmsConfigInput!) {
+  updateCrmSmsConfig(id: $id, input: $input) {
+    ...CrmSmsConfigFields
+  }
+}
+    ${CrmSmsConfigFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCrmSmsConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateCrmSmsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCrmSmsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCrmSmsConfigMutation, { data, loading, error }] = useUpdateCrmSmsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCrmSmsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCrmSmsConfigMutation, UpdateCrmSmsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCrmSmsConfigMutation, UpdateCrmSmsConfigMutationVariables>(UpdateCrmSmsConfigDocument, options);
+      }
+export type UpdateCrmSmsConfigMutationHookResult = ReturnType<typeof useUpdateCrmSmsConfigMutation>;
+export const DeleteCrmSmsConfigDocument = gql`
+    mutation DeleteCrmSmsConfig($id: ID!) {
+  deleteCrmSmsConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCrmSmsConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteCrmSmsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCrmSmsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCrmSmsConfigMutation, { data, loading, error }] = useDeleteCrmSmsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCrmSmsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCrmSmsConfigMutation, DeleteCrmSmsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCrmSmsConfigMutation, DeleteCrmSmsConfigMutationVariables>(DeleteCrmSmsConfigDocument, options);
+      }
+export type DeleteCrmSmsConfigMutationHookResult = ReturnType<typeof useDeleteCrmSmsConfigMutation>;
+export const TestCrmSmsConfigDocument = gql`
+    mutation TestCrmSmsConfig($id: ID!) {
+  testCrmSmsConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestCrmSmsConfigMutation__
+ *
+ * To run a mutation, you first call `useTestCrmSmsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestCrmSmsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testCrmSmsConfigMutation, { data, loading, error }] = useTestCrmSmsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestCrmSmsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestCrmSmsConfigMutation, TestCrmSmsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestCrmSmsConfigMutation, TestCrmSmsConfigMutationVariables>(TestCrmSmsConfigDocument, options);
+      }
+export type TestCrmSmsConfigMutationHookResult = ReturnType<typeof useTestCrmSmsConfigMutation>;
+export const StartCrmCallDocument = gql`
+    mutation StartCrmCall($input: StartCrmCallInput!) {
+  startCrmCall(input: $input) {
+    provider
+    callId
+    status
+    activityId
+  }
+}
+    `;
+
+/**
+ * __useStartCrmCallMutation__
+ *
+ * To run a mutation, you first call `useStartCrmCallMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartCrmCallMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startCrmCallMutation, { data, loading, error }] = useStartCrmCallMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useStartCrmCallMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartCrmCallMutation, StartCrmCallMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartCrmCallMutation, StartCrmCallMutationVariables>(StartCrmCallDocument, options);
+      }
+export type StartCrmCallMutationHookResult = ReturnType<typeof useStartCrmCallMutation>;
+export const SendCrmSmsDocument = gql`
+    mutation SendCrmSms($input: SendCrmSmsInput!) {
+  sendCrmSms(input: $input) {
+    provider
+    messageId
+    status
+    activityId
+  }
+}
+    `;
+
+/**
+ * __useSendCrmSmsMutation__
+ *
+ * To run a mutation, you first call `useSendCrmSmsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendCrmSmsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendCrmSmsMutation, { data, loading, error }] = useSendCrmSmsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendCrmSmsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendCrmSmsMutation, SendCrmSmsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SendCrmSmsMutation, SendCrmSmsMutationVariables>(SendCrmSmsDocument, options);
+      }
+export type SendCrmSmsMutationHookResult = ReturnType<typeof useSendCrmSmsMutation>;
+export const CrmEmailSendersDocument = gql`
+    query CrmEmailSenders {
+  crmEmailSenders {
+    id
+    email
+    provider
+  }
+}
+    `;
+
+/**
+ * __useCrmEmailSendersQuery__
+ *
+ * To run a query within a React component, call `useCrmEmailSendersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmEmailSendersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmEmailSendersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCrmEmailSendersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>(CrmEmailSendersDocument, options);
+      }
+export function useCrmEmailSendersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>(CrmEmailSendersDocument, options);
+        }
+// @ts-ignore
+export function useCrmEmailSendersSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>;
+// @ts-ignore
+export function useCrmEmailSendersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailSendersQuery | undefined, CrmEmailSendersQueryVariables>;
+export function useCrmEmailSendersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmEmailSendersQuery, CrmEmailSendersQueryVariables>(CrmEmailSendersDocument, options);
+        }
+export type CrmEmailSendersQueryHookResult = ReturnType<typeof useCrmEmailSendersQuery>;
+export type CrmEmailSendersLazyQueryHookResult = ReturnType<typeof useCrmEmailSendersLazyQuery>;
+export type CrmEmailSendersSuspenseQueryHookResult = ReturnType<typeof useCrmEmailSendersSuspenseQuery>;
 export const CrmObjectSchemaDocument = gql`
     query CrmObjectSchema($object: CrmObject!) {
   crmObjectSchema(object: $object) {
@@ -55133,6 +56122,237 @@ export function useBookMeetingMutation(baseOptions?: ApolloReactHooks.MutationHo
         return ApolloReactHooks.useMutation<BookMeetingMutation, BookMeetingMutationVariables>(BookMeetingDocument, options);
       }
 export type BookMeetingMutationHookResult = ReturnType<typeof useBookMeetingMutation>;
+export const MicrosoftMailConfigDocument = gql`
+    query MicrosoftMailConfig {
+  microsoftMailConfig {
+    ...MicrosoftMailConfigFields
+  }
+}
+    ${MicrosoftMailConfigFieldsFragmentDoc}`;
+
+/**
+ * __useMicrosoftMailConfigQuery__
+ *
+ * To run a query within a React component, call `useMicrosoftMailConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMicrosoftMailConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMicrosoftMailConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMicrosoftMailConfigQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>(MicrosoftMailConfigDocument, options);
+      }
+export function useMicrosoftMailConfigLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>(MicrosoftMailConfigDocument, options);
+        }
+// @ts-ignore
+export function useMicrosoftMailConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>;
+// @ts-ignore
+export function useMicrosoftMailConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MicrosoftMailConfigQuery | undefined, MicrosoftMailConfigQueryVariables>;
+export function useMicrosoftMailConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MicrosoftMailConfigQuery, MicrosoftMailConfigQueryVariables>(MicrosoftMailConfigDocument, options);
+        }
+export type MicrosoftMailConfigQueryHookResult = ReturnType<typeof useMicrosoftMailConfigQuery>;
+export type MicrosoftMailConfigLazyQueryHookResult = ReturnType<typeof useMicrosoftMailConfigLazyQuery>;
+export type MicrosoftMailConfigSuspenseQueryHookResult = ReturnType<typeof useMicrosoftMailConfigSuspenseQuery>;
+export const SaveMicrosoftMailConfigDocument = gql`
+    mutation SaveMicrosoftMailConfig($input: MicrosoftMailConfigInput!) {
+  saveMicrosoftMailConfig(input: $input) {
+    ...MicrosoftMailConfigFields
+  }
+}
+    ${MicrosoftMailConfigFieldsFragmentDoc}`;
+
+/**
+ * __useSaveMicrosoftMailConfigMutation__
+ *
+ * To run a mutation, you first call `useSaveMicrosoftMailConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveMicrosoftMailConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveMicrosoftMailConfigMutation, { data, loading, error }] = useSaveMicrosoftMailConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveMicrosoftMailConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveMicrosoftMailConfigMutation, SaveMicrosoftMailConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveMicrosoftMailConfigMutation, SaveMicrosoftMailConfigMutationVariables>(SaveMicrosoftMailConfigDocument, options);
+      }
+export type SaveMicrosoftMailConfigMutationHookResult = ReturnType<typeof useSaveMicrosoftMailConfigMutation>;
+export const TestMicrosoftMailConfigDocument = gql`
+    mutation TestMicrosoftMailConfig {
+  testMicrosoftMailConfig
+}
+    `;
+
+/**
+ * __useTestMicrosoftMailConfigMutation__
+ *
+ * To run a mutation, you first call `useTestMicrosoftMailConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestMicrosoftMailConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testMicrosoftMailConfigMutation, { data, loading, error }] = useTestMicrosoftMailConfigMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTestMicrosoftMailConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestMicrosoftMailConfigMutation, TestMicrosoftMailConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestMicrosoftMailConfigMutation, TestMicrosoftMailConfigMutationVariables>(TestMicrosoftMailConfigDocument, options);
+      }
+export type TestMicrosoftMailConfigMutationHookResult = ReturnType<typeof useTestMicrosoftMailConfigMutation>;
+export const MicrosoftMailAccountsDocument = gql`
+    query MicrosoftMailAccounts {
+  microsoftMailAccounts {
+    ...MicrosoftMailAccountFields
+  }
+  microsoftMailClientReady
+}
+    ${MicrosoftMailAccountFieldsFragmentDoc}`;
+
+/**
+ * __useMicrosoftMailAccountsQuery__
+ *
+ * To run a query within a React component, call `useMicrosoftMailAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMicrosoftMailAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMicrosoftMailAccountsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMicrosoftMailAccountsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>(MicrosoftMailAccountsDocument, options);
+      }
+export function useMicrosoftMailAccountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>(MicrosoftMailAccountsDocument, options);
+        }
+// @ts-ignore
+export function useMicrosoftMailAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>;
+// @ts-ignore
+export function useMicrosoftMailAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MicrosoftMailAccountsQuery | undefined, MicrosoftMailAccountsQueryVariables>;
+export function useMicrosoftMailAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MicrosoftMailAccountsQuery, MicrosoftMailAccountsQueryVariables>(MicrosoftMailAccountsDocument, options);
+        }
+export type MicrosoftMailAccountsQueryHookResult = ReturnType<typeof useMicrosoftMailAccountsQuery>;
+export type MicrosoftMailAccountsLazyQueryHookResult = ReturnType<typeof useMicrosoftMailAccountsLazyQuery>;
+export type MicrosoftMailAccountsSuspenseQueryHookResult = ReturnType<typeof useMicrosoftMailAccountsSuspenseQuery>;
+export const StartMicrosoftMailConnectDocument = gql`
+    mutation StartMicrosoftMailConnect($returnTo: String!) {
+  startMicrosoftMailConnect(returnTo: $returnTo)
+}
+    `;
+
+/**
+ * __useStartMicrosoftMailConnectMutation__
+ *
+ * To run a mutation, you first call `useStartMicrosoftMailConnectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartMicrosoftMailConnectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startMicrosoftMailConnectMutation, { data, loading, error }] = useStartMicrosoftMailConnectMutation({
+ *   variables: {
+ *      returnTo: // value for 'returnTo'
+ *   },
+ * });
+ */
+export function useStartMicrosoftMailConnectMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartMicrosoftMailConnectMutation, StartMicrosoftMailConnectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartMicrosoftMailConnectMutation, StartMicrosoftMailConnectMutationVariables>(StartMicrosoftMailConnectDocument, options);
+      }
+export type StartMicrosoftMailConnectMutationHookResult = ReturnType<typeof useStartMicrosoftMailConnectMutation>;
+export const SetMicrosoftMailAccountEnabledDocument = gql`
+    mutation SetMicrosoftMailAccountEnabled($id: ID!, $enabled: Boolean!) {
+  setMicrosoftMailAccountEnabled(id: $id, enabled: $enabled) {
+    ...MicrosoftMailAccountFields
+  }
+}
+    ${MicrosoftMailAccountFieldsFragmentDoc}`;
+
+/**
+ * __useSetMicrosoftMailAccountEnabledMutation__
+ *
+ * To run a mutation, you first call `useSetMicrosoftMailAccountEnabledMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetMicrosoftMailAccountEnabledMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setMicrosoftMailAccountEnabledMutation, { data, loading, error }] = useSetMicrosoftMailAccountEnabledMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      enabled: // value for 'enabled'
+ *   },
+ * });
+ */
+export function useSetMicrosoftMailAccountEnabledMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetMicrosoftMailAccountEnabledMutation, SetMicrosoftMailAccountEnabledMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetMicrosoftMailAccountEnabledMutation, SetMicrosoftMailAccountEnabledMutationVariables>(SetMicrosoftMailAccountEnabledDocument, options);
+      }
+export type SetMicrosoftMailAccountEnabledMutationHookResult = ReturnType<typeof useSetMicrosoftMailAccountEnabledMutation>;
+export const DisconnectMicrosoftMailAccountDocument = gql`
+    mutation DisconnectMicrosoftMailAccount($id: ID!) {
+  disconnectMicrosoftMailAccount(id: $id)
+}
+    `;
+
+/**
+ * __useDisconnectMicrosoftMailAccountMutation__
+ *
+ * To run a mutation, you first call `useDisconnectMicrosoftMailAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDisconnectMicrosoftMailAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [disconnectMicrosoftMailAccountMutation, { data, loading, error }] = useDisconnectMicrosoftMailAccountMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDisconnectMicrosoftMailAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DisconnectMicrosoftMailAccountMutation, DisconnectMicrosoftMailAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DisconnectMicrosoftMailAccountMutation, DisconnectMicrosoftMailAccountMutationVariables>(DisconnectMicrosoftMailAccountDocument, options);
+      }
+export type DisconnectMicrosoftMailAccountMutationHookResult = ReturnType<typeof useDisconnectMicrosoftMailAccountMutation>;
 export const NewsletterIssuesDocument = gql`
     query NewsletterIssues($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
   newsletterIssues(

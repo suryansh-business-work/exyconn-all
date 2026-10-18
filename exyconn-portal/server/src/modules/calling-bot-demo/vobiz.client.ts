@@ -3,10 +3,10 @@ import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 
 /** Vobiz's REST API (vobiz.ai/docs). The account path is case-sensitive and ends in a slash. */
-const VOBIZ_API = 'https://api.vobiz.ai/api/v1';
+export const VOBIZ_API = 'https://api.vobiz.ai/api/v1';
 
 /** Vobiz takes numbers as digits, without the `+` of E.164. */
-const digitsOf = (phone: string): string => phone.replace(/\D/g, '');
+export const digitsOf = (phone: string): string => phone.replace(/\D/g, '');
 
 export interface PlaceCall {
   config: Pick<

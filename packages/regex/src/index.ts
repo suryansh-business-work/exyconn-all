@@ -94,6 +94,18 @@ export const META_ID = /^\d{5,30}$/;
 /** A Twilio Account SID: "AC" and 32 hex digits, as shown on the Twilio console. */
 export const TWILIO_ACCOUNT_SID = /^AC[\da-f]{32}$/i;
 
+/** A calling or SMS provider's short account id, such as a Vobiz Auth ID. */
+export const PROVIDER_ACCOUNT_ID = /^[\w-]{4,100}$/;
+
+/** A DLT SMS sender id: 3 to 11 letters or digits (India: 6 letters). */
+export const DLT_SENDER_ID = /^[a-z\d]{3,11}$/i;
+
+/** An SMS provider's template id, such as an MSG91 flow template id. */
+export const SMS_TEMPLATE_ID = /^[\w-]{1,64}$/;
+
+/** A template variable name, e.g. `message`: a letter or `_`, then up to 39 word characters. */
+export const TEMPLATE_VARIABLE = /^[a-z_]\w{0,39}$/i;
+
 /** A GitHub owner or repository name as it appears in the repository URL. */
 export const GITHUB_NAME = /^[\w.-]+$/;
 

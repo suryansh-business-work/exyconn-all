@@ -20,6 +20,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PublicIcon from '@mui/icons-material/Public';
 import MapIcon from '@mui/icons-material/Map';
 import WebIcon from '@mui/icons-material/Web';
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { GoogleMapsConfigsPanel } from './GoogleMapsConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
@@ -38,6 +39,7 @@ import { PaypalConfigsPanel } from './PaypalConfigsPanel';
 import { PayoneerConfigsPanel } from './PayoneerConfigsPanel';
 import { GoogleSignInPanel } from './GoogleSignInPanel';
 import { GmailPanel } from './GmailPanel';
+import { MicrosoftMailPanel } from './MicrosoftMailPanel';
 import { SonarConfigsPanel } from './SonarConfigsPanel';
 import { EmailVerifierConfigsPanel } from './EmailVerifierConfigsPanel';
 
@@ -84,6 +86,13 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     category: MESSAGING,
     icon: <MarkEmailReadIcon />,
     panel: <EmailVerifierConfigsPanel />,
+  },
+  {
+    slug: 'microsoft-mail',
+    label: 'Microsoft Mail',
+    category: MESSAGING,
+    icon: <AlternateEmailIcon />,
+    panel: <MicrosoftMailPanel />,
   },
   {
     slug: 'google-sign-in',
