@@ -13,6 +13,8 @@ describe('CONTACT_COLUMNS', () => {
       'phone',
       'status',
       'owner',
+      'leadOwner',
+      'tags',
       'actions',
     ]);
   });

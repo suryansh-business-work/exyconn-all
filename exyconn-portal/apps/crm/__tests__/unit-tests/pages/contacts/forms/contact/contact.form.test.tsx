@@ -47,7 +47,7 @@ async function addPhone(number: string) {
 async function fillRequired() {
   await fillField('Full name', 'Ravi Menon');
   await addEmail('ravi@globex.com');
-  await fillField('Owner', 'Priya');
+  await fillField('Contact owner', 'Priya');
 }
 
 /** Everything a new contact sends beyond what a test fills in. */
@@ -76,14 +76,14 @@ describe('ContactForm', () => {
     gql.companies.mockReturnValue({ data: { listCompanies: COMPANIES } });
   });
 
-  it('requires a name, an email and an owner', async () => {
+  it('requires a name and an email, but not an owner', async () => {
     renderForm();
 
     await press('Create');
 
     expect(await screen.findByText('Name is required')).toBeInTheDocument();
     expect(screen.getByText('Add at least one email address')).toBeInTheDocument();
-    expect(screen.getByText('Owner is required')).toBeInTheDocument();
+    expect(screen.queryByText('Owner is required')).not.toBeInTheDocument();
     expect(gql.create).not.toHaveBeenCalled();
   });
 

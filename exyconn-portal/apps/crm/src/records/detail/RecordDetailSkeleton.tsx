@@ -67,7 +67,7 @@ export function RecordDetailSkeleton({ label }: Readonly<{ label: string }>) {
   return (
     <SkeletonStatus label={label}>
       <DetailLayout aside={<ProfileBones />}>
-        <Stack spacing={2.5}>
+        <Stack spacing={3}>
           <Stack direction="row" spacing={1}>
             {skeletonKeys(4, 'tab').map((key) => (
               <SkeletonBone key={key} variant="rounded" sx={{ width: 88, height: 34 }} />

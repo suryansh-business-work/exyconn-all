@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { isValidObjectId, Schema } from 'mongoose';
 import { UserModel } from '../admin/user.model';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -67,7 +67,10 @@ export const systemOrigin = (source: OriginSource): RecordOrigin => ({
 /** The signed-in caller as the creator of what they are filing. */
 export async function userOrigin(ctx: GraphQLContext, source: OriginSource): Promise<RecordOrigin> {
   const id = ctx.user?.id ?? '';
-  const user = id ? await UserModel.findById(id).select('name email').lean() : null;
+  // A malformed id in a token must degrade to "no name", not fail the record being filed.
+  const user = isValidObjectId(id)
+    ? await UserModel.findById(id).select('name email').lean()
+    : null;
   return {
     source,
     userId: id,

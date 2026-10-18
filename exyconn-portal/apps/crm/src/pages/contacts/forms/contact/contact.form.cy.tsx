@@ -17,12 +17,12 @@ const mount = () =>
   );
 
 describe('ContactForm', () => {
-  it('requires a name, an email and an owner', () => {
+  it('requires a name and an email, but not an owner', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Name is required').should('be.visible');
     cy.contains('Add at least one email address').should('be.visible');
-    cy.contains('Owner is required').should('be.visible');
+    cy.contains('Owner is required').should('not.exist');
   });
 
   it('rejects a malformed email', () => {

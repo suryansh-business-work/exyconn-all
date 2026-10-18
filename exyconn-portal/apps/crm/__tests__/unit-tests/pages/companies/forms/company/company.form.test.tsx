@@ -30,7 +30,7 @@ function renderForm(initial: ReturnType<typeof companyRow> | null = null) {
 async function fillRequired() {
   await fillField('Company name', 'Globex');
   await fillField('Domain', 'globex.com');
-  await fillField('Owner', 'Priya');
+  await fillField('Company owner', 'Priya');
 }
 
 describe('CompanyForm', () => {
@@ -40,14 +40,14 @@ describe('CompanyForm', () => {
     gql.update.mockResolvedValue({ data: { updateCompany: { id: 'company-1' } } });
   });
 
-  it('requires a name, a domain and an owner', async () => {
+  it('requires a name and a domain, but not an owner', async () => {
     renderForm();
 
     await press('Create');
 
     expect(await screen.findByText('Name is required')).toBeInTheDocument();
     expect(screen.getByText('Domain is required')).toBeInTheDocument();
-    expect(screen.getByText('Owner is required')).toBeInTheDocument();
+    expect(screen.queryByText('Owner is required')).not.toBeInTheDocument();
     expect(gql.create).not.toHaveBeenCalled();
   });
 
@@ -71,6 +71,7 @@ describe('CompanyForm', () => {
     renderForm();
 
     expect(await optionsOf('Size')).toEqual([
+      'Not known',
       '1-10 people',
       '11-50 people',
       '51-200 people',
@@ -79,7 +80,7 @@ describe('CompanyForm', () => {
     ]);
   });
 
-  it('creates a prospect of the smallest size unless told otherwise', async () => {
+  it('creates a prospect with no size unless told otherwise', async () => {
     const { onDone } = renderForm();
     await fillRequired();
     await fillField('Industry', 'Manufacturing');
@@ -93,7 +94,7 @@ describe('CompanyForm', () => {
           name: 'Globex',
           domain: 'globex.com',
           industry: 'Manufacturing',
-          size: '1-10',
+          size: '',
           status: CompanyStatus.Prospect,
           emails: [],
           phones: [],

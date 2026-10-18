@@ -14,6 +14,8 @@ describe('COMPANY_COLUMNS', () => {
       'status',
       'isClient',
       'owner',
+      'leadOwner',
+      'tags',
       'actions',
     ]);
   });

@@ -41,13 +41,28 @@ describe('Converting a lead into a deal', () => {
     const deal = await convert(lead._id.toHexString());
 
     const company = await CompanyModel.findById(deal.companyId).lean();
-    expect(company).toMatchObject({ name: 'Acme Ltd', domain: 'acme.com', owner: 'Asha Rao' });
+    // The seller who converted it is the origin; with no user record it reads as a conversion.
+    const origin = {
+      source: 'LEAD_CONVERSION',
+      userId: 'user-1',
+      userName: '',
+      userEmail: 'sales@exyconn.com',
+    };
+    expect(company).toMatchObject({
+      name: 'Acme Ltd',
+      domain: 'acme.com',
+      owner: 'Asha Rao',
+      leadOwner: 'Converted lead',
+      origin,
+    });
     const contact = await ContactModel.findById(deal.contactId).lean();
     expect(contact).toMatchObject({
       name: 'Ravi Kumar',
       email: 'ravi@acme.com',
       companyId: deal.companyId,
       companyName: 'Acme Ltd',
+      leadOwner: 'Converted lead',
+      origin,
     });
     const saved = await DealModel.findById(deal.id).lean();
     expect(saved).toMatchObject({

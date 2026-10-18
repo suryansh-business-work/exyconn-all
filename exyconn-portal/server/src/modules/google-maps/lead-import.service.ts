@@ -199,7 +199,8 @@ class ImportRun {
         relatedId: id,
         relatedName: row.name,
         done: true,
-        owner: this.origin.userName,
+        // An activity always names somebody: the importer's email when the account has no name.
+        owner: this.origin.userName || this.origin.userEmail,
       });
     } catch (error) {
       if ((error as { code?: unknown }).code !== DUPLICATE_KEY) {
