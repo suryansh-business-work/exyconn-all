@@ -8,6 +8,12 @@ export const agGrid = {
   datasource: null as IDatasource | null,
   purge: vi.fn(),
   setFilterModel: vi.fn(),
+  deselectAll: vi.fn(),
+  setNodesSelected: vi.fn(),
+  /** The pager's current page, zero-based. */
+  currentPage: 0,
+  /** What each displayed row index holds; a null entry is a row still loading. */
+  rows: [] as ReadonlyArray<object | null>,
   /** When false, the grid ref carries no api — as before ag-grid has finished starting up. */
   withApi: true,
 };
@@ -26,6 +32,17 @@ export interface FakeGridProps {
   }) => void;
   onRowClicked?: (event: { data?: unknown }) => void;
   rowStyle?: object;
+  rowSelection?: object;
+  onSelectionChanged: (event: { api: { getSelectedRows: () => unknown[] } }) => void;
+  onSortChanged: () => void;
+}
+
+/** The displayed row at `index` as ag-grid's infinite model gives it, or none past the end. */
+function getDisplayedRowAtIndex(index: number): { data: object | undefined } | undefined {
+  if (index >= agGrid.rows.length) {
+    return undefined;
+  }
+  return { data: agGrid.rows[index] ?? undefined };
 }
 
 function setGridOption(key: string, value: IDatasource): void {
@@ -36,14 +53,24 @@ function setGridOption(key: string, value: IDatasource): void {
 
 /**
  * Stands in for ag-grid's React grid, which needs a real layout engine: it records its props,
- * hands the datasource over on ready, and exposes `purgeInfiniteCache` and `setFilterModel`
- * through the ref.
+ * hands the datasource over on ready, and exposes `purgeInfiniteCache`, `setFilterModel` and
+ * the selection and pager calls the bulk actions use through the ref.
  */
 export function FakeAgGrid(props: Readonly<FakeGridProps>) {
   agGrid.props = props;
   useImperativeHandle(props.ref, () =>
     agGrid.withApi
-      ? { api: { purgeInfiniteCache: agGrid.purge, setFilterModel: agGrid.setFilterModel } }
+      ? {
+          api: {
+            purgeInfiniteCache: agGrid.purge,
+            setFilterModel: agGrid.setFilterModel,
+            deselectAll: agGrid.deselectAll,
+            setNodesSelected: agGrid.setNodesSelected,
+            paginationGetPageSize: () => agGrid.props.paginationPageSize,
+            paginationGetCurrentPage: () => agGrid.currentPage,
+            getDisplayedRowAtIndex,
+          },
+        }
       : {},
   );
   const { onGridReady } = props;
@@ -72,5 +99,9 @@ export function resetFakeGrid(): void {
   agGrid.datasource = null;
   agGrid.purge.mockClear();
   agGrid.setFilterModel.mockClear();
+  agGrid.deselectAll.mockClear();
+  agGrid.setNodesSelected.mockClear();
+  agGrid.currentPage = 0;
+  agGrid.rows = [];
   agGrid.withApi = true;
 }

@@ -88,6 +88,21 @@ describe('CrudDashboard list view', () => {
     expect(screen.getByTestId('grid')).toBeInTheDocument();
   });
 
+  it('hands the grid the bulk list, and re-reads the resource after a bulk action', () => {
+    const crud = crudResource();
+    renderDashboard({ crud, bulkList: 'searchContacts' });
+
+    expect(gridProps.current?.bulkList).toBe('searchContacts');
+    gridProps.current?.onBulkDone?.();
+    expect(crud.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('has nothing to re-read after a bulk action without a resource', () => {
+    renderDashboard();
+    expect(gridProps.current?.bulkList).toBeUndefined();
+    expect(gridProps.current?.onBulkDone).toBeUndefined();
+  });
+
   it('exports under the query the grid last reported', async () => {
     const fetchRows = fetchLeads();
     renderDashboard({ fetchRows, exportFileName: 'leads' });

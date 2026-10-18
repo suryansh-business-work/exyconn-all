@@ -13,6 +13,7 @@ import { DealsListPage, DealsPage } from '../../src/pages/deals';
 import { ActivitiesPage } from '../../src/pages/activities';
 import { EmailVerifierPage } from '../../src/pages/email-verifier';
 import { LeadGeneratorPage } from '../../src/pages/lead-generator';
+import { WebsiteScraperPage } from '../../src/pages/website-scraper';
 import { GmailAccountsPage } from '../../src/pages/settings/gmail';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
@@ -72,6 +73,7 @@ describe('App', () => {
       ['/crm/meetings/:tab?', MeetingsPage],
       ['/crm/tools/email-verifier/:tab?', EmailVerifierPage],
       ['/crm/tools/lead-generator', LeadGeneratorPage],
+      ['/crm/tools/website-scraper', WebsiteScraperPage],
       ['/crm/settings/properties/:object?', PropertiesPage],
       ['/crm/settings/gmail', GmailAccountsPage],
     ]);

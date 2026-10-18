@@ -46,7 +46,7 @@ export function AiSummary({
         flexWrap="wrap"
         useFlexGap
       >
-        <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
           <Text component="h2" size="label" weight="bold">
             {t('{name} summary', { name })}
           </Text>
