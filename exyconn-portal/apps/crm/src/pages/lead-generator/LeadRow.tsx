@@ -19,7 +19,7 @@ import type { EmailLookup, LeadPlace } from './leadTypes';
 
 /** The CRM's website scraper, opened on this business's site. */
 const scraperLink = (website: string) =>
-  `/crm/tools/website-scraper?url=${encodeURIComponent(website)}`;
+  `/tools/website-scraper?url=${encodeURIComponent(website)}`;
 
 interface LeadRowProps {
   place: LeadPlace;
@@ -91,7 +91,7 @@ export function LeadRow({
               color="primary"
               label={t('In CRM')}
               component={RouterLink}
-              to={`/crm/companies/${place.existingCompanyId}`}
+              to={`/companies/${place.existingCompanyId}`}
               clickable
             />
           )}

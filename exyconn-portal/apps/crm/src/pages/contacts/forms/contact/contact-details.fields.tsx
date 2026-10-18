@@ -67,7 +67,11 @@ export function ContactDetailsFields({
         label="Languages"
         helperText="Type a language and press Enter"
       />
-      <RhfTextField name="owner" label="Owner" />
+      <RhfTextField
+        name="owner"
+        label="Contact owner"
+        helperText="Who looks after this person; leave blank until someone takes them on"
+      />
       <ProfileFields aboutLabel="About" />
       <RhfTextField name="notes" label="Notes" multiline rows={2} />
     </>

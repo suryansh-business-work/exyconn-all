@@ -1,6 +1,7 @@
 import { badRequest, notFound } from '../../../utils/errors';
 import { isValidTimezone } from '../../../utils/timezone';
 import { runAsPlatform } from '../../../lib/tenant';
+import { isSlug, SLUG_RULE } from './meeting.slug';
 import { MeetingTypeModel, type MeetingTypeDocument } from './meeting.models';
 
 export interface MeetingTypeInput {
@@ -23,12 +24,6 @@ export interface MeetingHost {
   email: string;
 }
 
-const SLUG_CHARS = new Set('abcdefghijklmnopqrstuvwxyz0123456789-');
-const isSlug = (slug: string) =>
-  slug.length >= 3 &&
-  slug.length <= 60 &&
-  [...slug].every((c) => SLUG_CHARS.has(c)) &&
-  !slug.startsWith('-');
 /** "HH:mm" on a 24-hour clock. */
 const isClock = (value: string) => {
   const [h, m] = value.split(':').map(Number);
@@ -39,7 +34,7 @@ const isClock = (value: string) => {
 function checked(input: MeetingTypeInput) {
   const slug = input.slug.trim().toLowerCase();
   if (!isSlug(slug)) {
-    badRequest('Use 3–60 lower-case letters, digits and dashes for the link.');
+    badRequest(`${SLUG_RULE} for the link.`);
   }
   if (!isValidTimezone(input.timezone)) {
     badRequest('Pick a time zone from the list.');

@@ -10,7 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 
 /** Where the CRM connects, turns on and disconnects its Gmail accounts. */
-const CRM_GMAIL_PATH = '/crm/settings/gmail';
+const CRM_GMAIL_PATH = '/settings/gmail';
 
 /**
  * How many mailboxes the CRM has connected with this client, a link to manage them in the CRM,

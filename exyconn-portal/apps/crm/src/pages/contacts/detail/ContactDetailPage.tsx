@@ -19,7 +19,7 @@ import {
 import { ContactOverview } from './ContactOverview';
 import { ContactProfile } from './ContactProfile';
 
-/** A contact's own page: profile, overview and the full activity, at /crm/contacts/:id/:tab. */
+/** A contact's own page: profile, overview and the full activity, at /contacts/:id/:tab. */
 export function ContactDetailPage() {
   const t = useT();
   const { id = '' } = useParams();
@@ -80,7 +80,7 @@ export function ContactDetailPage() {
   return (
     <Box>
       <DetailLayout aside={<ContactProfile contact={contact} onSaved={reload} />}>
-        <Tabber basePath={`/crm/contacts/${contact.id}`} items={tabs} ariaLabel="Contact" />
+        <Tabber basePath={`/contacts/${contact.id}`} items={tabs} ariaLabel="Contact" />
       </DetailLayout>
     </Box>
   );

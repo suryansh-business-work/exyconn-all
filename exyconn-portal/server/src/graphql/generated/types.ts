@@ -995,6 +995,8 @@ export type BookedMeeting = {
   __typename?: 'BookedMeeting';
   endAt: Scalars['DateTime']['output'];
   hostName: Scalars['String']['output'];
+  /** The fixed video rooms from Meeting settings, e.g. 'Zoom: https://zoom.us/j/1'. */
+  joinLinks: Array<Scalars['String']['output']>;
   /** Where it happens, now that it is booked. */
   location: Scalars['String']['output'];
   startAt: Scalars['DateTime']['output'];
@@ -2295,6 +2297,8 @@ export type Company = {
   isClient: Scalars['Boolean']['output'];
   /** Latitude, when the account was filed from Google Places; null otherwise. */
   lat?: Maybe<Scalars['Float']['output']>;
+  /** The creator's name, or what brought it in (Website, Google Places). */
+  leadOwner: Scalars['String']['output'];
   /** Where the account came from, e.g. Google Places; empty when typed in by hand. */
   leadSource: Scalars['String']['output'];
   linkedinUrl: Scalars['String']['output'];
@@ -2307,6 +2311,8 @@ export type Company = {
   mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
+  /** Null on rows filed before origins were kept. */
+  origin?: Maybe<CrmRecordOrigin>;
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   phones: Array<CrmPhoneNumber>;
@@ -2315,6 +2321,7 @@ export type Company = {
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['output'];
   status: CompanyStatus;
+  tags: Array<Scalars['String']['output']>;
   timezone: Scalars['String']['output'];
   twitterUrl: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -2542,6 +2549,7 @@ export type Contact = {
   id: Scalars['ID']['output'];
   languages: Array<Scalars['String']['output']>;
   lat?: Maybe<Scalars['Float']['output']>;
+  leadOwner: Scalars['String']['output'];
   leadSource: Scalars['String']['output'];
   lifecycleStage: LifecycleStage;
   linkedinUrl: Scalars['String']['output'];
@@ -2549,12 +2557,14 @@ export type Contact = {
   mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
+  origin?: Maybe<CrmRecordOrigin>;
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   /** Every number; phone is the primary one. */
   phones: Array<CrmPhoneNumber>;
   placeId: Scalars['String']['output'];
   status: ContactStatus;
+  tags: Array<Scalars['String']['output']>;
   /** IANA time zone, for the contact's local time. */
   timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -3037,6 +3047,14 @@ export enum CrmOp {
   StartsWith = 'STARTS_WITH'
 }
 
+export enum CrmOriginSource {
+  GooglePlaces = 'GOOGLE_PLACES',
+  LeadConversion = 'LEAD_CONVERSION',
+  MeetingBooking = 'MEETING_BOOKING',
+  User = 'USER',
+  Website = 'WEBSITE'
+}
+
 /** One phone number of a contact or company; exactly one is primary. */
 export type CrmPhoneNumber = {
   __typename?: 'CrmPhoneNumber';
@@ -3153,6 +3171,16 @@ export type CrmQueryInput = {
   sorts?: InputMaybe<Array<CrmSortInput>>;
 };
 
+/** Who or what brought a record into the CRM. */
+export type CrmRecordOrigin = {
+  __typename?: 'CrmRecordOrigin';
+  source: CrmOriginSource;
+  userEmail: Scalars['String']['output'];
+  /** The signed-in person who created it or ran the import; empty for the website or a booking. */
+  userId: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+};
+
 /** A company's SMS account. The auth token never leaves the server. */
 export type CrmSmsConfig = {
   __typename?: 'CrmSmsConfig';
@@ -3220,6 +3248,11 @@ export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+export enum CrmTagObject {
+  Company = 'COMPANY',
+  Contact = 'CONTACT'
+}
 
 /** One touchpoint with a contact or company, from whichever module recorded it. */
 export type CrmTimelineItem = {
@@ -4503,6 +4536,44 @@ export type GodaddyConfigInput = {
   label: Scalars['String']['input'];
 };
 
+/** A company's Google Business profile, read live from Places (never stored). */
+export type GoogleBusinessProfile = {
+  __typename?: 'GoogleBusinessProfile';
+  address: Scalars['String']['output'];
+  /** OPERATIONAL, CLOSED_TEMPORARILY or CLOSED_PERMANENTLY; empty when unknown. */
+  businessStatus: Scalars['String']['output'];
+  category: Scalars['String']['output'];
+  mapUrl: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  /** One line a weekday, e.g. 'Monday: 9:00 AM – 5:00 PM'. */
+  openingHours: Array<Scalars['String']['output']>;
+  phone: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  /** e.g. PRICE_LEVEL_MODERATE; empty when unknown. */
+  priceLevel: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  ratingCount?: Maybe<Scalars['Int']['output']>;
+  /** Up to five, as Google picks them. */
+  reviews: Array<GoogleBusinessReview>;
+  summary: Scalars['String']['output'];
+  types: Array<Scalars['String']['output']>;
+  website: Scalars['String']['output'];
+};
+
+/** One Google review of a business, as Places returns it. */
+export type GoogleBusinessReview = {
+  __typename?: 'GoogleBusinessReview';
+  authorName: Scalars['String']['output'];
+  authorPhotoUrl: Scalars['String']['output'];
+  authorUrl: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  rating?: Maybe<Scalars['Float']['output']>;
+  /** e.g. 'a month ago'. */
+  relativeTime: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
 /** What the CRM's maps need: the browser key, and whether lead search is set up. */
 export type GoogleMapsClientConfig = {
   __typename?: 'GoogleMapsClientConfig';
@@ -5784,6 +5855,17 @@ export enum LeadEmailStatus {
   Unreachable = 'UNREACHABLE'
 }
 
+/** One detail a lead adds to an existing company. Only ever fills an empty field or adds a new email or phone. */
+export type LeadImportExtra = {
+  __typename?: 'LeadImportExtra';
+  /** What the company holds now; for emails and phones, the ones it already has. */
+  current: Scalars['String']['output'];
+  /** website, address, city, country, location, industry, mapUrl, placeId, coordinates, emails or phones. */
+  field: Scalars['String']['output'];
+  incoming: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
 /** A place filed as a CRM company. */
 export type LeadImportFiled = {
   __typename?: 'LeadImportFiled';
@@ -5806,20 +5888,53 @@ export type LeadImportInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** An existing company that got a lead's extra details. */
+export type LeadImportMerged = {
+  __typename?: 'LeadImportMerged';
+  added: Array<LeadImportExtra>;
+  companyId: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+};
+
+export type LeadImportPreview = {
+  __typename?: 'LeadImportPreview';
+  existingCompanyId?: Maybe<Scalars['ID']['output']>;
+  existingName?: Maybe<Scalars['String']['output']>;
+  extras: Array<LeadImportExtra>;
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  status: LeadImportStatus;
+};
+
 export type LeadImportResult = {
   __typename?: 'LeadImportResult';
   created: Scalars['Int']['output'];
   filed: Array<LeadImportFiled>;
+  merged: Scalars['Int']['output'];
+  merges: Array<LeadImportMerged>;
   skipped: Scalars['Int']['output'];
   skips: Array<LeadImportSkip>;
 };
 
 export type LeadImportSkip = {
   __typename?: 'LeadImportSkip';
+  /** The CRM company the lead duplicates, when there is one. */
+  companyId?: Maybe<Scalars['ID']['output']>;
   name: Scalars['String']['output'];
   placeId: Scalars['ID']['output'];
   reason: Scalars['String']['output'];
 };
+
+/** What a lead would do on import. */
+export enum LeadImportStatus {
+  /** Already in the CRM with nothing new: it will be skipped. */
+  Duplicate = 'DUPLICATE',
+  /** Already in the CRM, and it has details the company is missing. */
+  DuplicateWithExtra = 'DUPLICATE_WITH_EXTRA',
+  /** Not in the CRM yet: it will be filed. */
+  New = 'NEW'
+}
 
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
@@ -5841,6 +5956,12 @@ export type LeadLocationSuggestion = {
   placeId: Scalars['ID']['output'];
   secondaryText: Scalars['String']['output'];
   text: Scalars['String']['output'];
+};
+
+/** A duplicate lead whose extra details should be added to the company the preview matched. */
+export type LeadMergeInput = {
+  companyId: Scalars['ID']['input'];
+  placeId: Scalars['ID']['input'];
 };
 
 export type LeadPage = {
@@ -6283,6 +6404,8 @@ export type MarketingSuppressionPage = {
 export type MeetingBooking = {
   __typename?: 'MeetingBooking';
   contactId: Scalars['String']['output'];
+  /** ISO country of the booker's time zone; empty when it names none. */
+  country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   endAt: Scalars['DateTime']['output'];
@@ -6309,10 +6432,76 @@ export enum MeetingBookingStatus {
   Confirmed = 'CONFIRMED'
 }
 
+/** CRM > Meetings > Settings: the booking page address, Slack and the fixed video rooms. */
+export type MeetingSettings = {
+  __typename?: 'MeetingSettings';
+  /** The page's part of /organization/<company>/book/<slug>; 'meeting' by default. */
+  bookingSlug: Scalars['String']['output'];
+  googleMeetUrl: Scalars['String']['output'];
+  /** Slack channel id each booking is posted to; empty posts nowhere. */
+  slackChannel: Scalars['String']['output'];
+  zoomUrl: Scalars['String']['output'];
+};
+
+export type MeetingSettingsInput = {
+  bookingSlug: Scalars['String']['input'];
+  googleMeetUrl?: InputMaybe<Scalars['String']['input']>;
+  slackChannel?: InputMaybe<Scalars['String']['input']>;
+  zoomUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** CRM > Meetings > Tracking over the last few days. */
+export type MeetingTracking = {
+  __typename?: 'MeetingTracking';
+  bookings: Scalars['Int']['output'];
+  byCountry: Array<MeetingTrackingCountry>;
+  byDay: Array<MeetingTrackingDay>;
+  byMeeting: Array<MeetingTrackingMeeting>;
+  days: Scalars['Int']['output'];
+  recent: Array<MeetingTrackingVisit>;
+  views: Scalars['Int']['output'];
+};
+
+/** Views and bookings for one value (a country, a meeting, a day). */
+export type MeetingTrackingCountry = {
+  __typename?: 'MeetingTrackingCountry';
+  bookings: Scalars['Int']['output'];
+  country: Scalars['String']['output'];
+  countryName: Scalars['String']['output'];
+  views: Scalars['Int']['output'];
+};
+
+export type MeetingTrackingDay = {
+  __typename?: 'MeetingTrackingDay';
+  bookings: Scalars['Int']['output'];
+  /** yyyy-MM-dd, UTC. */
+  day: Scalars['String']['output'];
+  views: Scalars['Int']['output'];
+};
+
+export type MeetingTrackingMeeting = {
+  __typename?: 'MeetingTrackingMeeting';
+  bookings: Scalars['Int']['output'];
+  /** The meeting's link part; empty for the booking page itself. */
+  meetingSlug: Scalars['String']['output'];
+  views: Scalars['Int']['output'];
+};
+
+/** One visit or booking: no IP address, cookie or name is ever kept. */
+export type MeetingTrackingVisit = {
+  __typename?: 'MeetingTrackingVisit';
+  at: Scalars['DateTime']['output'];
+  country: Scalars['String']['output'];
+  countryName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: MeetingVisitKind;
+  meetingSlug: Scalars['String']['output'];
+};
+
 export type MeetingType = {
   __typename?: 'MeetingType';
   active: Scalars['Boolean']['output'];
-  /** The public link's path on the CRM site: /book/<company>/<slug>. */
+  /** The public link's path inside the company's CRM address: /book/<page>/<slug>. */
   bookingPath: Scalars['String']['output'];
   bufferMinutes: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
@@ -6343,6 +6532,11 @@ export type MeetingTypeInput = {
   title: Scalars['String']['input'];
   weeklyHours: Array<MeetingWeeklyHoursInput>;
 };
+
+export enum MeetingVisitKind {
+  Booked = 'BOOKED',
+  View = 'VIEW'
+}
 
 export type MeetingWeeklyHours = {
   __typename?: 'MeetingWeeklyHours';
@@ -6890,7 +7084,7 @@ export type Mutation = {
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
   importCrmRecords: CrmImportResult;
-  /** Files the chosen places as CRM companies, skipping ones already filed. */
+  /** Files the chosen places as CRM companies. Duplicates are skipped, or, when listed in mergeInto, get their extra details added without overwriting anything. */
   importLeadsToCrm: LeadImportResult;
   importMediaFromUrl: Scalars['String']['output'];
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
@@ -7047,6 +7241,8 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
+  /** Changing the booking page address stops the old one working. */
+  saveMeetingSettings: MeetingSettings;
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
@@ -7103,6 +7299,8 @@ export type Mutation = {
   setCmsSiteARecord: CmsDomainDns;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
+  /** Replaces a company's or contact's tags (at most 20, 40 characters each). */
+  setCrmTags: Array<Scalars['String']['output']>;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
   setDefaultCmsSite: CmsSite;
@@ -7267,6 +7465,8 @@ export type Mutation = {
   testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
+  /** Public: counts one visit to the booking page (slug '') or a meeting; keeps no personal data. */
+  trackMeetingView: Scalars['Boolean']['output'];
   /**
    * Accepts the disclosure. When the workspace has pointed the tracker at a Legal policy,
    * signedName is required and the acceptance is also recorded in Legal's versioned
@@ -7578,6 +7778,7 @@ export type MutationAssignSupportTicketArgs = {
 export type MutationBookMeetingArgs = {
   input: BookMeetingInput;
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
@@ -9176,6 +9377,7 @@ export type MutationImportCrmRecordsArgs = {
 
 export type MutationImportLeadsToCrmArgs = {
   leads: Array<LeadImportInput>;
+  mergeInto?: InputMaybe<Array<LeadMergeInput>>;
 };
 
 
@@ -9520,6 +9722,11 @@ export type MutationSaveGoogleSignInConfigArgs = {
 };
 
 
+export type MutationSaveMeetingSettingsArgs = {
+  input: MeetingSettingsInput;
+};
+
+
 export type MutationSaveMicrosoftMailConfigArgs = {
   input: MicrosoftMailConfigInput;
 };
@@ -9670,6 +9877,13 @@ export type MutationSetCmsSiteARecordArgs = {
 export type MutationSetColumnDoneArgs = {
   id: Scalars['ID']['input'];
   isDone: Scalars['Boolean']['input'];
+};
+
+
+export type MutationSetCrmTagsArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTagObject;
+  tags: Array<Scalars['String']['input']>;
 };
 
 
@@ -10050,6 +10264,14 @@ export type MutationTestWhatsappChannelArgs = {
 
 export type MutationToggleSocialPostLikeArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTrackMeetingViewArgs = {
+  org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -12391,6 +12613,8 @@ export type PromptVariableInput = {
 /** A company's booking page: every meeting it takes bookings for. */
 export type PublicBookingPage = {
   __typename?: 'PublicBookingPage';
+  logoDarkUrl: Scalars['String']['output'];
+  logoUrl: Scalars['String']['output'];
   meetings: Array<PublicMeeting>;
   organizationName: Scalars['String']['output'];
   organizationSlug: Scalars['String']['output'];
@@ -12404,6 +12628,9 @@ export type PublicMeeting = {
   /** Whether a location is shared once the meeting is booked. */
   hasLocation: Scalars['Boolean']['output'];
   hostName: Scalars['String']['output'];
+  logoDarkUrl: Scalars['String']['output'];
+  /** The company's logo (Admin > Branding); empty when it has none. */
+  logoUrl: Scalars['String']['output'];
   organizationName: Scalars['String']['output'];
   organizationSlug: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -12621,6 +12848,8 @@ export type Query = {
    * fall on, as the caller sends them.
    */
   companyFinance: CompanyFinance;
+  /** The company's live Google Business profile; null when it was not filed from Google Places. */
+  companyGoogleBusiness?: Maybe<GoogleBusinessProfile>;
   /** Compliance only — the state of the whole management system on one screen. */
   complianceOverview: ComplianceOverview;
   /** LEGAL: every signature request on one contract, newest first, with its evidence. */
@@ -12643,6 +12872,8 @@ export type Query = {
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
   crmSmsConfigs: Array<CrmSmsConfig>;
+  /** Every tag in use on companies or on contacts, sorted. */
+  crmTags: Array<Scalars['String']['output']>;
   /** Everything that happened with the contact or company, newest first (at most 200). */
   crmTimeline: Array<CrmTimelineItem>;
   crmViews: Array<CrmView>;
@@ -13137,9 +13368,14 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
-  /** The path of this company's booking page on the CRM site: /book/<company>. */
+  /** The path of this company's booking page inside its CRM address: /book/<page>. */
   meetingBookingPagePath: Scalars['String']['output'];
   meetingBookings: MeetingBookingPage;
+  meetingSettings: MeetingSettings;
+  /** Slack channels a booking can be posted to (needs Tech > Environment Variables > Slack). */
+  meetingSlackChannels: Array<SlackChannel>;
+  /** Booking page views and bookings over the last 1-365 days. */
+  meetingTracking: MeetingTracking;
   meetingTypes: Array<MeetingType>;
   /** The Microsoft mailboxes connected to the CRM, newest first. */
   microsoftMailAccounts: Array<MicrosoftMailAccount>;
@@ -13240,6 +13476,8 @@ export type Query = {
   policyAcknowledgements: Array<PolicyAcknowledgement>;
   /** Renders a stored template with the values given, through the very code that sends it. */
   previewEmailTemplate: EmailPreview;
+  /** Read-only: which of these leads are already CRM companies, and what extra details each would add. */
+  previewLeadImport: Array<LeadImportPreview>;
   /** HR/ADMIN: active employees whose probation ends inside the next N days, soonest first. */
   probationsEnding: Array<User>;
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
@@ -13278,7 +13516,7 @@ export type Query = {
   projectWorkflows: Array<ProjectWorkflow>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
-  /** Public: a company's booking page (/book/<org>). */
+  /** Public: a company's booking page (/organization/<org>/book/<page>). */
   publicBookingPage: PublicBookingPage;
   publicBranding: Branding;
   publicCaseStudies: Array<CaseStudy>;
@@ -13294,7 +13532,7 @@ export type Query = {
   publicJobCompanies: Array<JobCompany>;
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
-  /** Public: the meeting behind a booking link (/book/<org>/<slug>). */
+  /** Public: the meeting behind a booking link (/organization/<org>/book/<page>/<slug>). */
   publicMeeting: PublicMeeting;
   /** Public: the free starts between two times (at most 62 days apart). */
   publicMeetingSlots: Array<Scalars['DateTime']['output']>;
@@ -13677,6 +13915,11 @@ export type QueryCompanyFinanceArgs = {
 };
 
 
+export type QueryCompanyGoogleBusinessArgs = {
+  companyId: Scalars['ID']['input'];
+};
+
+
 export type QueryContractSignaturesArgs = {
   contractId: Scalars['ID']['input'];
 };
@@ -13706,6 +13949,11 @@ export type QueryCrmObjectSchemaArgs = {
 
 export type QueryCrmPropertiesArgs = {
   object: CrmObject;
+};
+
+
+export type QueryCrmTagsArgs = {
+  object: CrmTagObject;
 };
 
 
@@ -14723,6 +14971,11 @@ export type QueryMeetingBookingsArgs = {
 };
 
 
+export type QueryMeetingTrackingArgs = {
+  days: Scalars['Int']['input'];
+};
+
+
 export type QueryMyApprovalsArgs = {
   kind?: InputMaybe<Scalars['String']['input']>;
 };
@@ -14808,6 +15061,11 @@ export type QueryPolicyAcknowledgementsArgs = {
 export type QueryPreviewEmailTemplateArgs = {
   key: Scalars['String']['input'];
   variables?: InputMaybe<Array<EmailVariableInput>>;
+};
+
+
+export type QueryPreviewLeadImportArgs = {
+  leads: Array<LeadImportInput>;
 };
 
 
@@ -14901,6 +15159,7 @@ export type QueryPublicBlogPostsArgs = {
 
 export type QueryPublicBookingPageArgs = {
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
 };
 
 
@@ -14968,6 +15227,7 @@ export type QueryPublicJobsArgs = {
 
 export type QueryPublicMeetingArgs = {
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
@@ -14975,6 +15235,7 @@ export type QueryPublicMeetingArgs = {
 export type QueryPublicMeetingSlotsArgs = {
   from: Scalars['DateTime']['input'];
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   to: Scalars['DateTime']['input'];
 };
@@ -19459,6 +19720,7 @@ export type ResolversTypes = ResolversObject<{
   CrmObject: CrmObject;
   CrmObjectSchema: ResolverTypeWrapper<CrmObjectSchema>;
   CrmOp: CrmOp;
+  CrmOriginSource: CrmOriginSource;
   CrmPhoneNumber: ResolverTypeWrapper<CrmPhoneNumber>;
   CrmPhoneNumberInput: CrmPhoneNumberInput;
   CrmPropertiesInput: CrmPropertiesInput;
@@ -19470,12 +19732,14 @@ export type ResolversTypes = ResolversObject<{
   CrmPropertyType: CrmPropertyType;
   CrmPropertyUpdateInput: CrmPropertyUpdateInput;
   CrmQueryInput: CrmQueryInput;
+  CrmRecordOrigin: ResolverTypeWrapper<CrmRecordOrigin>;
   CrmSmsConfig: ResolverTypeWrapper<CrmSmsConfig>;
   CrmSmsConfigInput: CrmSmsConfigInput;
   CrmSmsProvider: CrmSmsProvider;
   CrmSmsResult: ResolverTypeWrapper<CrmSmsResult>;
   CrmSort: ResolverTypeWrapper<CrmSort>;
   CrmSortInput: CrmSortInput;
+  CrmTagObject: CrmTagObject;
   CrmTimelineItem: ResolverTypeWrapper<CrmTimelineItem>;
   CrmTimelineKind: CrmTimelineKind;
   CrmTimelineObject: CrmTimelineObject;
@@ -19592,6 +19856,8 @@ export type ResolversTypes = ResolversObject<{
   GoalStatus: GoalStatus;
   GodaddyConfig: ResolverTypeWrapper<GodaddyConfig>;
   GodaddyConfigInput: GodaddyConfigInput;
+  GoogleBusinessProfile: ResolverTypeWrapper<GoogleBusinessProfile>;
+  GoogleBusinessReview: ResolverTypeWrapper<GoogleBusinessReview>;
   GoogleMapsClientConfig: ResolverTypeWrapper<GoogleMapsClientConfig>;
   GoogleMapsConfig: ResolverTypeWrapper<GoogleMapsConfig>;
   GoogleMapsConfigInput: GoogleMapsConfigInput;
@@ -19704,12 +19970,17 @@ export type ResolversTypes = ResolversObject<{
   Lead: ResolverTypeWrapper<Lead>;
   LeadEmailResult: ResolverTypeWrapper<LeadEmailResult>;
   LeadEmailStatus: LeadEmailStatus;
+  LeadImportExtra: ResolverTypeWrapper<LeadImportExtra>;
   LeadImportFiled: ResolverTypeWrapper<LeadImportFiled>;
   LeadImportInput: LeadImportInput;
+  LeadImportMerged: ResolverTypeWrapper<LeadImportMerged>;
+  LeadImportPreview: ResolverTypeWrapper<LeadImportPreview>;
   LeadImportResult: ResolverTypeWrapper<LeadImportResult>;
   LeadImportSkip: ResolverTypeWrapper<LeadImportSkip>;
+  LeadImportStatus: LeadImportStatus;
   LeadInput: LeadInput;
   LeadLocationSuggestion: ResolverTypeWrapper<LeadLocationSuggestion>;
+  LeadMergeInput: LeadMergeInput;
   LeadPage: ResolverTypeWrapper<LeadPage>;
   LeadPlace: ResolverTypeWrapper<LeadPlace>;
   LeadSearchInput: LeadSearchInput;
@@ -19757,8 +20028,16 @@ export type ResolversTypes = ResolversObject<{
   MeetingBooking: ResolverTypeWrapper<MeetingBooking>;
   MeetingBookingPage: ResolverTypeWrapper<MeetingBookingPage>;
   MeetingBookingStatus: MeetingBookingStatus;
+  MeetingSettings: ResolverTypeWrapper<MeetingSettings>;
+  MeetingSettingsInput: MeetingSettingsInput;
+  MeetingTracking: ResolverTypeWrapper<MeetingTracking>;
+  MeetingTrackingCountry: ResolverTypeWrapper<MeetingTrackingCountry>;
+  MeetingTrackingDay: ResolverTypeWrapper<MeetingTrackingDay>;
+  MeetingTrackingMeeting: ResolverTypeWrapper<MeetingTrackingMeeting>;
+  MeetingTrackingVisit: ResolverTypeWrapper<MeetingTrackingVisit>;
   MeetingType: ResolverTypeWrapper<MeetingType>;
   MeetingTypeInput: MeetingTypeInput;
+  MeetingVisitKind: MeetingVisitKind;
   MeetingWeeklyHours: ResolverTypeWrapper<MeetingWeeklyHours>;
   MeetingWeeklyHoursInput: MeetingWeeklyHoursInput;
   MfaEnrolment: ResolverTypeWrapper<MfaEnrolment>;
@@ -20443,6 +20722,7 @@ export type ResolversParentTypes = ResolversObject<{
   CrmPropertyOptionInput: CrmPropertyOptionInput;
   CrmPropertyUpdateInput: CrmPropertyUpdateInput;
   CrmQueryInput: CrmQueryInput;
+  CrmRecordOrigin: CrmRecordOrigin;
   CrmSmsConfig: CrmSmsConfig;
   CrmSmsConfigInput: CrmSmsConfigInput;
   CrmSmsResult: CrmSmsResult;
@@ -20540,6 +20820,8 @@ export type ResolversParentTypes = ResolversObject<{
   GoalPage: GoalPage;
   GodaddyConfig: GodaddyConfig;
   GodaddyConfigInput: GodaddyConfigInput;
+  GoogleBusinessProfile: GoogleBusinessProfile;
+  GoogleBusinessReview: GoogleBusinessReview;
   GoogleMapsClientConfig: GoogleMapsClientConfig;
   GoogleMapsConfig: GoogleMapsConfig;
   GoogleMapsConfigInput: GoogleMapsConfigInput;
@@ -20628,12 +20910,16 @@ export type ResolversParentTypes = ResolversObject<{
   LatLngInput: LatLngInput;
   Lead: Lead;
   LeadEmailResult: LeadEmailResult;
+  LeadImportExtra: LeadImportExtra;
   LeadImportFiled: LeadImportFiled;
   LeadImportInput: LeadImportInput;
+  LeadImportMerged: LeadImportMerged;
+  LeadImportPreview: LeadImportPreview;
   LeadImportResult: LeadImportResult;
   LeadImportSkip: LeadImportSkip;
   LeadInput: LeadInput;
   LeadLocationSuggestion: LeadLocationSuggestion;
+  LeadMergeInput: LeadMergeInput;
   LeadPage: LeadPage;
   LeadPlace: LeadPlace;
   LeadSearchInput: LeadSearchInput;
@@ -20672,6 +20958,13 @@ export type ResolversParentTypes = ResolversObject<{
   MarketingSuppressionPage: MarketingSuppressionPage;
   MeetingBooking: MeetingBooking;
   MeetingBookingPage: MeetingBookingPage;
+  MeetingSettings: MeetingSettings;
+  MeetingSettingsInput: MeetingSettingsInput;
+  MeetingTracking: MeetingTracking;
+  MeetingTrackingCountry: MeetingTrackingCountry;
+  MeetingTrackingDay: MeetingTrackingDay;
+  MeetingTrackingMeeting: MeetingTrackingMeeting;
+  MeetingTrackingVisit: MeetingTrackingVisit;
   MeetingType: MeetingType;
   MeetingTypeInput: MeetingTypeInput;
   MeetingWeeklyHours: MeetingWeeklyHours;
@@ -21583,6 +21876,7 @@ export type BoardColumnResolvers<ContextType = GraphQLContext, ParentType extend
 export type BookedMeetingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BookedMeeting'] = ResolversParentTypes['BookedMeeting']> = ResolversObject<{
   endAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  joinLinks?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   startAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -22297,6 +22591,7 @@ export type CompanyResolvers<ContextType = GraphQLContext, ParentType extends Re
   industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  leadOwner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   leadSource?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   linkedinUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lng?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -22305,12 +22600,14 @@ export type CompanyResolvers<ContextType = GraphQLContext, ParentType extends Re
   mapUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  origin?: Resolver<Maybe<ResolversTypes['CrmRecordOrigin']>, ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phones?: Resolver<Array<ResolversTypes['CrmPhoneNumber']>, ParentType, ContextType>;
   placeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   size?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['CompanyStatus'], ParentType, ContextType>;
+  tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   twitterUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -22428,6 +22725,7 @@ export type ContactResolvers<ContextType = GraphQLContext, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   languages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  leadOwner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   leadSource?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lifecycleStage?: Resolver<ResolversTypes['LifecycleStage'], ParentType, ContextType>;
   linkedinUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -22435,11 +22733,13 @@ export type ContactResolvers<ContextType = GraphQLContext, ParentType extends Re
   mapUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  origin?: Resolver<Maybe<ResolversTypes['CrmRecordOrigin']>, ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phones?: Resolver<Array<ResolversTypes['CrmPhoneNumber']>, ParentType, ContextType>;
   placeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ContactStatus'], ParentType, ContextType>;
+  tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   twitterUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -22714,6 +23014,14 @@ export type CrmPropertyInfoResolvers<ContextType = GraphQLContext, ParentType ex
 export type CrmPropertyOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmPropertyOption'] = ResolversParentTypes['CrmPropertyOption']> = ResolversObject<{
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmRecordOriginResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmRecordOrigin'] = ResolversParentTypes['CrmRecordOrigin']> = ResolversObject<{
+  source?: Resolver<ResolversTypes['CrmOriginSource'], ParentType, ContextType>;
+  userEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23480,6 +23788,37 @@ export type GodaddyConfigResolvers<ContextType = GraphQLContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GoogleBusinessProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoogleBusinessProfile'] = ResolversParentTypes['GoogleBusinessProfile']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  businessStatus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mapUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  openingHours?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  priceLevel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rating?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  ratingCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  reviews?: Resolver<Array<ResolversTypes['GoogleBusinessReview']>, ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GoogleBusinessReviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoogleBusinessReview'] = ResolversParentTypes['GoogleBusinessReview']> = ResolversObject<{
+  authorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  authorPhotoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  authorUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  rating?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  relativeTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GoogleMapsClientConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoogleMapsClientConfig'] = ResolversParentTypes['GoogleMapsClientConfig']> = ResolversObject<{
   browserKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   placesReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -24191,21 +24530,50 @@ export type LeadEmailResultResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LeadImportExtraResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportExtra'] = ResolversParentTypes['LeadImportExtra']> = ResolversObject<{
+  current?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  incoming?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LeadImportFiledResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportFiled'] = ResolversParentTypes['LeadImportFiled']> = ResolversObject<{
   companyId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LeadImportMergedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportMerged'] = ResolversParentTypes['LeadImportMerged']> = ResolversObject<{
+  added?: Resolver<Array<ResolversTypes['LeadImportExtra']>, ParentType, ContextType>;
+  companyId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadImportPreviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportPreview'] = ResolversParentTypes['LeadImportPreview']> = ResolversObject<{
+  existingCompanyId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  existingName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  extras?: Resolver<Array<ResolversTypes['LeadImportExtra']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['LeadImportStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LeadImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportResult'] = ResolversParentTypes['LeadImportResult']> = ResolversObject<{
   created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   filed?: Resolver<Array<ResolversTypes['LeadImportFiled']>, ParentType, ContextType>;
+  merged?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  merges?: Resolver<Array<ResolversTypes['LeadImportMerged']>, ParentType, ContextType>;
   skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   skips?: Resolver<Array<ResolversTypes['LeadImportSkip']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type LeadImportSkipResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportSkip'] = ResolversParentTypes['LeadImportSkip']> = ResolversObject<{
+  companyId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -24450,6 +24818,7 @@ export type MarketingSuppressionPageResolvers<ContextType = GraphQLContext, Pare
 
 export type MeetingBookingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBooking'] = ResolversParentTypes['MeetingBooking']> = ResolversObject<{
   contactId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   endAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -24469,6 +24838,57 @@ export type MeetingBookingResolvers<ContextType = GraphQLContext, ParentType ext
 export type MeetingBookingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBookingPage'] = ResolversParentTypes['MeetingBookingPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['MeetingBooking']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingSettings'] = ResolversParentTypes['MeetingSettings']> = ResolversObject<{
+  bookingSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  googleMeetUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slackChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  zoomUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingTrackingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingTracking'] = ResolversParentTypes['MeetingTracking']> = ResolversObject<{
+  bookings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  byCountry?: Resolver<Array<ResolversTypes['MeetingTrackingCountry']>, ParentType, ContextType>;
+  byDay?: Resolver<Array<ResolversTypes['MeetingTrackingDay']>, ParentType, ContextType>;
+  byMeeting?: Resolver<Array<ResolversTypes['MeetingTrackingMeeting']>, ParentType, ContextType>;
+  days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recent?: Resolver<Array<ResolversTypes['MeetingTrackingVisit']>, ParentType, ContextType>;
+  views?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingTrackingCountryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingTrackingCountry'] = ResolversParentTypes['MeetingTrackingCountry']> = ResolversObject<{
+  bookings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  countryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  views?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingTrackingDayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingTrackingDay'] = ResolversParentTypes['MeetingTrackingDay']> = ResolversObject<{
+  bookings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  day?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  views?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingTrackingMeetingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingTrackingMeeting'] = ResolversParentTypes['MeetingTrackingMeeting']> = ResolversObject<{
+  bookings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  meetingSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  views?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingTrackingVisitResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingTrackingVisit'] = ResolversParentTypes['MeetingTrackingVisit']> = ResolversObject<{
+  at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  countryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['MeetingVisitKind'], ParentType, ContextType>;
+  meetingSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -24578,7 +24998,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
-  bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'org' | 'slug'>>;
+  bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'org' | 'page' | 'slug'>>;
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
@@ -24954,6 +25374,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveGmailConfig?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType, RequireFields<MutationSaveGmailConfigArgs, 'input'>>;
   saveGoogleSignInConfig?: Resolver<ResolversTypes['GoogleSignInConfig'], ParentType, ContextType, RequireFields<MutationSaveGoogleSignInConfigArgs, 'input'>>;
+  saveMeetingSettings?: Resolver<ResolversTypes['MeetingSettings'], ParentType, ContextType, RequireFields<MutationSaveMeetingSettingsArgs, 'input'>>;
   saveMicrosoftMailConfig?: Resolver<ResolversTypes['MicrosoftMailConfig'], ParentType, ContextType, RequireFields<MutationSaveMicrosoftMailConfigArgs, 'input'>>;
   saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
@@ -24981,6 +25402,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setClientProjects?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSetClientProjectsArgs, 'clientId' | 'projectIds'>>;
   setCmsSiteARecord?: Resolver<ResolversTypes['CmsDomainDns'], ParentType, ContextType, RequireFields<MutationSetCmsSiteARecordArgs, 'domain' | 'ip' | 'siteId' | 'ttl'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
+  setCrmTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetCrmTagsArgs, 'id' | 'object' | 'tags'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setDefaultCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationSetDefaultCmsSiteArgs, 'id'>>;
   setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
@@ -25054,6 +25476,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testStripeConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestStripeConnectionArgs, 'id'>>;
   testWhatsappChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestWhatsappChannelArgs, 'input'>>;
   toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
+  trackMeetingView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTrackMeetingViewArgs, 'org' | 'page' | 'slug'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
@@ -25951,6 +26374,8 @@ export type PromptPageResolvers<ContextType = GraphQLContext, ParentType extends
 }>;
 
 export type PublicBookingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicBookingPage'] = ResolversParentTypes['PublicBookingPage']> = ResolversObject<{
+  logoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   meetings?: Resolver<Array<ResolversTypes['PublicMeeting']>, ParentType, ContextType>;
   organizationName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   organizationSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -25962,6 +26387,8 @@ export type PublicMeetingResolvers<ContextType = GraphQLContext, ParentType exte
   durationMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   hasLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  logoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   organizationName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   organizationSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -26089,6 +26516,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   cmsSiteDns?: Resolver<ResolversTypes['CmsSiteDns'], ParentType, ContextType, RequireFields<QueryCmsSiteDnsArgs, 'siteId'>>;
   cmsSites?: Resolver<Array<ResolversTypes['CmsSite']>, ParentType, ContextType>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
+  companyGoogleBusiness?: Resolver<Maybe<ResolversTypes['GoogleBusinessProfile']>, ParentType, ContextType, RequireFields<QueryCompanyGoogleBusinessArgs, 'companyId'>>;
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
   contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
   contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
@@ -26101,6 +26529,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   crmObjectSchema?: Resolver<ResolversTypes['CrmObjectSchema'], ParentType, ContextType, RequireFields<QueryCrmObjectSchemaArgs, 'object'>>;
   crmProperties?: Resolver<Array<ResolversTypes['CrmProperty']>, ParentType, ContextType, RequireFields<QueryCrmPropertiesArgs, 'object'>>;
   crmSmsConfigs?: Resolver<Array<ResolversTypes['CrmSmsConfig']>, ParentType, ContextType>;
+  crmTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryCrmTagsArgs, 'object'>>;
   crmTimeline?: Resolver<Array<ResolversTypes['CrmTimelineItem']>, ParentType, ContextType, RequireFields<QueryCrmTimelineArgs, 'id' | 'object'>>;
   crmViews?: Resolver<Array<ResolversTypes['CrmView']>, ParentType, ContextType, RequireFields<QueryCrmViewsArgs, 'object'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
@@ -26528,6 +26957,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   meetingBookingPagePath?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   meetingBookings?: Resolver<ResolversTypes['MeetingBookingPage'], ParentType, ContextType, RequireFields<QueryMeetingBookingsArgs, 'page' | 'pageSize'>>;
+  meetingSettings?: Resolver<ResolversTypes['MeetingSettings'], ParentType, ContextType>;
+  meetingSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
+  meetingTracking?: Resolver<ResolversTypes['MeetingTracking'], ParentType, ContextType, RequireFields<QueryMeetingTrackingArgs, 'days'>>;
   meetingTypes?: Resolver<Array<ResolversTypes['MeetingType']>, ParentType, ContextType>;
   microsoftMailAccounts?: Resolver<Array<ResolversTypes['MicrosoftMailAccount']>, ParentType, ContextType>;
   microsoftMailClientReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -26582,6 +27014,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   platformAnalytics?: Resolver<ResolversTypes['PlatformAnalytics'], ParentType, ContextType>;
   policyAcknowledgements?: Resolver<Array<ResolversTypes['PolicyAcknowledgement']>, ParentType, ContextType, RequireFields<QueryPolicyAcknowledgementsArgs, 'policyId'>>;
   previewEmailTemplate?: Resolver<ResolversTypes['EmailPreview'], ParentType, ContextType, RequireFields<QueryPreviewEmailTemplateArgs, 'key'>>;
+  previewLeadImport?: Resolver<Array<ResolversTypes['LeadImportPreview']>, ParentType, ContextType, RequireFields<QueryPreviewLeadImportArgs, 'leads'>>;
   probationsEnding?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryProbationsEndingArgs, 'days'>>;
   problemReportStatus?: Resolver<ResolversTypes['ProblemReportStatus'], ParentType, ContextType, RequireFields<QueryProblemReportStatusArgs, 'reference'>>;
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
@@ -26600,7 +27033,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   projectWorkflows?: Resolver<Array<ResolversTypes['ProjectWorkflow']>, ParentType, ContextType>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
   publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType, Partial<QueryPublicBlogPostsArgs>>;
-  publicBookingPage?: Resolver<ResolversTypes['PublicBookingPage'], ParentType, ContextType, RequireFields<QueryPublicBookingPageArgs, 'org'>>;
+  publicBookingPage?: Resolver<ResolversTypes['PublicBookingPage'], ParentType, ContextType, RequireFields<QueryPublicBookingPageArgs, 'org' | 'page'>>;
   publicBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   publicCaseStudies?: Resolver<Array<ResolversTypes['CaseStudy']>, ParentType, ContextType, Partial<QueryPublicCaseStudiesArgs>>;
   publicCaseStudy?: Resolver<Maybe<ResolversTypes['CaseStudy']>, ParentType, ContextType, RequireFields<QueryPublicCaseStudyArgs, 'slug'>>;
@@ -26613,8 +27046,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicJobCompanies?: Resolver<Array<ResolversTypes['JobCompany']>, ParentType, ContextType, Partial<QueryPublicJobCompaniesArgs>>;
   publicJobCompany?: Resolver<Maybe<ResolversTypes['JobCompany']>, ParentType, ContextType, RequireFields<QueryPublicJobCompanyArgs, 'slug'>>;
   publicJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryPublicJobsArgs>>;
-  publicMeeting?: Resolver<ResolversTypes['PublicMeeting'], ParentType, ContextType, RequireFields<QueryPublicMeetingArgs, 'org' | 'slug'>>;
-  publicMeetingSlots?: Resolver<Array<ResolversTypes['DateTime']>, ParentType, ContextType, RequireFields<QueryPublicMeetingSlotsArgs, 'from' | 'org' | 'slug' | 'to'>>;
+  publicMeeting?: Resolver<ResolversTypes['PublicMeeting'], ParentType, ContextType, RequireFields<QueryPublicMeetingArgs, 'org' | 'page' | 'slug'>>;
+  publicMeetingSlots?: Resolver<Array<ResolversTypes['DateTime']>, ParentType, ContextType, RequireFields<QueryPublicMeetingSlotsArgs, 'from' | 'org' | 'page' | 'slug' | 'to'>>;
   publicNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType, Partial<QueryPublicNavLinksArgs>>;
   publicNewsletterIssue?: Resolver<Maybe<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, RequireFields<QueryPublicNewsletterIssueArgs, 'slug'>>;
   publicNewsletterIssues?: Resolver<Array<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, Partial<QueryPublicNewsletterIssuesArgs>>;
@@ -28952,6 +29385,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CrmProperty?: CrmPropertyResolvers<ContextType>;
   CrmPropertyInfo?: CrmPropertyInfoResolvers<ContextType>;
   CrmPropertyOption?: CrmPropertyOptionResolvers<ContextType>;
+  CrmRecordOrigin?: CrmRecordOriginResolvers<ContextType>;
   CrmSmsConfig?: CrmSmsConfigResolvers<ContextType>;
   CrmSmsResult?: CrmSmsResultResolvers<ContextType>;
   CrmSort?: CrmSortResolvers<ContextType>;
@@ -29021,6 +29455,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Goal?: GoalResolvers<ContextType>;
   GoalPage?: GoalPageResolvers<ContextType>;
   GodaddyConfig?: GodaddyConfigResolvers<ContextType>;
+  GoogleBusinessProfile?: GoogleBusinessProfileResolvers<ContextType>;
+  GoogleBusinessReview?: GoogleBusinessReviewResolvers<ContextType>;
   GoogleMapsClientConfig?: GoogleMapsClientConfigResolvers<ContextType>;
   GoogleMapsConfig?: GoogleMapsConfigResolvers<ContextType>;
   GoogleSignInConfig?: GoogleSignInConfigResolvers<ContextType>;
@@ -29083,7 +29519,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   KbArticlePage?: KbArticlePageResolvers<ContextType>;
   Lead?: LeadResolvers<ContextType>;
   LeadEmailResult?: LeadEmailResultResolvers<ContextType>;
+  LeadImportExtra?: LeadImportExtraResolvers<ContextType>;
   LeadImportFiled?: LeadImportFiledResolvers<ContextType>;
+  LeadImportMerged?: LeadImportMergedResolvers<ContextType>;
+  LeadImportPreview?: LeadImportPreviewResolvers<ContextType>;
   LeadImportResult?: LeadImportResultResolvers<ContextType>;
   LeadImportSkip?: LeadImportSkipResolvers<ContextType>;
   LeadLocationSuggestion?: LeadLocationSuggestionResolvers<ContextType>;
@@ -29112,6 +29551,12 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MarketingSuppressionPage?: MarketingSuppressionPageResolvers<ContextType>;
   MeetingBooking?: MeetingBookingResolvers<ContextType>;
   MeetingBookingPage?: MeetingBookingPageResolvers<ContextType>;
+  MeetingSettings?: MeetingSettingsResolvers<ContextType>;
+  MeetingTracking?: MeetingTrackingResolvers<ContextType>;
+  MeetingTrackingCountry?: MeetingTrackingCountryResolvers<ContextType>;
+  MeetingTrackingDay?: MeetingTrackingDayResolvers<ContextType>;
+  MeetingTrackingMeeting?: MeetingTrackingMeetingResolvers<ContextType>;
+  MeetingTrackingVisit?: MeetingTrackingVisitResolvers<ContextType>;
   MeetingType?: MeetingTypeResolvers<ContextType>;
   MeetingWeeklyHours?: MeetingWeeklyHoursResolvers<ContextType>;
   MfaEnrolment?: MfaEnrolmentResolvers<ContextType>;

@@ -7,7 +7,7 @@ import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { useTestMicrosoftMailConfigMutation } from '@exyconn/shell/graphql/generated';
 
 /** Where the CRM connects, turns on and disconnects its Microsoft mailboxes. */
-const CRM_EMAIL_INTEGRATIONS_PATH = '/crm/integrations/email';
+const CRM_EMAIL_INTEGRATIONS_PATH = '/integrations/email';
 
 /**
  * How many mailboxes the CRM has connected through the Entra app, a link to manage them in the

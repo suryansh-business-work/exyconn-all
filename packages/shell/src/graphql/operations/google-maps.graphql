@@ -133,3 +133,33 @@ query LeadLocationSuggestions($input: String!) {
     secondaryText
   }
 }
+
+# CRM > company > Google Business: read live from Places, never stored.
+query CompanyGoogleBusiness($companyId: ID!) {
+  companyGoogleBusiness(companyId: $companyId) {
+    placeId
+    name
+    address
+    phone
+    website
+    mapUrl
+    rating
+    ratingCount
+    businessStatus
+    priceLevel
+    summary
+    category
+    types
+    openingHours
+    reviews {
+      id
+      authorName
+      authorUrl
+      authorPhotoUrl
+      rating
+      text
+      relativeTime
+      publishedAt
+    }
+  }
+}

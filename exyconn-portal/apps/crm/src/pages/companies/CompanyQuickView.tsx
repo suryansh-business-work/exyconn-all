@@ -39,7 +39,7 @@ function CompanyQuickViewBody({ id, onClose, onSaved }: Readonly<CompanyQuickVie
   };
   return (
     <QuickViewPanel
-      fullViewTo={`/crm/companies/${id}`}
+      fullViewTo={`/companies/${id}`}
       onClose={onClose}
       error={error}
       onRetry={reload}

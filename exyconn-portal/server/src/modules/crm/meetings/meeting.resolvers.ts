@@ -13,10 +13,17 @@ import {
   publicBookingPage,
   publicMeeting,
   publicSlots,
+  trackMeetingView,
+  type BookingAddress,
   type BookMeetingInput,
 } from './meeting.booking.service';
-import { OrganizationModel } from '../../organizations/organization.model';
-import { currentOrganizationId, runAsPlatform } from '../../../lib/tenant';
+import {
+  meetingSettings,
+  saveMeetingSettings,
+  type MeetingSettingsInput,
+} from './meeting.settings';
+import { meetingTracking } from './meeting.visits';
+import { slackNotifier } from '../../../utils/slack';
 
 const MODULE = 'MeetingType';
 const crm = (ctx: GraphQLContext, action: PermissionAction) =>
@@ -28,31 +35,41 @@ const bookingLimiter = createLimiter({
   points: 10,
   durationSec: 60 * 60,
 });
+/** A visit is counted at most this often from one address (which is never stored). */
+const viewLimiter = createLimiter({ keyPrefix: 'meeting_view', points: 60, durationSec: 60 * 60 });
 const MAX_PAGE = 100;
 
-/** The company's slug, for the public links; '' when the caller has no company. */
-async function companySlug(): Promise<string> {
-  const id = currentOrganizationId();
-  if (!id) return '';
-  const org = await runAsPlatform(() => OrganizationModel.findById(id).select('slug').lean());
-  return org?.slug ?? '';
-}
+/** The booking page's part of the company's CRM address. */
+const bookingPagePath = async () => `/book/${(await meetingSettings()).bookingSlug}`;
 
-type Args = { org: string; slug: string };
+type Args = BookingAddress & { slug: string };
 
 export const meetingResolvers = {
   MeetingType: {
-    bookingPath: async (row: { slug: string }) => `/book/${await companySlug()}/${row.slug}`,
+    bookingPath: async (row: { slug: string }) => `${await bookingPagePath()}/${row.slug}`,
   },
   MeetingBooking: {
     guests: (row: { guests?: string[] | null }) => row.guests ?? [],
+    country: (row: { country?: string | null }) => row.country ?? '',
   },
   Query: {
     meetingBookingPagePath: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await crm(ctx, 'VIEW');
-      return `/book/${await companySlug()}`;
+      return bookingPagePath();
     },
-    publicBookingPage: (_p: unknown, { org }: { org: string }) => publicBookingPage(org),
+    meetingSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await crm(ctx, 'VIEW');
+      return meetingSettings();
+    },
+    meetingSlackChannels: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await crm(ctx, 'EDIT');
+      return slackNotifier.listChannels();
+    },
+    meetingTracking: async (_p: unknown, { days }: { days: number }, ctx: GraphQLContext) => {
+      await crm(ctx, 'VIEW');
+      return meetingTracking(days);
+    },
+    publicBookingPage: (_p: unknown, at: BookingAddress) => publicBookingPage(at),
     meetingTypes: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await crm(ctx, 'VIEW');
       return withIds(await meetingTypes.list());
@@ -74,9 +91,9 @@ export const meetingResolvers = {
       ]);
       return { rows: withIds(rows), totalCount };
     },
-    publicMeeting: (_p: unknown, { org, slug }: Args) => publicMeeting(org, slug),
-    publicMeetingSlots: (_p: unknown, { org, slug, from, to }: Args & { from: Date; to: Date }) =>
-      publicSlots(org, slug, new Date(from), new Date(to)),
+    publicMeeting: (_p: unknown, { slug, ...at }: Args) => publicMeeting(at, slug),
+    publicMeetingSlots: (_p: unknown, { slug, from, to, ...at }: Args & { from: Date; to: Date }) =>
+      publicSlots(at, slug, new Date(from), new Date(to)),
   },
   Mutation: {
     createMeetingType: async (
@@ -113,15 +130,33 @@ export const meetingResolvers = {
       if (!doc) notFound('Booking');
       return withId(doc);
     },
+    saveMeetingSettings: async (
+      _p: unknown,
+      { input }: { input: MeetingSettingsInput },
+      ctx: GraphQLContext,
+    ) => {
+      await crm(ctx, 'EDIT');
+      return saveMeetingSettings(input);
+    },
     bookMeeting: async (
       _p: unknown,
-      { org, slug, input }: Args & { input: BookMeetingInput },
+      { slug, input, ...at }: Args & { input: BookMeetingInput },
       ctx: GraphQLContext,
     ) => {
       if (!(await bookingLimiter.allow(ctx.ip ?? 'unknown'))) {
         badRequest('Too many bookings from here. Try again in an hour.');
       }
-      return bookMeeting(org, slug, input);
+      return bookMeeting(at, slug, input);
+    },
+    trackMeetingView: async (
+      _p: unknown,
+      { slug, timezone, ...at }: Args & { timezone?: string | null },
+      ctx: GraphQLContext,
+    ) => {
+      if (!(await viewLimiter.allow(ctx.ip ?? 'unknown'))) {
+        return false;
+      }
+      return trackMeetingView(at, slug, timezone);
     },
   },
 };

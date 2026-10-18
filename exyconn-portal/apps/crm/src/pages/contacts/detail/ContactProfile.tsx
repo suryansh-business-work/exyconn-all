@@ -1,7 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Divider, Stack, Text } from '@exyconn/shell/components/ui';
-import type { ContactFieldsFragment } from '@exyconn/shell/graphql/generated';
-import { DetailActions, EditRecordButton } from '../../../records/detail';
+import { CrmTagObject, type ContactFieldsFragment } from '@exyconn/shell/graphql/generated';
+import { DetailActions, EditRecordButton, TagsEditor } from '../../../records/detail';
 import { ReachOutActions, emailsOf, phonesOf } from '../../../records/comms';
 import { GoogleMapCard } from '../../../maps/GoogleMapCard';
 import { ContactForm } from '../forms/contact';
@@ -34,6 +34,7 @@ export function ContactProfile({
         {t('Contact details')}
       </Text>
       <ContactFields contact={contact} />
+      <TagsEditor object={CrmTagObject.Contact} id={contact.id} tags={contact.tags} />
       <ReachOutActions
         record={{
           object: 'CONTACT',

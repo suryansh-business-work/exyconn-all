@@ -35,13 +35,15 @@ const baseSchema = profileSchema.extend({
     .regex(DOMAIN, 'Enter the domain on its own, e.g. exyconn.com'),
   emails: z.array(emailPointSchema),
   industry: z.string().trim(),
-  size: z.enum(COMPANY_SIZES),
+  /** Blank until somebody knows it. */
+  size: z.union([z.literal(''), z.enum(COMPANY_SIZES)]),
   status: z.enum(CompanyStatus),
   location: z.string().trim(),
   annualRevenue: wholeNumber(1e15, 'Enter the revenue as a whole number'),
   employeeCount: wholeNumber(10_000_000, 'Enter the number of employees'),
   foundedYear: wholeNumber(new Date().getFullYear(), 'Enter a year like 2015'),
-  owner: z.string().trim().min(1, 'Owner is required'),
+  /** Who looks after the account; blank until somebody takes it on. */
+  owner: z.string().trim(),
   notes: z.string().trim(),
 });
 
@@ -63,7 +65,7 @@ export const toCompanyValues = (
   domain: row?.domain ?? '',
   emails: emailPointsOf(row),
   industry: row?.industry ?? '',
-  size: (row?.size as CompanyValues['size']) ?? COMPANY_SIZES[0],
+  size: (row?.size as CompanyValues['size'] | undefined) ?? '',
   status: row?.status ?? CompanyStatus.Prospect,
   location: row?.location ?? '',
   annualRevenue: asText(row?.annualRevenue),

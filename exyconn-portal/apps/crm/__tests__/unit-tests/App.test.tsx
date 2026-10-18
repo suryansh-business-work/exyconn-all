@@ -67,7 +67,7 @@ describe('App', () => {
     const props = portal.props as PortalProps;
 
     expect(props.moduleRole).toBe(ROLES.CRM);
-    expect(props.homePath).toBe('/crm');
+    expect(props.homePath).toBe('/');
     expect(props.loginElement.type).toBe(Login);
   });
 
@@ -78,22 +78,22 @@ describe('App', () => {
     expect(layout.path).toBeUndefined();
     expect(layout.element.type).toBe(CommsDockLayout);
     expect(declaredRoutes((portal.props as PortalProps).children)).toEqual([
-      ['/crm', CrmOverviewPage],
-      ['/crm/leads', CrmPage],
-      ['/crm/companies', CompaniesPage],
-      ['/crm/companies/:id/:tab?', CompanyDetailPage],
-      ['/crm/contacts', ContactsPage],
-      ['/crm/contacts/:id/:tab?', ContactDetailPage],
-      ['/crm/deals', DealsPage],
-      ['/crm/deals/list', DealsListPage],
-      ['/crm/activities', ActivitiesPage],
-      ['/crm/meetings/:tab?', MeetingsPage],
-      ['/crm/tools/email-verifier/:tab?', EmailVerifierPage],
-      ['/crm/tools/lead-generator', LeadGeneratorPage],
-      ['/crm/tools/website-scraper', WebsiteScraperPage],
-      ['/crm/settings/properties/:object?', PropertiesPage],
-      ['/crm/settings/gmail', GmailAccountsPage],
-      ['/crm/integrations/:tab?', IntegrationsPage],
+      ['/', CrmOverviewPage],
+      ['/leads', CrmPage],
+      ['/companies', CompaniesPage],
+      ['/companies/:id/:tab?', CompanyDetailPage],
+      ['/contacts', ContactsPage],
+      ['/contacts/:id/:tab?', ContactDetailPage],
+      ['/deals', DealsPage],
+      ['/deals/list', DealsListPage],
+      ['/activities', ActivitiesPage],
+      ['/meetings/:tab?', MeetingsPage],
+      ['/tools/email-verifier/:tab?', EmailVerifierPage],
+      ['/tools/lead-generator', LeadGeneratorPage],
+      ['/tools/website-scraper', WebsiteScraperPage],
+      ['/settings/properties/:object?', PropertiesPage],
+      ['/settings/gmail', GmailAccountsPage],
+      ['/integrations/:tab?', IntegrationsPage],
     ]);
   });
 });

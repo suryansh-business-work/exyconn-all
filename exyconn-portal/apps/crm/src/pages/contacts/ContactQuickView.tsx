@@ -39,7 +39,7 @@ function ContactQuickViewBody({ id, onClose, onSaved }: Readonly<ContactQuickVie
   };
   return (
     <QuickViewPanel
-      fullViewTo={`/crm/contacts/${id}`}
+      fullViewTo={`/contacts/${id}`}
       onClose={onClose}
       error={error}
       onRetry={reload}

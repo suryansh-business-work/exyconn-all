@@ -996,6 +996,8 @@ export type BookedMeeting = {
   __typename?: 'BookedMeeting';
   endAt: Scalars['DateTime']['output'];
   hostName: Scalars['String']['output'];
+  /** The fixed video rooms from Meeting settings, e.g. 'Zoom: https://zoom.us/j/1'. */
+  joinLinks: Array<Scalars['String']['output']>;
   /** Where it happens, now that it is booked. */
   location: Scalars['String']['output'];
   startAt: Scalars['DateTime']['output'];
@@ -2296,6 +2298,8 @@ export type Company = {
   isClient: Scalars['Boolean']['output'];
   /** Latitude, when the account was filed from Google Places; null otherwise. */
   lat?: Maybe<Scalars['Float']['output']>;
+  /** The creator's name, or what brought it in (Website, Google Places). */
+  leadOwner: Scalars['String']['output'];
   /** Where the account came from, e.g. Google Places; empty when typed in by hand. */
   leadSource: Scalars['String']['output'];
   linkedinUrl: Scalars['String']['output'];
@@ -2308,6 +2312,8 @@ export type Company = {
   mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
+  /** Null on rows filed before origins were kept. */
+  origin?: Maybe<CrmRecordOrigin>;
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   phones: Array<CrmPhoneNumber>;
@@ -2316,6 +2322,7 @@ export type Company = {
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['output'];
   status: CompanyStatus;
+  tags: Array<Scalars['String']['output']>;
   timezone: Scalars['String']['output'];
   twitterUrl: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -2543,6 +2550,7 @@ export type Contact = {
   id: Scalars['ID']['output'];
   languages: Array<Scalars['String']['output']>;
   lat?: Maybe<Scalars['Float']['output']>;
+  leadOwner: Scalars['String']['output'];
   leadSource: Scalars['String']['output'];
   lifecycleStage: LifecycleStage;
   linkedinUrl: Scalars['String']['output'];
@@ -2550,12 +2558,14 @@ export type Contact = {
   mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
+  origin?: Maybe<CrmRecordOrigin>;
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   /** Every number; phone is the primary one. */
   phones: Array<CrmPhoneNumber>;
   placeId: Scalars['String']['output'];
   status: ContactStatus;
+  tags: Array<Scalars['String']['output']>;
   /** IANA time zone, for the contact's local time. */
   timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -3038,6 +3048,14 @@ export enum CrmOp {
   StartsWith = 'STARTS_WITH'
 }
 
+export enum CrmOriginSource {
+  GooglePlaces = 'GOOGLE_PLACES',
+  LeadConversion = 'LEAD_CONVERSION',
+  MeetingBooking = 'MEETING_BOOKING',
+  User = 'USER',
+  Website = 'WEBSITE'
+}
+
 /** One phone number of a contact or company; exactly one is primary. */
 export type CrmPhoneNumber = {
   __typename?: 'CrmPhoneNumber';
@@ -3154,6 +3172,16 @@ export type CrmQueryInput = {
   sorts?: InputMaybe<Array<CrmSortInput>>;
 };
 
+/** Who or what brought a record into the CRM. */
+export type CrmRecordOrigin = {
+  __typename?: 'CrmRecordOrigin';
+  source: CrmOriginSource;
+  userEmail: Scalars['String']['output'];
+  /** The signed-in person who created it or ran the import; empty for the website or a booking. */
+  userId: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+};
+
 /** A company's SMS account. The auth token never leaves the server. */
 export type CrmSmsConfig = {
   __typename?: 'CrmSmsConfig';
@@ -3221,6 +3249,11 @@ export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+export enum CrmTagObject {
+  Company = 'COMPANY',
+  Contact = 'CONTACT'
+}
 
 /** One touchpoint with a contact or company, from whichever module recorded it. */
 export type CrmTimelineItem = {
@@ -4504,6 +4537,44 @@ export type GodaddyConfigInput = {
   label: Scalars['String']['input'];
 };
 
+/** A company's Google Business profile, read live from Places (never stored). */
+export type GoogleBusinessProfile = {
+  __typename?: 'GoogleBusinessProfile';
+  address: Scalars['String']['output'];
+  /** OPERATIONAL, CLOSED_TEMPORARILY or CLOSED_PERMANENTLY; empty when unknown. */
+  businessStatus: Scalars['String']['output'];
+  category: Scalars['String']['output'];
+  mapUrl: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  /** One line a weekday, e.g. 'Monday: 9:00 AM – 5:00 PM'. */
+  openingHours: Array<Scalars['String']['output']>;
+  phone: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  /** e.g. PRICE_LEVEL_MODERATE; empty when unknown. */
+  priceLevel: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  ratingCount?: Maybe<Scalars['Int']['output']>;
+  /** Up to five, as Google picks them. */
+  reviews: Array<GoogleBusinessReview>;
+  summary: Scalars['String']['output'];
+  types: Array<Scalars['String']['output']>;
+  website: Scalars['String']['output'];
+};
+
+/** One Google review of a business, as Places returns it. */
+export type GoogleBusinessReview = {
+  __typename?: 'GoogleBusinessReview';
+  authorName: Scalars['String']['output'];
+  authorPhotoUrl: Scalars['String']['output'];
+  authorUrl: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  rating?: Maybe<Scalars['Float']['output']>;
+  /** e.g. 'a month ago'. */
+  relativeTime: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
 /** What the CRM's maps need: the browser key, and whether lead search is set up. */
 export type GoogleMapsClientConfig = {
   __typename?: 'GoogleMapsClientConfig';
@@ -5785,6 +5856,17 @@ export enum LeadEmailStatus {
   Unreachable = 'UNREACHABLE'
 }
 
+/** One detail a lead adds to an existing company. Only ever fills an empty field or adds a new email or phone. */
+export type LeadImportExtra = {
+  __typename?: 'LeadImportExtra';
+  /** What the company holds now; for emails and phones, the ones it already has. */
+  current: Scalars['String']['output'];
+  /** website, address, city, country, location, industry, mapUrl, placeId, coordinates, emails or phones. */
+  field: Scalars['String']['output'];
+  incoming: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
 /** A place filed as a CRM company. */
 export type LeadImportFiled = {
   __typename?: 'LeadImportFiled';
@@ -5807,20 +5889,53 @@ export type LeadImportInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** An existing company that got a lead's extra details. */
+export type LeadImportMerged = {
+  __typename?: 'LeadImportMerged';
+  added: Array<LeadImportExtra>;
+  companyId: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+};
+
+export type LeadImportPreview = {
+  __typename?: 'LeadImportPreview';
+  existingCompanyId?: Maybe<Scalars['ID']['output']>;
+  existingName?: Maybe<Scalars['String']['output']>;
+  extras: Array<LeadImportExtra>;
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  status: LeadImportStatus;
+};
+
 export type LeadImportResult = {
   __typename?: 'LeadImportResult';
   created: Scalars['Int']['output'];
   filed: Array<LeadImportFiled>;
+  merged: Scalars['Int']['output'];
+  merges: Array<LeadImportMerged>;
   skipped: Scalars['Int']['output'];
   skips: Array<LeadImportSkip>;
 };
 
 export type LeadImportSkip = {
   __typename?: 'LeadImportSkip';
+  /** The CRM company the lead duplicates, when there is one. */
+  companyId?: Maybe<Scalars['ID']['output']>;
   name: Scalars['String']['output'];
   placeId: Scalars['ID']['output'];
   reason: Scalars['String']['output'];
 };
+
+/** What a lead would do on import. */
+export enum LeadImportStatus {
+  /** Already in the CRM with nothing new: it will be skipped. */
+  Duplicate = 'DUPLICATE',
+  /** Already in the CRM, and it has details the company is missing. */
+  DuplicateWithExtra = 'DUPLICATE_WITH_EXTRA',
+  /** Not in the CRM yet: it will be filed. */
+  New = 'NEW'
+}
 
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
@@ -5842,6 +5957,12 @@ export type LeadLocationSuggestion = {
   placeId: Scalars['ID']['output'];
   secondaryText: Scalars['String']['output'];
   text: Scalars['String']['output'];
+};
+
+/** A duplicate lead whose extra details should be added to the company the preview matched. */
+export type LeadMergeInput = {
+  companyId: Scalars['ID']['input'];
+  placeId: Scalars['ID']['input'];
 };
 
 export type LeadPage = {
@@ -6284,6 +6405,8 @@ export type MarketingSuppressionPage = {
 export type MeetingBooking = {
   __typename?: 'MeetingBooking';
   contactId: Scalars['String']['output'];
+  /** ISO country of the booker's time zone; empty when it names none. */
+  country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   endAt: Scalars['DateTime']['output'];
@@ -6310,10 +6433,76 @@ export enum MeetingBookingStatus {
   Confirmed = 'CONFIRMED'
 }
 
+/** CRM > Meetings > Settings: the booking page address, Slack and the fixed video rooms. */
+export type MeetingSettings = {
+  __typename?: 'MeetingSettings';
+  /** The page's part of /organization/<company>/book/<slug>; 'meeting' by default. */
+  bookingSlug: Scalars['String']['output'];
+  googleMeetUrl: Scalars['String']['output'];
+  /** Slack channel id each booking is posted to; empty posts nowhere. */
+  slackChannel: Scalars['String']['output'];
+  zoomUrl: Scalars['String']['output'];
+};
+
+export type MeetingSettingsInput = {
+  bookingSlug: Scalars['String']['input'];
+  googleMeetUrl?: InputMaybe<Scalars['String']['input']>;
+  slackChannel?: InputMaybe<Scalars['String']['input']>;
+  zoomUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** CRM > Meetings > Tracking over the last few days. */
+export type MeetingTracking = {
+  __typename?: 'MeetingTracking';
+  bookings: Scalars['Int']['output'];
+  byCountry: Array<MeetingTrackingCountry>;
+  byDay: Array<MeetingTrackingDay>;
+  byMeeting: Array<MeetingTrackingMeeting>;
+  days: Scalars['Int']['output'];
+  recent: Array<MeetingTrackingVisit>;
+  views: Scalars['Int']['output'];
+};
+
+/** Views and bookings for one value (a country, a meeting, a day). */
+export type MeetingTrackingCountry = {
+  __typename?: 'MeetingTrackingCountry';
+  bookings: Scalars['Int']['output'];
+  country: Scalars['String']['output'];
+  countryName: Scalars['String']['output'];
+  views: Scalars['Int']['output'];
+};
+
+export type MeetingTrackingDay = {
+  __typename?: 'MeetingTrackingDay';
+  bookings: Scalars['Int']['output'];
+  /** yyyy-MM-dd, UTC. */
+  day: Scalars['String']['output'];
+  views: Scalars['Int']['output'];
+};
+
+export type MeetingTrackingMeeting = {
+  __typename?: 'MeetingTrackingMeeting';
+  bookings: Scalars['Int']['output'];
+  /** The meeting's link part; empty for the booking page itself. */
+  meetingSlug: Scalars['String']['output'];
+  views: Scalars['Int']['output'];
+};
+
+/** One visit or booking: no IP address, cookie or name is ever kept. */
+export type MeetingTrackingVisit = {
+  __typename?: 'MeetingTrackingVisit';
+  at: Scalars['DateTime']['output'];
+  country: Scalars['String']['output'];
+  countryName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: MeetingVisitKind;
+  meetingSlug: Scalars['String']['output'];
+};
+
 export type MeetingType = {
   __typename?: 'MeetingType';
   active: Scalars['Boolean']['output'];
-  /** The public link's path on the CRM site: /book/<company>/<slug>. */
+  /** The public link's path inside the company's CRM address: /book/<page>/<slug>. */
   bookingPath: Scalars['String']['output'];
   bufferMinutes: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
@@ -6344,6 +6533,11 @@ export type MeetingTypeInput = {
   title: Scalars['String']['input'];
   weeklyHours: Array<MeetingWeeklyHoursInput>;
 };
+
+export enum MeetingVisitKind {
+  Booked = 'BOOKED',
+  View = 'VIEW'
+}
 
 export type MeetingWeeklyHours = {
   __typename?: 'MeetingWeeklyHours';
@@ -6891,7 +7085,7 @@ export type Mutation = {
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
   importCrmRecords: CrmImportResult;
-  /** Files the chosen places as CRM companies, skipping ones already filed. */
+  /** Files the chosen places as CRM companies. Duplicates are skipped, or, when listed in mergeInto, get their extra details added without overwriting anything. */
   importLeadsToCrm: LeadImportResult;
   importMediaFromUrl: Scalars['String']['output'];
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
@@ -7048,6 +7242,8 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
+  /** Changing the booking page address stops the old one working. */
+  saveMeetingSettings: MeetingSettings;
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
@@ -7104,6 +7300,8 @@ export type Mutation = {
   setCmsSiteARecord: CmsDomainDns;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
+  /** Replaces a company's or contact's tags (at most 20, 40 characters each). */
+  setCrmTags: Array<Scalars['String']['output']>;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
   setDefaultCmsSite: CmsSite;
@@ -7268,6 +7466,8 @@ export type Mutation = {
   testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
+  /** Public: counts one visit to the booking page (slug '') or a meeting; keeps no personal data. */
+  trackMeetingView: Scalars['Boolean']['output'];
   /**
    * Accepts the disclosure. When the workspace has pointed the tracker at a Legal policy,
    * signedName is required and the acceptance is also recorded in Legal's versioned
@@ -7579,6 +7779,7 @@ export type MutationAssignSupportTicketArgs = {
 export type MutationBookMeetingArgs = {
   input: BookMeetingInput;
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
@@ -9177,6 +9378,7 @@ export type MutationImportCrmRecordsArgs = {
 
 export type MutationImportLeadsToCrmArgs = {
   leads: Array<LeadImportInput>;
+  mergeInto?: InputMaybe<Array<LeadMergeInput>>;
 };
 
 
@@ -9521,6 +9723,11 @@ export type MutationSaveGoogleSignInConfigArgs = {
 };
 
 
+export type MutationSaveMeetingSettingsArgs = {
+  input: MeetingSettingsInput;
+};
+
+
 export type MutationSaveMicrosoftMailConfigArgs = {
   input: MicrosoftMailConfigInput;
 };
@@ -9671,6 +9878,13 @@ export type MutationSetCmsSiteARecordArgs = {
 export type MutationSetColumnDoneArgs = {
   id: Scalars['ID']['input'];
   isDone: Scalars['Boolean']['input'];
+};
+
+
+export type MutationSetCrmTagsArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTagObject;
+  tags: Array<Scalars['String']['input']>;
 };
 
 
@@ -10051,6 +10265,14 @@ export type MutationTestWhatsappChannelArgs = {
 
 export type MutationToggleSocialPostLikeArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTrackMeetingViewArgs = {
+  org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -12392,6 +12614,8 @@ export type PromptVariableInput = {
 /** A company's booking page: every meeting it takes bookings for. */
 export type PublicBookingPage = {
   __typename?: 'PublicBookingPage';
+  logoDarkUrl: Scalars['String']['output'];
+  logoUrl: Scalars['String']['output'];
   meetings: Array<PublicMeeting>;
   organizationName: Scalars['String']['output'];
   organizationSlug: Scalars['String']['output'];
@@ -12405,6 +12629,9 @@ export type PublicMeeting = {
   /** Whether a location is shared once the meeting is booked. */
   hasLocation: Scalars['Boolean']['output'];
   hostName: Scalars['String']['output'];
+  logoDarkUrl: Scalars['String']['output'];
+  /** The company's logo (Admin > Branding); empty when it has none. */
+  logoUrl: Scalars['String']['output'];
   organizationName: Scalars['String']['output'];
   organizationSlug: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -12622,6 +12849,8 @@ export type Query = {
    * fall on, as the caller sends them.
    */
   companyFinance: CompanyFinance;
+  /** The company's live Google Business profile; null when it was not filed from Google Places. */
+  companyGoogleBusiness?: Maybe<GoogleBusinessProfile>;
   /** Compliance only — the state of the whole management system on one screen. */
   complianceOverview: ComplianceOverview;
   /** LEGAL: every signature request on one contract, newest first, with its evidence. */
@@ -12644,6 +12873,8 @@ export type Query = {
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
   crmSmsConfigs: Array<CrmSmsConfig>;
+  /** Every tag in use on companies or on contacts, sorted. */
+  crmTags: Array<Scalars['String']['output']>;
   /** Everything that happened with the contact or company, newest first (at most 200). */
   crmTimeline: Array<CrmTimelineItem>;
   crmViews: Array<CrmView>;
@@ -13138,9 +13369,14 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
-  /** The path of this company's booking page on the CRM site: /book/<company>. */
+  /** The path of this company's booking page inside its CRM address: /book/<page>. */
   meetingBookingPagePath: Scalars['String']['output'];
   meetingBookings: MeetingBookingPage;
+  meetingSettings: MeetingSettings;
+  /** Slack channels a booking can be posted to (needs Tech > Environment Variables > Slack). */
+  meetingSlackChannels: Array<SlackChannel>;
+  /** Booking page views and bookings over the last 1-365 days. */
+  meetingTracking: MeetingTracking;
   meetingTypes: Array<MeetingType>;
   /** The Microsoft mailboxes connected to the CRM, newest first. */
   microsoftMailAccounts: Array<MicrosoftMailAccount>;
@@ -13241,6 +13477,8 @@ export type Query = {
   policyAcknowledgements: Array<PolicyAcknowledgement>;
   /** Renders a stored template with the values given, through the very code that sends it. */
   previewEmailTemplate: EmailPreview;
+  /** Read-only: which of these leads are already CRM companies, and what extra details each would add. */
+  previewLeadImport: Array<LeadImportPreview>;
   /** HR/ADMIN: active employees whose probation ends inside the next N days, soonest first. */
   probationsEnding: Array<User>;
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
@@ -13279,7 +13517,7 @@ export type Query = {
   projectWorkflows: Array<ProjectWorkflow>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
-  /** Public: a company's booking page (/book/<org>). */
+  /** Public: a company's booking page (/organization/<org>/book/<page>). */
   publicBookingPage: PublicBookingPage;
   publicBranding: Branding;
   publicCaseStudies: Array<CaseStudy>;
@@ -13295,7 +13533,7 @@ export type Query = {
   publicJobCompanies: Array<JobCompany>;
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
-  /** Public: the meeting behind a booking link (/book/<org>/<slug>). */
+  /** Public: the meeting behind a booking link (/organization/<org>/book/<page>/<slug>). */
   publicMeeting: PublicMeeting;
   /** Public: the free starts between two times (at most 62 days apart). */
   publicMeetingSlots: Array<Scalars['DateTime']['output']>;
@@ -13678,6 +13916,11 @@ export type QueryCompanyFinanceArgs = {
 };
 
 
+export type QueryCompanyGoogleBusinessArgs = {
+  companyId: Scalars['ID']['input'];
+};
+
+
 export type QueryContractSignaturesArgs = {
   contractId: Scalars['ID']['input'];
 };
@@ -13707,6 +13950,11 @@ export type QueryCrmObjectSchemaArgs = {
 
 export type QueryCrmPropertiesArgs = {
   object: CrmObject;
+};
+
+
+export type QueryCrmTagsArgs = {
+  object: CrmTagObject;
 };
 
 
@@ -14724,6 +14972,11 @@ export type QueryMeetingBookingsArgs = {
 };
 
 
+export type QueryMeetingTrackingArgs = {
+  days: Scalars['Int']['input'];
+};
+
+
 export type QueryMyApprovalsArgs = {
   kind?: InputMaybe<Scalars['String']['input']>;
 };
@@ -14809,6 +15062,11 @@ export type QueryPolicyAcknowledgementsArgs = {
 export type QueryPreviewEmailTemplateArgs = {
   key: Scalars['String']['input'];
   variables?: InputMaybe<Array<EmailVariableInput>>;
+};
+
+
+export type QueryPreviewLeadImportArgs = {
+  leads: Array<LeadImportInput>;
 };
 
 
@@ -14902,6 +15160,7 @@ export type QueryPublicBlogPostsArgs = {
 
 export type QueryPublicBookingPageArgs = {
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
 };
 
 
@@ -14969,6 +15228,7 @@ export type QueryPublicJobsArgs = {
 
 export type QueryPublicMeetingArgs = {
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
@@ -14976,6 +15236,7 @@ export type QueryPublicMeetingArgs = {
 export type QueryPublicMeetingSlotsArgs = {
   from: Scalars['DateTime']['input'];
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   to: Scalars['DateTime']['input'];
 };
@@ -20736,9 +20997,9 @@ export type ComplianceOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ComplianceOverviewQuery = { __typename?: 'Query', complianceOverview: { __typename?: 'ComplianceOverview', risks: number, openRisks: number, risksPastReview: number, findings: number, openFindings: number, findingsOverdue: number, audits: number, auditsPlanned: number, objectives: number, objectivesAtRisk: number, reviews: number, lastReviewOn?: string | null, lastReviewTitle: string, risksByStatus: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, findingsByType: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, residualHeat: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, standardCoverage: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }> } };
 
-export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
+export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
-export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
+export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
 export type DealFieldsFragment = { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string };
 
@@ -20749,14 +21010,14 @@ export type CrmStatsFragment = { __typename?: 'TableStats', total: number, count
 export type ListCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
+export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
 
 export type ListCompaniesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListCompaniesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -20795,14 +21056,14 @@ export type PromoteCompanyToClientMutation = { __typename?: 'Mutation', promoteC
 export type ListContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
+export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
 
 export type ListContactsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListContactsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -20927,14 +21188,14 @@ export type GetContactQueryVariables = Exact<{
 }>;
 
 
-export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type GetCompanyQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type CrmTimelineQueryVariables = Exact<{
   object: CrmTimelineObject;
@@ -20952,6 +21213,22 @@ export type UploadCrmMediaMutationVariables = Exact<{
 
 
 export type UploadCrmMediaMutation = { __typename?: 'Mutation', uploadCrmMedia: string };
+
+export type CrmTagsQueryVariables = Exact<{
+  object: CrmTagObject;
+}>;
+
+
+export type CrmTagsQuery = { __typename?: 'Query', crmTags: Array<string> };
+
+export type SetCrmTagsMutationVariables = Exact<{
+  object: CrmTagObject;
+  id: Scalars['ID']['input'];
+  tags: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type SetCrmTagsMutation = { __typename?: 'Mutation', setCrmTags: Array<string> };
 
 export type CrmIntegrationStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21088,14 +21365,14 @@ export type SearchCompaniesQueryVariables = Exact<{
 }>;
 
 
-export type SearchCompaniesQuery = { __typename?: 'Query', searchCompanies: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type SearchCompaniesQuery = { __typename?: 'Query', searchCompanies: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type SearchContactsQueryVariables = Exact<{
   query: CrmQueryInput;
 }>;
 
 
-export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type CreateCrmPropertyMutationVariables = Exact<{
   input: CrmPropertyInput;
@@ -22364,12 +22641,22 @@ export type FindLeadEmailsMutationVariables = Exact<{
 
 export type FindLeadEmailsMutation = { __typename?: 'Mutation', findLeadEmails: { __typename?: 'LeadEmailResult', emails: Array<string>, status: LeadEmailStatus, message: string } };
 
-export type ImportLeadsToCrmMutationVariables = Exact<{
+export type LeadImportExtraFieldsFragment = { __typename?: 'LeadImportExtra', field: string, label: string, current: string, incoming: string };
+
+export type PreviewLeadImportQueryVariables = Exact<{
   leads: Array<LeadImportInput> | LeadImportInput;
 }>;
 
 
-export type ImportLeadsToCrmMutation = { __typename?: 'Mutation', importLeadsToCrm: { __typename?: 'LeadImportResult', created: number, skipped: number, filed: Array<{ __typename?: 'LeadImportFiled', placeId: string, companyId: string }>, skips: Array<{ __typename?: 'LeadImportSkip', placeId: string, name: string, reason: string }> } };
+export type PreviewLeadImportQuery = { __typename?: 'Query', previewLeadImport: Array<{ __typename?: 'LeadImportPreview', placeId: string, name: string, status: LeadImportStatus, existingCompanyId?: string | null, existingName?: string | null, extras: Array<{ __typename?: 'LeadImportExtra', field: string, label: string, current: string, incoming: string }> }> };
+
+export type ImportLeadsToCrmMutationVariables = Exact<{
+  leads: Array<LeadImportInput> | LeadImportInput;
+  mergeInto?: InputMaybe<Array<LeadMergeInput> | LeadMergeInput>;
+}>;
+
+
+export type ImportLeadsToCrmMutation = { __typename?: 'Mutation', importLeadsToCrm: { __typename?: 'LeadImportResult', created: number, skipped: number, merged: number, filed: Array<{ __typename?: 'LeadImportFiled', placeId: string, companyId: string }>, merges: Array<{ __typename?: 'LeadImportMerged', placeId: string, companyId: string, name: string, added: Array<{ __typename?: 'LeadImportExtra', field: string, label: string, current: string, incoming: string }> }>, skips: Array<{ __typename?: 'LeadImportSkip', placeId: string, name: string, reason: string, companyId?: string | null }> } };
 
 export type LeadLocationSuggestionsQueryVariables = Exact<{
   input: Scalars['String']['input'];
@@ -22377,6 +22664,13 @@ export type LeadLocationSuggestionsQueryVariables = Exact<{
 
 
 export type LeadLocationSuggestionsQuery = { __typename?: 'Query', leadLocationSuggestions: Array<{ __typename?: 'LeadLocationSuggestion', placeId: string, text: string, mainText: string, secondaryText: string }> };
+
+export type CompanyGoogleBusinessQueryVariables = Exact<{
+  companyId: Scalars['ID']['input'];
+}>;
+
+
+export type CompanyGoogleBusinessQuery = { __typename?: 'Query', companyGoogleBusiness?: { __typename?: 'GoogleBusinessProfile', placeId: string, name: string, address: string, phone: string, website: string, mapUrl: string, rating?: number | null, ratingCount?: number | null, businessStatus: string, priceLevel: string, summary: string, category: string, types: Array<string>, openingHours: Array<string>, reviews: Array<{ __typename?: 'GoogleBusinessReview', id: string, authorName: string, authorUrl: string, authorPhotoUrl: string, rating?: number | null, text: string, relativeTime: string, publishedAt?: string | null }> } | null };
 
 export type SystemHealthQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -23689,7 +23983,7 @@ export type DeleteMeetingTypeMutationVariables = Exact<{
 
 export type DeleteMeetingTypeMutation = { __typename?: 'Mutation', deleteMeetingType: boolean };
 
-export type MeetingBookingFieldsFragment = { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string };
+export type MeetingBookingFieldsFragment = { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, country: string, status: MeetingBookingStatus, contactId: string, createdAt: string };
 
 export type MeetingBookingsQueryVariables = Exact<{
   page: Scalars['Int']['input'];
@@ -23697,39 +23991,68 @@ export type MeetingBookingsQueryVariables = Exact<{
 }>;
 
 
-export type MeetingBookingsQuery = { __typename?: 'Query', meetingBookings: { __typename?: 'MeetingBookingPage', totalCount: number, rows: Array<{ __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string }> } };
+export type MeetingBookingsQuery = { __typename?: 'Query', meetingBookings: { __typename?: 'MeetingBookingPage', totalCount: number, rows: Array<{ __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, country: string, status: MeetingBookingStatus, contactId: string, createdAt: string }> } };
 
 export type CancelMeetingBookingMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type CancelMeetingBookingMutation = { __typename?: 'Mutation', cancelMeetingBooking: { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string } };
+export type CancelMeetingBookingMutation = { __typename?: 'Mutation', cancelMeetingBooking: { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, country: string, status: MeetingBookingStatus, contactId: string, createdAt: string } };
 
 export type MeetingBookingPagePathQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeetingBookingPagePathQuery = { __typename?: 'Query', meetingBookingPagePath: string };
 
-export type PublicMeetingFieldsFragment = { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, hasLocation: boolean };
+export type MeetingSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type PublicBookingPageQueryVariables = Exact<{
-  org: Scalars['String']['input'];
+
+export type MeetingSettingsQuery = { __typename?: 'Query', meetingSettings: { __typename?: 'MeetingSettings', bookingSlug: string, slackChannel: string, googleMeetUrl: string, zoomUrl: string } };
+
+export type MeetingSettingsFieldsFragment = { __typename?: 'MeetingSettings', bookingSlug: string, slackChannel: string, googleMeetUrl: string, zoomUrl: string };
+
+export type SaveMeetingSettingsMutationVariables = Exact<{
+  input: MeetingSettingsInput;
 }>;
 
 
-export type PublicBookingPageQuery = { __typename?: 'Query', publicBookingPage: { __typename?: 'PublicBookingPage', organizationName: string, organizationSlug: string, meetings: Array<{ __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, hasLocation: boolean }> } };
+export type SaveMeetingSettingsMutation = { __typename?: 'Mutation', saveMeetingSettings: { __typename?: 'MeetingSettings', bookingSlug: string, slackChannel: string, googleMeetUrl: string, zoomUrl: string } };
+
+export type MeetingSlackChannelsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeetingSlackChannelsQuery = { __typename?: 'Query', meetingSlackChannels: Array<{ __typename?: 'SlackChannel', id: string, name: string, isPrivate: boolean, isMember: boolean }> };
+
+export type MeetingTrackingQueryVariables = Exact<{
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type MeetingTrackingQuery = { __typename?: 'Query', meetingTracking: { __typename?: 'MeetingTracking', days: number, views: number, bookings: number, byCountry: Array<{ __typename?: 'MeetingTrackingCountry', country: string, countryName: string, views: number, bookings: number }>, byMeeting: Array<{ __typename?: 'MeetingTrackingMeeting', meetingSlug: string, views: number, bookings: number }>, byDay: Array<{ __typename?: 'MeetingTrackingDay', day: string, views: number, bookings: number }>, recent: Array<{ __typename?: 'MeetingTrackingVisit', id: string, kind: MeetingVisitKind, meetingSlug: string, country: string, countryName: string, at: string }> } };
+
+export type PublicMeetingFieldsFragment = { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, logoUrl: string, logoDarkUrl: string, hasLocation: boolean };
+
+export type PublicBookingPageQueryVariables = Exact<{
+  org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
+}>;
+
+
+export type PublicBookingPageQuery = { __typename?: 'Query', publicBookingPage: { __typename?: 'PublicBookingPage', organizationName: string, organizationSlug: string, logoUrl: string, logoDarkUrl: string, meetings: Array<{ __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, logoUrl: string, logoDarkUrl: string, hasLocation: boolean }> } };
 
 export type PublicMeetingQueryVariables = Exact<{
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 }>;
 
 
-export type PublicMeetingQuery = { __typename?: 'Query', publicMeeting: { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, hasLocation: boolean } };
+export type PublicMeetingQuery = { __typename?: 'Query', publicMeeting: { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, logoUrl: string, logoDarkUrl: string, hasLocation: boolean } };
 
 export type PublicMeetingSlotsQueryVariables = Exact<{
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -23740,12 +24063,23 @@ export type PublicMeetingSlotsQuery = { __typename?: 'Query', publicMeetingSlots
 
 export type BookMeetingMutationVariables = Exact<{
   org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   input: BookMeetingInput;
 }>;
 
 
-export type BookMeetingMutation = { __typename?: 'Mutation', bookMeeting: { __typename?: 'BookedMeeting', title: string, hostName: string, startAt: string, endAt: string, location: string } };
+export type BookMeetingMutation = { __typename?: 'Mutation', bookMeeting: { __typename?: 'BookedMeeting', title: string, hostName: string, startAt: string, endAt: string, location: string, joinLinks: Array<string> } };
+
+export type TrackMeetingViewMutationVariables = Exact<{
+  org: Scalars['String']['input'];
+  page: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  timezone?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type TrackMeetingViewMutation = { __typename?: 'Mutation', trackMeetingView: boolean };
 
 export type MicrosoftMailConfigFieldsFragment = { __typename?: 'MicrosoftMailConfig', id: string, clientId: string, tenant: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null };
 
@@ -27921,6 +28255,13 @@ export const CompanyFieldsFragmentDoc = gql`
   phone
   location
   owner
+  leadOwner
+  tags
+  origin {
+    source
+    userName
+    userEmail
+  }
   notes
   clientId
   isClient
@@ -27968,6 +28309,13 @@ export const ContactFieldsFragmentDoc = gql`
   companyName
   status
   owner
+  leadOwner
+  tags
+  origin {
+    source
+    userName
+    userEmail
+  }
   notes
   avatarUrl
   custom
@@ -28435,6 +28783,14 @@ export const LeadPlaceFieldsFragmentDoc = gql`
   existingCompanyId
 }
     `;
+export const LeadImportExtraFieldsFragmentDoc = gql`
+    fragment LeadImportExtraFields on LeadImportExtra {
+  field
+  label
+  current
+  incoming
+}
+    `;
 export const LeaveFieldsFragmentDoc = gql`
     fragment LeaveFields on LeaveRequest {
   id
@@ -28865,9 +29221,18 @@ export const MeetingBookingFieldsFragmentDoc = gql`
   notes
   guests
   timezone
+  country
   status
   contactId
   createdAt
+}
+    `;
+export const MeetingSettingsFieldsFragmentDoc = gql`
+    fragment MeetingSettingsFields on MeetingSettings {
+  bookingSlug
+  slackChannel
+  googleMeetUrl
+  zoomUrl
 }
     `;
 export const PublicMeetingFieldsFragmentDoc = gql`
@@ -28880,6 +29245,8 @@ export const PublicMeetingFieldsFragmentDoc = gql`
   timezone
   organizationName
   organizationSlug
+  logoUrl
+  logoDarkUrl
   hasLocation
 }
     `;
@@ -40309,6 +40676,78 @@ export function useUploadCrmMediaMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<UploadCrmMediaMutation, UploadCrmMediaMutationVariables>(UploadCrmMediaDocument, options);
       }
 export type UploadCrmMediaMutationHookResult = ReturnType<typeof useUploadCrmMediaMutation>;
+export const CrmTagsDocument = gql`
+    query CrmTags($object: CrmTagObject!) {
+  crmTags(object: $object)
+}
+    `;
+
+/**
+ * __useCrmTagsQuery__
+ *
+ * To run a query within a React component, call `useCrmTagsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmTagsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmTagsQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *   },
+ * });
+ */
+export function useCrmTagsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmTagsQuery, CrmTagsQueryVariables> & ({ variables: CrmTagsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmTagsQuery, CrmTagsQueryVariables>(CrmTagsDocument, options);
+      }
+export function useCrmTagsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmTagsQuery, CrmTagsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmTagsQuery, CrmTagsQueryVariables>(CrmTagsDocument, options);
+        }
+// @ts-ignore
+export function useCrmTagsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmTagsQuery, CrmTagsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmTagsQuery, CrmTagsQueryVariables>;
+// @ts-ignore
+export function useCrmTagsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmTagsQuery, CrmTagsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmTagsQuery | undefined, CrmTagsQueryVariables>;
+export function useCrmTagsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmTagsQuery, CrmTagsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmTagsQuery, CrmTagsQueryVariables>(CrmTagsDocument, options);
+        }
+export type CrmTagsQueryHookResult = ReturnType<typeof useCrmTagsQuery>;
+export type CrmTagsLazyQueryHookResult = ReturnType<typeof useCrmTagsLazyQuery>;
+export type CrmTagsSuspenseQueryHookResult = ReturnType<typeof useCrmTagsSuspenseQuery>;
+export const SetCrmTagsDocument = gql`
+    mutation SetCrmTags($object: CrmTagObject!, $id: ID!, $tags: [String!]!) {
+  setCrmTags(object: $object, id: $id, tags: $tags)
+}
+    `;
+
+/**
+ * __useSetCrmTagsMutation__
+ *
+ * To run a mutation, you first call `useSetCrmTagsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetCrmTagsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setCrmTagsMutation, { data, loading, error }] = useSetCrmTagsMutation({
+ *   variables: {
+ *      object: // value for 'object'
+ *      id: // value for 'id'
+ *      tags: // value for 'tags'
+ *   },
+ * });
+ */
+export function useSetCrmTagsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetCrmTagsMutation, SetCrmTagsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetCrmTagsMutation, SetCrmTagsMutationVariables>(SetCrmTagsDocument, options);
+      }
+export type SetCrmTagsMutationHookResult = ReturnType<typeof useSetCrmTagsMutation>;
 export const CrmIntegrationStatusDocument = gql`
     query CrmIntegrationStatus {
   crmIntegrationStatus {
@@ -48159,23 +48598,84 @@ export function useFindLeadEmailsMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<FindLeadEmailsMutation, FindLeadEmailsMutationVariables>(FindLeadEmailsDocument, options);
       }
 export type FindLeadEmailsMutationHookResult = ReturnType<typeof useFindLeadEmailsMutation>;
+export const PreviewLeadImportDocument = gql`
+    query PreviewLeadImport($leads: [LeadImportInput!]!) {
+  previewLeadImport(leads: $leads) {
+    placeId
+    name
+    status
+    existingCompanyId
+    existingName
+    extras {
+      ...LeadImportExtraFields
+    }
+  }
+}
+    ${LeadImportExtraFieldsFragmentDoc}`;
+
+/**
+ * __usePreviewLeadImportQuery__
+ *
+ * To run a query within a React component, call `usePreviewLeadImportQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePreviewLeadImportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePreviewLeadImportQuery({
+ *   variables: {
+ *      leads: // value for 'leads'
+ *   },
+ * });
+ */
+export function usePreviewLeadImportQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PreviewLeadImportQuery, PreviewLeadImportQueryVariables> & ({ variables: PreviewLeadImportQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>(PreviewLeadImportDocument, options);
+      }
+export function usePreviewLeadImportLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>(PreviewLeadImportDocument, options);
+        }
+// @ts-ignore
+export function usePreviewLeadImportSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>;
+// @ts-ignore
+export function usePreviewLeadImportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewLeadImportQuery | undefined, PreviewLeadImportQueryVariables>;
+export function usePreviewLeadImportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PreviewLeadImportQuery, PreviewLeadImportQueryVariables>(PreviewLeadImportDocument, options);
+        }
+export type PreviewLeadImportQueryHookResult = ReturnType<typeof usePreviewLeadImportQuery>;
+export type PreviewLeadImportLazyQueryHookResult = ReturnType<typeof usePreviewLeadImportLazyQuery>;
+export type PreviewLeadImportSuspenseQueryHookResult = ReturnType<typeof usePreviewLeadImportSuspenseQuery>;
 export const ImportLeadsToCrmDocument = gql`
-    mutation ImportLeadsToCrm($leads: [LeadImportInput!]!) {
-  importLeadsToCrm(leads: $leads) {
+    mutation ImportLeadsToCrm($leads: [LeadImportInput!]!, $mergeInto: [LeadMergeInput!]) {
+  importLeadsToCrm(leads: $leads, mergeInto: $mergeInto) {
     created
     skipped
+    merged
     filed {
       placeId
       companyId
+    }
+    merges {
+      placeId
+      companyId
+      name
+      added {
+        ...LeadImportExtraFields
+      }
     }
     skips {
       placeId
       name
       reason
+      companyId
     }
   }
 }
-    `;
+    ${LeadImportExtraFieldsFragmentDoc}`;
 
 /**
  * __useImportLeadsToCrmMutation__
@@ -48191,6 +48691,7 @@ export const ImportLeadsToCrmDocument = gql`
  * const [importLeadsToCrmMutation, { data, loading, error }] = useImportLeadsToCrmMutation({
  *   variables: {
  *      leads: // value for 'leads'
+ *      mergeInto: // value for 'mergeInto'
  *   },
  * });
  */
@@ -48246,6 +48747,73 @@ export function useLeadLocationSuggestionsSuspenseQuery(baseOptions?: ApolloReac
 export type LeadLocationSuggestionsQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsQuery>;
 export type LeadLocationSuggestionsLazyQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsLazyQuery>;
 export type LeadLocationSuggestionsSuspenseQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsSuspenseQuery>;
+export const CompanyGoogleBusinessDocument = gql`
+    query CompanyGoogleBusiness($companyId: ID!) {
+  companyGoogleBusiness(companyId: $companyId) {
+    placeId
+    name
+    address
+    phone
+    website
+    mapUrl
+    rating
+    ratingCount
+    businessStatus
+    priceLevel
+    summary
+    category
+    types
+    openingHours
+    reviews {
+      id
+      authorName
+      authorUrl
+      authorPhotoUrl
+      rating
+      text
+      relativeTime
+      publishedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useCompanyGoogleBusinessQuery__
+ *
+ * To run a query within a React component, call `useCompanyGoogleBusinessQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyGoogleBusinessQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyGoogleBusinessQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useCompanyGoogleBusinessQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables> & ({ variables: CompanyGoogleBusinessQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>(CompanyGoogleBusinessDocument, options);
+      }
+export function useCompanyGoogleBusinessLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>(CompanyGoogleBusinessDocument, options);
+        }
+// @ts-ignore
+export function useCompanyGoogleBusinessSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>;
+// @ts-ignore
+export function useCompanyGoogleBusinessSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CompanyGoogleBusinessQuery | undefined, CompanyGoogleBusinessQueryVariables>;
+export function useCompanyGoogleBusinessSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CompanyGoogleBusinessQuery, CompanyGoogleBusinessQueryVariables>(CompanyGoogleBusinessDocument, options);
+        }
+export type CompanyGoogleBusinessQueryHookResult = ReturnType<typeof useCompanyGoogleBusinessQuery>;
+export type CompanyGoogleBusinessLazyQueryHookResult = ReturnType<typeof useCompanyGoogleBusinessLazyQuery>;
+export type CompanyGoogleBusinessSuspenseQueryHookResult = ReturnType<typeof useCompanyGoogleBusinessSuspenseQuery>;
 export const SystemHealthDocument = gql`
     query SystemHealth {
   systemHealth {
@@ -55948,11 +56516,202 @@ export function useMeetingBookingPagePathSuspenseQuery(baseOptions?: ApolloReact
 export type MeetingBookingPagePathQueryHookResult = ReturnType<typeof useMeetingBookingPagePathQuery>;
 export type MeetingBookingPagePathLazyQueryHookResult = ReturnType<typeof useMeetingBookingPagePathLazyQuery>;
 export type MeetingBookingPagePathSuspenseQueryHookResult = ReturnType<typeof useMeetingBookingPagePathSuspenseQuery>;
+export const MeetingSettingsDocument = gql`
+    query MeetingSettings {
+  meetingSettings {
+    ...MeetingSettingsFields
+  }
+}
+    ${MeetingSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useMeetingSettingsQuery__
+ *
+ * To run a query within a React component, call `useMeetingSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeetingSettingsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MeetingSettingsQuery, MeetingSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingSettingsQuery, MeetingSettingsQueryVariables>(MeetingSettingsDocument, options);
+      }
+export function useMeetingSettingsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingSettingsQuery, MeetingSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingSettingsQuery, MeetingSettingsQueryVariables>(MeetingSettingsDocument, options);
+        }
+// @ts-ignore
+export function useMeetingSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingSettingsQuery, MeetingSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingSettingsQuery, MeetingSettingsQueryVariables>;
+// @ts-ignore
+export function useMeetingSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingSettingsQuery, MeetingSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingSettingsQuery | undefined, MeetingSettingsQueryVariables>;
+export function useMeetingSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingSettingsQuery, MeetingSettingsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingSettingsQuery, MeetingSettingsQueryVariables>(MeetingSettingsDocument, options);
+        }
+export type MeetingSettingsQueryHookResult = ReturnType<typeof useMeetingSettingsQuery>;
+export type MeetingSettingsLazyQueryHookResult = ReturnType<typeof useMeetingSettingsLazyQuery>;
+export type MeetingSettingsSuspenseQueryHookResult = ReturnType<typeof useMeetingSettingsSuspenseQuery>;
+export const SaveMeetingSettingsDocument = gql`
+    mutation SaveMeetingSettings($input: MeetingSettingsInput!) {
+  saveMeetingSettings(input: $input) {
+    ...MeetingSettingsFields
+  }
+}
+    ${MeetingSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useSaveMeetingSettingsMutation__
+ *
+ * To run a mutation, you first call `useSaveMeetingSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveMeetingSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveMeetingSettingsMutation, { data, loading, error }] = useSaveMeetingSettingsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveMeetingSettingsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveMeetingSettingsMutation, SaveMeetingSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveMeetingSettingsMutation, SaveMeetingSettingsMutationVariables>(SaveMeetingSettingsDocument, options);
+      }
+export type SaveMeetingSettingsMutationHookResult = ReturnType<typeof useSaveMeetingSettingsMutation>;
+export const MeetingSlackChannelsDocument = gql`
+    query MeetingSlackChannels {
+  meetingSlackChannels {
+    id
+    name
+    isPrivate
+    isMember
+  }
+}
+    `;
+
+/**
+ * __useMeetingSlackChannelsQuery__
+ *
+ * To run a query within a React component, call `useMeetingSlackChannelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingSlackChannelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingSlackChannelsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeetingSlackChannelsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>(MeetingSlackChannelsDocument, options);
+      }
+export function useMeetingSlackChannelsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>(MeetingSlackChannelsDocument, options);
+        }
+// @ts-ignore
+export function useMeetingSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>;
+// @ts-ignore
+export function useMeetingSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingSlackChannelsQuery | undefined, MeetingSlackChannelsQueryVariables>;
+export function useMeetingSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingSlackChannelsQuery, MeetingSlackChannelsQueryVariables>(MeetingSlackChannelsDocument, options);
+        }
+export type MeetingSlackChannelsQueryHookResult = ReturnType<typeof useMeetingSlackChannelsQuery>;
+export type MeetingSlackChannelsLazyQueryHookResult = ReturnType<typeof useMeetingSlackChannelsLazyQuery>;
+export type MeetingSlackChannelsSuspenseQueryHookResult = ReturnType<typeof useMeetingSlackChannelsSuspenseQuery>;
+export const MeetingTrackingDocument = gql`
+    query MeetingTracking($days: Int!) {
+  meetingTracking(days: $days) {
+    days
+    views
+    bookings
+    byCountry {
+      country
+      countryName
+      views
+      bookings
+    }
+    byMeeting {
+      meetingSlug
+      views
+      bookings
+    }
+    byDay {
+      day
+      views
+      bookings
+    }
+    recent {
+      id
+      kind
+      meetingSlug
+      country
+      countryName
+      at
+    }
+  }
+}
+    `;
+
+/**
+ * __useMeetingTrackingQuery__
+ *
+ * To run a query within a React component, call `useMeetingTrackingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingTrackingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingTrackingQuery({
+ *   variables: {
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useMeetingTrackingQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MeetingTrackingQuery, MeetingTrackingQueryVariables> & ({ variables: MeetingTrackingQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingTrackingQuery, MeetingTrackingQueryVariables>(MeetingTrackingDocument, options);
+      }
+export function useMeetingTrackingLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingTrackingQuery, MeetingTrackingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingTrackingQuery, MeetingTrackingQueryVariables>(MeetingTrackingDocument, options);
+        }
+// @ts-ignore
+export function useMeetingTrackingSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingTrackingQuery, MeetingTrackingQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingTrackingQuery, MeetingTrackingQueryVariables>;
+// @ts-ignore
+export function useMeetingTrackingSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingTrackingQuery, MeetingTrackingQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingTrackingQuery | undefined, MeetingTrackingQueryVariables>;
+export function useMeetingTrackingSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingTrackingQuery, MeetingTrackingQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingTrackingQuery, MeetingTrackingQueryVariables>(MeetingTrackingDocument, options);
+        }
+export type MeetingTrackingQueryHookResult = ReturnType<typeof useMeetingTrackingQuery>;
+export type MeetingTrackingLazyQueryHookResult = ReturnType<typeof useMeetingTrackingLazyQuery>;
+export type MeetingTrackingSuspenseQueryHookResult = ReturnType<typeof useMeetingTrackingSuspenseQuery>;
 export const PublicBookingPageDocument = gql`
-    query PublicBookingPage($org: String!) {
-  publicBookingPage(org: $org) {
+    query PublicBookingPage($org: String!, $page: String!) {
+  publicBookingPage(org: $org, page: $page) {
     organizationName
     organizationSlug
+    logoUrl
+    logoDarkUrl
     meetings {
       ...PublicMeetingFields
     }
@@ -55973,6 +56732,7 @@ export const PublicBookingPageDocument = gql`
  * const { data, loading, error } = usePublicBookingPageQuery({
  *   variables: {
  *      org: // value for 'org'
+ *      page: // value for 'page'
  *   },
  * });
  */
@@ -55997,8 +56757,8 @@ export type PublicBookingPageQueryHookResult = ReturnType<typeof usePublicBookin
 export type PublicBookingPageLazyQueryHookResult = ReturnType<typeof usePublicBookingPageLazyQuery>;
 export type PublicBookingPageSuspenseQueryHookResult = ReturnType<typeof usePublicBookingPageSuspenseQuery>;
 export const PublicMeetingDocument = gql`
-    query PublicMeeting($org: String!, $slug: String!) {
-  publicMeeting(org: $org, slug: $slug) {
+    query PublicMeeting($org: String!, $page: String!, $slug: String!) {
+  publicMeeting(org: $org, page: $page, slug: $slug) {
     ...PublicMeetingFields
   }
 }
@@ -56017,6 +56777,7 @@ export const PublicMeetingDocument = gql`
  * const { data, loading, error } = usePublicMeetingQuery({
  *   variables: {
  *      org: // value for 'org'
+ *      page: // value for 'page'
  *      slug: // value for 'slug'
  *   },
  * });
@@ -56042,8 +56803,8 @@ export type PublicMeetingQueryHookResult = ReturnType<typeof usePublicMeetingQue
 export type PublicMeetingLazyQueryHookResult = ReturnType<typeof usePublicMeetingLazyQuery>;
 export type PublicMeetingSuspenseQueryHookResult = ReturnType<typeof usePublicMeetingSuspenseQuery>;
 export const PublicMeetingSlotsDocument = gql`
-    query PublicMeetingSlots($org: String!, $slug: String!, $from: DateTime!, $to: DateTime!) {
-  publicMeetingSlots(org: $org, slug: $slug, from: $from, to: $to)
+    query PublicMeetingSlots($org: String!, $page: String!, $slug: String!, $from: DateTime!, $to: DateTime!) {
+  publicMeetingSlots(org: $org, page: $page, slug: $slug, from: $from, to: $to)
 }
     `;
 
@@ -56060,6 +56821,7 @@ export const PublicMeetingSlotsDocument = gql`
  * const { data, loading, error } = usePublicMeetingSlotsQuery({
  *   variables: {
  *      org: // value for 'org'
+ *      page: // value for 'page'
  *      slug: // value for 'slug'
  *      from: // value for 'from'
  *      to: // value for 'to'
@@ -56087,13 +56849,14 @@ export type PublicMeetingSlotsQueryHookResult = ReturnType<typeof usePublicMeeti
 export type PublicMeetingSlotsLazyQueryHookResult = ReturnType<typeof usePublicMeetingSlotsLazyQuery>;
 export type PublicMeetingSlotsSuspenseQueryHookResult = ReturnType<typeof usePublicMeetingSlotsSuspenseQuery>;
 export const BookMeetingDocument = gql`
-    mutation BookMeeting($org: String!, $slug: String!, $input: BookMeetingInput!) {
-  bookMeeting(org: $org, slug: $slug, input: $input) {
+    mutation BookMeeting($org: String!, $page: String!, $slug: String!, $input: BookMeetingInput!) {
+  bookMeeting(org: $org, page: $page, slug: $slug, input: $input) {
     title
     hostName
     startAt
     endAt
     location
+    joinLinks
   }
 }
     `;
@@ -56112,6 +56875,7 @@ export const BookMeetingDocument = gql`
  * const [bookMeetingMutation, { data, loading, error }] = useBookMeetingMutation({
  *   variables: {
  *      org: // value for 'org'
+ *      page: // value for 'page'
  *      slug: // value for 'slug'
  *      input: // value for 'input'
  *   },
@@ -56122,6 +56886,37 @@ export function useBookMeetingMutation(baseOptions?: ApolloReactHooks.MutationHo
         return ApolloReactHooks.useMutation<BookMeetingMutation, BookMeetingMutationVariables>(BookMeetingDocument, options);
       }
 export type BookMeetingMutationHookResult = ReturnType<typeof useBookMeetingMutation>;
+export const TrackMeetingViewDocument = gql`
+    mutation TrackMeetingView($org: String!, $page: String!, $slug: String!, $timezone: String) {
+  trackMeetingView(org: $org, page: $page, slug: $slug, timezone: $timezone)
+}
+    `;
+
+/**
+ * __useTrackMeetingViewMutation__
+ *
+ * To run a mutation, you first call `useTrackMeetingViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTrackMeetingViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [trackMeetingViewMutation, { data, loading, error }] = useTrackMeetingViewMutation({
+ *   variables: {
+ *      org: // value for 'org'
+ *      page: // value for 'page'
+ *      slug: // value for 'slug'
+ *      timezone: // value for 'timezone'
+ *   },
+ * });
+ */
+export function useTrackMeetingViewMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TrackMeetingViewMutation, TrackMeetingViewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TrackMeetingViewMutation, TrackMeetingViewMutationVariables>(TrackMeetingViewDocument, options);
+      }
+export type TrackMeetingViewMutationHookResult = ReturnType<typeof useTrackMeetingViewMutation>;
 export const MicrosoftMailConfigDocument = gql`
     query MicrosoftMailConfig {
   microsoftMailConfig {

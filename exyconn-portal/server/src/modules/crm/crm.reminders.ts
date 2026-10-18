@@ -42,7 +42,7 @@ registerReminderSource({
         kind: 'CRM',
         title: `${rows.length} follow-up${rows.length === 1 ? '' : 's'} due`,
         body: `${named}${tail}. Open the activities list to clear them or move the dates.`,
-        link: '/crm/activities',
+        link: '/activities',
         roles: [ROLES.CRM],
       },
     ];

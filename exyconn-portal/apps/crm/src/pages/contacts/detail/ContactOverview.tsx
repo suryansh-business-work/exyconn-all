@@ -11,6 +11,7 @@ import {
   CustomValues,
   DetailField,
   DetailList,
+  LeadOwnerField,
   Timeline,
 } from '../../../records/detail';
 
@@ -33,7 +34,7 @@ export function ContactOverview({ contact }: Readonly<{ contact: ContactFieldsFr
         </DetailField>
         <DetailField label="Associated company" empty="No company">
           {contact.companyId && (
-            <Link component={RouterLink} to={`/crm/companies/${contact.companyId}`}>
+            <Link component={RouterLink} to={`/companies/${contact.companyId}`}>
               {contact.companyName}
             </Link>
           )}
@@ -51,6 +52,7 @@ export function ContactOverview({ contact }: Readonly<{ contact: ContactFieldsFr
         <DetailField label="Contact owner" empty="No owner">
           {contact.owner}
         </DetailField>
+        <LeadOwnerField origin={contact.origin} />
         <DetailField label="Added">{formatDate(contact.createdAt)}</DetailField>
         <CustomValues
           object={CrmObject.Contact}

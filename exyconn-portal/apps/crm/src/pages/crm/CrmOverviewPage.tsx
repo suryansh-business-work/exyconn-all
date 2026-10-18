@@ -56,9 +56,9 @@ export function CrmOverviewPage() {
       statsLoading={statsLoading}
       breakdowns={crmBreakdowns(source)}
       links={[
-        { label: 'Open leads register', to: '/crm/leads' },
-        { label: 'Open deals board', to: '/crm/deals' },
-        { label: 'Open deals list', to: '/crm/deals/list' },
+        { label: 'Open leads register', to: '/leads' },
+        { label: 'Open deals board', to: '/deals' },
+        { label: 'Open deals list', to: '/deals/list' },
       ]}
       recentTitle="Newest leads"
     >

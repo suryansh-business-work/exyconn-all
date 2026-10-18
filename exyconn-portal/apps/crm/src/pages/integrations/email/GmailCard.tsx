@@ -2,9 +2,10 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Chip, Flex, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { ProviderLogo } from '../../../integrations/ProviderLogo';
 
 /** The existing page where Gmail mailboxes are connected and managed. */
-const GMAIL_SETTINGS_PATH = '/crm/settings/gmail';
+const GMAIL_SETTINGS_PATH = '/settings/gmail';
 
 /** Whether a Gmail mailbox is ready, and the way to the page that manages them. */
 export function GmailCard({ ready }: Readonly<{ ready: boolean }>) {
@@ -13,6 +14,7 @@ export function GmailCard({ ready }: Readonly<{ ready: boolean }>) {
     <Box component="section" sx={panel} aria-labelledby="gmail-heading">
       <Flex direction="column" spacing={1.5}>
         <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+          <ProviderLogo provider="GMAIL" size={28} />
           <Text id="gmail-heading" component="h2" weight="semibold">
             {t('Gmail')}
           </Text>

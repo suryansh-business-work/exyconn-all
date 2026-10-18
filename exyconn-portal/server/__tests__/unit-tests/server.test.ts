@@ -56,6 +56,7 @@ jest.mock('../../src/lib/migrations', () => ({
 }));
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
 jest.mock('../../src/modules/gmail', () => ({ migrateLegacyGmailConnection: jest.fn() }));
+jest.mock('../../src/modules/crm/crm.origin.backfill', () => ({ backfillCrmOrigins: jest.fn() }));
 jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
 jest.mock('../../src/modules/calling-bot-demo', () => ({
   migratePhoneProvider: jest.fn(),

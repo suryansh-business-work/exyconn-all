@@ -3,8 +3,8 @@ import { useT } from '@exyconn/i18n';
 import { Alert, Button, Link } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { appUrl } from '@exyconn/shell/config/apps';
 import { useMeetingBookingPagePathQuery } from '@exyconn/shell/graphql/generated';
+import { bookingLink } from './bookingLink';
 
 /** The company's scheduling page, listing every open meeting type, to share as one link. */
 export function BookingPageLink() {
@@ -15,7 +15,7 @@ export function BookingPageLink() {
   if (!path) {
     return null;
   }
-  const url = appUrl('crm', path);
+  const url = bookingLink(path);
   const copy = () => {
     globalThis.navigator.clipboard
       .writeText(url)

@@ -17,12 +17,16 @@ import { usePublicMeetingSlotsQuery } from '@exyconn/shell/graphql/generated';
 import { TimeColumn } from './TimeColumn';
 import { TimezoneSelect } from './TimezoneSelect';
 import { useBookingTime } from './useBookingTime';
+import { SlotsLoading } from './SlotsLoading';
+import type { BookingAddress } from './useBookingAddress';
+
+const renderSlotsLoading = () => <SlotsLoading />;
 
 /** A day the calendar shows, as the same sortable key the free times are grouped by. */
 const calendarKey = (date: Date) => format(date, 'yyyy-MM-dd');
 
 interface SlotStepProps {
-  org: string;
+  at: BookingAddress;
   slug: string;
   zone: string;
   onZone: (zone: string) => void;
@@ -33,14 +37,14 @@ interface SlotStepProps {
  * "Select a Date & Time": a month calendar (the week starting Monday) where days with free
  * times stand out, the time zone, and the picked day's free times.
  */
-export function SlotStep({ org, slug, zone, onZone, onPick }: Readonly<SlotStepProps>) {
+export function SlotStep({ at, slug, zone, onZone, onPick }: Readonly<SlotStepProps>) {
   const t = useT();
   const when = useBookingTime(zone);
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [day, setDay] = useState<Date | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const { data, loading, error } = usePublicMeetingSlotsQuery({
-    variables: { org, slug, from: month.toISOString(), to: endOfMonth(month).toISOString() },
+    variables: { ...at, slug, from: month.toISOString(), to: endOfMonth(month).toISOString() },
     fetchPolicy: 'network-only',
   });
   const byDay = useMemo(() => {
@@ -82,6 +86,7 @@ export function SlotStep({ org, slug, zone, onZone, onPick }: Readonly<SlotStepP
               minDate={startOfMonth(new Date())}
               maxDate={addMonths(new Date(), 12)}
               loading={loading}
+              renderLoading={renderSlotsLoading}
               shouldDisableDate={(date: Date) => !byDay.has(calendarKey(date))}
               sx={{
                 m: 0,

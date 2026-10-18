@@ -1,3 +1,4 @@
+import { stampOrigin, type RecordOrigin } from '../crm/crm.origin';
 import { isValidObjectId } from 'mongoose';
 import { ActivityModel } from '../crm/activity.model';
 import { CompanyModel } from '../crm/company.model';
@@ -77,7 +78,7 @@ export interface LeadImportResult {
 }
 
 /** The company document for one place. */
-function companyOf(row: LeadImportInput, domain: string, owner: string) {
+function companyOf(row: LeadImportInput, domain: string, origin: RecordOrigin) {
   const profile = withPrimaries(
     {
       emails: (row.emails ?? []).map((address) => ({ address, label: 'Work' })),
@@ -90,7 +91,9 @@ function companyOf(row: LeadImportInput, domain: string, owner: string) {
     name: row.name,
     domain,
     industry: row.primaryType ?? '',
-    owner,
+    // Whoever ran the import is its lead owner, not the account's owner: nobody has taken it on.
+    owner: '',
+    ...stampOrigin(origin),
     website: row.website ?? '',
     address: row.address ?? '',
     city: row.city ?? '',
@@ -170,7 +173,7 @@ class ImportRun {
 
   constructor(
     private readonly matcher: CompanyMatcher,
-    private readonly owner: string,
+    private readonly origin: RecordOrigin,
   ) {}
 
   skip(row: LeadImportInput, reason: string, companyId: string | null = null) {
@@ -181,7 +184,7 @@ class ImportRun {
   /** Files a lead that matched nothing, with a note on its timeline. */
   async create(row: LeadImportInput) {
     const domain = domainOf(row.website) || placeholderDomain(row.name, row.placeId);
-    const doc = companyOf(row, domain, this.owner);
+    const doc = companyOf(row, domain, this.origin);
     try {
       const company = await CompanyModel.create(doc);
       const id = company._id.toHexString();
@@ -196,7 +199,7 @@ class ImportRun {
         relatedId: id,
         relatedName: row.name,
         done: true,
-        owner: this.owner,
+        owner: this.origin.userName,
       });
     } catch (error) {
       if ((error as { code?: unknown }).code !== DUPLICATE_KEY) {
@@ -244,18 +247,18 @@ function mergeTargets(mergeInto: LeadMergeInput[]): Map<string, string> {
 }
 
 /**
- * Files the new places as companies owned by `owner`, adds the extra details of the duplicates
+ * Files the new places as companies brought in by `origin` (owned by nobody yet), adds the extra details of the duplicates
  * listed in `mergeInto`, and skips every other duplicate.
  */
 export async function importLeads(
   input: LeadImportInput[],
-  owner: string,
+  origin: RecordOrigin,
   mergeInto: LeadMergeInput[] = [],
 ): Promise<LeadImportResult> {
   const rows = checkedBatch(input);
   const targets = mergeTargets(mergeInto);
   const matcher = await companyMatcher(rows);
-  const run = new ImportRun(matcher, owner);
+  const run = new ImportRun(matcher, origin);
   for (const row of rows) {
     const match = matcher.match(row);
     if (match) {

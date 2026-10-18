@@ -6,7 +6,7 @@ import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { PropertiesPanel } from './PropertiesPanel';
 
 /** Route the record-type tabs live under; each tab is a slug beneath it. */
-export const PROPERTIES_PATH = '/crm/settings/properties';
+export const PROPERTIES_PATH = '/settings/properties';
 
 /** One tab per record type. `key` keeps each tab's open form from leaking into the next. */
 const TABS: TabberItem[] = [

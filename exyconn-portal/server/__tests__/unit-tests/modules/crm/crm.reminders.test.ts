@@ -44,7 +44,7 @@ describe('the CRM follow-up reminder source', () => {
         kind: 'CRM',
         title: '1 follow-up due',
         body: 'Send the proposal. Open the activities list to clear them or move the dates.',
-        link: '/crm/activities',
+        link: '/activities',
         roles: [ROLES.CRM],
       },
     ]);

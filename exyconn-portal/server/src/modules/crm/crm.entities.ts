@@ -19,6 +19,8 @@ import {
 } from './crm.profile';
 import { crmMediaResolvers, withAttachments } from './crm.media';
 import { crmTimelineResolvers } from './timeline';
+import { crmOriginResolvers, stampOrigin, userOrigin } from './crm.origin';
+import { crmTagResolvers } from './crm.tags';
 import type { CrmObject } from './records/crm.objects';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
@@ -93,9 +95,19 @@ const companies = createCrudResolvers(companiesService, {
   plural: 'Companies',
   roles: crmRoles,
   table: {
-    searchFields: ['name', 'domain', 'industry', 'owner'],
-    filterFields: ['name', 'domain', 'industry', 'size', 'status', 'owner', 'location'],
-    sortFields: ['name', 'domain', 'industry', 'size', 'status', 'owner', 'createdAt'],
+    searchFields: ['name', 'domain', 'industry', 'owner', 'leadOwner', 'tags'],
+    filterFields: [
+      'name',
+      'domain',
+      'industry',
+      'size',
+      'status',
+      'owner',
+      'leadOwner',
+      'tags',
+      'location',
+    ],
+    sortFields: ['name', 'domain', 'industry', 'size', 'status', 'owner', 'leadOwner', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
   stats: { countBy: ['status', 'size'] },
@@ -105,9 +117,18 @@ const contacts = createCrudResolvers(contactsService, {
   name: 'Contact',
   roles: crmRoles,
   table: {
-    searchFields: ['name', 'email', 'companyName', 'title', 'owner'],
-    filterFields: ['name', 'email', 'companyId', 'companyName', 'status', 'owner'],
-    sortFields: ['name', 'email', 'companyName', 'status', 'owner', 'createdAt'],
+    searchFields: ['name', 'email', 'companyName', 'title', 'owner', 'leadOwner', 'tags'],
+    filterFields: [
+      'name',
+      'email',
+      'companyId',
+      'companyName',
+      'status',
+      'owner',
+      'leadOwner',
+      'tags',
+    ],
+    sortFields: ['name', 'email', 'companyName', 'status', 'owner', 'leadOwner', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
   stats: { countBy: ['status'] },
@@ -262,12 +283,27 @@ const withCustom =
     return save(p, { ...rest, input: profiled } as unknown as never, ctx);
   };
 
+/** A record somebody typed in names them as its lead owner. */
+const withUserOrigin =
+  (save: Save): Save =>
+  async (p, args, ctx) => {
+    const { input, ...rest } = args as unknown as { input: Record<string, unknown> };
+    const origin = stampOrigin(await userOrigin(ctx, 'USER'));
+    return save(p, { ...rest, input: { ...input, ...origin } } as unknown as never, ctx);
+  };
+
 export const crmEntitiesResolvers = {
   /** Written before the field existed, a `.lean()` row comes back without it. */
-  Contact: crmProfileResolvers.Contact,
+  Contact: {
+    ...crmProfileResolvers.Contact,
+    ...crmOriginResolvers.Contact,
+    ...crmTagResolvers.Contact,
+  },
   Activity: crmMediaResolvers.Activity,
   Company: {
     ...crmProfileResolvers.Company,
+    ...crmOriginResolvers.Company,
+    ...crmTagResolvers.Company,
     clientId: (company: { clientId?: string | null }) => company.clientId ?? '',
     isClient: (company: { clientId?: string | null }) => Boolean(company.clientId),
   },
@@ -276,6 +312,7 @@ export const crmEntitiesResolvers = {
   },
   Query: {
     dealForecast,
+    ...crmTagResolvers.Query,
     ...crmTimelineResolvers.Query,
     ...companies.Query,
     ...contacts.Query,
@@ -285,15 +322,16 @@ export const crmEntitiesResolvers = {
   Mutation: {
     ...companies.Mutation,
     ...contacts.Mutation,
-    createCompany: withCustom('COMPANY', companies.Mutation.createCompany),
+    createCompany: withCustom('COMPANY', withUserOrigin(companies.Mutation.createCompany)),
     updateCompany: withCustom('COMPANY', companies.Mutation.updateCompany),
-    createContact: withCustom('CONTACT', contacts.Mutation.createContact),
+    createContact: withCustom('CONTACT', withUserOrigin(contacts.Mutation.createContact)),
     updateContact: withCustom('CONTACT', contacts.Mutation.updateContact),
     ...deals.Mutation,
     ...activities.Mutation,
     createActivity: withAttachments(activities.Mutation.createActivity),
     updateActivity: withAttachments(activities.Mutation.updateActivity),
     ...crmMediaResolvers.Mutation,
+    ...crmTagResolvers.Mutation,
     updateDeal,
     setDealStage,
     promoteCompanyToClient,

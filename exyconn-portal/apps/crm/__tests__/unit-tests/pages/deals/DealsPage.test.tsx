@@ -41,7 +41,7 @@ describe('DealsPage board', () => {
 
   it('says the pipeline is loading before the deals arrive', () => {
     gql.deals.mockReturnValue(pending());
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading the pipeline');
     expect(screen.getAllByTestId('skeleton-deal-column')).toHaveLength(6);
@@ -49,7 +49,7 @@ describe('DealsPage board', () => {
   });
 
   it('lays the deals out in their stage columns', () => {
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     expect(screen.getByRole('heading', { level: 1, name: 'Deals' })).toBeInTheDocument();
     expect(screen.getByText('3 open and closed opportunities')).toBeInTheDocument();
@@ -67,14 +67,14 @@ describe('DealsPage board', () => {
       loading: false,
       refetch: gql.refetch,
     });
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     expect(screen.getByText('1 open and closed opportunities')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Stray/ })).not.toBeInTheDocument();
   });
 
   it('moves a dropped deal to the new stage and reloads the board', async () => {
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     dropOn('Negotiation', 'deal-1');
 
@@ -88,7 +88,7 @@ describe('DealsPage board', () => {
   });
 
   it('does nothing when a deal is dropped on its own stage or is unknown', () => {
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     dropOn('Proposal', 'deal-1');
     dropOn('Lost', 'deal-404');
@@ -99,7 +99,7 @@ describe('DealsPage board', () => {
 
   it('reports a move the server refuses, without reloading', async () => {
     gql.setStage.mockRejectedValueOnce(new Error('Won deals are locked'));
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     dropOn('Lost', 'deal-2');
 
@@ -109,7 +109,7 @@ describe('DealsPage board', () => {
 
   it('falls back to a generic message for a failure that is not an Error', async () => {
     gql.setStage.mockRejectedValueOnce('timeout');
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     dropOn('Discovery', 'deal-1');
 
@@ -125,7 +125,7 @@ describe('DealsPage forms', () => {
   });
 
   it('opens a blank new-deal page and goes back to the board', async () => {
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     await userEvent.click(screen.getByRole('button', { name: 'New deal' }));
     expect(screen.getByRole('heading', { level: 1, name: 'New deal' })).toBeInTheDocument();
@@ -136,7 +136,7 @@ describe('DealsPage forms', () => {
   });
 
   it('opens a card for editing and closes it on cancel', async () => {
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     await userEvent.click(screen.getByRole('button', { name: /Globex pilot/ }));
     expect(screen.getByRole('heading', { level: 1, name: 'Edit deal' })).toBeInTheDocument();
@@ -148,7 +148,7 @@ describe('DealsPage forms', () => {
   });
 
   it('returns to the board and reloads it once a deal is saved', async () => {
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     await userEvent.click(screen.getByRole('button', { name: 'New deal' }));
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
@@ -159,7 +159,7 @@ describe('DealsPage forms', () => {
 
   it('stays on the board when the reload after a save fails', async () => {
     gql.refetch.mockRejectedValueOnce(new Error('offline'));
-    renderWithProviders(<DealsPage />, { route: '/crm/deals' });
+    renderWithProviders(<DealsPage />, { route: '/deals' });
 
     await userEvent.click(screen.getByRole('button', { name: /Acme rollout/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));

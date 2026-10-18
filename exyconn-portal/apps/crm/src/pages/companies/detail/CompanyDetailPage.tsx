@@ -19,8 +19,9 @@ import {
 import { CompanyOverview } from './CompanyOverview';
 import { CompanyPeople } from './CompanyPeople';
 import { CompanyProfile } from './CompanyProfile';
+import { GoogleBusinessTab } from './google-business/GoogleBusinessTab';
 
-/** A company's own page: profile, overview, its people and every touchpoint, at /crm/companies/:id/:tab. */
+/** A company's own page: profile, overview, its people and every touchpoint, at /companies/:id/:tab. */
 export function CompanyDetailPage() {
   const t = useT();
   const { id = '' } = useParams();
@@ -63,6 +64,15 @@ export function CompanyDetailPage() {
       content: <Timeline object={CrmTimelineObject.Company} id={company.id} limit={200} />,
     },
     { slug: 'people', label: 'People', content: <CompanyPeople companyId={company.id} /> },
+    ...(company.placeId
+      ? [
+          {
+            slug: 'google-business',
+            label: 'Google Business',
+            content: <GoogleBusinessTab companyId={company.id} />,
+          },
+        ]
+      : []),
     ...(gmail?.crmGmailReady
       ? [
           {
@@ -81,7 +91,7 @@ export function CompanyDetailPage() {
   ];
   return (
     <DetailLayout aside={<CompanyProfile company={company} onSaved={reload} />}>
-      <Tabber basePath={`/crm/companies/${company.id}`} items={tabs} ariaLabel="Company" />
+      <Tabber basePath={`/companies/${company.id}`} items={tabs} ariaLabel="Company" />
     </DetailLayout>
   );
 }

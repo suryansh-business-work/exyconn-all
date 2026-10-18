@@ -14,3 +14,5 @@ export { RecordDetailSkeleton } from './RecordDetailSkeleton';
 export { DetailList } from './DetailList';
 export { ProfileHeader } from './ProfileHeader';
 export { TruncatedLink } from './TruncatedLink';
+export { LeadOwnerField } from './LeadOwnerField';
+export { TagsEditor } from './TagsEditor';

@@ -53,7 +53,7 @@ describe('DealsListPage', () => {
   });
 
   it('totals the deals and counts won and lost from the stats query', () => {
-    renderWithProviders(<DealsListPage />, { route: '/crm/deals/list' });
+    renderWithProviders(<DealsListPage />, { route: '/deals/list' });
 
     expect(statLines()).toEqual([
       'Deals: 6',
@@ -66,14 +66,14 @@ describe('DealsListPage', () => {
 
   it('marks the tiles loading until the stats answer', () => {
     gql.stats.mockReturnValue(pending());
-    renderWithProviders(<DealsListPage />, { route: '/crm/deals/list' });
+    renderWithProviders(<DealsListPage />, { route: '/deals/list' });
 
     expect(dashboardProps().statsLoading).toBe(true);
     expect(statLines()[1]).toBe(`Total value: ${formatMoney(0)}`);
   });
 
   it('shows the board/list switch with the list selected', () => {
-    renderWithProviders(<DealsListPage />, { route: '/crm/deals/list' });
+    renderWithProviders(<DealsListPage />, { route: '/deals/list' });
 
     expect(screen.getByRole('button', { name: 'list view' })).toHaveAttribute(
       'aria-pressed',
@@ -82,7 +82,7 @@ describe('DealsListPage', () => {
   });
 
   it('drives the server grid with the paged deals query, the deal columns and date formatting', () => {
-    renderWithProviders(<DealsListPage />, { route: '/crm/deals/list' });
+    renderWithProviders(<DealsListPage />, { route: '/deals/list' });
     const page = { totalCount: 1, rows: [dealRow()] };
 
     expect(paged.document).toBe(ListDealsPagedDocument);
@@ -93,7 +93,7 @@ describe('DealsListPage', () => {
   });
 
   it('hands the invoice action straight to the create-invoice hook', async () => {
-    renderWithProviders(<DealsListPage />, { route: '/crm/deals/list' });
+    renderWithProviders(<DealsListPage />, { route: '/deals/list' });
     const won = dealRow({ id: 'deal-3' });
 
     await runRowAction('createInvoice', won);
@@ -102,7 +102,7 @@ describe('DealsListPage', () => {
   });
 
   it('opens the form blank for a new deal and with the row for an edit', async () => {
-    renderWithProviders(<DealsListPage />, { route: '/crm/deals/list' });
+    renderWithProviders(<DealsListPage />, { route: '/deals/list' });
 
     await userEvent.click(screen.getByRole('button', { name: 'Open new form' }));
     expect(screen.getByText('Blank form')).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe('DealsListPage', () => {
   });
 
   it('deletes a deal after confirming, by its id', async () => {
-    renderWithProviders(<DealsListPage />, { route: '/crm/deals/list' });
+    renderWithProviders(<DealsListPage />, { route: '/deals/list' });
 
     await confirmRowDelete(dealRow({ id: 'deal-6' }), 'Delete deal "Acme rollout"?');
 

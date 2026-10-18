@@ -8,6 +8,13 @@ fragment CompanyFields on Company {
   phone
   location
   owner
+  leadOwner
+  tags
+  origin {
+    source
+    userName
+    userEmail
+  }
   notes
   clientId
   isClient
@@ -54,6 +61,13 @@ fragment ContactFields on Contact {
   companyName
   status
   owner
+  leadOwner
+  tags
+  origin {
+    source
+    userName
+    userEmail
+  }
   notes
   avatarUrl
   custom
@@ -348,4 +362,13 @@ query CrmTimeline($object: CrmTimelineObject!, $id: ID!, $limit: Int) {
 
 mutation UploadCrmMedia($file: String!, $fileName: String!) {
   uploadCrmMedia(file: $file, fileName: $fileName)
+}
+
+# Company and contact tags (crm.tags.ts).
+query CrmTags($object: CrmTagObject!) {
+  crmTags(object: $object)
+}
+
+mutation SetCrmTags($object: CrmTagObject!, $id: ID!, $tags: [String!]!) {
+  setCrmTags(object: $object, id: $id, tags: $tags)
 }

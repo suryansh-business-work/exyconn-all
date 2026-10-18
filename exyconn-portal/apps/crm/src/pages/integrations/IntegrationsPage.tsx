@@ -5,7 +5,7 @@ import { CallConfigsPanel } from './call/CallConfigsPanel';
 import { SmsConfigsPanel } from './sms/SmsConfigsPanel';
 import { EmailIntegrationsPanel } from './email/EmailIntegrationsPanel';
 
-export const INTEGRATIONS_PATH = '/crm/integrations';
+export const INTEGRATIONS_PATH = '/integrations';
 
 const TABS: TabberItem[] = [
   { slug: 'call', label: 'Call', content: <CallConfigsPanel /> },

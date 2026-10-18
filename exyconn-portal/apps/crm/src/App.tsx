@@ -18,12 +18,16 @@ import { IntegrationsPage } from './pages/integrations';
 import { CommsDockLayout } from './records/comms';
 import { MeetingsPage } from './pages/meetings';
 import { BookingProfilePage, BookMeetingPage } from './pages/book';
+import { LegacyCrmRedirect } from './LegacyCrmRedirect';
 
-/** The booking pages anyone can open from a meeting link, with no sign-in (like Calendly). */
+/**
+ * The booking pages anyone can open from a meeting link, with no sign-in (like Calendly). The
+ * company is the address prefix (/organization/:org), so the path names only the page.
+ */
 const PUBLIC_ROUTES = (
   <>
-    <Route path="/book/:org" element={<BookingProfilePage />} />
-    <Route path="/book/:org/:slug" element={<BookMeetingPage />} />
+    <Route path="/book/:page" element={<BookingProfilePage />} />
+    <Route path="/book/:page/:slug" element={<BookMeetingPage />} />
   </>
 );
 
@@ -33,28 +37,29 @@ export function App() {
     <PortalApp
       loginElement={<Login />}
       moduleRole={ROLES.CRM}
-      homePath="/crm"
+      homePath="/"
       publicRoutes={PUBLIC_ROUTES}
     >
       {/* The communication dock floats over every CRM page, so a call or a text keeps going. */}
       <Route element={<CommsDockLayout />}>
-        <Route path="/crm" element={<CrmOverviewPage />} />
-        <Route path="/crm/leads" element={<CrmPage />} />
-        <Route path="/crm/companies" element={<CompaniesPage />} />
-        <Route path="/crm/companies/:id/:tab?" element={<CompanyDetailPage />} />
-        <Route path="/crm/contacts" element={<ContactsPage />} />
-        <Route path="/crm/contacts/:id/:tab?" element={<ContactDetailPage />} />
-        <Route path="/crm/deals" element={<DealsPage />} />
-        <Route path="/crm/deals/list" element={<DealsListPage />} />
-        <Route path="/crm/activities" element={<ActivitiesPage />} />
-        <Route path="/crm/meetings/:tab?" element={<MeetingsPage />} />
-        <Route path="/crm/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
-        <Route path="/crm/tools/lead-generator" element={<LeadGeneratorPage />} />
-        <Route path="/crm/tools/website-scraper" element={<WebsiteScraperPage />} />
-        <Route path="/crm/settings/properties/:object?" element={<PropertiesPage />} />
-        <Route path="/crm/settings/gmail" element={<GmailAccountsPage />} />
-        <Route path="/crm/integrations/:tab?" element={<IntegrationsPage />} />
+        <Route path="/" element={<CrmOverviewPage />} />
+        <Route path="/leads" element={<CrmPage />} />
+        <Route path="/companies" element={<CompaniesPage />} />
+        <Route path="/companies/:id/:tab?" element={<CompanyDetailPage />} />
+        <Route path="/contacts" element={<ContactsPage />} />
+        <Route path="/contacts/:id/:tab?" element={<ContactDetailPage />} />
+        <Route path="/deals" element={<DealsPage />} />
+        <Route path="/deals/list" element={<DealsListPage />} />
+        <Route path="/activities" element={<ActivitiesPage />} />
+        <Route path="/meetings/:tab?" element={<MeetingsPage />} />
+        <Route path="/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
+        <Route path="/tools/lead-generator" element={<LeadGeneratorPage />} />
+        <Route path="/tools/website-scraper" element={<WebsiteScraperPage />} />
+        <Route path="/settings/properties/:object?" element={<PropertiesPage />} />
+        <Route path="/settings/gmail" element={<GmailAccountsPage />} />
+        <Route path="/integrations/:tab?" element={<IntegrationsPage />} />
       </Route>
+      <Route path="/crm/*" element={<LegacyCrmRedirect />} />
     </PortalApp>
   );
 }

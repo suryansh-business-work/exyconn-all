@@ -10,6 +10,7 @@ import {
   CustomValues,
   DetailField,
   DetailList,
+  LeadOwnerField,
   Timeline,
 } from '../../../records/detail';
 
@@ -48,6 +49,7 @@ export function CompanyOverview({ company }: Readonly<{ company: CompanyFieldsFr
         <DetailField label="Company owner" empty="No owner">
           {company.owner}
         </DetailField>
+        <LeadOwnerField origin={company.origin} />
         <DetailField label="Added">{formatDate(company.createdAt)}</DetailField>
         <CustomValues
           object={CrmObject.Company}

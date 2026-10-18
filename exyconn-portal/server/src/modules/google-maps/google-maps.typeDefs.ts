@@ -179,7 +179,45 @@ export const googleMapsTypeDefs = gql`
     skips: [LeadImportSkip!]!
   }
 
+  "One Google review of a business, as Places returns it."
+  type GoogleBusinessReview {
+    id: ID!
+    authorName: String!
+    authorUrl: String!
+    authorPhotoUrl: String!
+    rating: Float
+    text: String!
+    "e.g. 'a month ago'."
+    relativeTime: String!
+    publishedAt: DateTime
+  }
+
+  "A company's Google Business profile, read live from Places (never stored)."
+  type GoogleBusinessProfile {
+    placeId: ID!
+    name: String!
+    address: String!
+    phone: String!
+    website: String!
+    mapUrl: String!
+    rating: Float
+    ratingCount: Int
+    "OPERATIONAL, CLOSED_TEMPORARILY or CLOSED_PERMANENTLY; empty when unknown."
+    businessStatus: String!
+    "e.g. PRICE_LEVEL_MODERATE; empty when unknown."
+    priceLevel: String!
+    summary: String!
+    category: String!
+    types: [String!]!
+    "One line a weekday, e.g. 'Monday: 9:00 AM – 5:00 PM'."
+    openingHours: [String!]!
+    "Up to five, as Google picks them."
+    reviews: [GoogleBusinessReview!]!
+  }
+
   extend type Query {
+    "The company's live Google Business profile; null when it was not filed from Google Places."
+    companyGoogleBusiness(companyId: ID!): GoogleBusinessProfile
     googleMapsConfigs: [GoogleMapsConfig!]!
     googleMapsClientConfig: GoogleMapsClientConfig!
     "One page (up to 20) of Google Places Text Search results."

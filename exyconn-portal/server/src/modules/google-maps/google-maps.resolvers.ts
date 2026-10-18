@@ -1,5 +1,6 @@
+import { companyGoogleBusiness } from './places.details';
+import { userOrigin } from '../crm/crm.origin';
 import { ROLES } from '../../constants/roles';
-import { actorNameOf } from '../../lib/actor';
 import { assertPermission } from '../../lib/permissions';
 import { assertPlatformStaff } from '../../lib/platformAccess';
 import { createLimiter, enforceLimit } from '../../lib/rateLimiter';
@@ -95,6 +96,7 @@ export const googleMapsResolvers = {
     serverKeyHint: (row: ConfigRow) => secretHint(row.serverKey),
   },
   Query: {
+    companyGoogleBusiness,
     googleMapsConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await techStaff(ctx, 'VIEW');
       return withIds(await googleMapsConfigs.list());
@@ -190,7 +192,7 @@ export const googleMapsResolvers = {
     ) => {
       const merges = mergeInto ?? [];
       await leadImportDesk(ctx, merges.length > 0);
-      const result = await importLeads(leads, await actorNameOf(ctx), merges);
+      const result = await importLeads(leads, await userOrigin(ctx, 'GOOGLE_PLACES'), merges);
       await recordAudit(ctx, {
         action: 'IMPORT',
         module: 'Company',

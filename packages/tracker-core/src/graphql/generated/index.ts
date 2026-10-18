@@ -1052,6 +1052,13 @@ export type CrmOp =
   | 'NOT_IN'
   | 'STARTS_WITH';
 
+export type CrmOriginSource =
+  | 'GOOGLE_PLACES'
+  | 'LEAD_CONVERSION'
+  | 'MEETING_BOOKING'
+  | 'USER'
+  | 'WEBSITE';
+
 export type CrmPhoneNumberInput = {
   label: InputMaybe<Scalars['String']['input']>;
   number: Scalars['String']['input'];
@@ -1148,6 +1155,10 @@ export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+export type CrmTagObject =
+  | 'COMPANY'
+  | 'CONTACT';
 
 export type CrmTimelineKind =
   | 'CALL'
@@ -2053,6 +2064,15 @@ export type LeadImportInput = {
   website: InputMaybe<Scalars['String']['input']>;
 };
 
+/** What a lead would do on import. */
+export type LeadImportStatus =
+  /** Already in the CRM with nothing new: it will be skipped. */
+  | 'DUPLICATE'
+  /** Already in the CRM, and it has details the company is missing. */
+  | 'DUPLICATE_WITH_EXTRA'
+  /** Not in the CRM yet: it will be filed. */
+  | 'NEW';
+
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId: InputMaybe<Scalars['String']['input']>;
@@ -2064,6 +2084,12 @@ export type LeadInput = {
   source: LeadSource;
   stage: LeadStage;
   value: Scalars['Float']['input'];
+};
+
+/** A duplicate lead whose extra details should be added to the company the preview matched. */
+export type LeadMergeInput = {
+  companyId: Scalars['ID']['input'];
+  placeId: Scalars['ID']['input'];
 };
 
 export type LeadSearchInput = {
@@ -2244,6 +2270,13 @@ export type MeetingBookingStatus =
   | 'CANCELLED'
   | 'CONFIRMED';
 
+export type MeetingSettingsInput = {
+  bookingSlug: Scalars['String']['input'];
+  googleMeetUrl: InputMaybe<Scalars['String']['input']>;
+  slackChannel: InputMaybe<Scalars['String']['input']>;
+  zoomUrl: InputMaybe<Scalars['String']['input']>;
+};
+
 export type MeetingTypeInput = {
   active: Scalars['Boolean']['input'];
   bufferMinutes: Scalars['Int']['input'];
@@ -2257,6 +2290,10 @@ export type MeetingTypeInput = {
   title: Scalars['String']['input'];
   weeklyHours: Array<MeetingWeeklyHoursInput>;
 };
+
+export type MeetingVisitKind =
+  | 'BOOKED'
+  | 'VIEW';
 
 export type MeetingWeeklyHoursInput = {
   day: Scalars['Int']['input'];

@@ -68,7 +68,7 @@ export function CrmPage() {
   // The deal now exists, so the natural next screen is the pipeline it landed in.
   const onConverted = () => {
     closeConvert();
-    navigate('/crm/deals');
+    navigate('/deals');
   };
 
   return (

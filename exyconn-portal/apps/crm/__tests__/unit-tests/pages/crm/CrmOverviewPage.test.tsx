@@ -105,11 +105,7 @@ describe('CrmOverviewPage', () => {
   it('links to the leads register and both views of the deals', () => {
     renderWithProviders(<CrmOverviewPage />);
 
-    expect(overview().links.map((link) => link.to)).toEqual([
-      '/crm/leads',
-      '/crm/deals',
-      '/crm/deals/list',
-    ]);
+    expect(overview().links.map((link) => link.to)).toEqual(['/leads', '/deals', '/deals/list']);
     expect(overview().recentTitle).toBe('Newest leads');
   });
 

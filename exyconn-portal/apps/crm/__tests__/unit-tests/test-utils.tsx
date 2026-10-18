@@ -13,7 +13,7 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 export interface ProviderOptions {
   /** Apollo responses the screen may ask for; anything unmatched answers with an error. */
   mocks?: ReadonlyArray<MockLink.MockedResponse>;
-  /** Where the MemoryRouter starts, e.g. `/crm/deals?form=new`. */
+  /** Where the MemoryRouter starts, e.g. `/deals?form=new`. */
   route?: string;
   /** Route pattern to mount the element under, so `useParams` sees its params. */
   path?: string;
