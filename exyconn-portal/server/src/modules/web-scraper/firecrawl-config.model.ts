@@ -9,7 +9,7 @@ const firecrawlConfigSchema = new Schema(
   {
     label: { type: String, required: true, trim: true },
     baseUrl: { type: String, required: true, trim: true, default: 'https://api.firecrawl.dev' },
-    /** Write-only. */
+    /** Write-only. Required for the hosted API; empty for a self-hosted Firecrawl without auth. */
     apiKey: { type: String, default: '', trim: true },
     isActive: { type: Boolean, required: true, default: false },
   },

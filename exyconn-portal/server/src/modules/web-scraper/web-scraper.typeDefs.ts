@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 /** Firecrawl (Tech) and the CRM's website scraper built on it (see this module). */
 export const webScraperTypeDefs = gql`
-  "The install's Firecrawl account (Tech > Environment Variables). The API key is write-only."
+  "The install's Firecrawl account (Tech > Environment Variables). The API key is write-only, and a self-hosted Firecrawl may have none."
   type FirecrawlConfig {
     id: ID!
     label: String!
@@ -15,9 +15,9 @@ export const webScraperTypeDefs = gql`
 
   input FirecrawlConfigInput {
     label: String!
-    "https://api.firecrawl.dev, or a self-hosted Firecrawl."
+    "https://api.firecrawl.dev, or the http(s) address of a self-hosted Firecrawl."
     baseUrl: String!
-    "Leave empty when editing to keep it."
+    "Required for the hosted API at api.firecrawl.dev; empty for a self-hosted Firecrawl without authentication. Leave empty when editing to keep it."
     apiKey: String!
     isActive: Boolean
   }
@@ -59,7 +59,7 @@ export const webScraperTypeDefs = gql`
 
   extend type Query {
     firecrawlConfigs: [FirecrawlConfig!]!
-    "Whether the website scraper can run: a Firecrawl key is configured."
+    "Whether the website scraper can run: an active Firecrawl config with a key, or a self-hosted one that needs none."
     firecrawlReady: Boolean!
     listWebScrapesPaged(input: TableQueryInput!): WebScrapePage!
     getWebScrape(id: ID!): WebScrape!

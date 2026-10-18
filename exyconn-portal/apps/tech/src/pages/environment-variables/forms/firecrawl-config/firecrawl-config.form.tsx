@@ -14,6 +14,10 @@ import {
   useUpdateFirecrawlConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { KEEP_SECRET_HINT } from '../../secret';
+
+/** What the API key field says on a new config. */
+const NEW_KEY_HINT =
+  'Required for api.firecrawl.dev (get a key at firecrawl.dev, starts with fc-). Leave empty for a self-hosted Firecrawl without authentication';
 import {
   FIRECRAWL_DEFAULT_BASE_URL,
   makeFirecrawlConfigSchema,
@@ -46,7 +50,10 @@ interface FirecrawlConfigFormProps {
   onCancel: () => void;
 }
 
-/** React Hook Form + Zod form for the Firecrawl API key behind the CRM website scraper. */
+/**
+ * React Hook Form + Zod form for the Firecrawl install behind the CRM website scraper: the
+ * hosted API with its key, or a self-hosted Firecrawl that may need none.
+ */
 export function FirecrawlConfigForm({
   initial,
   onDone,
@@ -79,7 +86,7 @@ export function FirecrawlConfigForm({
         name="apiKey"
         label="API key"
         stored={initial?.hasApiKey}
-        helperText={isEdit ? KEEP_SECRET_HINT : 'Get a key at firecrawl.dev (starts with fc-)'}
+        helperText={isEdit ? KEEP_SECRET_HINT : NEW_KEY_HINT}
       />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
     </EntityForm>
