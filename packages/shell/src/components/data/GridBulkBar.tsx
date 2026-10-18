@@ -2,8 +2,9 @@ import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import LibraryAddCheckOutlinedIcon from '@mui/icons-material/LibraryAddCheckOutlined';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
 import UnarchiveOutlinedIcon from '@mui/icons-material/UnarchiveOutlined';
-import { useT } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import { Box, Button, FormControlLabel, Switch, Typography } from '@/components/ui';
 import { TableBulkAction } from '@/graphql/generated';
 import { useBulkRun } from './useBulkRun';
@@ -50,12 +51,39 @@ export function GridBulkControls({ bulk, loading }: Readonly<BulkProps>) {
   );
 }
 
-/** While rows are selected: how many (announced politely), and what can be done to them. */
+type Translate = ReturnType<typeof useT>;
+type FormatNumber = ReturnType<typeof useFormatters>['formatNumber'];
+
+/** The bar's announced line: a running action's progress, else what is selected. */
+function statusText(bulk: TableBulk, t: Translate, formatNumber: FormatNumber): string {
+  const { progress, matching } = bulk;
+  if (progress) {
+    return t(progress.label, {
+      done: formatNumber(progress.done),
+      total: formatNumber(progress.total),
+    });
+  }
+  if (bulk.allMatching && matching) {
+    return t('All {count} matching rows are selected', { count: formatNumber(matching.total) });
+  }
+  if (bulk.selectedCount > 0) {
+    return t('{count} selected', { count: bulk.selectedCount });
+  }
+  return '';
+}
+
+/**
+ * While rows are selected: how many (announced politely), the offer to take every row the
+ * current query matches rather than only the ticked ones, and what can be done to them.
+ */
 export function GridBulkBar({ bulk, loading }: Readonly<BulkProps>) {
   const t = useT();
+  const { formatNumber } = useFormatters();
   const run = useBulkRun(bulk);
   const locked = loading || bulk.busy;
   const hasSelection = bulk.selectedCount > 0;
+  const total = bulk.matching?.total ?? 0;
+  const offerAll = hasSelection && !bulk.allMatching && total > bulk.selectedCount;
   const archiveAction = bulk.archived ? TableBulkAction.Restore : TableBulkAction.Archive;
   const archiveLabel = bulk.archived ? 'Restore selected' : 'Archive selected';
   const ArchiveIcon = bulk.archived ? UnarchiveOutlinedIcon : ArchiveOutlinedIcon;
@@ -72,8 +100,18 @@ export function GridBulkBar({ bulk, loading }: Readonly<BulkProps>) {
     >
       {/* Always mounted, so a screen reader hears the count change rather than a new region. */}
       <Typography variant="body2" role="status" aria-live="polite" sx={{ mr: 1 }}>
-        {hasSelection ? t('{count} selected', { count: bulk.selectedCount }) : ''}
+        {statusText(bulk, t, formatNumber)}
       </Typography>
+      {offerAll && (
+        <Button
+          size="small"
+          startIcon={<SelectAllIcon />}
+          onClick={bulk.selectAllMatching}
+          disabled={locked}
+        >
+          {t('Select all {count} matching', { count: formatNumber(total) })}
+        </Button>
+      )}
       {hasSelection && bulk.deletable && (
         <Button
           size="small"

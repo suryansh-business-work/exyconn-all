@@ -1,6 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TableBulkAction, useTableBulkActionMutation } from '@/graphql/generated';
+import {
+  TableBulkAction,
+  useTableBulkActionMutation,
+  type TableQueryInput,
+} from '@/graphql/generated';
+import type { TablePageResult } from '@/components/data/ServerDataGrid.types';
 import { useBulkRun } from '@/components/data/useBulkRun';
 import type { TableBulk } from '@/components/data/useTableBulk';
 import { portalLogger } from '@/logging/portalLogger';
@@ -16,9 +21,14 @@ vi.mock('@/graphql/generated', async (importOriginal) => ({
 
 const mutate = vi.fn();
 
+type Fetch = (input: TableQueryInput) => Promise<TablePageResult<unknown>>;
+
+const MATCHING_QUERY = { search: 'acme', sort: null, sorts: [], filters: [] };
+
 function makeBulk(patch: Partial<TableBulk> = {}): TableBulk {
   return {
     list: 'listLeadsPaged',
+    fetchRows: vi.fn<Fetch>(),
     selectedIds: ['l1', 'l2'],
     deletable: true,
     archivable: true,
@@ -34,6 +44,12 @@ function makeBulk(patch: Partial<TableBulk> = {}): TableBulk {
     onSelectionChanged: vi.fn(),
     clearSelection: vi.fn(),
     selectPage: vi.fn(),
+    matching: null,
+    setMatching: vi.fn(),
+    allMatching: false,
+    selectAllMatching: vi.fn(),
+    progress: null,
+    setProgress: vi.fn(),
     ...patch,
   };
 }
@@ -67,13 +83,19 @@ describe('useBulkRun', () => {
       message: 'Delete {count} selected rows? This cannot be undone.',
       confirmText: 'Delete',
       destructive: true,
-      messageValues: { count: 2 },
+      messageValues: { count: '2' },
     });
     expect(mutate).toHaveBeenCalledWith({
       variables: { list: 'listLeadsPaged', ids: ['l1', 'l2'], action: TableBulkAction.Delete },
     });
     expect(bulk.setBusy).toHaveBeenNthCalledWith(1, true);
     expect(bulk.setBusy).toHaveBeenLastCalledWith(false);
+    expect(bulk.setProgress).toHaveBeenNthCalledWith(1, {
+      label: 'Deleting… {done} of {total}',
+      done: 2,
+      total: 2,
+    });
+    expect(bulk.setProgress).toHaveBeenLastCalledWith(null);
     expect(notify).toHaveBeenCalledWith('{count} rows deleted', 'success', { count: 2 });
     expect(bulk.clearSelection).toHaveBeenCalledTimes(1);
     expect(bulk.reload).toHaveBeenCalledTimes(1);
@@ -157,6 +179,7 @@ describe('useBulkRun', () => {
     expect(logged).toHaveBeenCalledWith('Bulk table action failed', expect.any(Error), {
       list: 'listLeadsPaged',
       action: TableBulkAction.Delete,
+      allMatching: false,
     });
     expect(notify).toHaveBeenCalledWith('Forbidden', 'error');
     expect(bulk.setBusy).toHaveBeenLastCalledWith(false);
@@ -175,5 +198,99 @@ describe('useBulkRun', () => {
     expect(notify).toHaveBeenCalledWith('The table bulk action returned no data', 'error');
     expect(logged).toHaveBeenCalledTimes(1);
     logged.mockRestore();
+  });
+
+  it('collects every matching id through the fetcher, confirms the full count, then acts', async () => {
+    confirm.mockResolvedValue(true);
+    mutate.mockImplementation(async ({ variables }) => answered(variables.ids.length));
+    const fetchRows = vi.fn<Fetch>(async ({ page }) => ({
+      rows: Array.from({ length: page === 0 ? 200 : 40 }, (_, index) => ({
+        id: `r${page * 200 + index}`,
+      })),
+      totalCount: 240,
+    }));
+    const bulk = makeBulk({
+      fetchRows,
+      allMatching: true,
+      matching: { query: MATCHING_QUERY, total: 1240 },
+    });
+
+    await runFor(bulk)(TableBulkAction.Archive);
+
+    expect(confirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Archive {count} rows matching the current filters? They leave this list; switch on Archived to see or restore them.',
+        messageValues: { count: '1,240' },
+      }),
+    );
+    expect(fetchRows).toHaveBeenNthCalledWith(1, { ...MATCHING_QUERY, page: 0, pageSize: 200 });
+    expect(fetchRows).toHaveBeenNthCalledWith(2, { ...MATCHING_QUERY, page: 1, pageSize: 200 });
+    expect(bulk.setProgress).toHaveBeenNthCalledWith(1, {
+      label: 'Collecting rows… {done} of {total}',
+      done: 200,
+      total: 240,
+    });
+    expect(bulk.setProgress).toHaveBeenCalledWith({
+      label: 'Archiving… {done} of {total}',
+      done: 240,
+      total: 240,
+    });
+    expect(mutate).toHaveBeenCalledTimes(2);
+    expect(notify).toHaveBeenCalledWith('{count} rows archived', 'success', { count: 240 });
+    expect(bulk.clearSelection).toHaveBeenCalledTimes(1);
+    expect(bulk.onDone).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses more matching rows than it acts on, asking to narrow the filters', async () => {
+    const bulk = makeBulk({
+      allMatching: true,
+      matching: { query: MATCHING_QUERY, total: 10_001 },
+    });
+
+    await runFor(bulk)(TableBulkAction.Delete);
+
+    expect(notify).toHaveBeenCalledWith(
+      'More than {max} rows match. Narrow the search or filters to {max} or fewer and try again.',
+      'error',
+      { max: '10,000' },
+    );
+    expect(confirm).not.toHaveBeenCalled();
+    expect(bulk.fetchRows).not.toHaveBeenCalled();
+    expect(bulk.setBusy).not.toHaveBeenCalled();
+  });
+
+  it('logs, reports and re-reads when collecting the matching rows fails', async () => {
+    const logged = vi.spyOn(portalLogger, 'error').mockImplementation(() => undefined);
+    const bulk = makeBulk({
+      fetchRows: vi.fn<Fetch>().mockRejectedValue(new Error('Offline')),
+      allMatching: true,
+      matching: { query: MATCHING_QUERY, total: 300 },
+    });
+
+    await runFor(bulk)(TableBulkAction.Restore);
+
+    expect(mutate).not.toHaveBeenCalled();
+    expect(logged).toHaveBeenCalledWith('Bulk table action failed', expect.any(Error), {
+      list: 'listLeadsPaged',
+      action: TableBulkAction.Restore,
+      allMatching: true,
+    });
+    expect(notify).toHaveBeenCalledWith('Offline', 'error');
+    expect(bulk.setProgress).toHaveBeenLastCalledWith(null);
+    expect(bulk.reload).toHaveBeenCalledTimes(1);
+    logged.mockRestore();
+  });
+
+  it('acts on the ticked rows while no query total is known yet', async () => {
+    mutate.mockResolvedValue(answered(2));
+    const bulk = makeBulk({ allMatching: true, matching: null });
+
+    await runFor(bulk)(TableBulkAction.Restore);
+
+    expect(bulk.fetchRows).not.toHaveBeenCalled();
+    expect(mutate).toHaveBeenCalledWith({
+      variables: { list: 'listLeadsPaged', ids: ['l1', 'l2'], action: TableBulkAction.Restore },
+    });
   });
 });

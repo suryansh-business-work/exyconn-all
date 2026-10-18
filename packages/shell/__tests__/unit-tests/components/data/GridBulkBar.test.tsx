@@ -12,6 +12,7 @@ vi.mock('@/components/data/useBulkRun', () => ({ useBulkRun: () => run }));
 function makeBulk(patch: Partial<TableBulk> = {}): TableBulk {
   return {
     list: 'listLeadsPaged',
+    fetchRows: vi.fn(),
     selectedIds: ['l1', 'l2'],
     deletable: true,
     archivable: true,
@@ -26,6 +27,12 @@ function makeBulk(patch: Partial<TableBulk> = {}): TableBulk {
     onSelectionChanged: vi.fn(),
     clearSelection: vi.fn(),
     selectPage: vi.fn(),
+    matching: null,
+    setMatching: vi.fn(),
+    allMatching: false,
+    selectAllMatching: vi.fn(),
+    progress: null,
+    setProgress: vi.fn(),
     ...patch,
   };
 }
@@ -112,5 +119,40 @@ describe('GridBulkBar', () => {
 
     expect(screen.getByRole('button', { name: 'Select page' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Delete selected' })).toBeDisabled();
+  });
+
+  it('offers every row the current query matches, and announces once they are chosen', () => {
+    const matching = { query: { search: null, sort: null, sorts: [], filters: [] }, total: 1240 };
+    const bulk = makeBulk({ matching });
+    const { rerender } = renderBar(bulk);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select all 1,240 matching' }));
+    expect(bulk.selectAllMatching).toHaveBeenCalledTimes(1);
+
+    const chosen = makeBulk({ matching, allMatching: true });
+    rerender(
+      <I18nProvider locale="en" messages={{}}>
+        <GridBulkBar bulk={chosen} loading={false} />
+      </I18nProvider>,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('All 1,240 matching rows are selected');
+    expect(screen.queryByRole('button', { name: /Select all/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeInTheDocument();
+  });
+
+  it('has nothing more to offer when the ticked rows are all that match', () => {
+    const matching = { query: { search: null, sort: null, sorts: [], filters: [] }, total: 2 };
+    renderBar(makeBulk({ matching }));
+    expect(screen.queryByRole('button', { name: /Select all/ })).not.toBeInTheDocument();
+  });
+
+  it('announces a running action’s progress in place of the count', () => {
+    renderBar(
+      makeBulk({
+        busy: true,
+        progress: { label: 'Collecting rows… {done} of {total}', done: 400, total: 1240 },
+      }),
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Collecting rows… 400 of 1,240');
   });
 });

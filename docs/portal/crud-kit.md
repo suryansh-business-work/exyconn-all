@@ -292,6 +292,18 @@ Every server-paged grid gets these without any module code:
   `tableBulkAction` 200 at a time; the toast names how many failed and the first reason.
   Selection is by position, so any reload, search, sort or filter clears it. `onBulkDone`
   lets the host re-read its stats (`CrudDashboard` wires it to the resource's `reload`).
+- **Select all matching.** ag-grid cannot select across the infinite model, so while rows
+  are ticked and the server's `totalCount` for the current query (search, column filters,
+  sorts, Archived switch — exactly what the last page loaded with) is larger, the bar offers
+  "Select all {total} matching". Chosen, it reads "All {total} matching rows are selected"
+  and the confirm names the full count ("Delete 1,240 rows matching the current filters?").
+  The action then pages `fetchRows` through that same query at 200 rows a request, one after
+  another, collecting the ids ("Collecting rows… 400 of 1,240"), and sends them through
+  `tableBulkAction` as above ("Deleting… 600 of 1,240"); the progress line is the bar's
+  polite live region and every control stays locked meanwhile. More than 10,000 matching
+  rows is refused with a request to narrow the search or filters. Ticking or unticking a row,
+  or anything that clears the selection (reload, search, sort, filter, switch), leaves the
+  mode. It only uses `fetchRows`, so custom fetchers with `bulkList` (the CRM) work too.
 
 ## Tests
 

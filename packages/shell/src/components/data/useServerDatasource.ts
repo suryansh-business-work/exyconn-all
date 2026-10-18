@@ -14,6 +14,8 @@ interface DatasourceOptions {
   /** The Archived switch: true lists only archived rows, otherwise they are left out. */
   archivedRef: RefObject<boolean>;
   onQuery?: (query: GridQuery) => void;
+  /** Told the full query (archived included) and the server's total after every page loads. */
+  onLoaded: (query: GridQuery, totalCount: number) => void;
   /** Called as a page starts and settles, so the grid can lock while it loads. */
   begin: () => void;
   end: () => void;
@@ -43,6 +45,7 @@ export function useServerDatasource({
   searchRef,
   archivedRef,
   onQuery,
+  onLoaded,
   begin,
   end,
   onLoadError,
@@ -54,18 +57,22 @@ export function useServerDatasource({
         const query = queryOf(params, searchRef.current, zone);
         onQuery?.(query);
         const pageSize = params.endRow - params.startRow;
-        const input: TableQueryInput = {
+        const loaded: GridQuery = {
           ...query,
-          page: Math.floor(params.startRow / pageSize),
-          pageSize,
           // Left out unless switched on, so a fetcher that forwards the input to a query of
           // its own never sends a field that query does not declare.
           archived: archivedRef.current || undefined,
+        };
+        const input: TableQueryInput = {
+          ...loaded,
+          page: Math.floor(params.startRow / pageSize),
+          pageSize,
         };
         begin();
         fetchRows(input)
           .then((page) => {
             onLoadError(null);
+            onLoaded(loaded, page.totalCount);
             params.successCallback(page.rows, page.totalCount);
           })
           .catch((error: unknown) => {
@@ -76,6 +83,6 @@ export function useServerDatasource({
           .finally(end);
       },
     }),
-    [fetchRows, searchRef, archivedRef, onQuery, begin, end, onLoadError, zone],
+    [fetchRows, searchRef, archivedRef, onQuery, onLoaded, begin, end, onLoadError, zone],
   );
 }

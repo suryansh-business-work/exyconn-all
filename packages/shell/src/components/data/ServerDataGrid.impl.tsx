@@ -78,6 +78,7 @@ function ServerDataGridImpl({
   const bulk = useTableBulk({
     list: bulkList ?? fetchRows.list,
     gridRef,
+    fetchRows,
     reload: purge,
     onDone: onBulkDone,
   });
@@ -100,6 +101,7 @@ function ServerDataGridImpl({
     searchRef,
     archivedRef: bulk.archivedRef,
     onQuery,
+    onLoaded: bulk.setMatching,
     begin,
     end,
     onLoadError: setLoadError,
