@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -15,10 +14,12 @@ import { useEmailCheck } from '../../email-verification';
 import { color } from '@exyconn/shell/components/ui';
 import { RecordListToolbar, useRecordList, withRefreshSignal } from '../../records/list';
 import { RecordActions } from '../../records/RecordActions';
+import { usePreviewParam } from '../../records/quick-view';
+import { ContactQuickView } from './ContactQuickView';
 
 /** CRM → Contacts: the people at the accounts, and who owns each relationship. */
 export function ContactsPage() {
-  const navigate = useNavigate();
+  const { previewId, openPreview, closePreview } = usePreviewParam();
   const {
     data: statsData,
     loading: statsLoading,
@@ -78,12 +79,15 @@ export function ContactsPage() {
         <ContactForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
       columnDefs={records.columnDefs}
-      onRowClick={(row) => navigate(`/crm/contacts/${row.id}`)}
+      onRowClick={(row) => openPreview(row.id)}
       fetchRows={records.fetchRows}
       bulkList="searchContacts"
       context={gridContext}
       searchPlaceholder="Search by name, email, company or owner…"
       initialSearch={records.initialSearch}
+      extraDialogs={
+        <ContactQuickView id={previewId} onClose={closePreview} onSaved={crud.reload} />
+      }
       toolbar={
         <RecordListToolbar
           records={records}

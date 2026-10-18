@@ -1,20 +1,12 @@
-import { countryName, useI18n, useT } from '@exyconn/i18n';
-import { Chip, Divider, Flex, Link, Stack, Text } from '@exyconn/shell/components/ui';
+import { useT } from '@exyconn/i18n';
+import { Divider, Stack, Text } from '@exyconn/shell/components/ui';
 import type { ContactFieldsFragment } from '@exyconn/shell/graphql/generated';
-import {
-  ContactPointList,
-  DetailActions,
-  DetailField,
-  EditRecordButton,
-  EmailButton,
-  LocalTime,
-  RecordAvatar,
-} from '../../../records/detail';
+import { DetailActions, EditRecordButton } from '../../../records/detail';
+import { ReachOutActions, emailsOf, phonesOf } from '../../../records/comms';
 import { GoogleMapCard } from '../../../maps/GoogleMapCard';
-import { EmailVerifyButton } from '../../../email-verification';
 import { ContactForm } from '../forms/contact';
-
-const verifyButton = (address: string) => <EmailVerifyButton email={address} />;
+import { ContactFields } from './ContactFields';
+import { ContactHeader } from './ContactHeader';
 
 /** The left column of a contact's page: who they are, how to reach them, and the actions. */
 export function ContactProfile({
@@ -22,79 +14,35 @@ export function ContactProfile({
   onSaved,
 }: Readonly<{ contact: ContactFieldsFragment; onSaved: () => void }>) {
   const t = useT();
-  const { locale } = useI18n();
-  const place = [contact.city, contact.country ? countryName(contact.country, locale) : '']
-    .filter(Boolean)
-    .join(', ');
-  const role = [contact.title, contact.companyName].filter(Boolean).join(' · ');
   return (
     <Stack spacing={2}>
-      <Flex direction="row" spacing={1.5} alignItems="center">
-        <RecordAvatar name={contact.name} src={contact.avatarUrl} sx={{ width: 56, height: 56 }} />
-        <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
-          <Text component="h1" size="lg" weight="bold">
-            {contact.name}
-          </Text>
-          {role && <Text color="text.secondary">{role}</Text>}
-          <Flex direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-            <Chip size="small" label={t(contact.lifecycleStage)} />
-            <Chip size="small" variant="outlined" label={t(contact.status)} />
-          </Flex>
-        </Stack>
-        <EditRecordButton
-          label="Edit contact"
-          onSaved={onSaved}
-          renderForm={(handlers) => <ContactForm initial={contact} {...handlers} />}
-        />
-      </Flex>
-      <DetailActions
-        target={{ relatedType: 'CONTACT', relatedId: contact.id, relatedName: contact.name }}
-        extra={
-          <EmailButton
-            context={{ object: 'CONTACT', id: contact.id, to: [contact.email].filter(Boolean) }}
+      <ContactHeader
+        contact={contact}
+        action={
+          <EditRecordButton
+            label="Edit contact"
+            onSaved={onSaved}
+            renderForm={(handlers) => <ContactForm initial={contact} {...handlers} />}
           />
         }
+      />
+      <DetailActions
+        target={{ relatedType: 'CONTACT', relatedId: contact.id, relatedName: contact.name }}
       />
       <Divider />
       <Text component="h2" size="label" weight="bold">
         {t('Contact details')}
       </Text>
-      <DetailField label="Email">
-        {contact.emails.length > 0 && (
-          <ContactPointList
-            scheme="mailto"
-            points={contact.emails.map((e) => ({ ...e, value: e.address }))}
-            trailing={verifyButton}
-          />
-        )}
-      </DetailField>
-      <DetailField label="Phone">
-        {contact.phones.length > 0 && (
-          <ContactPointList
-            scheme="tel"
-            points={contact.phones.map((p) => ({ ...p, value: p.number }))}
-          />
-        )}
-      </DetailField>
-      <DetailField label="Location">{place}</DetailField>
-      <DetailField label="Local time">
-        {contact.timezone && <LocalTime timezone={contact.timezone} />}
-      </DetailField>
-      <DetailField label="Languages">{contact.languages.join(', ')}</DetailField>
-      <DetailField label="LinkedIn">
-        {contact.linkedinUrl && (
-          <Link href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer">
-            {contact.linkedinUrl}
-          </Link>
-        )}
-      </DetailField>
-      <DetailField label="X (Twitter)">
-        {contact.twitterUrl && (
-          <Link href={contact.twitterUrl} target="_blank" rel="noopener noreferrer">
-            {contact.twitterUrl}
-          </Link>
-        )}
-      </DetailField>
+      <ContactFields contact={contact} />
+      <ReachOutActions
+        record={{
+          object: 'CONTACT',
+          id: contact.id,
+          name: contact.name,
+          phones: phonesOf(contact),
+          emails: emailsOf(contact),
+        }}
+      />
       <GoogleMapCard target={contact} title={contact.name} />
     </Stack>
   );

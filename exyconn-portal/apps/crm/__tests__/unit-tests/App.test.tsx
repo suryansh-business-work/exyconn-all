@@ -17,6 +17,8 @@ import { WebsiteScraperPage } from '../../src/pages/website-scraper';
 import { GmailAccountsPage } from '../../src/pages/settings/gmail';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
+import { IntegrationsPage } from '../../src/pages/integrations';
+import { CommsDockLayout } from '../../src/records/comms';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -37,12 +39,24 @@ vi.mock('@exyconn/shell', () => ({
 
 vi.mock('@exyconn/login', () => ({ Login: () => null }));
 
-/** Each route the app declares, as path -> the page component it renders. */
+interface RouteProps {
+  path?: string;
+  element: ReactElement;
+  children?: ReactNode;
+}
+
+/** The pathless layout route the CRM pages sit in (it hosts the communication dock). */
+function layoutRoute(children: ReactNode) {
+  const [layout] = Children.toArray(children).filter(isValidElement);
+  return layout.props as RouteProps;
+}
+
+/** Each route the layout declares, as path -> the page component it renders. */
 function declaredRoutes(children: ReactNode) {
-  return Children.toArray(children)
+  return Children.toArray(layoutRoute(children).children)
     .filter(isValidElement)
     .map((route) => {
-      const { path, element } = route.props as { path: string; element: ReactElement };
+      const { path, element } = route.props as RouteProps;
       return [path, element.type] as const;
     });
 }
@@ -57,9 +71,12 @@ describe('App', () => {
     expect(props.loginElement.type).toBe(Login);
   });
 
-  it('routes every CRM screen to its page', () => {
+  it('routes every CRM screen to its page, inside the communication dock layout', () => {
     render(<App />);
 
+    const layout = layoutRoute((portal.props as PortalProps).children);
+    expect(layout.path).toBeUndefined();
+    expect(layout.element.type).toBe(CommsDockLayout);
     expect(declaredRoutes((portal.props as PortalProps).children)).toEqual([
       ['/crm', CrmOverviewPage],
       ['/crm/leads', CrmPage],
@@ -76,6 +93,7 @@ describe('App', () => {
       ['/crm/tools/website-scraper', WebsiteScraperPage],
       ['/crm/settings/properties/:object?', PropertiesPage],
       ['/crm/settings/gmail', GmailAccountsPage],
+      ['/crm/integrations/:tab?', IntegrationsPage],
     ]);
   });
 });

@@ -14,6 +14,8 @@ import { LeadGeneratorPage } from './pages/lead-generator';
 import { WebsiteScraperPage } from './pages/website-scraper';
 import { PropertiesPage } from './pages/settings';
 import { GmailAccountsPage } from './pages/settings/gmail';
+import { IntegrationsPage } from './pages/integrations';
+import { CommsDockLayout } from './records/comms';
 import { MeetingsPage } from './pages/meetings';
 import { BookingProfilePage, BookMeetingPage } from './pages/book';
 
@@ -34,21 +36,25 @@ export function App() {
       homePath="/crm"
       publicRoutes={PUBLIC_ROUTES}
     >
-      <Route path="/crm" element={<CrmOverviewPage />} />
-      <Route path="/crm/leads" element={<CrmPage />} />
-      <Route path="/crm/companies" element={<CompaniesPage />} />
-      <Route path="/crm/companies/:id/:tab?" element={<CompanyDetailPage />} />
-      <Route path="/crm/contacts" element={<ContactsPage />} />
-      <Route path="/crm/contacts/:id/:tab?" element={<ContactDetailPage />} />
-      <Route path="/crm/deals" element={<DealsPage />} />
-      <Route path="/crm/deals/list" element={<DealsListPage />} />
-      <Route path="/crm/activities" element={<ActivitiesPage />} />
-      <Route path="/crm/meetings/:tab?" element={<MeetingsPage />} />
-      <Route path="/crm/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
-      <Route path="/crm/tools/lead-generator" element={<LeadGeneratorPage />} />
-      <Route path="/crm/tools/website-scraper" element={<WebsiteScraperPage />} />
-      <Route path="/crm/settings/properties/:object?" element={<PropertiesPage />} />
-      <Route path="/crm/settings/gmail" element={<GmailAccountsPage />} />
+      {/* The communication dock floats over every CRM page, so a call or a text keeps going. */}
+      <Route element={<CommsDockLayout />}>
+        <Route path="/crm" element={<CrmOverviewPage />} />
+        <Route path="/crm/leads" element={<CrmPage />} />
+        <Route path="/crm/companies" element={<CompaniesPage />} />
+        <Route path="/crm/companies/:id/:tab?" element={<CompanyDetailPage />} />
+        <Route path="/crm/contacts" element={<ContactsPage />} />
+        <Route path="/crm/contacts/:id/:tab?" element={<ContactDetailPage />} />
+        <Route path="/crm/deals" element={<DealsPage />} />
+        <Route path="/crm/deals/list" element={<DealsListPage />} />
+        <Route path="/crm/activities" element={<ActivitiesPage />} />
+        <Route path="/crm/meetings/:tab?" element={<MeetingsPage />} />
+        <Route path="/crm/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
+        <Route path="/crm/tools/lead-generator" element={<LeadGeneratorPage />} />
+        <Route path="/crm/tools/website-scraper" element={<WebsiteScraperPage />} />
+        <Route path="/crm/settings/properties/:object?" element={<PropertiesPage />} />
+        <Route path="/crm/settings/gmail" element={<GmailAccountsPage />} />
+        <Route path="/crm/integrations/:tab?" element={<IntegrationsPage />} />
+      </Route>
     </PortalApp>
   );
 }

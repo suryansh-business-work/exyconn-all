@@ -22,28 +22,40 @@ import {
   type ComposeEmailValues,
 } from './compose-email.types';
 import { useComposeSender } from './useComposeSender';
+import { readMemory } from '../../../comms/commsStore';
+import { useFormMemory } from '../../../comms/useFormMemory';
+
+const DRAFT = 'email-draft';
 
 interface ComposeEmailFormProps {
   context: ComposeEmailContext;
+  /** In the communication dock: keeps the draft while the page remounts on navigation. */
+  memoryKey?: string;
   onDone: () => void;
   onCancel: () => void;
 }
 
 /**
  * React Hook Form + Zod form to email a contact, or reply in a thread, from one of the CRM's
- * connected Gmail accounts. "Draft with AI" writes the message from the record, the thread and
- * a short instruction.
+ * connected Gmail or Microsoft mailboxes. "Draft with AI" writes the message from the record,
+ * the thread and a short instruction.
  */
-export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<ComposeEmailFormProps>) {
+export function ComposeEmailForm({
+  context,
+  memoryKey,
+  onDone,
+  onCancel,
+}: Readonly<ComposeEmailFormProps>) {
   const t = useT();
   const notify = useNotify();
   const refetchQueries = [CrmEmailThreadsDocument, CrmTimelineDocument];
   const [send] = useSendCrmEmailMutation({ refetchQueries });
   const [draft, { loading: drafting }] = useDraftCrmEmailMutation();
+  const remembered = memoryKey ? readMemory<ComposeEmailValues>(memoryKey, DRAFT) : undefined;
   const methods = useForm<ComposeEmailValues>({
     mode: 'onTouched',
     resolver: zodResolver(composeEmailSchema),
-    defaultValues: {
+    defaultValues: remembered ?? {
       fromAccountId: '',
       to: context.to,
       cc: [],
@@ -53,6 +65,7 @@ export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<Compose
     },
   });
 
+  useFormMemory(methods, memoryKey, DRAFT);
   const sender = useComposeSender(context);
   useEffect(() => {
     if (sender.preferred && methods.getValues('fromAccountId') === '') {
@@ -116,14 +129,16 @@ export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<Compose
     >
       {!sender.loading && sender.options.length === 0 && (
         <Alert severity="warning">
-          {t('No Gmail account is turned on for the CRM. Connect one in CRM > Connect Gmail.')}
+          {t(
+            'No mailbox is turned on for the CRM. Connect a Gmail or Microsoft account in CRM > Integrations > Email.',
+          )}
         </Alert>
       )}
       <RhfSelect
         name="fromAccountId"
         label="From"
         options={sender.options}
-        helperText="The connected Gmail account it is sent from"
+        helperText="The connected Gmail or Microsoft mailbox it is sent from"
       />
       <RhfChipsInput name="to" label="To" helperText="Type an address and press Enter" />
       <RhfChipsInput name="cc" label="Cc" />
