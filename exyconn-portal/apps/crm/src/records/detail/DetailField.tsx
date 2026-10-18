@@ -31,7 +31,7 @@ export function DetailField({ label, children, empty }: Readonly<DetailFieldProp
         size="sm"
         component="div"
         color={blank ? 'text.secondary' : undefined}
-        sx={{ mt: 0.25, overflowWrap: 'anywhere' }}
+        sx={{ mt: 0.5, overflowWrap: 'anywhere' }}
       >
         {blank && empty ? t(empty) : children}
       </Text>
