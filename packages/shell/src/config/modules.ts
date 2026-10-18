@@ -1586,12 +1586,17 @@ function childPaths(children: ModuleChild[] = []): string[] {
   return children.flatMap((c) => [c.path, ...childPaths(c.children)]);
 }
 
-/** First path segment -> the app that serves it, e.g. "me" and "profile" -> employee. */
+/**
+ * First path segment -> the app that serves it, e.g. "me" and "profile" -> employee. A module
+ * whose home is its subdomain's root (CRM's "/") claims no segment for it: "/" alone is the
+ * launcher, not any one app.
+ */
 const APP_BY_SEGMENT = new Map<string, PortalAppKey>(
   MODULES.flatMap((m) =>
-    [m.path, ...childPaths(m.children)].map(
-      (path) => [path.split('/')[1], m.key] as [string, PortalAppKey],
-    ),
+    [m.path, ...childPaths(m.children)]
+      .map((path) => path.split('/')[1])
+      .filter((segment) => segment !== '')
+      .map((segment) => [segment, m.key] as [string, PortalAppKey]),
   ),
 );
 
