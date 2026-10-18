@@ -29,6 +29,7 @@ function fakeService(): jest.Mocked<CrudService<Input>> {
     create: jest.fn().mockResolvedValue({ _id: 'b3', name: 'Created' }),
     update: jest.fn().mockResolvedValue({ _id: 'b1', name: 'After', amount: 2 }),
     remove: jest.fn().mockResolvedValue(true),
+    archive: jest.fn().mockResolvedValue(1),
   };
 }
 

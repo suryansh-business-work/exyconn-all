@@ -1,26 +1,41 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { GoogleMap, MarkerF } from '@react-google-maps/api';
-import { useT } from '@exyconn/i18n';
-import { Alert } from '@exyconn/shell/components/ui';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { MapSkeleton } from '../../../maps/MapSkeleton';
 import { useMapsScript } from '../../../maps/mapsScript';
 import type { LatLng } from '../../../maps/mapLinks';
 import type { LeadPlace } from '../leadTypes';
+import type { SearchArea } from '../useSearchArea';
+import { DrawArea } from './DrawArea';
+import { MapKeyRejected, MapLoadFailed } from './MapNotices';
 
 /** The whole world, until a search gives the map something to frame. */
 const WORLD_CENTRE: LatLng = { lat: 20, lng: 0 };
 const WORLD_ZOOM = 2;
 const FOCUS_ZOOM = 16;
 const CONTAINER = { width: '100%', height: '100%' };
-const MAP_OPTIONS: google.maps.MapOptions = { clickableIcons: false, streetViewControl: false };
+/**
+ * Centre and zoom are given once, as options when the map is created — never as props, which
+ * would pull the view back on every render and fight panning to choose a centre or drawing.
+ */
+const MAP_OPTIONS: google.maps.MapOptions = {
+  center: WORLD_CENTRE,
+  zoom: WORLD_ZOOM,
+  clickableIcons: false,
+  streetViewControl: false,
+};
 
 export interface LeadMapProps {
   apiKey: string;
   places: LeadPlace[];
   focusedId: string | null;
   onFocus: (placeId: string) => void;
-  onReady: () => void;
+  /** True once the map works (loaded and the key accepted), false when it stops working. */
+  onReadyChange: (ready: boolean) => void;
   onCentreChange: (centre: LatLng) => void;
+  area: SearchArea;
+  /** "Inside a drawn area" is the chosen search: show the area and take clicks as corners. */
+  drawEnabled: boolean;
 }
 
 /** The results as numbered markers; a marker and its row select each other. */
@@ -29,16 +44,27 @@ export default function LeadMapBody({
   places,
   focusedId,
   onFocus,
-  onReady,
+  onReadyChange,
   onCentreChange,
+  area,
+  drawEnabled,
 }: Readonly<LeadMapProps>) {
-  const t = useT();
-  const { isLoaded, loadError } = useMapsScript(apiKey);
+  const { isLoaded, loadError, authFailed } = useMapsScript(apiKey);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   // Refit only when the set of places changes, not when a row is marked as filed.
   const framing = useMemo(() => places.map((place) => place.placeId).join(','), [places]);
   const placesRef = useRef(places);
   placesRef.current = places;
+
+  useEffect(() => {
+    onReadyChange(map !== null && !authFailed);
+  }, [map, authFailed, onReadyChange]);
+
+  useEffect(() => {
+    if (loadError) {
+      portalLogger.warn('crm: Google Maps JavaScript failed to load', loadError);
+    }
+  }, [loadError]);
 
   useEffect(() => {
     const current = placesRef.current;
@@ -60,13 +86,6 @@ export default function LeadMapBody({
     }
   }, [map, focusedId]);
 
-  const onLoad = useCallback(
-    (loaded: google.maps.Map) => {
-      setMap(loaded);
-      onReady();
-    },
-    [onReady],
-  );
   const onIdle = () => {
     const centre = map?.getCenter();
     if (centre) {
@@ -74,8 +93,11 @@ export default function LeadMapBody({
     }
   };
 
+  if (authFailed) {
+    return <MapKeyRejected />;
+  }
   if (loadError) {
-    return <Alert severity="error">{t('Google Maps could not be loaded.')}</Alert>;
+    return <MapLoadFailed />;
   }
   if (!isLoaded) {
     return <MapSkeleton height="100%" />;
@@ -83,10 +105,8 @@ export default function LeadMapBody({
   return (
     <GoogleMap
       mapContainerStyle={CONTAINER}
-      center={WORLD_CENTRE}
-      zoom={WORLD_ZOOM}
       options={MAP_OPTIONS}
-      onLoad={onLoad}
+      onLoad={setMap}
       onUnmount={() => setMap(null)}
       onIdle={onIdle}
     >
@@ -100,6 +120,7 @@ export default function LeadMapBody({
           onClick={() => onFocus(place.placeId)}
         />
       ))}
+      {drawEnabled && <DrawArea area={area} />}
     </GoogleMap>
   );
 }

@@ -50,6 +50,13 @@ export interface PropertyDef {
   /** Whether an import may write it; system fields (created at, campaign) are read-only. */
   importable: boolean;
   description: string;
+  /** A Yes/No filter only — never a column, a sort, an import or an export field. */
+  filterOnly: boolean;
+  /**
+   * For a filter-only property: the paths any of which holding a value means "Yes", e.g. a
+   * contact's primary `email` or any entry of `emails`.
+   */
+  presencePaths?: string[];
 }
 
 export interface ObjectDef {
@@ -92,6 +99,22 @@ const builtIn = (spec: BuiltIn): PropertyDef => ({
   path: spec.key,
   importable: spec.importable ?? true,
   description: spec.description ?? '',
+  filterOnly: false,
+});
+
+/** "Has email" / "Has phone": Yes when any of `paths` holds a value. */
+const presence = (key: string, label: string, paths: string[]): PropertyDef => ({
+  key,
+  label,
+  type: 'BOOLEAN',
+  options: [],
+  required: false,
+  builtIn: true,
+  path: paths[0] ?? key,
+  importable: false,
+  description: '',
+  filterOnly: true,
+  presencePaths: paths,
 });
 
 const OWNER = builtIn({
@@ -154,6 +177,8 @@ export const OBJECT_DEFS: Readonly<Record<CrmObject, ObjectDef>> = {
       NOTES,
       CREATED,
       UPDATED,
+      presence('hasEmail', 'Has email', ['emails.address']),
+      presence('hasPhone', 'Has phone', ['phone', 'phones.number']),
     ],
   },
   CONTACT: {
@@ -178,6 +203,8 @@ export const OBJECT_DEFS: Readonly<Record<CrmObject, ObjectDef>> = {
       NOTES,
       CREATED,
       UPDATED,
+      presence('hasEmail', 'Has email', ['email', 'emails.address']),
+      presence('hasPhone', 'Has phone', ['phone', 'phones.number']),
     ],
   },
 };

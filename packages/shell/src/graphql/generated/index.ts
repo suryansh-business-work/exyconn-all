@@ -2999,6 +2999,8 @@ export type CrmPropertyInfo = {
   __typename?: 'CrmPropertyInfo';
   builtIn: Scalars['Boolean']['output'];
   description: Scalars['String']['output'];
+  /** A Yes/No filter only (Has email, Has phone): never a column, a sort or an export field. */
+  filterOnly: Scalars['Boolean']['output'];
   importable: Scalars['Boolean']['output'];
   key: Scalars['String']['output'];
   label: Scalars['String']['output'];
@@ -3059,6 +3061,8 @@ export type CrmPropertyUpdateInput = {
 };
 
 export type CrmQueryInput = {
+  /** True lists only archived records; otherwise archived records are left out. */
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   groups?: InputMaybe<Array<CrmFilterGroupInput>>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
@@ -4109,6 +4113,27 @@ export enum FindingType {
   Observation = 'OBSERVATION',
   Opportunity = 'OPPORTUNITY'
 }
+
+/** The install's Firecrawl account (Tech > Environment Variables). The API key is write-only. */
+export type FirecrawlConfig = {
+  __typename?: 'FirecrawlConfig';
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
+  baseUrl: Scalars['String']['output'];
+  hasApiKey: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type FirecrawlConfigInput = {
+  /** Leave empty when editing to keep it. */
+  apiKey: Scalars['String']['input'];
+  /** https://api.firecrawl.dev, or a self-hosted Firecrawl. */
+  baseUrl: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 /** Whether a gateway account talks to the gateway's test environment or takes real money. */
 export enum GatewayMode {
@@ -5578,6 +5603,11 @@ export type KbArticlePage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type LatLngInput = {
+  lat: Scalars['Float']['input'];
+  lng: Scalars['Float']['input'];
+};
+
 export type Lead = {
   __typename?: 'Lead';
   /** The campaign that produced this lead, when it came from one. */
@@ -5665,6 +5695,15 @@ export type LeadInput = {
   value: Scalars['Float']['input'];
 };
 
+/** A region Google suggests for the lead generator's Where box. */
+export type LeadLocationSuggestion = {
+  __typename?: 'LeadLocationSuggestion';
+  mainText: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  secondaryText: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
 export type LeadPage = {
   __typename?: 'LeadPage';
   rows: Array<Lead>;
@@ -5698,6 +5737,8 @@ export type LeadSearchInput = {
   /** Where, as text (e.g. Pune, India). Ignored when lat and lng are given. */
   location?: InputMaybe<Scalars['String']['input']>;
   pageToken?: InputMaybe<Scalars['String']['input']>;
+  /** An area drawn on the map (3 to 50 points): only places inside it. Wins over location and lat/lng. */
+  polygon?: InputMaybe<Array<LatLngInput>>;
   /** What to look for, e.g. dentists. */
   query: Scalars['String']['input'];
   /** Radius around lat/lng in metres, at most 50000. */
@@ -6271,6 +6312,8 @@ export type Mutation = {
   aiDraft: Scalars['String']['output'];
   /** Condenses text the caller already has. Creates an AI job, so the run is on the record. */
   aiSummarise: Scalars['String']['output'];
+  /** Sends a scraped page and an instruction to the AI; spends AI budget. */
+  analyzeWebScrape: WebScrape;
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
@@ -6367,6 +6410,7 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createFinding: Finding;
+  createFirecrawlConfig: FirecrawlConfig;
   /** Public. Stores the estimate behind a read-only link. */
   createGccShare: GccShareCreated;
   createGig: Gig;
@@ -6543,6 +6587,7 @@ export type Mutation = {
   deleteExitRecord: Scalars['Boolean']['output'];
   deleteExpenseClaim: Scalars['Boolean']['output'];
   deleteFinding: Scalars['Boolean']['output'];
+  deleteFirecrawlConfig: Scalars['Boolean']['output'];
   deleteGig: Scalars['Boolean']['output'];
   deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
@@ -6623,6 +6668,7 @@ export type Mutation = {
   deleteToolCategory: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
+  deleteWebScrape: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteChatFaq: Scalars['Boolean']['output'];
   deleteWebsiteChatKnowledge: Scalars['Boolean']['output'];
@@ -6820,6 +6866,8 @@ export type Mutation = {
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
+  /** Reads one public web page through Firecrawl and keeps it as markdown. */
+  scrapeWebsite: WebScrape;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
    * configured admin account to that configured address. A no-op once any ADMIN
@@ -6983,6 +7031,8 @@ export type Mutation = {
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
+  /** Deletes, archives or restores up to 200 selected rows of a list. */
+  tableBulkAction: TableBulkResult;
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
@@ -6990,6 +7040,8 @@ export type Mutation = {
   testCloudflareConnection: Scalars['Boolean']['output'];
   /** Connects to the proxy and signs in; says what worked, or why not. */
   testEmailVerifierConfig: Scalars['String']['output'];
+  /** Scrapes example.com with this config; says what worked, or why not. */
+  testFirecrawlConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   /** Reads every enabled mailbox's address with its stored connection. */
   testGmailConfig: Scalars['String']['output'];
@@ -7112,6 +7164,7 @@ export type Mutation = {
   updateExitRecord: ExitRecord;
   updateExpenseClaim: ExpenseClaim;
   updateFinding: Finding;
+  updateFirecrawlConfig: FirecrawlConfig;
   updateGig: Gig;
   updateGithubConfig: GithubConfig;
   updateGoal: Goal;
@@ -7289,6 +7342,12 @@ export type MutationAiDraftArgs = {
 export type MutationAiSummariseArgs = {
   style?: InputMaybe<SummaryStyle>;
   text: Scalars['String']['input'];
+};
+
+
+export type MutationAnalyzeWebScrapeArgs = {
+  id: Scalars['ID']['input'];
+  instruction: Scalars['String']['input'];
 };
 
 
@@ -7652,6 +7711,11 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateFindingArgs = {
   input: FindingInput;
+};
+
+
+export type MutationCreateFirecrawlConfigArgs = {
+  input: FirecrawlConfigInput;
 };
 
 
@@ -8380,6 +8444,11 @@ export type MutationDeleteFindingArgs = {
 };
 
 
+export type MutationDeleteFirecrawlConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGigArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8761,6 +8830,11 @@ export type MutationDeleteTrainingArgs = {
 
 
 export type MutationDeleteUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebScrapeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9247,6 +9321,11 @@ export type MutationSaveWhatsappWorkflowDraftArgs = {
 };
 
 
+export type MutationScrapeWebsiteArgs = {
+  url: Scalars['String']['input'];
+};
+
+
 export type MutationSendCampaignArgs = {
   audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
@@ -9602,6 +9681,13 @@ export type MutationSyncSocialAccountArgs = {
 };
 
 
+export type MutationTableBulkActionArgs = {
+  action: TableBulkAction;
+  ids: Array<Scalars['ID']['input']>;
+  list: Scalars['String']['input'];
+};
+
+
 export type MutationTestCallingBotConfigArgs = {
   id: Scalars['ID']['input'];
 };
@@ -9618,6 +9704,11 @@ export type MutationTestCloudflareConnectionArgs = {
 
 
 export type MutationTestEmailVerifierConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestFirecrawlConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -10043,6 +10134,12 @@ export type MutationUpdateExpenseClaimArgs = {
 export type MutationUpdateFindingArgs = {
   id: Scalars['ID']['input'];
   input: FindingInput;
+};
+
+
+export type MutationUpdateFirecrawlConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: FirecrawlConfigInput;
 };
 
 
@@ -12293,6 +12390,9 @@ export type Query = {
    * Null until HR has set one up. This is what the employee record reads.
    */
   employeeSalary?: Maybe<SalaryStructure>;
+  firecrawlConfigs: Array<FirecrawlConfig>;
+  /** Whether the website scraper can run: a Firecrawl key is configured. */
+  firecrawlReady: Scalars['Boolean']['output'];
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -12377,6 +12477,7 @@ export type Query = {
   getToolCategory: ToolCategory;
   getTraining: Training;
   getUser: User;
+  getWebScrape: WebScrape;
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
@@ -12410,6 +12511,8 @@ export type Query = {
   /** months: 1 to 24. */
   itReport: ItReport;
   itSettings: ItSettings;
+  /** Cities, areas and postcodes matching what was typed in Where (2-100 characters). */
+  leadLocationSuggestions: Array<LeadLocationSuggestion>;
   /** How many leads carry this campaign's attribution. */
   leadsByCampaign: Scalars['Int']['output'];
   /** HR/ADMIN: a specific employee's leave requests. */
@@ -12735,6 +12838,7 @@ export type Query = {
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
+  listWebScrapesPaged: WebScrapePage;
   listWebhookDeliveries: Array<WebhookDelivery>;
   listWebhooks: Array<Webhook>;
   listWebsiteChatFaqs: Array<WebsiteChatFaq>;
@@ -12987,6 +13091,8 @@ export type Query = {
   supportSlaSummary: SupportSlaSummary;
   /** Admin only — the deployment's own vital signs. */
   systemHealth: SystemHealth;
+  /** Whether a list's selected rows can be deleted and archived. */
+  tableBulkInfo: TableBulkInfo;
   /** Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT. */
   tableExport: TableFile;
   /** The sample file to fill in for an import into this list. */
@@ -13058,6 +13164,7 @@ export type Query = {
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
+  webScrapeAiEstimate: WebScrapeAiEstimate;
   /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
   webhookEvents: Array<Scalars['String']['output']>;
   /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
@@ -13780,6 +13887,11 @@ export type QueryGetUserArgs = {
 };
 
 
+export type QueryGetWebScrapeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetWebsiteChatFaqArgs = {
   id: Scalars['ID']['input'];
 };
@@ -13812,6 +13924,11 @@ export type QueryItEmployeeProfileArgs = {
 
 export type QueryItReportArgs = {
   months?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryLeadLocationSuggestionsArgs = {
+  input: Scalars['String']['input'];
 };
 
 
@@ -14285,6 +14402,11 @@ export type QueryListUsersPagedArgs = {
 };
 
 
+export type QueryListWebScrapesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListWebhookDeliveriesArgs = {
   webhookId: Scalars['ID']['input'];
 };
@@ -14740,6 +14862,11 @@ export type QueryStatusOverviewArgs = {
 };
 
 
+export type QueryTableBulkInfoArgs = {
+  list: Scalars['String']['input'];
+};
+
+
 export type QueryTableExportArgs = {
   columns: Array<TableExportColumnInput>;
   fileName: Scalars['String']['input'];
@@ -14842,6 +14969,12 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryWebScrapeAiEstimateArgs = {
+  id: Scalars['ID']['input'];
+  instruction: Scalars['String']['input'];
 };
 
 
@@ -16400,6 +16533,35 @@ export type SystemHealth = {
   uptimeSeconds: Scalars['Int']['output'];
 };
 
+/** What a grid may do with the rows a person selects. */
+export enum TableBulkAction {
+  /** Hides the rows from the table and keeps them; they can be restored. */
+  Archive = 'ARCHIVE',
+  /** Deletes each row through the module's own delete, guards and audit included. */
+  Delete = 'DELETE',
+  /** Brings archived rows back into the table. */
+  Restore = 'RESTORE'
+}
+
+export type TableBulkFailure = {
+  __typename?: 'TableBulkFailure';
+  id: Scalars['ID']['output'];
+  message: Scalars['String']['output'];
+};
+
+export type TableBulkInfo = {
+  __typename?: 'TableBulkInfo';
+  archivable: Scalars['Boolean']['output'];
+  deletable: Scalars['Boolean']['output'];
+};
+
+export type TableBulkResult = {
+  __typename?: 'TableBulkResult';
+  /** Rows that could not be deleted, with why; the rest were. */
+  failures: Array<TableBulkFailure>;
+  succeeded: Scalars['Int']['output'];
+};
+
 /** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
 export type TableExportColumnInput = {
   field: Scalars['String']['input'];
@@ -16498,6 +16660,8 @@ export type TableInfo = {
 
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
 export type TableQueryInput = {
+  /** True lists only archived rows; otherwise archived rows are left out. */
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   filters?: InputMaybe<Array<TableFilterInput>>;
   /** Zero-based: 0 is the first page, so the first pageSize rows. */
   page: Scalars['Int']['input'];
@@ -17822,6 +17986,44 @@ export type UserSocialLinksInput = {
   linkedin?: InputMaybe<Scalars['String']['input']>;
   twitter?: InputMaybe<Scalars['String']['input']>;
   website?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A web page read through Firecrawl, kept as markdown, with the last AI answer about it. */
+export type WebScrape = {
+  __typename?: 'WebScrape';
+  aiCostUsd?: Maybe<Scalars['Float']['output']>;
+  aiInstruction: Scalars['String']['output'];
+  aiResponse: Scalars['String']['output'];
+  analyzedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The page's full length; only the first 200,000 characters are kept. */
+  charCount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  markdown: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** What handing a scraped page to the AI would cost, worked out before anything is spent. */
+export type WebScrapeAiEstimate = {
+  __typename?: 'WebScrapeAiEstimate';
+  costUsd: Scalars['Float']['output'];
+  /** The prompt: the instruction plus the page, at about four characters a token. */
+  inputTokens: Scalars['Int']['output'];
+  model: Scalars['String']['output'];
+  /** A page-long answer, assumed for the estimate. */
+  outputTokens: Scalars['Int']['output'];
+  /** False when the model has no price in Tech > AI Pricing; the cost then reads 0. */
+  priced: Scalars['Boolean']['output'];
+  /** True when the page is longer than the AI reads (60,000 characters) and was cut. */
+  truncated: Scalars['Boolean']['output'];
+};
+
+export type WebScrapePage = {
+  __typename?: 'WebScrapePage';
+  rows: Array<WebScrape>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type Webhook = {
@@ -20447,7 +20649,7 @@ export type UploadCrmMediaMutationVariables = Exact<{
 
 export type UploadCrmMediaMutation = { __typename?: 'Mutation', uploadCrmMedia: string };
 
-export type CrmPropertyInfoFieldsFragment = { __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
+export type CrmPropertyInfoFieldsFragment = { __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, filterOnly: boolean, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
 
 export type CrmPropertyFieldsFragment = { __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
 
@@ -20458,7 +20660,7 @@ export type CrmObjectSchemaQueryVariables = Exact<{
 }>;
 
 
-export type CrmObjectSchemaQuery = { __typename?: 'Query', crmObjectSchema: { __typename?: 'CrmObjectSchema', object: CrmObject, dedupeKey: string, properties: Array<{ __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> }> } };
+export type CrmObjectSchemaQuery = { __typename?: 'Query', crmObjectSchema: { __typename?: 'CrmObjectSchema', object: CrmObject, dedupeKey: string, properties: Array<{ __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, filterOnly: boolean, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> }> } };
 
 export type CrmPropertiesQueryVariables = Exact<{
   object: CrmObject;
@@ -21768,6 +21970,13 @@ export type ImportLeadsToCrmMutationVariables = Exact<{
 
 
 export type ImportLeadsToCrmMutation = { __typename?: 'Mutation', importLeadsToCrm: { __typename?: 'LeadImportResult', created: number, skipped: number, filed: Array<{ __typename?: 'LeadImportFiled', placeId: string, companyId: string }>, skips: Array<{ __typename?: 'LeadImportSkip', placeId: string, name: string, reason: string }> } };
+
+export type LeadLocationSuggestionsQueryVariables = Exact<{
+  input: Scalars['String']['input'];
+}>;
+
+
+export type LeadLocationSuggestionsQuery = { __typename?: 'Query', leadLocationSuggestions: Array<{ __typename?: 'LeadLocationSuggestion', placeId: string, text: string, mainText: string, secondaryText: string }> };
 
 export type SystemHealthQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -25321,6 +25530,22 @@ export type ImportTableRowsMutationVariables = Exact<{
 
 export type ImportTableRowsMutation = { __typename?: 'Mutation', importTableRows: { __typename?: 'TableImportResult', created: number, updated: number, skipped: number, issues: Array<{ __typename?: 'TableImportIssue', row: number, message: string, skipped: boolean }> } };
 
+export type TableBulkInfoQueryVariables = Exact<{
+  list: Scalars['String']['input'];
+}>;
+
+
+export type TableBulkInfoQuery = { __typename?: 'Query', tableBulkInfo: { __typename?: 'TableBulkInfo', deletable: boolean, archivable: boolean } };
+
+export type TableBulkActionMutationVariables = Exact<{
+  list: Scalars['String']['input'];
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+  action: TableBulkAction;
+}>;
+
+
+export type TableBulkActionMutation = { __typename?: 'Mutation', tableBulkAction: { __typename?: 'TableBulkResult', succeeded: number, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } };
+
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -25895,6 +26120,95 @@ export type SendTrackerNoticeMutationVariables = Exact<{
 
 
 export type SendTrackerNoticeMutation = { __typename?: 'Mutation', sendTrackerNotice: number };
+
+export type FirecrawlConfigFieldsFragment = { __typename?: 'FirecrawlConfig', id: string, label: string, baseUrl: string, hasApiKey: boolean, apiKeyHint?: string | null, isActive: boolean, updatedAt: string };
+
+export type FirecrawlConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FirecrawlConfigsQuery = { __typename?: 'Query', firecrawlConfigs: Array<{ __typename?: 'FirecrawlConfig', id: string, label: string, baseUrl: string, hasApiKey: boolean, apiKeyHint?: string | null, isActive: boolean, updatedAt: string }> };
+
+export type CreateFirecrawlConfigMutationVariables = Exact<{
+  input: FirecrawlConfigInput;
+}>;
+
+
+export type CreateFirecrawlConfigMutation = { __typename?: 'Mutation', createFirecrawlConfig: { __typename?: 'FirecrawlConfig', id: string } };
+
+export type UpdateFirecrawlConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: FirecrawlConfigInput;
+}>;
+
+
+export type UpdateFirecrawlConfigMutation = { __typename?: 'Mutation', updateFirecrawlConfig: { __typename?: 'FirecrawlConfig', id: string } };
+
+export type TestFirecrawlConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestFirecrawlConfigMutation = { __typename?: 'Mutation', testFirecrawlConfig: string };
+
+export type DeleteFirecrawlConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteFirecrawlConfigMutation = { __typename?: 'Mutation', deleteFirecrawlConfig: boolean };
+
+export type FirecrawlReadyQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FirecrawlReadyQuery = { __typename?: 'Query', firecrawlReady: boolean };
+
+export type WebScrapeRowFieldsFragment = { __typename?: 'WebScrape', id: string, url: string, title: string, charCount: number, createdByName: string, analyzedAt?: string | null, createdAt: string };
+
+export type WebScrapeFieldsFragment = { __typename?: 'WebScrape', markdown: string, aiInstruction: string, aiResponse: string, aiCostUsd?: number | null, id: string, url: string, title: string, charCount: number, createdByName: string, analyzedAt?: string | null, createdAt: string };
+
+export type ListWebScrapesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListWebScrapesPagedQuery = { __typename?: 'Query', listWebScrapesPaged: { __typename?: 'WebScrapePage', totalCount: number, rows: Array<{ __typename?: 'WebScrape', id: string, url: string, title: string, charCount: number, createdByName: string, analyzedAt?: string | null, createdAt: string }> } };
+
+export type GetWebScrapeQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetWebScrapeQuery = { __typename?: 'Query', getWebScrape: { __typename?: 'WebScrape', markdown: string, aiInstruction: string, aiResponse: string, aiCostUsd?: number | null, id: string, url: string, title: string, charCount: number, createdByName: string, analyzedAt?: string | null, createdAt: string } };
+
+export type WebScrapeAiEstimateQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  instruction: Scalars['String']['input'];
+}>;
+
+
+export type WebScrapeAiEstimateQuery = { __typename?: 'Query', webScrapeAiEstimate: { __typename?: 'WebScrapeAiEstimate', model: string, inputTokens: number, outputTokens: number, costUsd: number, priced: boolean, truncated: boolean } };
+
+export type ScrapeWebsiteMutationVariables = Exact<{
+  url: Scalars['String']['input'];
+}>;
+
+
+export type ScrapeWebsiteMutation = { __typename?: 'Mutation', scrapeWebsite: { __typename?: 'WebScrape', markdown: string, aiInstruction: string, aiResponse: string, aiCostUsd?: number | null, id: string, url: string, title: string, charCount: number, createdByName: string, analyzedAt?: string | null, createdAt: string } };
+
+export type DeleteWebScrapeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWebScrapeMutation = { __typename?: 'Mutation', deleteWebScrape: boolean };
+
+export type AnalyzeWebScrapeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  instruction: Scalars['String']['input'];
+}>;
+
+
+export type AnalyzeWebScrapeMutation = { __typename?: 'Mutation', analyzeWebScrape: { __typename?: 'WebScrape', markdown: string, aiInstruction: string, aiResponse: string, aiCostUsd?: number | null, id: string, url: string, title: string, charCount: number, createdByName: string, analyzedAt?: string | null, createdAt: string } };
 
 export type ItemSeoFieldsFragment = { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean };
 
@@ -27307,6 +27621,7 @@ export const CrmPropertyInfoFieldsFragmentDoc = gql`
   builtIn
   importable
   description
+  filterOnly
   ops
 }
     `;
@@ -28950,6 +29265,37 @@ export const TrackerMessageFieldsFragmentDoc = gql`
   authorName
   readAt
   createdAt
+}
+    `;
+export const FirecrawlConfigFieldsFragmentDoc = gql`
+    fragment FirecrawlConfigFields on FirecrawlConfig {
+  id
+  label
+  baseUrl
+  hasApiKey
+  apiKeyHint
+  isActive
+  updatedAt
+}
+    `;
+export const WebScrapeRowFieldsFragmentDoc = gql`
+    fragment WebScrapeRowFields on WebScrape {
+  id
+  url
+  title
+  charCount
+  createdByName
+  analyzedAt
+  createdAt
+}
+    `;
+export const WebScrapeFieldsFragmentDoc = gql`
+    fragment WebScrapeFields on WebScrape {
+  ...WebScrapeRowFields
+  markdown
+  aiInstruction
+  aiResponse
+  aiCostUsd
 }
     `;
 export const BlogPostFieldsFragmentDoc = gql`
@@ -46864,6 +47210,53 @@ export function useImportLeadsToCrmMutation(baseOptions?: ApolloReactHooks.Mutat
         return ApolloReactHooks.useMutation<ImportLeadsToCrmMutation, ImportLeadsToCrmMutationVariables>(ImportLeadsToCrmDocument, options);
       }
 export type ImportLeadsToCrmMutationHookResult = ReturnType<typeof useImportLeadsToCrmMutation>;
+export const LeadLocationSuggestionsDocument = gql`
+    query LeadLocationSuggestions($input: String!) {
+  leadLocationSuggestions(input: $input) {
+    placeId
+    text
+    mainText
+    secondaryText
+  }
+}
+    `;
+
+/**
+ * __useLeadLocationSuggestionsQuery__
+ *
+ * To run a query within a React component, call `useLeadLocationSuggestionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLeadLocationSuggestionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLeadLocationSuggestionsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useLeadLocationSuggestionsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables> & ({ variables: LeadLocationSuggestionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>(LeadLocationSuggestionsDocument, options);
+      }
+export function useLeadLocationSuggestionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>(LeadLocationSuggestionsDocument, options);
+        }
+// @ts-ignore
+export function useLeadLocationSuggestionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>;
+// @ts-ignore
+export function useLeadLocationSuggestionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<LeadLocationSuggestionsQuery | undefined, LeadLocationSuggestionsQueryVariables>;
+export function useLeadLocationSuggestionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<LeadLocationSuggestionsQuery, LeadLocationSuggestionsQueryVariables>(LeadLocationSuggestionsDocument, options);
+        }
+export type LeadLocationSuggestionsQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsQuery>;
+export type LeadLocationSuggestionsLazyQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsLazyQuery>;
+export type LeadLocationSuggestionsSuspenseQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsSuspenseQuery>;
 export const SystemHealthDocument = gql`
     query SystemHealth {
   systemHealth {
@@ -66471,6 +66864,87 @@ export function useImportTableRowsMutation(baseOptions?: ApolloReactHooks.Mutati
         return ApolloReactHooks.useMutation<ImportTableRowsMutation, ImportTableRowsMutationVariables>(ImportTableRowsDocument, options);
       }
 export type ImportTableRowsMutationHookResult = ReturnType<typeof useImportTableRowsMutation>;
+export const TableBulkInfoDocument = gql`
+    query TableBulkInfo($list: String!) {
+  tableBulkInfo(list: $list) {
+    deletable
+    archivable
+  }
+}
+    `;
+
+/**
+ * __useTableBulkInfoQuery__
+ *
+ * To run a query within a React component, call `useTableBulkInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTableBulkInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTableBulkInfoQuery({
+ *   variables: {
+ *      list: // value for 'list'
+ *   },
+ * });
+ */
+export function useTableBulkInfoQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TableBulkInfoQuery, TableBulkInfoQueryVariables> & ({ variables: TableBulkInfoQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TableBulkInfoQuery, TableBulkInfoQueryVariables>(TableBulkInfoDocument, options);
+      }
+export function useTableBulkInfoLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TableBulkInfoQuery, TableBulkInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TableBulkInfoQuery, TableBulkInfoQueryVariables>(TableBulkInfoDocument, options);
+        }
+// @ts-ignore
+export function useTableBulkInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TableBulkInfoQuery, TableBulkInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableBulkInfoQuery, TableBulkInfoQueryVariables>;
+// @ts-ignore
+export function useTableBulkInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableBulkInfoQuery, TableBulkInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableBulkInfoQuery | undefined, TableBulkInfoQueryVariables>;
+export function useTableBulkInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableBulkInfoQuery, TableBulkInfoQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TableBulkInfoQuery, TableBulkInfoQueryVariables>(TableBulkInfoDocument, options);
+        }
+export type TableBulkInfoQueryHookResult = ReturnType<typeof useTableBulkInfoQuery>;
+export type TableBulkInfoLazyQueryHookResult = ReturnType<typeof useTableBulkInfoLazyQuery>;
+export type TableBulkInfoSuspenseQueryHookResult = ReturnType<typeof useTableBulkInfoSuspenseQuery>;
+export const TableBulkActionDocument = gql`
+    mutation TableBulkAction($list: String!, $ids: [ID!]!, $action: TableBulkAction!) {
+  tableBulkAction(list: $list, ids: $ids, action: $action) {
+    succeeded
+    failures {
+      id
+      message
+    }
+  }
+}
+    `;
+
+/**
+ * __useTableBulkActionMutation__
+ *
+ * To run a mutation, you first call `useTableBulkActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTableBulkActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [tableBulkActionMutation, { data, loading, error }] = useTableBulkActionMutation({
+ *   variables: {
+ *      list: // value for 'list'
+ *      ids: // value for 'ids'
+ *      action: // value for 'action'
+ *   },
+ * });
+ */
+export function useTableBulkActionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TableBulkActionMutation, TableBulkActionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TableBulkActionMutation, TableBulkActionMutationVariables>(TableBulkActionDocument, options);
+      }
+export type TableBulkActionMutationHookResult = ReturnType<typeof useTableBulkActionMutation>;
 export const ListEmailConfigsDocument = gql`
     query ListEmailConfigs {
   listEmailConfigs {
@@ -69450,6 +69924,440 @@ export function useSendTrackerNoticeMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<SendTrackerNoticeMutation, SendTrackerNoticeMutationVariables>(SendTrackerNoticeDocument, options);
       }
 export type SendTrackerNoticeMutationHookResult = ReturnType<typeof useSendTrackerNoticeMutation>;
+export const FirecrawlConfigsDocument = gql`
+    query FirecrawlConfigs {
+  firecrawlConfigs {
+    ...FirecrawlConfigFields
+  }
+}
+    ${FirecrawlConfigFieldsFragmentDoc}`;
+
+/**
+ * __useFirecrawlConfigsQuery__
+ *
+ * To run a query within a React component, call `useFirecrawlConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFirecrawlConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFirecrawlConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useFirecrawlConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>(FirecrawlConfigsDocument, options);
+      }
+export function useFirecrawlConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>(FirecrawlConfigsDocument, options);
+        }
+// @ts-ignore
+export function useFirecrawlConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>;
+// @ts-ignore
+export function useFirecrawlConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<FirecrawlConfigsQuery | undefined, FirecrawlConfigsQueryVariables>;
+export function useFirecrawlConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<FirecrawlConfigsQuery, FirecrawlConfigsQueryVariables>(FirecrawlConfigsDocument, options);
+        }
+export type FirecrawlConfigsQueryHookResult = ReturnType<typeof useFirecrawlConfigsQuery>;
+export type FirecrawlConfigsLazyQueryHookResult = ReturnType<typeof useFirecrawlConfigsLazyQuery>;
+export type FirecrawlConfigsSuspenseQueryHookResult = ReturnType<typeof useFirecrawlConfigsSuspenseQuery>;
+export const CreateFirecrawlConfigDocument = gql`
+    mutation CreateFirecrawlConfig($input: FirecrawlConfigInput!) {
+  createFirecrawlConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateFirecrawlConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateFirecrawlConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateFirecrawlConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createFirecrawlConfigMutation, { data, loading, error }] = useCreateFirecrawlConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateFirecrawlConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateFirecrawlConfigMutation, CreateFirecrawlConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateFirecrawlConfigMutation, CreateFirecrawlConfigMutationVariables>(CreateFirecrawlConfigDocument, options);
+      }
+export type CreateFirecrawlConfigMutationHookResult = ReturnType<typeof useCreateFirecrawlConfigMutation>;
+export const UpdateFirecrawlConfigDocument = gql`
+    mutation UpdateFirecrawlConfig($id: ID!, $input: FirecrawlConfigInput!) {
+  updateFirecrawlConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateFirecrawlConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateFirecrawlConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFirecrawlConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFirecrawlConfigMutation, { data, loading, error }] = useUpdateFirecrawlConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateFirecrawlConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateFirecrawlConfigMutation, UpdateFirecrawlConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateFirecrawlConfigMutation, UpdateFirecrawlConfigMutationVariables>(UpdateFirecrawlConfigDocument, options);
+      }
+export type UpdateFirecrawlConfigMutationHookResult = ReturnType<typeof useUpdateFirecrawlConfigMutation>;
+export const TestFirecrawlConfigDocument = gql`
+    mutation TestFirecrawlConfig($id: ID!) {
+  testFirecrawlConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestFirecrawlConfigMutation__
+ *
+ * To run a mutation, you first call `useTestFirecrawlConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestFirecrawlConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testFirecrawlConfigMutation, { data, loading, error }] = useTestFirecrawlConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestFirecrawlConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestFirecrawlConfigMutation, TestFirecrawlConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestFirecrawlConfigMutation, TestFirecrawlConfigMutationVariables>(TestFirecrawlConfigDocument, options);
+      }
+export type TestFirecrawlConfigMutationHookResult = ReturnType<typeof useTestFirecrawlConfigMutation>;
+export const DeleteFirecrawlConfigDocument = gql`
+    mutation DeleteFirecrawlConfig($id: ID!) {
+  deleteFirecrawlConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteFirecrawlConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteFirecrawlConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteFirecrawlConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteFirecrawlConfigMutation, { data, loading, error }] = useDeleteFirecrawlConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteFirecrawlConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteFirecrawlConfigMutation, DeleteFirecrawlConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteFirecrawlConfigMutation, DeleteFirecrawlConfigMutationVariables>(DeleteFirecrawlConfigDocument, options);
+      }
+export type DeleteFirecrawlConfigMutationHookResult = ReturnType<typeof useDeleteFirecrawlConfigMutation>;
+export const FirecrawlReadyDocument = gql`
+    query FirecrawlReady {
+  firecrawlReady
+}
+    `;
+
+/**
+ * __useFirecrawlReadyQuery__
+ *
+ * To run a query within a React component, call `useFirecrawlReadyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFirecrawlReadyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFirecrawlReadyQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useFirecrawlReadyQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>(FirecrawlReadyDocument, options);
+      }
+export function useFirecrawlReadyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>(FirecrawlReadyDocument, options);
+        }
+// @ts-ignore
+export function useFirecrawlReadySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>;
+// @ts-ignore
+export function useFirecrawlReadySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<FirecrawlReadyQuery | undefined, FirecrawlReadyQueryVariables>;
+export function useFirecrawlReadySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<FirecrawlReadyQuery, FirecrawlReadyQueryVariables>(FirecrawlReadyDocument, options);
+        }
+export type FirecrawlReadyQueryHookResult = ReturnType<typeof useFirecrawlReadyQuery>;
+export type FirecrawlReadyLazyQueryHookResult = ReturnType<typeof useFirecrawlReadyLazyQuery>;
+export type FirecrawlReadySuspenseQueryHookResult = ReturnType<typeof useFirecrawlReadySuspenseQuery>;
+export const ListWebScrapesPagedDocument = gql`
+    query ListWebScrapesPaged($input: TableQueryInput!) {
+  listWebScrapesPaged(input: $input) {
+    rows {
+      ...WebScrapeRowFields
+    }
+    totalCount
+  }
+}
+    ${WebScrapeRowFieldsFragmentDoc}`;
+
+/**
+ * __useListWebScrapesPagedQuery__
+ *
+ * To run a query within a React component, call `useListWebScrapesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListWebScrapesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListWebScrapesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListWebScrapesPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables> & ({ variables: ListWebScrapesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>(ListWebScrapesPagedDocument, options);
+      }
+export function useListWebScrapesPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>(ListWebScrapesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListWebScrapesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>;
+// @ts-ignore
+export function useListWebScrapesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListWebScrapesPagedQuery | undefined, ListWebScrapesPagedQueryVariables>;
+export function useListWebScrapesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListWebScrapesPagedQuery, ListWebScrapesPagedQueryVariables>(ListWebScrapesPagedDocument, options);
+        }
+export type ListWebScrapesPagedQueryHookResult = ReturnType<typeof useListWebScrapesPagedQuery>;
+export type ListWebScrapesPagedLazyQueryHookResult = ReturnType<typeof useListWebScrapesPagedLazyQuery>;
+export type ListWebScrapesPagedSuspenseQueryHookResult = ReturnType<typeof useListWebScrapesPagedSuspenseQuery>;
+export const GetWebScrapeDocument = gql`
+    query GetWebScrape($id: ID!) {
+  getWebScrape(id: $id) {
+    ...WebScrapeFields
+  }
+}
+    ${WebScrapeFieldsFragmentDoc}
+${WebScrapeRowFieldsFragmentDoc}`;
+
+/**
+ * __useGetWebScrapeQuery__
+ *
+ * To run a query within a React component, call `useGetWebScrapeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWebScrapeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWebScrapeQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetWebScrapeQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetWebScrapeQuery, GetWebScrapeQueryVariables> & ({ variables: GetWebScrapeQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetWebScrapeQuery, GetWebScrapeQueryVariables>(GetWebScrapeDocument, options);
+      }
+export function useGetWebScrapeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetWebScrapeQuery, GetWebScrapeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetWebScrapeQuery, GetWebScrapeQueryVariables>(GetWebScrapeDocument, options);
+        }
+// @ts-ignore
+export function useGetWebScrapeSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetWebScrapeQuery, GetWebScrapeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetWebScrapeQuery, GetWebScrapeQueryVariables>;
+// @ts-ignore
+export function useGetWebScrapeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetWebScrapeQuery, GetWebScrapeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetWebScrapeQuery | undefined, GetWebScrapeQueryVariables>;
+export function useGetWebScrapeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetWebScrapeQuery, GetWebScrapeQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetWebScrapeQuery, GetWebScrapeQueryVariables>(GetWebScrapeDocument, options);
+        }
+export type GetWebScrapeQueryHookResult = ReturnType<typeof useGetWebScrapeQuery>;
+export type GetWebScrapeLazyQueryHookResult = ReturnType<typeof useGetWebScrapeLazyQuery>;
+export type GetWebScrapeSuspenseQueryHookResult = ReturnType<typeof useGetWebScrapeSuspenseQuery>;
+export const WebScrapeAiEstimateDocument = gql`
+    query WebScrapeAiEstimate($id: ID!, $instruction: String!) {
+  webScrapeAiEstimate(id: $id, instruction: $instruction) {
+    model
+    inputTokens
+    outputTokens
+    costUsd
+    priced
+    truncated
+  }
+}
+    `;
+
+/**
+ * __useWebScrapeAiEstimateQuery__
+ *
+ * To run a query within a React component, call `useWebScrapeAiEstimateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebScrapeAiEstimateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebScrapeAiEstimateQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      instruction: // value for 'instruction'
+ *   },
+ * });
+ */
+export function useWebScrapeAiEstimateQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables> & ({ variables: WebScrapeAiEstimateQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>(WebScrapeAiEstimateDocument, options);
+      }
+export function useWebScrapeAiEstimateLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>(WebScrapeAiEstimateDocument, options);
+        }
+// @ts-ignore
+export function useWebScrapeAiEstimateSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>;
+// @ts-ignore
+export function useWebScrapeAiEstimateSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebScrapeAiEstimateQuery | undefined, WebScrapeAiEstimateQueryVariables>;
+export function useWebScrapeAiEstimateSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebScrapeAiEstimateQuery, WebScrapeAiEstimateQueryVariables>(WebScrapeAiEstimateDocument, options);
+        }
+export type WebScrapeAiEstimateQueryHookResult = ReturnType<typeof useWebScrapeAiEstimateQuery>;
+export type WebScrapeAiEstimateLazyQueryHookResult = ReturnType<typeof useWebScrapeAiEstimateLazyQuery>;
+export type WebScrapeAiEstimateSuspenseQueryHookResult = ReturnType<typeof useWebScrapeAiEstimateSuspenseQuery>;
+export const ScrapeWebsiteDocument = gql`
+    mutation ScrapeWebsite($url: String!) {
+  scrapeWebsite(url: $url) {
+    ...WebScrapeFields
+  }
+}
+    ${WebScrapeFieldsFragmentDoc}
+${WebScrapeRowFieldsFragmentDoc}`;
+
+/**
+ * __useScrapeWebsiteMutation__
+ *
+ * To run a mutation, you first call `useScrapeWebsiteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useScrapeWebsiteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [scrapeWebsiteMutation, { data, loading, error }] = useScrapeWebsiteMutation({
+ *   variables: {
+ *      url: // value for 'url'
+ *   },
+ * });
+ */
+export function useScrapeWebsiteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ScrapeWebsiteMutation, ScrapeWebsiteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ScrapeWebsiteMutation, ScrapeWebsiteMutationVariables>(ScrapeWebsiteDocument, options);
+      }
+export type ScrapeWebsiteMutationHookResult = ReturnType<typeof useScrapeWebsiteMutation>;
+export const DeleteWebScrapeDocument = gql`
+    mutation DeleteWebScrape($id: ID!) {
+  deleteWebScrape(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteWebScrapeMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebScrapeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebScrapeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebScrapeMutation, { data, loading, error }] = useDeleteWebScrapeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWebScrapeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteWebScrapeMutation, DeleteWebScrapeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteWebScrapeMutation, DeleteWebScrapeMutationVariables>(DeleteWebScrapeDocument, options);
+      }
+export type DeleteWebScrapeMutationHookResult = ReturnType<typeof useDeleteWebScrapeMutation>;
+export const AnalyzeWebScrapeDocument = gql`
+    mutation AnalyzeWebScrape($id: ID!, $instruction: String!) {
+  analyzeWebScrape(id: $id, instruction: $instruction) {
+    ...WebScrapeFields
+  }
+}
+    ${WebScrapeFieldsFragmentDoc}
+${WebScrapeRowFieldsFragmentDoc}`;
+
+/**
+ * __useAnalyzeWebScrapeMutation__
+ *
+ * To run a mutation, you first call `useAnalyzeWebScrapeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAnalyzeWebScrapeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [analyzeWebScrapeMutation, { data, loading, error }] = useAnalyzeWebScrapeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      instruction: // value for 'instruction'
+ *   },
+ * });
+ */
+export function useAnalyzeWebScrapeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AnalyzeWebScrapeMutation, AnalyzeWebScrapeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AnalyzeWebScrapeMutation, AnalyzeWebScrapeMutationVariables>(AnalyzeWebScrapeDocument, options);
+      }
+export type AnalyzeWebScrapeMutationHookResult = ReturnType<typeof useAnalyzeWebScrapeMutation>;
 export const ListBlogPostsDocument = gql`
     query ListBlogPosts {
   listBlogPosts {

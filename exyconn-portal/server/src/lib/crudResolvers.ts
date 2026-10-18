@@ -1,7 +1,8 @@
 // First: the audit import below reaches modules that call createCrudResolvers while this file
 // is still loading, and the registry (which imports nothing at runtime) must be ready by then.
-import { registerTable } from '../modules/table-transfer/registry';
+import { registerBulkTarget, registerTable } from '../modules/table-transfer/registry';
 import { assertPermission, PERMISSION_MODULES } from './permissions';
+import { auditArchive } from './archiveAudit';
 import { diffChanges, entityLabelOf, recordAudit } from '../modules/audit';
 import { withId, withIds } from '../utils/serialize';
 import type { CrudService } from './crudService';
@@ -70,6 +71,15 @@ export function createCrudResolvers<TInput extends object>(
 
   if (table) {
     registerTable(`list${listName}Paged`, table, importConfig?.matchFields ?? null);
+    registerBulkTarget(`list${listName}Paged`, {
+      entity: name,
+      archive: async (ctx, ids, archived) => {
+        await guard(ctx, 'EDIT');
+        const changed = await service.archive(ids, archived);
+        await auditArchive(ctx, name, ids, archived);
+        return changed;
+      },
+    });
     query[`list${listName}Paged`] = async (_p, { input }: { input: TableQueryInput }, ctx) => {
       await guard(ctx, 'VIEW');
       const page = await service.paged(input, table);

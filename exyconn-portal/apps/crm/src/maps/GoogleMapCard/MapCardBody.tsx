@@ -23,12 +23,12 @@ interface MapCardBodyProps {
 /** The map itself: loads the script, finds the position, and shows one marker. */
 export default function MapCardBody({ apiKey, target, title }: Readonly<MapCardBodyProps>) {
   const t = useT();
-  const { isLoaded, loadError } = useMapsScript(apiKey);
+  const { isLoaded, loadError, authFailed } = useMapsScript(apiKey);
   const stored = positionOf(target);
   const lookup = useGeocodedPosition(addressText(target), isLoaded && stored === null);
   const position = stored ?? (lookup.status === 'found' ? lookup.position : null);
 
-  if (loadError || lookup.status === 'missing') {
+  if (loadError || authFailed || lookup.status === 'missing') {
     return (
       <Text size="caption" color="text.secondary">
         {t('This place could not be shown on the map.')}

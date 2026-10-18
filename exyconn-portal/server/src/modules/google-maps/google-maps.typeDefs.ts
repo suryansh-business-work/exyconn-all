@@ -30,6 +30,19 @@ export const googleMapsTypeDefs = gql`
     placesReady: Boolean!
   }
 
+  input LatLngInput {
+    lat: Float!
+    lng: Float!
+  }
+
+  "A region Google suggests for the lead generator's Where box."
+  type LeadLocationSuggestion {
+    placeId: ID!
+    text: String!
+    mainText: String!
+    secondaryText: String!
+  }
+
   input LeadSearchInput {
     "What to look for, e.g. dentists."
     query: String!
@@ -39,6 +52,8 @@ export const googleMapsTypeDefs = gql`
     lng: Float
     "Radius around lat/lng in metres, at most 50000."
     radiusMeters: Int
+    "An area drawn on the map (3 to 50 points): only places inside it. Wins over location and lat/lng."
+    polygon: [LatLngInput!]
     "A Google Places type, e.g. dentist."
     type: String
     pageToken: String
@@ -122,6 +137,8 @@ export const googleMapsTypeDefs = gql`
     googleMapsClientConfig: GoogleMapsClientConfig!
     "One page (up to 20) of Google Places Text Search results."
     searchLeadPlaces(input: LeadSearchInput!): LeadSearchPage!
+    "Cities, areas and postcodes matching what was typed in Where (2-100 characters)."
+    leadLocationSuggestions(input: String!): [LeadLocationSuggestion!]!
   }
 
   extend type Mutation {

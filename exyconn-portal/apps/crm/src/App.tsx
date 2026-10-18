@@ -11,6 +11,7 @@ import { DealsListPage, DealsPage } from './pages/deals';
 import { ActivitiesPage } from './pages/activities';
 import { EmailVerifierPage } from './pages/email-verifier';
 import { LeadGeneratorPage } from './pages/lead-generator';
+import { WebsiteScraperPage } from './pages/website-scraper';
 import { PropertiesPage } from './pages/settings';
 import { GmailAccountsPage } from './pages/settings/gmail';
 import { MeetingsPage } from './pages/meetings';
@@ -45,6 +46,7 @@ export function App() {
       <Route path="/crm/meetings/:tab?" element={<MeetingsPage />} />
       <Route path="/crm/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
       <Route path="/crm/tools/lead-generator" element={<LeadGeneratorPage />} />
+      <Route path="/crm/tools/website-scraper" element={<WebsiteScraperPage />} />
       <Route path="/crm/settings/properties/:object?" element={<PropertiesPage />} />
       <Route path="/crm/settings/gmail" element={<GmailAccountsPage />} />
     </PortalApp>

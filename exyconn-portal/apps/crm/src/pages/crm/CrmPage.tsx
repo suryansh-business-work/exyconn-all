@@ -85,6 +85,7 @@ export function CrmPage() {
       )}
       columnDefs={records.columnDefs}
       fetchRows={records.fetchRows}
+      bulkList="searchLeads"
       context={gridContext}
       searchPlaceholder="Search leads…"
       initialSearch={records.initialSearch}

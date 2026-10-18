@@ -54,6 +54,8 @@ export const baseTypeDefs = gql`
     "Several sort columns, most significant first. When set it wins over sort."
     sorts: [TableSortInput!]
     filters: [TableFilterInput!]
+    "True lists only archived rows; otherwise archived rows are left out."
+    archived: Boolean
   }
 
   # Dashboard summary numbers computed server-side, so a page never fetches every row.

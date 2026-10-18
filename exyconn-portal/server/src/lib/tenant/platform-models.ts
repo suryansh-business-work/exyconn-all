@@ -53,6 +53,8 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'EmailVerifierConfig',
   // The Google Maps Platform keys behind the CRM lead generator and maps: one for the install.
   'GoogleMapsConfig',
+  // The Firecrawl account behind the CRM website scraper: one for the install.
+  'FirecrawlConfig',
   'CallingBotCall',
   'CallingBotScenario',
   // NOTE: the support mailbox (InboundMailConfig) is deliberately NOT here — a company reads

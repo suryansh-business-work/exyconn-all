@@ -80,3 +80,20 @@ mutation ImportTableRows(
     }
   }
 }
+
+query TableBulkInfo($list: String!) {
+  tableBulkInfo(list: $list) {
+    deletable
+    archivable
+  }
+}
+
+mutation TableBulkAction($list: String!, $ids: [ID!]!, $action: TableBulkAction!) {
+  tableBulkAction(list: $list, ids: $ids, action: $action) {
+    succeeded
+    failures {
+      id
+      message
+    }
+  }
+}

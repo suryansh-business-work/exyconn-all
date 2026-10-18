@@ -5,7 +5,10 @@ import { recordAudit } from '../../audit';
 import type { GraphQLContext } from '../../../middleware/auth';
 import type { PermissionAction } from '../../permissions/permission.model';
 import { importRecords, type ImportInput } from './crm.import';
-import { OBJECT_DEFS, type CrmObject } from './crm.objects';
+import { archiveRecords } from '../../../lib/archivable';
+import { auditArchive } from '../../../lib/archiveAudit';
+import { registerBulkTarget } from '../../table-transfer/registry';
+import { CRM_OBJECTS, OBJECT_DEFS, type CrmObject } from './crm.objects';
 import {
   AUDIT_MODULE,
   createProperties,
@@ -18,7 +21,7 @@ import {
   type CrmPropertyUpdate,
 } from './crm.properties';
 import { searchRecords, type CrmQueryInput } from './crm.query';
-import { objectProperties, OPS_BY_TYPE } from './crm.schema';
+import { objectProperties, opsOf } from './crm.schema';
 import {
   createView,
   deleteView,
@@ -37,6 +40,27 @@ const guard = (ctx: GraphQLContext, object: CrmObject, action: PermissionAction)
 
 const propertyGuard = (ctx: GraphQLContext, action: PermissionAction) =>
   assertPermission(ctx, AUDIT_MODULE, CRM_ROLES, action);
+
+/** The list query each object's grid reads, as the table's bulk actions name it. */
+const SEARCH_LISTS: Readonly<Record<CrmObject, string>> = {
+  LEAD: 'searchLeads',
+  COMPANY: 'searchCompanies',
+  CONTACT: 'searchContacts',
+};
+
+// "Delete selected" runs deleteLead/deleteCompany/deleteContact; archiving writes here.
+for (const object of CRM_OBJECTS) {
+  const { module, model } = OBJECT_DEFS[object];
+  registerBulkTarget(SEARCH_LISTS[object], {
+    entity: module,
+    archive: async (ctx, ids, archived) => {
+      await guard(ctx, object, 'EDIT');
+      const changed = await archiveRecords(model as never, ids, archived);
+      await auditArchive(ctx, module, ids, archived);
+      return changed;
+    },
+  });
+}
 
 const search =
   (object: CrmObject) =>
@@ -86,7 +110,7 @@ export const crmRecordsResolvers = {
       return {
         object,
         dedupeKey: OBJECT_DEFS[object].dedupeKey,
-        properties: properties.map((p) => ({ ...p, ops: OPS_BY_TYPE[p.type] })),
+        properties: properties.map((p) => ({ ...p, ops: opsOf(p) })),
       };
     },
     crmProperties: async (_p: unknown, { object }: { object: CrmObject }, ctx: GraphQLContext) => {

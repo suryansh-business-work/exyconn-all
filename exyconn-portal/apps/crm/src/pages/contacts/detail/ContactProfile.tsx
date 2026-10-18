@@ -5,6 +5,7 @@ import {
   ContactPointList,
   DetailActions,
   DetailField,
+  EditRecordButton,
   EmailButton,
   LocalTime,
   RecordAvatar,
@@ -30,7 +31,7 @@ export function ContactProfile({
     <Stack spacing={2}>
       <Flex direction="row" spacing={1.5} alignItems="center">
         <RecordAvatar name={contact.name} src={contact.avatarUrl} sx={{ width: 56, height: 56 }} />
-        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
+        <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
           <Text component="h1" size="lg" weight="bold">
             {contact.name}
           </Text>
@@ -40,6 +41,11 @@ export function ContactProfile({
             <Chip size="small" variant="outlined" label={t(contact.status)} />
           </Flex>
         </Stack>
+        <EditRecordButton
+          label="Edit contact"
+          onSaved={onSaved}
+          renderForm={(handlers) => <ContactForm initial={contact} {...handlers} />}
+        />
       </Flex>
       <DetailActions
         target={{ relatedType: 'CONTACT', relatedId: contact.id, relatedName: contact.name }}
@@ -48,16 +54,6 @@ export function ContactProfile({
             context={{ object: 'CONTACT', id: contact.id, to: [contact.email].filter(Boolean) }}
           />
         }
-        renderEdit={(close) => (
-          <ContactForm
-            initial={contact}
-            onCancel={close}
-            onDone={() => {
-              close();
-              onSaved();
-            }}
-          />
-        )}
       />
       <Divider />
       <Text component="h2" size="label" weight="bold">

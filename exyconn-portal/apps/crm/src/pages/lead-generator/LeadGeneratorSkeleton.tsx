@@ -18,7 +18,7 @@ export function LeadGeneratorSkeleton() {
         <Grid size={{ xs: 12, md: 7 }}>
           <SkeletonBone
             variant="rounded"
-            sx={{ height: { xs: 320, md: 'calc(100vh - 220px)' }, minHeight: 320 }}
+            sx={{ height: { xs: 360, sm: 440, md: 'calc(100vh - 220px)' }, minHeight: 320 }}
           />
         </Grid>
       </Grid>

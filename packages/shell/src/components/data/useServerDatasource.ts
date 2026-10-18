@@ -11,6 +11,8 @@ interface DatasourceOptions {
   fetchRows: GridFetcher<unknown>;
   /** The search the grid loads with; the toolbar's box debounces into it. */
   searchRef: RefObject<string>;
+  /** The Archived switch: true lists only archived rows, otherwise they are left out. */
+  archivedRef: RefObject<boolean>;
   onQuery?: (query: GridQuery) => void;
   /** Called as a page starts and settles, so the grid can lock while it loads. */
   begin: () => void;
@@ -39,6 +41,7 @@ function queryOf(params: IGetRowsParams, search: string, zone: string): GridQuer
 export function useServerDatasource({
   fetchRows,
   searchRef,
+  archivedRef,
   onQuery,
   begin,
   end,
@@ -55,6 +58,9 @@ export function useServerDatasource({
           ...query,
           page: Math.floor(params.startRow / pageSize),
           pageSize,
+          // Left out unless switched on, so a fetcher that forwards the input to a query of
+          // its own never sends a field that query does not declare.
+          archived: archivedRef.current || undefined,
         };
         begin();
         fetchRows(input)
@@ -70,6 +76,6 @@ export function useServerDatasource({
           .finally(end);
       },
     }),
-    [fetchRows, searchRef, onQuery, begin, end, onLoadError, zone],
+    [fetchRows, searchRef, archivedRef, onQuery, begin, end, onLoadError, zone],
   );
 }

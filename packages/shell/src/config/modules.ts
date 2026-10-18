@@ -521,6 +521,14 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Tools',
       },
       {
+        // Public web pages read through Firecrawl, kept as text and handed to the AI on request.
+        key: 'crm-website-scraper',
+        label: 'Website scraper',
+        path: '/crm/tools/website-scraper',
+        icon: WebIcon,
+        group: 'Tools',
+      },
+      {
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
         label: 'Custom Properties',

@@ -33,8 +33,8 @@ describe('tableQuery', () => {
     const { model, raw, chain } = fakeModel([{ id: 1 }], 7);
     const result = await tableQuery(model, page(), CONFIG, { organizationId: 'org-1' });
     expect(result).toEqual({ rows: [{ id: 1 }], totalCount: 7 });
-    expect(raw.find).toHaveBeenCalledWith({ organizationId: 'org-1' });
-    expect(raw.countDocuments).toHaveBeenCalledWith({ organizationId: 'org-1' });
+    expect(raw.find).toHaveBeenCalledWith({ archivedAt: null, organizationId: 'org-1' });
+    expect(raw.countDocuments).toHaveBeenCalledWith({ archivedAt: null, organizationId: 'org-1' });
     expect(chain.sort).toHaveBeenCalledWith({ createdAt: -1 });
     expect(chain.skip).toHaveBeenCalledWith(0);
     expect(chain.limit).toHaveBeenCalledWith(10);
@@ -55,6 +55,7 @@ describe('tableQuery', () => {
     await tableQuery(model, page({ search: '  a.b  ' }), CONFIG);
     const condition = { $regex: String.raw`a\.b`, $options: 'i' };
     expect(raw.find).toHaveBeenCalledWith({
+      archivedAt: null,
       $and: [{ $or: [{ name: condition }, { email: condition }] }],
     });
   });
@@ -63,8 +64,16 @@ describe('tableQuery', () => {
     const { model, raw } = fakeModel();
     await tableQuery(model, page({ search: '   ' }), CONFIG);
     await tableQuery(model, page({ search: 'x' }), { ...CONFIG, searchFields: [] });
-    expect(raw.find).toHaveBeenNthCalledWith(1, {});
-    expect(raw.find).toHaveBeenNthCalledWith(2, {});
+    expect(raw.find).toHaveBeenNthCalledWith(1, { archivedAt: null });
+    expect(raw.find).toHaveBeenNthCalledWith(2, { archivedAt: null });
+  });
+
+  it('lists only archived rows when asked, and leaves them out otherwise', async () => {
+    const { model, raw } = fakeModel();
+    await tableQuery(model, page({ archived: true }), CONFIG);
+    expect(raw.find).toHaveBeenLastCalledWith({ archivedAt: { $ne: null } });
+    await tableQuery(model, page({ archived: false }), CONFIG);
+    expect(raw.find).toHaveBeenLastCalledWith({ archivedAt: null });
   });
 
   it('translates each filter operator, ignoring unlisted fields and empty values', async () => {
@@ -86,6 +95,7 @@ describe('tableQuery', () => {
       { archived: false },
     );
     expect(raw.find).toHaveBeenCalledWith({
+      archivedAt: null,
       archived: false,
       $and: [
         { name: { $regex: String.raw`a\+`, $options: 'i' } },

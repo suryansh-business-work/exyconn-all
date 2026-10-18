@@ -283,6 +283,15 @@ Every server-paged grid gets these without any module code:
   of quiet before querying, and a search that trims to what was already loaded — the
   empty box on mount, say — does not query at all.
 - **Load failures** show an error above the grid until a later request succeeds.
+- **Bulk actions.** When `tableBulkInfo(list)` says the list (`fetchRows.list`, or the
+  `bulkList` prop) is deletable or archivable, rows get checkboxes and the toolbar a
+  "Select page" button (ag-grid's header checkbox needs a client-side model). While rows
+  are selected a bar announces "{count} selected" and offers "Delete selected" (destructive
+  confirm), "Archive selected" — or "Restore selected" with the **Archived** switch on, which
+  reloads the grid with `archived: true` — and "Clear selection". Ids go to
+  `tableBulkAction` 200 at a time; the toast names how many failed and the first reason.
+  Selection is by position, so any reload, search, sort or filter clears it. `onBulkDone`
+  lets the host re-read its stats (`CrudDashboard` wires it to the resource's `reload`).
 
 ## Tests
 

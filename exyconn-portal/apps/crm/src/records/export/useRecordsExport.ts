@@ -22,7 +22,7 @@ export function useRecordsExport({ object, query, fileName }: RecordsExportOptio
   const t = useT();
   const notify = useNotify();
   const client = useApolloClient();
-  const { properties } = useObjectSchema(object);
+  const { fields: properties } = useObjectSchema(object);
   const [busy, setBusy] = useState(false);
 
   const run = async (keys: readonly string[]) => {

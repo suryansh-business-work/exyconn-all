@@ -75,6 +75,8 @@ export const crmRecordsTypeDefs = gql`
     builtIn: Boolean!
     importable: Boolean!
     description: String!
+    "A Yes/No filter only (Has email, Has phone): never a column, a sort or an export field."
+    filterOnly: Boolean!
     "The operators a filter on this property may use."
     ops: [CrmOp!]!
   }
@@ -172,6 +174,8 @@ export const crmRecordsTypeDefs = gql`
     search: String
     groups: [CrmFilterGroupInput!]
     sorts: [CrmSortInput!]
+    "True lists only archived records; otherwise archived records are left out."
+    archived: Boolean
   }
 
   type CrmView {

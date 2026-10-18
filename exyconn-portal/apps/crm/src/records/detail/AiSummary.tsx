@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useFormatters, useT } from '@exyconn/i18n';
-import { Alert, Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Button, Flex, Stack, Text, lineHeight } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
@@ -41,14 +41,23 @@ export function AiSummary({
       <Flex
         direction="row"
         spacing={1}
-        alignItems="center"
+        alignItems="flex-start"
         justifyContent="space-between"
         flexWrap="wrap"
         useFlexGap
       >
-        <Text component="h2" size="label" weight="bold">
-          {t('{name} summary', { name })}
-        </Text>
+        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
+          <Text component="h2" size="label" weight="bold">
+            {t('{name} summary', { name })}
+          </Text>
+          {summary && (
+            <Text component="p" size="caption" color="text.secondary">
+              <time dateTime={summary.at.toISOString()}>
+                {t('Generated {when}', { when: formatDateTime(summary.at) })}
+              </time>
+            </Text>
+          )}
+        </Stack>
         <Button
           size="small"
           variant="outlined"
@@ -62,17 +71,23 @@ export function AiSummary({
         </Button>
       </Flex>
       {problem && (
-        <Alert severity="error" sx={{ mt: 1 }}>
+        <Alert severity="error" sx={{ mt: 1.5 }}>
           {problem}
         </Alert>
       )}
-      {summary && (
-        <>
-          <Text size="caption" color="text.secondary">
-            {t('Generated {when}', { when: formatDateTime(summary.at) })}
-          </Text>
-          <Text sx={{ mt: 1, whiteSpace: 'pre-line' }}>{summary.text}</Text>
-        </>
+      {summary ? (
+        <Text
+          component="p"
+          sx={{ mt: 1.5, mb: 0, whiteSpace: 'pre-line', lineHeight: lineHeight.relaxed }}
+        >
+          {summary.text}
+        </Text>
+      ) : (
+        <Text component="p" size="sm" color="text.secondary" sx={{ mt: 1.5, mb: 0 }}>
+          {t(
+            'Summarise this record from its timeline: what they are interested in, what has happened and what comes next.',
+          )}
+        </Text>
       )}
     </Box>
   );

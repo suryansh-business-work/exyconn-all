@@ -1,17 +1,16 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import type { ColDef } from 'ag-grid-community';
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
-import { ServerDataGrid, type GridFetcher } from '@exyconn/shell/components/data/ServerDataGrid';
+import type { GridFetcher } from '@exyconn/shell/components/data/ServerDataGrid';
 import { usePermissions, type PermissionActionKey } from '@exyconn/shell/hooks/usePermissions';
 import type { CrudResource } from './useCrudResource';
 import { useGridQuery } from './ExportCsvButton';
 import { CrudTransferBar } from './CrudTransferBar';
+import { CrudGrid } from './CrudGrid';
 import { contextWithoutActions, deniedActionKeys } from './permissions';
-import { RecordCardList } from '../list/RecordCardList';
 
 interface CrudDashboardProps<TRow, TPaged> {
   title: string;
@@ -36,6 +35,11 @@ interface CrudDashboardProps<TRow, TPaged> {
   refreshSignal?: number;
   columnDefs: ColDef<TPaged>[];
   fetchRows: GridFetcher<TPaged>;
+  /**
+   * The list bulk delete/archive acts on when `fetchRows` names none (a CRM search). Every
+   * fetcher from `usePagedFetcher` already names its list, so most screens leave it out.
+   */
+  bulkList?: string;
   /** Handed to ag-grid so the shared cells can reach this page's row handlers. */
   context: object;
   searchPlaceholder: string;
@@ -83,6 +87,7 @@ export function CrudDashboard<TRow, TPaged>({
   refreshSignal,
   columnDefs,
   fetchRows,
+  bulkList,
   context,
   searchPlaceholder,
   initialSearch,
@@ -95,10 +100,6 @@ export function CrudDashboard<TRow, TPaged>({
 }: Readonly<CrudDashboardProps<TRow, TPaged>>) {
   const gridQuery = useGridQuery();
   const t = useT();
-  const theme = useTheme();
-  // A thirteen-column table is five screens of sideways scrolling on a phone, so a phone
-  // gets the same records as cards instead — same columns, same actions, same query.
-  const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const { can } = usePermissions();
   // No module named means no restriction to apply, exactly as before this prop existed.
   const may = (action: PermissionActionKey) => !permissionModule || can(permissionModule, action);
@@ -164,28 +165,19 @@ export function CrudDashboard<TRow, TPaged>({
         may={may}
         onImported={onImported}
       />
-      {onPhone ? (
-        <RecordCardList<TPaged>
-          columnDefs={columnDefs}
-          fetchRows={fetchRows}
-          context={gridContext}
-          refreshSignal={gridRefresh}
-          onRowClick={onRowClick}
-          searchPlaceholder={searchPlaceholder}
-          initialSearch={initialSearch}
-        />
-      ) : (
-        <ServerDataGrid<TPaged>
-          columnDefs={columnDefs}
-          fetchRows={fetchRows}
-          context={gridContext}
-          refreshSignal={gridRefresh}
-          onRowClick={onRowClick}
-          searchPlaceholder={searchPlaceholder}
-          initialSearch={initialSearch}
-          onQuery={gridQuery.onQuery}
-        />
-      )}
+      <CrudGrid<TPaged>
+        columnDefs={columnDefs}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={gridRefresh}
+        onRowClick={onRowClick}
+        searchPlaceholder={searchPlaceholder}
+        initialSearch={initialSearch}
+        onQuery={gridQuery.onQuery}
+        bulkList={bulkList}
+        // The grid re-reads itself; the resource's reload also re-reads the stat tiles.
+        onBulkDone={reload}
+      />
       {children}
     </ModuleDashboard>
   );

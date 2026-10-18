@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   CrmPropertyType,
   useCrmObjectSchemaQuery,
@@ -22,6 +23,13 @@ export const CHOICE_TYPES: ReadonlySet<CrmPropertyType> = new Set([
 export const fileNameOf = (url: string) =>
   decodeURIComponent(url.split('?')[0].split('/').pop() ?? url);
 
+/**
+ * The properties a record actually holds: every one but the filter-only Yes/No checks (Has
+ * email, Has phone), which are never a column, a sort, an import or export field or a form input.
+ */
+export const recordFields = (properties: readonly CrmPropertyInfo[]): CrmPropertyInfo[] =>
+  properties.filter((property) => !property.filterOnly);
+
 export type CrmRecordRow = Record<string, unknown> & { id: string; custom?: unknown };
 
 /** One record type's properties, cached for the session; refetched when properties change. */
@@ -31,8 +39,14 @@ export function useObjectSchema(object: CrmObject) {
     fetchPolicy: 'cache-and-network',
   });
   const schema = data?.crmObjectSchema;
+  const all = schema?.properties;
+  const properties = useMemo(() => all ?? [], [all]);
+  const fields = useMemo(() => recordFields(properties), [properties]);
   return {
-    properties: schema?.properties ?? [],
+    /** Every property, filter-only ones included: what the filter builder offers. */
+    properties,
+    /** The properties a record holds (see `recordFields`): columns, sorts, import, export, forms. */
+    fields,
     dedupeKey: schema?.dedupeKey ?? '',
     loading,
     error,

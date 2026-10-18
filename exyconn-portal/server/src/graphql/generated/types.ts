@@ -2998,6 +2998,8 @@ export type CrmPropertyInfo = {
   __typename?: 'CrmPropertyInfo';
   builtIn: Scalars['Boolean']['output'];
   description: Scalars['String']['output'];
+  /** A Yes/No filter only (Has email, Has phone): never a column, a sort or an export field. */
+  filterOnly: Scalars['Boolean']['output'];
   importable: Scalars['Boolean']['output'];
   key: Scalars['String']['output'];
   label: Scalars['String']['output'];
@@ -3058,6 +3060,8 @@ export type CrmPropertyUpdateInput = {
 };
 
 export type CrmQueryInput = {
+  /** True lists only archived records; otherwise archived records are left out. */
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   groups?: InputMaybe<Array<CrmFilterGroupInput>>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
@@ -4108,6 +4112,27 @@ export enum FindingType {
   Observation = 'OBSERVATION',
   Opportunity = 'OPPORTUNITY'
 }
+
+/** The install's Firecrawl account (Tech > Environment Variables). The API key is write-only. */
+export type FirecrawlConfig = {
+  __typename?: 'FirecrawlConfig';
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
+  baseUrl: Scalars['String']['output'];
+  hasApiKey: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type FirecrawlConfigInput = {
+  /** Leave empty when editing to keep it. */
+  apiKey: Scalars['String']['input'];
+  /** https://api.firecrawl.dev, or a self-hosted Firecrawl. */
+  baseUrl: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 /** Whether a gateway account talks to the gateway's test environment or takes real money. */
 export enum GatewayMode {
@@ -5577,6 +5602,11 @@ export type KbArticlePage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type LatLngInput = {
+  lat: Scalars['Float']['input'];
+  lng: Scalars['Float']['input'];
+};
+
 export type Lead = {
   __typename?: 'Lead';
   /** The campaign that produced this lead, when it came from one. */
@@ -5664,6 +5694,15 @@ export type LeadInput = {
   value: Scalars['Float']['input'];
 };
 
+/** A region Google suggests for the lead generator's Where box. */
+export type LeadLocationSuggestion = {
+  __typename?: 'LeadLocationSuggestion';
+  mainText: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  secondaryText: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
 export type LeadPage = {
   __typename?: 'LeadPage';
   rows: Array<Lead>;
@@ -5697,6 +5736,8 @@ export type LeadSearchInput = {
   /** Where, as text (e.g. Pune, India). Ignored when lat and lng are given. */
   location?: InputMaybe<Scalars['String']['input']>;
   pageToken?: InputMaybe<Scalars['String']['input']>;
+  /** An area drawn on the map (3 to 50 points): only places inside it. Wins over location and lat/lng. */
+  polygon?: InputMaybe<Array<LatLngInput>>;
   /** What to look for, e.g. dentists. */
   query: Scalars['String']['input'];
   /** Radius around lat/lng in metres, at most 50000. */
@@ -6270,6 +6311,8 @@ export type Mutation = {
   aiDraft: Scalars['String']['output'];
   /** Condenses text the caller already has. Creates an AI job, so the run is on the record. */
   aiSummarise: Scalars['String']['output'];
+  /** Sends a scraped page and an instruction to the AI; spends AI budget. */
+  analyzeWebScrape: WebScrape;
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
@@ -6366,6 +6409,7 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createFinding: Finding;
+  createFirecrawlConfig: FirecrawlConfig;
   /** Public. Stores the estimate behind a read-only link. */
   createGccShare: GccShareCreated;
   createGig: Gig;
@@ -6542,6 +6586,7 @@ export type Mutation = {
   deleteExitRecord: Scalars['Boolean']['output'];
   deleteExpenseClaim: Scalars['Boolean']['output'];
   deleteFinding: Scalars['Boolean']['output'];
+  deleteFirecrawlConfig: Scalars['Boolean']['output'];
   deleteGig: Scalars['Boolean']['output'];
   deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
@@ -6622,6 +6667,7 @@ export type Mutation = {
   deleteToolCategory: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
+  deleteWebScrape: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteChatFaq: Scalars['Boolean']['output'];
   deleteWebsiteChatKnowledge: Scalars['Boolean']['output'];
@@ -6819,6 +6865,8 @@ export type Mutation = {
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
+  /** Reads one public web page through Firecrawl and keeps it as markdown. */
+  scrapeWebsite: WebScrape;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
    * configured admin account to that configured address. A no-op once any ADMIN
@@ -6982,6 +7030,8 @@ export type Mutation = {
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
+  /** Deletes, archives or restores up to 200 selected rows of a list. */
+  tableBulkAction: TableBulkResult;
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
@@ -6989,6 +7039,8 @@ export type Mutation = {
   testCloudflareConnection: Scalars['Boolean']['output'];
   /** Connects to the proxy and signs in; says what worked, or why not. */
   testEmailVerifierConfig: Scalars['String']['output'];
+  /** Scrapes example.com with this config; says what worked, or why not. */
+  testFirecrawlConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   /** Reads every enabled mailbox's address with its stored connection. */
   testGmailConfig: Scalars['String']['output'];
@@ -7111,6 +7163,7 @@ export type Mutation = {
   updateExitRecord: ExitRecord;
   updateExpenseClaim: ExpenseClaim;
   updateFinding: Finding;
+  updateFirecrawlConfig: FirecrawlConfig;
   updateGig: Gig;
   updateGithubConfig: GithubConfig;
   updateGoal: Goal;
@@ -7288,6 +7341,12 @@ export type MutationAiDraftArgs = {
 export type MutationAiSummariseArgs = {
   style?: InputMaybe<SummaryStyle>;
   text: Scalars['String']['input'];
+};
+
+
+export type MutationAnalyzeWebScrapeArgs = {
+  id: Scalars['ID']['input'];
+  instruction: Scalars['String']['input'];
 };
 
 
@@ -7651,6 +7710,11 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateFindingArgs = {
   input: FindingInput;
+};
+
+
+export type MutationCreateFirecrawlConfigArgs = {
+  input: FirecrawlConfigInput;
 };
 
 
@@ -8379,6 +8443,11 @@ export type MutationDeleteFindingArgs = {
 };
 
 
+export type MutationDeleteFirecrawlConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGigArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8760,6 +8829,11 @@ export type MutationDeleteTrainingArgs = {
 
 
 export type MutationDeleteUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebScrapeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9246,6 +9320,11 @@ export type MutationSaveWhatsappWorkflowDraftArgs = {
 };
 
 
+export type MutationScrapeWebsiteArgs = {
+  url: Scalars['String']['input'];
+};
+
+
 export type MutationSendCampaignArgs = {
   audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
@@ -9601,6 +9680,13 @@ export type MutationSyncSocialAccountArgs = {
 };
 
 
+export type MutationTableBulkActionArgs = {
+  action: TableBulkAction;
+  ids: Array<Scalars['ID']['input']>;
+  list: Scalars['String']['input'];
+};
+
+
 export type MutationTestCallingBotConfigArgs = {
   id: Scalars['ID']['input'];
 };
@@ -9617,6 +9703,11 @@ export type MutationTestCloudflareConnectionArgs = {
 
 
 export type MutationTestEmailVerifierConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestFirecrawlConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -10042,6 +10133,12 @@ export type MutationUpdateExpenseClaimArgs = {
 export type MutationUpdateFindingArgs = {
   id: Scalars['ID']['input'];
   input: FindingInput;
+};
+
+
+export type MutationUpdateFirecrawlConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: FirecrawlConfigInput;
 };
 
 
@@ -12292,6 +12389,9 @@ export type Query = {
    * Null until HR has set one up. This is what the employee record reads.
    */
   employeeSalary?: Maybe<SalaryStructure>;
+  firecrawlConfigs: Array<FirecrawlConfig>;
+  /** Whether the website scraper can run: a Firecrawl key is configured. */
+  firecrawlReady: Scalars['Boolean']['output'];
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -12376,6 +12476,7 @@ export type Query = {
   getToolCategory: ToolCategory;
   getTraining: Training;
   getUser: User;
+  getWebScrape: WebScrape;
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
@@ -12409,6 +12510,8 @@ export type Query = {
   /** months: 1 to 24. */
   itReport: ItReport;
   itSettings: ItSettings;
+  /** Cities, areas and postcodes matching what was typed in Where (2-100 characters). */
+  leadLocationSuggestions: Array<LeadLocationSuggestion>;
   /** How many leads carry this campaign's attribution. */
   leadsByCampaign: Scalars['Int']['output'];
   /** HR/ADMIN: a specific employee's leave requests. */
@@ -12734,6 +12837,7 @@ export type Query = {
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
+  listWebScrapesPaged: WebScrapePage;
   listWebhookDeliveries: Array<WebhookDelivery>;
   listWebhooks: Array<Webhook>;
   listWebsiteChatFaqs: Array<WebsiteChatFaq>;
@@ -12986,6 +13090,8 @@ export type Query = {
   supportSlaSummary: SupportSlaSummary;
   /** Admin only — the deployment's own vital signs. */
   systemHealth: SystemHealth;
+  /** Whether a list's selected rows can be deleted and archived. */
+  tableBulkInfo: TableBulkInfo;
   /** Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT. */
   tableExport: TableFile;
   /** The sample file to fill in for an import into this list. */
@@ -13057,6 +13163,7 @@ export type Query = {
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
+  webScrapeAiEstimate: WebScrapeAiEstimate;
   /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
   webhookEvents: Array<Scalars['String']['output']>;
   /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
@@ -13779,6 +13886,11 @@ export type QueryGetUserArgs = {
 };
 
 
+export type QueryGetWebScrapeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetWebsiteChatFaqArgs = {
   id: Scalars['ID']['input'];
 };
@@ -13811,6 +13923,11 @@ export type QueryItEmployeeProfileArgs = {
 
 export type QueryItReportArgs = {
   months?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryLeadLocationSuggestionsArgs = {
+  input: Scalars['String']['input'];
 };
 
 
@@ -14284,6 +14401,11 @@ export type QueryListUsersPagedArgs = {
 };
 
 
+export type QueryListWebScrapesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListWebhookDeliveriesArgs = {
   webhookId: Scalars['ID']['input'];
 };
@@ -14739,6 +14861,11 @@ export type QueryStatusOverviewArgs = {
 };
 
 
+export type QueryTableBulkInfoArgs = {
+  list: Scalars['String']['input'];
+};
+
+
 export type QueryTableExportArgs = {
   columns: Array<TableExportColumnInput>;
   fileName: Scalars['String']['input'];
@@ -14841,6 +14968,12 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryWebScrapeAiEstimateArgs = {
+  id: Scalars['ID']['input'];
+  instruction: Scalars['String']['input'];
 };
 
 
@@ -16399,6 +16532,35 @@ export type SystemHealth = {
   uptimeSeconds: Scalars['Int']['output'];
 };
 
+/** What a grid may do with the rows a person selects. */
+export enum TableBulkAction {
+  /** Hides the rows from the table and keeps them; they can be restored. */
+  Archive = 'ARCHIVE',
+  /** Deletes each row through the module's own delete, guards and audit included. */
+  Delete = 'DELETE',
+  /** Brings archived rows back into the table. */
+  Restore = 'RESTORE'
+}
+
+export type TableBulkFailure = {
+  __typename?: 'TableBulkFailure';
+  id: Scalars['ID']['output'];
+  message: Scalars['String']['output'];
+};
+
+export type TableBulkInfo = {
+  __typename?: 'TableBulkInfo';
+  archivable: Scalars['Boolean']['output'];
+  deletable: Scalars['Boolean']['output'];
+};
+
+export type TableBulkResult = {
+  __typename?: 'TableBulkResult';
+  /** Rows that could not be deleted, with why; the rest were. */
+  failures: Array<TableBulkFailure>;
+  succeeded: Scalars['Int']['output'];
+};
+
 /** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
 export type TableExportColumnInput = {
   field: Scalars['String']['input'];
@@ -16497,6 +16659,8 @@ export type TableInfo = {
 
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
 export type TableQueryInput = {
+  /** True lists only archived rows; otherwise archived rows are left out. */
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   filters?: InputMaybe<Array<TableFilterInput>>;
   /** Zero-based: 0 is the first page, so the first pageSize rows. */
   page: Scalars['Int']['input'];
@@ -17823,6 +17987,44 @@ export type UserSocialLinksInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** A web page read through Firecrawl, kept as markdown, with the last AI answer about it. */
+export type WebScrape = {
+  __typename?: 'WebScrape';
+  aiCostUsd?: Maybe<Scalars['Float']['output']>;
+  aiInstruction: Scalars['String']['output'];
+  aiResponse: Scalars['String']['output'];
+  analyzedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The page's full length; only the first 200,000 characters are kept. */
+  charCount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  markdown: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** What handing a scraped page to the AI would cost, worked out before anything is spent. */
+export type WebScrapeAiEstimate = {
+  __typename?: 'WebScrapeAiEstimate';
+  costUsd: Scalars['Float']['output'];
+  /** The prompt: the instruction plus the page, at about four characters a token. */
+  inputTokens: Scalars['Int']['output'];
+  model: Scalars['String']['output'];
+  /** A page-long answer, assumed for the estimate. */
+  outputTokens: Scalars['Int']['output'];
+  /** False when the model has no price in Tech > AI Pricing; the cost then reads 0. */
+  priced: Scalars['Boolean']['output'];
+  /** True when the page is longer than the AI reads (60,000 characters) and was cut. */
+  truncated: Scalars['Boolean']['output'];
+};
+
+export type WebScrapePage = {
+  __typename?: 'WebScrapePage';
+  rows: Array<WebScrape>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Webhook = {
   __typename?: 'Webhook';
   active: Scalars['Boolean']['output'];
@@ -19049,6 +19251,8 @@ export type ResolversTypes = ResolversObject<{
   FindingSource: FindingSource;
   FindingStatus: FindingStatus;
   FindingType: FindingType;
+  FirecrawlConfig: ResolverTypeWrapper<FirecrawlConfig>;
+  FirecrawlConfigInput: FirecrawlConfigInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GatewayMode: GatewayMode;
   GccEmailInput: GccEmailInput;
@@ -19179,6 +19383,7 @@ export type ResolversTypes = ResolversObject<{
   KbArticle: ResolverTypeWrapper<KbArticle>;
   KbArticleInput: KbArticleInput;
   KbArticlePage: ResolverTypeWrapper<KbArticlePage>;
+  LatLngInput: LatLngInput;
   Lead: ResolverTypeWrapper<Lead>;
   LeadEmailResult: ResolverTypeWrapper<LeadEmailResult>;
   LeadEmailStatus: LeadEmailStatus;
@@ -19187,6 +19392,7 @@ export type ResolversTypes = ResolversObject<{
   LeadImportResult: ResolverTypeWrapper<LeadImportResult>;
   LeadImportSkip: ResolverTypeWrapper<LeadImportSkip>;
   LeadInput: LeadInput;
+  LeadLocationSuggestion: ResolverTypeWrapper<LeadLocationSuggestion>;
   LeadPage: ResolverTypeWrapper<LeadPage>;
   LeadPlace: ResolverTypeWrapper<LeadPlace>;
   LeadSearchInput: LeadSearchInput;
@@ -19509,6 +19715,10 @@ export type ResolversTypes = ResolversObject<{
   SupportTicketPage: ResolverTypeWrapper<SupportTicketPage>;
   SuppressionReason: SuppressionReason;
   SystemHealth: ResolverTypeWrapper<SystemHealth>;
+  TableBulkAction: TableBulkAction;
+  TableBulkFailure: ResolverTypeWrapper<TableBulkFailure>;
+  TableBulkInfo: ResolverTypeWrapper<TableBulkInfo>;
+  TableBulkResult: ResolverTypeWrapper<TableBulkResult>;
   TableExportColumnInput: TableExportColumnInput;
   TableFieldKind: TableFieldKind;
   TableFile: ResolverTypeWrapper<TableFile>;
@@ -19612,6 +19822,9 @@ export type ResolversTypes = ResolversObject<{
   UserSession: ResolverTypeWrapper<UserSession>;
   UserSocialLinks: ResolverTypeWrapper<UserSocialLinks>;
   UserSocialLinksInput: UserSocialLinksInput;
+  WebScrape: ResolverTypeWrapper<WebScrape>;
+  WebScrapeAiEstimate: ResolverTypeWrapper<WebScrapeAiEstimate>;
+  WebScrapePage: ResolverTypeWrapper<WebScrapePage>;
   Webhook: ResolverTypeWrapper<Webhook>;
   WebhookDelivery: ResolverTypeWrapper<WebhookDelivery>;
   WebsiteCaptcha: ResolverTypeWrapper<WebsiteCaptcha>;
@@ -19974,6 +20187,8 @@ export type ResolversParentTypes = ResolversObject<{
   Finding: Finding;
   FindingInput: FindingInput;
   FindingPage: FindingPage;
+  FirecrawlConfig: FirecrawlConfig;
+  FirecrawlConfigInput: FirecrawlConfigInput;
   Float: Scalars['Float']['output'];
   GccEmailInput: GccEmailInput;
   GccEmailResult: GccEmailResult;
@@ -20078,6 +20293,7 @@ export type ResolversParentTypes = ResolversObject<{
   KbArticle: KbArticle;
   KbArticleInput: KbArticleInput;
   KbArticlePage: KbArticlePage;
+  LatLngInput: LatLngInput;
   Lead: Lead;
   LeadEmailResult: LeadEmailResult;
   LeadImportFiled: LeadImportFiled;
@@ -20085,6 +20301,7 @@ export type ResolversParentTypes = ResolversObject<{
   LeadImportResult: LeadImportResult;
   LeadImportSkip: LeadImportSkip;
   LeadInput: LeadInput;
+  LeadLocationSuggestion: LeadLocationSuggestion;
   LeadPage: LeadPage;
   LeadPlace: LeadPlace;
   LeadSearchInput: LeadSearchInput;
@@ -20341,6 +20558,9 @@ export type ResolversParentTypes = ResolversObject<{
   SupportTicketInput: SupportTicketInput;
   SupportTicketPage: SupportTicketPage;
   SystemHealth: SystemHealth;
+  TableBulkFailure: TableBulkFailure;
+  TableBulkInfo: TableBulkInfo;
+  TableBulkResult: TableBulkResult;
   TableExportColumnInput: TableExportColumnInput;
   TableFile: TableFile;
   TableFilterColumn: TableFilterColumn;
@@ -20428,6 +20648,9 @@ export type ResolversParentTypes = ResolversObject<{
   UserSession: UserSession;
   UserSocialLinks: UserSocialLinks;
   UserSocialLinksInput: UserSocialLinksInput;
+  WebScrape: WebScrape;
+  WebScrapeAiEstimate: WebScrapeAiEstimate;
+  WebScrapePage: WebScrapePage;
   Webhook: Webhook;
   WebhookDelivery: WebhookDelivery;
   WebsiteCaptcha: WebsiteCaptcha;
@@ -22091,6 +22314,7 @@ export type CrmPropertyResolvers<ContextType = GraphQLContext, ParentType extend
 export type CrmPropertyInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmPropertyInfo'] = ResolversParentTypes['CrmPropertyInfo']> = ResolversObject<{
   builtIn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  filterOnly?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   importable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -22709,6 +22933,17 @@ export type FindingResolvers<ContextType = GraphQLContext, ParentType extends Re
 export type FindingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FindingPage'] = ResolversParentTypes['FindingPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Finding']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FirecrawlConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FirecrawlConfig'] = ResolversParentTypes['FirecrawlConfig']> = ResolversObject<{
+  apiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  baseUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23565,6 +23800,14 @@ export type LeadImportSkipResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LeadLocationSuggestionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadLocationSuggestion'] = ResolversParentTypes['LeadLocationSuggestion']> = ResolversObject<{
+  mainText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  secondaryText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LeadPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadPage'] = ResolversParentTypes['LeadPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Lead']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -23893,6 +24136,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   addTaskComment?: Resolver<ResolversTypes['TaskComment'], ParentType, ContextType, RequireFields<MutationAddTaskCommentArgs, 'body' | 'taskId'>>;
   aiDraft?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAiDraftArgs, 'context' | 'kind'>>;
   aiSummarise?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAiSummariseArgs, 'style' | 'text'>>;
+  analyzeWebScrape?: Resolver<ResolversTypes['WebScrape'], ParentType, ContextType, RequireFields<MutationAnalyzeWebScrapeArgs, 'id' | 'instruction'>>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
@@ -23962,6 +24206,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationCreateExitRecordArgs, 'input'>>;
   createExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateExpenseClaimArgs, 'input'>>;
   createFinding?: Resolver<ResolversTypes['Finding'], ParentType, ContextType, RequireFields<MutationCreateFindingArgs, 'input'>>;
+  createFirecrawlConfig?: Resolver<ResolversTypes['FirecrawlConfig'], ParentType, ContextType, RequireFields<MutationCreateFirecrawlConfigArgs, 'input'>>;
   createGccShare?: Resolver<ResolversTypes['GccShareCreated'], ParentType, ContextType, RequireFields<MutationCreateGccShareArgs, 'captcha' | 'input'>>;
   createGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationCreateGigArgs, 'input'>>;
   createGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationCreateGithubConfigArgs, 'input'>>;
@@ -24102,6 +24347,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteExitRecord?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExitRecordArgs, 'id'>>;
   deleteExpenseClaim?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExpenseClaimArgs, 'id'>>;
   deleteFinding?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFindingArgs, 'id'>>;
+  deleteFirecrawlConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFirecrawlConfigArgs, 'id'>>;
   deleteGig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGigArgs, 'id'>>;
   deleteGithubConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGithubConfigArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
@@ -24179,6 +24425,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteToolCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolCategoryArgs, 'id'>>;
   deleteTraining?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainingArgs, 'id'>>;
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
+  deleteWebScrape?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebScrapeArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteChatFaq?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteChatFaqArgs, 'id'>>;
   deleteWebsiteChatKnowledge?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteChatKnowledgeArgs, 'id'>>;
@@ -24270,6 +24517,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   saveWhatsappChannel?: Resolver<ResolversTypes['WhatsappChannel'], ParentType, ContextType, RequireFields<MutationSaveWhatsappChannelArgs, 'input'>>;
   saveWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationSaveWhatsappWorkflowDraftArgs, 'id' | 'input'>>;
+  scrapeWebsite?: Resolver<ResolversTypes['WebScrape'], ParentType, ContextType, RequireFields<MutationScrapeWebsiteArgs, 'url'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
   sendCrmEmail?: Resolver<ResolversTypes['CrmEmailMessage'], ParentType, ContextType, RequireFields<MutationSendCrmEmailArgs, 'input'>>;
@@ -24333,10 +24581,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
   syncWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatSyncResult'], ParentType, ContextType>;
+  tableBulkAction?: Resolver<ResolversTypes['TableBulkResult'], ParentType, ContextType, RequireFields<MutationTableBulkActionArgs, 'action' | 'ids' | 'list'>>;
   testCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCallingBotConfigArgs, 'id'>>;
   testCallingBotKey?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestCallingBotKeyArgs, 'input'>>;
   testCloudflareConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCloudflareConnectionArgs, 'id'>>;
   testEmailVerifierConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestEmailVerifierConfigArgs, 'id'>>;
+  testFirecrawlConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestFirecrawlConfigArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testGmailConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
@@ -24413,6 +24663,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationUpdateExitRecordArgs, 'id' | 'input'>>;
   updateExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationUpdateExpenseClaimArgs, 'id' | 'input'>>;
   updateFinding?: Resolver<ResolversTypes['Finding'], ParentType, ContextType, RequireFields<MutationUpdateFindingArgs, 'id' | 'input'>>;
+  updateFirecrawlConfig?: Resolver<ResolversTypes['FirecrawlConfig'], ParentType, ContextType, RequireFields<MutationUpdateFirecrawlConfigArgs, 'id' | 'input'>>;
   updateGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationUpdateGigArgs, 'id' | 'input'>>;
   updateGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationUpdateGithubConfigArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
@@ -25409,6 +25660,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   emailVerifierConfigs?: Resolver<Array<ResolversTypes['EmailVerifierConfig']>, ParentType, ContextType>;
   employeeLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType, RequireFields<QueryEmployeeLeaveBalancesArgs, 'employeeId' | 'year'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
+  firecrawlConfigs?: Resolver<Array<ResolversTypes['FirecrawlConfig']>, ParentType, ContextType>;
+  firecrawlReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
   getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
@@ -25492,6 +25745,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<QueryGetToolCategoryArgs, 'id'>>;
   getTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<QueryGetTrainingArgs, 'id'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
+  getWebScrape?: Resolver<ResolversTypes['WebScrape'], ParentType, ContextType, RequireFields<QueryGetWebScrapeArgs, 'id'>>;
   getWebsiteChatFaq?: Resolver<ResolversTypes['WebsiteChatFaq'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatFaqArgs, 'id'>>;
   getWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatKnowledgeArgs, 'id'>>;
   getWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<QueryGetWebsiteSubmissionArgs, 'id'>>;
@@ -25515,6 +25769,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   itOnboarding?: Resolver<Array<ResolversTypes['ItOnboardingRow']>, ParentType, ContextType>;
   itReport?: Resolver<ResolversTypes['ItReport'], ParentType, ContextType, RequireFields<QueryItReportArgs, 'months'>>;
   itSettings?: Resolver<ResolversTypes['ItSettings'], ParentType, ContextType>;
+  leadLocationSuggestions?: Resolver<Array<ResolversTypes['LeadLocationSuggestion']>, ParentType, ContextType, RequireFields<QueryLeadLocationSuggestionsArgs, 'input'>>;
   leadsByCampaign?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<QueryLeadsByCampaignArgs, 'campaignId'>>;
   leaveRequestsByEmployee?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType, RequireFields<QueryLeaveRequestsByEmployeeArgs, 'employeeId'>>;
   licenceSeatsFor?: Resolver<Array<ResolversTypes['EmployeeLicenceSeat']>, ParentType, ContextType, RequireFields<QueryLicenceSeatsForArgs, 'employeeId'>>;
@@ -25801,6 +26056,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   listUsersPaged?: Resolver<ResolversTypes['UserPage'], ParentType, ContextType, RequireFields<QueryListUsersPagedArgs, 'input'>>;
   listUsersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listWebScrapesPaged?: Resolver<ResolversTypes['WebScrapePage'], ParentType, ContextType, RequireFields<QueryListWebScrapesPagedArgs, 'input'>>;
   listWebhookDeliveries?: Resolver<Array<ResolversTypes['WebhookDelivery']>, ParentType, ContextType, RequireFields<QueryListWebhookDeliveriesArgs, 'webhookId'>>;
   listWebhooks?: Resolver<Array<ResolversTypes['Webhook']>, ParentType, ContextType>;
   listWebsiteChatFaqs?: Resolver<Array<ResolversTypes['WebsiteChatFaq']>, ParentType, ContextType>;
@@ -25940,6 +26196,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   supportSlaSummary?: Resolver<ResolversTypes['SupportSlaSummary'], ParentType, ContextType>;
   systemHealth?: Resolver<ResolversTypes['SystemHealth'], ParentType, ContextType>;
+  tableBulkInfo?: Resolver<ResolversTypes['TableBulkInfo'], ParentType, ContextType, RequireFields<QueryTableBulkInfoArgs, 'list'>>;
   tableExport?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryTableExportArgs, 'columns' | 'fileName' | 'format' | 'input' | 'list'>>;
   tableImportTemplate?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryTableImportTemplateArgs, 'fileName' | 'format' | 'list'>>;
   tableInfo?: Resolver<ResolversTypes['TableInfo'], ParentType, ContextType, RequireFields<QueryTableInfoArgs, 'list'>>;
@@ -25970,6 +26227,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerTimezones?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
   translations?: Resolver<ResolversTypes['TranslationPage'], ParentType, ContextType, RequireFields<QueryTranslationsArgs, 'locale'>>;
+  webScrapeAiEstimate?: Resolver<ResolversTypes['WebScrapeAiEstimate'], ParentType, ContextType, RequireFields<QueryWebScrapeAiEstimateArgs, 'id' | 'instruction'>>;
   webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   websiteCaptcha?: Resolver<ResolversTypes['WebsiteCaptcha'], ParentType, ContextType>;
   websiteChatAgentCandidates?: Resolver<Array<ResolversTypes['WebsiteChatAgent']>, ParentType, ContextType>;
@@ -26862,6 +27120,24 @@ export type SystemHealthResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TableBulkFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableBulkFailure'] = ResolversParentTypes['TableBulkFailure']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableBulkInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableBulkInfo'] = ResolversParentTypes['TableBulkInfo']> = ResolversObject<{
+  archivable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  deletable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableBulkResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableBulkResult'] = ResolversParentTypes['TableBulkResult']> = ResolversObject<{
+  failures?: Resolver<Array<ResolversTypes['TableBulkFailure']>, ParentType, ContextType>;
+  succeeded?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TableFileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableFile'] = ResolversParentTypes['TableFile']> = ResolversObject<{
   contentBase64?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fileName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -27581,6 +27857,37 @@ export type UserSocialLinksResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WebScrapeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebScrape'] = ResolversParentTypes['WebScrape']> = ResolversObject<{
+  aiCostUsd?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  aiInstruction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  aiResponse?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  analyzedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  charCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  markdown?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebScrapeAiEstimateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebScrapeAiEstimate'] = ResolversParentTypes['WebScrapeAiEstimate']> = ResolversObject<{
+  costUsd?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  inputTokens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  model?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  outputTokens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  priced?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  truncated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebScrapePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebScrapePage'] = ResolversParentTypes['WebScrapePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['WebScrape']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WebhookResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Webhook'] = ResolversParentTypes['Webhook']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -28235,6 +28542,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   FinanceMonth?: FinanceMonthResolvers<ContextType>;
   Finding?: FindingResolvers<ContextType>;
   FindingPage?: FindingPageResolvers<ContextType>;
+  FirecrawlConfig?: FirecrawlConfigResolvers<ContextType>;
   GccEmailResult?: GccEmailResultResolvers<ContextType>;
   GccShareCreated?: GccShareCreatedResolvers<ContextType>;
   GccSharedEstimate?: GccSharedEstimateResolvers<ContextType>;
@@ -28311,6 +28619,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LeadImportFiled?: LeadImportFiledResolvers<ContextType>;
   LeadImportResult?: LeadImportResultResolvers<ContextType>;
   LeadImportSkip?: LeadImportSkipResolvers<ContextType>;
+  LeadLocationSuggestion?: LeadLocationSuggestionResolvers<ContextType>;
   LeadPage?: LeadPageResolvers<ContextType>;
   LeadPlace?: LeadPlaceResolvers<ContextType>;
   LeadSearchPage?: LeadSearchPageResolvers<ContextType>;
@@ -28493,6 +28802,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SupportTicket?: SupportTicketResolvers<ContextType>;
   SupportTicketPage?: SupportTicketPageResolvers<ContextType>;
   SystemHealth?: SystemHealthResolvers<ContextType>;
+  TableBulkFailure?: TableBulkFailureResolvers<ContextType>;
+  TableBulkInfo?: TableBulkInfoResolvers<ContextType>;
+  TableBulkResult?: TableBulkResultResolvers<ContextType>;
   TableFile?: TableFileResolvers<ContextType>;
   TableFilterColumn?: TableFilterColumnResolvers<ContextType>;
   TableImportField?: TableImportFieldResolvers<ContextType>;
@@ -28555,6 +28867,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   UserPage?: UserPageResolvers<ContextType>;
   UserSession?: UserSessionResolvers<ContextType>;
   UserSocialLinks?: UserSocialLinksResolvers<ContextType>;
+  WebScrape?: WebScrapeResolvers<ContextType>;
+  WebScrapeAiEstimate?: WebScrapeAiEstimateResolvers<ContextType>;
+  WebScrapePage?: WebScrapePageResolvers<ContextType>;
   Webhook?: WebhookResolvers<ContextType>;
   WebhookDelivery?: WebhookDeliveryResolvers<ContextType>;
   WebsiteCaptcha?: WebsiteCaptchaResolvers<ContextType>;

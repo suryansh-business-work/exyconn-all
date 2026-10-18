@@ -71,6 +71,8 @@ export function useRecordFetcher<TQuery, TRow>(
             search: search === '' ? null : search,
             groups: toGroupInputs(current.groups),
             sorts,
+            // The grid's Archived switch: archived rows only, or (otherwise) none of them.
+            archived: input.archived,
           },
         },
         fetchPolicy: 'network-only',

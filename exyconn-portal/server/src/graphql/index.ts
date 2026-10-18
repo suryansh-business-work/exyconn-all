@@ -154,6 +154,7 @@ import {
   emailVerificationResolvers,
 } from '../modules/email-verification';
 import { googleMapsTypeDefs, googleMapsResolvers } from '../modules/google-maps';
+import { webScraperTypeDefs, webScraperResolvers } from '../modules/web-scraper';
 import { crmGeoResolvers } from '../modules/crm/crm.geo';
 import { crmGeoTypeDefs } from '../modules/crm/crm.geo.typeDefs';
 import {
@@ -320,6 +321,7 @@ export const typeDefs = [
   callingBotTypeDefs,
   emailVerificationTypeDefs,
   googleMapsTypeDefs,
+  webScraperTypeDefs,
   crmGeoTypeDefs,
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
@@ -419,6 +421,7 @@ export const resolvers = mergeResolvers([
   callingBotResolvers,
   emailVerificationResolvers,
   googleMapsResolvers,
+  webScraperResolvers,
   crmGeoResolvers,
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,

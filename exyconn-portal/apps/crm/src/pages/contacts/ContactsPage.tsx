@@ -80,6 +80,7 @@ export function ContactsPage() {
       columnDefs={records.columnDefs}
       onRowClick={(row) => navigate(`/crm/contacts/${row.id}`)}
       fetchRows={records.fetchRows}
+      bulkList="searchContacts"
       context={gridContext}
       searchPlaceholder="Search by name, email, company or owner…"
       initialSearch={records.initialSearch}

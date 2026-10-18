@@ -1,4 +1,5 @@
 import type { Model } from 'mongoose';
+import { archiveRecords } from './archivable';
 import { notFound } from '../utils/errors';
 import {
   tableQuery,
@@ -28,6 +29,8 @@ export interface CrudService<TInput> {
   create(input: TInput): Promise<unknown>;
   update(id: string, input: Partial<TInput>): Promise<unknown>;
   remove(id: string): Promise<boolean>;
+  /** Archives (or restores) these records; returns how many changed. */
+  archive(ids: string[], archived: boolean): Promise<number>;
 }
 
 /**
@@ -60,5 +63,6 @@ export function createCrudService<TInput extends object>(
       if (!doc) notFound(label);
       return true;
     },
+    archive: (ids, archived) => archiveRecords(model, ids, archived),
   };
 }
