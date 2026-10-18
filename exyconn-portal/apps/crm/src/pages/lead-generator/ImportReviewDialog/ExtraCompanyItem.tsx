@@ -26,7 +26,7 @@ export function ExtraCompanyItem({ preview, checked, onToggle }: Readonly<ExtraC
           },
         }}
       />
-      <Stack spacing={0.25} sx={{ minWidth: 0, pt: 1 }}>
+      <Stack spacing={0.5} sx={{ minWidth: 0, pt: 1 }}>
         <CompanyLink preview={preview} />
         {preview.extras.map((extra) => (
           <Text
