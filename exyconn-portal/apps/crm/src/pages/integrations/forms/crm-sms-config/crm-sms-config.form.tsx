@@ -11,6 +11,7 @@ import {
   useUpdateCrmSmsConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { ACTIVE_OPTIONS, KEEP_TOKEN_HINT } from '../secret';
+import { RhfProviderSelect } from '../RhfProviderSelect';
 import { Msg91SmsFields, TwilioSmsFields } from './crm-sms-config.fields';
 import {
   makeCrmSmsConfigSchema,
@@ -21,10 +22,7 @@ import {
   type CrmSmsConfigValues,
 } from './crm-sms-config.types';
 
-const PROVIDER_OPTIONS = [
-  { value: CrmSmsProvider.Twilio, label: 'Twilio' },
-  { value: CrmSmsProvider.Msg91, label: 'MSG91' },
-];
+const PROVIDERS = [CrmSmsProvider.Twilio, CrmSmsProvider.Msg91];
 
 interface CrmSmsConfigFormProps {
   initial: CrmSmsConfigRow | null;
@@ -59,7 +57,7 @@ export function CrmSmsConfigForm({ initial, onDone, onCancel }: Readonly<CrmSmsC
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" helperText="e.g. Sales texts" />
-      <RhfSelect name="provider" label="Provider" options={PROVIDER_OPTIONS} />
+      <RhfProviderSelect providers={PROVIDERS} />
       {isTwilio ? <TwilioSmsFields /> : <Msg91SmsFields />}
       <RhfSecretField
         name="authToken"

@@ -1,6 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Chip, Flex, Text } from '@exyconn/shell/components/ui';
 import { PROVIDER_NAMES } from '../../integrations/providerNames';
+import { ProviderLogo } from '../../integrations/ProviderLogo';
 
 interface ChannelStatusProps {
   /** Whether the channel can be used from a record page. */
@@ -19,9 +20,12 @@ export function ChannelStatus({ ready, provider, hint }: Readonly<ChannelStatusP
     <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
       <Chip size="small" color={ready ? 'success' : 'default'} label={label} />
       {ready && provider && (
-        <Text size="sm" color="text.secondary">
-          {t('Active account: {provider}', { provider: PROVIDER_NAMES[provider] ?? provider })}
-        </Text>
+        <>
+          <ProviderLogo provider={provider} />
+          <Text size="sm" color="text.secondary">
+            {t('Active account: {provider}', { provider: PROVIDER_NAMES[provider] ?? provider })}
+          </Text>
+        </>
       )}
       {!ready && (
         <Text size="sm" color="text.secondary">

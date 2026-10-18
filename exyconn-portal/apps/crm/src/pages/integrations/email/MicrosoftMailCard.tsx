@@ -6,6 +6,7 @@ import { appUrl } from '@exyconn/shell/config/apps';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { useMicrosoftMailAccountsQuery } from '@exyconn/shell/graphql/generated';
+import { ProviderLogo } from '../../../integrations/ProviderLogo';
 import { MicrosoftAccountCard } from './MicrosoftAccountCard';
 import { useMicrosoftMailActions } from './useMicrosoftMailActions';
 
@@ -70,9 +71,12 @@ export function MicrosoftMailCard() {
   return (
     <Box component="section" sx={panel} aria-labelledby="microsoft-mail-heading">
       <Flex direction="column" spacing={1.5}>
-        <Text id="microsoft-mail-heading" component="h2" weight="semibold">
-          {t('Microsoft (Outlook / Microsoft 365)')}
-        </Text>
+        <Flex direction="row" spacing={1} alignItems="center">
+          <ProviderLogo provider="MICROSOFT" size={28} />
+          <Text id="microsoft-mail-heading" component="h2" weight="semibold">
+            {t('Microsoft (Outlook / Microsoft 365)')}
+          </Text>
+        </Flex>
         <Text size="sm" color="text.secondary">
           {t('Send CRM emails from Outlook or Microsoft 365 mailboxes.')}
         </Text>

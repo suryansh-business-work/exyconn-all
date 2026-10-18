@@ -10,11 +10,11 @@ import {
 import { maskedToken } from '../forms/secret';
 import { CrmCallConfigForm, type CrmCallConfigRow } from '../forms/crm-call-config';
 import { ChannelConfigsPanel } from '../ChannelConfigsPanel';
-import { PROVIDER_NAMES } from '../../../integrations/providerNames';
+import { ProviderLabel } from '../../../integrations/ProviderLogo';
 
 const COLUMNS: Column<CrmCallConfigRow>[] = [
   { key: 'label', label: 'Label' },
-  { key: 'provider', label: 'Provider', render: (r) => PROVIDER_NAMES[r.provider] },
+  { key: 'provider', label: 'Provider', render: (r) => <ProviderLabel provider={r.provider} /> },
   { key: 'fromNumber', label: 'From number' },
   {
     key: 'hasAuthToken',

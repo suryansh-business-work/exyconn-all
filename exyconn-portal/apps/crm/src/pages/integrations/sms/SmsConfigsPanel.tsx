@@ -11,11 +11,11 @@ import {
 import { maskedToken } from '../forms/secret';
 import { CrmSmsConfigForm, type CrmSmsConfigRow } from '../forms/crm-sms-config';
 import { ChannelConfigsPanel } from '../ChannelConfigsPanel';
-import { PROVIDER_NAMES } from '../../../integrations/providerNames';
+import { ProviderLabel } from '../../../integrations/ProviderLogo';
 
 const COLUMNS: Column<CrmSmsConfigRow>[] = [
   { key: 'label', label: 'Label' },
-  { key: 'provider', label: 'Provider', render: (r) => PROVIDER_NAMES[r.provider] },
+  { key: 'provider', label: 'Provider', render: (r) => <ProviderLabel provider={r.provider} /> },
   {
     key: 'fromNumber',
     label: 'Sends as',

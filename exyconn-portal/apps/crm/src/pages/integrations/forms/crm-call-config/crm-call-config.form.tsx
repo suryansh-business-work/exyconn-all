@@ -11,6 +11,7 @@ import {
   useUpdateCrmCallConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { ACTIVE_OPTIONS, KEEP_TOKEN_HINT } from '../secret';
+import { RhfProviderSelect } from '../RhfProviderSelect';
 import {
   accountLabel,
   makeCrmCallConfigSchema,
@@ -21,10 +22,7 @@ import {
   type CrmCallConfigValues,
 } from './crm-call-config.types';
 
-const PROVIDER_OPTIONS = [
-  { value: CrmCallProvider.Twilio, label: 'Twilio' },
-  { value: CrmCallProvider.Vobiz, label: 'Vobiz' },
-];
+const PROVIDERS = [CrmCallProvider.Twilio, CrmCallProvider.Vobiz];
 
 interface CrmCallConfigFormProps {
   initial: CrmCallConfigRow | null;
@@ -56,7 +54,7 @@ export function CrmCallConfigForm({ initial, onDone, onCancel }: Readonly<CrmCal
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" helperText="e.g. Sales line" />
-      <RhfSelect name="provider" label="Provider" options={PROVIDER_OPTIONS} />
+      <RhfProviderSelect providers={PROVIDERS} />
       <RhfTextField
         name="accountId"
         label={accountLabel(provider)}
