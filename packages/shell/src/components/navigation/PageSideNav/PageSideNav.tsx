@@ -46,6 +46,7 @@ export function PageSideNav({
   const categories = useMemo(() => new Set(items.map((item) => item.category)), [items]);
   const visible = filterNavItems(items, query, t);
   const searching = query.trim() !== '';
+  const allExpanded = [...categories].every((category) => !collapsed.has(category));
   const active = items.find((item) => item.slug === selected);
   const content = (
     <Box component="section" aria-label={active ? t(active.label) : undefined} sx={{ minWidth: 0 }}>
@@ -95,8 +96,8 @@ export function PageSideNav({
           sort={sort}
           onSortChange={setSort}
           canFold={sort === 'category' && !searching}
-          onExpandAll={() => setCollapsed(new Set())}
-          onCollapseAll={() => setCollapsed(new Set(categories))}
+          allExpanded={allExpanded}
+          onToggleAll={() => setCollapsed(allExpanded ? new Set(categories) : new Set())}
         />
         <PageSideNavList
           items={visible}
