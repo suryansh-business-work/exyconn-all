@@ -24,7 +24,7 @@ const GLOBE: Vec3 = [-0.1, -0.22, -0.2];
 const RADIUS = 0.78;
 const AXIS_TILT = -0.4;
 const STAND_TOP = GLOBE[1] - RADIUS - 0.05;
-const PLANE: Vec3 = [-1.05, 1.0, 0.15];
+const PLANE: Vec3 = [-1.05, 1, 0.15];
 const PIN_DIR: Vec3 = [0.55, 0.5, 0.67];
 const PIN_TIP = GLOBE.map((c, i) => c + RADIUS * PIN_DIR[i]) as Vec3;
 const SUITCASE: Vec3 = [1.15, GROUND, 0.55];

@@ -96,7 +96,7 @@ export function toGoogleBusiness(place: DetailsPayload) {
     category: place.primaryTypeDisplayName?.text ?? '',
     types: place.types ?? [],
     openingHours: place.regularOpeningHours?.weekdayDescriptions ?? [],
-    reviews: (place.reviews ?? []).map(toReview),
+    reviews: (place.reviews ?? []).map((review, index) => toReview(review, index)),
   };
 }
 

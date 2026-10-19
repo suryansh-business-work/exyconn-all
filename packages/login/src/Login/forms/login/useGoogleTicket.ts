@@ -25,18 +25,25 @@ export function useGoogleTicket(
   const problem = params.get(ERROR);
 
   useEffect(() => {
-    if (handled.current || (ticket === null && problem === null)) {
+    if (handled.current) {
       return;
     }
-    handled.current = true;
-    const rest = new URLSearchParams(params);
-    GOOGLE_PARAMS.forEach((param) => rest.delete(param));
-    setParams(rest, { replace: true });
+    const takeOffAddress = () => {
+      handled.current = true;
+      const rest = new URLSearchParams(params);
+      GOOGLE_PARAMS.forEach((param) => rest.delete(param));
+      setParams(rest, { replace: true });
+    };
     if (problem !== null) {
+      takeOffAddress();
       onError(problem);
       return;
     }
-    complete({ variables: { ticket: ticket ?? '' } })
+    if (ticket === null) {
+      return;
+    }
+    takeOffAddress();
+    complete({ variables: { ticket } })
       .then(({ data }) => {
         if (data) {
           onResult(data.completeGoogleSignIn);

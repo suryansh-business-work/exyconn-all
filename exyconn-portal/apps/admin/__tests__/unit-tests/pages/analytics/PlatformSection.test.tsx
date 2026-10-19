@@ -26,7 +26,7 @@ describe('PlatformSection', () => {
     expect(within(section).getByRole('status')).toHaveAttribute('aria-busy', 'true');
 
     expect(await within(section).findByText('Organizations')).toBeInTheDocument();
-    expect(section.querySelector('[aria-busy=\"true\"]')).toBeNull();
+    expect(section.querySelector('[aria-busy="true"]')).toBeNull();
     expect(within(section).getByText('300')).toBeInTheDocument();
     expect(within(section).getByText('250')).toBeInTheDocument();
     // Months are YYYY-MM keys and are drawn exactly as they come; an unset country says so.

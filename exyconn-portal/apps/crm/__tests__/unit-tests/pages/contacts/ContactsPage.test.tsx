@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SearchContactsDocument } from '@exyconn/shell/graphql/generated';
+import { CrmObject, SearchContactsDocument } from '@exyconn/shell/graphql/generated';
 import { ContactsPage } from '../../../../src/pages/contacts';
 import { CONTACT_COLUMNS } from '../../../../src/pages/contacts/contacts-grid';
+import { RecordActions } from '../../../../src/records/RecordActions';
 import { renderWithProviders } from '../../test-utils';
+import { UrlProbe } from '../../form-stub';
 import { contactRow, pending, tableStats } from '../../fixtures';
 import { dashboardProps, paged, recordList } from '../../crud-dashboard-stub';
 import { confirmRowDelete, runRowAction, statLines } from '../../crud-page-helpers';
@@ -36,6 +38,10 @@ vi.mock('../../../../src/pages/contacts/forms/contact', async () => ({
 }));
 
 const STATS = tableStats(9, { status: { ACTIVE: 5, UNSUBSCRIBED: 2, LEFT_COMPANY: 1 } });
+
+vi.mock('../../../../src/pages/contacts/ContactQuickView', () => ({
+  ContactQuickView: ({ id }: Readonly<{ id: string }>) => <p>{`Previewing "${id}"`}</p>,
+}));
 
 describe('ContactsPage', () => {
   beforeEach(() => {
@@ -107,5 +113,38 @@ describe('ContactsPage', () => {
     expect(gql.deleteContact).toHaveBeenCalledWith({ variables: { id: 'contact-7' } });
     expect(await screen.findByText('Contact deleted')).toBeInTheDocument();
     expect(gql.refetch).toHaveBeenCalledTimes(1);
+  });
+  it('previews a clicked row beside the list, keeping it in the URL', () => {
+    renderWithProviders(
+      <>
+        <ContactsPage />
+        <UrlProbe />
+      </>,
+      { route: '/contacts' },
+    );
+    const props = dashboardProps() as unknown as { onRowClick: (row: { id: string }) => void };
+
+    act(() => props.onRowClick({ id: 'contact-4' }));
+
+    expect(screen.getByText('Previewing "contact-4"')).toBeInTheDocument();
+    expect(screen.getByLabelText('current url')).toHaveTextContent('/contacts?preview=contact-4');
+  });
+
+  it('offers import and export of the contact records the toolbar has filtered', () => {
+    renderWithProviders(<ContactsPage />);
+    const { toolbar } = dashboardProps() as unknown as {
+      toolbar: { props: { renderActions: (query: unknown) => { type: unknown; props: object } } };
+    };
+    const query = { search: 'pune', filters: [] };
+
+    const actions = toolbar.props.renderActions(query);
+
+    expect(actions.type).toBe(RecordActions);
+    expect(actions.props).toMatchObject({
+      object: CrmObject.Contact,
+      query,
+      fileName: 'contacts',
+      onImported: expect.any(Function),
+    });
   });
 });

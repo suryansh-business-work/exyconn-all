@@ -47,8 +47,8 @@ interface RouteProps {
 
 /** The pathless layout route the CRM pages sit in (it hosts the communication dock). */
 function layoutRoute(children: ReactNode) {
-  const [layout] = Children.toArray(children).filter(isValidElement);
-  return layout.props as RouteProps;
+  const layout = Children.toArray(children).find(isValidElement);
+  return layout?.props as RouteProps;
 }
 
 /** Each route the layout declares, as path -> the page component it renders. */

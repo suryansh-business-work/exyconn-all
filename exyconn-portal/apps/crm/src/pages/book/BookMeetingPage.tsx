@@ -39,16 +39,15 @@ export function BookMeetingPage() {
       </BookingFrame>
     );
   }
-  const end = startAt
-    ? new Date(new Date(startAt).getTime() + meeting.durationMinutes * 60_000)
-    : null;
-  const chosen =
-    startAt && end
-      ? `${when.time(startAt)} – ${when.time(end)}, ${when.dayTitle(new Date(startAt))}`
-      : undefined;
+  let chosen: string | undefined;
+  if (startAt) {
+    const start = new Date(startAt);
+    const end = new Date(start.getTime() + meeting.durationMinutes * 60_000);
+    chosen = `${when.time(start)} – ${when.time(end)}, ${when.dayTitle(start)}`;
+  }
 
   let step = <SlotStep at={at} slug={slug} zone={zone} onZone={setZone} onPick={setStartAt} />;
-  if (booked && chosen) {
+  if (chosen && booked) {
     step = <BookedConfirmation booked={booked} chosen={chosen} zone={zone} />;
   } else if (startAt) {
     step = (

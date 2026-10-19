@@ -67,11 +67,7 @@ export function SaveStatus() {
                 size="small"
                 variant="contained"
                 disabled={!mine}
-                onClick={() => {
-                  if (mine) {
-                    store.keepMine(mine);
-                  }
-                }}
+                onClick={mine ? () => store.keepMine(mine) : undefined}
               >
                 {UI.save.keepMine}
               </Button>

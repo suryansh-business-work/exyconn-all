@@ -36,7 +36,7 @@ export function SendSmsForm({ panel, onCancel }: Readonly<SendSmsFormProps>) {
     defaultValues: readMemory<SendSmsValues>(panel.key, DRAFT) ?? empty,
   });
   useFormMemory(methods, panel.key, DRAFT);
-  const body = useWatch({ control: methods.control, name: 'body' }) ?? '';
+  const body = useWatch({ control: methods.control, name: 'body' });
 
   const onSubmit = async (values: SendSmsValues) => {
     try {

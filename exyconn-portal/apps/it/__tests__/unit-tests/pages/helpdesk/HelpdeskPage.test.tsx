@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { act, waitFor } from '@testing-library/react';
 import {
   FilterOp,
@@ -25,15 +25,27 @@ interface DialogProps {
   onChanged: () => void;
 }
 
-const gql = vi.hoisted(() => ({
-  dashboard: vi.fn(),
-  sla: vi.fn(),
-  settings: vi.fn(),
-  refetch: vi.fn(),
-  navigate: vi.fn(),
-  user: { id: 'u-1' } as { id: string } | null,
-  dialog: null as DialogProps | null,
-}));
+interface HelpdeskMocks {
+  dashboard: Mock;
+  sla: Mock;
+  settings: Mock;
+  refetch: Mock;
+  navigate: Mock;
+  user: { id: string } | null;
+  dialog: DialogProps | null;
+}
+
+const gql = vi.hoisted(
+  (): HelpdeskMocks => ({
+    dashboard: vi.fn(),
+    sla: vi.fn(),
+    settings: vi.fn(),
+    refetch: vi.fn(),
+    navigate: vi.fn(),
+    user: { id: 'u-1' },
+    dialog: null,
+  }),
+);
 
 vi.mock('react-router-dom', async (importOriginal) => ({
   ...(await importOriginal<typeof import('react-router-dom')>()),

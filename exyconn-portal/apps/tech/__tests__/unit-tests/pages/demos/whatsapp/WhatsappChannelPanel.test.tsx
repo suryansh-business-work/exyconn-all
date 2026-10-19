@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WhatsappChannelDocument } from '@exyconn/shell/graphql/generated';
 import { WhatsappChannelPanel } from '../../../../../src/pages/demos/whatsapp/WhatsappChannelPanel';
@@ -72,6 +72,25 @@ describe('WhatsappChannelPanel', () => {
     renderWithProviders(<WhatsappChannelPanel />);
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Could not load the WhatsApp number. Offline',
+    );
+  });
+
+  it('reloads the settings from Retry', async () => {
+    api.query = { data: undefined, error: new Error('Offline') };
+    renderWithProviders(<WhatsappChannelPanel />);
+    await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(api.refetch).toHaveBeenCalledTimes(1);
+    expect(api.warn).not.toHaveBeenCalled();
+  });
+
+  it('logs a retry that fails again', async () => {
+    const failure = new Error('Still offline');
+    api.refetch.mockRejectedValue(failure);
+    api.query = { data: undefined, error: new Error('Offline') };
+    renderWithProviders(<WhatsappChannelPanel />);
+    await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    await waitFor(() =>
+      expect(api.warn).toHaveBeenCalledWith('tech: reloading the WhatsApp number failed', failure),
     );
   });
 

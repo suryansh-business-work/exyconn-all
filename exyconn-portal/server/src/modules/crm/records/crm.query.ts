@@ -48,7 +48,13 @@ export const CRM_QUERY_LIMITS = Object.freeze({
 
 const DAY_MS = 86_400_000;
 /** The types whose conditions match text, with the text operators. */
-const TEXT_TYPES: ReadonlySet<PropertyDef['type']> = new Set(['TEXT', 'EMAIL', 'PHONE', 'URL']);
+const TEXT_TYPES: ReadonlySet<PropertyDef['type']> = new Set([
+  'TEXT',
+  'TEXTAREA',
+  'EMAIL',
+  'PHONE',
+  'URL',
+]);
 type Condition = Record<string, unknown>;
 
 const isEmpty = (path: string): Condition => ({

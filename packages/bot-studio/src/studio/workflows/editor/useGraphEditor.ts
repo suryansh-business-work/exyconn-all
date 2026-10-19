@@ -19,7 +19,7 @@ export function useGraphEditor(stored: StoredGraph | null): GraphEditor & {
 } {
   const [graph, setGraph] = useState<WaGraph>({ start: '', nodes: [], edges: [] });
   const [dirty, setDirty] = useState(false);
-  const [selectedId, select] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [revision, setRevision] = useState<string | null>(null);
 
   const adopt = useCallback((next: StoredGraph) => {
@@ -38,5 +38,5 @@ export function useGraphEditor(stored: StoredGraph | null): GraphEditor & {
     setDirty(true);
   }, []);
 
-  return { graph, dirty, selectedId, select, update, adopt };
+  return { graph, dirty, selectedId, select: setSelectedId, update, adopt };
 }

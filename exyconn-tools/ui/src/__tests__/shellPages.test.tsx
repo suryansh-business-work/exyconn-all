@@ -3,7 +3,7 @@
  * kept in `?q=`), a category page, and the 404 for an unknown category.
  */
 import { describe, it, expect } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '../shared/context/ThemeContext';
 import { SecretsProvider } from '../shared/context/SecretsContext';
@@ -37,6 +37,16 @@ describe('hub', () => {
     expect(screen.getByRole('link', { name: /merge pdf/i })).toBeInTheDocument();
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search tools' }), { target: { value: 'zzzz-nothing' } });
     expect(screen.getByText(/no tools match/i)).toBeInTheDocument();
+  });
+
+  it('clears the search back to every category from the empty state', () => {
+    renderAt('/tools?q=zzzz-nothing');
+    expect(screen.queryAllByRole('heading', { level: 2 })).toHaveLength(0);
+    const emptyState = screen.getByText(/no tools match/i).closest('[role="status"]') as HTMLElement;
+    fireEvent.click(within(emptyState).getByRole('button', { name: 'Clear search' }));
+    expect(screen.getByRole('searchbox', { name: 'Search tools' })).toHaveValue('');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(getToolCounts().categories);
   });
 });
 

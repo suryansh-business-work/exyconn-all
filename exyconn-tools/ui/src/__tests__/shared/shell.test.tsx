@@ -228,7 +228,7 @@ describe('OwnThisTool', () => {
     expect(priced?.pricing).toBeDefined();
     const pricing = priced?.pricing as NonNullable<typeof priced>['pricing'] & object;
     inApp(<OwnThisTool toolId={priced?.id as string} />);
-    expect(screen.getByText(new RegExp(`\\$${pricing.price}`))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(String.raw`\$${pricing.price}`))).toBeInTheDocument();
     expect(screen.queryByText('Contact for Pricing')).not.toBeInTheDocument();
     pricing.features.forEach((feature) => expect(screen.getByText(feature)).toBeInTheDocument());
     expect(screen.getByText(pricing.alterationNote, { exact: false })).toBeInTheDocument();

@@ -15,13 +15,14 @@ import { keepRecord, toRecord } from './gmail.sync';
 
 /**
  * The CRM's Gmail: the operator's own mailboxes, so only the operator's own CRM may read or
- * send through them — a customer company never sees Exyconn's mail.
+ * send through them — a customer company never sees Exyconn's mail. Returns that company.
  */
-export async function assertOperatorCrm(): Promise<void> {
+export async function assertOperatorCrm(): Promise<string> {
   const operator = await platformOperatorOrganizationId();
   if (!operator || currentOrganizationId() !== operator) {
     forbidden('Gmail is connected for Exyconn’s own CRM only.');
   }
+  return operator;
 }
 
 export interface SendCrmEmailInput {

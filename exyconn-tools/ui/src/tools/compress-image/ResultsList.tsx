@@ -6,30 +6,29 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import Download from '@mui/icons-material/Download';
-import { CompressItem, formatBytes, computeSavedPercent } from './utils';
+import { CompressItem, DoneItem, formatBytes, computeSavedPercent } from './utils';
 
 interface ResultsListProps {
   items: CompressItem[];
-  onDownload: (item: CompressItem) => void;
+  onDownload: (item: DoneItem) => void;
 }
 
 const savedChip = (item: CompressItem) => {
-  if (item.status !== 'done' || item.outputBytes === undefined) return null;
-  const saved = computeSavedPercent(item.file.size, item.outputBytes);
+  if (item.status !== 'done') return null;
+  const saved = computeSavedPercent(item.file.size, item.blob.size);
   const color = saved > 0 ? 'success' : 'default';
   return <Chip size="small" color={color} label={`${saved}% saved`} sx={{ ml: 1 }} />;
 };
 
 const secondaryText = (item: CompressItem): string => {
-  if (item.status === 'error') return item.error ?? 'Compression failed.';
-  if (item.status === 'done' && item.outputBytes !== undefined) {
-    return `${formatBytes(item.file.size)} → ${formatBytes(item.outputBytes)}`;
+  if (item.status === 'error') return item.error;
+  if (item.status === 'done') {
+    return `${formatBytes(item.file.size)} → ${formatBytes(item.blob.size)}`;
   }
   return formatBytes(item.file.size);
 };
 
 export default function ResultsList({ items, onDownload }: Readonly<ResultsListProps>) {
-  if (items.length === 0) return null;
   return (
     <List dense>
       {items.map((item) => (

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { apiOk, clickAway, jsonReply, renderTool, stubFetch } from '../../__tests__/helpers/toolHarness';
 import AISearchVisibility from './index';
+import { sentJson } from '../../__tests__/helpers/requests';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () =>
   (await import('../../__tests__/helpers/toolHarness')).toolLayoutStub()
@@ -45,7 +46,7 @@ describe('ai-search-visibility', () => {
 
     expect(await screen.findByText('AI Readiness Analysis')).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ url: 'https://brand.example' });
+    expect(sentJson(init)).toEqual({ url: 'https://brand.example' });
     expect(screen.getByText('88')).toBeInTheDocument();
     expect(screen.getByText('450')).toBeInTheDocument();
     expect(screen.getByText('Yes')).toBeInTheDocument();
@@ -65,7 +66,7 @@ describe('ai-search-visibility', () => {
 
     expect(await screen.findByText('No')).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ url: 'http://plain.example' });
+    expect(sentJson(init)).toEqual({ url: 'http://plain.example' });
     expect(screen.getByText('H1: 0')).toBeInTheDocument();
     expect(screen.getByText('H2: 0')).toBeInTheDocument();
     expect(screen.getByText('120')).toBeInTheDocument();

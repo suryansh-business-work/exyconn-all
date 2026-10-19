@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import {
   SprintCompletionPlanDocument,
@@ -14,6 +15,12 @@ import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { queryData } from '@exyconn/shell/utils/queryData';
+
+/** The generated document, typed so `client.query` infers its result from it. */
+const COMPLETION_PLAN: TypedDocumentNode<
+  SprintCompletionPlanQuery,
+  SprintCompletionPlanQueryVariables
+> = SprintCompletionPlanDocument;
 
 /** The confirmation for completing a sprint: one whole sentence per leftover count. */
 function completionMessage(unfinishedCount: number): string {
@@ -75,11 +82,8 @@ export function useProjectSprints(projectId: string, onChanged: () => void) {
   const complete = useCallback(
     async (sprint: SprintFieldsFragment) => {
       try {
-        const planResult = await client.query<
-          SprintCompletionPlanQuery,
-          SprintCompletionPlanQueryVariables
-        >({
-          query: SprintCompletionPlanDocument,
+        const planResult = await client.query({
+          query: COMPLETION_PLAN,
           variables: { id: sprint.id },
           fetchPolicy: 'network-only',
         });

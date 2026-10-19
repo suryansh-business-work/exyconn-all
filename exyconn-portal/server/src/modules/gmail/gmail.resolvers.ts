@@ -2,7 +2,6 @@ import { ROLES } from '../../constants/roles';
 import { actorNameOf } from '../../lib/actor';
 import { assertPermission } from '../../lib/permissions';
 import { assertPlatformStaff } from '../../lib/platformAccess';
-import { currentOrganizationId } from '../../lib/tenant';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { PermissionAction } from '../permissions/permission.model';
 import { recordAudit } from '../audit';
@@ -115,11 +114,12 @@ export const gmailResolvers = {
       { returnTo }: { returnTo: string },
       ctx: GraphQLContext,
     ) => {
-      const user = await crmGmail(ctx, 'EDIT');
+      const user = await crmUser(ctx, 'EDIT');
+      const organizationId = await assertOperatorCrm();
       return startGmailConnect(returnTo, {
         id: user.id,
         name: await actorNameOf(ctx),
-        organizationId: currentOrganizationId() ?? '',
+        organizationId,
       });
     },
     setGmailAccountEnabled: async (

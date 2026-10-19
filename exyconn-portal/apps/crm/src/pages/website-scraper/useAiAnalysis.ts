@@ -39,9 +39,9 @@ export function useAiAnalysis(scrapeId: string) {
         throw failure ?? new Error('No estimate came back');
       }
       setPending({ instruction, estimate: data.webScrapeAiEstimate });
-    } catch (failure) {
-      portalLogger.warn('crm: estimating the AI cost of a scraped page failed', failure);
-      setError(errorMessage(failure, t('Could not estimate the AI cost.')));
+    } catch (error_) {
+      portalLogger.warn('crm: estimating the AI cost of a scraped page failed', error_);
+      setError(errorMessage(error_, t('Could not estimate the AI cost.')));
     }
   };
 
@@ -53,9 +53,9 @@ export function useAiAnalysis(scrapeId: string) {
     setPending(null);
     try {
       await analyze({ variables: { id: scrapeId, instruction } });
-    } catch (failure) {
-      portalLogger.warn('crm: sending a scraped page to the AI failed', failure);
-      setError(errorMessage(failure, t('The AI could not read the page.')));
+    } catch (error_) {
+      portalLogger.warn('crm: sending a scraped page to the AI failed', error_);
+      setError(errorMessage(error_, t('The AI could not read the page.')));
     }
   };
 

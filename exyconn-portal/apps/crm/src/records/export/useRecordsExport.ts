@@ -44,9 +44,9 @@ export function useRecordsExport({ object, query, fileName }: RecordsExportOptio
       } else {
         notify('Exported {count} rows.', 'success', { count: rows.length });
       }
-    } catch (failure) {
-      portalLogger.error('CRM export failed', failure);
-      notify(errorMessage(failure, t('The export failed.')), 'error');
+    } catch (error_) {
+      portalLogger.error('CRM export failed', error_);
+      notify(errorMessage(error_, t('The export failed.')), 'error');
     } finally {
       setBusy(false);
     }

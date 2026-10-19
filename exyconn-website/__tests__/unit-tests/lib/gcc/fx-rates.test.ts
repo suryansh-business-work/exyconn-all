@@ -2,11 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   FX_SOURCE,
   clearFxCache,
+  fetchCurrencyCodes,
   fetchFxRates,
   parseCurrencies,
   toFxRates,
 } from "../../../../src/lib/gcc/fx-rates";
-import { resetGccLimits } from "../../../../src/lib/gcc/route";
+import { gccLimits, resetGccLimits } from "../../../../src/lib/gcc/route";
 import { GET } from "../../../../src/pages/api/gcc/fx-rates";
 import { readJson, routeContext, VISITOR } from "../../pages/route-helpers";
 
@@ -129,5 +130,30 @@ describe("GET /api/gcc/fx-rates", () => {
       body: { rates: [] },
     });
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("the currency list", () => {
+  it("lists every 3-letter code the source has, INR included, alphabetically", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ ...table, rates: { USD: 0.012, INR: 1, XAU1: 2, AED: 0.044 } }))
+    );
+    expect(await fetchCurrencyCodes()).toEqual(["AED", "INR", "USD"]);
+  });
+});
+
+describe("GET /api/gcc/fx-rates limits and failures", () => {
+  it("limits each visitor to thirty lookups in ten minutes", async () => {
+    for (let i = 0; i < 30; i += 1) {
+      gccLimits.fxRates.allow(VISITOR);
+    }
+    expect((await get("?currencies=USD")).status).toBe(429);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("logs a failure that is not an Error as it is", async () => {
+    fetchMock.mockRejectedValueOnce("offline");
+    expect((await get("?currencies=USD")).status).toBe(502);
+    expect(console.error).toHaveBeenCalledWith("GCC exchange rates failed:", "offline");
   });
 });

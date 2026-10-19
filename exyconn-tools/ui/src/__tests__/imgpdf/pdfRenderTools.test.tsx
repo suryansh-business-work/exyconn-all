@@ -392,7 +392,7 @@ describe('edit-pdf', () => {
     clickAt(30, 60);
     annotate('First');
     fireEvent.click(
-      screen.getAllByRole('button').filter((b) => b.querySelector('[data-testid="NavigateNextIcon"]'))[0]
+      screen.getAllByRole('button').find((b) => b.querySelector('[data-testid="NavigateNextIcon"]')) as HTMLElement
     );
     await screen.findByText('Page 2 / 2');
     clickAt(15, 150);
@@ -416,7 +416,7 @@ describe('edit-pdf', () => {
     pdfjs.numPages = 3;
     const { container } = render(<EditPdf />);
     await load(container, 'short.pdf', 1);
-    const next = screen.getAllByRole('button').filter((b) => b.querySelector('[data-testid="NavigateNextIcon"]'))[0];
+    const next = screen.getAllByRole('button').find((b) => b.querySelector('[data-testid="NavigateNextIcon"]')) as HTMLElement;
     fireEvent.click(next);
     fireEvent.click(next);
     await screen.findByText('Page 3 / 3');

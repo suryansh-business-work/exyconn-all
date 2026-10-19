@@ -23,7 +23,7 @@ export function ScenarioComparison() {
   return (
     <>
       <p className="gcc-lines__note">{RESULTS.comparisonNote}</p>
-      <div className="gcc-table-scroll" tabIndex={0} role="region" aria-label={RESULTS.comparison}>
+      <section className="gcc-table-scroll" tabIndex={0} aria-label={RESULTS.comparison}>
         <table className="gcc-compare">
           <thead>
             <tr>
@@ -37,18 +37,16 @@ export function ScenarioComparison() {
             </tr>
           </thead>
           <tbody>
-            {metrics.map((metric) => (
+            {metrics.map((metric, row) => (
               <tr key={metric}>
                 <th scope="row">{METRIC_LABELS[metric]}</th>
                 {comparisons.map((comparison, index) => {
-                  const variance = comparison.variances.find((item) => item.metric === metric);
-                  const value = variance?.value;
+                  // Every scenario lists the same metrics in the same order.
+                  const variance = comparison.variances[row];
                   return (
                     <td key={comparison.scenarioId}>
-                      <span>
-                        {value === null || value === undefined ? "—" : money.format(value)}
-                      </span>
-                      {index > 0 && variance && (
+                      <span>{variance.value === null ? "—" : money.format(variance.value)}</span>
+                      {index > 0 && (
                         <span className="gcc-compare__delta">
                           {deltaText(variance, money.format, locale)}
                         </span>
@@ -60,7 +58,7 @@ export function ScenarioComparison() {
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
     </>
   );
 }

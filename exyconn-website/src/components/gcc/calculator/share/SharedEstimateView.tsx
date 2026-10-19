@@ -104,10 +104,10 @@ export function SharedEstimateView({
   );
   if (load.kind === "loading") {
     return (
-      <div className="gcc-loading" role="status">
+      <output className="gcc-loading">
         <CircularProgress size={20} aria-hidden="true" />
         <span>{S.shared.loading}</span>
-      </div>
+      </output>
     );
   }
   if (load.kind !== "ready" || !report) {

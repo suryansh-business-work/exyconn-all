@@ -10,6 +10,7 @@ interface BusinessDetailsProps {
 }
 
 const BusinessDetails: React.FC<BusinessDetailsProps> = ({ business, copiedField, onCopy }) => {
+  const { phone } = business;
   return (
     <Box sx={{ px: 2, py: 1.5, bgcolor: 'grey.50' }}>
       {/* Address */}
@@ -26,14 +27,14 @@ const BusinessDetails: React.FC<BusinessDetailsProps> = ({ business, copiedField
       </Box>
 
       {/* Phone */}
-      {business.phone && (
+      {phone && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
           <Phone fontSize="small" color="action" />
           <Typography variant="body2" sx={{ flex: 1 }}>
-            {business.phone}
+            {phone}
           </Typography>
           <Tooltip title={copiedField === `phone-${business.placeId}` ? 'Copied!' : 'Copy'}>
-            <IconButton size="small" onClick={() => onCopy(business.phone ?? '', `phone-${business.placeId}`)}>
+            <IconButton size="small" onClick={() => onCopy(phone, `phone-${business.placeId}`)}>
               <ContentCopy fontSize="small" />
             </IconButton>
           </Tooltip>

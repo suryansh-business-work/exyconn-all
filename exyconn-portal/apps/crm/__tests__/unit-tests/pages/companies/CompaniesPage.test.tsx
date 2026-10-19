@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SearchCompaniesDocument } from '@exyconn/shell/graphql/generated';
+import { CrmObject, SearchCompaniesDocument } from '@exyconn/shell/graphql/generated';
 import { CompaniesPage } from '../../../../src/pages/companies';
 import { COMPANY_COLUMNS } from '../../../../src/pages/companies/companies-grid';
+import { RecordActions } from '../../../../src/records/RecordActions';
 import { renderWithProviders } from '../../test-utils';
+import { UrlProbe } from '../../form-stub';
 import { companyRow, pending, tableStats } from '../../fixtures';
 import { dashboardProps, recordList } from '../../crud-dashboard-stub';
 import { confirmRowDelete, runRowAction, statLines } from '../../crud-page-helpers';
@@ -39,6 +41,10 @@ vi.mock(
 
 vi.mock('../../../../src/pages/companies/forms/company', async () => ({
   CompanyForm: (await import('../../form-stub')).FormStub,
+}));
+
+vi.mock('../../../../src/pages/companies/CompanyQuickView', () => ({
+  CompanyQuickView: ({ id }: Readonly<{ id: string }>) => <p>{`Previewing "${id}"`}</p>,
 }));
 
 describe('CompaniesPage', () => {
@@ -129,5 +135,38 @@ describe('CompaniesPage', () => {
     await runRowAction('makeClient', companyRow());
 
     expect(await screen.findByText('Could not make the company a client')).toBeInTheDocument();
+  });
+  it('previews a clicked row beside the list, keeping it in the URL', () => {
+    renderWithProviders(
+      <>
+        <CompaniesPage />
+        <UrlProbe />
+      </>,
+      { route: '/companies' },
+    );
+    const props = dashboardProps() as unknown as { onRowClick: (row: { id: string }) => void };
+
+    act(() => props.onRowClick({ id: 'company-4' }));
+
+    expect(screen.getByText('Previewing "company-4"')).toBeInTheDocument();
+    expect(screen.getByLabelText('current url')).toHaveTextContent('/companies?preview=company-4');
+  });
+
+  it('offers import and export of the company records the toolbar has filtered', () => {
+    renderWithProviders(<CompaniesPage />);
+    const { toolbar } = dashboardProps() as unknown as {
+      toolbar: { props: { renderActions: (query: unknown) => { type: unknown; props: object } } };
+    };
+    const query = { search: 'pune', filters: [] };
+
+    const actions = toolbar.props.renderActions(query);
+
+    expect(actions.type).toBe(RecordActions);
+    expect(actions.props).toMatchObject({
+      object: CrmObject.Company,
+      query,
+      fileName: 'companies',
+      onImported: expect.any(Function),
+    });
   });
 });

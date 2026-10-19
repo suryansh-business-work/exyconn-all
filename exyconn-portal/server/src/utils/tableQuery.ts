@@ -133,9 +133,7 @@ function isActive(filter: TableFilterInput): boolean {
 }
 
 function filterCondition(filter: TableFilterInput): unknown {
-  return filter.op === 'IN'
-    ? { $in: filter.values ?? [] }
-    : FILTER_CONDITIONS[filter.op](filter.value);
+  return filter.op === 'IN' ? { $in: filter.values } : FILTER_CONDITIONS[filter.op](filter.value);
 }
 
 /** Builds the combined Mongo filter from the base filter, search and column filters. */

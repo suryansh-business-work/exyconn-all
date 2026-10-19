@@ -7,6 +7,7 @@ vi.mock('../../shared/components/ToolLayout/ToolLayout', async () =>
 );
 
 import SitemapFinder from '../../tools/sitemap-finder';
+import { partText, sentJson } from '../helpers/requests';
 
 const RESULT = {
   baseUrl: 'https://example.org',
@@ -94,7 +95,7 @@ describe('sitemap-finder', () => {
     const fetchMock = await scan();
 
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({
+    expect(sentJson(init)).toEqual({
       url: 'https://example.org',
       checkCommonPaths: true,
       parseRobotsTxt: true,
@@ -138,8 +139,8 @@ describe('sitemap-finder', () => {
       await waitFor(() => expect(screen.queryByRole('menuitem')).not.toBeInTheDocument());
     }
     expect(anchorClick).toHaveBeenCalledTimes(3);
-    expect(String(lastBlob()?.parts[0])).toContain('Sitemap Report for https://example.org');
-    expect(String(lastBlob()?.parts[0])).toContain('robots.txt: Found');
+    expect(partText(lastBlob()?.parts[0])).toContain('Sitemap Report for https://example.org');
+    expect(partText(lastBlob()?.parts[0])).toContain('robots.txt: Found');
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy URLs' }));
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(RESULT.sitemapsFound.map((s) => s.url).join('\n'));
@@ -152,7 +153,7 @@ describe('sitemap-finder', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Download' }));
     fireEvent.click(await screen.findByRole('menuitem', { name: /JSON/ }));
 
-    const exported = JSON.parse(String(lastBlob()?.parts[0]));
+    const exported = JSON.parse(partText(lastBlob()?.parts[0]));
     expect(exported).toMatchObject({
       baseUrl: 'https://example.org',
       totalSitemaps: 5,
@@ -179,7 +180,7 @@ describe('sitemap-finder', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Download' }));
     fireEvent.click(await screen.findByRole('menuitem', { name: /Text/ }));
 
-    expect(String(lastBlob()?.parts[0])).toContain('robots.txt: Not Found');
+    expect(partText(lastBlob()?.parts[0])).toContain('robots.txt: Not Found');
   });
 
   it('shows the checked locations when asked', async () => {
@@ -228,7 +229,7 @@ describe('sitemap-finder', () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({
+    expect(sentJson(init)).toEqual({
       url: 'https://example.org',
       checkCommonPaths: false,
       parseRobotsTxt: false,

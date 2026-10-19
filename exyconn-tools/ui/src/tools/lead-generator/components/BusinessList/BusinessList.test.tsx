@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import BusinessList from './index';
 import type { Business } from '../../types';
+import { readText } from '../../../../__tests__/helpers/requests';
 
 const FULL: Business = {
   placeId: 'p1',
@@ -22,14 +23,6 @@ const BARE: Business = {
   types: [],
 };
 const LOW: Business = { ...BARE, placeId: 'p3', name: 'Low Rated', rating: 3.1, totalRatings: 4 };
-
-const readBlob = (blob: Blob) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(blob);
-  });
 
 beforeEach(() => {
   Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
@@ -134,7 +127,7 @@ describe('BusinessList', () => {
 
     const blob = vi.mocked(URL.createObjectURL).mock.calls.at(-1)?.[0] as Blob;
     expect(blob.type).toBe('text/csv;charset=utf-8;');
-    const csv = await readBlob(blob);
+    const csv = await readText(blob);
     expect(csv.split('\n')).toEqual([
       'Name,Address,Phone,Website,Rating,Reviews,Types',
       '"Corner ""Cafe""","1 Main St","+1 555 0100","https://cafe.example","4.5","120","cafe; food; point_of_interest; establishment; store; extra_type"',

@@ -2,7 +2,7 @@ import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { contactProfileFields } from './crm.profile';
 import { contactGeoFields } from './crm.geo';
 import { originFields } from './crm.origin';
-import { tagFields } from './crm.tags';
+import { tagFields } from './crm.tag-fields';
 
 /** How willing the contact is to hear from us, so outreach stays lawful and welcome. */
 export const CONTACT_STATUSES = ['ACTIVE', 'UNSUBSCRIBED', 'BOUNCED', 'LEFT_COMPANY'] as const;

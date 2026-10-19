@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EMAIL, HTTP_URL, PHONE } from '@exyconn/regex';
 import { CrmPropertyType } from '@exyconn/shell/graphql/generated';
-import { CHOICE_TYPES, type CrmPropertyInfo } from '../schema';
+import { CHOICE_TYPES, scalarText, type CrmPropertyInfo } from '../schema';
 
 /** What the forms need to know about a custom property; both property queries return it. */
 export type CustomPropertyDef = Pick<
@@ -107,12 +107,12 @@ function toFormValue(property: CustomPropertyDef, stored: unknown): string {
   }
   if (property.type === CrmPropertyType.Date) {
     // Stored as an ISO date or date-time; the form edits the calendar day.
-    return String(stored).slice(0, 10);
+    return scalarText(stored).slice(0, 10);
   }
   if (Array.isArray(stored)) {
     return stored.map(String).join(MULTI_SEPARATOR);
   }
-  return String(stored);
+  return scalarText(stored);
 }
 
 /**

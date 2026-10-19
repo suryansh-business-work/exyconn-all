@@ -21,7 +21,7 @@ describe('dispatchTrackerBuild', () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(`${REPO}/actions/workflows/${TRACKER_WORKFLOW_FILE}/dispatches`);
     expect(init.method).toBe('POST');
-    expect(JSON.parse(String(init.body))).toEqual({
+    expect(JSON.parse(init.body as string)).toEqual({
       ref: 'main',
       inputs: { platforms: 'android' },
     });

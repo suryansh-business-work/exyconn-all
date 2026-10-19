@@ -85,7 +85,7 @@ export const microsoftMailResolvers = {
       return startMicrosoftConnect(returnTo, {
         id: user.id,
         name: await actorNameOf(ctx),
-        organizationId: currentOrganizationId() ?? '',
+        organizationId: currentOrganizationId(),
       });
     },
     setMicrosoftMailAccountEnabled: async (

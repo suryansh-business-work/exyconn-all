@@ -18,6 +18,7 @@ import RtfToMarkdown from '../../tools/rtf-to-markdown';
 import TextToMarkdown from '../../tools/text-to-markdown';
 import WebpageToMarkdown from '../../tools/webpage-to-markdown';
 import XmlToMarkdown from '../../tools/xml-to-markdown';
+import { sentJson, sentJsonOf } from '../helpers/requests';
 
 const MD = '# Converted\n\nbody';
 const converted = (extra: Record<string, unknown> = {}) =>
@@ -99,7 +100,7 @@ const TEXT_CASES: TextCase[] = [
     button: 'Convert to Markdown',
     upload: 'Upload RTF',
     filename: 'converted.md',
-    sample: '{\\rtf1 Hi}',
+    sample: String.raw`{\rtf1 Hi}`,
   },
   {
     name: 'xml-to-markdown',
@@ -140,7 +141,7 @@ describe.each(TEXT_CASES)('$name', ({ Tool, button, upload, filename, sample }) 
     expect(await screen.findByText(/# Converted/)).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(init.method).toBe('POST');
-    expect(JSON.parse(String(init.body)).content).toBe(sample);
+    expect(sentJson(init).content).toBe(sample);
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
     expect(clipboardWrite).toHaveBeenCalledWith(MD);
@@ -243,7 +244,7 @@ describe('csv-to-markdown options', () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ content: 'a,b', hasHeader: false });
+    expect(sentJson(init)).toEqual({ content: 'a,b', hasHeader: false });
   });
 });
 
@@ -285,7 +286,7 @@ describe('text-to-markdown options', () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body)).options).toEqual({
+    expect(sentJson(init).options).toEqual({
       detectHeadings: false,
       detectLists: false,
       detectLinks: false,
@@ -349,7 +350,7 @@ describe.each(URL_CASES)('$name', ({ Tool, url, empty, invalid, untitled, titled
     fireEvent.change(urlBox(), { target: { value: url } });
     fireEvent.click(convertButton());
     expect(await screen.findByText(titled[0])).toBeInTheDocument();
-    expect(JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body))).toEqual({ url });
+    expect(sentJsonOf(fetchMock)).toEqual({ url });
     fireEvent.click(screen.getByRole('button', { name: 'Download' }));
     expect(downloaded.at(-1)).toBe(titled[1]);
 

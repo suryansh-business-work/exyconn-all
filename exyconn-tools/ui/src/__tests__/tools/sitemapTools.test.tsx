@@ -12,6 +12,7 @@ import SitemapInsights from '../../tools/sitemap-insights';
 import SitemapSplitMerge from '../../tools/sitemap-split-merge';
 import SitemapUrlExtractor from '../../tools/sitemap-url-extractor';
 import SitemapValidator from '../../tools/sitemap-validator';
+import { partText, sentJsonOf } from '../helpers/requests';
 
 let downloads: string[];
 let blobParts: BlobPart[][];
@@ -53,7 +54,7 @@ afterEach(() => {
 const ok = (body: Record<string, unknown>) => jsonReply({ success: true, ...body });
 const SITEMAP_URL = 'https://example.org/sitemap.xml';
 const bodyOf = (fetchMock: ReturnType<typeof stubFetch>) =>
-  JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body));
+  sentJsonOf(fetchMock);
 
 /** The three states every single-URL tool goes through that are not its success path. */
 async function failures(button: string, boxPlaceholder: string, messages: { server: string; fallback: string }) {
@@ -247,7 +248,7 @@ describe('sitemap-url-extractor', () => {
 
     fireEvent.click(screen.getByLabelText('Export CSV'));
     expect(downloads).toContain('sitemap-urls.csv');
-    expect(String(blobParts.at(-1)?.[0])).toContain('URL,Last Modified,Change Frequency,Priority');
+    expect(partText(blobParts.at(-1)?.[0])).toContain('URL,Last Modified,Change Frequency,Priority');
   });
 
   it('exports every field of a URL, and shows plain urlsets', async () => {
@@ -262,7 +263,7 @@ describe('sitemap-url-extractor', () => {
 
     fireEvent.click(screen.getByLabelText('Export CSV'));
 
-    expect(String(blobParts.at(-1)?.[0])).toContain('"https://example.org/page-0","2026-10-01","daily","0.8"');
+    expect(partText(blobParts.at(-1)?.[0])).toContain('"https://example.org/page-0","2026-10-01","daily","0.8"');
   });
 
   it('shows failures and the working state', async () => {

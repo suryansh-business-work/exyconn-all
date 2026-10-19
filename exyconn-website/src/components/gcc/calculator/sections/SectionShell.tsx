@@ -8,8 +8,9 @@ import { UI } from "../strings/ui";
 
 /** A step's heading (focused when the step opens) and lede, then its content. */
 export function SectionShell({ id, children }: Readonly<{ id: SectionId; children: ReactNode }>) {
-  const section = SECTIONS.find((item) => item.id === id) ?? SECTIONS[0];
-  const position = SECTIONS.indexOf(section) + 1;
+  const index = SECTIONS.findIndex((item) => item.id === id);
+  const section = SECTIONS[index];
+  const position = index + 1;
   return (
     <section className="gcc-section">
       <header className="gcc-section__header">

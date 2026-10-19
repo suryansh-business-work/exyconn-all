@@ -101,6 +101,23 @@ describe('AppMenu', () => {
     expect(auth.clearVisitorPass).not.toHaveBeenCalled();
   });
 
+  it('opens the guide on a first visit, and only once', async () => {
+    localStorage.clear();
+    const user = renderMenu(person([ROLES.EMPLOYEE]));
+    expect(await screen.findByRole('dialog', { name: 'How this demo works' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Start chatting' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(localStorage.getItem('exyconn.wa-demo.v1.guide-seen')).toBe('1');
+  });
+
+  it('reopens the guide from the menu', async () => {
+    const user = renderMenu(person([ROLES.EMPLOYEE]));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await openMenu(user);
+    await user.click(screen.getByRole('menuitem', { name: 'How this demo works' }));
+    expect(await screen.findByRole('dialog', { name: 'How this demo works' })).toBeInTheDocument();
+  });
+
   it("drops a demo visitor's pass and reloads the sign-in page", async () => {
     const assign = vi.fn();
     vi.stubGlobal('location', { ...globalThis.location, assign });

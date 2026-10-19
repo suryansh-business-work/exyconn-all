@@ -108,7 +108,7 @@ describe('useRichTextEditor', () => {
   });
 
   it('reports a generic message when the failure is not an Error', async () => {
-    const { dom } = mount({ uploadImage: () => Promise.reject(new Error('x').message) });
+    const { dom } = mount({ uploadImage: vi.fn<UploadImage>().mockRejectedValue('x') });
     fireEvent.paste(dom, { clipboardData: clipboard([png('a.png')]) });
     expect(await screen.findByText(/Image upload failed: Upload failed/)).toBeInTheDocument();
   });

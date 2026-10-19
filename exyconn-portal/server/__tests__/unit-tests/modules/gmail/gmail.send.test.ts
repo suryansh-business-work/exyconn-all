@@ -134,7 +134,7 @@ describe('sendCrmEmail', () => {
     const contact = await asOperator(() =>
       ContactModel.create({ name: 'Asha', email: ASHA, owner: 'Ravi' }),
     );
-    await asOperator(() => crmEmailThreads('CONTACT', String(contact._id)));
+    await asOperator(() => crmEmailThreads('CONTACT', contact._id.toHexString()));
 
     const sent = await asOperator(() =>
       sendCrmEmail(
@@ -173,7 +173,7 @@ describe('sendCrmEmail', () => {
     const contact = await asOperator(() =>
       ContactModel.create({ name: 'Asha', email: ASHA, owner: 'Ravi' }),
     );
-    await asOperator(() => crmEmailThreads('CONTACT', String(contact._id)));
+    await asOperator(() => crmEmailThreads('CONTACT', contact._id.toHexString()));
 
     await asOperator(() => sendCrmEmail(email(founderId, { threadId: 't1' }), 'Ravi'));
 
@@ -203,7 +203,7 @@ describe('crmEmailSender', () => {
     const contact = await asOperator(() =>
       ContactModel.create({ name: 'Asha', email: ASHA, owner: 'Ravi' }),
     );
-    const id = String(contact._id);
+    const id = contact._id.toHexString();
 
     await expect(asOperator(() => crmEmailSender('CONTACT', id))).resolves.toBe(founderId);
     await asOperator(() => sendCrmEmail(email(salesId), 'Ravi'));

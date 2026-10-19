@@ -91,7 +91,8 @@ async function formSubmissions({ addresses, limit }: TimelineTarget): Promise<Ti
     .limit(limit)
     .lean();
   return rows.map((row) => {
-    const data = (row.submissionData ?? {}) as Record<string, unknown>;
+    // Matched on `submissionData.email`, so the data is always there.
+    const data: Record<string, unknown> = row.submissionData;
     const message = typeof data.message === 'string' ? data.message : '';
     return item({
       id: `submission:${idOf(row)}`,

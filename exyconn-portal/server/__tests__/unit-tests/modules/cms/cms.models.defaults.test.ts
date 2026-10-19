@@ -18,7 +18,7 @@ describe('what the CMS models fill in when a record names nothing', () => {
   it('gives a published page an empty block tree', async () => {
     const site = await CmsSiteModel.create({ name: 'Main', slug: 'main' });
     const page = await CmsPageModel.create({
-      siteId: String(site._id),
+      siteId: site._id.toHexString(),
       path: '/',
       title: 'Home',
       published: { publishedAt: new Date('2026-10-01T00:00:00Z') },

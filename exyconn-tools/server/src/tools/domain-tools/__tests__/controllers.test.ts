@@ -47,11 +47,11 @@ const CASES: Array<[string, keyof typeof services, object, string]> = [
     DOMAIN,
     "Availability check failed",
   ],
-  ["/ip-lookup", "ipLookup", { ip: "8.8.8.8" }, "IP lookup failed"],
+  ["/ip-lookup", "ipLookup", { ip: "192.0.2.8" }, "IP lookup failed"],
   [
     "/reverse-ip",
     "reverseIPLookup",
-    { ip: "8.8.8.8" },
+    { ip: "192.0.2.8" },
     "Reverse IP lookup failed",
   ],
   ["/http-headers", "checkHTTPHeaders", URL_BODY, "HTTP headers check failed"],

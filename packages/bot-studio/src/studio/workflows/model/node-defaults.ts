@@ -84,5 +84,6 @@ export function defaultNodeData<T extends NodeType>(
     const jump: NodeOf<'jump'>['data'] = { workflowKey: workflowKeys[0] ?? 'main' };
     return jump as NodeOf<T>['data'];
   }
-  return structuredClone(DEFAULTS[type as Exclude<NodeType, 'jump'>]) as NodeOf<T>['data'];
+  const key: Exclude<NodeType, 'jump'> = type;
+  return structuredClone(DEFAULTS[key]) as NodeOf<T>['data'];
 }

@@ -37,7 +37,7 @@ export function signedByTwilio(
   if (typeof signature !== 'string' || !authToken) {
     return false;
   }
-  const payload = [...Object.keys(params)]
+  const payload = Object.keys(params)
     .sort((a, b) => a.localeCompare(b))
     .reduce((text, name) => `${text}${name}${params[name]}`, `${env.publicUrl}${pathAndQuery}`);
   const expected = Buffer.from(createHmac('sha1', authToken).update(payload).digest('base64'));
@@ -109,7 +109,7 @@ export function startTwilioCall(socket: WebSocket, claim: ClaimCall): void {
     release = claimed.release;
     const { ticketed } = claimed;
     await setStatus(ticketed.call, 'LIVE', { providerCallId: start.callSid ?? '' });
-    conversation = new Conversation(
+    conversation = Conversation.open(
       ticketed.call,
       ticketed.config,
       twilioTransport(socket, start.streamSid ?? ''),

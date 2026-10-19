@@ -46,7 +46,7 @@ describe('AdminRecovery', () => {
   });
 
   it('shows a generic error for a non-Error failure', async () => {
-    gql.send.mockImplementation(() => Promise.reject('offline'));
+    gql.send.mockRejectedValue('offline');
     await clickRecovery();
     expect(await screen.findByText('Could not send credentials.')).toBeInTheDocument();
   });

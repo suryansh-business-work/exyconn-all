@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readSecret, writeSecret, hasSecret } from '../shared/services/secrets';
 
 /**
@@ -58,5 +58,35 @@ describe('secrets service', () => {
 
     writeSecret('openai_api_key', 'sk-real');
     expect(hasSecret('openai_api_key')).toBe(true);
+  });
+
+  it('ignores a write to a key that is not configured', () => {
+    writeSecret('not_a_real_key', 'value');
+    expect(localStorage.length).toBe(0);
+    expect(readSecret('not_a_real_key')).toBe('');
+  });
+
+  describe('when storage is unavailable', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('reads a plain key as empty instead of throwing', () => {
+      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('SecurityError');
+      });
+      expect(readSecret('openai_api_key')).toBe('');
+      expect(hasSecret('openai_api_key')).toBe(false);
+    });
+
+    it('drops plain and blob writes without throwing', () => {
+      const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('QuotaExceededError');
+      });
+      expect(() => writeSecret('openai_api_key', 'sk-test')).not.toThrow();
+      expect(() => writeSecret('google_maps_api_key', 'AIza-maps')).not.toThrow();
+      expect(setItem).toHaveBeenCalledTimes(2);
+      setItem.mockRestore();
+      expect(readSecret('openai_api_key')).toBe('');
+      expect(readSecret('google_maps_api_key')).toBe('');
+    });
   });
 });

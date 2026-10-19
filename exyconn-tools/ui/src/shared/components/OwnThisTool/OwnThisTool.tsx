@@ -79,8 +79,8 @@ const OwnThisTool: React.FC<OwnThisToolProps> = ({ toolId }) => {
             {pricing ? (
               <Typography
                 variant="h3"
-                color={accent}
                 sx={{
+                  color: accent,
                   fontWeight: 800,
                   mb: 1,
                 }}
@@ -99,8 +99,8 @@ const OwnThisTool: React.FC<OwnThisToolProps> = ({ toolId }) => {
             ) : (
               <Typography
                 variant="h4"
-                color={accent}
                 sx={{
+                  color: accent,
                   fontWeight: 700,
                   mb: 1,
                 }}
@@ -139,8 +139,8 @@ const OwnThisTool: React.FC<OwnThisToolProps> = ({ toolId }) => {
               >
                 <Typography
                   variant="body2"
-                  color={isDark ? 'warning.light' : 'warning.dark'}
                   sx={{
+                    color: isDark ? 'warning.light' : 'warning.dark',
                     fontWeight: 500,
                   }}
                 >

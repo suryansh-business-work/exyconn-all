@@ -83,6 +83,20 @@ describe('createCrudService', () => {
     await expect(codeOf(service.remove(id))).resolves.toBe('NOT_FOUND');
   });
 
+  it('archives and restores records, counting only the ones that changed', async () => {
+    const one = (await service.create({ name: 'One' })) as { _id: Types.ObjectId };
+    const two = (await service.create({ name: 'Two' })) as { _id: Types.ObjectId };
+    const ids = [one._id.toHexString(), two._id.toHexString()];
+
+    await expect(service.archive(ids, true)).resolves.toBe(2);
+    const archived = await ProbeModel.find({ archivedAt: { $ne: null } }).lean();
+    expect(archived).toHaveLength(2);
+
+    await expect(service.archive([ids[0]], false)).resolves.toBe(1);
+    await expect(service.archive([ids[0]], false)).resolves.toBe(0);
+    expect(await ProbeModel.countDocuments({ archivedAt: null })).toBe(1);
+  });
+
   it('pages, searches and sorts through the table query', async () => {
     for (const name of ['alpha', 'beta', 'alphabet', 'gamma']) {
       await service.create({ name });

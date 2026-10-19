@@ -72,8 +72,8 @@ async function searchTermsOf(object: Kind, id: string) {
   const target = await timelineTarget(object, id, SYNC_THREADS);
   let domain = '';
   if (object === 'COMPANY') {
-    const company = await CompanyModel.findById(id).select('domain').lean<{ domain?: string }>();
-    const candidate = company?.domain?.trim().toLowerCase() ?? '';
+    const company = await CompanyModel.findById(id).select('domain').lean<{ domain: string }>();
+    const candidate = company?.domain.trim().toLowerCase() ?? '';
     domain = candidate.includes('.') && !SHARED_MAIL_DOMAINS.has(candidate) ? candidate : '';
   }
   return { addresses: target.addresses, domain };
@@ -120,7 +120,7 @@ async function storedMessages(addresses: string[], domain: string) {
   }
   const disabled = (await listGmailAccounts())
     .filter((account) => !account.enabled)
-    .map((account) => String(account._id));
+    .map((account) => account._id.toHexString());
   return CrmEmailMessageModel.find({ $or: matches, accountId: { $nin: disabled } })
     .sort({ sentAt: 1 })
     .lean<Array<CrmEmailMessageDocument & { _id: unknown }>>();

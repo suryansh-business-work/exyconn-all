@@ -24,7 +24,7 @@ describe("FAMILY_ACCENTS", () => {
 });
 
 describe("resolveScene", () => {
-  it.each(Object.keys(FAMILY_ACCENTS) as PageFamily[])(
+  it.each(Object.keys(FAMILY_ACCENTS).filter((key): key is PageFamily => key in FAMILY_ACCENTS))(
     "falls back to the %s family's pair",
     (family) => {
       expect(resolveScene({ shapes: ["core"] }, family).accent).toEqual(FAMILY_ACCENTS[family]);

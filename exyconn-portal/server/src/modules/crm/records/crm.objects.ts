@@ -110,7 +110,7 @@ const presence = (key: string, label: string, paths: string[]): PropertyDef => (
   options: [],
   required: false,
   builtIn: true,
-  path: paths[0] ?? key,
+  path: paths[0],
   importable: false,
   description: '',
   filterOnly: true,

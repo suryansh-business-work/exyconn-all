@@ -28,11 +28,11 @@ export function useOAuthReturnNotice(keys: OAuthReturnKeys, success: string) {
   useEffect(() => {
     const connected = params.get(keys.connected);
     const failed = params.get(keys.failed);
-    if (connected === null && failed === null) {
-      return;
-    }
     if (failed === null) {
-      notify(success, 'success', { email: connected ?? '' });
+      if (connected === null) {
+        return;
+      }
+      notify(success, 'success', { email: connected });
     } else {
       notify(failed, 'error');
     }

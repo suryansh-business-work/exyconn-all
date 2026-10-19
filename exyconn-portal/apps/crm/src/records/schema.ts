@@ -20,8 +20,10 @@ export const CHOICE_TYPES: ReadonlySet<CrmPropertyType> = new Set([
 ]);
 
 /** The file name at the end of an uploaded file's address. */
-export const fileNameOf = (url: string) =>
-  decodeURIComponent(url.split('?')[0].split('/').pop() ?? url);
+export const fileNameOf = (url: string) => {
+  const path = url.split('?')[0];
+  return decodeURIComponent(path.slice(path.lastIndexOf('/') + 1));
+};
 
 /**
  * The properties a record actually holds: every one but the filter-only Yes/No checks (Has
@@ -63,6 +65,20 @@ export function valueOf(row: CrmRecordRow, property: CrmPropertyInfo): unknown {
   return custom[property.key];
 }
 
+/** A stored scalar as text; anything structured is written as JSON rather than `[object Object]`. */
+export function scalarText(value: unknown): string {
+  switch (typeof value) {
+    case 'string':
+      return value;
+    case 'number':
+    case 'boolean':
+    case 'bigint':
+      return String(value);
+    default:
+      return JSON.stringify(value) ?? '';
+  }
+}
+
 /** An option's label for a stored option value, or the value itself when it is no longer listed. */
 export function optionLabel(property: CrmPropertyInfo, value: unknown): string {
   const stored = String(value);
@@ -98,14 +114,14 @@ export function displayValue(
         .map((one) => optionLabel(property, one))
         .join(', ');
     case CrmPropertyType.File:
-      return fileNameOf(String(value));
+      return fileNameOf(scalarText(value));
     case CrmPropertyType.Boolean:
       return value === true ? formatters.yes : formatters.no;
     case CrmPropertyType.Date:
-      return formatters.formatDate(String(value));
+      return formatters.formatDate(value instanceof Date ? value : scalarText(value));
     case CrmPropertyType.Number:
-      return typeof value === 'number' ? formatters.formatNumber(value) : String(value);
+      return typeof value === 'number' ? formatters.formatNumber(value) : scalarText(value);
     default:
-      return String(value);
+      return scalarText(value);
   }
 }

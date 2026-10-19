@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -17,6 +18,14 @@ import {
   type OpenAppLogsFixPromptQueryVariables,
 } from '@exyconn/shell/graphql/generated';
 import type { AppLogRow } from './logs-grid';
+
+/** The generated documents, typed so `client.query` infers its result from them. */
+const FIX_PROMPT: TypedDocumentNode<AppLogFixPromptQuery, AppLogFixPromptQueryVariables> =
+  AppLogFixPromptDocument;
+const OPEN_FIX_PROMPT: TypedDocumentNode<
+  OpenAppLogsFixPromptQuery,
+  OpenAppLogsFixPromptQueryVariables
+> = OpenAppLogsFixPromptDocument;
 
 /** What the notifier says after a status change — one whole sentence per status, so each translates. */
 const STATUS_NOTICE: Record<AppLogStatus, string> = {
@@ -56,8 +65,8 @@ export function useLogActions(onChanged: () => void) {
 
   const copyFixPrompt = (row: AppLogRow) =>
     copyPrompt(async () => {
-      const { data } = await client.query<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>({
-        query: AppLogFixPromptDocument,
+      const { data } = await client.query({
+        query: FIX_PROMPT,
         variables: { id: row.id },
         fetchPolicy: 'network-only',
       });
@@ -66,11 +75,8 @@ export function useLogActions(onChanged: () => void) {
 
   const copyOpenErrors = (source: AppLogSource | null) =>
     copyPrompt(async () => {
-      const { data } = await client.query<
-        OpenAppLogsFixPromptQuery,
-        OpenAppLogsFixPromptQueryVariables
-      >({
-        query: OpenAppLogsFixPromptDocument,
+      const { data } = await client.query({
+        query: OPEN_FIX_PROMPT,
         variables: { source },
         fetchPolicy: 'network-only',
       });

@@ -1,5 +1,5 @@
 import { ApolloServer } from '@apollo/server';
-import { buildASTSchema, concatAST, type DocumentNode } from 'graphql';
+import { buildASTSchema, concatAST } from 'graphql';
 import ExcelJS from 'exceljs';
 import { Types } from 'mongoose';
 import { typeDefs, resolvers } from '../../../../src/graphql';
@@ -248,7 +248,7 @@ describe('import target, template and file parsing', () => {
 
 describe('table registry', () => {
   it('registers every paged list, so no grid offers a filter the server would drop', () => {
-    const schema = buildASTSchema(concatAST(typeDefs as DocumentNode[]), { assumeValidSDL: true });
+    const schema = buildASTSchema(concatAST(typeDefs), { assumeValidSDL: true });
     const paged = Object.values(schema.getQueryType()?.getFields() ?? {}).filter(isPagedList);
     expect(paged.length).toBeGreaterThan(90);
     expect(paged.map((field) => field.name).filter((name) => !registeredTable(name))).toEqual([]);

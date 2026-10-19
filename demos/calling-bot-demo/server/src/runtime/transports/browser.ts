@@ -18,7 +18,7 @@ export function startBrowserCall(socket: WebSocket, { call, config }: TicketedCa
     notify: (event: CallEvent) => send(event),
     hangUp: () => socket.close(1000),
   };
-  const conversation = new Conversation(call, config, transport);
+  const conversation = Conversation.open(call, config, transport);
   socket.on('message', (data: Buffer, isBinary: boolean) => {
     if (isBinary) {
       conversation.hear(data.toString('base64'));

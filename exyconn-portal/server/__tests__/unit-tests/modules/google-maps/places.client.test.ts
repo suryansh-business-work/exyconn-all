@@ -117,7 +117,7 @@ describe('searchText', () => {
     const headers = init.headers as Record<string, string>;
     expect(headers['X-Goog-Api-Key']).toBe(KEY);
     expect(headers['X-Goog-FieldMask']).toContain('places.websiteUri');
-    expect(JSON.parse(String(init.body))).toMatchObject({ textQuery: 'dentists in Pune' });
+    expect(JSON.parse(init.body as string)).toMatchObject({ textQuery: 'dentists in Pune' });
   });
 
   it("keeps Google's own error message", async () => {

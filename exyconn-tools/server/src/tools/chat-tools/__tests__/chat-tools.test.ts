@@ -18,6 +18,7 @@ import { mountRouter } from "../../../__tests__/helpers/mountRouter";
 import { pdfWithText } from "../../../__tests__/helpers/pdf";
 import routes from "../routes";
 import { extractTextFromBase64, scrapeWebsite } from "../services";
+import { asResponse, fakeRequest } from "../../../__tests__/helpers/express";
 
 const app = mountRouter(routes);
 
@@ -215,11 +216,11 @@ describe("controller guards", () => {
     const res = () => ({ status: vi.fn().mockReturnThis(), json: vi.fn() });
 
     const noUrl = res();
-    await scrapeWebsiteController({ body: {} } as never, noUrl as never);
+    await scrapeWebsiteController(fakeRequest({}), asResponse(noUrl));
     const noFile = res();
     await extractDocumentTextController(
-      { body: { fileData: "AA==" } } as never,
-      noFile as never,
+      fakeRequest({ fileData: "AA==" }),
+      asResponse(noFile),
     );
 
     expect(noUrl.status).toHaveBeenCalledWith(400);

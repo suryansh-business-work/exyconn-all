@@ -111,8 +111,10 @@ describe('EmployeeFormPage — editing', () => {
   });
 
   it('falls back to a plain sentence for an error with no message', () => {
+    const blank = new Error('replaced below');
+    blank.message = '';
     vi.mocked(useGetUserQuery).mockReturnValue(
-      queryResult(undefined, { error: new Error('') }) as never,
+      queryResult(undefined, { error: blank }) as never,
     );
     renderAt('/hr/employees/u1/edit');
     expect(screen.getByText('Failed to load the employee.')).toBeInTheDocument();

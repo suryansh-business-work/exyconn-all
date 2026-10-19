@@ -37,14 +37,13 @@ export default function OfficeToPdf(config: Readonly<OfficeToPdfConfig>) {
     [isAcceptedFile, invalidFileMessage]
   );
 
-  const convert = async () => {
-    if (!file) return;
+  const convert = async (target: File) => {
     setConverting(true);
     setConvertError('');
     setPdfBlob(null);
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', target);
       const res = await fetch(APIs.officeTools.officeToPdf, { method: 'POST', body: formData });
       if (res.status === 503) {
         setConvertError(SERVICE_UNAVAILABLE_MESSAGE);
@@ -85,7 +84,7 @@ export default function OfficeToPdf(config: Readonly<OfficeToPdfConfig>) {
                 converting={converting}
                 convertError={convertError}
                 pdfBlob={pdfBlob}
-                onConvert={convert}
+                onConvert={() => convert(file)}
               />
             ) : (
               <Paper sx={{ p: 3 }}>

@@ -105,7 +105,7 @@ export function focusTaken(key: string) {
 }
 
 export function closeComms(key: string) {
-  for (const name of [...memory.keys()]) {
+  for (const name of memory.keys()) {
     if (name.startsWith(`${key}|`)) {
       memory.delete(name);
     }

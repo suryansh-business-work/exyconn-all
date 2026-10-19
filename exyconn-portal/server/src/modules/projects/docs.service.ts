@@ -80,7 +80,7 @@ export const docsService = {
     const projectId = page.projectId.toHexString();
     const fromParent = page.parentId?.toHexString() ?? null;
 
-    page.parentId = parentId as never;
+    page.set('parentId', parentId);
     await page.save();
 
     if (fromParent !== parentId) await renumber(projectId, fromParent);

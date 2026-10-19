@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SearchLeadsDocument } from '@exyconn/shell/graphql/generated';
+import { CrmObject, SearchLeadsDocument } from '@exyconn/shell/graphql/generated';
 import { CrmPage } from '../../../../src/pages/crm';
 import { LEAD_COLUMNS } from '../../../../src/pages/crm/leads-grid';
+import { RecordActions } from '../../../../src/records/RecordActions';
 import { renderWithProviders } from '../../test-utils';
 import { leadRow, pending, tableStats } from '../../fixtures';
 import { dashboardProps, recordList } from '../../crud-dashboard-stub';
@@ -144,5 +145,22 @@ describe('CrmPage', () => {
 
     expect(screen.getByLabelText('current url')).toHaveTextContent('/deals');
     expect(screen.queryByText(/"id":"lead-8"/)).not.toBeInTheDocument();
+  });
+  it('offers import and export of the leads the toolbar has filtered', () => {
+    renderPage();
+    const { toolbar } = dashboardProps() as unknown as {
+      toolbar: { props: { renderActions: (query: unknown) => { type: unknown; props: object } } };
+    };
+    const query = { search: 'acme', filters: [] };
+
+    const actions = toolbar.props.renderActions(query);
+
+    expect(actions.type).toBe(RecordActions);
+    expect(actions.props).toMatchObject({
+      object: CrmObject.Lead,
+      query,
+      fileName: 'leads',
+      onImported: expect.any(Function),
+    });
   });
 });

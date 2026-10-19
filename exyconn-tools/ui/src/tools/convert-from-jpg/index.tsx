@@ -19,6 +19,7 @@ import {
   ACCEPTED_TYPES,
   MAX_FILES,
   ConvertItem,
+  DoneItem,
   TargetFormat,
   convertFromJpg,
   downloadBlob,
@@ -73,12 +74,12 @@ export default function ConvertFromJpg() {
       setProgress(i + 1);
       try {
         const blob = await convertFromJpg(next[i].file, format, quality / 100);
-        next[i] = { ...next[i], status: 'done', blob, error: undefined };
+        next[i] = { id: next[i].id, file: next[i].file, status: 'done', blob };
       } catch (err) {
         next[i] = {
-          ...next[i],
+          id: next[i].id,
+          file: next[i].file,
           status: 'error',
-          blob: undefined,
           error: err instanceof Error ? err.message : 'Conversion failed.',
         };
       }
@@ -87,13 +88,13 @@ export default function ConvertFromJpg() {
     setProcessing(false);
   };
 
-  const downloadItem = (item: ConvertItem) => {
-    if (item.blob) downloadBlob(item.blob, outputFileName(item.file.name, format));
+  const downloadItem = (item: DoneItem) => {
+    downloadBlob(item.blob, outputFileName(item.file.name, format));
   };
 
   const downloadAll = async () => {
     for (const item of items) {
-      if (item.status === 'done' && item.blob) {
+      if (item.status === 'done') {
         downloadBlob(item.blob, outputFileName(item.file.name, format));
         await new Promise((resolve) => setTimeout(resolve, 300));
       }

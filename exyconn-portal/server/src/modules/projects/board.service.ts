@@ -352,7 +352,7 @@ export const boardService = {
     if (!task) notFound('Task');
     const fromColumnId = task.columnId.toHexString();
 
-    task.columnId = toColumnId as never;
+    task.set('columnId', toColumnId);
     await task.save();
 
     if (fromColumnId !== toColumnId) {

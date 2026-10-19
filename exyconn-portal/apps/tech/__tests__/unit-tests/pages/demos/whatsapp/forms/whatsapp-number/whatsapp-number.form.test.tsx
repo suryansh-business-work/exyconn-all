@@ -1,18 +1,30 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { WhatsappChannelDocument } from '@exyconn/shell/graphql/generated';
+import { WhatsappChannelDocument, WhatsappChannelSecret } from '@exyconn/shell/graphql/generated';
 import { WhatsappNumberForm } from '../../../../../../../src/pages/demos/whatsapp/forms/whatsapp-number';
 import { renderWithProviders } from '../../../../../test-utils';
 import { channelRow } from '../../whatsapp.fixtures';
 
-const api = vi.hoisted(() => ({ save: vi.fn(), options: null as unknown, warn: vi.fn() }));
+const api = vi.hoisted(() => ({
+  save: vi.fn(),
+  options: null as unknown,
+  warn: vi.fn(),
+  test: vi.fn(),
+  reveal: vi.fn(),
+  revealOptions: null as unknown,
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<object>()),
   useSaveWhatsappChannelMutation: (options: unknown) => {
     api.options = options;
     return [api.save];
+  },
+  useTestWhatsappChannelMutation: () => [api.test],
+  useRevealWhatsappChannelSecretMutation: (options: unknown) => {
+    api.revealOptions = options;
+    return [api.reveal];
   },
 }));
 vi.mock('@exyconn/shell/logging/portalLogger', () => ({
@@ -26,6 +38,8 @@ const SAVED = 'Saved. Use the eye to see it, or type a new one to replace it.';
 beforeEach(() => {
   api.save.mockReset().mockResolvedValue({});
   api.warn.mockReset();
+  api.test.mockReset();
+  api.reveal.mockReset();
 });
 
 describe('WhatsappNumberForm — first connection', () => {
@@ -131,5 +145,58 @@ describe('WhatsappNumberForm — connected number', () => {
     await user.type(display, '+44 20 7946 0000');
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(display).toHaveValue('+1 555 010 0000');
+  });
+});
+
+describe('WhatsappNumberForm — Test and the eye buttons', () => {
+  it('tests the typed number and token with Meta, and says what worked', async () => {
+    const user = userEvent.setup();
+    api.test.mockResolvedValue({ data: { testWhatsappChannel: 'Meta knows +1 555 010 0000' } });
+    renderWithProviders(<WhatsappNumberForm initial={null} />);
+    await user.type(screen.getByRole('textbox', { name: 'Phone number ID' }), '1234567890');
+    await user.type(screen.getByLabelText('Access token'), credential(24));
+    await user.click(screen.getByRole('button', { name: 'Test the Access token' }));
+    expect(await screen.findByText('Meta knows +1 555 010 0000')).toBeInTheDocument();
+    expect(api.test).toHaveBeenCalledWith({
+      variables: { input: { phoneNumberId: '1234567890', accessToken: credential(24) } },
+    });
+  });
+
+  it('tests the saved token when the field is left blank, with an empty answer as success', async () => {
+    const user = userEvent.setup();
+    api.test.mockResolvedValue({ data: null });
+    renderWithProviders(<WhatsappNumberForm initial={channelRow()} />);
+    await user.click(screen.getByRole('button', { name: 'Test the Access token' }));
+    await waitFor(() =>
+      expect(api.test).toHaveBeenCalledWith({
+        variables: { input: { phoneNumberId: '1234567890', accessToken: '' } },
+      }),
+    );
+  });
+
+  it('fetches a saved secret for its eye button, never from the cache', async () => {
+    const user = userEvent.setup();
+    api.reveal.mockResolvedValue({ data: { revealWhatsappChannelSecret: 'saved-app-secret' } });
+    renderWithProviders(<WhatsappNumberForm initial={channelRow()} />);
+    expect(api.revealOptions).toEqual({ fetchPolicy: 'no-cache' });
+    await user.click(screen.getByRole('button', { name: 'Show App secret' }));
+    await waitFor(() =>
+      expect(screen.getByLabelText('App secret')).toHaveValue('saved-app-secret'),
+    );
+    expect(api.reveal).toHaveBeenCalledWith({
+      variables: { secret: WhatsappChannelSecret.AppSecret },
+    });
+  });
+
+  it('shows an empty field when the server has no saved token to reveal', async () => {
+    const user = userEvent.setup();
+    api.reveal.mockResolvedValue({ data: null });
+    renderWithProviders(<WhatsappNumberForm initial={channelRow()} />);
+    await user.click(screen.getByRole('button', { name: 'Show Access token' }));
+    expect(await screen.findByRole('button', { name: 'Hide Access token' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Access token')).toHaveValue('');
+    expect(api.reveal).toHaveBeenCalledWith({
+      variables: { secret: WhatsappChannelSecret.AccessToken },
+    });
   });
 });

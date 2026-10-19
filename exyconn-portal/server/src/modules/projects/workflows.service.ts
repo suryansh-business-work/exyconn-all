@@ -73,7 +73,7 @@ export const workflowsService = {
   async saveGraph(id: string, graph: unknown, actor: Actor) {
     const parsed = workflowGraphSchema.safeParse(graph);
     if (!parsed.success) {
-      badRequest(parsed.error.issues[0]?.message ?? 'The workflow could not be read');
+      badRequest(parsed.error.issues[0].message);
     }
     const problem = workflowGraphProblem(parsed.data);
     if (problem) {

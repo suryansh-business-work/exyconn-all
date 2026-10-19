@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { apiOk, clickAway, jsonReply, renderTool, stubFetch } from '../../__tests__/helpers/toolHarness';
 import GBPDescriptionGenerator from './index';
+import { sentJson } from '../../__tests__/helpers/requests';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () =>
   (await import('../../__tests__/helpers/toolHarness')).toolLayoutStub()
@@ -61,7 +62,7 @@ describe('gbp-description-generator', () => {
 
     expect(await screen.findByText('Variant 1')).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({
+    expect(sentJson(init)).toEqual({
       businessName: 'Acme Plumbing',
       businessType: 'plumber',
       location: 'Austin, TX',

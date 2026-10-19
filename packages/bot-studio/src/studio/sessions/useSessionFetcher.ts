@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import {
   WhatsappDemoSessionsDocument,
@@ -11,6 +12,10 @@ import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataG
 import { queryData } from '@exyconn/shell/utils/queryData';
 import type { SessionRow } from './session.columns';
 import { useStudio } from '../StudioContext';
+
+/** The generated document, typed so `client.query` infers its data and variables. */
+const SESSIONS: TypedDocumentNode<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables> =
+  WhatsappDemoSessionsDocument;
 
 export interface SessionQueryScope {
   from: string;
@@ -48,11 +53,8 @@ export function useSessionFetcher(scope: SessionQueryScope): SessionFetcher {
   const fetchRows = useCallback(
     async (input: TableQueryInput) => {
       const { from, to, filters } = scopeRef.current;
-      const result = await client.query<
-        WhatsappDemoSessionsQuery,
-        WhatsappDemoSessionsQueryVariables
-      >({
-        query: WhatsappDemoSessionsDocument,
+      const result = await client.query({
+        query: SESSIONS,
         variables: {
           input: { ...input, filters: [...(input.filters ?? []), ...filters] },
           from,

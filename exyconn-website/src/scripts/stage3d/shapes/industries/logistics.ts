@@ -42,7 +42,7 @@ const HOOD: [Vec3, Vec3] = [
   [1.57, FLOOR + 0.1, TRUCK_Z],
   [0.16, 0.2, TRUCK_D * 0.9],
 ];
-const WHEELS = [0.12, 0.34, 1.0, 1.48];
+const WHEELS = [0.12, 0.34, 1, 1.48];
 const ROAD = [0.82, 1.12];
 const PIN: Vec3 = [-1.05, RIDGE + 0.42, SHED[1]];
 const PARCELS: readonly Vec3[] = [

@@ -2,6 +2,8 @@
 export function fileStem(name: string): string {
   const stem = name
     .normalize("NFKD")
+    // NFKD splits "é" into "e" and a combining accent; drop the accents, keep the letters.
+    .replaceAll(/\p{M}/gu, "")
     .toLowerCase()
     .replaceAll(/[^a-z\d]+/g, "-")
     .replaceAll(/^-+|-+$/g, "")

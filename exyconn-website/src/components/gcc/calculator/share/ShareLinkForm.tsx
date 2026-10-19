@@ -76,11 +76,8 @@ export function ShareLinkForm({
     await captcha.reload();
   });
 
-  const revoke = async () => {
-    if (!created) {
-      return;
-    }
-    const result = await revokeShareLink(created.token, created.revokeKey);
+  const revoke = async (link: CreatedLink) => {
+    const result = await revokeShareLink(link.token, link.revokeKey);
     if (result.ok) {
       setCreated(null);
       setMessage({ ok: true, text: S.revoked });
@@ -114,7 +111,7 @@ export function ShareLinkForm({
               >
                 {S.copyLink}
               </Button>
-              <Button color="error" variant="outlined" onClick={revoke}>
+              <Button color="error" variant="outlined" onClick={() => revoke(created)}>
                 {S.revoke}
               </Button>
             </div>

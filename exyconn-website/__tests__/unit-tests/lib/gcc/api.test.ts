@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createShareLink,
   emailEstimate,
+  fetchCurrencies,
   fetchFxRates,
   readSharedEstimate,
   revokeShareLink,
@@ -162,6 +163,67 @@ describe("reference exchange rates", () => {
 
     const result = await fetchFxRates(["USD"]);
 
+    expect(result.ok === false && result.reason).toBe("unavailable");
+  });
+});
+
+describe("default sentences and failed calls", () => {
+  const send = () =>
+    emailEstimate({ to: "dana@globex.com", estimate: estimate(), note: "", captcha });
+
+  it("falls back to its own sentence when the server gives none", async () => {
+    fetchMock.mockResolvedValueOnce(answer(429, {}));
+    expect(await send()).toEqual({
+      ok: false,
+      reason: "rate-limited",
+      message: "Too many requests. Please wait a few minutes and try again.",
+    });
+    fetchMock.mockResolvedValueOnce(answer(404, { error: "not-found" }));
+    expect(await send()).toEqual({
+      ok: false,
+      reason: "not-found",
+      message: "The request could not be completed. Check the details and try again.",
+    });
+  });
+
+  it("reads a JSON answer that is not an object as no body", async () => {
+    fetchMock.mockResolvedValueOnce(answer(200, "null"));
+    expect((await send()).ok).toBe(false);
+    fetchMock.mockResolvedValueOnce(answer(400, '"refused"'));
+    expect(await send()).toEqual({
+      ok: false,
+      reason: "invalid",
+      message: "The request could not be completed. Check the details and try again.",
+    });
+  });
+
+  it("passes a failure through from every call", async () => {
+    // A fresh answer each time: a body can be read only once.
+    fetchMock.mockImplementation(async () => answer(503, { message: "Down." }));
+    const down = { ok: false, reason: "unavailable", message: "Down." };
+    expect(await createShareLink({ estimate: estimate(), expiresInDays: 7, captcha })).toEqual(
+      down
+    );
+    expect(await revokeShareLink(TOKEN, "b".repeat(64))).toEqual(down);
+    expect(await fetchFxRates(["USD"])).toEqual(down);
+    expect(await fetchCurrencies()).toEqual(down);
+  });
+});
+
+describe("the currency list", () => {
+  it("returns the 3-letter codes the server lists", async () => {
+    fetchMock.mockResolvedValue(answer(200, { currencies: ["AED", "INR", "USD"] }));
+    expect(await fetchCurrencies()).toEqual({ ok: true, currencies: ["AED", "INR", "USD"] });
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/gcc/fx-currencies");
+  });
+
+  it.each([
+    ["not a list", { currencies: "USD" }],
+    ["a code that is not text", { currencies: ["USD", 3] }],
+    ["a code of the wrong length", { currencies: ["USD", "EURO"] }],
+  ])("is unavailable when the list is %s", async (_what, body) => {
+    fetchMock.mockResolvedValue(answer(200, body));
+    const result = await fetchCurrencies();
     expect(result.ok === false && result.reason).toBe("unavailable");
   });
 });

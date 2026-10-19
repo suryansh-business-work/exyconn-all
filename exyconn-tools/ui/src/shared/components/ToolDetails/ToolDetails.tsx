@@ -2,7 +2,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { findToolById, getCategoryOfTool } from '../../data/toolsData';
+import { findToolWithCategory } from '../../data/toolsData';
 import { getToolDetails } from '../../data/toolDetails';
 import { gutterSx, SHELL_MAX_WIDTH } from '../Shell/styles';
 import { ToolGrid } from '../ToolCard';
@@ -22,13 +22,13 @@ const RELATED_COUNT = 4;
  * tools. The content comes from the toolDetails registry, which also feeds the page meta.
  */
 const ToolDetails: React.FC<Readonly<ToolDetailsProps>> = ({ toolId }) => {
-  const tool = findToolById(toolId);
-  const category = getCategoryOfTool(toolId);
+  const found = findToolWithCategory(toolId);
   const details = getToolDetails(toolId);
-  if (!tool || !details) {
+  if (!found || !details) {
     return null;
   }
-  const related = (category?.items ?? []).filter((item) => item.id !== toolId).slice(0, RELATED_COUNT);
+  const { tool, category } = found;
+  const related = category.items.filter((item) => item.id !== toolId).slice(0, RELATED_COUNT);
 
   return (
     <Box
@@ -95,7 +95,7 @@ const ToolDetails: React.FC<Readonly<ToolDetailsProps>> = ({ toolId }) => {
         </Box>
         {related.length > 0 && (
           <Box>
-            <DetailsHeading kicker="Related">More {category?.category ?? 'tools'}</DetailsHeading>
+            <DetailsHeading kicker="Related">More {category.category}</DetailsHeading>
             <ToolGrid tools={related} headingComponent="h3" />
           </Box>
         )}

@@ -5,11 +5,6 @@ import type { GraphQLContext } from '../../middleware/auth';
 import { CompanyModel } from './company.model';
 import { ContactModel } from './contact.model';
 
-/** A company's or contact's own labels, e.g. "Hot", "Partner referral". */
-export const tagFields = {
-  tags: { type: [String], default: [], index: true },
-};
-
 const MAX_TAGS = 20;
 const MAX_TAG_LENGTH = 40;
 

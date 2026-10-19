@@ -13,6 +13,32 @@ vi.mock('../../../../../src/pages/cms/media/MediaLibrary', () => ({
   ),
 }));
 
+interface UploadDialogStubProps {
+  open: boolean;
+  title?: string;
+  folder?: string;
+  onClose: () => void;
+  onUploaded: (url: string) => void;
+  uploadDataUrl?: (dataUrl: string, fileName: string) => Promise<string>;
+}
+
+/** The platform upload dialog, reduced to where it stores and its two ways out. */
+vi.mock('@exyconn/shell/components/ui', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@exyconn/shell/components/ui')>()),
+  ImageUploadDialog: (props: Readonly<UploadDialogStubProps>) =>
+    props.open ? (
+      <dialog open aria-label={`Upload ${props.title}`}>
+        <p>{props.uploadDataUrl ? 'Into the site library' : `Into ImageKit/${props.folder}`}</p>
+        <button type="button" onClick={() => props.onUploaded('https://ik.imagekit.io/up.png')}>
+          Finish upload
+        </button>
+        <button type="button" onClick={props.onClose}>
+          Cancel upload
+        </button>
+      </dialog>
+    ) : null,
+}));
+
 type Props = ComponentProps<typeof MediaUrlInput>;
 
 function renderInput(overrides: Partial<Props> = {}) {
@@ -90,5 +116,35 @@ describe('MediaUrlInput', () => {
 
     expect(props.onChange).toHaveBeenCalledWith('https://cdn/picked.png');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('uploads to ImageKit when there is no site, and closes on cancel', async () => {
+    const { props } = renderInput();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Upload' }));
+    const dialog = screen.getByRole('dialog', { name: 'Upload Titelbild' });
+    expect(dialog).toHaveTextContent('Into ImageKit/website');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Finish upload' }));
+    expect(props.onChange).toHaveBeenCalledWith('https://ik.imagekit.io/up.png');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel upload' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it("uploads into the site's library when there is a site, and closes on cancel", async () => {
+    const { props } = renderInput({ siteId: 'site-1' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Upload' }));
+    expect(screen.getByRole('dialog', { name: 'Upload Titelbild' })).toHaveTextContent(
+      'Into the site library',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Finish upload' }));
+    expect(props.onChange).toHaveBeenCalledWith('https://ik.imagekit.io/up.png');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel upload' }));
+    expect(screen.queryByRole('dialog', { name: 'Upload Titelbild' })).not.toBeInTheDocument();
   });
 });

@@ -31,7 +31,7 @@ export async function sendMicrosoftCrmEmail(input: SendCrmEmailInput, sentByName
   const mailbox = await sendingMicrosoftMailbox(input.fromAccountId);
   try {
     const tokens = await refreshMailbox(mailbox);
-    await graph(tokens.access_token ?? '', '/me/sendMail', {
+    await graph(tokens.access_token, '/me/sendMail', {
       method: 'POST',
       body: JSON.stringify({
         message: {

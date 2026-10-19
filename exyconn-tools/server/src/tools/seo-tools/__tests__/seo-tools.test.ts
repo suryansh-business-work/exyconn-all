@@ -323,8 +323,9 @@ describe("text analysis", () => {
     ]);
     expect(result.readability).toBe("Complex");
 
+    const word = (n: number, i: number) => `w${n}x${i}`;
     const sentence = (n: number) =>
-      `${Array.from({ length: 12 }, (_, i) => `w${n}x${i}`).join(" ")}, end`;
+      `${Array.from({ length: 12 }, (_, i) => word(n, i)).join(" ")}, end`;
     const fine = services.rewriteText(
       `${[1, 2, 3, 4, 5].map((n) => sentence(n)).join(". ")}.`,
       "casual",

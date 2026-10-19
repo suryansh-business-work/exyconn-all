@@ -28,7 +28,7 @@ class MicFrames extends AudioWorkletProcessor {
   }
 
   process(inputs) {
-    const channel = inputs[0] && inputs[0][0];
+    const channel = inputs[0]?.[0];
     if (channel) {
       // Picks every `step`-th sample: the device rate is a whole multiple of 16 kHz on almost
       // every machine (48 kHz), and speech-to-text needs nothing finer.

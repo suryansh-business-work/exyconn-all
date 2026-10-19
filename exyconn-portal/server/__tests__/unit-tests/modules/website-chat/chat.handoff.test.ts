@@ -147,7 +147,7 @@ function start() {
   startChatHandoff();
   const [tick, ms] = interval.mock.calls[0];
   interval.mockRestore();
-  return { tick: tick as () => void, ms, unref };
+  return { tick, ms, unref };
 }
 
 describe('startChatHandoff', () => {

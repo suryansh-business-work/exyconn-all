@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { queryData } from '@exyconn/shell/utils/queryData';
 import type { CrmRecordRow } from '../schema';
+import type { RecordSearchDocument } from '../list/useRecordFetcher';
 
 /** The rows to export: what the list is showing, without its paging. */
 export type ExportQuery = Pick<CrmQueryInput, 'search' | 'groups' | 'sorts'>;
@@ -25,28 +26,47 @@ interface Page {
   totalCount: number;
 }
 
-async function fetchPage(
+async function searchPage<TQuery>(
   client: ApolloClient,
-  object: CrmObject,
+  document: RecordSearchDocument<TQuery>,
   query: CrmQueryInput,
+  label: string,
+  select: (data: TQuery) => Page,
 ): Promise<Page> {
-  const options = { variables: { query }, fetchPolicy: 'network-only' } as const;
+  const result = await client.query({
+    query: document,
+    variables: { query },
+    fetchPolicy: 'network-only',
+  });
+  return select(queryData(result, label));
+}
+
+function fetchPage(client: ApolloClient, object: CrmObject, query: CrmQueryInput): Promise<Page> {
   if (object === CrmObject.Lead) {
-    const result = await client.query<SearchLeadsQuery>({ query: SearchLeadsDocument, ...options });
-    return queryData(result, 'The lead search').searchLeads;
+    return searchPage(
+      client,
+      SearchLeadsDocument,
+      query,
+      'The lead search',
+      (data: SearchLeadsQuery) => data.searchLeads,
+    );
   }
   if (object === CrmObject.Company) {
-    const result = await client.query<SearchCompaniesQuery>({
-      query: SearchCompaniesDocument,
-      ...options,
-    });
-    return queryData(result, 'The company search').searchCompanies;
+    return searchPage(
+      client,
+      SearchCompaniesDocument,
+      query,
+      'The company search',
+      (data: SearchCompaniesQuery) => data.searchCompanies,
+    );
   }
-  const result = await client.query<SearchContactsQuery>({
-    query: SearchContactsDocument,
-    ...options,
-  });
-  return queryData(result, 'The contact search').searchContacts;
+  return searchPage(
+    client,
+    SearchContactsDocument,
+    query,
+    'The contact search',
+    (data: SearchContactsQuery) => data.searchContacts,
+  );
 }
 
 export interface FetchedRecords {
@@ -63,13 +83,15 @@ export async function fetchAllRecords(
 ): Promise<FetchedRecords> {
   const rows: CrmRecordRow[] = [];
   let totalCount = 0;
-  for (let page = 0; rows.length < MAX_EXPORT_ROWS; page += 1) {
+  let page = 0;
+  while (rows.length < MAX_EXPORT_ROWS) {
     const result = await fetchPage(client, object, { ...query, page, pageSize: PAGE_SIZE });
     totalCount = result.totalCount;
     rows.push(...result.rows);
     if (result.rows.length < PAGE_SIZE || rows.length >= totalCount) {
       break;
     }
+    page += 1;
   }
   return { rows: rows.slice(0, MAX_EXPORT_ROWS), totalCount };
 }

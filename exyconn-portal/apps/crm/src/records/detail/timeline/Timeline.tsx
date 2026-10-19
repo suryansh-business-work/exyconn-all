@@ -18,12 +18,12 @@ interface TimelineProps {
 /** Everything that happened with the contact or company, newest first. */
 export function Timeline({ object, id, limit, filters = true }: Readonly<TimelineProps>) {
   const t = useT();
-  const [filter, setFilter] = useState(KIND_FILTERS[0].id);
+  const [filter, setFilter] = useState(KIND_FILTERS[0]);
   const { data, loading, error, refetch } = useCrmTimelineQuery({
     variables: { object, id, limit },
     fetchPolicy: 'cache-and-network',
   });
-  const kinds = useMemo(() => new Set(KIND_FILTERS.find((f) => f.id === filter)?.kinds), [filter]);
+  const kinds = useMemo(() => new Set(filter.kinds), [filter]);
   const rows = (data?.crmTimeline ?? []).filter((row) => kinds.has(row.kind));
 
   if (error && !data) {
@@ -56,10 +56,10 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
             <Chip
               key={option.id}
               label={t(option.label)}
-              color={option.id === filter ? 'primary' : 'default'}
-              variant={option.id === filter ? 'filled' : 'outlined'}
-              aria-pressed={option.id === filter}
-              onClick={() => setFilter(option.id)}
+              color={option === filter ? 'primary' : 'default'}
+              variant={option === filter ? 'filled' : 'outlined'}
+              aria-pressed={option === filter}
+              onClick={() => setFilter(option)}
             />
           ))}
         </Flex>

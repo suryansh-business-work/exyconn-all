@@ -95,7 +95,7 @@ describe('startCampaignSchedule', () => {
     await eventually(lastRun, (value) => value !== undefined);
     clearJobRuns();
 
-    const tick = setIntervalSpy.mock.calls[0][0] as () => void;
+    const tick = setIntervalSpy.mock.calls[0][0];
     tick();
 
     const run = await eventually(lastRun, (value) => value !== undefined);

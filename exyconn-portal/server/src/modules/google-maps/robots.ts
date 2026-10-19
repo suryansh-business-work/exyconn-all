@@ -60,7 +60,7 @@ export function robotsAllows(robotsTxt: string, agent: string, path: string): bo
       continue;
     }
     const longer = !best || rule.path.length > best.path.length;
-    const tieAllow = best && rule.path.length === best.path.length && rule.allow;
+    const tieAllow = rule.allow && rule.path.length === best?.path.length;
     if (longer || tieAllow) {
       best = rule;
     }

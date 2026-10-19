@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 /** The visitor's pointer and scroll, smoothed for the inner stage's frame loop. */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createStageInput, heroScroll } from "../../../../../src/scripts/stage3d/inner/interaction";
+import {
+  createStageInput,
+  heroScroll,
+  sectionProgress,
+} from "../../../../../src/scripts/stage3d/inner/interaction";
 
 /** Long enough for every damped value to land on its goal. */
 const SETTLE = 20;
@@ -125,5 +129,26 @@ describe("createStageInput", () => {
     input.dispose();
     move(250, 75);
     expect(input.step(SETTLE, true)).toEqual({ x: 0, y: 0, near: 0, scroll: 0 });
+  });
+});
+
+describe("sectionProgress", () => {
+  it("runs from 0 as the section enters from below to 1 as it leaves at the top", () => {
+    expect(sectionProgress(800, 1000, 800)).toBe(0);
+    expect(sectionProgress(-100, 1000, 800)).toBeCloseTo(0.5);
+    expect(sectionProgress(-1000, 1000, 800)).toBe(1);
+    expect(sectionProgress(0, -10, 0)).toBe(0);
+  });
+});
+
+describe("createStageInput in a scroll story", () => {
+  it("scrolls with how far the story has been read, not with the hero", () => {
+    vi.stubGlobal("innerHeight", 800);
+    const story = document.createElement("section");
+    vi.spyOn(story, "getBoundingClientRect").mockReturnValue(rect(0, -100, 300, 1000));
+    const input = make(true);
+    expect(input.step(SETTLE, false, story).scroll).toBeCloseTo(0.5);
+    expect(input.step(SETTLE, false).scroll).toBeCloseTo(0);
+    vi.unstubAllGlobals();
   });
 });

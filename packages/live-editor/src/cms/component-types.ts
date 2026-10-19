@@ -47,7 +47,7 @@ export function registerCmsComponentTypes(editor: Editor, options: CmsPluginOpti
   editor.Commands.add(EDIT_PROPS_COMMAND, {
     run(ed) {
       const selected = ed.getSelected();
-      if (!selected || selected.get('type') !== COMPONENT_TYPE) return;
+      if (selected?.get('type') !== COMPONENT_TYPE) return;
       const attributes = selected.getAttributes();
       const key = String(attributes['data-key'] ?? '');
       options.onEditComponent({

@@ -36,7 +36,7 @@ describe('readChatSettings', () => {
       false,
     ]);
     const again = await readChatSettings();
-    expect(String(again._id)).toBe(String(first._id));
+    expect(again._id.toHexString()).toBe(first._id.toHexString());
     expect(await ChatSettingsModel.countDocuments()).toBe(1);
   });
 });

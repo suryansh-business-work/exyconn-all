@@ -5,21 +5,20 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import Download from '@mui/icons-material/Download';
-import { ConvertItem, formatBytes, outputFileName } from './utils';
+import { ConvertItem, DoneItem, formatBytes, outputFileName } from './utils';
 
 interface ResultsListProps {
   items: ConvertItem[];
-  onDownload: (item: ConvertItem) => void;
+  onDownload: (item: DoneItem) => void;
 }
 
 const secondaryText = (item: ConvertItem): string => {
-  if (item.status === 'error') return item.error ?? 'Conversion failed.';
-  if (item.status === 'done' && item.blob) return `${formatBytes(item.file.size)} → ${formatBytes(item.blob.size)}`;
+  if (item.status === 'error') return item.error;
+  if (item.status === 'done') return `${formatBytes(item.file.size)} → ${formatBytes(item.blob.size)}`;
   return formatBytes(item.file.size);
 };
 
 export default function ResultsList({ items, onDownload }: Readonly<ResultsListProps>) {
-  if (items.length === 0) return null;
   return (
     <List dense>
       {items.map((item) => (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { queryData } from '@exyconn/shell/utils/queryData';
 import { LeadEmailStatus, useFindLeadEmailsMutation } from '@exyconn/shell/graphql/generated';
 import type { EmailLookup, LeadPlace } from './leadTypes';
 
@@ -18,16 +19,14 @@ export function useLeadEmails() {
 
   const lookUp = async (place: LeadPlace) => {
     try {
-      const { data } = await findEmails({ variables: { website: place.website } });
-      if (data) {
-        set(place.placeId, data.findLeadEmails);
-      }
-    } catch (failure) {
-      portalLogger.warn('crm: finding a lead website emails failed', failure);
+      const result = await findEmails({ variables: { website: place.website } });
+      set(place.placeId, queryData(result, 'The website lookup').findLeadEmails);
+    } catch (error_) {
+      portalLogger.warn('crm: finding a lead website emails failed', error_);
       set(place.placeId, {
         status: LeadEmailStatus.Unreachable,
         emails: [],
-        message: errorMessage(failure, t('Could not read the website')),
+        message: errorMessage(error_, t('Could not read the website')),
       });
     }
   };

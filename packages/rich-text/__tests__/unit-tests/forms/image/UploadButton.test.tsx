@@ -57,7 +57,7 @@ describe('UploadButton', () => {
   });
 
   it('reports a generic message when the failure is not an Error', async () => {
-    const { onFailed, input } = renderButton(() => Promise.reject(new Error('x').message));
+    const { onFailed, input } = renderButton(vi.fn<(file: File) => Promise<string>>().mockRejectedValue('x'));
     await act(async () => {
       fireEvent.change(input, { target: { files: [file] } });
     });

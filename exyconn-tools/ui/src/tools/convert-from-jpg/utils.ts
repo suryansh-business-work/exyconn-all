@@ -2,13 +2,16 @@ export type TargetFormat = 'image/png' | 'image/webp';
 
 export type ConvertStatus = 'pending' | 'done' | 'error';
 
-export interface ConvertItem {
+interface ConvertItemBase {
   id: string;
   file: File;
-  status: ConvertStatus;
-  blob?: Blob;
-  error?: string;
 }
+
+/** A converted file always carries its output; a failed one always says why. */
+export type ConvertItem = ConvertItemBase &
+  ({ status: 'pending' } | { status: 'done'; blob: Blob } | { status: 'error'; error: string });
+
+export type DoneItem = Extract<ConvertItem, { status: 'done' }>;
 
 export const MAX_FILES = 20;
 

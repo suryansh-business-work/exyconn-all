@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useFormState } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import {
   FormHelperText,
@@ -28,12 +28,14 @@ export function LeadSearchModeField({ mapReady, mapHint }: Readonly<ModeFieldPro
   const t = useT();
   const labelId = useId();
   const { control } = useFormContext<LeadSearchFormInput>();
+  // The Controller below only re-renders for "mode"; the area's error needs its own subscription.
+  const { errors } = useFormState({ control, name: 'area' });
   return (
     <Controller
       name="mode"
       control={control}
-      render={({ field, formState }) => {
-        const areaError = field.value === 'area' ? formState.errors.area?.message : undefined;
+      render={({ field }) => {
+        const areaError = field.value === 'area' ? errors.area?.message : undefined;
         let hint = mapReady ? '' : mapHint;
         if (field.value === 'area') {
           hint = t(

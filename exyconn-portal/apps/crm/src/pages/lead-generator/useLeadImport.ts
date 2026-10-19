@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { queryData } from '@exyconn/shell/utils/queryData';
 import {
   LeadImportStatus,
   useImportLeadsToCrmMutation,
@@ -50,14 +51,12 @@ export function useLeadImport(onFiled: (filed: LeadImportResult['filed']) => voi
         const ids = new Set(chunk.map((place) => place.placeId));
         const leads = chunk.map((place) => toInput(place, lookups[place.placeId]));
         const mergeInto = merges.filter((merge) => ids.has(merge.placeId));
-        const { data } = await importLeads({ variables: { leads, mergeInto } });
-        if (data) {
-          addResult(total, data.importLeadsToCrm);
-        }
+        const result = await importLeads({ variables: { leads, mergeInto } });
+        addResult(total, queryData(result, 'The lead import').importLeadsToCrm);
       }
-    } catch (failure) {
-      portalLogger.warn('crm: adding leads to the CRM failed', failure);
-      setError(errorMessage(failure, t('Could not add the leads to the CRM')));
+    } catch (error_) {
+      portalLogger.warn('crm: adding leads to the CRM failed', error_);
+      setError(errorMessage(error_, t('Could not add the leads to the CRM')));
     }
     onFiled(companiesOf(total));
     if (total.created + total.merged + total.skipped > 0) {
@@ -84,9 +83,9 @@ export function useLeadImport(onFiled: (filed: LeadImportResult['filed']) => voi
     let previews: LeadImportPreview[];
     try {
       previews = await preview(places, lookups);
-    } catch (failure) {
-      portalLogger.warn('crm: checking leads against the CRM failed', failure);
-      setError(errorMessage(failure, t('Could not check the leads against the CRM')));
+    } catch (error_) {
+      portalLogger.warn('crm: checking leads against the CRM failed', error_);
+      setError(errorMessage(error_, t('Could not check the leads against the CRM')));
       return;
     }
     if (previews.every((row) => row.status === LeadImportStatus.New)) {

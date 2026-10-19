@@ -4,6 +4,7 @@ import { useT } from '@exyconn/i18n';
 import { Autocomplete, Box, Text, TextField } from '@exyconn/shell/components/ui';
 import type { CrmPropertyInfo } from '../../../schema';
 import { PROPERTY_TYPE_LABEL, propertyLabel } from '../../../propertyText';
+import { blankValues } from '../../operators';
 import type { ConditionPath, FilterBuilderValues } from '../filter-builder.types';
 
 interface PropertyPickerProps {
@@ -37,9 +38,10 @@ export function PropertyPicker({ path, properties }: Readonly<PropertyPickerProp
           getOptionLabel={(option) => propertyLabel(t, option)}
           isOptionEqualToValue={(option, value) => option.key === value.key}
           onChange={(_event, option) => {
+            const op = option?.ops[0];
             field.onChange(option?.key ?? '');
-            setValue(`${path}.op`, option?.ops[0] ?? '');
-            setValue(`${path}.values`, []);
+            setValue(`${path}.op`, op ?? '');
+            setValue(`${path}.values`, op ? blankValues(op) : []);
           }}
           onBlur={field.onBlur}
           renderOption={(props, option) => {

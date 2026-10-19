@@ -1,9 +1,43 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Paper, IconButton, Skeleton } from '@mui/material';
 import { NavigateBefore, NavigateNext, PictureAsPdf } from '@mui/icons-material';
 import * as pdfjsLib from 'pdfjs-dist';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
+
+/** Draws one page into the canvas, scaled to the height limit (at most 1.5x). */
+async function drawPage(canvas: HTMLCanvasElement, doc: pdfjsLib.PDFDocumentProxy, pageNum: number, maxHeight: number) {
+  try {
+    const page = await doc.getPage(pageNum);
+    const baseViewport = page.getViewport({ scale: 1 });
+    const scale = Math.min(maxHeight / baseViewport.height, 1.5);
+    const viewport = page.getViewport({ scale });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+  } catch {
+    /* ignore render errors */
+  }
+}
+
+interface PageCanvasProps {
+  doc: pdfjsLib.PDFDocumentProxy;
+  pageNumber: number;
+  maxHeight: number;
+}
+
+/** The page canvas; it redraws whenever it mounts or the document, page or size changes. */
+const PageCanvas: React.FC<Readonly<PageCanvasProps>> = ({ doc, pageNumber, maxHeight }) => {
+  const draw = useCallback(
+    (canvas: HTMLCanvasElement | null) => {
+      if (canvas) drawPage(canvas, doc, pageNumber, maxHeight);
+    },
+    [doc, pageNumber, maxHeight]
+  );
+  return <canvas ref={draw} style={{ maxWidth: '100%', maxHeight, display: 'block' }} />;
+};
 
 interface PdfPreviewProps {
   file: File | null;
@@ -12,7 +46,6 @@ interface PdfPreviewProps {
 }
 
 const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPageNav = true }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -27,18 +60,16 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
     }
     let cancelled = false;
     setLoading(true);
-    file
-      .arrayBuffer()
-      .then((buf) => {
-        if (cancelled) return;
-        return pdfjsLib.getDocument({ data: buf }).promise;
-      })
-      .then((doc) => {
-        if (cancelled || !doc) return;
-        setPdfDoc(doc);
-        setTotalPages(doc.numPages);
-        setCurrentPage(1);
-      })
+    const load = async () => {
+      const buf = await file.arrayBuffer();
+      if (cancelled) return;
+      const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+      if (cancelled) return;
+      setPdfDoc(doc);
+      setTotalPages(doc.numPages);
+      setCurrentPage(1);
+    };
+    load()
       .catch(() => {
         setPdfDoc(null);
       })
@@ -49,31 +80,6 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
       cancelled = true;
     };
   }, [file]);
-
-  const renderPage = useCallback(
-    async (doc: pdfjsLib.PDFDocumentProxy, pageNum: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      try {
-        const page = await doc.getPage(pageNum);
-        const baseViewport = page.getViewport({ scale: 1 });
-        const scale = Math.min(maxHeight / baseViewport.height, 1.5);
-        const viewport = page.getViewport({ scale });
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d')!;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-      } catch {
-        /* ignore render errors */
-      }
-    },
-    [maxHeight]
-  );
-
-  useEffect(() => {
-    if (pdfDoc) renderPage(pdfDoc, currentPage);
-  }, [pdfDoc, currentPage, renderPage]);
 
   if (!file) return null;
 
@@ -105,7 +111,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
   return (
     <Paper variant="outlined" sx={{ p: 1.5, textAlign: 'center' }}>
       <Box sx={{ display: 'flex', justifyContent: 'center', bgcolor: 'grey.100', borderRadius: 1, overflow: 'hidden' }}>
-        <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight, display: 'block' }} />
+        <PageCanvas doc={pdfDoc} pageNumber={currentPage} maxHeight={maxHeight} />
       </Box>
       {showPageNav && totalPages > 1 && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 1 }}>

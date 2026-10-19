@@ -144,17 +144,17 @@ describe("POST /remove-background-base64", () => {
   });
 });
 
+function remoteReplies(
+  response: Partial<Response> & { ok: boolean; status: number },
+) {
+  const fetchMock = vi.fn().mockResolvedValue(response);
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
 describe("POST /remove-background-removebg", () => {
   const send = (body: object) =>
     request(app).post("/remove-background-removebg").send(body);
-
-  function remoteReplies(
-    response: Partial<Response> & { ok: boolean; status: number },
-  ) {
-    const fetchMock = vi.fn().mockResolvedValue(response);
-    vi.stubGlobal("fetch", fetchMock);
-    return fetchMock;
-  }
 
   it("sends the image to Remove.bg with the visitor's key and returns the cut-out", async () => {
     const fetchMock = remoteReplies({

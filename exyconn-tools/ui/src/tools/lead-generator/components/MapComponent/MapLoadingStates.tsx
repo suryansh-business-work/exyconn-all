@@ -5,10 +5,10 @@ import MissingKeyAlert from '../../../../shared/components/MissingKeyAlert/Missi
 interface MapLoadingStatesProps {
   apiKey: string;
   loadError: Error | undefined;
-  isLoaded: boolean;
 }
 
-const MapLoadingStates: React.FC<MapLoadingStatesProps> = ({ apiKey, loadError, isLoaded }) => {
+/** What the map area shows until the map can render: no key, a load error, or loading. */
+const MapLoadingStates: React.FC<MapLoadingStatesProps> = ({ apiKey, loadError }) => {
   if (!apiKey) {
     return (
       <Box
@@ -48,33 +48,29 @@ const MapLoadingStates: React.FC<MapLoadingStatesProps> = ({ apiKey, loadError, 
     );
   }
 
-  if (!isLoaded) {
-    return (
-      <Box
+  return (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'grey.100',
+        borderRadius: 2,
+        gap: 2,
+      }}
+    >
+      <CircularProgress />
+      <Typography
         sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bgcolor: 'grey.100',
-          borderRadius: 2,
-          gap: 2,
+          color: 'text.secondary',
         }}
       >
-        <CircularProgress />
-        <Typography
-          sx={{
-            color: 'text.secondary',
-          }}
-        >
-          Loading Google Maps...
-        </Typography>
-      </Box>
-    );
-  }
-
-  return null;
+        Loading Google Maps...
+      </Typography>
+    </Box>
+  );
 };
 
 export default MapLoadingStates;

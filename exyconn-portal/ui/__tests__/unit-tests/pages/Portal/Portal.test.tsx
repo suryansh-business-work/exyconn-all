@@ -84,6 +84,23 @@ describe('Portal', () => {
     expect(screen.getByRole('heading', { name: hr.label })).toBeInTheDocument();
   });
 
+  it("clears the search from the empty state's own action", async () => {
+    const user = makeUser({ roles: ['FINANCE', 'HR'] });
+    const [finance, hr] = accessibleModules(user.roles);
+    renderWithProviders(<Portal />, { user });
+    const box = screen.getByRole('searchbox', { name: 'Search modules' });
+
+    await userEvent.type(box, 'zzz-nothing');
+    const clearButtons = screen.getAllByRole('button', { name: 'Clear search' });
+    expect(clearButtons).toHaveLength(2);
+    await userEvent.click(clearButtons[1]);
+
+    expect(box).toHaveValue('');
+    expect(screen.queryByText('No modules match “zzz-nothing”')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: finance.label })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: hr.label })).toBeInTheDocument();
+  });
+
   it('clears the search on Escape', async () => {
     const user = makeUser({ roles: ['FINANCE', 'HR'] });
     const [finance] = accessibleModules(user.roles);

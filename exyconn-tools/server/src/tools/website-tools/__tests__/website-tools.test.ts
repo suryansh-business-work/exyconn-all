@@ -9,6 +9,7 @@ vi.mock("../../../shared/security/safe-http", () => ({
 import { mountRouter } from "../../../__tests__/helpers/mountRouter";
 import routes from "../routes";
 import * as services from "../services";
+import { asResponse, fakeRequest } from "../../../__tests__/helpers/express";
 
 const app = mountRouter(routes);
 
@@ -77,10 +78,11 @@ describe("extractUrls", () => {
 });
 
 describe("scanPages", () => {
+  const anchor = (href: string) => `<a href="${href}">link</a>`;
   const page = (title: string, links: string[], body = "") =>
     `<html><head><title>${title}</title><meta name="description" content=" About ${title} "></head>
      <body><script>var a = 1;</script><h1>${title}</h1> <h2>S</h2> <h3>T</h3> ${body}
-     ${links.map((l) => `<a href="${l}">link</a>`).join("")}<img src="i.png"></body></html>`;
+     ${links.map(anchor).join("")}<img src="i.png"></body></html>`;
 
   it("crawls internal pages breadth-first down to depth two", async () => {
     serve({
@@ -197,7 +199,9 @@ describe("analyzeStructure", () => {
 
     const result = await services.analyzeStructure("https://acme.io/");
 
-    expect(result.pages.map((p) => p.depth).sort()).toEqual([0, 1, 2]);
+    expect(result.pages.map((p) => p.depth).sort((a, b) => a - b)).toEqual([
+      0, 1, 2,
+    ]);
     expect(result.orphanPages).toEqual([]);
     expect(result.maxDepth).toBe(2);
   });
@@ -338,12 +342,12 @@ describe("routes", () => {
       controllers.analyzeStructureController,
     ]) {
       const missing = res();
-      await handler({ body: {} } as never, missing as never);
+      await handler(fakeRequest({}), asResponse(missing));
       expect(missing.status).toHaveBeenCalledWith(400);
       expect(missing.json).toHaveBeenCalledWith({ error: "URL is required" });
 
       const invalid = res();
-      await handler({ body: { url: "not a url" } } as never, invalid as never);
+      await handler(fakeRequest({ url: "not a url" }), asResponse(invalid));
       expect(invalid.status).toHaveBeenCalledWith(500);
     }
   });

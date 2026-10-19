@@ -3,12 +3,15 @@ import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { apiOk, clickAway, jsonReply, renderTool, stubFetch } from '../../__tests__/helpers/toolHarness';
 import { writeSecret } from '../../shared/services/secrets';
 import GoogleReviewLink from './index';
+import { sentJson } from '../../__tests__/helpers/requests';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () =>
   (await import('../../__tests__/helpers/toolHarness')).toolLayoutStub()
 );
 
 const LINK = 'https://search.google.com/local/writereview?placeid=';
+const REVIEW_URL = `${LINK}ChIJabc`;
+const WHATSAPP_TEXT = `Please leave us a review: ${REVIEW_URL}`;
 const PLACES = [
   { name: 'Blue Bottle', address: '1 Main St', placeId: 'PLACE_A', rating: 4.5, totalReviews: 120 },
   { name: 'Corner Cafe', address: '2 Side St', placeId: 'PLACE_B', rating: null, totalReviews: 0 },
@@ -44,7 +47,7 @@ describe('google-review-link search', () => {
 
     expect(await screen.findByText('Select Your Business')).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ query: 'Blue Bottle Oakland', apiKey: 'places-key' });
+    expect(sentJson(init)).toEqual({ query: 'Blue Bottle Oakland', apiKey: 'places-key' });
     expect(screen.getByText('Blue Bottle')).toBeInTheDocument();
     expect(screen.getByText('4.5 (120)')).toBeInTheDocument();
     expect(screen.getByText('Corner Cafe')).toBeInTheDocument();
@@ -178,12 +181,12 @@ describe('google-review-link link actions', () => {
 
     fireEvent.click(screen.getByText('Share via Email'));
     expect(open).toHaveBeenLastCalledWith(
-      `mailto:?subject=Leave us a review&body=${encodeURIComponent(`${LINK}ChIJabc`)}`
+      `mailto:?subject=Leave us a review&body=${encodeURIComponent(REVIEW_URL)}`
     );
 
     fireEvent.click(screen.getByText('Share via WhatsApp'));
     expect(open).toHaveBeenLastCalledWith(
-      `https://wa.me/?text=${encodeURIComponent(`Please leave us a review: ${LINK}ChIJabc`)}`
+      `https://wa.me/?text=${encodeURIComponent(WHATSAPP_TEXT)}`
     );
   });
 });

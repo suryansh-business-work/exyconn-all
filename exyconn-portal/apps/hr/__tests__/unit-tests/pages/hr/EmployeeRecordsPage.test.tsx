@@ -3,10 +3,12 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useListUsersQuery } from '@exyconn/shell/graphql/generated';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
+import type { Role } from '@exyconn/shell/auth/roles';
 import { EmployeeRecordsPage } from '../../../../src/pages/hr';
 import { renderWithProviders } from '../../test-utils';
 import { queryResult } from '../../harness/gql-doubles';
 import { UrlProbe } from '../../harness/url-probe';
+import { authValue } from '../../harness/auth-double';
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
@@ -56,10 +58,10 @@ const sparse = {
 
 const refetch = vi.fn();
 
-function renderPage(roles: string[] | null) {
-  vi.mocked(useAuth).mockReturnValue({
-    user: roles ? { id: 'me', name: 'Me', email: 'me@example.com', roles } : null,
-  } as never);
+function renderPage(roles: Role[] | null) {
+  vi.mocked(useAuth).mockReturnValue(
+    authValue(roles ? { id: 'me', name: 'Me', email: 'me@example.com', roles } : null),
+  );
   renderWithProviders(
     <>
       <EmployeeRecordsPage />

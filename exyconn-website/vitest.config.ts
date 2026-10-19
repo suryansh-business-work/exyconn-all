@@ -31,7 +31,8 @@ export default defineConfig({
     coverage: {
       // Mirrors CI: every source file counts, including ones no test imports yet.
       provider: "v8",
-      include: ["src/**/*.{ts,tsx}"],
+      // The site's own tooling scripts count too (the repository-root scripts/ do not).
+      include: ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"],
       exclude: ["**/*.{test,cy}.{ts,tsx}", "**/graphql/generated/**"],
     },
   },

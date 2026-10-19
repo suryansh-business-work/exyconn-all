@@ -25,6 +25,10 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   }),
 }));
 
+vi.mock('../../../../../../src/records/quick-create/CreateCompanyPanel', async () => ({
+  CreateCompanyPanel: (await import('../../../quick-create-stubs')).CreateCompanyPanelStub,
+}));
+
 const COMPANIES = [companyRow(), companyRow({ id: 'company-2', name: 'Globex' })];
 
 function renderForm(initial: ReturnType<typeof contactRow> | null = null) {
@@ -190,5 +194,24 @@ describe('ContactForm', () => {
 
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(gql.create).not.toHaveBeenCalled();
+  });
+  it('creates a company from the picker and picks it once the list is re-read', async () => {
+    const refetch = vi.fn().mockResolvedValue({});
+    gql.companies.mockReturnValue({
+      data: {
+        listCompanies: [...COMPANIES, companyRow({ id: 'new-company', name: 'New company' })],
+      },
+      refetch,
+    });
+    renderForm();
+
+    await chooseOption('Company', 'Create Company');
+    expect(screen.getByText('New company panel')).toBeInTheDocument();
+    await press('Save new company');
+
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /^Company/ })).toHaveTextContent('New company'),
+    );
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 });

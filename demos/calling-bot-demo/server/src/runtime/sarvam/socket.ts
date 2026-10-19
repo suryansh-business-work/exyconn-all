@@ -56,7 +56,7 @@ export class SarvamSocket {
         this.socket.send(message);
       }
     });
-    this.socket.on('message', (data) => this.receive(data.toString()));
+    this.socket.on('message', (data: Buffer) => this.receive(data.toString('utf8')));
     this.socket.on('error', (error) => {
       this.lastError = errorText(error);
       log.warn('sarvam socket error', { service: this.name, error: this.lastError });

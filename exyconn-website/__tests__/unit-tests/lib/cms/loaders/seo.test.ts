@@ -92,4 +92,28 @@ describe("filledSeo", () => {
     ).toEqual([{ "@type": "A" }, { "@type": "B" }]);
     expect(filledSeo(page({ jsonLd: "text" }), SITE_SEO, {}, {}).jsonLd).toBeUndefined();
   });
+  it("prefers the item's own SEO values and falls back field by field when they are blank", () => {
+    const own = {
+      title: "Own title",
+      description: "Own description",
+      keywords: "own, words",
+      ogImageUrl: "/own.png",
+      noindex: false,
+    };
+    expect(filledSeo(page({ title: "Page" }), SITE_SEO, { seo: own }, {})).toMatchObject({
+      title: "Own title",
+      description: "Own description",
+      keywords: "own, words",
+      metaImage: "/own.png",
+    });
+    const blank = { title: "", description: "", keywords: "", ogImageUrl: "", noindex: false };
+    expect(
+      filledSeo(page({ title: "Page", ogImageUrl: "/page.png" }), SITE_SEO, { seo: blank }, {})
+    ).toMatchObject({
+      title: "Page",
+      description: "Across {serviceCount} services",
+      keywords: "",
+      metaImage: "/page.png",
+    });
+  });
 });

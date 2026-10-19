@@ -23,6 +23,7 @@ import {
   MAX_FILES,
   CompressFormat,
   CompressItem,
+  DoneItem,
   compressImage,
   downloadBlob,
   outputFileName,
@@ -79,13 +80,12 @@ export default function CompressImage() {
       setProgress(i + 1);
       try {
         const out = await compressImage(next[i].file, { quality: quality / 100, format, maxDimension: maxDim });
-        next[i] = { ...next[i], status: 'done', blob: out.blob, outputBytes: out.blob.size, error: undefined };
+        next[i] = { id: next[i].id, file: next[i].file, status: 'done', blob: out.blob };
       } catch (err) {
         next[i] = {
-          ...next[i],
+          id: next[i].id,
+          file: next[i].file,
           status: 'error',
-          blob: undefined,
-          outputBytes: undefined,
           error: err instanceof Error ? err.message : 'Compression failed.',
         };
       }
@@ -94,13 +94,13 @@ export default function CompressImage() {
     setProcessing(false);
   };
 
-  const downloadItem = (item: CompressItem) => {
-    if (item.blob) downloadBlob(item.blob, outputFileName(item.file.name, format));
+  const downloadItem = (item: DoneItem) => {
+    downloadBlob(item.blob, outputFileName(item.file.name, format));
   };
 
   const downloadAll = async () => {
     for (const item of items) {
-      if (item.status === 'done' && item.blob) {
+      if (item.status === 'done') {
         downloadBlob(item.blob, outputFileName(item.file.name, format));
         await new Promise((resolve) => setTimeout(resolve, 300));
       }

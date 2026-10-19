@@ -40,7 +40,7 @@ function withScenario(estimate: Estimate, scenarioId: string | null): Estimate {
  */
 export function useEstimateStore(preset: CalculatorPreset, presetScenario: string | null) {
   const [entries, setEntries] = useState<IndexEntry[]>([]);
-  const [active, setActiveEstimate] = useState<Estimate | null>(null);
+  const [activeEstimate, setActiveEstimate] = useState<Estimate | null>(null);
   const [saveState, setSaveState] = useState<SaveState>({ kind: "idle" });
   const [notice, setNotice] = useState<string | null>(null);
   /** A `?preset=` scenario still on offer: cleared once used or dismissed. */
@@ -128,20 +128,24 @@ export function useEstimateStore(preset: CalculatorPreset, presetScenario: strin
   /** Another tab saved the open estimate: stop saving until the person decides. */
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
-      if (active && event.key === estimateKey(active.id) && event.newValue !== null) {
+      if (
+        activeEstimate &&
+        event.key === estimateKey(activeEstimate.id) &&
+        event.newValue !== null
+      ) {
         setSaveState({ kind: "conflict" });
       }
       refreshEntries();
     };
     globalThis.addEventListener("storage", onStorage);
     return () => globalThis.removeEventListener("storage", onStorage);
-  }, [active, refreshEntries]);
+  }, [activeEstimate, refreshEntries]);
 
   const keepTheirs = useCallback(() => {
-    if (active) {
-      open(active.id);
+    if (activeEstimate) {
+      open(activeEstimate.id);
     }
-  }, [active, open]);
+  }, [activeEstimate, open]);
 
   /** Keeps this tab's version: adopt the stored version's stamp so the next save overwrites it. */
   const keepMine = useCallback(
@@ -194,7 +198,7 @@ export function useEstimateStore(preset: CalculatorPreset, presetScenario: strin
 
   return {
     entries,
-    active,
+    active: activeEstimate,
     revision,
     presetOffer,
     dismissPresetOffer: () => setPresetOffer(null),

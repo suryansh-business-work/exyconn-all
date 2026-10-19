@@ -16,7 +16,7 @@ describe('createLogger entries', () => {
     logger.error('Saving failed', new Error('offline'));
     logger.warn('Same words', new Error('Same words'));
     logger.warn('', new Error('Only the error'));
-    logger.warn('Only the message', new Error(''));
+    logger.warn('Only the message', Object.assign(new Error('blank'), { message: '' }));
     logger.warn('No detail at all');
     expect(storedQueue(storage).map((entry) => entry.message)).toEqual([
       'Saving failed: offline',

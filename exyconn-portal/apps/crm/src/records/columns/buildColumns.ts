@@ -100,10 +100,8 @@ export function buildColumnDefs<TRow extends CrmRecordRow>({
   const columns: ColDef<TRow>[] = [];
   for (const id of visibleColumnIds(pageColumns, choices, visible)) {
     const property = byKey.get(id);
-    const base = byId.get(id) ?? (property && propertyColumn<TRow>(property, formatters));
-    if (!base) {
-      continue;
-    }
+    // Every visible id is a page column (the defaults) or a property (a view's choice).
+    const base = byId.get(id) ?? propertyColumn<TRow>(property as CrmPropertyInfo, formatters);
     const initialSort = primary?.property === id ? primary.dir.toLowerCase() : undefined;
     columns.push({
       ...base,

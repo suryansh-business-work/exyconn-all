@@ -19,7 +19,7 @@ export const listMicrosoftAccounts = () =>
 
 /** What the CRM sees of an account: never its token. */
 export const presentMicrosoftAccount = (account: MicrosoftMailAccountDocument) => ({
-  id: String(account._id),
+  id: account._id.toHexString(),
   email: account.email,
   enabled: account.enabled,
   status: account.status,
@@ -105,7 +105,7 @@ export async function enabledMicrosoftMailboxes(): Promise<MicrosoftMailbox[]> {
       .lean<MicrosoftMailAccountDocument[]>(),
   );
   return accounts.map((account) => ({
-    id: String(account._id),
+    id: account._id.toHexString(),
     email: account.email,
     refreshToken: account.refreshToken,
     clientId: app.clientId,

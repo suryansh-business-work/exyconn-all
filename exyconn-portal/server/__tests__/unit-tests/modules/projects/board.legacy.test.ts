@@ -48,9 +48,9 @@ describe('the client view of a project stored without a client name', () => {
   it('shows an empty client name', async () => {
     const created = await ProjectModel.create({ name: 'Billing', status: 'ACTIVE' });
     await ProjectModel.updateOne({ _id: created._id }, { $unset: { clientName: 1 } });
-    const stored = await ProjectModel.findById(created._id).lean();
+    const stored = await ProjectModel.findById(created._id).orFail().lean();
 
-    const view = await projectView(stored as NonNullable<typeof stored>);
+    const view = await projectView(stored);
 
     expect(view).toMatchObject({ name: 'Billing', clientName: '' });
   });

@@ -11,6 +11,13 @@ import {
 
 export type EmailProvider = 'GMAIL' | 'MICROSOFT';
 
+/** One mailbox a CRM email may go from. */
+export interface CrmEmailSender {
+  id: string;
+  email: string;
+  provider: EmailProvider;
+}
+
 /** A provider's usable mailboxes; none while its OAuth client is not set up. */
 async function mailboxesOrNone<T>(read: () => Promise<T[]>): Promise<T[]> {
   try {
@@ -33,7 +40,7 @@ async function isOperatorCrm(): Promise<boolean> {
  * Every mailbox a CRM email may go from — Gmail and Microsoft, enabled and connected — or none
  * outside the operator's CRM.
  */
-export async function crmEmailSenders() {
+export async function crmEmailSenders(): Promise<CrmEmailSender[]> {
   if (!(await isOperatorCrm())) {
     return [];
   }
@@ -42,8 +49,8 @@ export async function crmEmailSenders() {
     mailboxesOrNone(enabledMicrosoftMailboxes),
   ]);
   return [
-    ...gmail.map(({ id, email }) => ({ id, email, provider: 'GMAIL' as EmailProvider })),
-    ...microsoft.map(({ id, email }) => ({ id, email, provider: 'MICROSOFT' as EmailProvider })),
+    ...gmail.map(({ id, email }): CrmEmailSender => ({ id, email, provider: 'GMAIL' })),
+    ...microsoft.map(({ id, email }): CrmEmailSender => ({ id, email, provider: 'MICROSOFT' })),
   ];
 }
 

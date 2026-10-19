@@ -98,12 +98,13 @@ const entryOf = (estimate: Estimate): IndexEntry => ({
   updatedAt: estimate.updatedAt,
 });
 
-function upsertIndex(estimate: Estimate, makeActive: boolean): WriteResult {
+/** Puts the estimate first in the index and makes it the active one. */
+function upsertIndex(estimate: Estimate): WriteResult {
   const index = readIndex();
   const others = index.entries.filter((entry) => entry.id !== estimate.id);
   return write(INDEX_KEY, {
     ...index,
-    activeId: makeActive ? estimate.id : index.activeId,
+    activeId: estimate.id,
     entries: [entryOf(estimate), ...others],
   });
 }
@@ -118,7 +119,7 @@ export function saveEstimate(estimate: Estimate, expectedUpdatedAt: string | nul
     return { ok: false, reason: "conflict" };
   }
   const saved = write(estimateKey(estimate.id), estimate);
-  return saved.ok ? upsertIndex(estimate, true) : saved;
+  return saved.ok ? upsertIndex(estimate) : saved;
 }
 
 export function setActive(id: string): WriteResult {

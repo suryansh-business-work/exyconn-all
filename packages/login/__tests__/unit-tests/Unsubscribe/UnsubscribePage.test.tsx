@@ -61,7 +61,7 @@ describe('UnsubscribePage', () => {
   });
 
   it('shows a generic reason for a non-Error failure', async () => {
-    gql.unsubscribe.mockImplementation(() => Promise.reject('offline'));
+    gql.unsubscribe.mockRejectedValue('offline');
     renderWithProviders(<UnsubscribePage />, { route: '/unsubscribe?t=bad' });
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not unsubscribe you');
   });

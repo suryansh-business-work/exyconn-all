@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SocialProfileQuery, SocialUserPostsQuery } from '@exyconn/shell/graphql/generated';
@@ -21,14 +21,25 @@ interface QueryState<T> {
   networkStatus?: number;
 }
 
-const api = vi.hoisted(() => ({
-  user: { id: 'user-1' } as { id: string } | null,
-  profile: { loading: false } as QueryState<SocialProfileQuery>,
-  posts: { loading: false, networkStatus: 7 } as QueryState<SocialUserPostsQuery>,
-  profileOptions: vi.fn<(options: unknown) => void>(),
-  postsOptions: vi.fn<(options: unknown) => void>(),
-  fetchMore: vi.fn<(options: FetchMoreOptions) => Promise<unknown>>(),
-}));
+interface ProfileMocks {
+  user: { id: string } | null;
+  profile: QueryState<SocialProfileQuery>;
+  posts: QueryState<SocialUserPostsQuery>;
+  profileOptions: Mock<(options: unknown) => void>;
+  postsOptions: Mock<(options: unknown) => void>;
+  fetchMore: Mock<(options: FetchMoreOptions) => Promise<unknown>>;
+}
+
+const api = vi.hoisted(
+  (): ProfileMocks => ({
+    user: { id: 'user-1' },
+    profile: { loading: false },
+    posts: { loading: false, networkStatus: 7 },
+    profileOptions: vi.fn<(options: unknown) => void>(),
+    postsOptions: vi.fn<(options: unknown) => void>(),
+    fetchMore: vi.fn<(options: FetchMoreOptions) => Promise<unknown>>(),
+  }),
+);
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@exyconn/shell/graphql/generated')>();

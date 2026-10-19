@@ -66,7 +66,7 @@ describe('X publishing', () => {
       link: 'https://exyconn.com',
     });
     expect(published).toEqual({ externalId: 't9', permalink: 'https://x.com/i/web/status/t9' });
-    expect(JSON.parse(String(fetched.mock.calls[0][1]?.body))).toEqual({
+    expect(JSON.parse(fetched.mock.calls[0][1]?.body as string)).toEqual({
       text: 'Read https://exyconn.com',
     });
   });
@@ -74,7 +74,7 @@ describe('X publishing', () => {
 
 describe('LinkedIn publishing', () => {
   const bodyOf = (fetched: jest.SpiedFunction<typeof fetch>) =>
-    JSON.parse(String(fetched.mock.calls[0][1]?.body)) as {
+    JSON.parse(fetched.mock.calls[0][1]?.body as string) as {
       author: string;
       specificContent: Record<string, Record<string, unknown>>;
     };

@@ -31,7 +31,7 @@ interface BuilderScreenProps extends ToolbarExtras, BuilderPersistence {
   status: string;
   backPath: string;
   initial: LiveDesign;
-  projectData: unknown;
+  projectData: LiveEditorProps['projectData'];
   resources: BuilderResources;
   /** Opens the saved draft on the website; `saveFirst` saves unsaved work before it loads. */
   onPreview?: (saveFirst: () => Promise<unknown>) => void;
@@ -133,7 +133,7 @@ export function BuilderScreen(props: Readonly<BuilderScreenProps>) {
           <LiveEditor
             ref={editor}
             initial={props.initial}
-            projectData={(props.projectData ?? null) as LiveEditorProps['projectData']}
+            projectData={props.projectData ?? null}
             canvasStyles={resources.canvasStyles}
             canvasClass="cms-page"
             canvasCss={resources.canvasCss}

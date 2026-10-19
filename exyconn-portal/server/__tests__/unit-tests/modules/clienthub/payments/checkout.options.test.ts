@@ -109,6 +109,6 @@ describe('online payment inside the platform operator', () => {
 
     await startPayment(contact, invoice._id.toHexString(), 'PAYONEER');
 
-    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body)).country).toBe('GB');
+    expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string).country).toBe('GB');
   });
 });

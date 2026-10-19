@@ -75,7 +75,7 @@ describe('embed', () => {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     });
-    expect(JSON.parse(String(init.body))).toEqual({ model: 'emb-1', input: ['a', 'b'] });
+    expect(JSON.parse(init.body as string)).toEqual({ model: 'emb-1', input: ['a', 'b'] });
   });
 });
 
@@ -100,7 +100,7 @@ describe('complete', () => {
       completionTokens: 5,
       totalTokens: 15,
     });
-    expect(JSON.parse(String(sent().init.body))).toEqual({
+    expect(JSON.parse(sent().init.body as string)).toEqual({
       model: 'gpt-x',
       messages: [
         { role: 'system', content: 'Be brief' },
@@ -114,7 +114,7 @@ describe('complete', () => {
     fetchMock.mockResolvedValue(json({ choices: [{ message: { content: 'Hi' } }] }));
     const result = await openAiClient.complete({ apiKey, model: 'gpt-x', prompt: 'Hello' });
     expect(result).toEqual({ text: 'Hi', promptTokens: 0, completionTokens: 0, totalTokens: 0 });
-    expect(JSON.parse(String(sent().init.body))).toEqual({
+    expect(JSON.parse(sent().init.body as string)).toEqual({
       model: 'gpt-x',
       messages: [{ role: 'user', content: 'Hello' }],
     });

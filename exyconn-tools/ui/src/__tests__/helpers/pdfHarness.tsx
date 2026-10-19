@@ -6,22 +6,15 @@ import { vi } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import { inflateSync } from 'node:zlib';
 import { PDFDocument } from 'pdf-lib';
+import { readBytes } from './requests';
+
+export { readBytes, readText } from './requests';
 
 /** A real PDF with `pages` blank pages of the given size. */
 export async function makePdf(pages = 2, size: [number, number] = [200, 300]): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   for (let i = 0; i < pages; i++) doc.addPage(size);
   return doc.save();
-}
-
-/** Reads a Blob or File into bytes the way a browser would. */
-export function readBytes(blob: Blob): Promise<Uint8Array> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsArrayBuffer(blob);
-  });
 }
 
 /** A File whose `arrayBuffer()` and `text()` work under jsdom. */
@@ -92,7 +85,7 @@ export const PNG_1X1 =
 export function pngFile(name = 'pic.png', type = 'image/png'): File {
   const binary = atob(PNG_1X1.split(',')[1]);
   const bytes = Uint8Array.from(binary, (ch) => ch.codePointAt(0) ?? 0);
-  return makeFile(bytes as BlobPart, name, type);
+  return makeFile(bytes, name, type);
 }
 
 /** Every inflated content stream of a PDF, in file order, as latin1 text. */
@@ -112,8 +105,9 @@ export async function contentStreams(blob: Blob): Promise<string[]> {
 /** The text a PDF draws, with the text matrix of each run, parsed from its content streams. */
 export async function drawnText(blob: Blob) {
   const runs: { text: string; x: number; y: number; matrix: number[] }[] = [];
-  const num = '([\\d.e-]+)';
-  const pattern = new RegExp(`${Array(6).fill(num).join(' ')} Tm[\\s\\S]*?(?:\\(([^)]*)\\)|<([0-9A-Fa-f]*)>) Tj`, 'g');
+  const num = String.raw`([\d.e-]+)`;
+  const matrixPattern = new Array(6).fill(num).join(' ');
+  const pattern = new RegExp(String.raw`${matrixPattern} Tm[\s\S]*?(?:\(([^)]*)\)|<([0-9A-Fa-f]*)>) Tj`, 'g');
   for (const stream of await contentStreams(blob)) {
     for (const m of stream.matchAll(pattern)) {
       const matrix = m.slice(1, 7).map(Number);
@@ -130,5 +124,5 @@ const JPEG_1X1_BASE64 =
 
 export function jpegFile(name = 'photo.jpg'): File {
   const bytes = Uint8Array.from(atob(JPEG_1X1_BASE64), (ch) => ch.codePointAt(0) ?? 0);
-  return makeFile(bytes as BlobPart, name, 'image/jpeg');
+  return makeFile(bytes, name, 'image/jpeg');
 }

@@ -73,7 +73,7 @@ describe('LoginForm submit', () => {
   });
 
   it('shows a generic message when the failure is not an Error', async () => {
-    login.mockImplementation(() => Promise.reject('network down'));
+    login.mockRejectedValue('network down');
     await submit();
     expect(await screen.findByRole('alert')).toHaveTextContent('Login failed');
   });

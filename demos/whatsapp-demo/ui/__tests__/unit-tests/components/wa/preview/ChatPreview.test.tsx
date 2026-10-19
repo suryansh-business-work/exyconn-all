@@ -101,10 +101,10 @@ describe('ChatPreview', () => {
 
   it('opens the chat once per mount', () => {
     const { rerender } = renderWithProviders(<ChatPreview bundle={bundle} />);
-    const edited = {
+    const edited: DemoBundle = {
       ...bundle,
       demo: { ...bundle.demo, menuText: 'What do you need?' },
-    } as DemoBundle;
+    };
     rerender(<ChatPreview bundle={edited} startWorkflow="booking" />);
     expect(deps.runtime.open).toHaveBeenCalledTimes(1);
     expect(deps.runtime.open).toHaveBeenCalledWith('clinic');

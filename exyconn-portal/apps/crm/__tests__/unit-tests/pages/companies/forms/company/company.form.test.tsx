@@ -120,6 +120,38 @@ describe('CompanyForm', () => {
     expect(await screen.findByText('Company created')).toBeInTheDocument();
   });
 
+  it('hands the new company to the caller that asked for it', async () => {
+    gql.create.mockResolvedValueOnce({
+      data: { createCompany: { id: 'company-9', name: 'Globex' } },
+    });
+    const onCreated = vi.fn();
+    renderWithProviders(
+      <CompanyForm initial={null} onDone={vi.fn()} onCancel={vi.fn()} onCreated={onCreated} />,
+    );
+    await fillRequired();
+
+    await press('Create');
+
+    await waitFor(() =>
+      expect(onCreated).toHaveBeenCalledWith({ id: 'company-9', name: 'Globex' }),
+    );
+  });
+
+  it('hands nothing on when the server returns no company', async () => {
+    gql.create.mockResolvedValueOnce({ data: { createCompany: null } });
+    const onCreated = vi.fn();
+    const onDone = vi.fn();
+    renderWithProviders(
+      <CompanyForm initial={null} onDone={onDone} onCancel={vi.fn()} onCreated={onCreated} />,
+    );
+    await fillRequired();
+
+    await press('Create');
+
+    await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
+    expect(onCreated).not.toHaveBeenCalled();
+  });
+
   it('updates an existing company by id with the chosen size and status', async () => {
     const { onDone } = renderForm(companyRow({ id: 'company-1', size: '51-200' }));
 

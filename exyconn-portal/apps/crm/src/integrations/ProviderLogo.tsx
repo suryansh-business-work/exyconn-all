@@ -36,7 +36,7 @@ export function ProviderLogo({
   if (!src) {
     return null;
   }
-  const name = PROVIDER_NAMES[provider] ?? provider;
+  const name = PROVIDER_NAMES[provider];
   return (
     <Box
       component="span"

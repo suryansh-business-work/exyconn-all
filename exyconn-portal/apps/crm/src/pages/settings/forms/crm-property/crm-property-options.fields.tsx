@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -23,17 +23,22 @@ interface OptionRowProps {
  */
 function OptionRow({ index, count, onMove, onRemove }: Readonly<OptionRowProps>) {
   const t = useT();
-  const { control, getFieldState, setValue } = useFormContext<CrmPropertyFormValues>();
+  const { control, getValues, setValue } = useFormContext<CrmPropertyFormValues>();
   const label = useWatch({ control, name: `options.${index}.label` });
   const saved = useWatch({ control, name: `options.${index}.saved` });
   const valuePath = `options.${index}.value` as const;
   const number = index + 1;
+  // The value last made from the label. An appended choice counts as dirty from the start, so
+  // "still following" means the value is still the one the label made.
+  const madeFromLabel = useRef(keyFromLabel(label));
 
   useEffect(() => {
-    if (!saved && !getFieldState(valuePath).isDirty) {
-      setValue(valuePath, keyFromLabel(label));
+    const next = keyFromLabel(label);
+    if (!saved && getValues(valuePath) === madeFromLabel.current) {
+      setValue(valuePath, next);
     }
-  }, [label, saved, valuePath, getFieldState, setValue]);
+    madeFromLabel.current = next;
+  }, [label, saved, valuePath, getValues, setValue]);
 
   return (
     <Flex

@@ -71,7 +71,9 @@ describe("bootReading table of contents", () => {
 });
 
 const boxAt = (top: number, height: number) =>
-  vi.spyOn(byId("article"), "getBoundingClientRect").mockReturnValue({ top, height } as DOMRect);
+  vi
+    .spyOn(byId("article"), "getBoundingClientRect")
+    .mockReturnValue(new DOMRect(0, top, 0, height));
 const fill = (bar: string) => (byId(bar).firstElementChild as HTMLElement).style.transform;
 
 describe("bootReading progress bar", () => {
@@ -94,7 +96,7 @@ describe("bootReading progress bar", () => {
     bootReading();
     expect(fill("bar")).toBe("scaleX(0.5)");
 
-    box.mockReturnValue({ top: -1000, height: 2000 } as DOMRect);
+    box.mockReturnValue(new DOMRect(0, -1000, 0, 2000));
     globalThis.dispatchEvent(new Event("scroll"));
     globalThis.dispatchEvent(new Event("scroll"));
     expect(frames.request).toHaveBeenCalledTimes(1);
@@ -108,7 +110,7 @@ describe("bootReading progress bar", () => {
     const box = boxAt(200, 2000);
     bootReading();
     expect(fill("bar")).toBe("scaleX(0)");
-    box.mockReturnValue({ top: -250, height: 2000 } as DOMRect);
+    box.mockReturnValue(new DOMRect(0, -250, 0, 2000));
     globalThis.dispatchEvent(new Event("resize"));
     frames.flush();
     expect(fill("bar")).toBe("scaleX(0.25)");

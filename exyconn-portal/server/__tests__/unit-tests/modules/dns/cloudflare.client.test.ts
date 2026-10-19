@@ -109,7 +109,7 @@ describe('with the active configuration', () => {
     const { url, init } = call();
     expect(url).toBe(`${API}/zones`);
     expect(init.method).toBe('POST');
-    expect(JSON.parse(String(init.body))).toEqual({
+    expect(JSON.parse(init.body as string)).toEqual({
       name: 'exyconn.com',
       account: { id: 'acc-1' },
       type: 'full',
@@ -149,12 +149,12 @@ describe('with the active configuration', () => {
     await cloudflareClient.createRecord('z1', { type: 'A' });
 
     expect([call(0).url, call(0).init.method]).toEqual([`${API}/zones/z1/dns_records/r1`, 'PUT']);
-    expect(JSON.parse(String(call(0).init.body))).toEqual({ content: ips.ip1_1_1_1 });
+    expect(JSON.parse(call(0).init.body as string)).toEqual({ content: ips.ip1_1_1_1 });
     expect([call(1).url, call(1).init.method]).toEqual([
       `${API}/zones/z1/dns_records/r2`,
       'DELETE',
     ]);
     expect([call(2).url, call(2).init.method]).toEqual([`${API}/zones/z1/dns_records`, 'POST']);
-    expect(JSON.parse(String(call(2).init.body))).toEqual({ type: 'A' });
+    expect(JSON.parse(call(2).init.body as string)).toEqual({ type: 'A' });
   });
 });

@@ -26,8 +26,8 @@ export function MapKeyMissing() {
 /** Google refused the key (gm_authFailure): almost always the referrer list or a disabled API. */
 export function MapKeyRejected() {
   const t = useT();
-  // DOM-only: the page's own origin is what the key's referrer list must allow.
-  const referrer = `${window.location.origin}/*`;
+  // The page's own origin is what the key's referrer list must allow.
+  const referrer = `${globalThis.location.origin}/*`;
   return (
     <MapNotice tone="error" title={t('Google rejected the Maps key')}>
       {t(

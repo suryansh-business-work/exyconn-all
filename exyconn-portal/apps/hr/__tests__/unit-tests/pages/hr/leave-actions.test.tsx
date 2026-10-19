@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LeaveStatus } from '@exyconn/shell/graphql/generated';
-import { useAuth } from '@exyconn/shell/auth/AuthContext';
+import { useAuth, type AuthUser } from '@exyconn/shell/auth/AuthContext';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { LeaveDecisionCell } from '../../../../src/pages/hr/leave-actions';
 import type { LeaveRequestRow } from '../../../../src/pages/hr/forms/leave-request';
 import { renderWithProviders } from '../../test-utils';
+import { authValue } from '../../harness/auth-double';
 
 vi.mock('@exyconn/shell/auth/AuthContext', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/auth/AuthContext')>()),
@@ -24,8 +25,8 @@ const row: LeaveRequestRow = {
 };
 
 function signInAs(id: string | null) {
-  const user = id ? { id, name: 'Viewer', email: 'viewer@example.com', roles: ['HR'] } : null;
-  vi.mocked(useAuth).mockReturnValue({ user } as never);
+  const user: AuthUser | null = id ? { id, name: 'Viewer', email: 'viewer@example.com', roles: ['HR'] } : null;
+  vi.mocked(useAuth).mockReturnValue(authValue(user));
 }
 
 /** Renders the cell inside a clickable row, as the leave table does. */

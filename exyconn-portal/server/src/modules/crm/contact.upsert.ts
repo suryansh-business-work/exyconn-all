@@ -43,7 +43,7 @@ export async function findOrCreateContact(input: NewContact): Promise<ContactRef
     leadSource: input.leadSource,
     ...stampOrigin(input.origin),
   });
-  return { id: String(created._id), name: input.name };
+  return { id: created._id.toHexString(), name: input.name };
 }
 
 export interface ContactActivity {

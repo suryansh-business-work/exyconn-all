@@ -2,6 +2,7 @@ import type { GraphQLError } from 'graphql';
 import { createCrudResolvers } from '../../../src/lib/crudResolvers';
 import { PERMISSION_MODULES } from '../../../src/lib/permissions';
 import { recordAudit } from '../../../src/modules/audit';
+import { registeredBulkTarget } from '../../../src/modules/table-transfer/registry';
 import type { CrudService } from '../../../src/lib/crudService';
 import { ROLES, type Role } from '../../../src/constants/roles';
 import type { GraphQLContext } from '../../../src/middleware/auth';
@@ -111,6 +112,26 @@ describe('createCrudResolvers queries', () => {
     expect(codes).toEqual(Array.from({ length: 7 }, () => 'FORBIDDEN'));
     expect(service.list).not.toHaveBeenCalled();
     expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it('opens the paged list to bulk archiving, guarded by EDIT and audited per record', async () => {
+    const { service } = build({ table });
+    const target = registeredBulkTarget('listBudgetsPaged');
+    expect(target?.entity).toBe('Budget');
+
+    await expect(target?.archive?.(admin, ['b1', 'b2'], true)).resolves.toBe(1);
+    expect(service.archive).toHaveBeenCalledWith(['b1', 'b2'], true);
+    expect(recordAudit).toHaveBeenCalledTimes(2);
+    expect(recordAudit).toHaveBeenCalledWith(admin, {
+      action: 'UPDATE',
+      module: 'Budget',
+      entityId: 'b2',
+      summary: 'Archived Budget',
+    });
+
+    const refused = target?.archive?.(ctxAs(ROLES.CRM), ['b1'], false);
+    await expect(refused).rejects.toMatchObject({ extensions: { code: 'FORBIDDEN' } });
+    expect(service.archive).toHaveBeenCalledTimes(1);
   });
 
   it('lets a module role through', async () => {

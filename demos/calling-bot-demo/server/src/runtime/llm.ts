@@ -52,8 +52,10 @@ export async function streamReply(request: ReplyRequest): Promise<string> {
   let reply = '';
   for await (const chunk of response.body) {
     pending += decoder.decode(chunk, { stream: true });
-    const lines = pending.split('\n');
-    pending = lines.pop() ?? '';
+    // Only complete lines are read; an unfinished last line waits for the next chunk.
+    const cut = pending.lastIndexOf('\n') + 1;
+    const lines = pending.slice(0, cut).split('\n');
+    pending = pending.slice(cut);
     for (const line of lines) {
       const text = deltaOf(line);
       if (text) {

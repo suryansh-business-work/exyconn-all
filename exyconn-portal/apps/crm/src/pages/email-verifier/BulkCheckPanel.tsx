@@ -55,8 +55,8 @@ export function BulkCheckPanel() {
       await createBatch({ variables: { name: file.name, emails } });
       notify('{count} addresses queued for checking', 'success', { count: emails.length });
       await refetch();
-    } catch (failure) {
-      setError(errorMessage(failure, t('Could not start the bulk check')));
+    } catch (error_) {
+      setError(errorMessage(error_, t('Could not start the bulk check')));
     }
   };
 

@@ -77,7 +77,7 @@ describe('useLogoState', () => {
     const { result } = renderHook(() => useLogoState());
     act(() => result.current.setApplyScope('favicon-all'));
     act(() => result.current.handleSettingsChange(changed));
-    expect(Object.keys(result.current.sizeSettings).sort()).toEqual(['favicon-16', 'favicon-32', 'favicon-48']);
+    expect(Object.keys(result.current.sizeSettings).sort((a, b) => a.localeCompare(b))).toEqual(['favicon-16', 'favicon-32', 'favicon-48']);
   });
 
   it('copies settings to the custom sizes for the custom scope', () => {
