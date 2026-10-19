@@ -36,6 +36,14 @@ const SECRET = ['pass', String(Date.now())].join('-');
 await import('../../../src/preload/index');
 const api = exposed.get('tracker') as TrackerApi;
 
+const FIX = {
+  lat: 12.97,
+  lng: 77.59,
+  accuracyM: 25,
+  source: 'SYSTEM' as const,
+  capturedAt: '2026-09-14T04:00:00.000Z',
+};
+
 beforeEach(() => {
   ipcRenderer.invoke.mockClear();
   ipcRenderer.on.mockClear();
@@ -64,7 +72,7 @@ describe('the tracker bridge', () => {
     ['login', ['asha@example.com', SECRET, true], IPC.login],
     ['logout', [], IPC.logout],
     ['acceptConsent', ['Asha Rao'], IPC.acceptConsent],
-    ['markAttendance', ['PRESENT', null], IPC.markAttendance],
+    ['markAttendance', ['PRESENT', null, FIX], IPC.markAttendance],
     ['setProject', ['p1'], IPC.setProject],
     ['setTask', ['t1'], IPC.setTask],
     ['start', [], IPC.start],
@@ -74,6 +82,9 @@ describe('the tracker bridge', () => {
     ['getReport', ['2026-09-01', '2026-09-30'], IPC.getReport],
     ['getDay', ['a', 'b'], IPC.getDay],
     ['getTotals', [], IPC.getTotals],
+    ['getLocation', [], IPC.getLocation],
+    ['getLocations', ['2026-09-14'], IPC.getLocations],
+    ['getEarnings', ['2026-09-01', '2026-09-30'], IPC.getEarnings],
     ['setTimezone', ['Asia/Kolkata'], IPC.setTimezone],
     ['getTranslations', ['fr'], IPC.getTranslations],
     ['translateMissing', ['fr', ['Hello']], IPC.translateMissing],
@@ -113,6 +124,7 @@ describe('the tracker bridge', () => {
     ['onScreenshotCaptured', IPC.screenshotCaptured, { count: 1, silent: false }],
     ['onOpenCaptureDay', IPC.openCaptureDay, '2026-09-14T10:30:00.000Z'],
     ['onCaptureRequested', IPC.captureRequested, { id: 'r1' }],
+    ['onLocationRequested', IPC.locationRequested, { id: 'l1' }],
     ['onCloseBlocked', IPC.closeBlocked, 3],
   ] as const)(
     '%s hands the payload on and unsubscribes the same handler',
@@ -151,5 +163,13 @@ describe('the tracker bridge', () => {
     api.sendCaptureResult(result);
 
     expect(ipcRenderer.send).toHaveBeenCalledWith(IPC.captureResult, result);
+  });
+
+  it('sends a location result back to main without waiting for an answer', () => {
+    const result = { id: 'l1', location: FIX, error: null };
+
+    api.sendLocationResult(result);
+
+    expect(ipcRenderer.send).toHaveBeenCalledWith(IPC.locationResult, result);
   });
 });

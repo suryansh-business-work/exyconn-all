@@ -70,6 +70,17 @@ describe('startup', () => {
     expect(answers).toEqual([true, false, false]);
   });
 
+  it('grants location to the app’s own page, for the attendance pin', async () => {
+    await launch();
+    const [[handler]] = electron.session.defaultSession.setPermissionRequestHandler.mock
+      .calls as unknown as [[PermissionHandler]];
+    const callback = vi.fn();
+
+    handler({}, 'geolocation', callback, { requestingUrl: 'file:///app/index.html' });
+
+    expect(callback).toHaveBeenCalledWith(true);
+  });
+
   it('builds a frameless, sandboxed window on the chosen ground and loads the built page', async () => {
     vi.stubEnv('ELECTRON_RENDERER_URL', '');
     await launch();

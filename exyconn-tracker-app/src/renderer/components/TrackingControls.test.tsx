@@ -53,6 +53,24 @@ describe('TrackingControls', () => {
     expect(buttonNamed('Start').disabled).toBe(false);
   });
 
+  it('words a Start refused on an off day the way the off-day banner does', async () => {
+    const state = trackerState('idle');
+    const holiday = { ...state.workday!, offReason: 'HOLIDAY' as const, offLabel: 'Diwali' };
+    await mount(<TrackingControls status="idle" attendanceMarked workday={holiday} />, state);
+    overrideTracker({
+      start: () =>
+        Promise.reject(
+          new Error(
+            "Error invoking remote method 'tracker:start': Error: Today is an off day — tracking is paused.",
+          ),
+        ),
+    });
+
+    await press(buttonNamed('Start'));
+    await finish(() => undefined);
+    expect(errorText()).toBe('Today is a holiday (Diwali) — tracking is paused.');
+  });
+
   it('runs resume and stop from a paused session', async () => {
     await mount(
       <TrackingControls status="paused" attendanceMarked workday={null} />,
