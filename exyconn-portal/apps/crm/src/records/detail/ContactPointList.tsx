@@ -28,7 +28,7 @@ export function ContactPointList({
         <Flex
           key={point.value}
           direction="row"
-          spacing={0.5}
+          spacing={1}
           alignItems="center"
           flexWrap="wrap"
           useFlexGap

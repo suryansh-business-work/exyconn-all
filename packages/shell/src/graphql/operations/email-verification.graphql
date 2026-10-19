@@ -6,6 +6,7 @@ fragment EmailVerificationBadge on EmailVerification {
   status
   reason
   checkedAt
+  checkedBy
 }
 
 fragment EmailVerificationFields on EmailVerification {

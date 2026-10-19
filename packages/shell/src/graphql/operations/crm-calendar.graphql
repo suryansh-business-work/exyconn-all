@@ -1,0 +1,15 @@
+# CRM > Calendar: reminders, dated activities and meeting bookings in a window.
+query CrmCalendar($from: DateTime!, $to: DateTime!) {
+  crmCalendar(from: $from, to: $to) {
+    id
+    kind
+    title
+    startAt
+    endAt
+    done
+    relatedType
+    relatedId
+    relatedName
+    person
+  }
+}

@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { EMAIL, PHONE, isValidTaxId, normalizeTaxId } from '@exyconn/regex';
-import { isValidCountry, normalizeCurrency } from '@exyconn/i18n';
+import { isValidCountry } from '@exyconn/i18n';
 import { gstStateCodeField } from '@exyconn/shell/utils/gstFields';
+import { optionalCurrencyField } from '@exyconn/shell/utils/currencyField';
 import {
   ClientStatus,
   ClientTaxIdType,
@@ -39,9 +40,7 @@ export const clientSchema = z
       .refine((code) => code === '' || TAX_ID_CODES.has(code), 'Choose a tax number type'),
     taxId: z.string().trim(),
     stateCode: gstStateCodeField,
-    currency: z
-      .string()
-      .refine((code) => code === '' || normalizeCurrency(code) !== null, 'Choose a currency'),
+    currency: optionalCurrencyField,
     projectIds: z.array(z.string()),
   })
   .superRefine((values, ctx) => {

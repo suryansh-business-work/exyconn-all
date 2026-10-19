@@ -36,7 +36,7 @@ export function EditRecordButton({ label, renderForm, onSaved }: Readonly<EditRe
         startIcon={<EditIcon />}
         aria-label={t(label)}
         onClick={() => setOpen(true)}
-        sx={{ flexShrink: 0, alignSelf: 'flex-start' }}
+        sx={{ flexShrink: 0 }}
       >
         {t('Edit')}
       </Button>

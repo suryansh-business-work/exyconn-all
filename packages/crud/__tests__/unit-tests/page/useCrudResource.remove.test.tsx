@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useApolloClient } from '@apollo/client/react';
 import { useCrudResource, type UseCrudResourceOptions } from '../../../src/page/useCrudResource';
 import { renderHookWithProviders } from '../test-utils';
 
@@ -43,6 +44,29 @@ describe('useCrudResource remove', () => {
     expect(opts.refetch).toHaveBeenCalledTimes(1);
     expect(result.current.refreshSignal).toBe(1);
     expect(await screen.findByRole('alert')).toHaveTextContent('Lead deleted');
+  });
+
+  it('drops the deleted row from the Apollo cache, so a client-side table loses it at once', async () => {
+    const evicted: unknown[] = [];
+    const opts = options();
+    const typed = { __typename: 'Lead', ...lead };
+    const rendered = renderHookWithProviders(() => {
+      const client = useApolloClient();
+      client.cache.evict = (options) => {
+        evicted.push(options.id);
+        return true;
+      };
+      return useCrudResource<Lead>({ ...opts, onDelete: vi.fn(() => Promise.resolve(true)) });
+    });
+    let pending: Promise<void> = Promise.resolve();
+    act(() => {
+      pending = rendered.result.current.remove(typed);
+    });
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    await act(async () => {
+      await pending;
+    });
+    expect(evicted).toEqual(['Lead:l1']);
   });
 
   it('fills a templated prompt with the values for the record', async () => {

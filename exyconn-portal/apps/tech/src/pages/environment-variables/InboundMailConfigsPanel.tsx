@@ -93,6 +93,7 @@ export function InboundMailConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="InboundMailConfig"
         columns={columns}
         rows={rows}
         actions={actions}

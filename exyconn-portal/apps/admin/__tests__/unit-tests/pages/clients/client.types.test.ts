@@ -42,7 +42,7 @@ describe('clientSchema', () => {
   it('takes only listed countries, tax number kinds and currencies, or none', () => {
     expect(errorsFor({ country: 'IND' }).country).toBe('Choose a country from the list');
     expect(errorsFor({ taxIdType: 'MOON_TAX' }).taxIdType).toBe('Choose a tax number type');
-    expect(errorsFor({ currency: 'EURO' }).currency).toBe('Choose a currency');
+    expect(errorsFor({ currency: 'EURO' }).currency).toBe('Choose a valid ISO 4217 currency');
     expect(errorsFor({ country: 'DE', currency: 'EUR', taxIdType: ClientTaxIdType.EuVat })).toEqual(
       {},
     );

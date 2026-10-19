@@ -20,7 +20,6 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PublicIcon from '@mui/icons-material/Public';
 import MapIcon from '@mui/icons-material/Map';
 import WebIcon from '@mui/icons-material/Web';
-import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { GoogleMapsConfigsPanel } from './GoogleMapsConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
@@ -38,8 +37,7 @@ import { RazorpayConfigsPanel } from './RazorpayConfigsPanel';
 import { PaypalConfigsPanel } from './PaypalConfigsPanel';
 import { PayoneerConfigsPanel } from './PayoneerConfigsPanel';
 import { GoogleSignInPanel } from './GoogleSignInPanel';
-import { GmailPanel } from './GmailPanel';
-import { MicrosoftMailPanel } from './MicrosoftMailPanel';
+import { EmailAccountsPanel } from './EmailAccountsPanel';
 import { SonarConfigsPanel } from './SonarConfigsPanel';
 import { EmailVerifierConfigsPanel } from './EmailVerifierConfigsPanel';
 
@@ -88,11 +86,12 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     panel: <EmailVerifierConfigsPanel />,
   },
   {
-    slug: 'microsoft-mail',
-    label: 'Microsoft Mail',
+    // The Google and Microsoft OAuth apps CRM mailboxes connect through (was Gmail + Microsoft Mail).
+    slug: 'email-accounts',
+    label: 'Email accounts (OAuth)',
     category: MESSAGING,
-    icon: <AlternateEmailIcon />,
-    panel: <MicrosoftMailPanel />,
+    icon: <MailIcon />,
+    panel: <EmailAccountsPanel />,
   },
   {
     slug: 'google-sign-in',
@@ -101,7 +100,6 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     icon: <GoogleIcon />,
     panel: <GoogleSignInPanel />,
   },
-  { slug: 'gmail', label: 'Gmail', category: GOOGLE, icon: <MailIcon />, panel: <GmailPanel /> },
   {
     slug: 'google-maps',
     label: 'Google Maps',

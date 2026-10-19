@@ -72,9 +72,22 @@ describe('DataTable rows', () => {
   });
 
   it('draws placeholder rows without an actions cell when there are no actions', () => {
-    renderTable(<DataTable columns={columns} rows={rows} loading />);
+    renderTable(<DataTable columns={columns} rows={[]} loading />);
     const skeletons = screen.getAllByTestId('table-skeleton-row');
     expect(within(skeletons[0]).getAllByRole('cell')).toHaveLength(columns.length);
+  });
+
+  it('keeps the rows it has on screen while they are re-read, so nothing flashes', () => {
+    renderTable(<DataTable columns={columns} rows={rows} loading />);
+
+    expect(screen.queryByTestId('table-skeleton-row')).not.toBeInTheDocument();
+    expect(screen.getByText('Acme')).toBeInTheDocument();
+    expect(screen.getByRole('table').closest('[aria-busy]')).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('offers no selection without a bulk entity, or without a row delete', () => {
+    renderTable(<DataTable columns={columns} rows={rows} bulkEntity="Lead" />);
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
   });
 });
 

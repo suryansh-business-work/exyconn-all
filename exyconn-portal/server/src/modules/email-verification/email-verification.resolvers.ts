@@ -32,9 +32,14 @@ const latestCheck = (row: { email?: string | null }, _a: unknown, ctx: GraphQLCo
     ? verificationLoader(ctx)(row.email).then((found) => (found ? withId(found) : null))
     : null;
 
+/** One address of a contact or company, checked through the same per-request batch. */
+const addressCheck = (row: { address?: string | null }, args: unknown, ctx: GraphQLContext) =>
+  latestCheck({ email: row.address }, args, ctx);
+
 export const emailVerificationResolvers = {
   Contact: { emailVerification: latestCheck },
   Lead: { emailVerification: latestCheck },
+  CrmEmailAddress: { verification: addressCheck },
   EmailVerifierConfig: {
     hasProxyPassword: (row: { proxyPassword?: string }) => Boolean(row.proxyPassword),
   },

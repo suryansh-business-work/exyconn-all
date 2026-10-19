@@ -1,6 +1,7 @@
 import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import { Navigate } from 'react-router-dom';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { App } from '../../src/App';
@@ -14,9 +15,9 @@ import { ActivitiesPage } from '../../src/pages/activities';
 import { EmailVerifierPage } from '../../src/pages/email-verifier';
 import { LeadGeneratorPage } from '../../src/pages/lead-generator';
 import { WebsiteScraperPage } from '../../src/pages/website-scraper';
-import { GmailAccountsPage } from '../../src/pages/settings/gmail';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
+import { CalendarPage } from '../../src/pages/calendar';
 import { IntegrationsPage } from '../../src/pages/integrations';
 import { CommsDockLayout } from '../../src/records/comms';
 
@@ -87,13 +88,24 @@ describe('App', () => {
       ['/deals', DealsPage],
       ['/deals/list', DealsListPage],
       ['/activities', ActivitiesPage],
+      ['/calendar', CalendarPage],
       ['/meetings/:tab?', MeetingsPage],
       ['/tools/email-verifier/:tab?', EmailVerifierPage],
       ['/tools/lead-generator', LeadGeneratorPage],
       ['/tools/website-scraper', WebsiteScraperPage],
       ['/settings/properties/:object?', PropertiesPage],
-      ['/settings/gmail', GmailAccountsPage],
+      ['/settings/gmail', Navigate],
       ['/integrations/:tab?', IntegrationsPage],
     ]);
+  });
+
+  it('sends the old Connect Gmail page to Integrations > Email', () => {
+    render(<App />);
+
+    const old = Children.toArray(layoutRoute((portal.props as PortalProps).children).children)
+      .filter(isValidElement)
+      .map((route) => route.props as RouteProps)
+      .find((route) => route.path === '/settings/gmail');
+    expect(old?.element.props).toEqual({ to: '/integrations/email', replace: true });
   });
 });

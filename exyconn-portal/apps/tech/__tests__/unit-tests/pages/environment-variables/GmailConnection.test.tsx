@@ -37,7 +37,7 @@ describeMailConnection({
   connected: '3 Gmail accounts connected in the CRM.',
   none: 'No Gmail account connected yet. Save the client, then connect accounts in the CRM.',
   manageLabel: 'Manage accounts in the CRM',
-  crmPath: '/settings/gmail',
+  crmPath: '/integrations/email',
   fallbackSuccess: 'Gmail answered',
   fallbackFailure: 'The Gmail test failed',
   failureLog: 'tech: the Gmail test failed',

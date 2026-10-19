@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { countryName, currencyOptions, useI18n, useT } from '@exyconn/i18n';
+import { countryName, useI18n, useT } from '@exyconn/i18n';
 import { taxIdType, taxIdTypesFor, type TaxIdType } from '@exyconn/regex';
-import { RhfAutocomplete, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfCurrencyField, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { useGstStateOptions } from '@exyconn/shell/hooks/useGstStateOptions';
 import { GST_COUNTRY, type ClientFormValues } from './client.types';
 import { ClientSection } from './client-section';
@@ -61,10 +61,6 @@ export function ClientTaxFields() {
       }),
     [country, typeCode, t, locale],
   );
-  const currencies = useMemo(
-    () => currencyOptions(locale).map((option) => ({ value: option.code, label: option.label })),
-    [locale],
-  );
   const example = taxIdType(typeCode)?.example;
   const taxIdHint = example
     ? t('For example {example}', { example })
@@ -82,11 +78,10 @@ export function ClientTaxFields() {
           helperText="The default place of supply on their invoices"
         />
       )}
-      <RhfAutocomplete
-        name="currency"
+      <RhfCurrencyField
         label="Invoicing currency"
-        options={currencies}
         helperText="Leave empty to invoice in the company's currency"
+        defaultToCompany={false}
       />
     </ClientSection>
   );

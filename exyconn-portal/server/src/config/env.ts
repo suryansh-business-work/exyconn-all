@@ -149,6 +149,8 @@ export const env = Object.freeze({
     process.env.WEBSITE_CHAT_CONSOLE_URL ?? 'https://website.exyconn.com/website/chat/sessions'
   ).replace(/\/$/, ''),
   /** The client hub: where invoice emails' "Pay now" links and payment gateways send a client. */
+  /** The CRM portal's address, for links in CRM reminder emails. */
+  crmUrl: (process.env.CRM_URL ?? 'https://crm.exyconn.com').replace(/\/$/, ''),
   clientHubUrl: (process.env.CLIENT_HUB_URL ?? 'https://clienthub.exyconn.com').replace(/\/$/, ''),
   /**
    * Where a self-service password reset link opens when the request did not come from a

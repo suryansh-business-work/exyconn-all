@@ -82,6 +82,7 @@ export function PexelsConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="PexelsConfig"
         columns={columns}
         rows={rows}
         actions={actions}

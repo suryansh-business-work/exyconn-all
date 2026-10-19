@@ -1,9 +1,19 @@
+import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useT } from '@exyconn/i18n';
-import { Box, Stack, Typography, readableAccent } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  Stack,
+  Typography,
+  borderWidth,
+  readableAccent,
+  transition,
+  type Theme,
+} from '@exyconn/shell/components/ui';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import type { DealStage } from '@exyconn/shell/graphql/generated';
-import { DealCard } from './DealCard';
+import { SortableDealCard } from './SortableDealCard';
 import { stageLabel } from './deals.constants';
 import type { DealRow } from './forms/deal';
 
@@ -11,36 +21,41 @@ interface DealColumnProps {
   stage: DealStage;
   accent: string;
   deals: DealRow[];
+  /** The column a carried card would land in: it lights up so the target is never a guess. */
+  highlighted?: boolean;
   onOpen: (deal: DealRow) => void;
-  onDropDeal: (dealId: string, stage: DealStage) => void;
 }
 
+/** The ring a column wears while it is the drop target — the stage's own accent. */
+const targetRing = (accent: string) => (theme: Theme) => ({
+  boxShadow: `inset 0 0 0 ${borderWidth.thick}px ${readableAccent(accent, theme)}`,
+  bgcolor: 'action.hover',
+});
+
 /**
- * One pipeline stage. It is a drop target for a card dragged from another
- * column, which is the whole point of a board: moving a deal is one gesture
- * rather than opening a form to change one field.
+ * One pipeline stage: a drop target for a card carried from any column, and a sorted list
+ * its own cards can be reordered in. Moving a deal is one gesture rather than a form.
  */
 export function DealColumn({
   stage,
   accent,
   deals,
+  highlighted = false,
   onOpen,
-  onDropDeal,
 }: Readonly<DealColumnProps>) {
   const t = useT();
+  const { setNodeRef } = useDroppable({ id: stage, data: { type: 'column' } });
   const total = deals.reduce((sum, deal) => sum + deal.value, 0);
 
   return (
     <Box
-      sx={[panel, { minWidth: 240, flex: '1 0 240px' }]}
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={(event) => {
-        event.preventDefault();
-        const id = event.dataTransfer.getData('text/plain');
-        if (id) {
-          onDropDeal(id, stage);
-        }
-      }}
+      ref={setNodeRef}
+      data-drop-target={highlighted || undefined}
+      sx={[
+        panel,
+        { minWidth: 240, flex: '1 0 240px', transition: transition.surface },
+        highlighted && targetRing(accent),
+      ]}
     >
       <Stack
         direction="row"
@@ -63,15 +78,17 @@ export function DealColumn({
         </Typography>
       </Stack>
 
-      {deals.map((deal) => (
-        <Box
-          key={deal.id}
-          draggable
-          onDragStart={(event) => event.dataTransfer.setData('text/plain', deal.id)}
-        >
-          <DealCard deal={deal} accent={accent} onOpen={onOpen} />
-        </Box>
-      ))}
+      <SortableContext items={deals.map((deal) => deal.id)} strategy={verticalListSortingStrategy}>
+        {deals.map((deal) => (
+          <SortableDealCard
+            key={deal.id}
+            deal={deal}
+            stage={stage}
+            accent={accent}
+            onOpen={onOpen}
+          />
+        ))}
+      </SortableContext>
 
       {deals.length === 0 && (
         <Typography

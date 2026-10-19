@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import CallIcon from '@mui/icons-material/Call';
+import AlarmAddIcon from '@mui/icons-material/AlarmAdd';
 import EventIcon from '@mui/icons-material/Event';
 import NoteIcon from '@mui/icons-material/StickyNote2';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -12,6 +13,7 @@ import {
   type LogActivityTarget,
   type LogActivityValues,
 } from './forms/log-activity';
+import { AddReminderForm } from './forms/add-reminder';
 
 type Loggable = LogActivityValues['type'];
 
@@ -32,7 +34,9 @@ interface DetailActionsProps {
 export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
   const t = useT();
   const [logging, setLogging] = useState<Loggable | null>(null);
+  const [reminding, setReminding] = useState(false);
   const close = () => setLogging(null);
+  const closeReminder = () => setReminding(false);
   return (
     <>
       <Box
@@ -55,11 +59,25 @@ export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
             {t(action.label)}
           </Button>
         ))}
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<AlarmAddIcon />}
+          onClick={() => setReminding(true)}
+          sx={{ whiteSpace: 'nowrap' }}
+        >
+          {t('Add reminder')}
+        </Button>
         {extra}
       </Box>
       <CrudDialog open={logging !== null} title={t('Log activity')} onClose={close}>
         {logging && (
           <LogActivityForm target={target} type={logging} onDone={close} onCancel={close} />
+        )}
+      </CrudDialog>
+      <CrudDialog open={reminding} title={t('Add reminder')} onClose={closeReminder}>
+        {reminding && (
+          <AddReminderForm target={target} onDone={closeReminder} onCancel={closeReminder} />
         )}
       </CrudDialog>
     </>

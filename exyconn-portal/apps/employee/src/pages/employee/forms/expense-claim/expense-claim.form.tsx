@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { HTTP_URL } from '@exyconn/regex';
 import {
   RhfTextField,
@@ -17,7 +18,7 @@ const schema = z.object({
   category: z.string().trim().min(1, 'Category is required'),
   description: z.string().trim().min(1, 'Description is required'),
   amount: z.coerce.number({ message: 'Amount must be a number' }).positive('Must be more than 0'),
-  currency: z.string().trim().min(1, 'Currency is required'),
+  currency: currencyField,
   incurredOn: z.string().min(1, 'Date is required'),
   receiptUrl: z.string().trim().regex(HTTP_URL, 'Must be a valid link').or(z.literal('')),
 });

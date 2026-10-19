@@ -81,6 +81,7 @@ export function GithubConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="GithubConfig"
         columns={columns}
         rows={rows}
         actions={actions}

@@ -25,6 +25,7 @@ export function CompanyHeader({
         <RecordAvatar
           name={company.name}
           src={company.logoUrl}
+          domain={company.domain}
           variant="rounded"
           sx={{ width: 56, height: 56 }}
         />

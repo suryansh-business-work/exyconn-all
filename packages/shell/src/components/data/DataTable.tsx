@@ -1,153 +1,38 @@
-import type { KeyboardEvent, ReactNode } from 'react';
-import { useT } from '@exyconn/i18n';
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  fontWeight,
-} from '@/components/ui';
-import { DataTableRowActions, type RowAction } from './DataTableRowActions';
-import { TableRefreshButton } from './TableRefreshButton';
-import { TableSkeletonRows } from './TableSkeletonRows';
-import { EmptyState } from '../feedback/EmptyState';
-import { cellText } from '../../utils/cellText';
+import { DataTableView, type DataTableViewProps } from './DataTableView';
+import { useDataTableBulk } from './useDataTableBulk';
 
 export type { RowAction } from './DataTableRowActions';
+export type { Column } from './DataTableView';
 
-export interface Column<T> {
-  key: string;
-  label: string;
-  render?: (row: T) => ReactNode;
+interface DataTableProps<T extends { id: string }> extends Omit<DataTableViewProps<T>, 'bulk'> {
+  /**
+   * The GraphQL record type the rows are (`Holiday` for `deleteHoliday(id)`). With it, and a
+   * row delete, rows get checkboxes and "Delete selected", which runs on the server as a bulk
+   * job through that same delete — guards and audit included — and drops the deleted rows from
+   * the Apollo cache once it is done.
+   */
+  bulkEntity?: string;
 }
 
-interface DataTableProps<T extends { id: string }> {
-  columns: Column<T>[];
-  rows: T[];
-  onEdit?: (row: T) => void;
-  onDelete?: (row: T) => void;
-  onRowClick?: (row: T) => void;
-  actions?: RowAction<T>[];
-  emptyMessage?: string;
-  /** True while the rows are being fetched: placeholder rows stand in for the data. */
-  loading?: boolean;
-  /** Re-runs the query behind the rows; renders a Refresh button above the table. */
-  onRefresh?: () => Promise<unknown>;
+/** A table that ticks rows and deletes them together, as one background job. */
+function BulkDataTable<T extends { id: string }>({
+  bulkEntity,
+  ...props
+}: Readonly<DataTableViewProps<T> & { bulkEntity: string }>) {
+  const bulk = useDataTableBulk(props.rows, bulkEntity);
+  return <DataTableView {...props} bulk={bulk} />;
 }
 
-/** Reusable MUI table with optional row edit/delete actions, loading rows and a refresh. */
+/**
+ * Reusable MUI table with optional row edit/delete actions, loading rows, a refresh and — for
+ * a table naming its `bulkEntity` — row selection with "Delete selected".
+ */
 export function DataTable<T extends { id: string }>({
-  columns,
-  rows,
-  onEdit,
-  onDelete,
-  onRowClick,
-  actions,
-  emptyMessage = 'No records yet.',
-  loading = false,
-  onRefresh,
+  bulkEntity,
+  ...props
 }: Readonly<DataTableProps<T>>) {
-  const t = useT();
-  const hasActions = Boolean(onEdit || onDelete || actions?.length);
-
-  const toolbar = onRefresh && (
-    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 0.5 }}>
-      <TableRefreshButton
-        disabled={loading}
-        onRefresh={() => {
-          onRefresh().catch((error: unknown) =>
-            console.error('Could not refresh the table', error),
-          );
-        }}
-      />
-    </Box>
-  );
-
-  if (!loading && rows.length === 0) {
-    return (
-      <>
-        {toolbar}
-        <EmptyState title={emptyMessage} />
-      </>
-    );
+  if (bulkEntity && props.onDelete) {
+    return <BulkDataTable {...props} bulkEntity={bulkEntity} />;
   }
-
-  // A row that opens on click opens on Enter and Space too, and is in the tab order, or it
-  // is a link only a mouse can follow (SC 2.1.1).
-  const rowKeyHandler = (row: T) => (event: KeyboardEvent<HTMLTableRowElement>) => {
-    if (event.target !== event.currentTarget) return;
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onRowClick?.(row);
-    }
-  };
-
-  const headSx = { fontWeight: fontWeight.bold, color: 'text.secondary', borderColor: 'divider' };
-  const cellSx = { borderColor: 'divider' };
-
-  return (
-    <>
-      {toolbar}
-      {/* Focusable because it scrolls: a table wider or taller than its box is a scrollable
-          region, and a region somebody can only reach with a mouse fails WCAG 2.2 AA
-          (scrollable-region-focusable). One tab stop per table is the price of being able to
-          read the rest of a wide table from the keyboard. */}
-      <TableContainer tabIndex={0} sx={{ background: 'transparent' }} aria-busy={loading}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {columns.map((col) => (
-                <TableCell key={col.key} sx={headSx}>
-                  {t(col.label)}
-                </TableCell>
-              ))}
-              {hasActions && (
-                <TableCell align="right" sx={headSx}>
-                  {t('Actions')}
-                </TableCell>
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableSkeletonRows
-                columnKeys={columns.map((col) => col.key)}
-                withActions={hasActions}
-              />
-            ) : (
-              rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  hover
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  onKeyDown={onRowClick ? rowKeyHandler(row) : undefined}
-                  tabIndex={onRowClick ? 0 : undefined}
-                  sx={{ '& td': cellSx, cursor: onRowClick ? 'pointer' : 'default' }}
-                >
-                  {columns.map((col) => (
-                    <TableCell key={col.key}>
-                      {col.render
-                        ? col.render(row)
-                        : cellText((row as Record<string, unknown>)[col.key])}
-                    </TableCell>
-                  ))}
-                  {hasActions && (
-                    <DataTableRowActions
-                      row={row}
-                      actions={actions}
-                      onEdit={onEdit}
-                      onDelete={onDelete}
-                    />
-                  )}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>
-  );
+  return <DataTableView {...props} />;
 }

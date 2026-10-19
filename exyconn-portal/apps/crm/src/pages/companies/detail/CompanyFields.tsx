@@ -1,12 +1,13 @@
 import { countryName, useFormatters, useI18n, useT } from '@exyconn/i18n';
 import type { CompanyFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { ContactPointList, DetailField, DetailList, LocalTime } from '../../../records/detail';
-import { EmailVerifyButton } from '../../../email-verification';
+import { VerifiedEmailList, type CheckedEmail } from '../../../email-verification';
 
-const verifyButton = (address: string) => <EmailVerifyButton email={address} />;
+/** The record as the list or its page loaded it; its page also brings each address's check. */
+type CompanyRecord = Omit<CompanyFieldsFragment, 'emails'> & { emails: readonly CheckedEmail[] };
 
 /** How to reach the company and its key facts, each with a placeholder when it is not known. */
-export function CompanyFields({ company }: Readonly<{ company: CompanyFieldsFragment }>) {
+export function CompanyFields({ company }: Readonly<{ company: CompanyRecord }>) {
   const t = useT();
   const { locale } = useI18n();
   const { formatCurrency, formatNumber } = useFormatters();
@@ -16,13 +17,7 @@ export function CompanyFields({ company }: Readonly<{ company: CompanyFieldsFrag
   return (
     <DetailList>
       <DetailField label="Email" empty="No email">
-        {company.emails.length > 0 && (
-          <ContactPointList
-            scheme="mailto"
-            points={company.emails.map((e) => ({ ...e, value: e.address }))}
-            trailing={verifyButton}
-          />
-        )}
+        {company.emails.length > 0 && <VerifiedEmailList emails={company.emails} />}
       </DetailField>
       <DetailField label="Phone" empty="No phone">
         {company.phones.length > 0 && (

@@ -75,6 +75,7 @@ export function CallingBotScenariosPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="CallingBotScenario"
         columns={COLUMNS}
         rows={rows}
         onEdit={crud.openEdit}

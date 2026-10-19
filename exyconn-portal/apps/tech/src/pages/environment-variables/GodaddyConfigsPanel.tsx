@@ -83,6 +83,7 @@ export function GodaddyConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="GodaddyConfig"
         columns={columns}
         rows={rows}
         actions={actions}

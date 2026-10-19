@@ -10,6 +10,20 @@ interface EmailStatusBadgeProps {
   checking?: boolean;
 }
 
+/** Why the address got its status, when it was checked and — when known — by whom. */
+function checkDetail(
+  t: ReturnType<typeof useT>,
+  verification: EmailVerificationBadgeFragment,
+  label: string,
+  when: string,
+): string {
+  const reason = verification.reason || label;
+  if (verification.checkedBy) {
+    return t('{reason} · checked {when} by {who}', { reason, when, who: verification.checkedBy });
+  }
+  return t('{reason} · checked {when}', { reason, when });
+}
+
 /** The latest check of an address as a chip: a green tick for a verified mailbox. */
 export function EmailStatusBadge({
   verification,
@@ -22,10 +36,7 @@ export function EmailStatusBadge({
   const Icon = view.Icon;
   const label = checking ? t('Checking…') : t(view.label);
   const detail = verification
-    ? t('{reason} · checked {when}', {
-        reason: verification.reason || t(view.label),
-        when: formatDateTime(verification.checkedAt),
-      })
+    ? checkDetail(t, verification, t(view.label), formatDateTime(verification.checkedAt))
     : t('Never checked. Click to check it now.');
   const clickable = Boolean(!verification && onCheck && !checking);
   // A chip that only shows a result is an image of it, focusable so its tooltip (the reason and

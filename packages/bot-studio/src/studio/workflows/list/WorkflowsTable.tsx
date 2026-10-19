@@ -95,6 +95,7 @@ export function WorkflowsTable({ rows, loading, onRefresh }: Readonly<WorkflowsT
 
   return (
     <DataTable
+      bulkEntity="WhatsappWorkflow"
       columns={columns}
       rows={rows}
       actions={actions}

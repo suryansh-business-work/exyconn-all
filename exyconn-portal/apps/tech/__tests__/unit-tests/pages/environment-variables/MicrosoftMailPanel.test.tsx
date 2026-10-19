@@ -41,7 +41,7 @@ describeSingletonPanel({
   dataKey: 'microsoftMailConfig',
   config,
   logger,
-  title: 'Microsoft Mail',
+  title: 'Microsoft OAuth app',
   loadError: 'Could not load Microsoft Mail.',
   retryLog: 'tech: reloading Microsoft Mail failed',
   form: 'MicrosoftMailConfigForm',

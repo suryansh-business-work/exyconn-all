@@ -87,6 +87,7 @@ export function OpenAiConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="OpenAiConfig"
         columns={columns}
         rows={rows}
         actions={actions}

@@ -1,12 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ComponentProps } from 'react';
+import type { DndContext as DndContextType } from '@dnd-kit/core';
 import { DealStage } from '@exyconn/shell/graphql/generated';
 import { DealsPage } from '../../../../src/pages/deals';
 import { renderWithProviders } from '../../test-utils';
 import { dealRow, pending } from '../../fixtures';
 
 const gql = vi.hoisted(() => ({ deals: vi.fn(), refetch: vi.fn(), setStage: vi.fn() }));
+
+/** The board's drag handlers, as it hands them to dnd-kit — a jsdom page has no layout to drag in. */
+const dnd = vi.hoisted(() => ({ props: {} as ComponentProps<typeof DndContextType> }));
+
+vi.mock('@dnd-kit/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@dnd-kit/core')>();
+  return {
+    ...actual,
+    DndContext: (props: ComponentProps<typeof actual.DndContext>) => {
+      dnd.props = props;
+      return <actual.DndContext {...props} />;
+    },
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
@@ -28,8 +44,14 @@ const DEALS = [
 const column = (stage: string) =>
   screen.getByText(stage, { selector: 'h6' }).parentElement?.parentElement as HTMLElement;
 
-const dropOn = (stage: string, dealId: string) =>
-  fireEvent.drop(column(stage), { dataTransfer: { getData: () => dealId } });
+/** Carries a deal onto a stage column and lets go, the way dnd-kit reports it. */
+const dropOn = (stage: string, dealId: string) => {
+  const active = { id: dealId, rect: { current: { translated: null } } };
+  const over = { id: stage, rect: { top: 0, height: 0 } };
+  act(() => dnd.props.onDragStart?.({ active } as never));
+  act(() => dnd.props.onDragOver?.({ active, over } as never));
+  act(() => dnd.props.onDragEnd?.({ active, over } as never));
+};
 
 describe('DealsPage board', () => {
   beforeEach(() => {
@@ -54,9 +76,11 @@ describe('DealsPage board', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Deals' })).toBeInTheDocument();
     expect(screen.getByText('3 open and closed opportunities')).toBeInTheDocument();
     const proposal = within(column('Proposal'));
-    expect(proposal.getByRole('button', { name: /Acme rollout/ })).toBeInTheDocument();
-    expect(proposal.getByRole('button', { name: /Initech audit/ })).toBeInTheDocument();
-    expect(within(column('Won')).getByRole('button', { name: /Globex pilot/ })).toBeInTheDocument();
+    expect(proposal.getByRole('button', { name: /^Acme rollout/ })).toBeInTheDocument();
+    expect(proposal.getByRole('button', { name: /^Initech audit/ })).toBeInTheDocument();
+    expect(
+      within(column('Won')).getByRole('button', { name: /^Globex pilot/ }),
+    ).toBeInTheDocument();
     expect(within(column('Qualifying')).getByText('Nothing here.')).toBeInTheDocument();
   });
 
@@ -70,13 +94,13 @@ describe('DealsPage board', () => {
     renderWithProviders(<DealsPage />, { route: '/deals' });
 
     expect(screen.getByText('1 open and closed opportunities')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Stray/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Stray/ })).not.toBeInTheDocument();
   });
 
   it('moves a dropped deal to the new stage and reloads the board', async () => {
     renderWithProviders(<DealsPage />, { route: '/deals' });
 
-    dropOn('Negotiation', 'deal-1');
+    dropOn(DealStage.Negotiation, 'deal-1');
 
     await waitFor(() =>
       expect(gql.setStage).toHaveBeenCalledWith({
@@ -90,8 +114,8 @@ describe('DealsPage board', () => {
   it('does nothing when a deal is dropped on its own stage or is unknown', () => {
     renderWithProviders(<DealsPage />, { route: '/deals' });
 
-    dropOn('Proposal', 'deal-1');
-    dropOn('Lost', 'deal-404');
+    dropOn(DealStage.Proposal, 'deal-1');
+    dropOn(DealStage.Lost, 'deal-404');
 
     expect(gql.setStage).not.toHaveBeenCalled();
     expect(gql.refetch).not.toHaveBeenCalled();
@@ -101,17 +125,22 @@ describe('DealsPage board', () => {
     gql.setStage.mockRejectedValueOnce(new Error('Won deals are locked'));
     renderWithProviders(<DealsPage />, { route: '/deals' });
 
-    dropOn('Lost', 'deal-2');
+    dropOn(DealStage.Lost, 'deal-2');
 
     expect(await screen.findByText('Won deals are locked')).toBeInTheDocument();
     expect(gql.refetch).not.toHaveBeenCalled();
+    // The card goes back to the stage the deal is really in.
+    await waitFor(() =>
+      expect(within(column('Won')).getByRole('button', { name: /^Globex pilot/ })).toBeVisible(),
+    );
+    expect(within(column('Lost')).queryByRole('button', { name: /^Globex pilot/ })).toBeNull();
   });
 
   it('falls back to a generic message for a failure that is not an Error', async () => {
     gql.setStage.mockRejectedValueOnce('timeout');
     renderWithProviders(<DealsPage />, { route: '/deals' });
 
-    dropOn('Discovery', 'deal-1');
+    dropOn(DealStage.Discovery, 'deal-1');
 
     expect(await screen.findByText('Could not move the deal')).toBeInTheDocument();
   });
@@ -138,12 +167,12 @@ describe('DealsPage forms', () => {
   it('opens a card for editing and closes it on cancel', async () => {
     renderWithProviders(<DealsPage />, { route: '/deals' });
 
-    await userEvent.click(screen.getByRole('button', { name: /Globex pilot/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^Globex pilot/ }));
     expect(screen.getByRole('heading', { level: 1, name: 'Edit deal' })).toBeInTheDocument();
     expect(screen.getByText(/"id":"deal-2"/)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Cancel form' }));
-    expect(screen.getByRole('button', { name: /Globex pilot/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Globex pilot/ })).toBeInTheDocument();
     expect(gql.refetch).not.toHaveBeenCalled();
   });
 
@@ -161,7 +190,7 @@ describe('DealsPage forms', () => {
     gql.refetch.mockRejectedValueOnce(new Error('offline'));
     renderWithProviders(<DealsPage />, { route: '/deals' });
 
-    await userEvent.click(screen.getByRole('button', { name: /Acme rollout/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^Acme rollout/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
 
     await waitFor(() => expect(gql.refetch).toHaveBeenCalledTimes(1));

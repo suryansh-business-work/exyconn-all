@@ -20,7 +20,7 @@ vi.mock('../../../../../src/maps/GoogleMapCard', async () => ({
   GoogleMapCard: (await import('../../record-detail-stubs')).MapCardStub,
 }));
 
-vi.mock('../../../../../src/email-verification', async () => ({
+vi.mock('../../../../../src/email-verification/EmailVerifyButton', async () => ({
   EmailVerifyButton: (await import('../../record-detail-stubs')).VerifyButtonStub,
 }));
 

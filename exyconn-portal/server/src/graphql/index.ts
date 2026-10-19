@@ -160,6 +160,8 @@ import { googleMapsTypeDefs, googleMapsResolvers } from '../modules/google-maps'
 import { webScraperTypeDefs, webScraperResolvers } from '../modules/web-scraper';
 import { crmGeoResolvers } from '../modules/crm/crm.geo';
 import { crmGeoTypeDefs } from '../modules/crm/crm.geo.typeDefs';
+import { crmCalendarTypeDefs, crmCalendarModuleResolvers } from '../modules/crm/calendar';
+import { crmDashboardTypeDefs, crmDashboardResolvers } from '../modules/crm/dashboard';
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
@@ -329,6 +331,8 @@ export const typeDefs = [
   googleMapsTypeDefs,
   webScraperTypeDefs,
   crmGeoTypeDefs,
+  crmCalendarTypeDefs,
+  crmDashboardTypeDefs,
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
@@ -431,6 +435,8 @@ export const resolvers = mergeResolvers([
   googleMapsResolvers,
   webScraperResolvers,
   crmGeoResolvers,
+  crmCalendarModuleResolvers,
+  crmDashboardResolvers,
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,

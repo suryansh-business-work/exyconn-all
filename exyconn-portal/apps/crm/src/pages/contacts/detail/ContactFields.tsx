@@ -7,12 +7,13 @@ import {
   LocalTime,
   TruncatedLink,
 } from '../../../records/detail';
-import { EmailVerifyButton } from '../../../email-verification';
+import { VerifiedEmailList, type CheckedEmail } from '../../../email-verification';
 
-const verifyButton = (address: string) => <EmailVerifyButton email={address} />;
+/** The record as the list or its page loaded it; its page also brings each address's check. */
+type ContactRecord = Omit<ContactFieldsFragment, 'emails'> & { emails: readonly CheckedEmail[] };
 
 /** How to reach the person and where they are, each with a placeholder when it is not known. */
-export function ContactFields({ contact }: Readonly<{ contact: ContactFieldsFragment }>) {
+export function ContactFields({ contact }: Readonly<{ contact: ContactRecord }>) {
   const { locale } = useI18n();
   const place = [contact.city, contact.country ? countryName(contact.country, locale) : '']
     .filter(Boolean)
@@ -20,13 +21,7 @@ export function ContactFields({ contact }: Readonly<{ contact: ContactFieldsFrag
   return (
     <DetailList>
       <DetailField label="Email" empty="No email">
-        {contact.emails.length > 0 && (
-          <ContactPointList
-            scheme="mailto"
-            points={contact.emails.map((e) => ({ ...e, value: e.address }))}
-            trailing={verifyButton}
-          />
-        )}
+        {contact.emails.length > 0 && <VerifiedEmailList emails={contact.emails} />}
       </DetailField>
       <DetailField label="Phone" empty="No phone">
         {contact.phones.length > 0 && (

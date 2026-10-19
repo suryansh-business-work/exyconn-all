@@ -27,9 +27,22 @@ const activitySchema = new Schema(
     attachments: { type: [attachmentSchema], default: [] },
     /** How long a call or meeting lasted, when someone logged it. */
     durationSeconds: { type: Number, default: null },
+    /** When the assignee is emailed about it; null for an activity nobody asked to be reminded of. */
+    remindAt: { type: Date, default: null },
+    /** The user (id) the reminder email goes to; empty when there is no reminder. */
+    assigneeId: { type: String, default: '', trim: true },
+    assigneeName: { type: String, default: '', trim: true },
+    /** Set when the reminder is claimed for sending; reset when its time is moved. */
+    reminderSentAt: { type: Date, default: null },
+    /** Failed sends so far; the job stops retrying after a few. */
+    reminderAttempts: { type: Number, default: 0 },
   },
   { timestamps: true },
 );
+
+/** The reminder job's claim and the calendar's date range both read these. */
+activitySchema.index({ remindAt: 1, reminderSentAt: 1 });
+activitySchema.index({ dueDate: 1 });
 
 export type ActivityDocument = InferSchemaType<typeof activitySchema>;
 export const ActivityModel: Model<ActivityDocument> = model<ActivityDocument>(

@@ -106,6 +106,7 @@ export function PaypalConfigsPanel() {
         events={PAYPAL_EVENTS}
       />
       <DataTable
+        bulkEntity="PaypalConfig"
         columns={COLUMNS}
         rows={data?.listPaypalConfigs ?? []}
         actions={actions}

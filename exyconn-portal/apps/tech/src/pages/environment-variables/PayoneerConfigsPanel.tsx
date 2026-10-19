@@ -97,6 +97,7 @@ export function PayoneerConfigsPanel() {
         description="Sent to Payoneer with every checkout, so there is nothing to register. Allow it if your account restricts notification URLs."
       />
       <DataTable
+        bulkEntity="PayoneerConfig"
         columns={COLUMNS}
         rows={data?.listPayoneerConfigs ?? []}
         actions={actions}

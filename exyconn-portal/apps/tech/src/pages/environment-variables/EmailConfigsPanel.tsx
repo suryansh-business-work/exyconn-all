@@ -72,6 +72,7 @@ export function EmailConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="EmailConfig"
         columns={columns}
         rows={rows}
         actions={actions}

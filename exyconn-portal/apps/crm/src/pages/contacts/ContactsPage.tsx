@@ -13,6 +13,7 @@ import { CONTACT_COLUMNS, type PagedContactRow, type ContactsGridContext } from 
 import { useEmailCheck } from '../../email-verification';
 import { color } from '@exyconn/shell/components/ui';
 import { RecordListToolbar, useRecordList, withRefreshSignal } from '../../records/list';
+import { RowClickGuard } from '../../records/list/RowClickGuard';
 import { RecordActions } from '../../records/RecordActions';
 import { usePreviewParam } from '../../records/quick-view';
 import { ContactQuickView } from './ContactQuickView';
@@ -67,41 +68,43 @@ export function ContactsPage() {
   };
 
   return (
-    <CrudDashboard
-      key={records.gridKey}
-      title="Contacts"
-      subtitle="People at the accounts"
-      entityLabel="contact"
-      stats={statItems}
-      statsLoading={!statsData && statsLoading}
-      crud={withRefreshSignal(crud, records.refreshSignal)}
-      renderForm={(initial) => (
-        <ContactForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
-      )}
-      columnDefs={records.columnDefs}
-      onRowClick={(row) => openPreview(row.id)}
-      fetchRows={records.fetchRows}
-      bulkList="searchContacts"
-      context={gridContext}
-      searchPlaceholder="Search by name, email, company or owner…"
-      initialSearch={records.initialSearch}
-      extraDialogs={
-        <ContactQuickView id={previewId} onClose={closePreview} onSaved={crud.reload} />
-      }
-      toolbar={
-        <RecordListToolbar
-          records={records}
-          allLabel="All contacts"
-          renderActions={(query) => (
-            <RecordActions
-              object={CrmObject.Contact}
-              query={query}
-              fileName="contacts"
-              onImported={crud.reload}
-            />
-          )}
-        />
-      }
-    />
+    <RowClickGuard>
+      <CrudDashboard
+        key={records.gridKey}
+        title="Contacts"
+        subtitle="People at the accounts"
+        entityLabel="contact"
+        stats={statItems}
+        statsLoading={!statsData && statsLoading}
+        crud={withRefreshSignal(crud, records.refreshSignal)}
+        renderForm={(initial) => (
+          <ContactForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+        )}
+        columnDefs={records.columnDefs}
+        onRowClick={(row) => openPreview(row.id)}
+        fetchRows={records.fetchRows}
+        bulkList="searchContacts"
+        context={gridContext}
+        searchPlaceholder="Search by name, email, company or owner…"
+        initialSearch={records.initialSearch}
+        extraDialogs={
+          <ContactQuickView id={previewId} onClose={closePreview} onSaved={crud.reload} />
+        }
+        toolbar={
+          <RecordListToolbar
+            records={records}
+            allLabel="All contacts"
+            renderActions={(query) => (
+              <RecordActions
+                object={CrmObject.Contact}
+                query={query}
+                fileName="contacts"
+                onImported={crud.reload}
+              />
+            )}
+          />
+        }
+      />
+    </RowClickGuard>
   );
 }

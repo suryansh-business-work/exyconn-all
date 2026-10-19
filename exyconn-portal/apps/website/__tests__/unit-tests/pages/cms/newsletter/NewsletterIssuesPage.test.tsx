@@ -9,11 +9,16 @@ import { confirmRowDelete, runRowAction } from '../cms-crud-helpers';
 import { actionSpecs, cellStatus, cellText, columnIds } from '../cms-grid-helpers';
 import { formatDate, renderInSite } from '../cms-helpers';
 
-const spies = vi.hoisted(() => ({ query: vi.fn(), deleteIssue: vi.fn() }));
+const spies = vi.hoisted(() => ({
+  query: vi.fn(),
+  // The Apollo cache a delete evicts the row from.
+  cache: { identify: vi.fn(() => undefined), evict: vi.fn(), gc: vi.fn() },
+  deleteIssue: vi.fn(),
+}));
 
 vi.mock('@apollo/client/react', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@apollo/client/react')>()),
-  useApolloClient: () => ({ query: spies.query }),
+  useApolloClient: () => ({ query: spies.query, cache: spies.cache }),
 }));
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),

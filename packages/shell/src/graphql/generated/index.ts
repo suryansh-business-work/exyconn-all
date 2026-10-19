@@ -22,6 +22,9 @@ export type Scalars = {
 
 export type Activity = {
   __typename?: 'Activity';
+  /** The user the reminder email goes to; empty without a reminder. */
+  assigneeId: Scalars['String']['output'];
+  assigneeName: Scalars['String']['output'];
   /** Photos, documents and call or meeting recordings. */
   attachments: Array<FileAttachment>;
   createdAt: Scalars['DateTime']['output'];
@@ -35,12 +38,18 @@ export type Activity = {
   relatedId: Scalars['String']['output'];
   relatedName: Scalars['String']['output'];
   relatedType: ActivitySubject;
+  /** When the assignee is emailed about it; null when nobody asked for a reminder. */
+  remindAt?: Maybe<Scalars['DateTime']['output']>;
+  /** When the reminder went out; null until then, and again after its time is moved. */
+  reminderSentAt?: Maybe<Scalars['DateTime']['output']>;
   subject: Scalars['String']['output'];
   type: ActivityType;
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type ActivityInput = {
+  /** The user to remind; required with remindAt. */
+  assigneeId?: InputMaybe<Scalars['String']['input']>;
   attachments?: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
@@ -50,6 +59,8 @@ export type ActivityInput = {
   relatedId?: InputMaybe<Scalars['String']['input']>;
   relatedName?: InputMaybe<Scalars['String']['input']>;
   relatedType: ActivitySubject;
+  /** Set to email the assignee at this time (must be in the future); null removes the reminder. */
+  remindAt?: InputMaybe<Scalars['DateTime']['input']>;
   subject: Scalars['String']['input'];
   type: ActivityType;
 };
@@ -2822,6 +2833,44 @@ export type CreatedWebhook = {
   webhook: Webhook;
 };
 
+/** Activities logged in one period, per type. */
+export type CrmActivityPeriod = {
+  __typename?: 'CrmActivityPeriod';
+  call: Scalars['Int']['output'];
+  email: Scalars['Int']['output'];
+  key: Scalars['String']['output'];
+  meeting: Scalars['Int']['output'];
+  note: Scalars['Int']['output'];
+  start: Scalars['DateTime']['output'];
+  task: Scalars['Int']['output'];
+};
+
+/** One dated thing on the CRM calendar. */
+export type CrmCalendarItem = {
+  __typename?: 'CrmCalendarItem';
+  done: Scalars['Boolean']['output'];
+  endAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The activity's id, or booking:<id> for a meeting booking. */
+  id: Scalars['ID']['output'];
+  kind: CrmCalendarKind;
+  /** The assignee, the owner or the meeting's host. */
+  person: Scalars['String']['output'];
+  relatedId: Scalars['String']['output'];
+  relatedName: Scalars['String']['output'];
+  relatedType?: Maybe<ActivitySubject>;
+  startAt: Scalars['DateTime']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** What a calendar entry is, which decides its colour. */
+export enum CrmCalendarKind {
+  Activity = 'ACTIVITY',
+  Booking = 'BOOKING',
+  Meeting = 'MEETING',
+  Reminder = 'REMINDER',
+  Task = 'TASK'
+}
+
 /** A company's calling account. The auth token never leaves the server. */
 export type CrmCallConfig = {
   __typename?: 'CrmCallConfig';
@@ -2890,12 +2939,56 @@ export type CrmConditionInput = {
   values: Array<Scalars['String']['input']>;
 };
 
+export type CrmDashboard = {
+  __typename?: 'CrmDashboard';
+  activitiesOverTime: Array<CrmActivityPeriod>;
+  from: Scalars['DateTime']['output'];
+  granularity: CrmDashboardGranularity;
+  insights: Array<CrmInsight>;
+  kpis: CrmDashboardKpis;
+  leadsBySource: Array<CrmSourceCount>;
+  pipelineByStage: Array<CrmStageValue>;
+  /** The admin-configured zone the periods are counted in. */
+  timezone: Scalars['String']['output'];
+  to: Scalars['DateTime']['output'];
+  topOwners: Array<CrmOwnerValue>;
+  wonOverTime: Array<CrmPeriodValue>;
+};
+
+/** How the time charts are bucketed: days for a month, weeks up to about six months, months beyond. */
+export enum CrmDashboardGranularity {
+  Day = 'DAY',
+  Month = 'MONTH',
+  Week = 'WEEK'
+}
+
+/** Headline numbers. Open pipeline and overdue work are as of now; the rest cover the period. */
+export type CrmDashboardKpis = {
+  __typename?: 'CrmDashboardKpis';
+  lostCount: Scalars['Int']['output'];
+  meetingsBooked: Scalars['Int']['output'];
+  newCompanies: Scalars['Int']['output'];
+  newContacts: Scalars['Int']['output'];
+  newLeads: Scalars['Int']['output'];
+  openDealCount: Scalars['Int']['output'];
+  openPipelineValue: Scalars['Float']['output'];
+  overdueReminders: Scalars['Int']['output'];
+  overdueTasks: Scalars['Int']['output'];
+  weightedPipelineValue: Scalars['Float']['output'];
+  /** Won over won plus lost in the period, 0-1; null when nothing closed. */
+  winRate?: Maybe<Scalars['Float']['output']>;
+  wonCount: Scalars['Int']['output'];
+  wonValue: Scalars['Float']['output'];
+};
+
 /** One email address of a contact or company; exactly one is primary. */
 export type CrmEmailAddress = {
   __typename?: 'CrmEmailAddress';
   address: Scalars['String']['output'];
   label: Scalars['String']['output'];
   primary: Scalars['Boolean']['output'];
+  /** The latest check of this address; null when it was never checked. */
+  verification?: Maybe<EmailVerification>;
 };
 
 export type CrmEmailAddressInput = {
@@ -3004,6 +3097,34 @@ export type CrmImportResult = {
   updated: Scalars['Int']['output'];
 };
 
+/** A finding from the data. The client writes the sentence from kind and these values. */
+export type CrmInsight = {
+  __typename?: 'CrmInsight';
+  /** The group it is compared with, for a conversion finding. */
+  compareLabel: Scalars['String']['output'];
+  count: Scalars['Int']['output'];
+  days: Scalars['Int']['output'];
+  kind: CrmInsightKind;
+  /** The group it is about: a lead source, a record origin or a deal stage. */
+  label: Scalars['String']['output'];
+  ratio: Scalars['Float']['output'];
+  tone: CrmInsightTone;
+};
+
+export enum CrmInsightKind {
+  CompanyOriginConversion = 'COMPANY_ORIGIN_CONVERSION',
+  LeadSourceConversion = 'LEAD_SOURCE_CONVERSION',
+  OverdueReminders = 'OVERDUE_REMINDERS',
+  OverdueTasks = 'OVERDUE_TASKS',
+  PastCloseDate = 'PAST_CLOSE_DATE',
+  StuckDeals = 'STUCK_DEALS'
+}
+
+export enum CrmInsightTone {
+  Positive = 'POSITIVE',
+  Warning = 'WARNING'
+}
+
 /** Which contact actions a record page can offer. */
 export type CrmIntegrationStatus = {
   __typename?: 'CrmIntegrationStatus';
@@ -3055,6 +3176,22 @@ export enum CrmOriginSource {
   User = 'USER',
   Website = 'WEBSITE'
 }
+
+export type CrmOwnerValue = {
+  __typename?: 'CrmOwnerValue';
+  count: Scalars['Int']['output'];
+  owner: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
+/** Won deals in one period; key is the period in the company's zone (2026-10-19, 2026-W42, 2026-10). */
+export type CrmPeriodValue = {
+  __typename?: 'CrmPeriodValue';
+  count: Scalars['Int']['output'];
+  key: Scalars['String']['output'];
+  start: Scalars['DateTime']['output'];
+  value: Scalars['Float']['output'];
+};
 
 /** One phone number of a contact or company; exactly one is primary. */
 export type CrmPhoneNumber = {
@@ -3248,6 +3385,20 @@ export type CrmSort = {
 export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
+};
+
+export type CrmSourceCount = {
+  __typename?: 'CrmSourceCount';
+  count: Scalars['Int']['output'];
+  source: LeadSource;
+  won: Scalars['Int']['output'];
+};
+
+export type CrmStageValue = {
+  __typename?: 'CrmStageValue';
+  count: Scalars['Int']['output'];
+  stage: DealStage;
+  value: Scalars['Float']['output'];
 };
 
 export enum CrmTagObject {
@@ -7398,6 +7549,8 @@ export type Mutation = {
   /** Starts connecting an account: returns the provider's consent page to open. MARKETING. */
   startSocialConnect: Scalars['String']['output'];
   startSprint: Sprint;
+  /** Queues a delete, archive or restore of up to 50,000 rows; the job reports its progress. */
+  startTableBulkJob: TableBulkJob;
   /** Asks GitHub to build the chosen installers off the given branch. */
   startTrackerBuild: Scalars['Boolean']['output'];
   /**
@@ -7424,8 +7577,6 @@ export type Mutation = {
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
-  /** Deletes, archives or restores up to 200 selected rows of a list. */
-  tableBulkAction: TableBulkResult;
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
@@ -10109,6 +10260,11 @@ export type MutationStartSprintArgs = {
 };
 
 
+export type MutationStartTableBulkJobArgs = {
+  input: TableBulkJobInput;
+};
+
+
 export type MutationStartTrackerBuildArgs = {
   platforms: Array<TrackerPlatform>;
   ref: Scalars['String']['input'];
@@ -10146,13 +10302,6 @@ export type MutationSubscribeToStatusArgs = {
 
 export type MutationSyncSocialAccountArgs = {
   id: Scalars['ID']['input'];
-};
-
-
-export type MutationTableBulkActionArgs = {
-  action: TableBulkAction;
-  ids: Array<Scalars['ID']['input']>;
-  list: Scalars['String']['input'];
 };
 
 
@@ -12860,7 +13009,11 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
+  /** Reminders, dated activities and meeting bookings from from (inclusive) to to (exclusive); at most 62 days. */
+  crmCalendar: Array<CrmCalendarItem>;
   crmCallConfigs: Array<CrmCallConfig>;
+  /** CRM overview for from (inclusive) to to (exclusive); at most three years. */
+  crmDashboard: CrmDashboard;
   /** The mailbox (Gmail or Microsoft) a new email to the record goes from by default; null when none is enabled. */
   crmEmailSender?: Maybe<Scalars['ID']['output']>;
   /** Every Gmail and Microsoft mailbox a CRM email may go from; empty outside the operator's CRM. */
@@ -13617,6 +13770,8 @@ export type Query = {
   systemHealth: SystemHealth;
   /** Whether a list's selected rows can be deleted and archived. */
   tableBulkInfo: TableBulkInfo;
+  /** A bulk job's progress, for the person who started it. */
+  tableBulkJob?: Maybe<TableBulkJob>;
   /** Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT. */
   tableExport: TableFile;
   /** The sample file to fill in for an import into this list. */
@@ -13928,6 +14083,18 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmCalendarArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryCrmDashboardArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
 };
 
 
@@ -15411,6 +15578,11 @@ export type QueryStatusOverviewArgs = {
 
 export type QueryTableBulkInfoArgs = {
   list: Scalars['String']['input'];
+};
+
+
+export type QueryTableBulkJobArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -17120,12 +17292,42 @@ export type TableBulkInfo = {
   deletable: Scalars['Boolean']['output'];
 };
 
-export type TableBulkResult = {
-  __typename?: 'TableBulkResult';
-  /** Rows that could not be deleted, with why; the rest were. */
+/** A bulk action working through its rows in the background, in chunks. */
+export type TableBulkJob = {
+  __typename?: 'TableBulkJob';
+  action: TableBulkAction;
+  /** Why the whole job stopped, when it failed. */
+  error?: Maybe<Scalars['String']['output']>;
+  failedCount: Scalars['Int']['output'];
+  /** The first rows that could not be changed, with why. */
   failures: Array<TableBulkFailure>;
+  id: Scalars['ID']['output'];
+  processed: Scalars['Int']['output'];
+  status: TableBulkJobStatus;
   succeeded: Scalars['Int']['output'];
+  /** Rows the job acts on; known once the matching rows are read. */
+  total: Scalars['Int']['output'];
 };
+
+/** A bulk action to run in the background: on ticked rows, or on every row a list's query matches. */
+export type TableBulkJobInput = {
+  action: TableBulkAction;
+  /** The record type of a client-side table's rows, e.g. Holiday; it takes DELETE only. */
+  entity?: InputMaybe<Scalars['String']['input']>;
+  /** The ticked rows. Leave empty, with variables, to act on every row the list's query matches. */
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  /** The paged list the rows belong to. Leave empty for a client-side table and name the entity. */
+  list?: InputMaybe<Scalars['String']['input']>;
+  /** The variables the list's own query loads pages with, for Select all matching. */
+  variables?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export enum TableBulkJobStatus {
+  Done = 'DONE',
+  Failed = 'FAILED',
+  Queued = 'QUEUED',
+  Running = 'RUNNING'
+}
 
 /** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
 export type TableExportColumnInput = {
@@ -20997,6 +21199,22 @@ export type ComplianceOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ComplianceOverviewQuery = { __typename?: 'Query', complianceOverview: { __typename?: 'ComplianceOverview', risks: number, openRisks: number, risksPastReview: number, findings: number, openFindings: number, findingsOverdue: number, audits: number, auditsPlanned: number, objectives: number, objectivesAtRisk: number, reviews: number, lastReviewOn?: string | null, lastReviewTitle: string, risksByStatus: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, findingsByType: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, residualHeat: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, standardCoverage: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }> } };
 
+export type CrmCalendarQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type CrmCalendarQuery = { __typename?: 'Query', crmCalendar: Array<{ __typename?: 'CrmCalendarItem', id: string, kind: CrmCalendarKind, title: string, startAt: string, endAt?: string | null, done: boolean, relatedType?: ActivitySubject | null, relatedId: string, relatedName: string, person: string }> };
+
+export type CrmDashboardQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type CrmDashboardQuery = { __typename?: 'Query', crmDashboard: { __typename?: 'CrmDashboard', timezone: string, granularity: CrmDashboardGranularity, kpis: { __typename?: 'CrmDashboardKpis', openDealCount: number, openPipelineValue: number, weightedPipelineValue: number, wonCount: number, wonValue: number, lostCount: number, winRate?: number | null, newLeads: number, newContacts: number, newCompanies: number, overdueTasks: number, overdueReminders: number, meetingsBooked: number }, pipelineByStage: Array<{ __typename?: 'CrmStageValue', stage: DealStage, count: number, value: number }>, wonOverTime: Array<{ __typename?: 'CrmPeriodValue', key: string, start: string, count: number, value: number }>, leadsBySource: Array<{ __typename?: 'CrmSourceCount', source: LeadSource, count: number, won: number }>, activitiesOverTime: Array<{ __typename?: 'CrmActivityPeriod', key: string, start: string, call: number, email: number, meeting: number, note: number, task: number }>, topOwners: Array<{ __typename?: 'CrmOwnerValue', owner: string, value: number, count: number }>, insights: Array<{ __typename?: 'CrmInsight', kind: CrmInsightKind, tone: CrmInsightTone, count: number, label: string, compareLabel: string, ratio: number, days: number }> } };
+
 export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
 export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
@@ -21063,7 +21281,7 @@ export type ListContactsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListContactsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21188,14 +21406,14 @@ export type GetContactQueryVariables = Exact<{
 }>;
 
 
-export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean, verification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }>, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type GetCompanyQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean, verification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }>, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type CrmTimelineQueryVariables = Exact<{
   object: CrmTimelineObject;
@@ -21358,7 +21576,7 @@ export type SearchLeadsQueryVariables = Exact<{
 }>;
 
 
-export type SearchLeadsQuery = { __typename?: 'Query', searchLeads: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+export type SearchLeadsQuery = { __typename?: 'Query', searchLeads: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }> } };
 
 export type SearchCompaniesQueryVariables = Exact<{
   query: CrmQueryInput;
@@ -21372,7 +21590,7 @@ export type SearchContactsQueryVariables = Exact<{
 }>;
 
 
-export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type CreateCrmPropertyMutationVariables = Exact<{
   input: CrmPropertyInput;
@@ -21442,7 +21660,7 @@ export type ListLeadsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListLeadsPagedQuery = { __typename?: 'Query', listLeadsPaged: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+export type ListLeadsPagedQuery = { __typename?: 'Query', listLeadsPaged: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }> } };
 
 export type ListLeadsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21575,7 +21793,7 @@ export type SetDomainNameserversMutationVariables = Exact<{
 
 export type SetDomainNameserversMutation = { __typename?: 'Mutation', setDomainNameservers: Array<string> };
 
-export type EmailVerificationBadgeFragment = { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string };
+export type EmailVerificationBadgeFragment = { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string };
 
 export type EmailVerificationFieldsFragment = { __typename?: 'EmailVerification', email: string, syntaxValid: boolean, hasMx: boolean, deliverable: boolean, catchAll: boolean, disposable: boolean, roleAccount: boolean, suggestion: string, source: EmailVerificationSource, checkedBy: string, id: string, status: EmailVerificationStatus, reason: string, checkedAt: string };
 
@@ -26319,14 +26537,21 @@ export type TableBulkInfoQueryVariables = Exact<{
 
 export type TableBulkInfoQuery = { __typename?: 'Query', tableBulkInfo: { __typename?: 'TableBulkInfo', deletable: boolean, archivable: boolean } };
 
-export type TableBulkActionMutationVariables = Exact<{
-  list: Scalars['String']['input'];
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
-  action: TableBulkAction;
+export type TableBulkJobFieldsFragment = { __typename?: 'TableBulkJob', id: string, action: TableBulkAction, status: TableBulkJobStatus, total: number, processed: number, succeeded: number, failedCount: number, error?: string | null, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> };
+
+export type StartTableBulkJobMutationVariables = Exact<{
+  input: TableBulkJobInput;
 }>;
 
 
-export type TableBulkActionMutation = { __typename?: 'Mutation', tableBulkAction: { __typename?: 'TableBulkResult', succeeded: number, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } };
+export type StartTableBulkJobMutation = { __typename?: 'Mutation', startTableBulkJob: { __typename?: 'TableBulkJob', id: string, action: TableBulkAction, status: TableBulkJobStatus, total: number, processed: number, succeeded: number, failedCount: number, error?: string | null, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } };
+
+export type TableBulkJobQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TableBulkJobQuery = { __typename?: 'Query', tableBulkJob?: { __typename?: 'TableBulkJob', id: string, action: TableBulkAction, status: TableBulkJobStatus, total: number, processed: number, succeeded: number, failedCount: number, error?: string | null, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } | null };
 
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -28497,6 +28722,7 @@ export const EmailVerificationBadgeFragmentDoc = gql`
   status
   reason
   checkedAt
+  checkedBy
 }
     `;
 export const EmailVerificationFieldsFragmentDoc = gql`
@@ -29952,6 +30178,22 @@ export const SupportSlaPolicyFieldsFragmentDoc = gql`
   firstResponseMinutes
   resolutionMinutes
   active
+}
+    `;
+export const TableBulkJobFieldsFragmentDoc = gql`
+    fragment TableBulkJobFields on TableBulkJob {
+  id
+  action
+  status
+  total
+  processed
+  succeeded
+  failedCount
+  failures {
+    id
+    message
+  }
+  error
 }
     `;
 export const PexelsMediaFieldsFragmentDoc = gql`
@@ -39498,6 +39740,160 @@ export function useComplianceOverviewSuspenseQuery(baseOptions?: ApolloReactHook
 export type ComplianceOverviewQueryHookResult = ReturnType<typeof useComplianceOverviewQuery>;
 export type ComplianceOverviewLazyQueryHookResult = ReturnType<typeof useComplianceOverviewLazyQuery>;
 export type ComplianceOverviewSuspenseQueryHookResult = ReturnType<typeof useComplianceOverviewSuspenseQuery>;
+export const CrmCalendarDocument = gql`
+    query CrmCalendar($from: DateTime!, $to: DateTime!) {
+  crmCalendar(from: $from, to: $to) {
+    id
+    kind
+    title
+    startAt
+    endAt
+    done
+    relatedType
+    relatedId
+    relatedName
+    person
+  }
+}
+    `;
+
+/**
+ * __useCrmCalendarQuery__
+ *
+ * To run a query within a React component, call `useCrmCalendarQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmCalendarQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmCalendarQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useCrmCalendarQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables> & ({ variables: CrmCalendarQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmCalendarQuery, CrmCalendarQueryVariables>(CrmCalendarDocument, options);
+      }
+export function useCrmCalendarLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmCalendarQuery, CrmCalendarQueryVariables>(CrmCalendarDocument, options);
+        }
+// @ts-ignore
+export function useCrmCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmCalendarQuery, CrmCalendarQueryVariables>;
+// @ts-ignore
+export function useCrmCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmCalendarQuery | undefined, CrmCalendarQueryVariables>;
+export function useCrmCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmCalendarQuery, CrmCalendarQueryVariables>(CrmCalendarDocument, options);
+        }
+export type CrmCalendarQueryHookResult = ReturnType<typeof useCrmCalendarQuery>;
+export type CrmCalendarLazyQueryHookResult = ReturnType<typeof useCrmCalendarLazyQuery>;
+export type CrmCalendarSuspenseQueryHookResult = ReturnType<typeof useCrmCalendarSuspenseQuery>;
+export const CrmDashboardDocument = gql`
+    query CrmDashboard($from: DateTime!, $to: DateTime!) {
+  crmDashboard(from: $from, to: $to) {
+    timezone
+    granularity
+    kpis {
+      openDealCount
+      openPipelineValue
+      weightedPipelineValue
+      wonCount
+      wonValue
+      lostCount
+      winRate
+      newLeads
+      newContacts
+      newCompanies
+      overdueTasks
+      overdueReminders
+      meetingsBooked
+    }
+    pipelineByStage {
+      stage
+      count
+      value
+    }
+    wonOverTime {
+      key
+      start
+      count
+      value
+    }
+    leadsBySource {
+      source
+      count
+      won
+    }
+    activitiesOverTime {
+      key
+      start
+      call
+      email
+      meeting
+      note
+      task
+    }
+    topOwners {
+      owner
+      value
+      count
+    }
+    insights {
+      kind
+      tone
+      count
+      label
+      compareLabel
+      ratio
+      days
+    }
+  }
+}
+    `;
+
+/**
+ * __useCrmDashboardQuery__
+ *
+ * To run a query within a React component, call `useCrmDashboardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmDashboardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmDashboardQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useCrmDashboardQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables> & ({ variables: CrmDashboardQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmDashboardQuery, CrmDashboardQueryVariables>(CrmDashboardDocument, options);
+      }
+export function useCrmDashboardLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmDashboardQuery, CrmDashboardQueryVariables>(CrmDashboardDocument, options);
+        }
+// @ts-ignore
+export function useCrmDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmDashboardQuery, CrmDashboardQueryVariables>;
+// @ts-ignore
+export function useCrmDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmDashboardQuery | undefined, CrmDashboardQueryVariables>;
+export function useCrmDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmDashboardQuery, CrmDashboardQueryVariables>(CrmDashboardDocument, options);
+        }
+export type CrmDashboardQueryHookResult = ReturnType<typeof useCrmDashboardQuery>;
+export type CrmDashboardLazyQueryHookResult = ReturnType<typeof useCrmDashboardLazyQuery>;
+export type CrmDashboardSuspenseQueryHookResult = ReturnType<typeof useCrmDashboardSuspenseQuery>;
 export const ListCompaniesDocument = gql`
     query ListCompanies {
   listCompanies {
@@ -40505,9 +40901,16 @@ export const GetContactDocument = gql`
     query GetContact($id: ID!) {
   getContact(id: $id) {
     ...ContactFields
+    emails {
+      address
+      verification {
+        ...EmailVerificationBadge
+      }
+    }
   }
 }
-    ${ContactFieldsFragmentDoc}`;
+    ${ContactFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
 
 /**
  * __useGetContactQuery__
@@ -40549,9 +40952,16 @@ export const GetCompanyDocument = gql`
     query GetCompany($id: ID!) {
   getCompany(id: $id) {
     ...CompanyFields
+    emails {
+      address
+      verification {
+        ...EmailVerificationBadge
+      }
+    }
   }
 }
-    ${CompanyFieldsFragmentDoc}`;
+    ${CompanyFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
 
 /**
  * __useGetCompanyQuery__
@@ -68924,42 +69334,80 @@ export function useTableBulkInfoSuspenseQuery(baseOptions?: ApolloReactHooks.Ski
 export type TableBulkInfoQueryHookResult = ReturnType<typeof useTableBulkInfoQuery>;
 export type TableBulkInfoLazyQueryHookResult = ReturnType<typeof useTableBulkInfoLazyQuery>;
 export type TableBulkInfoSuspenseQueryHookResult = ReturnType<typeof useTableBulkInfoSuspenseQuery>;
-export const TableBulkActionDocument = gql`
-    mutation TableBulkAction($list: String!, $ids: [ID!]!, $action: TableBulkAction!) {
-  tableBulkAction(list: $list, ids: $ids, action: $action) {
-    succeeded
-    failures {
-      id
-      message
-    }
+export const StartTableBulkJobDocument = gql`
+    mutation StartTableBulkJob($input: TableBulkJobInput!) {
+  startTableBulkJob(input: $input) {
+    ...TableBulkJobFields
   }
 }
-    `;
+    ${TableBulkJobFieldsFragmentDoc}`;
 
 /**
- * __useTableBulkActionMutation__
+ * __useStartTableBulkJobMutation__
  *
- * To run a mutation, you first call `useTableBulkActionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTableBulkActionMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useStartTableBulkJobMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartTableBulkJobMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [tableBulkActionMutation, { data, loading, error }] = useTableBulkActionMutation({
+ * const [startTableBulkJobMutation, { data, loading, error }] = useStartTableBulkJobMutation({
  *   variables: {
- *      list: // value for 'list'
- *      ids: // value for 'ids'
- *      action: // value for 'action'
+ *      input: // value for 'input'
  *   },
  * });
  */
-export function useTableBulkActionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TableBulkActionMutation, TableBulkActionMutationVariables>) {
+export function useStartTableBulkJobMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartTableBulkJobMutation, StartTableBulkJobMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<TableBulkActionMutation, TableBulkActionMutationVariables>(TableBulkActionDocument, options);
+        return ApolloReactHooks.useMutation<StartTableBulkJobMutation, StartTableBulkJobMutationVariables>(StartTableBulkJobDocument, options);
       }
-export type TableBulkActionMutationHookResult = ReturnType<typeof useTableBulkActionMutation>;
+export type StartTableBulkJobMutationHookResult = ReturnType<typeof useStartTableBulkJobMutation>;
+export const TableBulkJobDocument = gql`
+    query TableBulkJob($id: ID!) {
+  tableBulkJob(id: $id) {
+    ...TableBulkJobFields
+  }
+}
+    ${TableBulkJobFieldsFragmentDoc}`;
+
+/**
+ * __useTableBulkJobQuery__
+ *
+ * To run a query within a React component, call `useTableBulkJobQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTableBulkJobQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTableBulkJobQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTableBulkJobQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables> & ({ variables: TableBulkJobQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TableBulkJobQuery, TableBulkJobQueryVariables>(TableBulkJobDocument, options);
+      }
+export function useTableBulkJobLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TableBulkJobQuery, TableBulkJobQueryVariables>(TableBulkJobDocument, options);
+        }
+// @ts-ignore
+export function useTableBulkJobSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableBulkJobQuery, TableBulkJobQueryVariables>;
+// @ts-ignore
+export function useTableBulkJobSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableBulkJobQuery | undefined, TableBulkJobQueryVariables>;
+export function useTableBulkJobSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TableBulkJobQuery, TableBulkJobQueryVariables>(TableBulkJobDocument, options);
+        }
+export type TableBulkJobQueryHookResult = ReturnType<typeof useTableBulkJobQuery>;
+export type TableBulkJobLazyQueryHookResult = ReturnType<typeof useTableBulkJobLazyQuery>;
+export type TableBulkJobSuspenseQueryHookResult = ReturnType<typeof useTableBulkJobSuspenseQuery>;
 export const ListEmailConfigsDocument = gql`
     query ListEmailConfigs {
   listEmailConfigs {

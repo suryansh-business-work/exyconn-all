@@ -93,6 +93,7 @@ export function StripeConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="StripeConfig"
         columns={COLUMNS}
         rows={data?.listStripeConfigs ?? []}
         actions={actions}

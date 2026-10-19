@@ -21,6 +21,7 @@ import { crmMediaResolvers, withAttachments } from './crm.media';
 import { crmTimelineResolvers } from './timeline';
 import { crmOriginResolvers, stampOrigin, userOrigin } from './crm.origin';
 import { crmTagResolvers } from './crm.tags';
+import { withReminderOnCreate, withReminderOnUpdate } from './calendar/crm.reminder.input';
 import type { CrmObject } from './records/crm.objects';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
@@ -328,8 +329,8 @@ export const crmEntitiesResolvers = {
     updateContact: withCustom('CONTACT', contacts.Mutation.updateContact),
     ...deals.Mutation,
     ...activities.Mutation,
-    createActivity: withAttachments(activities.Mutation.createActivity),
-    updateActivity: withAttachments(activities.Mutation.updateActivity),
+    createActivity: withReminderOnCreate(withAttachments(activities.Mutation.createActivity)),
+    updateActivity: withReminderOnUpdate(withAttachments(activities.Mutation.updateActivity)),
     ...crmMediaResolvers.Mutation,
     ...crmTagResolvers.Mutation,
     updateDeal,

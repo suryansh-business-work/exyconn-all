@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client/react';
+import { evictRows } from '@exyconn/shell/components/data/evictRows';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
@@ -37,7 +39,10 @@ export interface CrudResource<TRow, TTarget> {
   reload: () => void;
   /** Reloads and closes the dialog — hand straight to a form's `onDone`. */
   onDone: () => void;
-  /** Confirms, deletes, reloads and reports — hand to the grid's `delete` action. */
+  /**
+   * Confirms, deletes, drops the row from the Apollo cache (so a client-side table loses it at
+   * once), re-reads in place and reports — hand to the grid's `delete` action.
+   */
   remove: (row: TTarget) => Promise<void>;
 }
 
@@ -58,6 +63,7 @@ export function useCrudResource<TRow, TTarget = TRow>({
   const confirm = useConfirm();
   const notify = useNotify();
   const t = useT();
+  const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
   const reload = useCallback(() => {
@@ -84,6 +90,7 @@ export function useCrudResource<TRow, TTarget = TRow>({
     }
     try {
       await onDelete(row);
+      evictRows(client.cache, [row as object]);
       reload();
       notify('{entity} deleted', 'success', { entity: t(label) });
     } catch (error) {

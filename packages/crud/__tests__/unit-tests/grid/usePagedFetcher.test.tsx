@@ -74,6 +74,15 @@ describe('usePagedFetcher', () => {
     expect(page.rows).toHaveLength(1);
   });
 
+  it('hands a bulk job the variables a page request sends, extra filters included', () => {
+    const extra: TableFilterInput = { field: 'status', op: FilterOp.Equals, value: 'OPEN' };
+    const { result } = renderHookWithProviders(() => usePagedFetcher(LIST_THINGS, select, [extra]));
+    expect(result.current.list).toBe('listThingsPaged');
+    expect(result.current.variablesFor?.(input)).toEqual({
+      input: { ...input, filters: [extra] },
+    });
+  });
+
   it('keeps the callback stable while reading the latest select and filters', async () => {
     const second: TableFilterInput = { field: 'status', op: FilterOp.Equals, value: 'CLOSED' };
     const mocks = [okMock([second], [thing('9')], 1)];

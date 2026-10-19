@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { screen } from '@testing-library/react';
 import { GmailPanel } from '../../../../src/pages/environment-variables/GmailPanel';
 import { renderWithProviders } from '../../test-utils';
 import { propsOf, resetHarness } from './panel.harness';
@@ -40,12 +41,24 @@ describeSingletonPanel({
   dataKey: 'gmailConfig',
   config,
   logger,
-  title: 'Gmail',
+  title: 'Google OAuth app',
   loadError: 'Could not load Gmail.',
   retryLog: 'tech: reloading Gmail failed',
   form: 'GmailConfigForm',
   redirectUri: config.redirectUri,
   keepsLoadedConfigOnError: true,
+});
+
+describe('GmailPanel redirect URI', () => {
+  it('says what the Google client needs, with the address to copy', () => {
+    resetHarness();
+    gql.query.mockReturnValue({ data: { gmailConfig: config }, refetch: vi.fn() });
+    renderWithProviders(<GmailPanel />);
+    expect(
+      screen.getByText(/authorised redirect URI on the Google OAuth client/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy the redirect URI' })).toBeInTheDocument();
+  });
 });
 
 describe('GmailPanel connection', () => {

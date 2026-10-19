@@ -11,6 +11,7 @@ import {
   type RowActionSpec,
 } from '@exyconn/crud';
 import type { ListCompaniesPagedQuery } from '@exyconn/shell/graphql/generated';
+import { CompanyNameCell } from './CompanyNameCell';
 
 export type PagedCompanyRow = ListCompaniesPagedQuery['listCompaniesPaged']['rows'][number];
 export type CompaniesGridContext = CrudGridContext<PagedCompanyRow>;
@@ -26,7 +27,7 @@ const MAKE_CLIENT_ACTION: RowActionSpec = {
 
 /** Column model for the server-side Companies grid. */
 export const COMPANY_COLUMNS: ColDef<PagedCompanyRow>[] = [
-  textColumn('name', 'Company'),
+  { ...textColumn<PagedCompanyRow>('name', 'Company'), cellRenderer: CompanyNameCell },
   textColumn('domain', 'Domain'),
   textColumn('industry', 'Industry'),
   textColumn('size', 'Size'),

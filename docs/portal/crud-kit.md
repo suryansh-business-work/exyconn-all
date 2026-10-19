@@ -119,7 +119,10 @@ only one).
 
 Returns the dialog state (`open`, `editing`, `openCreate`, `openEdit`, `close`), the
 `refreshSignal` the grid watches, `reload()`, `onDone()` (reload **and** close — hand it
-straight to a form) and `remove(row)` (confirm → delete → reload → toast).
+straight to a form) and `remove(row)` (confirm → delete → evict the row from the Apollo
+cache → reload → toast). A bumped `refreshSignal` makes `ServerDataGrid` re-read its rows in
+place (`refreshInfiniteCache`), so a deleted row just leaves the page; the evicted row leaves
+every client-side list holding it at once.
 
 `remove` and `reload` report failures through the shared notifier. That is a deliberate
 change from the code this replaced, where a rejected delete or refetch surfaced only as
@@ -260,10 +263,18 @@ page — Departments, Positions, Nav links, the Tech panels. Pass the list query
 `refetch`, ignore `refreshSignal`, and wire `onEdit={crud.openEdit}` /
 `onDelete={crud.remove}` on `DataTable`.
 
+A `DataTable` with a row delete also takes `bulkEntity`, the GraphQL record type its rows are
+(`bulkEntity="Holiday"` beside `deleteHoliday(id)`). Rows then get checkboxes (a header box
+ticks them all) and the toolbar "{count} selected", "Delete selected" and "Clear selection".
+The delete is confirmed, then queued as a server-side job by entity — the server resolves
+`delete<Entity>(id)` through the schema and runs it per row, guards and audit included — and
+once it ends the rows that went are evicted from the Apollo cache, so nothing is refetched.
+The page needs no code of its own beyond the prop.
+
 Every `DataTable` also takes the list query's `loading` and `refetch`:
-`loading={loading} onRefresh={refetch}`. `loading` swaps the rows for skeleton rows (so
-no row action can be clicked mid-fetch) and `onRefresh` adds a Refresh button that is
-disabled while loading. Leave "Loading…" out of `emptyMessage` — the skeleton says it. A
+`loading={loading} onRefresh={refetch}`. `loading` draws skeleton rows until the first rows
+arrive; rows already on screen stay while a refetch runs (after a delete, say), so nothing
+flashes. `onRefresh` adds a Refresh button that is disabled while loading. Leave "Loading…" out of `emptyMessage` — the skeleton says it. A
 query that polls passes `loading && networkStatus !== NetworkStatus.poll`, so a background
 poll does not blank the table every interval.
 
@@ -288,22 +299,40 @@ Every server-paged grid gets these without any module code:
   "Select page" button (ag-grid's header checkbox needs a client-side model). While rows
   are selected a bar announces "{count} selected" and offers "Delete selected" (destructive
   confirm), "Archive selected" — or "Restore selected" with the **Archived** switch on, which
-  reloads the grid with `archived: true` — and "Clear selection". Ids go to
-  `tableBulkAction` 200 at a time; the toast names how many failed and the first reason.
-  Selection is by position, so any reload, search, sort or filter clears it. `onBulkDone`
-  lets the host re-read its stats (`CrudDashboard` wires it to the resource's `reload`).
+  reloads the grid with `archived: true` — and "Clear selection". Selection is by position,
+  so any reload, search, sort or filter clears it.
+- **Bulk jobs, never a lock.** The action is one `startTableBulkJob` call that answers at once
+  with a job; the selection clears and the grid stays fully usable (search, paging, rows).
+  The toolbar shows the job's progress ("Deleting 340 of 1,240…", polled from
+  `tableBulkJob(id)` every second) with a button to hide it; only the bulk buttons wait for
+  the job. When it ends the toast names the counts (and the first failure's reason), the
+  rows are re-read in place, and `onBulkDone` lets the host re-read its stats
+  (`CrudDashboard` wires it to the resource's `reload`).
 - **Select all matching.** ag-grid cannot select across the infinite model, so while rows
   are ticked and the server's `totalCount` for the current query (search, column filters,
   sorts, Archived switch — exactly what the last page loaded with) is larger, the bar offers
   "Select all {total} matching". Chosen, it reads "All {total} matching rows are selected"
   and the confirm names the full count ("Delete 1,240 rows matching the current filters?").
-  The action then pages `fetchRows` through that same query at 200 rows a request, one after
-  another, collecting the ids ("Collecting rows… 400 of 1,240"), and sends them through
-  `tableBulkAction` as above ("Deleting… 600 of 1,240"); the progress line is the bar's
-  polite live region and every control stays locked meanwhile. More than 10,000 matching
-  rows is refused with a request to narrow the search or filters. Ticking or unticking a row,
-  or anything that clears the selection (reload, search, sort, filter, switch), leaves the
-  mode. It only uses `fetchRows`, so custom fetchers with `bulkList` (the CRM) work too.
+  The browser never collects the ids: the job carries the variables the fetcher sends its
+  own list query (`fetchRows.variablesFor` — `usePagedFetcher` sets it, extra filters
+  included; the CRM's record fetcher sets its own), and the server pages through that query
+  as the person, reading only ids. Up to 50,000 rows per job; more is refused at once with
+  a request to narrow the search or filters. A fetcher without `variablesFor` is not offered
+  the mode. Ticking or unticking a row, or anything that clears the selection, leaves it.
+
+### The job on the server (`modules/table-transfer`)
+
+`startTableBulkJob(input: { list | entity, action, ids | variables })` checks everything up
+front (the action exists for the list or entity, the matching query runs for this person,
+the row cap) and writes a `TableBulkJob` (tenant-scoped, kept seven days after it ends).
+The worker (`startTableBulkJobs`, a registered background job) claims the company's oldest
+job no live pass holds with a lease, works in chunks of 25 for a slice of a few seconds and
+saves its cursor after every chunk; a pass that dies lets its lease lapse and the next one
+resumes there. Each record goes through the module's own `delete<Entity>(id)` (or the list's
+registered archiver) as the person who started the job — re-read every pass, so a blocked
+account stops its jobs — with every guard and audit entry a single delete has. A record
+already gone counts as deleted, so a resumed chunk is safe to re-run; a FORBIDDEN stops the
+whole job. Failures keep their reason (the first 100) and are counted in full.
 
 ## Tests
 

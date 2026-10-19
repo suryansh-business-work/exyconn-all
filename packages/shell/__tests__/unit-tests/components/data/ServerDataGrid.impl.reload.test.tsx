@@ -41,7 +41,7 @@ describe('ServerDataGridImpl reloads', () => {
     expect(fetchRows).toHaveBeenCalledWith(expect.objectContaining({ search: 'acme' }));
   });
 
-  it('reloads on the refresh button and on a bumped refresh signal', () => {
+  it('reloads on the refresh button, and re-reads in place on a bumped refresh signal', () => {
     const fetchRows = vi.fn<Fetch>();
     const { rerender } = renderGrid(fetchRows, { refreshSignal: 0 });
     expect(agGrid.purge).not.toHaveBeenCalled();
@@ -56,14 +56,24 @@ describe('ServerDataGridImpl reloads', () => {
         </I18nProvider>
       </MockedProvider>,
     );
-    expect(agGrid.purge).toHaveBeenCalledTimes(2);
+    expect(agGrid.purge).toHaveBeenCalledTimes(1);
+    expect(agGrid.refresh).toHaveBeenCalledTimes(1);
   });
 
   it('does nothing on refresh or clear-filters before the grid api exists', () => {
     agGrid.withApi = false;
-    renderGrid(vi.fn<Fetch>());
+    const fetchRows = vi.fn<Fetch>();
+    const { rerender } = renderGrid(fetchRows);
     fireEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
     expect(agGrid.purge).not.toHaveBeenCalled();
+    rerender(
+      <MockedProvider>
+        <I18nProvider locale="en" messages={{}}>
+          <ServerDataGridImpl columnDefs={[]} fetchRows={fetchRows} refreshSignal={1} />
+        </I18nProvider>
+      </MockedProvider>,
+    );
+    expect(agGrid.refresh).not.toHaveBeenCalled();
 
     act(() => agGrid.props.onFilterChanged({ api: { isAnyFilterPresent: () => true } }));
     fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));

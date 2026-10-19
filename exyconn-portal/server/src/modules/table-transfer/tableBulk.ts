@@ -1,14 +1,15 @@
 import { GraphQLError, getNamedType, isObjectType, type GraphQLSchema } from 'graphql';
 import type { GraphQLContext } from '../../middleware/auth';
 import { badRequest } from '../../utils/errors';
-import { registeredBulkTarget } from './registry';
+import { registeredBulkTarget, type TableArchiver } from './registry';
 import { isPagedList, listTarget, runOperation } from './tableSchema';
 
 export type BulkAction = 'DELETE' | 'ARCHIVE' | 'RESTORE';
 
-export interface BulkArgs {
-  list: string;
-  ids: string[];
+/** What a bulk job acts on: a paged list's rows, or — for a client-side table — an entity's. */
+export interface BulkTargetArgs {
+  list?: string | null;
+  entity?: string | null;
   action: BulkAction;
 }
 
@@ -22,16 +23,29 @@ export interface BulkResult {
   failures: BulkFailure[];
 }
 
+/** How a job acts on its ids, resolved and checked once when the job is started. */
+export interface ResolvedBulk {
+  action: BulkAction;
+  /** The record type the rows are: whose delete runs, and what the audit names. */
+  entity: string;
+  /** The `delete<Entity>(id)` operation, for DELETE. */
+  operation: string | null;
+  archive: TableArchiver | null;
+}
+
 export interface BulkInfo {
   deletable: boolean;
   archivable: boolean;
 }
 
-/** The most records one call acts on: a grid page at its largest. */
-export const MAX_BULK_IDS = 200;
-
 /** Errors that refuse the whole action, not one record: they are rethrown. */
 const FATAL_CODES: ReadonlySet<unknown> = new Set(['FORBIDDEN', 'UNAUTHENTICATED']);
+
+/**
+ * A record that is already gone. Deleting it again is the state the person asked for, which is
+ * what makes a job resumed after a restart safe to re-run over the chunk it was cut off in.
+ */
+const GONE_CODE = 'NOT_FOUND';
 
 /** The record type a list's rows are: as registered, or read off a paged list's page type. */
 function entityOf(schema: GraphQLSchema, list: string): string | null {
@@ -79,7 +93,7 @@ async function deleteEach(
   schema: GraphQLSchema,
   ctx: GraphQLContext,
   operation: string,
-  ids: string[],
+  ids: readonly string[],
 ): Promise<BulkResult> {
   const result: BulkResult = { succeeded: 0, failures: [] };
   for (const id of ids) {
@@ -88,37 +102,66 @@ async function deleteEach(
       result.succeeded += 1;
     } catch (error) {
       // runOperation only ever throws a GraphQLError: the resolver's own, or graphql's wrapper.
-      result.failures.push(failureOf(id, error as GraphQLError));
+      const graphqlError = error as GraphQLError;
+      if (graphqlError.extensions.code === GONE_CODE) {
+        result.succeeded += 1;
+      } else {
+        result.failures.push(failureOf(id, graphqlError));
+      }
     }
   }
   return result;
 }
 
-/** Deletes, archives or restores the selected rows of a list. */
-export async function runBulkAction(
+/** A name as given, or null when it is missing or blank. */
+function named(value: string | null | undefined): string | null {
+  const trimmed = value?.trim() ?? '';
+  return trimmed === '' ? null : trimmed;
+}
+
+/** The delete for a list's or an entity's rows, refused when there is none. */
+function resolveDelete(schema: GraphQLSchema, list: string | null, entity: string | null) {
+  const record = list ? entityOf(schema, list) : entity;
+  const operation = record ? deleteOperation(schema, record) : null;
+  if (!record || !operation) {
+    badRequest(`Rows of ${list ?? entity} cannot be deleted from the table`);
+  }
+  return { record, operation };
+}
+
+/**
+ * Checks what a bulk job is asked to do before it is queued: a list (any action) or an entity
+ * (delete only, for a table that pages on the client), and that the action exists for it.
+ */
+export function resolveBulk(schema: GraphQLSchema, args: BulkTargetArgs): ResolvedBulk {
+  const list = named(args.list);
+  const entity = named(args.entity);
+  if ((list === null) === (entity === null)) {
+    badRequest('Name either the list or the entity the rows belong to');
+  }
+  if (args.action === 'DELETE') {
+    const { record, operation } = resolveDelete(schema, list, entity);
+    return { action: args.action, entity: record, operation, archive: null };
+  }
+  const target = list ? registeredBulkTarget(list) : null;
+  if (!target?.archive) {
+    badRequest(`Rows of ${list ?? entity} cannot be archived`);
+  }
+  return { action: args.action, entity: target.entity, operation: null, archive: target.archive };
+}
+
+/** Deletes, archives or restores one chunk of a job's ids, as the person who started it. */
+export async function runBulkChunk(
   schema: GraphQLSchema,
   ctx: GraphQLContext,
-  { list, ids, action }: BulkArgs,
+  bulk: ResolvedBulk,
+  ids: readonly string[],
 ): Promise<BulkResult> {
-  const unique = [...new Set(ids.filter((id) => id.trim() !== ''))];
-  if (unique.length === 0) {
-    badRequest('Select at least one row');
+  if (bulk.operation) {
+    return deleteEach(schema, ctx, bulk.operation, ids);
   }
-  if (unique.length > MAX_BULK_IDS) {
-    badRequest(`At most ${MAX_BULK_IDS} rows at a time`);
-  }
-  if (action === 'DELETE') {
-    const entity = entityOf(schema, list);
-    const operation = entity ? deleteOperation(schema, entity) : null;
-    if (!operation) {
-      badRequest(`Rows of ${list} cannot be deleted from the table`);
-    }
-    return deleteEach(schema, ctx, operation, unique);
-  }
-  const archive = registeredBulkTarget(list)?.archive;
-  if (!archive) {
-    badRequest(`Rows of ${list} cannot be archived`);
-  }
-  const succeeded = await archive(ctx, unique, action === 'ARCHIVE');
+  // resolveBulk only leaves the operation empty for an archivable list.
+  const archive = bulk.archive as TableArchiver;
+  const succeeded = await archive(ctx, [...ids], bulk.action === 'ARCHIVE');
   return { succeeded, failures: [] };
 }

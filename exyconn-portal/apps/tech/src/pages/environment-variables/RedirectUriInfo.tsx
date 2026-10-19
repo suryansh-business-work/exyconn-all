@@ -4,8 +4,14 @@ import { Alert, Flex, IconButton, Text, Tooltip } from '@exyconn/shell/component
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { copyToClipboard } from '@exyconn/shell/utils/clipboard';
 
-/** The redirect URI to register on the Entra app, read-only with a copy button. */
-export function RedirectUriInfo({ uri }: Readonly<{ uri: string }>) {
+interface RedirectUriInfoProps {
+  uri: string;
+  /** Where to register it and what else the provider's app needs, as an English source string. */
+  instructions: string;
+}
+
+/** The redirect URI to register on an OAuth app, read-only with a copy button. */
+export function RedirectUriInfo({ uri, instructions }: Readonly<RedirectUriInfoProps>) {
   const t = useT();
   const notify = useNotify();
   const copy = () => {
@@ -16,9 +22,7 @@ export function RedirectUriInfo({ uri }: Readonly<{ uri: string }>) {
   return (
     <Alert severity="info" sx={{ mb: 2 }}>
       <Text size="sm" component="p">
-        {t(
-          'Register this exact address as a Web redirect URI on the Entra app (Authentication > Add a platform > Web), and grant it the Mail.Send, User.Read and offline_access delegated permissions:',
-        )}
+        {t(instructions)}
       </Text>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Text size="sm" sx={{ fontFamily: 'monospace', overflowWrap: 'anywhere' }}>

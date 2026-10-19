@@ -94,6 +94,7 @@ export function RazorpayConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="RazorpayConfig"
         columns={COLUMNS}
         rows={data?.listRazorpayConfigs ?? []}
         actions={actions}

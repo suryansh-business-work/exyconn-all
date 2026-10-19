@@ -84,6 +84,7 @@ export function SonarConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="SonarConfig"
         columns={COLUMNS}
         rows={data?.listSonarConfigs ?? []}
         actions={actions}

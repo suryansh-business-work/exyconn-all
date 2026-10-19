@@ -110,6 +110,7 @@ export function ClientHubAccessDialog({ client, onClose }: Readonly<ClientHubAcc
           )}
         </Text>
         <DataTable
+          bulkEntity="ClientContact"
           columns={columns}
           rows={data?.clientContacts ?? []}
           actions={actions}

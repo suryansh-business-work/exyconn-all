@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { useT } from '@exyconn/i18n';
 import {
   RhfTextField,
@@ -26,7 +27,7 @@ const schema = z
     category: z.enum(ExpenseCategory),
     description: z.string().trim(),
     amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
-    currency: z.string().trim().min(1, 'Currency is required'),
+    currency: currencyField,
     // Optional: a company runs for years before it splits spend up, and refusing a bill
     // until somebody picks a centre would lose the bill, not gain the analysis.
     costCenterId: z.string(),

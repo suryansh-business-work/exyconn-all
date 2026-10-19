@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { applyDealClosedHooks, CLOSED_DEAL_STAGES, dealClosedFields } from './crm.deal-closed';
 
 /** The pipeline, in the order a deal moves through it. */
 export const DEAL_STAGES = [
@@ -10,8 +11,7 @@ export const DEAL_STAGES = [
   'LOST',
 ] as const;
 
-/** Stages a deal can no longer move out of; they leave the open pipeline. */
-export const CLOSED_DEAL_STAGES: ReadonlySet<string> = new Set(['WON', 'LOST']);
+export { CLOSED_DEAL_STAGES };
 
 /**
  * An opportunity. Company and contact are stored as id plus name for the same
@@ -34,9 +34,12 @@ const dealSchema = new Schema(
     notes: { type: String, default: '' },
     /** The client this deal is billed to, stamped when it is won. */
     clientId: { type: String, default: '', trim: true },
+    ...dealClosedFields,
   },
   { timestamps: true },
 );
+applyDealClosedHooks(dealSchema);
+dealSchema.index({ stage: 1, closedAt: 1 });
 
 export type DealDocument = InferSchemaType<typeof dealSchema>;
 export const DealModel: Model<DealDocument> = model<DealDocument>('Deal', dealSchema);

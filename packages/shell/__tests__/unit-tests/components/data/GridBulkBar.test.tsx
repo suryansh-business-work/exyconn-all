@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { I18nProvider } from '@exyconn/i18n';
-import { TableBulkAction } from '@/graphql/generated';
+import { TableBulkAction, TableBulkJobStatus } from '@/graphql/generated';
 import { GridBulkBar, GridBulkControls } from '@/components/data/GridBulkBar';
+import { NotificationProvider } from '@/components/feedback/NotificationProvider';
 import type { TableBulk } from '@/components/data/useTableBulk';
 
 const { run } = vi.hoisted(() => ({ run: vi.fn() }));
@@ -17,10 +18,16 @@ function makeBulk(patch: Partial<TableBulk> = {}): TableBulk {
     deletable: true,
     archivable: true,
     enabled: true,
+    canSelectAll: true,
     selectedCount: 2,
-    busy: false,
-    setBusy: vi.fn(),
-    reload: vi.fn(),
+    job: {
+      job: null,
+      running: false,
+      finished: null,
+      visible: false,
+      dismiss: vi.fn(),
+      start: vi.fn(),
+    },
     archived: false,
     archivedRef: { current: false },
     setArchived: vi.fn(),
@@ -31,8 +38,6 @@ function makeBulk(patch: Partial<TableBulk> = {}): TableBulk {
     setMatching: vi.fn(),
     allMatching: false,
     selectAllMatching: vi.fn(),
-    progress: null,
-    setProgress: vi.fn(),
     ...patch,
   };
 }
@@ -40,8 +45,10 @@ function makeBulk(patch: Partial<TableBulk> = {}): TableBulk {
 function renderBar(bulk: TableBulk, loading = false) {
   return render(
     <I18nProvider locale="en" messages={{}}>
-      <GridBulkControls bulk={bulk} loading={loading} />
-      <GridBulkBar bulk={bulk} loading={loading} />
+      <NotificationProvider>
+        <GridBulkControls bulk={bulk} loading={loading} />
+        <GridBulkBar bulk={bulk} loading={loading} />
+      </NotificationProvider>
     </I18nProvider>,
   );
 }
@@ -103,15 +110,36 @@ describe('GridBulkBar', () => {
     expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument();
   });
 
-  it('locks every control while a bulk request runs', () => {
-    renderBar(makeBulk({ busy: true }));
+  it('holds back only the bulk actions while a job runs, showing its progress', () => {
+    const job = {
+      id: 'j1',
+      action: TableBulkAction.Archive,
+      status: TableBulkJobStatus.Running,
+      total: 1240,
+      processed: 400,
+      succeeded: 400,
+      failedCount: 0,
+      failures: [],
+    };
+    renderBar(
+      makeBulk({
+        job: {
+          job,
+          running: true,
+          finished: null,
+          visible: true,
+          dismiss: vi.fn(),
+          start: vi.fn(),
+        },
+      }),
+    );
 
-    expect(screen.getByRole('button', { name: 'Select page' })).toBeDisabled();
-    expect(screen.getByRole('switch', { name: 'Archived' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Select page' })).toBeEnabled();
+    expect(screen.getByRole('switch', { name: 'Archived' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Delete selected' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Archive selected' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeDisabled();
-    expect(screen.getByRole('status').parentElement).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByText('Archiving 400 of 1,240…')).toBeInTheDocument();
   });
 
   it('locks every control while the grid loads a page', () => {
@@ -119,6 +147,7 @@ describe('GridBulkBar', () => {
 
     expect(screen.getByRole('button', { name: 'Select page' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Delete selected' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeDisabled();
   });
 
   it('offers every row the current query matches, and announces once they are chosen', () => {
@@ -132,7 +161,9 @@ describe('GridBulkBar', () => {
     const chosen = makeBulk({ matching, allMatching: true });
     rerender(
       <I18nProvider locale="en" messages={{}}>
-        <GridBulkBar bulk={chosen} loading={false} />
+        <NotificationProvider>
+          <GridBulkBar bulk={chosen} loading={false} />
+        </NotificationProvider>
       </I18nProvider>,
     );
     expect(screen.getByRole('status')).toHaveTextContent('All 1,240 matching rows are selected');
@@ -146,13 +177,9 @@ describe('GridBulkBar', () => {
     expect(screen.queryByRole('button', { name: /Select all/ })).not.toBeInTheDocument();
   });
 
-  it('announces a running action’s progress in place of the count', () => {
-    renderBar(
-      makeBulk({
-        busy: true,
-        progress: { label: 'Collecting rows… {done} of {total}', done: 400, total: 1240 },
-      }),
-    );
-    expect(screen.getByRole('status')).toHaveTextContent('Collecting rows… 400 of 1,240');
+  it('does not offer every matching row when the fetcher cannot hand the server its query', () => {
+    const matching = { query: { search: null, sort: null, sorts: [], filters: [] }, total: 90 };
+    renderBar(makeBulk({ matching, canSelectAll: false }));
+    expect(screen.queryByRole('button', { name: /Select all/ })).not.toBeInTheDocument();
   });
 });

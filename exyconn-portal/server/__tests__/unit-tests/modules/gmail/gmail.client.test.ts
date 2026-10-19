@@ -2,6 +2,8 @@ import { runAsPlatform } from '../../../../src/lib/tenant';
 import { seal } from '../../../../src/utils/secretBox';
 import { ConfigurationError } from '../../../../src/utils/errors';
 import {
+  EMAIL_ACCOUNTS_UNAVAILABLE,
+  forCrmUser,
   GmailAuthError,
   gmailClient,
   gmailClientConfig,
@@ -43,9 +45,31 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
+describe('forCrmUser', () => {
+  it('hands back what the work returned', async () => {
+    await expect(forCrmUser(async () => 'sent')).resolves.toBe('sent');
+  });
+
+  it('tells a CRM user to ask their administrator instead of naming the Tech setup', async () => {
+    const refusal = forCrmUser(() => gmailClientConfig());
+
+    await expect(refusal).rejects.toThrow(ConfigurationError);
+    await expect(refusal).rejects.toThrow(EMAIL_ACCOUNTS_UNAVAILABLE);
+    await expect(refusal).rejects.not.toThrow(/Environment Variables/);
+  });
+
+  it('passes every other failure through unchanged', async () => {
+    const failure = new GmailAuthError('Google refused the token');
+    await expect(forCrmUser(() => Promise.reject(failure))).rejects.toBe(failure);
+  });
+});
+
 describe('gmailClientConfig', () => {
   it('names what Tech still has to do while the client is off or incomplete', async () => {
     await expect(gmailClientConfig()).rejects.toThrow(ConfigurationError);
+    await expect(gmailClientConfig()).rejects.toThrow(
+      /Tech > Environment Variables > Email accounts/,
+    );
 
     await runAsPlatform(() =>
       GmailConfigModel.create({ key: 'default', clientId: 'client-id', enabled: true }),

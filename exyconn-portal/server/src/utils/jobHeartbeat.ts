@@ -25,6 +25,8 @@ export const JOB_KEYS = {
   whatsappReminders: 'whatsappReminders',
   websiteChatHandoff: 'websiteChatHandoff',
   emailVerification: 'emailVerification',
+  crmReminders: 'crmReminders',
+  tableBulkJobs: 'tableBulkJobs',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

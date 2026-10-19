@@ -78,6 +78,7 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
         )}
       </Text>
       <DataTable
+        bulkEntity="TaxRegime"
         columns={regimeColumns}
         rows={[...regimes]}
         onEdit={crud.openEdit}

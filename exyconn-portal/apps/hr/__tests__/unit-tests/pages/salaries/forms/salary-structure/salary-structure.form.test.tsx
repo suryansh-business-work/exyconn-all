@@ -64,7 +64,7 @@ describe('SalaryStructureForm', () => {
     renderForm();
     await pickOption('Employee', 'Asha Rao (asha@example.com)');
     await userEvent.type(screen.getByRole('combobox', { name: 'Currency' }), 'INR');
-    await userEvent.click(await screen.findByRole('option', { name: /\(INR\)$/ }));
+    await userEvent.click(await screen.findByRole('option', { name: /^INR — / }));
     setNumber('Basic', '50000');
     setNumber('HRA', '20000');
     pickDate('effectiveFrom', '04/01/2026');

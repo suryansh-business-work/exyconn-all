@@ -4,6 +4,7 @@ import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { TechOverviewPage } from './pages/overview';
 import {
+  EMAIL_ACCOUNTS_PATH,
   EnvironmentVariablesPage,
   SocialAppsPage,
   SOCIAL_APPS_PATH,
@@ -32,6 +33,15 @@ export function App() {
       <Route
         path="/tech/environment-variables/social-apps"
         element={<Navigate to={SOCIAL_APPS_PATH} replace />}
+      />
+      {/* Gmail and Microsoft Mail were separate sections; both OAuth apps now share one. */}
+      <Route
+        path="/tech/environment-variables/gmail"
+        element={<Navigate to={EMAIL_ACCOUNTS_PATH} replace />}
+      />
+      <Route
+        path="/tech/environment-variables/microsoft-mail"
+        element={<Navigate to={EMAIL_ACCOUNTS_PATH} replace />}
       />
       <Route path="/tech/email/:tab?" element={<EmailPage />} />
       <Route path="/tech/tracker-build" element={<TrackerBuildPage />} />

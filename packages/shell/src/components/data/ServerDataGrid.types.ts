@@ -15,6 +15,12 @@ export type GridFetcher<T> = ((input: TableQueryInput) => Promise<TablePageResul
    * exported and imported on the server; a fetcher on its own query input leaves it unset.
    */
   readonly list?: string;
+  /**
+   * The variables its list query is sent for a page input — exactly what a page request
+   * carries, extra filters included. With it "Select all matching" hands the server the query
+   * and the bulk job pages through the matching rows itself; `usePagedFetcher` sets it.
+   */
+  readonly variablesFor?: (input: TableQueryInput) => Record<string, unknown>;
 };
 
 export interface ServerDataGridProps<T> {
@@ -27,7 +33,10 @@ export interface ServerDataGridProps<T> {
   onRowClick?: (row: T) => void;
   /** Passed to ag-grid so cell renderers can reach page-level handlers. */
   context?: object;
-  /** Bump to force a reload after a create/update/delete elsewhere on the page. */
+  /**
+   * Bump after a create/update/delete elsewhere on the page: the rows are re-read in place,
+   * the ones on screen staying until the answer arrives (no skeleton flash).
+   */
   refreshSignal?: number;
   height?: number | string;
   /**
@@ -41,6 +50,6 @@ export interface ServerDataGridProps<T> {
    * deletable or archivable, rows get checkboxes and "Delete / Archive selected".
    */
   bulkList?: string;
-  /** Told after a bulk action changed rows, so the host can re-read its stats. */
+  /** Told after a bulk job changed rows, so the host can re-read its stats. */
   onBulkDone?: () => void;
 }

@@ -18,6 +18,8 @@ export type Scalars = {
 };
 
 export type ActivityInput = {
+  /** The user to remind; required with remindAt. */
+  assigneeId: InputMaybe<Scalars['String']['input']>;
   attachments: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate: InputMaybe<Scalars['DateTime']['input']>;
@@ -27,6 +29,8 @@ export type ActivityInput = {
   relatedId: InputMaybe<Scalars['String']['input']>;
   relatedName: InputMaybe<Scalars['String']['input']>;
   relatedType: ActivitySubject;
+  /** Set to email the assignee at this time (must be in the future); null removes the reminder. */
+  remindAt: InputMaybe<Scalars['DateTime']['input']>;
   subject: Scalars['String']['input'];
   type: ActivityType;
 };
@@ -969,6 +973,14 @@ export type CreateUserInput = {
   workingTimeNote: InputMaybe<Scalars['String']['input']>;
 };
 
+/** What a calendar entry is, which decides its colour. */
+export type CrmCalendarKind =
+  | 'ACTIVITY'
+  | 'BOOKING'
+  | 'MEETING'
+  | 'REMINDER'
+  | 'TASK';
+
 export type CrmCallConfigInput = {
   /** Twilio Account SID or Vobiz Auth ID. */
   accountId: Scalars['String']['input'];
@@ -991,6 +1003,12 @@ export type CrmConditionInput = {
   /** Dates as ISO strings; BETWEEN takes two values, IN/NOT_IN any number. */
   values: Array<Scalars['String']['input']>;
 };
+
+/** How the time charts are bucketed: days for a month, weeks up to about six months, months beyond. */
+export type CrmDashboardGranularity =
+  | 'DAY'
+  | 'MONTH'
+  | 'WEEK';
 
 export type CrmEmailAddressInput = {
   address: Scalars['String']['input'];
@@ -1025,6 +1043,18 @@ export type CrmImportMode =
   | 'CREATE'
   | 'UPDATE'
   | 'UPSERT';
+
+export type CrmInsightKind =
+  | 'COMPANY_ORIGIN_CONVERSION'
+  | 'LEAD_SOURCE_CONVERSION'
+  | 'OVERDUE_REMINDERS'
+  | 'OVERDUE_TASKS'
+  | 'PAST_CLOSE_DATE'
+  | 'STUCK_DEALS';
+
+export type CrmInsightTone =
+  | 'POSITIVE'
+  | 'WARNING';
 
 export type CrmObject =
   | 'COMPANY'
@@ -3331,6 +3361,25 @@ export type TableBulkAction =
   | 'DELETE'
   /** Brings archived rows back into the table. */
   | 'RESTORE';
+
+/** A bulk action to run in the background: on ticked rows, or on every row a list's query matches. */
+export type TableBulkJobInput = {
+  action: TableBulkAction;
+  /** The record type of a client-side table's rows, e.g. Holiday; it takes DELETE only. */
+  entity: InputMaybe<Scalars['String']['input']>;
+  /** The ticked rows. Leave empty, with variables, to act on every row the list's query matches. */
+  ids: InputMaybe<Array<Scalars['ID']['input']>>;
+  /** The paged list the rows belong to. Leave empty for a client-side table and name the entity. */
+  list: InputMaybe<Scalars['String']['input']>;
+  /** The variables the list's own query loads pages with, for Select all matching. */
+  variables: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type TableBulkJobStatus =
+  | 'DONE'
+  | 'FAILED'
+  | 'QUEUED'
+  | 'RUNNING';
 
 /** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
 export type TableExportColumnInput = {

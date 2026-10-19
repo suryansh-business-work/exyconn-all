@@ -38,7 +38,7 @@ describe('OrganizationForm', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
     expect(await screen.findByText('Company name is required')).toBeInTheDocument();
     expect(screen.getByText('Pick the country the company operates in')).toBeInTheDocument();
-    expect(screen.getByText('Pick the currency it keeps books in')).toBeInTheDocument();
+    expect(screen.getByText('Currency is required')).toBeInTheDocument();
     expect(hooks.create).not.toHaveBeenCalled();
   });
 
@@ -70,7 +70,7 @@ describe('OrganizationForm', () => {
     await user.type(screen.getByRole('textbox', { name: 'Company name' }), '  Fjord AS ');
     await user.type(screen.getByRole('textbox', { name: 'Handle' }), 'fjord');
     await pick(user, 'Country', 'Norway', 'Norway');
-    await pick(user, 'Currency', 'Norwegian Krone', 'Norwegian Krone (NOK)');
+    await pick(user, 'Currency', 'Norwegian Krone', 'NOK — Norwegian Krone (kr)');
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     expect(await screen.findByText('Organization created')).toBeInTheDocument();

@@ -73,6 +73,7 @@ export function ImageConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="ImageConfig"
         columns={columns}
         rows={rows}
         actions={actions}

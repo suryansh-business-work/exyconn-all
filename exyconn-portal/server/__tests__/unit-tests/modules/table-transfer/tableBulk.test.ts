@@ -1,8 +1,9 @@
 import { GraphQLError, GraphQLSchema, buildSchema, type GraphQLFieldResolver } from 'graphql';
 import {
-  MAX_BULK_IDS,
-  runBulkAction,
+  resolveBulk,
+  runBulkChunk,
   tableBulkInfo,
+  type BulkTargetArgs,
 } from '../../../../src/modules/table-transfer/tableBulk';
 import { registerBulkTarget } from '../../../../src/modules/table-transfer/registry';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
@@ -64,6 +65,9 @@ resolveMutation('deleteWidget', (_p, { id }: { id: string }) => {
   if (id === 'crash') {
     throw new Error('driver went away');
   }
+  if (id === 'gone') {
+    throw new GraphQLError('Widget not found', { extensions: { code: 'NOT_FOUND' } });
+  }
   deletedWidgets.push(id);
   return { id };
 });
@@ -117,39 +121,70 @@ describe('tableBulkInfo', () => {
   });
 });
 
-describe('runBulkAction', () => {
-  it('needs at least one id that is not blank', async () => {
-    const action = runBulkAction(schema, ctx, {
-      list: 'listWidgetsPaged',
-      ids: ['', '  '],
-      action: 'DELETE',
-    });
-    await expect(action).rejects.toThrow('Select at least one row');
+/** Resolves a target and runs one chunk of ids through it, as the bulk worker does. */
+function run(args: BulkTargetArgs, ids: string[]) {
+  return runBulkChunk(schema, ctx, resolveBulk(schema, args), ids);
+}
+
+describe('resolveBulk', () => {
+  it('needs exactly one of a list or an entity, ignoring blank names', () => {
+    expect(() => resolveBulk(schema, { action: 'DELETE' })).toThrow(
+      'Name either the list or the entity the rows belong to',
+    );
+    expect(() =>
+      resolveBulk(schema, { list: 'listWidgetsPaged', entity: 'Widget', action: 'DELETE' }),
+    ).toThrow('Name either the list or the entity the rows belong to');
+    expect(resolveBulk(schema, { list: '  ', entity: 'Widget', action: 'DELETE' })).toEqual(
+      expect.objectContaining({ entity: 'Widget', action: 'DELETE', archive: null }),
+    );
   });
 
-  it('acts on at most a page of distinct ids, counting duplicates once', async () => {
-    const ids = Array.from({ length: MAX_BULK_IDS }, (_v, i) => `w${i}`);
-    const atLimit = await runBulkAction(schema, ctx, {
-      list: 'listWidgetsPaged',
-      ids: [...ids, 'w0', 'w1'],
-      action: 'DELETE',
-    });
-    expect(atLimit).toEqual({ succeeded: MAX_BULK_IDS, failures: [] });
-
-    const over = runBulkAction(schema, ctx, {
-      list: 'listWidgetsPaged',
-      ids: [...ids, 'one-more'],
-      action: 'DELETE',
-    });
-    await expect(over).rejects.toThrow(`At most ${MAX_BULK_IDS} rows at a time`);
+  it('reads the entity off a list, or takes the one a client-side table names', () => {
+    expect(resolveBulk(schema, { list: 'listGadgetsPaged', action: 'DELETE' }).entity).toBe(
+      'Gadget',
+    );
+    expect(resolveBulk(schema, { entity: 'Gadget', action: 'DELETE' }).operation).toBe(
+      'mutation BulkDelete($id: ID!) { deleteGadget(id: $id)  }',
+    );
   });
 
+  it('refuses to delete rows of a list or an entity without a delete', () => {
+    for (const list of ['listThingsPaged', 'widgets']) {
+      expect(() => resolveBulk(schema, { list, action: 'DELETE' })).toThrow(
+        `Rows of ${list} cannot be deleted from the table`,
+      );
+    }
+    expect(() => resolveBulk(schema, { entity: 'Nameless', action: 'DELETE' })).toThrow(
+      'Rows of Nameless cannot be deleted from the table',
+    );
+  });
+
+  it('archives only a list registered with an archiver, never an entity', () => {
+    expect(resolveBulk(schema, { list: 'listGadgetsPaged', action: 'ARCHIVE' })).toEqual({
+      action: 'ARCHIVE',
+      entity: 'Gadget',
+      operation: null,
+      archive,
+    });
+    for (const list of ['listFrozenPaged', 'listWidgetsPaged']) {
+      expect(() => resolveBulk(schema, { list, action: 'ARCHIVE' })).toThrow(
+        `Rows of ${list} cannot be archived`,
+      );
+    }
+    expect(() => resolveBulk(schema, { entity: 'Gadget', action: 'RESTORE' })).toThrow(
+      'Rows of Gadget cannot be archived',
+    );
+  });
+});
+
+describe('runBulkChunk', () => {
   it('deletes each record through its own mutation and reports the ones that stay', async () => {
-    const result = await runBulkAction(schema, ctx, {
-      list: 'listWidgetsPaged',
-      ids: ['a', 'locked', 'crash', 'b'],
-      action: 'DELETE',
-    });
+    const result = await run({ list: 'listWidgetsPaged', action: 'DELETE' }, [
+      'a',
+      'locked',
+      'crash',
+      'b',
+    ]);
 
     expect(deletedWidgets).toEqual(['a', 'b']);
     expect(result).toEqual({
@@ -161,49 +196,34 @@ describe('runBulkAction', () => {
     });
   });
 
+  it('counts a record that is already gone as deleted, so a resumed chunk can re-run', async () => {
+    const result = await run({ entity: 'Widget', action: 'DELETE' }, ['gone', 'c']);
+
+    expect(result).toEqual({ succeeded: 2, failures: [] });
+    expect(deletedWidgets).toEqual(['c']);
+  });
+
   it('stops at a refusal that applies to the whole action', async () => {
-    const action = runBulkAction(schema, ctx, {
-      list: 'listWidgetsPaged',
-      ids: ['a', 'not-mine', 'b'],
-      action: 'DELETE',
-    });
+    const action = run({ list: 'listWidgetsPaged', action: 'DELETE' }, ['a', 'not-mine', 'b']);
 
     await expect(codeOf(action)).resolves.toBe('FORBIDDEN');
     expect(deletedWidgets).toEqual(['a']);
   });
 
   it('deletes through a mutation that answers a Boolean', async () => {
-    await expect(
-      runBulkAction(schema, ctx, { list: 'listGadgetsPaged', ids: ['g1'], action: 'DELETE' }),
-    ).resolves.toEqual({ succeeded: 1, failures: [] });
-  });
-
-  it('refuses to delete rows of a list without a delete, or of no list at all', async () => {
-    for (const list of ['listThingsPaged', 'widgets']) {
-      const action = runBulkAction(schema, ctx, { list, ids: ['x'], action: 'DELETE' });
-      await expect(action).rejects.toThrow(`Rows of ${list} cannot be deleted from the table`);
-    }
+    await expect(run({ list: 'listGadgetsPaged', action: 'DELETE' }, ['g1'])).resolves.toEqual({
+      succeeded: 1,
+      failures: [],
+    });
   });
 
   it('archives and restores through the registered archiver', async () => {
     await expect(
-      runBulkAction(schema, ctx, {
-        list: 'listGadgetsPaged',
-        ids: ['g1', 'g2'],
-        action: 'ARCHIVE',
-      }),
+      run({ list: 'listGadgetsPaged', action: 'ARCHIVE' }, ['g1', 'g2']),
     ).resolves.toEqual({ succeeded: 2, failures: [] });
     expect(archive).toHaveBeenLastCalledWith(ctx, ['g1', 'g2'], true);
 
-    await runBulkAction(schema, ctx, { list: 'listGadgetsPaged', ids: ['g1'], action: 'RESTORE' });
+    await run({ list: 'listGadgetsPaged', action: 'RESTORE' }, ['g1']);
     expect(archive).toHaveBeenLastCalledWith(ctx, ['g1'], false);
-  });
-
-  it('refuses to archive rows of a list without an archiver', async () => {
-    for (const list of ['listFrozenPaged', 'listWidgetsPaged']) {
-      const action = runBulkAction(schema, ctx, { list, ids: ['x'], action: 'ARCHIVE' });
-      await expect(action).rejects.toThrow(`Rows of ${list} cannot be archived`);
-    }
-    expect(archive).not.toHaveBeenCalled();
   });
 });

@@ -70,6 +70,7 @@ export function ToolCategoriesPage() {
       statsLoading={!data && loading}
     >
       <DataTable
+        bulkEntity="ToolCategory"
         columns={columns}
         rows={rows}
         onEdit={crud.openEdit}

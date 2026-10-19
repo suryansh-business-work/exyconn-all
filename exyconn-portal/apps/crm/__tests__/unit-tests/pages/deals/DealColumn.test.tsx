@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { DndContext } from '@dnd-kit/core';
 import { DealStage } from '@exyconn/shell/graphql/generated';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { DealColumn } from '../../../../src/pages/deals/DealColumn';
@@ -15,23 +17,27 @@ const DEALS = [
   dealRow({ id: 'deal-2', title: 'Globex pilot', companyName: '', value: 30000 }),
 ];
 
-function renderColumn(deals = DEALS) {
+const inBoard = (children: ReactNode) => <DndContext>{children}</DndContext>;
+
+function renderColumn(deals = DEALS, highlighted = false) {
   const onOpen = vi.fn();
-  const onDropDeal = vi.fn();
   renderWithProviders(
-    <DealColumn
-      stage={DealStage.Negotiation}
-      accent={ACCENT}
-      deals={deals}
-      onOpen={onOpen}
-      onDropDeal={onDropDeal}
-    />,
+    inBoard(
+      <DealColumn
+        stage={DealStage.Negotiation}
+        accent={ACCENT}
+        deals={deals}
+        highlighted={highlighted}
+        onOpen={onOpen}
+      />,
+    ),
   );
-  return { onOpen, onDropDeal };
+  return { onOpen };
 }
 
 /** The column itself: the parent of the stage heading row. */
-const columnOf = (heading: string) => screen.getByText(heading).parentElement?.parentElement;
+const columnOf = (heading: string) =>
+  screen.getByText(heading).parentElement?.parentElement as HTMLElement;
 
 describe('DealCard', () => {
   it('shows the title, company, value and probability, and opens the deal on click', async () => {
@@ -64,7 +70,7 @@ describe('DealColumn', () => {
 
     expect(screen.getByText('Negotiation')).toBeInTheDocument();
     expect(screen.getByText(`2 · ${formatMoney(150000)}`)).toBeInTheDocument();
-    expect(screen.getAllByRole('button')).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: /^Drag / })).toHaveLength(2);
     expect(screen.queryByText('Nothing here.')).not.toBeInTheDocument();
   });
 
@@ -78,39 +84,26 @@ describe('DealColumn', () => {
   it('opens a deal from its card', async () => {
     const { onOpen } = renderColumn();
 
-    await userEvent.click(screen.getByRole('button', { name: /Globex pilot/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^Globex pilot/ }));
 
     expect(onOpen).toHaveBeenCalledWith(DEALS[1]);
   });
 
-  it('puts the deal id on the drag when a card is picked up', () => {
+  it('gives every card a grip that a keyboard can pick up', () => {
     renderColumn();
-    const setData = vi.fn();
-    const draggable = screen.getByRole('button', { name: /Acme rollout/ }).parentElement;
 
-    expect(draggable).toHaveAttribute('draggable', 'true');
-    fireEvent.dragStart(draggable as HTMLElement, { dataTransfer: { setData } });
-
-    expect(setData).toHaveBeenCalledWith('text/plain', 'deal-1');
+    const grip = screen.getByRole('button', { name: 'Drag Acme rollout' });
+    expect(grip).toHaveAttribute('aria-roledescription', 'sortable');
+    expect(grip).toHaveAttribute('tabindex', '0');
   });
 
-  it('accepts a drop and moves the dragged deal into this stage', () => {
-    const { onDropDeal } = renderColumn();
-    const column = columnOf('Negotiation') as HTMLElement;
-
-    expect(fireEvent.dragOver(column)).toBe(false);
-    fireEvent.drop(column, { dataTransfer: { getData: () => 'deal-9' } });
-
-    expect(onDropDeal).toHaveBeenCalledWith('deal-9', DealStage.Negotiation);
+  it('is only marked as the drop target while a card would land in it', () => {
+    renderColumn(DEALS, true);
+    expect(columnOf('Negotiation')).toHaveAttribute('data-drop-target', 'true');
   });
 
-  it('ignores a drop that carries no deal', () => {
-    const { onDropDeal } = renderColumn();
-
-    fireEvent.drop(columnOf('Negotiation') as HTMLElement, {
-      dataTransfer: { getData: () => '' },
-    });
-
-    expect(onDropDeal).not.toHaveBeenCalled();
+  it('is not marked as a drop target otherwise', () => {
+    renderColumn();
+    expect(columnOf('Negotiation')).not.toHaveAttribute('data-drop-target');
   });
 });

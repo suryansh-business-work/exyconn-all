@@ -21,7 +21,7 @@ describe('OrganizationForm', () => {
     cy.contains('button', 'Create').click();
     cy.contains('Company name is required').should('be.visible');
     cy.contains('Pick the country the company operates in').should('be.visible');
-    cy.contains('Pick the currency it keeps books in').should('be.visible');
+    cy.contains('Currency is required').should('be.visible');
   });
 
   it('refuses a handle that is not URL-safe', () => {

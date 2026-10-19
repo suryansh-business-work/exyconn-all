@@ -72,6 +72,7 @@ export function NavLinksPage() {
       statsLoading={!data && loading}
     >
       <DataTable
+        bulkEntity="NavLink"
         columns={columns}
         rows={rows}
         onEdit={crud.openEdit}
