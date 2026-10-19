@@ -94,7 +94,9 @@ describe('unsubscribing', () => {
 
     const row = await MarketingSuppressionModel.findOne({ email: 'ada@x.com' }).lean();
     expect(row).toMatchObject({ reason: 'UNSUBSCRIBED', source: 'campaign:c9' });
-    expect(String(row?.organizationId)).toBe(organizationId);
+    // Filed under the company that sent the email.
+    const stored = await MarketingSuppressionModel.collection.findOne({ email: 'ada@x.com' });
+    expect(String(stored?.organizationId)).toBe(organizationId);
   });
 
   it('stops a caller that is over the hourly limit before looking at the token', async () => {

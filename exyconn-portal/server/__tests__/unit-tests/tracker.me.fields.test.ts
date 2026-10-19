@@ -16,11 +16,6 @@ jest.mock('../../src/utils/mailer', () => ({
   mailer: { sendTrackerAccessEmail: jest.fn().mockResolvedValue(undefined) },
 }));
 
-// Off days are covered by tracker.offday and tracker.expected.service; here every day is a
-// working day, so the suite does not depend on the day it runs. The employee's country is
-// set, so their holiday calendar is read without a company in scope.
-useWorkingEveryDay();
-
 const DEVICE_ID = 'device-me-fields';
 let signedInUserId = '';
 
@@ -40,6 +35,10 @@ function nonNullScalars(typeName: string): string[] {
 }
 
 describe('trackerMe payload', () => {
+  // Off days are covered by tracker.offday and tracker.expected.service; here every day is a
+  // working day, so the suite does not depend on the day it runs. The employee's country is
+  // set, so their holiday calendar is read without a company in scope.
+  useWorkingEveryDay();
   it('answers every non-null scalar TrackerMe declares', async () => {
     const user = await UserModel.create({
       country: 'IN',

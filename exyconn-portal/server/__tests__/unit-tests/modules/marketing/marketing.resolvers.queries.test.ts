@@ -1,11 +1,8 @@
 import { marketingCustomResolvers } from '../../../../src/modules/marketing/marketing.resolvers';
 import { marketingResolvers } from '../../../../src/modules/marketing';
-import { AudienceListModel } from '../../../../src/modules/marketing/audience.model';
 import { CampaignSendModel } from '../../../../src/modules/marketing/campaign-send.model';
 import { LeadModel } from '../../../../src/modules/crm/crm.model';
-import { portalOrigin } from '../../../../src/utils/portalOrigin';
-import { Types } from 'mongoose';
-import { asCrm, asEmployee, asMarketing, seedCampaign, seedClient } from './marketing.fixtures';
+import { asCrm, asEmployee, asMarketing, seedCampaign } from './marketing.fixtures';
 
 const Q = marketingCustomResolvers.Query;
 
