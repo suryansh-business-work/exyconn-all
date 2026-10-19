@@ -30,6 +30,12 @@ vi.mock('../../../../src/components/dashboard/TodayActivity', async () => ({
 vi.mock('../../../../src/components/dashboard/SyncBar', async () => ({
   SyncBar: (await import('../../app/stub')).stub('sync-bar'),
 }));
+vi.mock('../../../../src/components/dashboard/TodayLocations', async () => ({
+  TodayLocations: (await import('../../app/stub')).stub('today-locations'),
+}));
+vi.mock('../../../../src/components/dashboard/EarningsCard', async () => ({
+  EarningsCard: (await import('../../app/stub')).stub('earnings-card'),
+}));
 vi.mock('../../../../src/components/dashboard/TotalsPanel', async () => ({
   TotalsPanel: (await import('../../app/stub')).stub('totals-panel'),
 }));
@@ -82,6 +88,28 @@ describe('DashboardScreen', () => {
     });
     expect(propsOf(screen.getByTestId('totals-panel'))).toEqual({
       lastSyncAt: '2026-10-07T08:00:00.000Z',
+    });
+    expect(propsOf(screen.getByTestId('earnings-card'))).toEqual({
+      timezone: 'Europe/London',
+      lastSyncAt: '2026-10-07T08:00:00.000Z',
+    });
+  });
+
+  it('lists today’s locations, re-read on the move check while tracking', () => {
+    renderWithProviders(<DashboardScreen state={state} />);
+    expect(propsOf(screen.getByTestId('today-locations'))).toEqual({
+      timezone: 'Europe/London',
+      attendanceMarked: true,
+      tracking: true,
+    });
+  });
+
+  it('tells the locations list nothing is marked or running before the day is known', () => {
+    renderWithProviders(<DashboardScreen state={{ ...state, status: 'idle', workday: null }} />);
+    expect(propsOf(screen.getByTestId('today-locations'))).toEqual({
+      timezone: 'Europe/London',
+      attendanceMarked: false,
+      tracking: false,
     });
   });
 
@@ -152,6 +180,21 @@ describe('TrackerCard', () => {
       'aria-disabled',
       'true',
     );
+  });
+
+  it('replaces the attendance gate and the buttons with why today is off', () => {
+    const leave = {
+      ...WORKDAY,
+      attendanceMarked: false,
+      offReason: 'LEAVE' as const,
+      offLabel: 'EL',
+    };
+    renderWithProviders(<TrackerCard state={trackerState({ workday: leave })} />);
+    expect(
+      screen.getByText('You’re on approved leave (EL) today — tracking is paused.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('attendance-form')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
   });
 
   it('puts the presence control above the buttons, in the employee’s zone', () => {

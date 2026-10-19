@@ -28,6 +28,7 @@ const NATIVE_STUBS: [RegExp, string][] = [
   [/^expo-font$/, 'expo-font.ts'],
   [/^expo-image$/, 'expo-image.tsx'],
   [/^expo-localization$/, 'expo-localization.ts'],
+  [/^expo-location$/, 'expo-location.ts'],
   [/^expo-notifications$/, 'expo-notifications.ts'],
   [/^expo-router$/, 'expo-router.tsx'],
   [/^expo-router\/tabs$/, 'expo-router-tabs.tsx'],

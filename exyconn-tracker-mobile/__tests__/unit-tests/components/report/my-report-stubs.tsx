@@ -18,11 +18,20 @@ export function OverviewStub({
 }
 
 export function CalendarStub({
+  marks,
+  labels,
   onSelect,
   onMonthChange,
-}: Readonly<{ onSelect: (date: Date) => void; onMonthChange: (month: Date) => void }>) {
+}: Readonly<{
+  marks: ReadonlyMap<string, string>;
+  labels: ReadonlyMap<string, string>;
+  onSelect: (date: Date) => void;
+  onMonthChange: (month: Date) => void;
+}>) {
   return (
     <div>
+      <div data-testid="calendar-marks">{JSON.stringify(Object.fromEntries(marks))}</div>
+      <div data-testid="calendar-labels">{JSON.stringify(Object.fromEntries(labels))}</div>
       <button type="button" onClick={() => onSelect(new Date(2025, 11, 25))}>
         Pick Christmas
       </button>

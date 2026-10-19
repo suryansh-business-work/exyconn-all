@@ -9,12 +9,20 @@ describe('CAMPAIGN_COLUMNS', () => {
   it('lists the campaign register columns, with the actions last', () => {
     expect(columnIds(CAMPAIGN_COLUMNS)).toEqual([
       'name',
-      'channel',
-      'budget',
+      'campaignType',
+      'subject',
+      'sendState',
       'lastSentAt',
-      'status',
+      'budget',
       'actions',
     ]);
+  });
+
+  it('shows the subject, or a dash before one is written', () => {
+    expect(formatCell(CAMPAIGN_COLUMNS, 'subject', campaignRow())).toBe('Festive savings');
+    expect(formatCell(CAMPAIGN_COLUMNS, 'subject', campaignRow({ subject: '' }))).toBe('—');
+    expect(formatCell(CAMPAIGN_COLUMNS, 'subject', campaignRow({ subject: null }))).toBe('—');
+    expect(formatCell(CAMPAIGN_COLUMNS, 'subject', undefined)).toBe('');
   });
 
   it('writes the budget as a grouped number', () => {
@@ -45,6 +53,6 @@ describe('CAMPAIGN_COLUMNS', () => {
 
     expect(specs.map((spec) => spec.key)).toEqual(['view', 'send', 'edit', 'delete']);
     expect(specs[0].label).toBe('view campaign');
-    expect(specs[1]).toMatchObject({ label: 'send campaign', color: 'primary' });
+    expect(specs[1]).toMatchObject({ label: 'review and send', color: 'primary' });
   });
 });

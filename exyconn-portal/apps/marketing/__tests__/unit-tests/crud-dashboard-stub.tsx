@@ -22,6 +22,7 @@ export interface DashboardProps {
   context: { actions: Record<string, RowAction>; formatDate?: (value: string) => string };
   searchPlaceholder: string;
   extraDialogs?: ReactNode;
+  toolbar?: ReactNode;
 }
 
 /** The last props the stand-in rendered with. */
@@ -36,8 +37,8 @@ export function dashboardProps(): DashboardProps {
 /**
  * Stands in for `@exyconn/crud`'s CrudDashboard (ag-grid does not lay out under jsdom): it
  * records its props, lists the stat tiles as "label: value", and renders what the real one
- * renders from the page's own props — the form while the CRUD state is open, and the page's
- * extra dialogs.
+ * renders from the page's own props — the toolbar, the form while the CRUD state is open, and
+ * the page's extra dialogs.
  */
 export function CrudDashboardStub(props: Readonly<DashboardProps>) {
   dashboard.props = props;
@@ -49,6 +50,7 @@ export function CrudDashboardStub(props: Readonly<DashboardProps>) {
           <li key={stat.label}>{`${stat.label}: ${stat.value}`}</li>
         ))}
       </ul>
+      {props.toolbar}
       <button type="button" onClick={props.crud.openCreate}>
         Open new form
       </button>

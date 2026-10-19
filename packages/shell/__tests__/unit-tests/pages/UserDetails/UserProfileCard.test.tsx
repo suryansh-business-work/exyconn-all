@@ -21,7 +21,11 @@ describe('UserProfileCard', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Meera Nair' })).toBeInTheDocument();
-    expect(screen.getByText('meera@example.com')).toBeInTheDocument();
+    // Under the name, and again as the official address in the contact facts.
+    expect(screen.getByRole('link', { name: 'meera@example.com' })).toHaveAttribute(
+      'href',
+      'mailto:meera@example.com',
+    );
     expect(screen.getByText('MN')).toBeInTheDocument();
     expect(screen.getByText('ONLINE')).toBeInTheDocument();
     expect(screen.getAllByText('ACTIVE').length).toBeGreaterThan(0);

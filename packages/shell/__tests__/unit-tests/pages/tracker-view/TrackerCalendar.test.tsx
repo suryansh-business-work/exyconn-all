@@ -17,6 +17,7 @@ const days = buildTrackerMonth(
 function renderCalendar(
   selectedDate: string | null = null,
   dayMarks?: ReadonlyMap<string, TrackerDayMark>,
+  dayLabels?: ReadonlyMap<string, string>,
 ) {
   const onSelectDay = vi.fn();
   renderWithProviders(
@@ -25,6 +26,7 @@ function renderCalendar(
       selectedDate={selectedDate}
       onSelectDay={onSelectDay}
       dayMarks={dayMarks}
+      dayLabels={dayLabels}
     />,
   );
   return onSelectDay;
@@ -108,6 +110,29 @@ describe('TrackerCalendar', () => {
     expect(dayButtons()[4]).toHaveTextContent(/^5$/);
     // 1 April sits in the padding after March: a mark there is not this month's to show.
     expect(dayButtons()[31]).toHaveTextContent(/^1$/);
+  });
+
+  it('names a week off, and calls leave by its code and a holiday by its name', () => {
+    renderCalendar(
+      null,
+      new Map<string, TrackerDayMark>([
+        ['2026-03-04', 'LEAVE'],
+        ['2026-03-06', 'HOLIDAY'],
+        ['2026-03-07', 'WEEK_OFF'],
+        ['2026-04-02', 'HOLIDAY'],
+      ]),
+      new Map([
+        ['2026-03-04', 'CL'],
+        ['2026-03-06', 'Holi'],
+        ['2026-04-02', 'Not this month'],
+      ]),
+    );
+
+    expect(within(dayButtons()[3]).getByText('CL')).toBeInTheDocument();
+    expect(within(dayButtons()[3]).queryByText('Leave')).not.toBeInTheDocument();
+    expect(within(dayButtons()[5]).getByText('Holi')).toBeInTheDocument();
+    expect(within(dayButtons()[6]).getByText('Week off')).toBeInTheDocument();
+    expect(screen.queryByText('Not this month')).not.toBeInTheDocument();
   });
 
   it('outlines a short day apart from an unmarked one', () => {

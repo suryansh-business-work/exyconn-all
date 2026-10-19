@@ -25,27 +25,48 @@ describe('AttendanceDayCell', () => {
       <AttendanceDayCell day={day({ status: 'LEAVE_PENDING', isToday: true })} />,
     );
     const cell = screen.getByLabelText('7 September, Leave requested');
-    expect(cell).toHaveTextContent('7Leave requested');
+    expect(cell).toHaveTextContent(/^7Leave requested$/);
   });
 
-  it('names a holiday once, in the status, on a holiday', () => {
+  it('calls a holiday by its name on the day, the label saying it is a public holiday', () => {
     renderWithProviders(
       <AttendanceDayCell day={day({ status: 'HOLIDAY', holiday: 'Ganesh Chaturthi' })} />,
     );
     const cell = screen.getByLabelText('7 September, Public holiday, Ganesh Chaturthi');
-    expect(cell).toHaveTextContent('7Public holiday');
-    expect(screen.queryByText('Ganesh Chaturthi')).toBeNull();
+    expect(cell).toHaveTextContent(/^7Ganesh Chaturthi$/);
+    expect(screen.queryByText('Public holiday')).toBeNull();
   });
 
-  it('adds the holiday name under another status, such as leave on a holiday', () => {
+  it('writes the leave code under the leave status', () => {
+    renderWithProviders(
+      <AttendanceDayCell day={day({ status: 'LEAVE_APPROVED', leaveType: 'CL' })} />,
+    );
+    const cell = screen.getByLabelText('7 September, Leave approved, CL');
+    expect(cell).toHaveTextContent(/^7Leave approvedCL$/);
+  });
+
+  it('marks a week off in words', () => {
+    renderWithProviders(<AttendanceDayCell day={day({ status: 'WEEK_OFF' })} />);
+    expect(screen.getByLabelText('7 September, Week off')).toHaveTextContent(/^7Week off$/);
+  });
+
+  it('adds the holiday name under another status, such as attendance marked on a holiday', () => {
     renderWithProviders(
       <AttendanceDayCell
-        day={day({ status: 'LEAVE_APPROVED', holiday: 'Ganesh Chaturthi', inMonth: false })}
+        day={day({ status: 'PRESENT', holiday: 'Ganesh Chaturthi', inMonth: false })}
       />,
     );
-    expect(
-      screen.getByLabelText('7 September, Leave approved, Ganesh Chaturthi'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Ganesh Chaturthi')).toBeInTheDocument();
+    const cell = screen.getByLabelText('7 September, Attendance marked, Ganesh Chaturthi');
+    expect(cell).toHaveTextContent(/^7Attendance markedGanesh Chaturthi$/);
+  });
+
+  it('prefers the leave code to the holiday name in the note when a day carries both', () => {
+    renderWithProviders(
+      <AttendanceDayCell
+        day={day({ status: 'LEAVE_APPROVED', leaveType: 'EL', holiday: 'Ganesh Chaturthi' })}
+      />,
+    );
+    const cell = screen.getByLabelText('7 September, Leave approved, EL, Ganesh Chaturthi');
+    expect(cell).toHaveTextContent(/^7Leave approvedEL$/);
   });
 });

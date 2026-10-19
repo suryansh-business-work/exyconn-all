@@ -10,6 +10,8 @@ import { marketingCustomResolvers } from '../../../../src/modules/marketing/mark
 import { MarketingSuppressionModel } from '../../../../src/modules/marketing/suppression.model';
 import { MarketingUnsubscribeTokenModel } from '../../../../src/modules/marketing/unsubscribe-token.model';
 import { logger } from '../../../../src/utils/logger';
+import { runForOrganization } from '../../../../src/lib/tenant';
+import { Types } from 'mongoose';
 
 beforeEach(async () => {
   await unsubscribeLimiter.reset();
@@ -82,12 +84,17 @@ describe('issueUnsubscribeTokens', () => {
 
 describe('unsubscribing', () => {
   it('honours a freshly issued token and records which campaign prompted it', async () => {
-    const issued = await issueUnsubscribeTokens(['ada@x.com'], 'c9');
+    // Issued by a company's send: the public link is resolved to that company first.
+    const organizationId = new Types.ObjectId().toHexString();
+    const issued = await runForOrganization(organizationId, () =>
+      issueUnsubscribeTokens(['ada@x.com'], 'c9'),
+    );
 
     await expect(unsubscribeByToken(issued.get('ada@x.com') ?? '', 'caller-1')).resolves.toBe(true);
 
     const row = await MarketingSuppressionModel.findOne({ email: 'ada@x.com' }).lean();
     expect(row).toMatchObject({ reason: 'UNSUBSCRIBED', source: 'campaign:c9' });
+    expect(String(row?.organizationId)).toBe(organizationId);
   });
 
   it('stops a caller that is over the hourly limit before looking at the token', async () => {
@@ -96,7 +103,8 @@ describe('unsubscribing', () => {
 
     await expect(unsubscribeByToken('anything', 'caller-2')).rejects.toThrow(/Too many attempts/);
     expect(lookup).not.toHaveBeenCalled();
-    expect(logger.warn).toHaveBeenCalledWith('Unsubscribe from caller-2 rate-limited');
+    // The caller (an IP address) is personal data and stays out of the log.
+    expect(logger.warn).toHaveBeenCalledWith('Unsubscribe rate-limited');
   });
 
   it('rate-limits a caller with no known address under one shared key', async () => {

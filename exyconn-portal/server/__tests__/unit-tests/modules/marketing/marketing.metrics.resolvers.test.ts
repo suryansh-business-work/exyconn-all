@@ -1,7 +1,9 @@
 import {
   campaignMetricsFor,
+  campaignStudioTypeDefs,
   marketingMetricsResolvers,
   marketingMetricsTypeDefs,
+  marketingResolvers,
   marketingTypeDefs,
 } from '../../../../src/modules/marketing';
 import { print } from 'graphql';
@@ -69,18 +71,24 @@ describe('campaignTopLinks', () => {
 
 describe('the marketing schema', () => {
   it('declares the operations the resolvers serve', () => {
-    const schema = [marketingTypeDefs, marketingMetricsTypeDefs]
+    const schema = [marketingTypeDefs, campaignStudioTypeDefs, marketingMetricsTypeDefs]
       .map((typeDefs) => print(typeDefs))
       .join('\n');
+    const served: Record<string, unknown> = {
+      ...marketingResolvers.Query,
+      ...marketingResolvers.Mutation,
+      ...marketingMetricsResolvers.Query,
+    };
 
     for (const operation of [
-      'sendCampaign',
-      'campaignPreview',
+      'queueCampaignSend',
+      'previewCampaignContent',
       'unsubscribeFromMarketing',
       'campaignMetrics',
       'campaignTopLinks',
     ]) {
-      expect(schema).toContain(operation);
+      expect(schema).toContain(`${operation}(`);
+      expect(served[operation]).toEqual(expect.any(Function));
     }
   });
 });

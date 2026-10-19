@@ -1,4 +1,6 @@
 import express from 'express';
+import { Types } from 'mongoose';
+import { runForOrganization } from '../../../../src/lib/tenant';
 import {
   TRACKING_PATH,
   marketingTrackingRouter,
@@ -15,16 +17,25 @@ export const trackingApp = () => {
   return server;
 };
 
-/** One delivered copy with its own tracking token; returns the token and the row id. */
+/** The company the seeded copies were sent by: a tracking token resolves to it. */
+export const SENDER_ORGANIZATION = new Types.ObjectId().toHexString();
+
+/**
+ * One copy delivered a minute ago, by a company, with its own tracking token; returns the
+ * token and the row id. A minute ago: opens in the first seconds are mail scanners, not reads.
+ */
 export async function seedSend(campaignId = 'camp-1') {
   const { token, tokenHash } = newTrackingToken();
-  const row = await CampaignSendModel.create({
-    campaignId,
-    audienceListId: 'aud-1',
-    to: 'ada@example.com',
-    status: 'SENT',
-    trackingTokenHash: tokenHash,
-  });
+  const row = await runForOrganization(SENDER_ORGANIZATION, () =>
+    CampaignSendModel.create({
+      campaignId,
+      audienceListId: 'aud-1',
+      to: 'ada@example.com',
+      status: 'SENT',
+      trackingTokenHash: tokenHash,
+      sentAt: new Date(Date.now() - 60_000),
+    }),
+  );
   return { token, id: row._id };
 }
 

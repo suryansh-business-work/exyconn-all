@@ -6,7 +6,12 @@ import { PolicyAcknowledgementModel } from '../../../../src/modules/legal/policy
 import { TrackerManualEntryModel } from '../../../../src/modules/tracker/models';
 import { GLOBAL_PROJECT } from '../../../../src/modules/tracker/tracker.constants';
 import { trackerWorkdayService } from '../../../../src/modules/tracker/tracker.workday.service';
-import { freezeClock } from '../../../helpers';
+import { LeaveRequestModel } from '../../../../src/modules/hr/hr.model';
+import { saveDefaultWorkDays } from '../../../../src/modules/admin/work-week';
+import { freezeClock, useTestOrganization } from '../../../helpers';
+
+// Today's workday reads whether today is off, which reads the company's holiday calendar.
+useTestOrganization();
 
 const ME = new Types.ObjectId().toHexString();
 const COLLEAGUE = new Types.ObjectId().toHexString();
@@ -172,6 +177,46 @@ describe('today’s workday', () => {
       attendanceStatus: null,
       attendanceNote: null,
       attendanceMarked: false,
+      offReason: null,
+      offLabel: null,
+    });
+  });
+
+  it('says why today is off: the week off, or the leave type', async () => {
+    freezeClock('2026-09-05T12:00:00.000Z'); // a Saturday
+    await expect(trackerWorkdayService.workday(ME, {}, 'UTC')).resolves.toMatchObject({
+      date: '2026-09-05',
+      offReason: 'WEEKEND',
+      offLabel: null,
+    });
+
+    freezeClock('2026-09-04T12:00:00.000Z'); // the Friday before
+    await LeaveRequestModel.create({
+      employeeId: ME,
+      type: 'EL',
+      fromDate: new Date('2026-09-04T00:00:00.000Z'),
+      toDate: new Date('2026-09-04T00:00:00.000Z'),
+      reason: 'Travel',
+      status: 'APPROVED',
+    });
+    await expect(trackerWorkdayService.workday(ME, {}, 'UTC')).resolves.toMatchObject({
+      offReason: 'LEAVE',
+      offLabel: 'EL',
+    });
+  });
+});
+
+describe('the work profile', () => {
+  it('carries the employee’s own week when they have one', async () => {
+    await expect(
+      trackerWorkdayService.workProfileOf({ workHoursPerDay: 6, workDays: [0, 6] }),
+    ).resolves.toMatchObject({ workDays: [0, 6], targetMs: 6 * 3_600_000 });
+  });
+
+  it('carries the workspace week when they have none', async () => {
+    await saveDefaultWorkDays([1, 2, 3, 4]);
+    await expect(trackerWorkdayService.workProfileOf({})).resolves.toMatchObject({
+      workDays: [1, 2, 3, 4],
     });
   });
 });

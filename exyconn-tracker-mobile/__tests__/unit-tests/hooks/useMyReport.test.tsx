@@ -1,11 +1,13 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { monthBounds, type ReportDay } from '@exyconn/tracker-core';
-import { describe, expect, it, vi } from 'vitest';
+import { monthBounds, type ExpectedRange, type ReportDay } from '@exyconn/tracker-core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useMyReport } from '../../../src/hooks/useMyReport';
 import { tracker } from '../../../src/tracker/instance';
 import { deferred } from './deferred';
 
-vi.mock('../../../src/tracker/instance', () => ({ tracker: { getReport: vi.fn() } }));
+vi.mock('../../../src/tracker/instance', () => ({
+  tracker: { getReport: vi.fn(), getExpected: vi.fn() },
+}));
 
 const LOAD_FAILED = 'Could not load your report. Check your connection and try again.';
 const SEPTEMBER = new Date(2026, 8, 1);
@@ -14,6 +16,15 @@ const OCTOBER = new Date(2026, 9, 1);
 function reportDay(date: string, activeMs: number, idleMs: number): ReportDay {
   return { date, activeMs, idleMs, keyCount: 0, mouseCount: 0, sessions: 1 };
 }
+
+const CONTRACT: ExpectedRange = {
+  workHoursPerDay: 8,
+  days: [{ date: '2026-09-01', expectedMs: 8 * 3_600_000, offReason: null, offLabel: null }],
+};
+
+beforeEach(() => {
+  vi.mocked(tracker.getExpected).mockResolvedValue(CONTRACT);
+});
 
 const DAYS = [reportDay('2026-09-01', 3_000, 1_000), reportDay('2026-09-02', 5_000, 1_000)];
 
@@ -25,7 +36,9 @@ describe('useMyReport', () => {
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(tracker.getReport).toHaveBeenCalledWith(fromISO, toISO);
+    expect(tracker.getExpected).toHaveBeenCalledWith(fromISO, toISO);
     expect(result.current.days).toEqual(DAYS);
+    expect(result.current.contract).toEqual(CONTRACT);
     expect(result.current.totals).toEqual({ activeMs: 8_000, idleMs: 2_000, activityPercent: 80 });
   });
 
@@ -51,6 +64,7 @@ describe('useMyReport', () => {
     const { result } = renderHook(() => useMyReport(SEPTEMBER, 'UTC'));
     await waitFor(() => expect(result.current.error).toBe(LOAD_FAILED));
     expect(result.current.days).toEqual([]);
+    expect(result.current.contract).toBeNull();
     expect(result.current.totals.activeMs).toBe(0);
     expect(result.current.loading).toBe(false);
     expect(error).toHaveBeenCalledWith('Failed to load report', expect.any(Error));

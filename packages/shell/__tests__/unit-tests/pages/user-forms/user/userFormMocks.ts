@@ -7,6 +7,7 @@ import {
   ListPositionsDocument,
   SaveEmployeeSalaryDocument,
   UpdateUserDocument,
+  WorkWeekDocument,
 } from '@/graphql/generated';
 import type { EmployeeSalary } from '@/components/pay';
 import { makeSalary } from './userFixtures';
@@ -101,6 +102,11 @@ export function directoryMocks(): MockLink.MockedResponse[] {
           ],
         },
       },
+    },
+    {
+      // The company works Monday to Friday; an employee with no days of their own follows it.
+      request: { query: WorkWeekDocument },
+      result: { data: { workWeek: { __typename: 'WorkWeek', defaultWorkDays: [1, 2, 3, 4, 5] } } },
     },
   ];
 }

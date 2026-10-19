@@ -18,13 +18,18 @@ import {
 } from '../../src/modules/tracker/models';
 import { updateTrackerSettings } from '../../src/modules/tracker/tracker.settings.service';
 import { runForOrganization, runInScope } from '../../src/lib/tenant';
-import { seedOrganization, seedUser } from '../helpers';
+import { seedOrganization, seedUser, useTestOrganization, useWorkingEveryDay } from '../helpers';
 import { officeFix } from '../fixtures/location';
 
 // The mailer talks to SMTP; stub the access-granted email so grants work offline.
 jest.mock('../../src/utils/mailer', () => ({
   mailer: { sendTrackerAccessEmail: jest.fn().mockResolvedValue(undefined) },
 }));
+
+// Off days are covered by tracker.offday and tracker.expected.service; here every day is a
+// working day, in a company, so the suite does not depend on the day it runs.
+useTestOrganization();
+useWorkingEveryDay();
 
 const PASSWORD = 'Tracked@123';
 const DEVICE = { deviceId: 'device-1', platform: 'win32', hostname: 'PC', appVersion: '1.0.0' };

@@ -42,4 +42,28 @@ describe('DashboardScreen', () => {
     expect(text).toContain('42');
     expect(text).toContain('0h 2m 0s');
   });
+
+  it('shows one off-day banner in place of the attendance gate and the controls', async () => {
+    const idle = trackerState('idle');
+    const state = {
+      ...idle,
+      workday: { ...idle.workday!, offReason: 'LEAVE' as const, offLabel: 'CL' },
+    };
+    await mount(<DashboardScreen state={state} />, state);
+    const text = document.body.textContent ?? '';
+    expect(text).toContain('You’re on approved leave (CL) today — tracking is paused.');
+    expect(text).not.toContain('Mark your attendance for today before you start tracking.');
+    const labels = [...document.querySelectorAll('button')].map((node) => node.textContent);
+    expect(labels).not.toContain('Start');
+    expect(labels).not.toContain('Mark attendance');
+  });
+
+  it('shows the attendance gate and the controls on a working day', async () => {
+    const state = trackerState('idle');
+    await mount(<DashboardScreen state={state} />, state);
+    expect(document.body.textContent).toContain(
+      'Mark your attendance for today before you start tracking.',
+    );
+    expect(buttonNamed('Start')).toBeDefined();
+  });
 });

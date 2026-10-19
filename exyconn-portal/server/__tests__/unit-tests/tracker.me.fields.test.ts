@@ -10,10 +10,16 @@ import { trackerResolvers } from '../../src/modules/tracker/tracker.resolvers';
 import { trackerTypeDefs } from '../../src/modules/tracker/tracker.typeDefs';
 import { TrackerDeviceModel } from '../../src/modules/tracker/models';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { useWorkingEveryDay } from '../helpers';
 
 jest.mock('../../src/utils/mailer', () => ({
   mailer: { sendTrackerAccessEmail: jest.fn().mockResolvedValue(undefined) },
 }));
+
+// Off days are covered by tracker.offday and tracker.expected.service; here every day is a
+// working day, so the suite does not depend on the day it runs. The employee's country is
+// set, so their holiday calendar is read without a company in scope.
+useWorkingEveryDay();
 
 const DEVICE_ID = 'device-me-fields';
 let signedInUserId = '';
@@ -36,6 +42,7 @@ function nonNullScalars(typeName: string): string[] {
 describe('trackerMe payload', () => {
   it('answers every non-null scalar TrackerMe declares', async () => {
     const user = await UserModel.create({
+      country: 'IN',
       name: 'Emp',
       email: 'me-fields@exyconn.com',
       passwordHash: randomUUID(),

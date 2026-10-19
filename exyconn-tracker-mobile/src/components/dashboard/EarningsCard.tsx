@@ -17,7 +17,7 @@ interface Props {
 interface PeriodProps {
   /** Already translated. */
   label: string;
-  earnings: TrackerEarnings | null;
+  earnings: TrackerEarnings;
 }
 
 /** One period: the amount, and the "hours × rate" it was worked out from. */
@@ -25,20 +25,16 @@ function EarningsPeriod({ label, earnings }: Readonly<PeriodProps>) {
   const t = useT();
   const { formatCurrency, formatNumber } = useFormatters();
   const money = (value: number | null): string =>
-    formatCurrency(value, { currency: earnings?.currency });
-  const amount = earnings === null ? '—' : money(earnings.amount);
-  const workings =
-    earnings === null
-      ? ''
-      : t('{hours} h × {rate} per hour', {
-          hours: formatNumber(earnings.trackedMs / MS_PER_HOUR, { maximumFractionDigits: 2 }),
-          rate: money(earnings.rate),
-        });
+    formatCurrency(value, { currency: earnings.currency });
+  const workings = t('{hours} h × {rate} per hour', {
+    hours: formatNumber(earnings.trackedMs / MS_PER_HOUR, { maximumFractionDigits: 2 }),
+    rate: money(earnings.rate),
+  });
   return (
     <YStack flex={1} minWidth={0} gap="$0.5">
       <Caption>{label}</Caption>
       <Body size="$6" fontWeight="700" fontVariant={['tabular-nums']}>
-        {amount}
+        {money(earnings.amount)}
       </Body>
       <Caption>{workings}</Caption>
     </YStack>
@@ -53,8 +49,9 @@ export function EarningsCard({ timezone, lastSyncAt }: Readonly<Props>) {
   const t = useT();
   const { today, month, failed } = useEarnings(timezone, lastSyncAt);
   // Only hourly pay has an amount. A failed read stays hidden unless an earlier read showed
-  // one (the last good answer is kept), so salaried staff never see an earnings error.
-  if (month?.amount == null) {
+  // one (the last good answer is kept), so salaried staff never see an earnings error. Today
+  // and the month arrive together (useEarnings), so a month on show always has its today.
+  if (today === null || month?.amount == null) {
     return null;
   }
   return (

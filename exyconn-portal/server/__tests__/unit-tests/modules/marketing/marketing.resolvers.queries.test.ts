@@ -33,11 +33,15 @@ describe('the marketing resolver map', () => {
         'listCampaignsPaged',
         'listAudienceListsPaged',
         'listMarketingSuppressionsPaged',
-        'campaignPreview',
+        'previewCampaignContent',
       ]),
     );
     expect(Object.keys(marketingResolvers.Mutation)).toEqual(
-      expect.arrayContaining(['createCampaign', 'sendCampaign', 'unsubscribeFromMarketing']),
+      expect.arrayContaining([
+        'saveCampaignDraft',
+        'queueCampaignSend',
+        'unsubscribeFromMarketing',
+      ]),
     );
   });
 });

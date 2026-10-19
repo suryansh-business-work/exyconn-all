@@ -6,6 +6,7 @@ import { runAsPlatform, setDefaultScope } from '../src/lib/tenant';
 import type { TaxSystem } from '../src/modules/organizations/organization.model';
 import type { Role } from '../src/constants/roles';
 import { issueCaptcha } from '../src/modules/website/website.captcha';
+import { saveDefaultWorkDays } from '../src/modules/admin/work-week';
 
 /**
  * The company every seeded person belongs to, as they do in a real install: a request
@@ -107,5 +108,18 @@ export function freezeClock(iso: string): void {
       'setTimeout',
       'clearTimeout',
     ],
+  });
+}
+
+/**
+ * Makes every day of the week a working day, for suites whose subject is not the week off.
+ *
+ * The tracker refuses attendance and sessions on an employee's week off, so a suite that
+ * marks attendance on the real clock would otherwise pass on a weekday and fail on a weekend.
+ * Written before every test because the harness empties every collection after each one.
+ */
+export function useWorkingEveryDay(): void {
+  beforeEach(async () => {
+    await saveDefaultWorkDays([0, 1, 2, 3, 4, 5, 6]);
   });
 }

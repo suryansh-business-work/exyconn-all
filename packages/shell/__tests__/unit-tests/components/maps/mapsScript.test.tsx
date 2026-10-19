@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { useMapsScript } from '@exyconn/shell/components/maps/mapsScript';
+import { portalLogger } from '@/logging/portalLogger';
+import { useMapsScript } from '@/components/maps/mapsScript';
 
 const loader = vi.hoisted(() => ({ options: vi.fn() }));
 

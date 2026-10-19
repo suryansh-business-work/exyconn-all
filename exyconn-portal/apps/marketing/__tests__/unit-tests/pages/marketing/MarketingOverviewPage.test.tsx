@@ -1,32 +1,30 @@
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen, within } from '@testing-library/react';
-import { DEFAULT_FORMAT_SETTINGS, formatDate } from '@exyconn/i18n';
-import { formatMoney } from '@exyconn/shell/utils/money';
+import { screen } from '@testing-library/react';
 import { MarketingOverviewPage } from '../../../../src/pages/marketing';
 import { renderWithProviders } from '../../test-utils';
-import { answered, campaignRow, pending, tableStats } from '../../fixtures';
+import { answered, pending } from '../../fixtures';
 
 interface OverviewProps {
   title: string;
   stats: { label: string; value: string }[];
   statsLoading: boolean;
-  breakdowns: { title: string; buckets: unknown[] }[];
+  breakdowns: { title: string; buckets: { value: string; count: number }[] }[];
   links: { label: string; to: string }[];
   recentTitle: string;
   children: ReactNode;
 }
 
-const recorded = vi.hoisted(() => {
-  const hooks: Record<string, () => unknown> = {};
-  return { overview: null as unknown, hooks };
-});
+const recorded = vi.hoisted(() => ({
+  overview: null as unknown,
+  dashboard: vi.fn(),
+  leads: vi.fn(),
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
-  useListCampaignsStatsQuery: () => recorded.hooks.stats(),
-  useListCampaignsQuery: () => recorded.hooks.campaigns(),
-  useCampaignLeadCountsQuery: () => recorded.hooks.leads(),
+  useMarketingDashboardQuery: (options: unknown) => recorded.dashboard(options),
+  useCampaignLeadCountsQuery: () => recorded.leads(),
 }));
 
 vi.mock('@exyconn/shell/components/dashboard/ModuleOverview', () => ({
@@ -36,125 +34,136 @@ vi.mock('@exyconn/shell/components/dashboard/ModuleOverview', () => ({
   },
 }));
 
+vi.mock('../../../../src/pages/marketing/DashboardActivity', () => ({
+  DashboardActivity: ({ dashboard }: Readonly<{ dashboard: { campaigns: number } }>) => (
+    <p>{`Activity of ${dashboard.campaigns} campaigns`}</p>
+  ),
+}));
+
 const overview = () => recorded.overview as OverviewProps;
 const stat = (label: string) => overview().stats.find((item) => item.label === label)?.value;
 
-const CAMPAIGNS = [
-  campaignRow({
-    id: 'c1',
-    name: 'Diwali offer',
-    lastSentAt: '2026-10-02T00:00:00Z',
-    recipientsCount: 120,
-  }),
-  campaignRow({ id: 'c2', name: 'Winter sale', recipientsCount: null }),
-];
-const STATS = tableStats(
-  2,
-  { status: { ACTIVE: 1, PLANNED: 1 }, channel: { EMAIL: 2 } },
-  { budget: 240000 },
-);
-
-const loadedHooks = () => ({
-  stats: () => answered({ listCampaignsStats: STATS }),
-  campaigns: () => answered({ listCampaigns: CAMPAIGNS }),
-  leads: () =>
-    answered({
-      campaignLeadCounts: [{ campaignId: 'c1', campaignName: 'Diwali offer', leads: 5 }],
-    }),
-});
+const DASHBOARD = {
+  __typename: 'MarketingDashboard',
+  campaigns: 12,
+  drafts: 4,
+  scheduled: 3,
+  sending: 1,
+  sentLast30: 2500,
+  failedLast30: 7,
+  clickedLast30: 300,
+  clickRateLast30: 12,
+  unsubscribesLast30: 9,
+  suppressed: 41,
+  audiences: 6,
+  upcoming: [],
+  recent: [],
+  daily: [],
+};
 
 describe('MarketingOverviewPage', () => {
   beforeEach(() => {
-    recorded.hooks = loadedHooks();
+    recorded.dashboard.mockReset();
+    recorded.leads.mockReset();
+    recorded.dashboard.mockReturnValue(answered({ marketingDashboard: DASHBOARD }));
+    recorded.leads.mockReturnValue(
+      answered({
+        campaignLeadCounts: [
+          { campaignId: 'c1', campaignName: 'Diwali offer', leads: 5 },
+          { campaignId: 'c2', campaignName: 'Winter sale', leads: 3 },
+        ],
+      }),
+    );
   });
 
-  it('adds up what ran, who it reached and what it brought in', () => {
+  it('reads the tiles from the server dashboard, keeping it fresh', () => {
     renderWithProviders(<MarketingOverviewPage />);
 
+    expect(recorded.dashboard).toHaveBeenCalledWith({ fetchPolicy: 'cache-and-network' });
     expect(overview().title).toBe('Marketing');
     expect(overview().statsLoading).toBe(false);
-    expect(stat('Campaigns')).toBe('2');
-    expect(stat('Sent')).toBe('1');
-    expect(stat('Recipients reached')).toBe('120');
-    expect(stat('Leads generated')).toBe('5');
-    expect(stat('Budget')).toBe(formatMoney(240000));
+    expect(overview().stats.map((item) => item.label)).toEqual([
+      'Campaigns',
+      'Scheduled',
+      'Sent (30 days)',
+      'Click rate (30 days)',
+      'Unsubscribes (30 days)',
+      'Leads generated',
+    ]);
+    expect(stat('Campaigns')).toBe('12');
+    expect(stat('Scheduled')).toBe('3');
+    expect(stat('Sent (30 days)')).toBe((2500).toLocaleString('en'));
+    expect(stat('Click rate (30 days)')).toBe('12%');
+    expect(stat('Unsubscribes (30 days)')).toBe('9');
   });
 
-  it('breaks the campaigns down by status and channel', () => {
+  it('adds up the leads every campaign brought in', () => {
+    renderWithProviders(<MarketingOverviewPage />);
+    expect(stat('Leads generated')).toBe('8');
+  });
+
+  it('breaks the campaigns down by delivery and reach', () => {
     renderWithProviders(<MarketingOverviewPage />);
 
-    expect(overview().breakdowns.map((breakdown) => breakdown.title)).toEqual([
-      'By status',
-      'By channel',
+    expect(overview().breakdowns).toMatchObject([
+      {
+        title: 'Campaigns by delivery',
+        buckets: [
+          { value: 'DRAFT', count: 4 },
+          { value: 'QUEUED', count: 3 },
+          { value: 'SENDING', count: 1 },
+        ],
+      },
+      {
+        title: 'Reach',
+        buckets: [
+          { value: 'AUDIENCES', count: 6 },
+          { value: 'SUPPRESSED', count: 41 },
+          { value: 'FAILED (30 DAYS)', count: 7 },
+        ],
+      },
     ]);
-    expect(overview().breakdowns[1].buckets).toEqual([{ value: 'EMAIL', count: 2 }]);
   });
 
-  it('links to the campaigns, audiences and suppression list', () => {
+  it('links to a new campaign and every marketing screen', () => {
     renderWithProviders(<MarketingOverviewPage />);
 
     expect(overview().links.map((link) => link.to)).toEqual([
+      '/marketing/campaigns/new',
       '/marketing/campaigns',
       '/marketing/audiences',
+      '/marketing/templates',
+      '/marketing/preferences',
       '/marketing/suppression',
     ]);
-    expect(overview().recentTitle).toBe('Newest campaigns');
+    expect(overview().recentTitle).toBe('Activity');
   });
 
-  it.each(['stats', 'campaigns', 'leads'])(
-    'marks the tiles loading while %s has not answered',
-    (hook) => {
-      recorded.hooks = { ...loadedHooks(), [hook]: pending };
-      renderWithProviders(<MarketingOverviewPage />);
-
-      expect(overview().statsLoading).toBe(true);
-    },
-  );
-
-  it('shows zeros and empty breakdowns before anything arrives', () => {
-    recorded.hooks = { stats: pending, campaigns: pending, leads: pending };
+  it('shows the activity once the dashboard arrives', () => {
     renderWithProviders(<MarketingOverviewPage />);
-
-    expect(overview().stats.map((item) => item.value)).toEqual([
-      '0',
-      '0',
-      '0',
-      '0',
-      formatMoney(0),
-    ]);
-    expect(overview().breakdowns.map((breakdown) => breakdown.buckets)).toEqual([[], []]);
+    expect(screen.getByText('Activity of 12 campaigns')).toBeInTheDocument();
   });
 
-  it('lists the newest campaigns with their start date and the leads each brought', () => {
+  it('shows zeros, loading tiles and no breakdowns before anything arrives', () => {
+    recorded.dashboard.mockReturnValue(pending());
+    recorded.leads.mockReturnValue(pending());
     renderWithProviders(<MarketingOverviewPage />);
-    const [, first, second] = screen.getAllByRole('row');
 
-    expect(within(first).getByText('Diwali offer')).toBeInTheDocument();
-    expect(within(first).getByText('ACTIVE')).toBeInTheDocument();
-    expect(
-      within(first).getByText(formatDate(CAMPAIGNS[0].startDate, DEFAULT_FORMAT_SETTINGS)),
-    ).toBeInTheDocument();
-    expect(within(first).getByText('120')).toBeInTheDocument();
-    expect(within(first).getByText('5')).toBeInTheDocument();
-    expect(within(second).getByText('Winter sale')).toBeInTheDocument();
-    expect(within(second).getByText('0')).toBeInTheDocument();
+    expect(overview().statsLoading).toBe(true);
+    expect(overview().stats.map((item) => item.value)).toEqual(['0', '0', '0', '0%', '0', '0']);
+    expect(overview().breakdowns).toEqual([]);
+    expect(screen.queryByText(/Activity of/)).toBeNull();
   });
 
-  it('stops the list at the eight newest campaigns', () => {
-    const many = Array.from({ length: 10 }, (_, index) =>
-      campaignRow({ id: `c${index}`, name: `Campaign ${index}` }),
-    );
-    recorded.hooks.campaigns = () => answered({ listCampaigns: many });
+  it('says why the dashboard could not load', () => {
+    recorded.dashboard.mockReturnValue({
+      data: undefined,
+      loading: false,
+      error: new Error('Dashboard unavailable'),
+    });
     renderWithProviders(<MarketingOverviewPage />);
 
-    expect(screen.getByText('Campaign 7')).toBeInTheDocument();
-    expect(screen.queryByText('Campaign 8')).not.toBeInTheDocument();
-  });
-
-  it('says there are no campaigns yet', () => {
-    recorded.hooks.campaigns = () => answered({ listCampaigns: [] });
-    renderWithProviders(<MarketingOverviewPage />);
-
-    expect(screen.getByText('No campaigns yet.')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Dashboard unavailable');
+    expect(overview().statsLoading).toBe(false);
   });
 });

@@ -52,3 +52,31 @@ describe('buildMonthDays', () => {
     expect(dayFor(days, today)?.isToday).toBe(true);
   });
 });
+
+describe('buildMonthDays week off and leave codes', () => {
+  it('flags the days outside the working week, and none until the week is known', () => {
+    // 17 and 18 January 2026 are a Saturday and a Sunday.
+    const days = buildMonthDays(month, [], [], today, [1, 2, 3, 4, 5]);
+    expect(dayFor(days, new Date(2026, 0, 16))?.weekOff).toBe(false);
+    expect(dayFor(days, new Date(2026, 0, 17))?.weekOff).toBe(true);
+    expect(dayFor(days, new Date(2026, 0, 18))?.weekOff).toBe(true);
+    expect(buildMonthDays(month, [], [], today).some((d) => d.weekOff)).toBe(false);
+  });
+
+  it('follows a week of the employee own, such as Sunday to Thursday', () => {
+    const days = buildMonthDays(month, [], [], today, [0, 1, 2, 3, 4]);
+    expect(dayFor(days, new Date(2026, 0, 16))?.weekOff).toBe(true);
+    expect(dayFor(days, new Date(2026, 0, 18))?.weekOff).toBe(false);
+  });
+
+  it('carries the code of the first leave on a day, and none without leave', () => {
+    const leaves = [
+      { fromDate: '2026-01-10T00:00:00', toDate: '2026-01-12T00:00:00', type: 'CL' },
+      { fromDate: '2026-01-12T00:00:00', toDate: '2026-01-13T00:00:00', type: 'EL' },
+    ];
+    const days = buildMonthDays(month, [], leaves, today);
+    expect(dayFor(days, new Date(2026, 0, 12))?.leaveType).toBe('CL');
+    expect(dayFor(days, new Date(2026, 0, 13))?.leaveType).toBe('EL');
+    expect(dayFor(days, new Date(2026, 0, 14))?.leaveType).toBeUndefined();
+  });
+});

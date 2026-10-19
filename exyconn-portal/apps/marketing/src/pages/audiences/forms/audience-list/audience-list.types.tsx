@@ -93,9 +93,12 @@ export const audienceSchema = z
     contactIds: z.array(z.string()),
     companyIds: z.array(z.string()),
     allActiveClients: z.boolean(),
-    excludedEmails: z.array(
-      z.string().trim().regex(EMAIL, 'Every excluded address must be a valid email'),
-    ),
+    // Checked as one list: the chips field shows the list's error, never a single chip's.
+    excludedEmails: z
+      .array(z.string().trim())
+      .refine((emails) => emails.every((email) => EMAIL.test(email)), {
+        message: 'Every excluded address must be a valid email',
+      }),
   })
   .refine(
     (values) =>

@@ -4,7 +4,14 @@ import { CampaignSendModel } from '../../../../src/modules/marketing/campaign-se
 import { CampaignClickModel } from '../../../../src/modules/marketing/campaign-click.model';
 import { logger } from '../../../../src/utils/logger';
 import { eventually, seedCampaign, settle } from './marketing.fixtures';
-import { TRACKING_PATH, readSend, seedSend, trackingApp as app } from './tracking.fixtures';
+import { runForOrganization } from '../../../../src/lib/tenant';
+import {
+  SENDER_ORGANIZATION,
+  TRACKING_PATH,
+  readSend,
+  seedSend,
+  trackingApp as app,
+} from './tracking.fixtures';
 
 const OFFER = 'https://example.com/offer';
 
@@ -60,7 +67,7 @@ describe('a signed click link', () => {
 
   it('still redirects when recording the click fails, and logs it', async () => {
     const { token } = await seedSend();
-    jest.spyOn(CampaignSendModel, 'findOneAndUpdate').mockImplementationOnce(() => {
+    jest.spyOn(CampaignSendModel, 'updateOne').mockImplementationOnce(() => {
       throw new Error('db blip');
     });
 
@@ -96,8 +103,12 @@ describe('a click link with no usable target', () => {
 });
 
 describe('an unsigned link from before signing existed', () => {
+  /** The campaign, kept by the company that sent it: the link is checked inside that company. */
+  const sentCampaign = (body: string) =>
+    runForOrganization(SENDER_ORGANIZATION, () => seedCampaign({ body }));
+
   it('follows a link that is in the stored campaign body, character for character', async () => {
-    const campaign = await seedCampaign({ body: `<a href="${OFFER}">Offer</a>` });
+    const campaign = await sentCampaign(`<a href="${OFFER}">Offer</a>`);
     const { token } = await seedSend(campaign._id.toHexString());
 
     const response = await request(app()).get(clickUrl(token, OFFER));
@@ -106,8 +117,15 @@ describe('an unsigned link from before signing existed', () => {
     expect(response.headers.location).toBe(OFFER);
   });
 
+  it('refuses a link that belongs to another company’s campaign', async () => {
+    const elsewhere = await seedCampaign({ body: `<a href="${OFFER}">Offer</a>` });
+    const { token } = await seedSend(elsewhere._id.toHexString());
+
+    expect((await request(app()).get(clickUrl(token, OFFER))).status).toBe(400);
+  });
+
   it('refuses a link the campaign body does not contain', async () => {
-    const campaign = await seedCampaign({ body: '<a href="https://example.com/other">x</a>' });
+    const campaign = await sentCampaign('<a href="https://example.com/other">x</a>');
     const { token } = await seedSend(campaign._id.toHexString());
 
     expect((await request(app()).get(clickUrl(token, OFFER))).status).toBe(400);

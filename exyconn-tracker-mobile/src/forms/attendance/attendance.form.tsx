@@ -72,15 +72,12 @@ export function AttendanceForm({ workday }: Readonly<Props>) {
     }
   });
 
-  const confirm = async (): Promise<void> => {
-    if (pending === null) {
-      return;
-    }
+  // Sends the pin that was shown — never a fresh read — with the answers held beside it.
+  const confirm = async ({ values, pin }: Pending): Promise<void> => {
     setMarking(true);
     setMarkError(null);
     try {
-      const { status, note } = pending.values;
-      await tracker.markAttendance(status, note === '' ? null : note, pending.pin);
+      await tracker.markAttendance(values.status, values.note === '' ? null : values.note, pin);
       setPending(null);
     } catch (cause: unknown) {
       console.error('Mark attendance failed', cause);
@@ -129,9 +126,15 @@ export function AttendanceForm({ workday }: Readonly<Props>) {
           'Your attendance is marked with this location. Is this where you are working from?',
         )}
         onClose={() => setPending(null)}
-        onConfirm={() => {
-          confirm().catch((cause: unknown) => console.error('Mark attendance failed', cause));
-        }}
+        onConfirm={
+          pending === null
+            ? undefined
+            : () => {
+                confirm(pending).catch((cause: unknown) =>
+                  console.error('Mark attendance failed', cause),
+                );
+              }
+        }
         busy={marking}
         error={markError}
         returnFocusTo={opener}
