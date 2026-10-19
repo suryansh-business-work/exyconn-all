@@ -57,6 +57,11 @@ jest.mock('../../src/lib/migrations', () => ({
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
 jest.mock('../../src/modules/gmail', () => ({ migrateLegacyGmailConnection: jest.fn() }));
 jest.mock('../../src/modules/crm/crm.origin.backfill', () => ({ backfillCrmOrigins: jest.fn() }));
+jest.mock('../../src/modules/marketing/marketing.migrate', () => ({
+  migrateLegacyAudiences: jest.fn(),
+  backfillSuppressionOrigins: jest.fn(),
+  migrateLegacyCampaigns: jest.fn(),
+}));
 jest.mock('../../src/modules/crm/crm.deal-closed.backfill', () => ({
   backfillDealClosedAt: jest.fn(),
 }));
@@ -95,6 +100,7 @@ const MODULES = {
   clients: '../../src/modules/clients',
   gmail: '../../src/modules/gmail',
   crmOrigins: '../../src/modules/crm/crm.origin.backfill',
+  marketingMigrate: '../../src/modules/marketing/marketing.migrate',
   dealClosed: '../../src/modules/crm/crm.deal-closed.backfill',
   callingBot: '../../src/modules/calling-bot-demo',
 } as const;
@@ -192,6 +198,9 @@ describe('server bootstrap', () => {
       'client-tax-ids',
       'gmail-multi-account',
       'crm-record-origins',
+      'marketing-audience-builder',
+      'marketing-suppression-origins',
+      'marketing-email-studio',
       'crm-deal-closed-at',
       'calling-bot-phone-provider',
       'calling-bot-phone-fields',
@@ -201,6 +210,9 @@ describe('server bootstrap', () => {
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
     expect(m.gmail.migrateLegacyGmailConnection).toHaveBeenCalled();
     expect(m.crmOrigins.backfillCrmOrigins).toHaveBeenCalled();
+    expect(m.marketingMigrate.migrateLegacyAudiences).toHaveBeenCalled();
+    expect(m.marketingMigrate.backfillSuppressionOrigins).toHaveBeenCalled();
+    expect(m.marketingMigrate.migrateLegacyCampaigns).toHaveBeenCalled();
     expect(m.dealClosed.backfillDealClosedAt).toHaveBeenCalled();
     expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
     expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
@@ -214,6 +226,9 @@ describe('server bootstrap', () => {
       'backfillPositionDefaults',
       'migrateClientTaxIds',
       'backfillCrmOrigins',
+      'migrateLegacyAudiences',
+      'backfillSuppressionOrigins',
+      'migrateLegacyCampaigns',
       'backfillDealClosedAt',
       'ensureWhatsappDemoSeeds',
     ]);

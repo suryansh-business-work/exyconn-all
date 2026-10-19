@@ -3,6 +3,7 @@ import { EmailFragmentModel } from '../../../../src/modules/email/email-fragment
 import { EmailTemplateModel } from '../../../../src/modules/email/email-template.model';
 import { fragmentsIn } from '../../../../src/modules/email/email.render';
 import { logger } from '../../../../src/utils/logger';
+import { renderStoredTemplate } from '../../../../src/modules/email/email.service';
 
 /** The "Pay now" button the overdue chase gained after it was first seeded. */
 const PAY_BUTTON = /^ {8}<mj-button[^\n]*>Pay now<\/mj-button>\n/m;
@@ -83,5 +84,29 @@ describe('ensureEmailDefaults', () => {
     await ensureEmailDefaults();
 
     expect(await overdue()).toBe(edited);
+  });
+});
+
+describe('the employee-email-code template', () => {
+  it('is seeded and renders the code, the name and the expiry it is sent with', async () => {
+    await ensureEmailDefaults();
+
+    const rendered = await renderStoredTemplate('employee-email-code', {
+      name: 'Asha',
+      code: '482913',
+      expiresIn: '10 minutes',
+    });
+
+    expect(rendered.subject).toBe('482913 is your Exyconn email verification code');
+    expect(rendered.html).toContain('Hi Asha,');
+    expect(rendered.html).toContain('482913');
+    expect(rendered.html).toContain('expires in 10 minutes');
+    // Exactly what employee-email.ts sends, plus the branded company name.
+    expect([...new Set(rendered.variables)].sort((a, b) => a.localeCompare(b))).toEqual([
+      'code',
+      'companyName',
+      'expiresIn',
+      'name',
+    ]);
   });
 });
