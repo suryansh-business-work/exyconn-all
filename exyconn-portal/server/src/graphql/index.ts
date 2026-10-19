@@ -162,6 +162,7 @@ import { crmGeoResolvers } from '../modules/crm/crm.geo';
 import { crmGeoTypeDefs } from '../modules/crm/crm.geo.typeDefs';
 import { crmCalendarTypeDefs, crmCalendarModuleResolvers } from '../modules/crm/calendar';
 import { crmDashboardTypeDefs, crmDashboardResolvers } from '../modules/crm/dashboard';
+import { coldEmailTypeDefs, coldEmailResolvers } from '../modules/crm/cold-email';
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
@@ -333,6 +334,7 @@ export const typeDefs = [
   crmGeoTypeDefs,
   crmCalendarTypeDefs,
   crmDashboardTypeDefs,
+  coldEmailTypeDefs,
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
@@ -437,6 +439,7 @@ export const resolvers = mergeResolvers([
   crmGeoResolvers,
   crmCalendarModuleResolvers,
   crmDashboardResolvers,
+  coldEmailResolvers,
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,

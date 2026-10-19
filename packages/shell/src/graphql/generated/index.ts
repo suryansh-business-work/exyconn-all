@@ -2286,6 +2286,61 @@ export enum CmsSiteStatus {
   Draft = 'DRAFT'
 }
 
+/** A cold email being prepared for one contact or company, with every version written so far. */
+export type ColdEmailDraft = {
+  __typename?: 'ColdEmailDraft';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  /** What we are offering, in the person's words; empty means an introduction to the company. */
+  goal: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  object: CrmTimelineObject;
+  recordId: Scalars['ID']['output'];
+  recordName: Scalars['String']['output'];
+  status: ColdEmailStatus;
+  /** One of the record's addresses (a company's include its people's). */
+  toEmail: Scalars['String']['output'];
+  tone: ColdEmailTone;
+  updatedAt: Scalars['DateTime']['output'];
+  variantCount: Scalars['Int']['output'];
+  variants: Array<ColdEmailVariant>;
+};
+
+export type ColdEmailDraftPage = {
+  __typename?: 'ColdEmailDraftPage';
+  rows: Array<ColdEmailDraft>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ColdEmailStatus {
+  Draft = 'DRAFT',
+  /** One of its versions has been sent. */
+  Sent = 'SENT'
+}
+
+export enum ColdEmailTone {
+  Brief = 'BRIEF',
+  Formal = 'FORMAL',
+  Friendly = 'FRIENDLY'
+}
+
+/** One AI-written version of a cold email, which the person may edit before sending. */
+export type ColdEmailVariant = {
+  __typename?: 'ColdEmailVariant';
+  body: Scalars['String']['output'];
+  /** What the AI run cost, in US dollars. */
+  costUsd: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** What this version was asked to do differently; empty for the first one. */
+  instruction: Scalars['String']['output'];
+  sentAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The stored email message it went out as (Emails tab); empty until sent. */
+  sentMessageId: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  tone: ColdEmailTone;
+};
+
 export type Company = {
   __typename?: 'Company';
   address: Scalars['String']['output'];
@@ -2782,6 +2837,16 @@ export type CostCenterPage = {
   __typename?: 'CostCenterPage';
   rows: Array<CostCenter>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type CreateColdEmailDraftInput = {
+  goal?: InputMaybe<Scalars['String']['input']>;
+  object: CrmTimelineObject;
+  /** Read their website through Firecrawl first; costs a Firecrawl call. */
+  readWebsite?: InputMaybe<Scalars['Boolean']['input']>;
+  recordId: Scalars['ID']['input'];
+  toEmail: Scalars['String']['input'];
+  tone: ColdEmailTone;
 };
 
 export type CreateUserInput = {
@@ -6823,6 +6888,8 @@ export type Mutation = {
   acknowledgePolicy: PolicyAcknowledgement;
   /** Admin > Clients: gives a person client hub access and emails them where to sign in. */
   addClientContact: ClientContact;
+  /** Writes another version (at most 10 per draft); spends AI budget. */
+  addColdEmailVariant: ColdEmailDraft;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
@@ -6911,6 +6978,8 @@ export type Mutation = {
   createCmsFragment: CmsFragment;
   createCmsPage: CmsPage;
   createCmsSite: CmsSite;
+  /** Writes the first version with the AI from the record's business context; spends AI budget. */
+  createColdEmailDraft: ColdEmailDraft;
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -7092,6 +7161,8 @@ export type Mutation = {
   deleteCmsFragment: Scalars['Boolean']['output'];
   deleteCmsPage: Scalars['Boolean']['output'];
   deleteCmsSite: Scalars['Boolean']['output'];
+  deleteColdEmailDraft: Scalars['Boolean']['output'];
+  deleteColdEmailVariant: ColdEmailDraft;
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
   deleteCompanyExpense: Scalars['Boolean']['output'];
@@ -7415,6 +7486,8 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
+  /** Sends one version from a CRM mailbox; it shows on the record's Emails tab and timeline. */
+  sendColdEmailVariant: ColdEmailDraft;
   sendCrmEmail: CrmEmailMessage;
   sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
@@ -7696,6 +7769,7 @@ export type Mutation = {
   updateCmsFragment: CmsFragment;
   updateCmsPageSettings: CmsPage;
   updateCmsSite: CmsSite;
+  updateColdEmailVariant: ColdEmailDraft;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
@@ -7841,6 +7915,13 @@ export type MutationAcknowledgePolicyArgs = {
 
 export type MutationAddClientContactArgs = {
   input: ClientContactInput;
+};
+
+
+export type MutationAddColdEmailVariantArgs = {
+  id: Scalars['ID']['input'];
+  instruction?: InputMaybe<Scalars['String']['input']>;
+  tone?: InputMaybe<ColdEmailTone>;
 };
 
 
@@ -8147,6 +8228,11 @@ export type MutationCreateCmsPageArgs = {
 
 export type MutationCreateCmsSiteArgs = {
   input: CmsSiteInput;
+};
+
+
+export type MutationCreateColdEmailDraftArgs = {
+  input: CreateColdEmailDraftInput;
 };
 
 
@@ -8901,6 +8987,17 @@ export type MutationDeleteCmsPageArgs = {
 
 export type MutationDeleteCmsSiteArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteColdEmailDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteColdEmailVariantArgs = {
+  draftId: Scalars['ID']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 
@@ -9924,6 +10021,11 @@ export type MutationSendCampaignArgs = {
 };
 
 
+export type MutationSendColdEmailVariantArgs = {
+  input: SendColdEmailVariantInput;
+};
+
+
 export type MutationSendCrmEmailArgs = {
   input: SendCrmEmailInput;
 };
@@ -10648,6 +10750,14 @@ export type MutationUpdateCmsPageSettingsArgs = {
 export type MutationUpdateCmsSiteArgs = {
   id: Scalars['ID']['input'];
   input: CmsSiteInput;
+};
+
+
+export type MutationUpdateColdEmailVariantArgs = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 
@@ -12993,6 +13103,8 @@ export type Query = {
   /** Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech). */
   cmsSiteDns: CmsSiteDns;
   cmsSites: Array<CmsSite>;
+  coldEmailDraft: ColdEmailDraft;
+  coldEmailDrafts: ColdEmailDraftPage;
   /**
    * The company's finances between two dates. Both bounds are inclusive of the days they
    * fall on, as the caller sends them.
@@ -14062,6 +14174,16 @@ export type QueryCmsSiteBySlugArgs = {
 
 export type QueryCmsSiteDnsArgs = {
   siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryColdEmailDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryColdEmailDraftsArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -16156,6 +16278,15 @@ export type SearchHit = {
   link: Scalars['String']['output'];
   subtitle: Scalars['String']['output'];
   title: Scalars['String']['output'];
+};
+
+export type SendColdEmailVariantInput = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders). */
+  fromAccountId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 export type SendCrmEmailInput = {
@@ -21206,6 +21337,74 @@ export type CrmCalendarQueryVariables = Exact<{
 
 
 export type CrmCalendarQuery = { __typename?: 'Query', crmCalendar: Array<{ __typename?: 'CrmCalendarItem', id: string, kind: CrmCalendarKind, title: string, startAt: string, endAt?: string | null, done: boolean, relatedType?: ActivitySubject | null, relatedId: string, relatedName: string, person: string }> };
+
+export type ColdEmailVariantFieldsFragment = { __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string };
+
+export type ColdEmailDraftRowFieldsFragment = { __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string };
+
+export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
+
+export type ColdEmailDraftsQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ColdEmailDraftsQuery = { __typename?: 'Query', coldEmailDrafts: { __typename?: 'ColdEmailDraftPage', totalCount: number, rows: Array<{ __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string }> } };
+
+export type ColdEmailDraftQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type CreateColdEmailDraftMutationVariables = Exact<{
+  input: CreateColdEmailDraftInput;
+}>;
+
+
+export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type AddColdEmailVariantMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  instruction?: InputMaybe<Scalars['String']['input']>;
+  tone?: InputMaybe<ColdEmailTone>;
+}>;
+
+
+export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type UpdateColdEmailVariantMutationVariables = Exact<{
+  draftId: Scalars['ID']['input'];
+  variantId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  body: Scalars['String']['input'];
+}>;
+
+
+export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type DeleteColdEmailVariantMutationVariables = Exact<{
+  draftId: Scalars['ID']['input'];
+  variantId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type DeleteColdEmailDraftMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteColdEmailDraftMutation = { __typename?: 'Mutation', deleteColdEmailDraft: boolean };
+
+export type SendColdEmailVariantMutationVariables = Exact<{
+  input: SendColdEmailVariantInput;
+}>;
+
+
+export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type CrmDashboardQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
@@ -28466,6 +28665,43 @@ export const ComplianceStatsFieldsFragmentDoc = gql`
   sums {
     field
     total
+  }
+}
+    `;
+export const ColdEmailDraftRowFieldsFragmentDoc = gql`
+    fragment ColdEmailDraftRowFields on ColdEmailDraft {
+  id
+  object
+  recordId
+  recordName
+  toEmail
+  status
+  variantCount
+  createdByName
+  updatedAt
+}
+    `;
+export const ColdEmailVariantFieldsFragmentDoc = gql`
+    fragment ColdEmailVariantFields on ColdEmailVariant {
+  id
+  subject
+  body
+  instruction
+  tone
+  costUsd
+  createdAt
+  sentAt
+  sentMessageId
+}
+    `;
+export const ColdEmailDraftFieldsFragmentDoc = gql`
+    fragment ColdEmailDraftFields on ColdEmailDraft {
+  ...ColdEmailDraftRowFields
+  goal
+  tone
+  createdAt
+  variants {
+    ...ColdEmailVariantFields
   }
 }
     `;
@@ -39794,6 +40030,298 @@ export function useCrmCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipT
 export type CrmCalendarQueryHookResult = ReturnType<typeof useCrmCalendarQuery>;
 export type CrmCalendarLazyQueryHookResult = ReturnType<typeof useCrmCalendarLazyQuery>;
 export type CrmCalendarSuspenseQueryHookResult = ReturnType<typeof useCrmCalendarSuspenseQuery>;
+export const ColdEmailDraftsDocument = gql`
+    query ColdEmailDrafts($input: TableQueryInput!) {
+  coldEmailDrafts(input: $input) {
+    rows {
+      ...ColdEmailDraftRowFields
+    }
+    totalCount
+  }
+}
+    ${ColdEmailDraftRowFieldsFragmentDoc}`;
+
+/**
+ * __useColdEmailDraftsQuery__
+ *
+ * To run a query within a React component, call `useColdEmailDraftsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useColdEmailDraftsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useColdEmailDraftsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useColdEmailDraftsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables> & ({ variables: ColdEmailDraftsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>(ColdEmailDraftsDocument, options);
+      }
+export function useColdEmailDraftsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>(ColdEmailDraftsDocument, options);
+        }
+// @ts-ignore
+export function useColdEmailDraftsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>;
+// @ts-ignore
+export function useColdEmailDraftsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftsQuery | undefined, ColdEmailDraftsQueryVariables>;
+export function useColdEmailDraftsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>(ColdEmailDraftsDocument, options);
+        }
+export type ColdEmailDraftsQueryHookResult = ReturnType<typeof useColdEmailDraftsQuery>;
+export type ColdEmailDraftsLazyQueryHookResult = ReturnType<typeof useColdEmailDraftsLazyQuery>;
+export type ColdEmailDraftsSuspenseQueryHookResult = ReturnType<typeof useColdEmailDraftsSuspenseQuery>;
+export const ColdEmailDraftDocument = gql`
+    query ColdEmailDraft($id: ID!) {
+  coldEmailDraft(id: $id) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useColdEmailDraftQuery__
+ *
+ * To run a query within a React component, call `useColdEmailDraftQuery` and pass it any options that fit your needs.
+ * When your component renders, `useColdEmailDraftQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useColdEmailDraftQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useColdEmailDraftQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables> & ({ variables: ColdEmailDraftQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>(ColdEmailDraftDocument, options);
+      }
+export function useColdEmailDraftLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>(ColdEmailDraftDocument, options);
+        }
+// @ts-ignore
+export function useColdEmailDraftSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>;
+// @ts-ignore
+export function useColdEmailDraftSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftQuery | undefined, ColdEmailDraftQueryVariables>;
+export function useColdEmailDraftSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>(ColdEmailDraftDocument, options);
+        }
+export type ColdEmailDraftQueryHookResult = ReturnType<typeof useColdEmailDraftQuery>;
+export type ColdEmailDraftLazyQueryHookResult = ReturnType<typeof useColdEmailDraftLazyQuery>;
+export type ColdEmailDraftSuspenseQueryHookResult = ReturnType<typeof useColdEmailDraftSuspenseQuery>;
+export const CreateColdEmailDraftDocument = gql`
+    mutation CreateColdEmailDraft($input: CreateColdEmailDraftInput!) {
+  createColdEmailDraft(input: $input) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useCreateColdEmailDraftMutation__
+ *
+ * To run a mutation, you first call `useCreateColdEmailDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateColdEmailDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createColdEmailDraftMutation, { data, loading, error }] = useCreateColdEmailDraftMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateColdEmailDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateColdEmailDraftMutation, CreateColdEmailDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateColdEmailDraftMutation, CreateColdEmailDraftMutationVariables>(CreateColdEmailDraftDocument, options);
+      }
+export type CreateColdEmailDraftMutationHookResult = ReturnType<typeof useCreateColdEmailDraftMutation>;
+export const AddColdEmailVariantDocument = gql`
+    mutation AddColdEmailVariant($id: ID!, $instruction: String, $tone: ColdEmailTone) {
+  addColdEmailVariant(id: $id, instruction: $instruction, tone: $tone) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useAddColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useAddColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addColdEmailVariantMutation, { data, loading, error }] = useAddColdEmailVariantMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      instruction: // value for 'instruction'
+ *      tone: // value for 'tone'
+ *   },
+ * });
+ */
+export function useAddColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AddColdEmailVariantMutation, AddColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AddColdEmailVariantMutation, AddColdEmailVariantMutationVariables>(AddColdEmailVariantDocument, options);
+      }
+export type AddColdEmailVariantMutationHookResult = ReturnType<typeof useAddColdEmailVariantMutation>;
+export const UpdateColdEmailVariantDocument = gql`
+    mutation UpdateColdEmailVariant($draftId: ID!, $variantId: ID!, $subject: String!, $body: String!) {
+  updateColdEmailVariant(
+    draftId: $draftId
+    variantId: $variantId
+    subject: $subject
+    body: $body
+  ) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useUpdateColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateColdEmailVariantMutation, { data, loading, error }] = useUpdateColdEmailVariantMutation({
+ *   variables: {
+ *      draftId: // value for 'draftId'
+ *      variantId: // value for 'variantId'
+ *      subject: // value for 'subject'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useUpdateColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateColdEmailVariantMutation, UpdateColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateColdEmailVariantMutation, UpdateColdEmailVariantMutationVariables>(UpdateColdEmailVariantDocument, options);
+      }
+export type UpdateColdEmailVariantMutationHookResult = ReturnType<typeof useUpdateColdEmailVariantMutation>;
+export const DeleteColdEmailVariantDocument = gql`
+    mutation DeleteColdEmailVariant($draftId: ID!, $variantId: ID!) {
+  deleteColdEmailVariant(draftId: $draftId, variantId: $variantId) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useDeleteColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useDeleteColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteColdEmailVariantMutation, { data, loading, error }] = useDeleteColdEmailVariantMutation({
+ *   variables: {
+ *      draftId: // value for 'draftId'
+ *      variantId: // value for 'variantId'
+ *   },
+ * });
+ */
+export function useDeleteColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteColdEmailVariantMutation, DeleteColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteColdEmailVariantMutation, DeleteColdEmailVariantMutationVariables>(DeleteColdEmailVariantDocument, options);
+      }
+export type DeleteColdEmailVariantMutationHookResult = ReturnType<typeof useDeleteColdEmailVariantMutation>;
+export const DeleteColdEmailDraftDocument = gql`
+    mutation DeleteColdEmailDraft($id: ID!) {
+  deleteColdEmailDraft(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteColdEmailDraftMutation__
+ *
+ * To run a mutation, you first call `useDeleteColdEmailDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteColdEmailDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteColdEmailDraftMutation, { data, loading, error }] = useDeleteColdEmailDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteColdEmailDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteColdEmailDraftMutation, DeleteColdEmailDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteColdEmailDraftMutation, DeleteColdEmailDraftMutationVariables>(DeleteColdEmailDraftDocument, options);
+      }
+export type DeleteColdEmailDraftMutationHookResult = ReturnType<typeof useDeleteColdEmailDraftMutation>;
+export const SendColdEmailVariantDocument = gql`
+    mutation SendColdEmailVariant($input: SendColdEmailVariantInput!) {
+  sendColdEmailVariant(input: $input) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useSendColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useSendColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendColdEmailVariantMutation, { data, loading, error }] = useSendColdEmailVariantMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendColdEmailVariantMutation, SendColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SendColdEmailVariantMutation, SendColdEmailVariantMutationVariables>(SendColdEmailVariantDocument, options);
+      }
+export type SendColdEmailVariantMutationHookResult = ReturnType<typeof useSendColdEmailVariantMutation>;
 export const CrmDashboardDocument = gql`
     query CrmDashboard($from: DateTime!, $to: DateTime!) {
   crmDashboard(from: $from, to: $to) {

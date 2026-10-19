@@ -25,6 +25,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import SchemaIcon from '@mui/icons-material/Schema';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import BusinessIcon from '@mui/icons-material/Business';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
@@ -495,6 +496,14 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Meetings',
         path: '/meetings',
         icon: EventAvailableIcon,
+        group: 'Pipeline',
+      },
+      {
+        // AI-written first emails to a contact or company, every version kept, sent from the CRM.
+        key: 'crm-cold-emails',
+        label: 'Cold emails',
+        path: '/cold-emails',
+        icon: ForwardToInboxIcon,
         group: 'Pipeline',
       },
       {

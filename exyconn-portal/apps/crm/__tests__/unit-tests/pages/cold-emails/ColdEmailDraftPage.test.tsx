@@ -1,0 +1,162 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderHook, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {
+  ColdEmailStatus,
+  ColdEmailTone,
+  CrmTimelineObject,
+  type ColdEmailDraftFieldsFragment,
+  type ColdEmailVariantFieldsFragment,
+} from '@exyconn/shell/graphql/generated';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { ColdEmailDraftPage } from '../../../../src/pages/cold-emails';
+import { useCommsDock } from '../../../../src/records/comms/commsStore';
+import { renderWithProviders } from '../../test-utils';
+import { resetDock } from '../../records/comms/comms-fixtures';
+
+const gql = vi.hoisted(() => ({
+  draft: vi.fn(),
+  deleteVariant: vi.fn(),
+  updateVariant: vi.fn(),
+  addVariant: vi.fn(),
+}));
+
+vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
+  useColdEmailDraftQuery: () => gql.draft(),
+  useDeleteColdEmailVariantMutation: () => [gql.deleteVariant, { loading: false }],
+  useUpdateColdEmailVariantMutation: () => [gql.updateVariant, { loading: false }],
+  useAddColdEmailVariantMutation: () => [gql.addVariant, { loading: false }],
+}));
+
+const variant = (
+  id: string,
+  overrides: Partial<ColdEmailVariantFieldsFragment> = {},
+): ColdEmailVariantFieldsFragment => ({
+  id,
+  subject: `Subject ${id}`,
+  body: `Body ${id}`,
+  instruction: '',
+  tone: ColdEmailTone.Friendly,
+  costUsd: 0.0012,
+  createdAt: '2026-10-19T10:00:00.000Z',
+  sentAt: null,
+  sentMessageId: '',
+  ...overrides,
+});
+
+const draft = (variants: ColdEmailVariantFieldsFragment[]): ColdEmailDraftFieldsFragment => ({
+  id: 'draft-1',
+  object: CrmTimelineObject.Company,
+  recordId: 'co-1',
+  recordName: 'Acme',
+  toEmail: 'hello@acme.com',
+  status: ColdEmailStatus.Draft,
+  variantCount: variants.length,
+  createdByName: 'Asha',
+  updatedAt: '2026-10-19T10:00:00.000Z',
+  goal: 'A checkout audit',
+  tone: ColdEmailTone.Friendly,
+  createdAt: '2026-10-19T09:00:00.000Z',
+  variants,
+});
+
+const renderPage = () =>
+  renderWithProviders(<ColdEmailDraftPage />, {
+    route: '/cold-emails/draft-1',
+    path: '/cold-emails/:id',
+  });
+
+describe('ColdEmailDraftPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(portalLogger, 'warn').mockImplementation(() => undefined);
+  });
+  afterEach(() => resetDock());
+
+  it('lists every version newest first, with the draft and a link back to the record', () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1'), variant('v2')]) } });
+    renderPage();
+
+    expect(screen.getByRole('heading', { name: 'Cold email to Acme' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Acme' })).toHaveAttribute('href', '/companies/co-1');
+    expect(screen.getByText('A checkout audit')).toBeInTheDocument();
+    const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    expect(headings).toEqual(['Subject v2', 'Subject v1']);
+    expect(screen.getByText('Versions (2)')).toBeInTheDocument();
+  });
+
+  it('opens the email dock prefilled with the chosen version, tracked against it', async () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1')]) } });
+    renderPage();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Use this' }));
+
+    const { result } = renderHook(() => useCommsDock());
+    expect(result.current.panels).toEqual([
+      expect.objectContaining({
+        channel: 'EMAIL',
+        object: 'COMPANY',
+        id: 'co-1',
+        emails: ['hello@acme.com'],
+        key: 'EMAIL:COMPANY:co-1:v1',
+        coldEmail: { draftId: 'draft-1', variantId: 'v1', subject: 'Subject v1', body: 'Body v1' },
+      }),
+    ]);
+  });
+
+  it('locks a sent version: it says when it went out and cannot be edited, deleted or resent', () => {
+    gql.draft.mockReturnValue({
+      data: {
+        coldEmailDraft: draft([variant('v1', { sentAt: '2026-10-19T11:00:00.000Z' })]),
+      },
+    });
+    renderPage();
+
+    const card = screen.getByRole('article');
+    expect(within(card).getByText(/^Sent /)).toBeInTheDocument();
+    for (const name of ['Use this', 'Edit', 'Delete']) {
+      expect(within(card).getByRole('button', { name })).toBeDisabled();
+    }
+  });
+
+  it('deletes a version once confirmed', async () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1'), variant('v2')]) } });
+    gql.deleteVariant.mockResolvedValue({});
+    renderPage();
+
+    const [newest] = screen.getAllByRole('article');
+    await userEvent.click(within(newest).getByRole('button', { name: 'Delete' }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.click(await within(dialog).findByRole('button', { name: 'Delete' }));
+
+    expect(gql.deleteVariant).toHaveBeenCalledWith({
+      variables: { draftId: 'draft-1', variantId: 'v2' },
+    });
+    expect(await screen.findByText('Version deleted')).toBeInTheDocument();
+  });
+
+  it('asks the AI for another version with the tweak typed', async () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1')]) } });
+    gql.addVariant.mockResolvedValue({});
+    renderPage();
+
+    await userEvent.type(screen.getByLabelText('What should change (optional)'), 'shorter');
+    await userEvent.click(screen.getByRole('button', { name: 'Generate another version' }));
+
+    expect(gql.addVariant).toHaveBeenCalledWith({
+      variables: { id: 'draft-1', instruction: 'shorter', tone: 'FRIENDLY' },
+    });
+    expect(await screen.findByText('New version written')).toBeInTheDocument();
+  });
+
+  it('shows the error with a retry when the draft cannot load', async () => {
+    const refetch = vi.fn().mockResolvedValue({});
+    gql.draft.mockReturnValue({ data: undefined, error: new Error('Network down'), refetch });
+    renderPage();
+
+    expect(screen.getByText('Network down')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+});

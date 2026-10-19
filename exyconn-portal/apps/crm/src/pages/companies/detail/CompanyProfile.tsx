@@ -4,6 +4,7 @@ import { CrmTagObject, type CompanyFieldsFragment } from '@exyconn/shell/graphql
 import { DetailActions, EditRecordButton, TagsEditor } from '../../../records/detail';
 import { ReachOutActions, emailsOf, phonesOf } from '../../../records/comms';
 import { GoogleMapCard } from '../../../maps/GoogleMapCard';
+import { DraftColdEmailButton } from '../../../records/cold-email';
 import { CompanyForm } from '../forms/company';
 import { CompanyFields } from './CompanyFields';
 import { CompanyHeader } from './CompanyHeader';
@@ -28,6 +29,17 @@ export function CompanyProfile({
       />
       <DetailActions
         target={{ relatedType: 'COMPANY', relatedId: company.id, relatedName: company.name }}
+        extra={
+          <DraftColdEmailButton
+            target={{
+              object: 'COMPANY',
+              id: company.id,
+              name: company.name,
+              emails: emailsOf(company),
+              website: company.website || company.domain,
+            }}
+          />
+        }
       />
       <Divider />
       <Text component="h2" size="label" weight="bold">

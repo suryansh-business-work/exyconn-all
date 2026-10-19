@@ -3,6 +3,14 @@ import { useState, useSyncExternalStore } from 'react';
 export type CommsChannel = 'CALL' | 'SMS' | 'EMAIL';
 export type CommsObject = 'CONTACT' | 'COMPANY';
 
+/** A cold email version on its way out: its text, and the version the send is tracked against. */
+export interface ColdEmailSend {
+  draftId: string;
+  variantId: string;
+  subject: string;
+  body: string;
+}
+
 /** What a page hands the dock: the channel, and the record with every number and address. */
 export interface CommsRequest {
   channel: CommsChannel;
@@ -11,6 +19,8 @@ export interface CommsRequest {
   name: string;
   phones: string[];
   emails: string[];
+  /** Set when the email is a cold email version, so sending it marks that version sent. */
+  coldEmail?: ColdEmailSend;
 }
 
 /** One panel in the dock. Only one is expanded at a time; the others wait as pills. */
@@ -60,7 +70,11 @@ const readState = () => state;
 /** The open panels and where the expanded one sits. */
 export const useCommsDock = () => useSyncExternalStore(subscribe, readState, readState);
 
-const keyOf = (request: CommsRequest) => `${request.channel}:${request.object}:${request.id}`;
+/** One panel per record and channel; each cold email version gets its own, with its own draft. */
+const keyOf = (request: CommsRequest) =>
+  [request.channel, request.object, request.id, request.coldEmail?.variantId]
+    .filter(Boolean)
+    .join(':');
 
 /** Opens (or brings back) a panel for the record; any other expanded panel becomes a pill. */
 export function openComms(request: CommsRequest) {

@@ -2285,6 +2285,61 @@ export enum CmsSiteStatus {
   Draft = 'DRAFT'
 }
 
+/** A cold email being prepared for one contact or company, with every version written so far. */
+export type ColdEmailDraft = {
+  __typename?: 'ColdEmailDraft';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  /** What we are offering, in the person's words; empty means an introduction to the company. */
+  goal: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  object: CrmTimelineObject;
+  recordId: Scalars['ID']['output'];
+  recordName: Scalars['String']['output'];
+  status: ColdEmailStatus;
+  /** One of the record's addresses (a company's include its people's). */
+  toEmail: Scalars['String']['output'];
+  tone: ColdEmailTone;
+  updatedAt: Scalars['DateTime']['output'];
+  variantCount: Scalars['Int']['output'];
+  variants: Array<ColdEmailVariant>;
+};
+
+export type ColdEmailDraftPage = {
+  __typename?: 'ColdEmailDraftPage';
+  rows: Array<ColdEmailDraft>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ColdEmailStatus {
+  Draft = 'DRAFT',
+  /** One of its versions has been sent. */
+  Sent = 'SENT'
+}
+
+export enum ColdEmailTone {
+  Brief = 'BRIEF',
+  Formal = 'FORMAL',
+  Friendly = 'FRIENDLY'
+}
+
+/** One AI-written version of a cold email, which the person may edit before sending. */
+export type ColdEmailVariant = {
+  __typename?: 'ColdEmailVariant';
+  body: Scalars['String']['output'];
+  /** What the AI run cost, in US dollars. */
+  costUsd: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** What this version was asked to do differently; empty for the first one. */
+  instruction: Scalars['String']['output'];
+  sentAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The stored email message it went out as (Emails tab); empty until sent. */
+  sentMessageId: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  tone: ColdEmailTone;
+};
+
 export type Company = {
   __typename?: 'Company';
   address: Scalars['String']['output'];
@@ -2781,6 +2836,16 @@ export type CostCenterPage = {
   __typename?: 'CostCenterPage';
   rows: Array<CostCenter>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type CreateColdEmailDraftInput = {
+  goal?: InputMaybe<Scalars['String']['input']>;
+  object: CrmTimelineObject;
+  /** Read their website through Firecrawl first; costs a Firecrawl call. */
+  readWebsite?: InputMaybe<Scalars['Boolean']['input']>;
+  recordId: Scalars['ID']['input'];
+  toEmail: Scalars['String']['input'];
+  tone: ColdEmailTone;
 };
 
 export type CreateUserInput = {
@@ -6822,6 +6887,8 @@ export type Mutation = {
   acknowledgePolicy: PolicyAcknowledgement;
   /** Admin > Clients: gives a person client hub access and emails them where to sign in. */
   addClientContact: ClientContact;
+  /** Writes another version (at most 10 per draft); spends AI budget. */
+  addColdEmailVariant: ColdEmailDraft;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
@@ -6910,6 +6977,8 @@ export type Mutation = {
   createCmsFragment: CmsFragment;
   createCmsPage: CmsPage;
   createCmsSite: CmsSite;
+  /** Writes the first version with the AI from the record's business context; spends AI budget. */
+  createColdEmailDraft: ColdEmailDraft;
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -7091,6 +7160,8 @@ export type Mutation = {
   deleteCmsFragment: Scalars['Boolean']['output'];
   deleteCmsPage: Scalars['Boolean']['output'];
   deleteCmsSite: Scalars['Boolean']['output'];
+  deleteColdEmailDraft: Scalars['Boolean']['output'];
+  deleteColdEmailVariant: ColdEmailDraft;
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
   deleteCompanyExpense: Scalars['Boolean']['output'];
@@ -7414,6 +7485,8 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
+  /** Sends one version from a CRM mailbox; it shows on the record's Emails tab and timeline. */
+  sendColdEmailVariant: ColdEmailDraft;
   sendCrmEmail: CrmEmailMessage;
   sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
@@ -7695,6 +7768,7 @@ export type Mutation = {
   updateCmsFragment: CmsFragment;
   updateCmsPageSettings: CmsPage;
   updateCmsSite: CmsSite;
+  updateColdEmailVariant: ColdEmailDraft;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
@@ -7840,6 +7914,13 @@ export type MutationAcknowledgePolicyArgs = {
 
 export type MutationAddClientContactArgs = {
   input: ClientContactInput;
+};
+
+
+export type MutationAddColdEmailVariantArgs = {
+  id: Scalars['ID']['input'];
+  instruction?: InputMaybe<Scalars['String']['input']>;
+  tone?: InputMaybe<ColdEmailTone>;
 };
 
 
@@ -8146,6 +8227,11 @@ export type MutationCreateCmsPageArgs = {
 
 export type MutationCreateCmsSiteArgs = {
   input: CmsSiteInput;
+};
+
+
+export type MutationCreateColdEmailDraftArgs = {
+  input: CreateColdEmailDraftInput;
 };
 
 
@@ -8900,6 +8986,17 @@ export type MutationDeleteCmsPageArgs = {
 
 export type MutationDeleteCmsSiteArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteColdEmailDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteColdEmailVariantArgs = {
+  draftId: Scalars['ID']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 
@@ -9923,6 +10020,11 @@ export type MutationSendCampaignArgs = {
 };
 
 
+export type MutationSendColdEmailVariantArgs = {
+  input: SendColdEmailVariantInput;
+};
+
+
 export type MutationSendCrmEmailArgs = {
   input: SendCrmEmailInput;
 };
@@ -10647,6 +10749,14 @@ export type MutationUpdateCmsPageSettingsArgs = {
 export type MutationUpdateCmsSiteArgs = {
   id: Scalars['ID']['input'];
   input: CmsSiteInput;
+};
+
+
+export type MutationUpdateColdEmailVariantArgs = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 
@@ -12992,6 +13102,8 @@ export type Query = {
   /** Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech). */
   cmsSiteDns: CmsSiteDns;
   cmsSites: Array<CmsSite>;
+  coldEmailDraft: ColdEmailDraft;
+  coldEmailDrafts: ColdEmailDraftPage;
   /**
    * The company's finances between two dates. Both bounds are inclusive of the days they
    * fall on, as the caller sends them.
@@ -14061,6 +14173,16 @@ export type QueryCmsSiteBySlugArgs = {
 
 export type QueryCmsSiteDnsArgs = {
   siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryColdEmailDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryColdEmailDraftsArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -16155,6 +16277,15 @@ export type SearchHit = {
   link: Scalars['String']['output'];
   subtitle: Scalars['String']['output'];
   title: Scalars['String']['output'];
+};
+
+export type SendColdEmailVariantInput = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders). */
+  fromAccountId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 export type SendCrmEmailInput = {
@@ -19861,6 +19992,11 @@ export type ResolversTypes = ResolversObject<{
   CmsSiteSeo: ResolverTypeWrapper<CmsSiteSeo>;
   CmsSiteSeoInput: CmsSiteSeoInput;
   CmsSiteStatus: CmsSiteStatus;
+  ColdEmailDraft: ResolverTypeWrapper<ColdEmailDraft>;
+  ColdEmailDraftPage: ResolverTypeWrapper<ColdEmailDraftPage>;
+  ColdEmailStatus: ColdEmailStatus;
+  ColdEmailTone: ColdEmailTone;
+  ColdEmailVariant: ResolverTypeWrapper<ColdEmailVariant>;
   Company: ResolverTypeWrapper<Company>;
   CompanyBenefit: ResolverTypeWrapper<CompanyBenefit>;
   CompanyBenefitInput: CompanyBenefitInput;
@@ -19895,6 +20031,7 @@ export type ResolversTypes = ResolversObject<{
   CostCenter: ResolverTypeWrapper<CostCenter>;
   CostCenterInput: CostCenterInput;
   CostCenterPage: ResolverTypeWrapper<CostCenterPage>;
+  CreateColdEmailDraftInput: CreateColdEmailDraftInput;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: ResolverTypeWrapper<CreatedWebhook>;
   CrmActivityPeriod: ResolverTypeWrapper<CrmActivityPeriod>;
@@ -20425,6 +20562,7 @@ export type ResolversTypes = ResolversObject<{
   SalaryStructurePage: ResolverTypeWrapper<SalaryStructurePage>;
   SearchGroup: ResolverTypeWrapper<SearchGroup>;
   SearchHit: ResolverTypeWrapper<SearchHit>;
+  SendColdEmailVariantInput: SendColdEmailVariantInput;
   SendCrmEmailInput: SendCrmEmailInput;
   SendCrmSmsInput: SendCrmSmsInput;
   SendMailInput: SendMailInput;
@@ -20879,6 +21017,9 @@ export type ResolversParentTypes = ResolversObject<{
   CmsSiteInput: CmsSiteInput;
   CmsSiteSeo: CmsSiteSeo;
   CmsSiteSeoInput: CmsSiteSeoInput;
+  ColdEmailDraft: ColdEmailDraft;
+  ColdEmailDraftPage: ColdEmailDraftPage;
+  ColdEmailVariant: ColdEmailVariant;
   Company: Company;
   CompanyBenefit: CompanyBenefit;
   CompanyBenefitInput: CompanyBenefitInput;
@@ -20908,6 +21049,7 @@ export type ResolversParentTypes = ResolversObject<{
   CostCenter: CostCenter;
   CostCenterInput: CostCenterInput;
   CostCenterPage: CostCenterPage;
+  CreateColdEmailDraftInput: CreateColdEmailDraftInput;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: CreatedWebhook;
   CrmActivityPeriod: CrmActivityPeriod;
@@ -21327,6 +21469,7 @@ export type ResolversParentTypes = ResolversObject<{
   SalaryStructurePage: SalaryStructurePage;
   SearchGroup: SearchGroup;
   SearchHit: SearchHit;
+  SendColdEmailVariantInput: SendColdEmailVariantInput;
   SendCrmEmailInput: SendCrmEmailInput;
   SendCrmSmsInput: SendCrmSmsInput;
   SendMailInput: SendMailInput;
@@ -22801,6 +22944,42 @@ export type CmsSiteSeoResolvers<ContextType = GraphQLContext, ParentType extends
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ogImageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   titleTemplate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ColdEmailDraftResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ColdEmailDraft'] = ResolversParentTypes['ColdEmailDraft']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  goal?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmTimelineObject'], ParentType, ContextType>;
+  recordId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  recordName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ColdEmailStatus'], ParentType, ContextType>;
+  toEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tone?: Resolver<ResolversTypes['ColdEmailTone'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  variantCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  variants?: Resolver<Array<ResolversTypes['ColdEmailVariant']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ColdEmailDraftPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ColdEmailDraftPage'] = ResolversParentTypes['ColdEmailDraftPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ColdEmailDraft']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ColdEmailVariantResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ColdEmailVariant'] = ResolversParentTypes['ColdEmailVariant']> = ResolversObject<{
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  costUsd?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  instruction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sentAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  sentMessageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tone?: Resolver<ResolversTypes['ColdEmailTone'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -25314,6 +25493,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   acknowledgePolicy?: Resolver<ResolversTypes['PolicyAcknowledgement'], ParentType, ContextType, RequireFields<MutationAcknowledgePolicyArgs, 'policyId' | 'signedName'>>;
   addClientContact?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationAddClientContactArgs, 'input'>>;
+  addColdEmailVariant?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<MutationAddColdEmailVariantArgs, 'id'>>;
   addItIncidentUpdate?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationAddItIncidentUpdateArgs, 'id' | 'note' | 'status'>>;
   addMySupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddMySupportReplyArgs, 'body' | 'ticketId'>>;
   addNewsletterSubscriber?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddNewsletterSubscriberArgs, 'email' | 'siteId'>>;
@@ -25369,6 +25549,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createCmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationCreateCmsFragmentArgs, 'input' | 'siteId'>>;
   createCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationCreateCmsPageArgs, 'input' | 'siteId'>>;
   createCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationCreateCmsSiteArgs, 'input'>>;
+  createColdEmailDraft?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<MutationCreateColdEmailDraftArgs, 'input'>>;
   createColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationCreateColumnArgs, 'name' | 'projectId'>>;
   createCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationCreateCompanyArgs, 'input'>>;
   createCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationCreateCompanyExpenseArgs, 'input'>>;
@@ -25514,6 +25695,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCmsFragment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsFragmentArgs, 'id'>>;
   deleteCmsPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsPageArgs, 'id'>>;
   deleteCmsSite?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsSiteArgs, 'id'>>;
+  deleteColdEmailDraft?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColdEmailDraftArgs, 'id'>>;
+  deleteColdEmailVariant?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<MutationDeleteColdEmailVariantArgs, 'draftId' | 'variantId'>>;
   deleteColumn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColumnArgs, 'id'>>;
   deleteCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyArgs, 'id'>>;
   deleteCompanyExpense?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyExpenseArgs, 'id'>>;
@@ -25713,6 +25896,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   scrapeWebsite?: Resolver<ResolversTypes['WebScrape'], ParentType, ContextType, RequireFields<MutationScrapeWebsiteArgs, 'url'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
+  sendColdEmailVariant?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<MutationSendColdEmailVariantArgs, 'input'>>;
   sendCrmEmail?: Resolver<ResolversTypes['CrmEmailMessage'], ParentType, ContextType, RequireFields<MutationSendCrmEmailArgs, 'input'>>;
   sendCrmSms?: Resolver<ResolversTypes['CrmSmsResult'], ParentType, ContextType, RequireFields<MutationSendCrmSmsArgs, 'input'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
@@ -25845,6 +26029,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateCmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationUpdateCmsFragmentArgs, 'id' | 'input'>>;
   updateCmsPageSettings?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationUpdateCmsPageSettingsArgs, 'id' | 'input'>>;
   updateCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationUpdateCmsSiteArgs, 'id' | 'input'>>;
+  updateColdEmailVariant?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<MutationUpdateColdEmailVariantArgs, 'body' | 'draftId' | 'subject' | 'variantId'>>;
   updateCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationUpdateCompanyArgs, 'id' | 'input'>>;
   updateCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationUpdateCompanyExpenseArgs, 'id' | 'input'>>;
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
@@ -26844,6 +27029,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   cmsSiteBySlug?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<QueryCmsSiteBySlugArgs, 'slug'>>;
   cmsSiteDns?: Resolver<ResolversTypes['CmsSiteDns'], ParentType, ContextType, RequireFields<QueryCmsSiteDnsArgs, 'siteId'>>;
   cmsSites?: Resolver<Array<ResolversTypes['CmsSite']>, ParentType, ContextType>;
+  coldEmailDraft?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<QueryColdEmailDraftArgs, 'id'>>;
+  coldEmailDrafts?: Resolver<ResolversTypes['ColdEmailDraftPage'], ParentType, ContextType, RequireFields<QueryColdEmailDraftsArgs, 'input'>>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   companyGoogleBusiness?: Resolver<Maybe<ResolversTypes['GoogleBusinessProfile']>, ParentType, ContextType, RequireFields<QueryCompanyGoogleBusinessArgs, 'companyId'>>;
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
@@ -29684,6 +29871,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CmsSite?: CmsSiteResolvers<ContextType>;
   CmsSiteDns?: CmsSiteDnsResolvers<ContextType>;
   CmsSiteSeo?: CmsSiteSeoResolvers<ContextType>;
+  ColdEmailDraft?: ColdEmailDraftResolvers<ContextType>;
+  ColdEmailDraftPage?: ColdEmailDraftPageResolvers<ContextType>;
+  ColdEmailVariant?: ColdEmailVariantResolvers<ContextType>;
   Company?: CompanyResolvers<ContextType>;
   CompanyBenefit?: CompanyBenefitResolvers<ContextType>;
   CompanyExpense?: CompanyExpenseResolvers<ContextType>;

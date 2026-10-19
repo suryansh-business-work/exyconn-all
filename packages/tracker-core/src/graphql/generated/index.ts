@@ -784,6 +784,16 @@ export type CmsSiteStatus =
   | 'ACTIVE'
   | 'DRAFT';
 
+export type ColdEmailStatus =
+  | 'DRAFT'
+  /** One of its versions has been sent. */
+  | 'SENT';
+
+export type ColdEmailTone =
+  | 'BRIEF'
+  | 'FORMAL'
+  | 'FRIENDLY';
+
 export type CompanyBenefitInput = {
   description: InputMaybe<Scalars['String']['input']>;
   icon: Scalars['String']['input'];
@@ -929,6 +939,16 @@ export type CostCenterInput = {
   isActive: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
   ownerId: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateColdEmailDraftInput = {
+  goal: InputMaybe<Scalars['String']['input']>;
+  object: CrmTimelineObject;
+  /** Read their website through Firecrawl first; costs a Firecrawl call. */
+  readWebsite: InputMaybe<Scalars['Boolean']['input']>;
+  recordId: Scalars['ID']['input'];
+  toEmail: Scalars['String']['input'];
+  tone: ColdEmailTone;
 };
 
 export type CreateUserInput = {
@@ -3030,6 +3050,15 @@ export type SalaryStructureInput = {
   taxRegimeKey: InputMaybe<Scalars['String']['input']>;
   /** Percent of taxable pay withheld for this person; 0 falls back to the company rate. */
   tdsPercent: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type SendColdEmailVariantInput = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders). */
+  fromAccountId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 export type SendCrmEmailInput = {

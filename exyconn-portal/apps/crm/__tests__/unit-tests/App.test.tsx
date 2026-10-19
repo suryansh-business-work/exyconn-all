@@ -17,6 +17,7 @@ import { LeadGeneratorPage } from '../../src/pages/lead-generator';
 import { WebsiteScraperPage } from '../../src/pages/website-scraper';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
+import { ColdEmailDraftPage, ColdEmailsPage } from '../../src/pages/cold-emails';
 import { CalendarPage } from '../../src/pages/calendar';
 import { IntegrationsPage } from '../../src/pages/integrations';
 import { CommsDockLayout } from '../../src/records/comms';
@@ -90,6 +91,8 @@ describe('App', () => {
       ['/activities', ActivitiesPage],
       ['/calendar', CalendarPage],
       ['/meetings/:tab?', MeetingsPage],
+      ['/cold-emails', ColdEmailsPage],
+      ['/cold-emails/:id', ColdEmailDraftPage],
       ['/tools/email-verifier/:tab?', EmailVerifierPage],
       ['/tools/lead-generator', LeadGeneratorPage],
       ['/tools/website-scraper', WebsiteScraperPage],
