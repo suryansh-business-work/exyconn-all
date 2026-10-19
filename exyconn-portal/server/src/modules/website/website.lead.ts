@@ -1,5 +1,7 @@
 import { WebsiteSubmissionModel } from './models';
 import { LeadModel } from '../crm/crm.model';
+import { findOrCreateContact, logContactActivity } from '../crm/contact.upsert';
+import { systemOrigin } from '../crm/crm.origin';
 import { UserModel } from '../admin/user.model';
 import { ROLES } from '../../constants/roles';
 import { assertPlatformStaff, platformOperatorOrganizationId } from '../../lib/platformAccess';
@@ -93,6 +95,27 @@ const SALES_FORM_TYPES: ReadonlySet<string> = new Set([
 export const UNASSIGNED = 'Unassigned';
 
 /**
+ * The enquirer as a CRM contact (found by any of their addresses, or created "From website"),
+ * with the enquiry on their timeline, so sales sees it on the person and not only as a lead.
+ */
+async function fileWebsiteContact(formType: string, data: Payload, name: string, email: string) {
+  const contact = await findOrCreateContact({
+    name,
+    email,
+    phone: firstText(data, ['phone']),
+    leadSource: 'Website',
+    origin: systemOrigin('WEBSITE'),
+  });
+  await logContactActivity(contact, {
+    type: 'NOTE',
+    subject: `Website ${formType} form`,
+    notes: notesOf(formType, data),
+    done: false,
+    owner: UNASSIGNED,
+  });
+}
+
+/**
  * Files a lead the moment a sales enquiry arrives.
  *
  * The inbox always had a "convert to lead" button, which means an enquiry that came in on
@@ -124,9 +147,11 @@ export async function autoFileLead(
     // Named "Unassigned" rather than left blank: a lead has to have an owner, and putting a
     // real person's name on one nobody has picked up would say somebody had. Assignment is
     // the sales desk's own decision, and this is what it reads as until they make it.
-    const lead = await runForOrganization(operatorId, () =>
-      LeadModel.create(leadFromSubmission(formType, data, UNASSIGNED)),
-    );
+    const lead = await runForOrganization(operatorId, async () => {
+      const filed = await LeadModel.create(leadFromSubmission(formType, data, UNASSIGNED));
+      await fileWebsiteContact(formType, data, filed.name, filed.email);
+      return filed;
+    });
     const leadId = lead._id.toHexString();
     await WebsiteSubmissionModel.updateOne({ _id: submissionId }, { leadId });
     return leadId;

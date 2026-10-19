@@ -8,7 +8,7 @@ import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { appUrl } from '@exyconn/shell/config/apps';
+import { bookingLink } from './bookingLink';
 import { useCrudResource } from '@exyconn/crud';
 import {
   useDeleteMeetingTypeMutation,
@@ -16,9 +16,6 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { MeetingTypeForm, type MeetingTypeRow } from './forms/meeting-type';
 import { BookingPageLink } from './BookingPageLink';
-
-/** A public booking address on the CRM site, which needs no sign-in (/book/<company>/<link>). */
-export const bookingLink = (path: string) => appUrl('crm', path);
 
 /** Meetings > Meeting types: what people can book, for how long, and when. */
 export function MeetingTypesPanel() {
@@ -66,7 +63,7 @@ export function MeetingTypesPanel() {
       label: 'Length',
       render: (r) => t('{minutes} min', { minutes: r.durationMinutes }),
     },
-    { key: 'slug', label: 'Link', render: (r) => r.bookingPath },
+    { key: 'slug', label: 'Link', render: (r) => bookingLink(r.bookingPath) },
     { key: 'hostName', label: 'Host' },
     {
       key: 'active',

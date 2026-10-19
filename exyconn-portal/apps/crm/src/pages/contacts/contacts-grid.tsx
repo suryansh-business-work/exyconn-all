@@ -14,6 +14,8 @@ export const CONTACT_COLUMNS: ColDef<PagedContactRow>[] = [
   emailColumn<PagedContactRow>(),
   textColumn('phone', 'Phone'),
   statusColumn('status', 'Status'),
-  textColumn('owner', 'Owner'),
+  textColumn('owner', 'Contact owner'),
+  textColumn('leadOwner', 'Lead owner'),
+  textColumn('tags', 'Tags'),
   actionsColumn(),
 ];

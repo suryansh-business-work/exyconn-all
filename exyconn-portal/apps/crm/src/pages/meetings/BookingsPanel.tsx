@@ -68,7 +68,7 @@ export function BookingsPanel() {
       label: 'With',
       render: (r) =>
         r.contactId ? (
-          <Link component={RouterLink} to={`/crm/contacts/${r.contactId}`}>
+          <Link component={RouterLink} to={`/contacts/${r.contactId}`}>
             {r.name}
           </Link>
         ) : (

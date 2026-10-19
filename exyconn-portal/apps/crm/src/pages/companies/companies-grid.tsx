@@ -32,6 +32,8 @@ export const COMPANY_COLUMNS: ColDef<PagedCompanyRow>[] = [
   textColumn('size', 'Size'),
   statusColumn('status', 'Status'),
   boolColumn('isClient', 'Client'),
-  textColumn('owner', 'Owner'),
+  textColumn('owner', 'Company owner'),
+  textColumn('leadOwner', 'Lead owner'),
+  textColumn('tags', 'Tags'),
   actionsColumn([MAKE_CLIENT_ACTION, EDIT_ACTION, DELETE_ACTION]),
 ];

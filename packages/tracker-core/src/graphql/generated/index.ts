@@ -969,6 +969,22 @@ export type CreateUserInput = {
   workingTimeNote: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CrmCallConfigInput = {
+  /** Twilio Account SID or Vobiz Auth ID. */
+  accountId: Scalars['String']['input'];
+  /** Twilio or Vobiz Auth Token. Blank keeps the stored one when editing. */
+  authToken: Scalars['String']['input'];
+  /** The number calls come from, in E.164, e.g. +14155550100. */
+  fromNumber: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  provider: CrmCallProvider;
+};
+
+export type CrmCallProvider =
+  | 'TWILIO'
+  | 'VOBIZ';
+
 export type CrmConditionInput = {
   op: CrmOp;
   property: Scalars['String']['input'];
@@ -985,6 +1001,10 @@ export type CrmEmailAddressInput = {
 export type CrmEmailDirection =
   | 'IN'
   | 'OUT';
+
+export type CrmEmailProvider =
+  | 'GMAIL'
+  | 'MICROSOFT';
 
 /** Conditions in a group must all hold; a record matches when any group does. */
 export type CrmFilterGroupInput = {
@@ -1031,6 +1051,13 @@ export type CrmOp =
   | 'NOT_CONTAINS'
   | 'NOT_IN'
   | 'STARTS_WITH';
+
+export type CrmOriginSource =
+  | 'GOOGLE_PLACES'
+  | 'LEAD_CONVERSION'
+  | 'MEETING_BOOKING'
+  | 'USER'
+  | 'WEBSITE';
 
 export type CrmPhoneNumberInput = {
   label: InputMaybe<Scalars['String']['input']>;
@@ -1102,10 +1129,36 @@ export type CrmQueryInput = {
   sorts: InputMaybe<Array<CrmSortInput>>;
 };
 
+export type CrmSmsConfigInput = {
+  /** Twilio only: the Account SID. */
+  accountId: InputMaybe<Scalars['String']['input']>;
+  /** Twilio Auth Token or MSG91 auth key. Blank keeps the stored one when editing. */
+  authToken: Scalars['String']['input'];
+  /** Twilio only: the sending number in E.164. */
+  fromNumber: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  /** MSG91 only: the template variable that carries the message, e.g. message. */
+  messageVariable: InputMaybe<Scalars['String']['input']>;
+  provider: CrmSmsProvider;
+  /** MSG91 only: the DLT sender id. */
+  senderId: InputMaybe<Scalars['String']['input']>;
+  /** MSG91 only: the DLT-approved flow template id. */
+  templateId: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CrmSmsProvider =
+  | 'MSG91'
+  | 'TWILIO';
+
 export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
 };
+
+export type CrmTagObject =
+  | 'COMPANY'
+  | 'CONTACT';
 
 export type CrmTimelineKind =
   | 'CALL'
@@ -1457,9 +1510,9 @@ export type FindingType =
   | 'OPPORTUNITY';
 
 export type FirecrawlConfigInput = {
-  /** Leave empty when editing to keep it. */
+  /** Required for the hosted API at api.firecrawl.dev; empty for a self-hosted Firecrawl without authentication. Leave empty when editing to keep it. */
   apiKey: Scalars['String']['input'];
-  /** https://api.firecrawl.dev, or a self-hosted Firecrawl. */
+  /** https://api.firecrawl.dev, or the http(s) address of a self-hosted Firecrawl. */
   baseUrl: Scalars['String']['input'];
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
@@ -2011,6 +2064,15 @@ export type LeadImportInput = {
   website: InputMaybe<Scalars['String']['input']>;
 };
 
+/** What a lead would do on import. */
+export type LeadImportStatus =
+  /** Already in the CRM with nothing new: it will be skipped. */
+  | 'DUPLICATE'
+  /** Already in the CRM, and it has details the company is missing. */
+  | 'DUPLICATE_WITH_EXTRA'
+  /** Not in the CRM yet: it will be filed. */
+  | 'NEW';
+
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId: InputMaybe<Scalars['String']['input']>;
@@ -2022,6 +2084,12 @@ export type LeadInput = {
   source: LeadSource;
   stage: LeadStage;
   value: Scalars['Float']['input'];
+};
+
+/** A duplicate lead whose extra details should be added to the company the preview matched. */
+export type LeadMergeInput = {
+  companyId: Scalars['ID']['input'];
+  placeId: Scalars['ID']['input'];
 };
 
 export type LeadSearchInput = {
@@ -2202,6 +2270,13 @@ export type MeetingBookingStatus =
   | 'CANCELLED'
   | 'CONFIRMED';
 
+export type MeetingSettingsInput = {
+  bookingSlug: Scalars['String']['input'];
+  googleMeetUrl: InputMaybe<Scalars['String']['input']>;
+  slackChannel: InputMaybe<Scalars['String']['input']>;
+  zoomUrl: InputMaybe<Scalars['String']['input']>;
+};
+
 export type MeetingTypeInput = {
   active: Scalars['Boolean']['input'];
   bufferMinutes: Scalars['Int']['input'];
@@ -2216,11 +2291,24 @@ export type MeetingTypeInput = {
   weeklyHours: Array<MeetingWeeklyHoursInput>;
 };
 
+export type MeetingVisitKind =
+  | 'BOOKED'
+  | 'VIEW';
+
 export type MeetingWeeklyHoursInput = {
   day: Scalars['Int']['input'];
   enabled: Scalars['Boolean']['input'];
   end: Scalars['String']['input'];
   start: Scalars['String']['input'];
+};
+
+export type MicrosoftMailConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  /** Blank means common. */
+  tenant: Scalars['String']['input'];
 };
 
 export type MilestoneInput = {
@@ -2917,13 +3005,22 @@ export type SalaryStructureInput = {
 export type SendCrmEmailInput = {
   body: Scalars['String']['input'];
   cc: InputMaybe<Array<Scalars['String']['input']>>;
-  /** The connected account to send from; it has to be enabled for the CRM. */
+  /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM. */
   fromAccountId: Scalars['ID']['input'];
   inReplyTo: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
   threadId: InputMaybe<Scalars['String']['input']>;
   to: Array<Scalars['String']['input']>;
+};
+
+export type SendCrmSmsInput = {
+  /** 1 to 1000 characters. */
+  body: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+  /** The record's number to text, in E.164. */
+  to: Scalars['String']['input'];
 };
 
 export type SendMailInput = {
@@ -3080,6 +3177,15 @@ export type StartCallingBotCallInput = {
   phone: InputMaybe<Scalars['String']['input']>;
   /** The example the bot plays (from callingBotScenarios); none keeps the bot's own prompt. */
   scenarioId: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type StartCrmCallInput = {
+  /** The CRM user's own phone, in E.164: it rings first, then the call is bridged to the record. */
+  agentPhone: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+  /** The record's number to call, in E.164. */
+  to: Scalars['String']['input'];
 };
 
 export type StatusCategory =

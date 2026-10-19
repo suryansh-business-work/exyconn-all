@@ -33,17 +33,17 @@ function renderNav(selected = 'slack', messages: Record<string, string> = {}) {
   return { onSelect, nav };
 }
 
+const isFoldToggle = (button: HTMLElement) => button.textContent?.includes(' all') ?? false;
+
 const headers = (nav: HTMLElement) =>
   within(nav)
     .queryAllByRole('button')
-    .filter((button) => button.hasAttribute('aria-expanded'));
+    .filter((button) => button.hasAttribute('aria-expanded') && !isFoldToggle(button));
 
 const entryNames = (nav: HTMLElement) =>
   within(nav)
     .queryAllByRole('button')
-    .filter(
-      (button) => !button.hasAttribute('aria-expanded') && !button.textContent?.includes(' all'),
-    )
+    .filter((button) => !button.hasAttribute('aria-expanded'))
     .map((button) => button.textContent);
 
 function stubPhone() {
@@ -116,30 +116,38 @@ describe('PageSideNav on a desktop', () => {
     expect(onSelect).toHaveBeenCalledWith('stripe');
   });
 
-  it('folds one category, then every category, and opens them all again', async () => {
+  it('folds one category, then every category with one toggle, and opens them all again', async () => {
     const { nav } = renderNav();
     const messaging = within(nav).getByRole('button', { name: 'Messaging' });
+    const toggle = () => within(nav).getByRole('button', { name: / all$/ });
+    expect(toggle()).toHaveTextContent('Collapse all');
+    expect(toggle()).toHaveAttribute('aria-expanded', 'true');
 
     await userEvent.click(messaging);
     expect(messaging).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle()).toHaveTextContent('Expand all');
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false');
     await waitFor(() =>
       expect(within(nav).queryByRole('button', { name: 'SMTP' })).not.toBeInTheDocument(),
     );
     await userEvent.click(messaging);
     expect(messaging).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle()).toHaveTextContent('Collapse all');
 
-    await userEvent.click(within(nav).getByRole('button', { name: 'Collapse all' }));
+    await userEvent.click(toggle());
     expect(headers(nav).map((header) => header.getAttribute('aria-expanded'))).toEqual([
       'false',
       'false',
       'false',
     ]);
-    await userEvent.click(within(nav).getByRole('button', { name: 'Expand all' }));
+    expect(toggle()).toHaveTextContent('Expand all');
+    await userEvent.click(toggle());
     expect(headers(nav).map((header) => header.getAttribute('aria-expanded'))).toEqual([
       'true',
       'true',
       'true',
     ]);
+    expect(within(nav).queryByRole('button', { name: 'Expand all' })).not.toBeInTheDocument();
   });
 
   it('narrows to matches with their groups held open, and Escape clears the search', async () => {
@@ -152,7 +160,6 @@ describe('PageSideNav on a desktop', () => {
     expect(headers(nav)[0]).toHaveAttribute('aria-expanded', 'true');
     expect(entryNames(nav)).toEqual(['OpenAI']);
     expect(within(nav).getByRole('button', { name: 'Expand all' })).toBeDisabled();
-    expect(within(nav).getByRole('button', { name: 'Collapse all' })).toBeDisabled();
 
     await userEvent.keyboard('a');
     expect(search).toHaveValue('opena');
@@ -178,14 +185,14 @@ describe('PageSideNav on a desktop', () => {
     await pickSort('Name A–Z');
     expect(headers(nav)).toEqual([]);
     expect(entryNames(nav)).toEqual(['OpenAI', 'Résumé parser', 'Slack', 'SMTP', 'Stripe']);
-    expect(within(nav).getByRole('button', { name: 'Expand all' })).toBeDisabled();
+    expect(within(nav).getByRole('button', { name: 'Collapse all' })).toBeDisabled();
 
     await pickSort('Name Z–A');
     expect(entryNames(nav)).toEqual(['Stripe', 'SMTP', 'Slack', 'Résumé parser', 'OpenAI']);
 
     await pickSort('By category');
     expect(headers(nav)).toHaveLength(3);
-    expect(within(nav).getByRole('button', { name: 'Expand all' })).toBeEnabled();
+    expect(within(nav).getByRole('button', { name: 'Collapse all' })).toBeEnabled();
   });
 
   it('leaves the content unnamed when the open slug is not in the menu', () => {

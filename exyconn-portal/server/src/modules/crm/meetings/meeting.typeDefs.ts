@@ -22,7 +22,7 @@ export const meetingTypeDefs = gql`
     id: ID!
     title: String!
     slug: String!
-    "The public link's path on the CRM site: /book/<company>/<slug>."
+    "The public link's path inside the company's CRM address: /book/<page>/<slug>."
     bookingPath: String!
     description: String!
     durationMinutes: Int!
@@ -69,6 +69,8 @@ export const meetingTypeDefs = gql`
     notes: String!
     guests: [String!]!
     timezone: String!
+    "ISO country of the booker's time zone; empty when it names none."
+    country: String!
     status: MeetingBookingStatus!
     contactId: String!
     createdAt: DateTime!
@@ -89,6 +91,9 @@ export const meetingTypeDefs = gql`
     timezone: String!
     organizationName: String!
     organizationSlug: String!
+    "The company's logo (Admin > Branding); empty when it has none."
+    logoUrl: String!
+    logoDarkUrl: String!
     "Whether a location is shared once the meeting is booked."
     hasLocation: Boolean!
   }
@@ -97,6 +102,8 @@ export const meetingTypeDefs = gql`
   type PublicBookingPage {
     organizationName: String!
     organizationSlug: String!
+    logoUrl: String!
+    logoDarkUrl: String!
     meetings: [PublicMeeting!]!
   }
 
@@ -107,6 +114,73 @@ export const meetingTypeDefs = gql`
     endAt: DateTime!
     "Where it happens, now that it is booked."
     location: String!
+    "The fixed video rooms from Meeting settings, e.g. 'Zoom: https://zoom.us/j/1'."
+    joinLinks: [String!]!
+  }
+
+  "CRM > Meetings > Settings: the booking page address, Slack and the fixed video rooms."
+  type MeetingSettings {
+    "The page's part of /organization/<company>/book/<slug>; 'meeting' by default."
+    bookingSlug: String!
+    "Slack channel id each booking is posted to; empty posts nowhere."
+    slackChannel: String!
+    googleMeetUrl: String!
+    zoomUrl: String!
+  }
+
+  input MeetingSettingsInput {
+    bookingSlug: String!
+    slackChannel: String
+    googleMeetUrl: String
+    zoomUrl: String
+  }
+
+  enum MeetingVisitKind {
+    VIEW
+    BOOKED
+  }
+
+  "Views and bookings for one value (a country, a meeting, a day)."
+  type MeetingTrackingCountry {
+    country: String!
+    countryName: String!
+    views: Int!
+    bookings: Int!
+  }
+
+  type MeetingTrackingMeeting {
+    "The meeting's link part; empty for the booking page itself."
+    meetingSlug: String!
+    views: Int!
+    bookings: Int!
+  }
+
+  type MeetingTrackingDay {
+    "yyyy-MM-dd, UTC."
+    day: String!
+    views: Int!
+    bookings: Int!
+  }
+
+  "One visit or booking: no IP address, cookie or name is ever kept."
+  type MeetingTrackingVisit {
+    id: ID!
+    kind: MeetingVisitKind!
+    meetingSlug: String!
+    country: String!
+    countryName: String!
+    at: DateTime!
+  }
+
+  "CRM > Meetings > Tracking over the last few days."
+  type MeetingTracking {
+    days: Int!
+    views: Int!
+    bookings: Int!
+    byCountry: [MeetingTrackingCountry!]!
+    byMeeting: [MeetingTrackingMeeting!]!
+    byDay: [MeetingTrackingDay!]!
+    recent: [MeetingTrackingVisit!]!
   }
 
   input BookMeetingInput {
@@ -123,14 +197,25 @@ export const meetingTypeDefs = gql`
   extend type Query {
     meetingTypes: [MeetingType!]!
     meetingBookings(page: Int!, pageSize: Int!): MeetingBookingPage!
-    "The path of this company's booking page on the CRM site: /book/<company>."
+    "The path of this company's booking page inside its CRM address: /book/<page>."
     meetingBookingPagePath: String!
-    "Public: a company's booking page (/book/<org>)."
-    publicBookingPage(org: String!): PublicBookingPage!
-    "Public: the meeting behind a booking link (/book/<org>/<slug>)."
-    publicMeeting(org: String!, slug: String!): PublicMeeting!
+    meetingSettings: MeetingSettings!
+    "Slack channels a booking can be posted to (needs Tech > Environment Variables > Slack)."
+    meetingSlackChannels: [SlackChannel!]!
+    "Booking page views and bookings over the last 1-365 days."
+    meetingTracking(days: Int!): MeetingTracking!
+    "Public: a company's booking page (/organization/<org>/book/<page>)."
+    publicBookingPage(org: String!, page: String!): PublicBookingPage!
+    "Public: the meeting behind a booking link (/organization/<org>/book/<page>/<slug>)."
+    publicMeeting(org: String!, page: String!, slug: String!): PublicMeeting!
     "Public: the free starts between two times (at most 62 days apart)."
-    publicMeetingSlots(org: String!, slug: String!, from: DateTime!, to: DateTime!): [DateTime!]!
+    publicMeetingSlots(
+      org: String!
+      page: String!
+      slug: String!
+      from: DateTime!
+      to: DateTime!
+    ): [DateTime!]!
   }
 
   extend type Mutation {
@@ -138,7 +223,16 @@ export const meetingTypeDefs = gql`
     updateMeetingType(id: ID!, input: MeetingTypeInput!): MeetingType!
     deleteMeetingType(id: ID!): Boolean!
     cancelMeetingBooking(id: ID!): MeetingBooking!
+    "Changing the booking page address stops the old one working."
+    saveMeetingSettings(input: MeetingSettingsInput!): MeetingSettings!
     "Public: books a free start from a booking link."
-    bookMeeting(org: String!, slug: String!, input: BookMeetingInput!): BookedMeeting!
+    bookMeeting(
+      org: String!
+      page: String!
+      slug: String!
+      input: BookMeetingInput!
+    ): BookedMeeting!
+    "Public: counts one visit to the booking page (slug '') or a meeting; keeps no personal data."
+    trackMeetingView(org: String!, page: String!, slug: String!, timezone: String): Boolean!
   }
 `;

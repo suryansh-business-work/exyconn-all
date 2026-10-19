@@ -12,7 +12,8 @@ const weeklyHoursSchema = new Schema(
 );
 
 /**
- * A kind of meeting people can book from a public link (status.exyconn.com/book/<slug>), like
+ * A kind of meeting people can book from a public link (crm.exyconn.com/organization/<company>/
+ * book/<page>/<slug>), like
  * a Calendly event type: how long it is, where it happens, and when the host is free.
  */
 const meetingTypeSchema = new Schema(
@@ -60,6 +61,8 @@ const meetingBookingSchema = new Schema(
     guests: { type: [String], default: [] },
     /** The zone the person booked in, for their confirmation email. */
     timezone: { type: String, default: 'UTC' },
+    /** ISO country of that zone, for tracking; never from the booker's IP address. */
+    country: { type: String, default: '' },
     status: { type: String, enum: BOOKING_STATUSES, required: true, default: 'CONFIRMED' },
     /** The CRM contact the booking was filed under (found by email, or created). */
     contactId: { type: String, default: '' },

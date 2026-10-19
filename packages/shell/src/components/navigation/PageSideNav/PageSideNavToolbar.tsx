@@ -13,8 +13,10 @@ interface PageSideNavToolbarProps {
   onSortChange: (sort: PageSideNavSort) => void;
   /** Folding only means something on the grouped list, and not while a search holds groups open. */
   canFold: boolean;
-  onExpandAll: () => void;
-  onCollapseAll: () => void;
+  /** Every category is open, so the toggle offers to collapse them all. */
+  allExpanded: boolean;
+  /** Collapses every category when all are open, else opens them all. */
+  onToggleAll: () => void;
 }
 
 /** The sort options, as English sources. */
@@ -24,17 +26,18 @@ const SORT_OPTIONS: ReadonlyArray<{ value: PageSideNavSort; label: string }> = [
   { value: 'desc', label: 'Name Z–A' },
 ];
 
-/** Search, sort and expand/collapse-all above the side menu. */
+/** Search, sort and one expand/collapse-all toggle above the side menu. */
 export function PageSideNavToolbar({
   query,
   onQueryChange,
   sort,
   onSortChange,
   canFold,
-  onExpandAll,
-  onCollapseAll,
+  allExpanded,
+  onToggleAll,
 }: Readonly<PageSideNavToolbarProps>) {
   const t = useT();
+  const foldIcon = allExpanded ? <UnfoldLessIcon aria-hidden /> : <UnfoldMoreIcon aria-hidden />;
   const onSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       onQueryChange('');
@@ -75,26 +78,17 @@ export function PageSideNavToolbar({
           </MenuItem>
         ))}
       </TextField>
-      <Stack direction="row" spacing={1}>
-        <Button
-          size="small"
-          variant="text"
-          startIcon={<UnfoldMoreIcon />}
-          disabled={!canFold}
-          onClick={onExpandAll}
-        >
-          {t('Expand all')}
-        </Button>
-        <Button
-          size="small"
-          variant="text"
-          startIcon={<UnfoldLessIcon />}
-          disabled={!canFold}
-          onClick={onCollapseAll}
-        >
-          {t('Collapse all')}
-        </Button>
-      </Stack>
+      <Button
+        size="small"
+        variant="outlined"
+        fullWidth
+        startIcon={foldIcon}
+        aria-expanded={allExpanded}
+        disabled={!canFold}
+        onClick={onToggleAll}
+      >
+        {allExpanded ? t('Collapse all') : t('Expand all')}
+      </Button>
     </Stack>
   );
 }

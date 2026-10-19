@@ -1,0 +1,61 @@
+# The CRM's Microsoft (Outlook / Microsoft 365) mail: the Entra app on Tech > Environment
+# Variables, and the mailboxes connected from the CRM. Sending goes through SendCrmEmail.
+fragment MicrosoftMailConfigFields on MicrosoftMailConfig {
+  id
+  clientId
+  tenant
+  hasClientSecret
+  clientSecretHint
+  enabled
+  accountCount
+  redirectUri
+  updatedAt
+}
+
+query MicrosoftMailConfig {
+  microsoftMailConfig {
+    ...MicrosoftMailConfigFields
+  }
+}
+
+mutation SaveMicrosoftMailConfig($input: MicrosoftMailConfigInput!) {
+  saveMicrosoftMailConfig(input: $input) {
+    ...MicrosoftMailConfigFields
+  }
+}
+
+mutation TestMicrosoftMailConfig {
+  testMicrosoftMailConfig
+}
+
+fragment MicrosoftMailAccountFields on MicrosoftMailAccount {
+  id
+  email
+  enabled
+  status
+  lastError
+  connectedAt
+  connectedByName
+  lastUsedAt
+}
+
+query MicrosoftMailAccounts {
+  microsoftMailAccounts {
+    ...MicrosoftMailAccountFields
+  }
+  microsoftMailClientReady
+}
+
+mutation StartMicrosoftMailConnect($returnTo: String!) {
+  startMicrosoftMailConnect(returnTo: $returnTo)
+}
+
+mutation SetMicrosoftMailAccountEnabled($id: ID!, $enabled: Boolean!) {
+  setMicrosoftMailAccountEnabled(id: $id, enabled: $enabled) {
+    ...MicrosoftMailAccountFields
+  }
+}
+
+mutation DisconnectMicrosoftMailAccount($id: ID!) {
+  disconnectMicrosoftMailAccount(id: $id)
+}

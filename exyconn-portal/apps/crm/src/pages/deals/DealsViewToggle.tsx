@@ -4,8 +4,8 @@ import TableRowsIcon from '@mui/icons-material/TableRows';
 import { useT } from '@exyconn/i18n';
 import { Stack, ToggleButton, ToggleButtonGroup } from '@exyconn/shell/components/ui';
 
-export const DEALS_BOARD_PATH = '/crm/deals';
-export const DEALS_LIST_PATH = '/crm/deals/list';
+export const DEALS_BOARD_PATH = '/deals';
+export const DEALS_LIST_PATH = '/deals/list';
 
 /** The same deals as a board or as a register — one switch, shown on both. */
 export function DealsViewToggle() {

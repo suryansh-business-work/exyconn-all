@@ -74,9 +74,12 @@ describe('EnvironmentVariablesPage', () => {
   it('lists every integration in the side menu, grouped by category', () => {
     renderAt('/tech/environment-variables/slack');
     const nav = screen.getByRole('navigation', { name: 'Integration credentials' });
+    // Every group starts open, so the one toolbar toggle offers to collapse them all.
+    const toggle = within(nav).getByRole('button', { name: 'Collapse all' });
     expect(
       within(nav)
         .getAllByRole('button', { expanded: true })
+        .filter((button) => button !== toggle)
         .map((header) => header.textContent),
     ).toEqual([
       'Messaging & email',

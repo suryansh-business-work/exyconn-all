@@ -16,10 +16,10 @@ const STATUS_OPTIONS = enumOptions(Object.values(CompanyStatus));
 /** The account itself, how to reach it, how big it is, and where it is. */
 export function CompanyDetailsFields() {
   const t = useT();
-  const sizeOptions: SelectOption[] = COMPANY_SIZES.map((size) => ({
-    value: size,
-    label: t('{size} people', { size }),
-  }));
+  const sizeOptions: SelectOption[] = [
+    { value: '', label: t('Not known') },
+    ...COMPANY_SIZES.map((size) => ({ value: size, label: t('{size} people', { size }) })),
+  ];
   return (
     <>
       <RhfImageField
@@ -33,7 +33,11 @@ export function CompanyDetailsFields() {
       <RhfTextField name="industry" label="Industry" />
       <RhfSelect name="size" label="Size" options={sizeOptions} />
       <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="owner" label="Owner" />
+      <RhfTextField
+        name="owner"
+        label="Company owner"
+        helperText="Who looks after this account; leave blank until someone takes it on"
+      />
       <Divider />
       <ContactPointsField
         name="emails"

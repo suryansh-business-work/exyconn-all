@@ -26,7 +26,8 @@ const baseSchema = profileSchema.extend({
   lifecycleStage: z.enum(LifecycleStage),
   leadSource: z.string().trim(),
   languages: z.array(z.string().trim().min(1)),
-  owner: z.string().trim().min(1, 'Owner is required'),
+  /** Who looks after the person; blank until somebody takes them on. */
+  owner: z.string().trim(),
   notes: z.string().trim(),
 });
 

@@ -9,6 +9,9 @@ import {
 import { CompanyModel } from '../../../../src/modules/crm/company.model';
 import { ActivityModel } from '../../../../src/modules/crm/activity.model';
 
+/** The person running the import, as the import records them. */
+const ASHA = { source: 'GOOGLE_PLACES' as const, userId: 'u1', userName: 'Asha', userEmail: '' };
+
 const lead = (over: Partial<LeadImportInput> = {}): LeadImportInput => ({
   placeId: 'place-1',
   name: 'Smile Dental',
@@ -42,14 +45,15 @@ describe('domainOf / placeholderDomain', () => {
 
 describe('importLeads', () => {
   it('files a company with its contact points, map and source, and notes it on the timeline', async () => {
-    const result = await importLeads([lead()], 'Asha');
+    const result = await importLeads([lead()], ASHA);
 
     expect(result).toMatchObject({ created: 1, skipped: 0, skips: [] });
     const company = await CompanyModel.findById(result.filed[0].companyId).lean();
     expect(company).toMatchObject({
       name: 'Smile Dental',
       domain: 'smiledental.example',
-      owner: 'Asha',
+      owner: '',
+      leadOwner: 'Asha',
       status: 'PROSPECT',
       phone: '+91 20 1234 5678',
       country: 'IN',
@@ -67,17 +71,17 @@ describe('importLeads', () => {
   });
 
   it('skips a place already filed, then a domain already in the CRM, then a repeat in the batch', async () => {
-    await importLeads([lead()], 'Asha');
+    await importLeads([lead()], ASHA);
     await CompanyModel.create({ name: 'Acme', domain: 'acme.example', owner: 'Ravi' });
 
     const result = await importLeads(
       [
         lead({ name: 'Again' }),
         lead({ placeId: 'place-2', name: 'Acme branch', website: 'https://acme.example' }),
-        lead({ placeId: 'place-3', name: 'No site', website: '' }),
-        lead({ placeId: 'place-3', name: 'No site', website: '' }),
+        lead({ placeId: 'place-3', name: 'No site', website: '', phone: '+91 22 5555 0000' }),
+        lead({ placeId: 'place-3', name: 'No site', website: '', phone: '+91 22 5555 0000' }),
       ],
-      'Asha',
+      ASHA,
     );
 
     expect(result.created).toBe(1);
@@ -92,16 +96,16 @@ describe('importLeads', () => {
   });
 
   it('refuses an empty or oversized batch and a lead with no place or coordinates', async () => {
-    await expect(importLeads([], 'Asha')).rejects.toThrow(/between 1/);
+    await expect(importLeads([], ASHA)).rejects.toThrow(/between 1/);
     const many = Array.from({ length: MAX_IMPORT + 1 }, (_v, i) => lead({ placeId: `p${i}` }));
-    await expect(importLeads(many, 'Asha')).rejects.toThrow(/between 1/);
-    await expect(importLeads([lead({ lat: 200 })], 'Asha')).rejects.toThrow(/coordinates/);
-    await expect(importLeads([lead({ placeId: ' ' })], 'Asha')).rejects.toThrow(/Place ID/);
+    await expect(importLeads(many, ASHA)).rejects.toThrow(/between 1/);
+    await expect(importLeads([lead({ lat: 200 })], ASHA)).rejects.toThrow(/coordinates/);
+    await expect(importLeads([lead({ placeId: ' ' })], ASHA)).rejects.toThrow(/Place ID/);
     expect(await CompanyModel.countDocuments()).toBe(0);
   });
 
   it('keeps only Google Maps links as the map URL', async () => {
-    const result = await importLeads([lead({ mapUrl: 'https://evil.example/maps' })], 'Asha');
+    const result = await importLeads([lead({ mapUrl: 'https://evil.example/maps' })], ASHA);
     const company = await CompanyModel.findById(result.filed[0].companyId).lean();
     expect(company?.mapUrl).toBe('');
   });

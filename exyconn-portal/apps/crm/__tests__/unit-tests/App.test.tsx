@@ -17,6 +17,8 @@ import { WebsiteScraperPage } from '../../src/pages/website-scraper';
 import { GmailAccountsPage } from '../../src/pages/settings/gmail';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
+import { IntegrationsPage } from '../../src/pages/integrations';
+import { CommsDockLayout } from '../../src/records/comms';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -37,12 +39,24 @@ vi.mock('@exyconn/shell', () => ({
 
 vi.mock('@exyconn/login', () => ({ Login: () => null }));
 
-/** Each route the app declares, as path -> the page component it renders. */
+interface RouteProps {
+  path?: string;
+  element: ReactElement;
+  children?: ReactNode;
+}
+
+/** The pathless layout route the CRM pages sit in (it hosts the communication dock). */
+function layoutRoute(children: ReactNode) {
+  const [layout] = Children.toArray(children).filter(isValidElement);
+  return layout.props as RouteProps;
+}
+
+/** Each route the layout declares, as path -> the page component it renders. */
 function declaredRoutes(children: ReactNode) {
-  return Children.toArray(children)
+  return Children.toArray(layoutRoute(children).children)
     .filter(isValidElement)
     .map((route) => {
-      const { path, element } = route.props as { path: string; element: ReactElement };
+      const { path, element } = route.props as RouteProps;
       return [path, element.type] as const;
     });
 }
@@ -53,29 +67,33 @@ describe('App', () => {
     const props = portal.props as PortalProps;
 
     expect(props.moduleRole).toBe(ROLES.CRM);
-    expect(props.homePath).toBe('/crm');
+    expect(props.homePath).toBe('/');
     expect(props.loginElement.type).toBe(Login);
   });
 
-  it('routes every CRM screen to its page', () => {
+  it('routes every CRM screen to its page, inside the communication dock layout', () => {
     render(<App />);
 
+    const layout = layoutRoute((portal.props as PortalProps).children);
+    expect(layout.path).toBeUndefined();
+    expect(layout.element.type).toBe(CommsDockLayout);
     expect(declaredRoutes((portal.props as PortalProps).children)).toEqual([
-      ['/crm', CrmOverviewPage],
-      ['/crm/leads', CrmPage],
-      ['/crm/companies', CompaniesPage],
-      ['/crm/companies/:id/:tab?', CompanyDetailPage],
-      ['/crm/contacts', ContactsPage],
-      ['/crm/contacts/:id/:tab?', ContactDetailPage],
-      ['/crm/deals', DealsPage],
-      ['/crm/deals/list', DealsListPage],
-      ['/crm/activities', ActivitiesPage],
-      ['/crm/meetings/:tab?', MeetingsPage],
-      ['/crm/tools/email-verifier/:tab?', EmailVerifierPage],
-      ['/crm/tools/lead-generator', LeadGeneratorPage],
-      ['/crm/tools/website-scraper', WebsiteScraperPage],
-      ['/crm/settings/properties/:object?', PropertiesPage],
-      ['/crm/settings/gmail', GmailAccountsPage],
+      ['/', CrmOverviewPage],
+      ['/leads', CrmPage],
+      ['/companies', CompaniesPage],
+      ['/companies/:id/:tab?', CompanyDetailPage],
+      ['/contacts', ContactsPage],
+      ['/contacts/:id/:tab?', ContactDetailPage],
+      ['/deals', DealsPage],
+      ['/deals/list', DealsListPage],
+      ['/activities', ActivitiesPage],
+      ['/meetings/:tab?', MeetingsPage],
+      ['/tools/email-verifier/:tab?', EmailVerifierPage],
+      ['/tools/lead-generator', LeadGeneratorPage],
+      ['/tools/website-scraper', WebsiteScraperPage],
+      ['/settings/properties/:object?', PropertiesPage],
+      ['/settings/gmail', GmailAccountsPage],
+      ['/integrations/:tab?', IntegrationsPage],
     ]);
   });
 });

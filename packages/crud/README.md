@@ -24,7 +24,11 @@ Bulk actions come for free: when the server's `tableBulkInfo` says the grid's li
 (`fetchRows.list`, or the optional `bulkList` prop for a fetcher that names none — the CRM's
 `searchCompanies`, say) is deletable or archivable, `ServerDataGrid` adds row checkboxes, a
 "Select page" button, an Archived switch and a bar with "Delete / Archive / Restore selected"
-(confirmed first, run through `tableBulkAction`, 200 ids per request). The dashboard's stat
+(confirmed first, run through `tableBulkAction`, 200 ids per request). With rows ticked the
+bar also offers "Select all {total} matching" — every row the current search, filters, sort
+and Archived switch match, as the server counts them; the action then pages `fetchRows`
+through that query 200 rows at a time to collect the ids (up to 10,000; more asks the person
+to narrow the filters), with progress shown in the bar. The dashboard's stat
 tiles re-read afterwards through the resource's `reload`. Phones keep the card list, without
 bulk actions.
 

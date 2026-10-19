@@ -57,6 +57,7 @@ fragment MeetingBookingFields on MeetingBooking {
   notes
   guests
   timezone
+  country
   status
   contactId
   createdAt
@@ -81,7 +82,67 @@ query MeetingBookingPagePath {
   meetingBookingPagePath
 }
 
-# The public booking pages (crm.exyconn.com/book/:org and /book/:org/:slug): no sign-in.
+query MeetingSettings {
+  meetingSettings {
+    ...MeetingSettingsFields
+  }
+}
+
+fragment MeetingSettingsFields on MeetingSettings {
+  bookingSlug
+  slackChannel
+  googleMeetUrl
+  zoomUrl
+}
+
+mutation SaveMeetingSettings($input: MeetingSettingsInput!) {
+  saveMeetingSettings(input: $input) {
+    ...MeetingSettingsFields
+  }
+}
+
+query MeetingSlackChannels {
+  meetingSlackChannels {
+    id
+    name
+    isPrivate
+    isMember
+  }
+}
+
+query MeetingTracking($days: Int!) {
+  meetingTracking(days: $days) {
+    days
+    views
+    bookings
+    byCountry {
+      country
+      countryName
+      views
+      bookings
+    }
+    byMeeting {
+      meetingSlug
+      views
+      bookings
+    }
+    byDay {
+      day
+      views
+      bookings
+    }
+    recent {
+      id
+      kind
+      meetingSlug
+      country
+      countryName
+      at
+    }
+  }
+}
+
+# The public booking pages (crm.exyconn.com/organization/:org/book/:page[/:slug]): no sign-in.
 fragment PublicMeetingFields on PublicMeeting {
   slug
   title
@@ -91,35 +152,50 @@ fragment PublicMeetingFields on PublicMeeting {
   timezone
   organizationName
   organizationSlug
+  logoUrl
+  logoDarkUrl
   hasLocation
 }
 
-query PublicBookingPage($org: String!) {
-  publicBookingPage(org: $org) {
+query PublicBookingPage($org: String!, $page: String!) {
+  publicBookingPage(org: $org, page: $page) {
     organizationName
     organizationSlug
+    logoUrl
+    logoDarkUrl
     meetings {
       ...PublicMeetingFields
     }
   }
 }
 
-query PublicMeeting($org: String!, $slug: String!) {
-  publicMeeting(org: $org, slug: $slug) {
+query PublicMeeting($org: String!, $page: String!, $slug: String!) {
+  publicMeeting(org: $org, page: $page, slug: $slug) {
     ...PublicMeetingFields
   }
 }
 
-query PublicMeetingSlots($org: String!, $slug: String!, $from: DateTime!, $to: DateTime!) {
-  publicMeetingSlots(org: $org, slug: $slug, from: $from, to: $to)
+query PublicMeetingSlots(
+  $org: String!
+  $page: String!
+  $slug: String!
+  $from: DateTime!
+  $to: DateTime!
+) {
+  publicMeetingSlots(org: $org, page: $page, slug: $slug, from: $from, to: $to)
 }
 
-mutation BookMeeting($org: String!, $slug: String!, $input: BookMeetingInput!) {
-  bookMeeting(org: $org, slug: $slug, input: $input) {
+mutation BookMeeting($org: String!, $page: String!, $slug: String!, $input: BookMeetingInput!) {
+  bookMeeting(org: $org, page: $page, slug: $slug, input: $input) {
     title
     hostName
     startAt
     endAt
     location
+    joinLinks
   }
+}
+
+mutation TrackMeetingView($org: String!, $page: String!, $slug: String!, $timezone: String) {
+  trackMeetingView(org: $org, page: $page, slug: $slug, timezone: $timezone)
 }

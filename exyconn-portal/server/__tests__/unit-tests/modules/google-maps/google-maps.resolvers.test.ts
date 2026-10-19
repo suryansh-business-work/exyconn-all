@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { googleMapsResolvers } from '../../../../src/modules/google-maps/google-maps.resolvers';
 import { GoogleMapsConfigModel } from '../../../../src/modules/google-maps/google-maps-config.model';
 import { CompanyModel } from '../../../../src/modules/crm/company.model';
+import { ActivityModel } from '../../../../src/modules/crm/activity.model';
 import { AuditLogModel } from '../../../../src/modules/audit';
 import { assertPlatformStaff } from '../../../../src/lib/platformAccess';
 import { assertPermission } from '../../../../src/lib/permissions';
@@ -160,5 +161,26 @@ describe('the CRM side', () => {
     expect(result).toMatchObject({ created: 1, skipped: 0 });
     const audit = await AuditLogModel.findOne({ action: 'IMPORT', module: 'Company' }).lean();
     expect(audit?.summary).toBe('Imported 1 companies from Google Places (0 skipped)');
+  });
+
+  it('leaves the imported account unowned and records the importer as its lead owner', async () => {
+    await Mutation.importLeadsToCrm(
+      null,
+      { leads: [{ placeId: 'p2', name: 'Bright Dental', lat: 1, lng: 2 }] },
+      sales,
+    );
+
+    const company = await CompanyModel.findOne({ name: 'Bright Dental' }).lean();
+    expect(company?.owner).toBe('');
+    // The importer has no user record here, so there is no name to show as the lead owner.
+    expect(company?.leadOwner).toBe('Google Places');
+    expect(company?.origin).toMatchObject({
+      source: 'GOOGLE_PLACES',
+      userId: sales.user?.id,
+      userName: '',
+      userEmail: 'sales@exyconn.com',
+    });
+    const note = await ActivityModel.findOne({ relatedId: String(company?._id) }).lean();
+    expect(note?.owner).toBe('sales@exyconn.com');
   });
 });

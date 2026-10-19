@@ -1,0 +1,125 @@
+# CRM > Integrations: the company's calling and SMS accounts, click-to-call and texting from a
+# record, which contact actions are ready, and the mailboxes an email can go from.
+query CrmIntegrationStatus {
+  crmIntegrationStatus {
+    call {
+      ready
+      provider
+    }
+    sms {
+      ready
+      provider
+    }
+    email {
+      gmail
+      microsoft
+    }
+  }
+}
+
+fragment CrmCallConfigFields on CrmCallConfig {
+  id
+  label
+  provider
+  fromNumber
+  accountId
+  hasAuthToken
+  authTokenHint
+  isActive
+  updatedByName
+  updatedAt
+}
+
+query CrmCallConfigs {
+  crmCallConfigs {
+    ...CrmCallConfigFields
+  }
+}
+
+mutation CreateCrmCallConfig($input: CrmCallConfigInput!) {
+  createCrmCallConfig(input: $input) {
+    ...CrmCallConfigFields
+  }
+}
+
+mutation UpdateCrmCallConfig($id: ID!, $input: CrmCallConfigInput!) {
+  updateCrmCallConfig(id: $id, input: $input) {
+    ...CrmCallConfigFields
+  }
+}
+
+mutation DeleteCrmCallConfig($id: ID!) {
+  deleteCrmCallConfig(id: $id)
+}
+
+mutation TestCrmCallConfig($id: ID!) {
+  testCrmCallConfig(id: $id)
+}
+
+fragment CrmSmsConfigFields on CrmSmsConfig {
+  id
+  label
+  provider
+  fromNumber
+  accountId
+  senderId
+  templateId
+  messageVariable
+  hasAuthToken
+  authTokenHint
+  isActive
+  updatedByName
+  updatedAt
+}
+
+query CrmSmsConfigs {
+  crmSmsConfigs {
+    ...CrmSmsConfigFields
+  }
+}
+
+mutation CreateCrmSmsConfig($input: CrmSmsConfigInput!) {
+  createCrmSmsConfig(input: $input) {
+    ...CrmSmsConfigFields
+  }
+}
+
+mutation UpdateCrmSmsConfig($id: ID!, $input: CrmSmsConfigInput!) {
+  updateCrmSmsConfig(id: $id, input: $input) {
+    ...CrmSmsConfigFields
+  }
+}
+
+mutation DeleteCrmSmsConfig($id: ID!) {
+  deleteCrmSmsConfig(id: $id)
+}
+
+mutation TestCrmSmsConfig($id: ID!) {
+  testCrmSmsConfig(id: $id)
+}
+
+mutation StartCrmCall($input: StartCrmCallInput!) {
+  startCrmCall(input: $input) {
+    provider
+    callId
+    status
+    activityId
+  }
+}
+
+mutation SendCrmSms($input: SendCrmSmsInput!) {
+  sendCrmSms(input: $input) {
+    provider
+    messageId
+    status
+    activityId
+  }
+}
+
+query CrmEmailSenders {
+  crmEmailSenders {
+    id
+    email
+    provider
+  }
+}

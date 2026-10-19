@@ -14,6 +14,8 @@ import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tr
 import { SOCIAL_CALLBACK_PATH, socialCallbackRouter } from './modules/social-accounts';
 import { GOOGLE_CALLBACK_PATH, googleSignInRouter } from './modules/auth/google';
 import { GMAIL_CALLBACK_PATH, gmailConnectRouter } from './modules/gmail';
+import { MICROSOFT_CALLBACK_PATH, microsoftConnectRouter } from './modules/microsoft-mail';
+import { VOBIZ_ANSWER_PATH, crmIntegrationsVobizRouter } from './modules/crm-integrations';
 import {
   TRACKING_PATH,
   marketingTrackingRouter,
@@ -89,6 +91,10 @@ export async function createApp(): Promise<Express> {
   app.use(GOOGLE_CALLBACK_PATH, googleSignInRouter());
   // Where Google sends the browser back when Tech connects the CRM's Gmail (no session).
   app.use(GMAIL_CALLBACK_PATH, gmailConnectRouter());
+  // Where Microsoft sends the browser back when the CRM connects an Outlook mailbox (no session).
+  app.use(MICROSOFT_CALLBACK_PATH, microsoftConnectRouter());
+  // Vobiz fetches a CRM click-to-call's answer XML here; a single-use token names the call.
+  app.use(VOBIZ_ANSWER_PATH, crmIntegrationsVobizRouter());
   // Meta's WhatsApp Cloud API delivers messages here; each delivery is signed (no session).
   app.use(WEBHOOK_PATH, whatsappWebhookRouter());
   // Stripe and Razorpay confirm client hub payments here; each delivery is signed (no session).

@@ -22,10 +22,14 @@ describe('applyBulk', () => {
       };
     });
     const ids = idsUpTo(450);
+    const progress: number[] = [];
 
-    const result = await applyBulk(call, 'listLeadsPaged', ids, TableBulkAction.Archive);
+    const result = await applyBulk(call, 'listLeadsPaged', ids, TableBulkAction.Archive, (done) =>
+      progress.push(done),
+    );
 
     expect(order).toEqual([200, 200, 50]);
+    expect(progress).toEqual([200, 400, 450]);
     expect(call).toHaveBeenNthCalledWith(1, {
       list: 'listLeadsPaged',
       ids: ids.slice(0, 200),
@@ -87,6 +91,10 @@ describe('BULK_COPY', () => {
     });
     expect(BULK_COPY[TableBulkAction.Restore].confirm).toBeNull();
     expect(BULK_COPY[TableBulkAction.Restore].done).toBe('{count} rows restored');
+    expect(BULK_COPY[TableBulkAction.Delete].confirm?.matchingMessage).toBe(
+      'Delete {count} rows matching the current filters? This cannot be undone.',
+    );
+    expect(BULK_COPY[TableBulkAction.Delete].progress).toBe('Deleting… {done} of {total}');
   });
 });
 

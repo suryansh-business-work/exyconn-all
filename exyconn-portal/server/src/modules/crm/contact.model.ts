@@ -1,6 +1,8 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { contactProfileFields } from './crm.profile';
 import { contactGeoFields } from './crm.geo';
+import { originFields } from './crm.origin';
+import { tagFields } from './crm.tags';
 
 /** How willing the contact is to hear from us, so outreach stays lawful and welcome. */
 export const CONTACT_STATUSES = ['ACTIVE', 'UNSUBSCRIBED', 'BOUNCED', 'LEFT_COMPANY'] as const;
@@ -19,12 +21,15 @@ const contactSchema = new Schema(
     companyId: { type: String, default: '', trim: true, index: true },
     companyName: { type: String, default: '', trim: true },
     status: { type: String, enum: CONTACT_STATUSES, required: true, default: 'ACTIVE' },
-    owner: { type: String, required: true, trim: true },
+    /** Who looks after the account; empty until somebody is given it. */
+    owner: { type: String, default: '', trim: true },
     notes: { type: String, default: '' },
     /** Values of the company's own properties (CRM > Settings > Properties), keyed by property. */
     custom: { type: Schema.Types.Mixed, default: {} },
     ...contactProfileFields,
     ...contactGeoFields,
+    ...originFields,
+    ...tagFields,
   },
   { timestamps: true },
 );

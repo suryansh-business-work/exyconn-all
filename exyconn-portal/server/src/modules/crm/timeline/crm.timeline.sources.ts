@@ -61,7 +61,7 @@ async function deals({ contactIds, companyId, limit }: TimelineTarget): Promise<
       summary: `${row.stage} · ${row.value}`,
       actor: row.owner,
       status: row.stage,
-      url: '/crm/deals/list',
+      url: '/deals/list',
     }),
   );
 }
@@ -80,7 +80,7 @@ async function leads({ addresses, limit }: TimelineTarget): Promise<TimelineItem
       summary: row.notes,
       actor: row.owner,
       status: row.stage,
-      url: '/crm/leads',
+      url: '/leads',
     }),
   );
 }

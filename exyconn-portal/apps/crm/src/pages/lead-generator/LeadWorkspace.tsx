@@ -5,6 +5,7 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import type { LatLng } from '../../maps/mapLinks';
 import { LeadSearchForm, type LeadSearchValues, type SearchMode } from './forms/lead-search';
+import { ImportReviewDialog } from './ImportReviewDialog';
 import { ImportSummary } from './ImportSummary';
 import { LeadActions } from './LeadActions';
 import { LeadFilters } from './LeadFilters';
@@ -51,6 +52,9 @@ export function LeadWorkspace({ browserKey }: Readonly<{ browserKey: string | nu
   const addToCrm = () => {
     importer.run(selection.selected, emails.lookups).catch(logFailure('adding leads'));
   };
+  const confirmImport = (chosen: ReadonlySet<string>) => {
+    importer.confirm(chosen).catch(logFailure('adding reviewed leads'));
+  };
 
   return (
     <Grid container spacing={2}>
@@ -70,6 +74,13 @@ export function LeadWorkspace({ browserKey }: Readonly<{ browserKey: string | nu
             <ImportSummary summary={importer.summary} onClose={importer.dismiss} />
           )}
           {importer.error && <Alert severity="error">{importer.error}</Alert>}
+          {importer.review && (
+            <ImportReviewDialog
+              previews={importer.review.previews}
+              onConfirm={confirmImport}
+              onCancel={importer.cancel}
+            />
+          )}
           <Box sx={readingPanel}>
             <Stack spacing={1}>
               {search.places.length > 0 && (

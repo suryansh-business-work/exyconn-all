@@ -117,6 +117,51 @@ export const googleMapsTypeDefs = gql`
     placeId: ID!
     name: String!
     reason: String!
+    "The CRM company the lead duplicates, when there is one."
+    companyId: ID
+  }
+
+  "What a lead would do on import."
+  enum LeadImportStatus {
+    "Not in the CRM yet: it will be filed."
+    NEW
+    "Already in the CRM with nothing new: it will be skipped."
+    DUPLICATE
+    "Already in the CRM, and it has details the company is missing."
+    DUPLICATE_WITH_EXTRA
+  }
+
+  "One detail a lead adds to an existing company. Only ever fills an empty field or adds a new email or phone."
+  type LeadImportExtra {
+    "website, address, city, country, location, industry, mapUrl, placeId, coordinates, emails or phones."
+    field: String!
+    label: String!
+    "What the company holds now; for emails and phones, the ones it already has."
+    current: String!
+    incoming: String!
+  }
+
+  type LeadImportPreview {
+    placeId: ID!
+    name: String!
+    status: LeadImportStatus!
+    existingCompanyId: ID
+    existingName: String
+    extras: [LeadImportExtra!]!
+  }
+
+  "A duplicate lead whose extra details should be added to the company the preview matched."
+  input LeadMergeInput {
+    placeId: ID!
+    companyId: ID!
+  }
+
+  "An existing company that got a lead's extra details."
+  type LeadImportMerged {
+    placeId: ID!
+    companyId: ID!
+    name: String!
+    added: [LeadImportExtra!]!
   }
 
   "A place filed as a CRM company."
@@ -128,17 +173,59 @@ export const googleMapsTypeDefs = gql`
   type LeadImportResult {
     created: Int!
     skipped: Int!
+    merged: Int!
     filed: [LeadImportFiled!]!
+    merges: [LeadImportMerged!]!
     skips: [LeadImportSkip!]!
   }
 
+  "One Google review of a business, as Places returns it."
+  type GoogleBusinessReview {
+    id: ID!
+    authorName: String!
+    authorUrl: String!
+    authorPhotoUrl: String!
+    rating: Float
+    text: String!
+    "e.g. 'a month ago'."
+    relativeTime: String!
+    publishedAt: DateTime
+  }
+
+  "A company's Google Business profile, read live from Places (never stored)."
+  type GoogleBusinessProfile {
+    placeId: ID!
+    name: String!
+    address: String!
+    phone: String!
+    website: String!
+    mapUrl: String!
+    rating: Float
+    ratingCount: Int
+    "OPERATIONAL, CLOSED_TEMPORARILY or CLOSED_PERMANENTLY; empty when unknown."
+    businessStatus: String!
+    "e.g. PRICE_LEVEL_MODERATE; empty when unknown."
+    priceLevel: String!
+    summary: String!
+    category: String!
+    types: [String!]!
+    "One line a weekday, e.g. 'Monday: 9:00 AM – 5:00 PM'."
+    openingHours: [String!]!
+    "Up to five, as Google picks them."
+    reviews: [GoogleBusinessReview!]!
+  }
+
   extend type Query {
+    "The company's live Google Business profile; null when it was not filed from Google Places."
+    companyGoogleBusiness(companyId: ID!): GoogleBusinessProfile
     googleMapsConfigs: [GoogleMapsConfig!]!
     googleMapsClientConfig: GoogleMapsClientConfig!
     "One page (up to 20) of Google Places Text Search results."
     searchLeadPlaces(input: LeadSearchInput!): LeadSearchPage!
     "Cities, areas and postcodes matching what was typed in Where (2-100 characters)."
     leadLocationSuggestions(input: String!): [LeadLocationSuggestion!]!
+    "Read-only: which of these leads are already CRM companies, and what extra details each would add."
+    previewLeadImport(leads: [LeadImportInput!]!): [LeadImportPreview!]!
   }
 
   extend type Mutation {
@@ -149,7 +236,7 @@ export const googleMapsTypeDefs = gql`
     deleteGoogleMapsConfig(id: ID!): Boolean!
     "Reads a business website (home and contact pages, robots.txt honoured) for its email addresses."
     findLeadEmails(website: String!): LeadEmailResult!
-    "Files the chosen places as CRM companies, skipping ones already filed."
-    importLeadsToCrm(leads: [LeadImportInput!]!): LeadImportResult!
+    "Files the chosen places as CRM companies. Duplicates are skipped, or, when listed in mergeInto, get their extra details added without overwriting anything."
+    importLeadsToCrm(leads: [LeadImportInput!]!, mergeInto: [LeadMergeInput!]): LeadImportResult!
   }
 `;

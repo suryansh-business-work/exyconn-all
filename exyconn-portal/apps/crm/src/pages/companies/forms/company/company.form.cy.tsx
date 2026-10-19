@@ -17,12 +17,12 @@ const mount = () =>
   );
 
 describe('CompanyForm', () => {
-  it('requires a name, a domain and an owner', () => {
+  it('requires a name and a domain, but not an owner', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Name is required').should('be.visible');
     cy.contains('Domain is required').should('be.visible');
-    cy.contains('Owner is required').should('be.visible');
+    cy.contains('Owner is required').should('not.exist');
   });
 
   it('rejects a domain pasted as a full URL', () => {

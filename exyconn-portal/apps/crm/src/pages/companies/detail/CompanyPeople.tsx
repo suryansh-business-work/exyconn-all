@@ -36,7 +36,7 @@ export function CompanyPeople({ companyId }: Readonly<{ companyId: string }>) {
         <Flex key={person.id} component="li" direction="row" spacing={1.5} alignItems="center">
           <RecordAvatar name={person.name} src={person.avatarUrl} />
           <Stack spacing={0}>
-            <Link component={RouterLink} to={`/crm/contacts/${person.id}`} sx={{ fontWeight: 600 }}>
+            <Link component={RouterLink} to={`/contacts/${person.id}`} sx={{ fontWeight: 600 }}>
               {person.name}
             </Link>
             <Text size="sm" color="text.secondary">

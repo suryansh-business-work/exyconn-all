@@ -447,38 +447,38 @@ export const MODULES: ModuleDefinition[] = [
   {
     key: 'crm',
     label: 'CRM',
-    path: '/crm',
+    path: '/',
     role: ROLES.CRM,
     icon: HubIcon,
     description: 'Leads & pipeline',
     accent: color.green[500],
     children: [
-      { key: 'crm-overview', label: 'Overview', path: '/crm', icon: DashboardIcon },
+      { key: 'crm-overview', label: 'Overview', path: '/', icon: DashboardIcon },
       {
         key: 'crm-leads',
         label: 'Leads',
-        path: '/crm/leads',
+        path: '/leads',
         icon: ContactPhoneIcon,
         group: 'Pipeline',
       },
       {
         key: 'crm-deals',
         label: 'Deals',
-        path: '/crm/deals',
+        path: '/deals',
         icon: HandshakeIcon,
         group: 'Pipeline',
       },
       {
         key: 'crm-deals-list',
         label: 'Deals List',
-        path: '/crm/deals/list',
+        path: '/deals/list',
         icon: TableRowsIcon,
         group: 'Pipeline',
       },
       {
         key: 'crm-activities',
         label: 'Activities',
-        path: '/crm/activities',
+        path: '/activities',
         icon: EventNoteIcon,
         group: 'Pipeline',
       },
@@ -486,21 +486,21 @@ export const MODULES: ModuleDefinition[] = [
         // Calendly-style meeting types with a public booking link, and their bookings.
         key: 'crm-meetings',
         label: 'Meetings',
-        path: '/crm/meetings',
+        path: '/meetings',
         icon: EventAvailableIcon,
         group: 'Pipeline',
       },
       {
         key: 'crm-companies',
         label: 'Companies',
-        path: '/crm/companies',
+        path: '/companies',
         icon: BusinessIcon,
         group: 'Directory',
       },
       {
         key: 'crm-contacts',
         label: 'Contacts',
-        path: '/crm/contacts',
+        path: '/contacts',
         icon: PersonIcon,
         group: 'Directory',
       },
@@ -508,7 +508,7 @@ export const MODULES: ModuleDefinition[] = [
         // Whether an address really exists, before anybody writes to it (Reacher).
         key: 'crm-email-verifier',
         label: 'Email verifier',
-        path: '/crm/tools/email-verifier',
+        path: '/tools/email-verifier',
         icon: MarkEmailReadIcon,
         group: 'Tools',
       },
@@ -516,7 +516,7 @@ export const MODULES: ModuleDefinition[] = [
         // Businesses found on Google Places, enriched and filed as CRM companies.
         key: 'crm-lead-generator',
         label: 'Lead generator',
-        path: '/crm/tools/lead-generator',
+        path: '/tools/lead-generator',
         icon: TravelExploreIcon,
         group: 'Tools',
       },
@@ -524,7 +524,7 @@ export const MODULES: ModuleDefinition[] = [
         // Public web pages read through Firecrawl, kept as text and handed to the AI on request.
         key: 'crm-website-scraper',
         label: 'Website scraper',
-        path: '/crm/tools/website-scraper',
+        path: '/tools/website-scraper',
         icon: WebIcon,
         group: 'Tools',
       },
@@ -532,7 +532,7 @@ export const MODULES: ModuleDefinition[] = [
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
         label: 'Custom Properties',
-        path: '/crm/settings/properties',
+        path: '/settings/properties',
         icon: TuneIcon,
         group: 'Configuration',
       },
@@ -540,8 +540,16 @@ export const MODULES: ModuleDefinition[] = [
         // The Gmail accounts the CRM reads contacts' threads from and sends as.
         key: 'crm-connect-gmail',
         label: 'Connect Gmail',
-        path: '/crm/settings/gmail',
+        path: '/settings/gmail',
         icon: AlternateEmailIcon,
+        group: 'Configuration',
+      },
+      {
+        // The company's calling and SMS accounts, and the mailboxes the CRM emails from.
+        key: 'crm-integrations',
+        label: 'Integrations',
+        path: '/integrations',
+        icon: PhoneInTalkIcon,
         group: 'Configuration',
       },
     ],
@@ -1578,12 +1586,17 @@ function childPaths(children: ModuleChild[] = []): string[] {
   return children.flatMap((c) => [c.path, ...childPaths(c.children)]);
 }
 
-/** First path segment -> the app that serves it, e.g. "me" and "profile" -> employee. */
+/**
+ * First path segment -> the app that serves it, e.g. "me" and "profile" -> employee. A module
+ * whose home is its subdomain's root (CRM's "/") claims no segment for it: "/" alone is the
+ * launcher, not any one app.
+ */
 const APP_BY_SEGMENT = new Map<string, PortalAppKey>(
   MODULES.flatMap((m) =>
-    [m.path, ...childPaths(m.children)].map(
-      (path) => [path.split('/')[1], m.key] as [string, PortalAppKey],
-    ),
+    [m.path, ...childPaths(m.children)]
+      .map((path) => path.split('/')[1])
+      .filter((segment) => segment !== '')
+      .map((segment) => [segment, m.key] as [string, PortalAppKey]),
   ),
 );
 

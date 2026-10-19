@@ -14,9 +14,10 @@ import {
   type BookedMeeting,
   type BookMeetingValues,
 } from './book-meeting.types';
+import type { BookingAddress } from '../../useBookingAddress';
 
 interface BookMeetingFormProps {
-  org: string;
+  at: BookingAddress;
   slug: string;
   startAt: string;
   zone: string;
@@ -26,7 +27,7 @@ interface BookMeetingFormProps {
 
 /** React Hook Form + Zod "Enter Details": who is booking, who else to invite, and a note. */
 export function BookMeetingForm({
-  org,
+  at,
   slug,
   startAt,
   zone,
@@ -46,7 +47,7 @@ export function BookMeetingForm({
   const onSubmit = async (values: BookMeetingValues) => {
     try {
       const { data } = await book({
-        variables: { org, slug, input: { ...values, startAt, timezone: zone } },
+        variables: { ...at, slug, input: { ...values, startAt, timezone: zone } },
       });
       if (data) {
         onBooked(data.bookMeeting);

@@ -11,7 +11,7 @@ import { BulkCheckPanel } from './BulkCheckPanel';
 import { RecordsPanel } from './RecordsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
-export const EMAIL_VERIFIER_PATH = '/crm/tools/email-verifier';
+export const EMAIL_VERIFIER_PATH = '/tools/email-verifier';
 
 function Panel({ children }: Readonly<{ children: ReactNode }>) {
   return <Box sx={readingPanel}>{children}</Box>;

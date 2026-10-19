@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -17,10 +16,12 @@ import { COMPANY_COLUMNS, type PagedCompanyRow, type CompaniesGridContext } from
 import { color } from '@exyconn/shell/components/ui';
 import { RecordListToolbar, useRecordList, withRefreshSignal } from '../../records/list';
 import { RecordActions } from '../../records/RecordActions';
+import { usePreviewParam } from '../../records/quick-view';
+import { CompanyQuickView } from './CompanyQuickView';
 
 /** CRM → Companies: the accounts contacts and deals hang off. */
 export function CompaniesPage() {
-  const navigate = useNavigate();
+  const { previewId, openPreview, closePreview } = usePreviewParam();
   const {
     data: statsData,
     loading: statsLoading,
@@ -91,12 +92,15 @@ export function CompaniesPage() {
         <CompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
       columnDefs={records.columnDefs}
-      onRowClick={(row) => navigate(`/crm/companies/${row.id}`)}
+      onRowClick={(row) => openPreview(row.id)}
       fetchRows={records.fetchRows}
       bulkList="searchCompanies"
       context={gridContext}
       searchPlaceholder="Search by name, domain, industry or owner…"
       initialSearch={records.initialSearch}
+      extraDialogs={
+        <CompanyQuickView id={previewId} onClose={closePreview} onSaved={crud.reload} />
+      }
       toolbar={
         <RecordListToolbar
           records={records}

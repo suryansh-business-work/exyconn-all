@@ -46,7 +46,7 @@ const renderPage = () =>
       <CrmPage />
       <UrlProbe />
     </>,
-    { route: '/crm/leads' },
+    { route: '/leads' },
   );
 
 describe('CrmPage', () => {
@@ -124,7 +124,7 @@ describe('CrmPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Cancel form' }));
     await waitFor(() => expect(screen.queryByText(/"id":"lead-8"/)).not.toBeInTheDocument());
-    expect(screen.getByLabelText('current url')).toHaveTextContent('/crm/leads');
+    expect(screen.getByLabelText('current url')).toHaveTextContent('/leads');
   });
 
   it('closes the convert panel from its close button', async () => {
@@ -142,7 +142,7 @@ describe('CrmPage', () => {
     await runRowAction('convert', leadRow({ id: 'lead-8' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Finish form' }));
 
-    expect(screen.getByLabelText('current url')).toHaveTextContent('/crm/deals');
+    expect(screen.getByLabelText('current url')).toHaveTextContent('/deals');
     expect(screen.queryByText(/"id":"lead-8"/)).not.toBeInTheDocument();
   });
 });

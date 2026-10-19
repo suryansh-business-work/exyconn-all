@@ -1,3 +1,4 @@
+import { stampOrigin, userOrigin, type RecordOrigin } from './crm.origin';
 import { LeadModel } from './crm.model';
 import { CompanyModel } from './company.model';
 import { ContactModel } from './contact.model';
@@ -28,7 +29,12 @@ const domainOf = (email: string): string => email.slice(email.indexOf('@') + 1).
  * the lead wrote from, because `domain` is unique and creating a second row on it would
  * be refused anyway. Only when neither exists is a company created.
  */
-async function findOrCreateCompany(name: string, leadEmail: string, owner: string) {
+async function findOrCreateCompany(
+  name: string,
+  leadEmail: string,
+  owner: string,
+  origin: RecordOrigin,
+) {
   const byName = await CompanyModel.findOne({ name: name.trim() })
     .collation(CASE_INSENSITIVE)
     .lean();
@@ -40,7 +46,12 @@ async function findOrCreateCompany(name: string, leadEmail: string, owner: strin
   if (byDomain) {
     return byDomain;
   }
-  const created = await CompanyModel.create({ name: name.trim(), domain, owner });
+  const created = await CompanyModel.create({
+    name: name.trim(),
+    domain,
+    owner,
+    ...stampOrigin(origin),
+  });
   return created.toObject();
 }
 
@@ -48,6 +59,7 @@ async function findOrCreateCompany(name: string, leadEmail: string, owner: strin
 async function findOrCreateContact(
   company: { _id: unknown; name: string },
   person: { name: string; email: string; owner: string },
+  origin: RecordOrigin,
 ) {
   const companyId = String(company._id);
   const email = person.email.toLowerCase();
@@ -62,6 +74,7 @@ async function findOrCreateContact(
     companyName: company.name,
     status: 'ACTIVE',
     owner: person.owner,
+    ...stampOrigin(origin),
   });
   return created.toObject();
 }
@@ -86,12 +99,17 @@ export const convertLead = async (
     badRequest(`Lead "${lead.name}" has already been converted to a deal.`);
   }
 
-  const company = await findOrCreateCompany(input.companyName, lead.email, lead.owner);
-  const contact = await findOrCreateContact(company, {
-    name: input.contactName?.trim() || lead.name,
-    email: input.contactEmail?.trim() || lead.email,
-    owner: lead.owner,
-  });
+  const origin = await userOrigin(ctx, 'LEAD_CONVERSION');
+  const company = await findOrCreateCompany(input.companyName, lead.email, lead.owner, origin);
+  const contact = await findOrCreateContact(
+    company,
+    {
+      name: input.contactName?.trim() || lead.name,
+      email: input.contactEmail?.trim() || lead.email,
+      owner: lead.owner,
+    },
+    origin,
+  );
   const deal = await DealModel.create({
     title: input.dealTitle,
     companyId: String(company._id),

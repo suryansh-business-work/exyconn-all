@@ -29,6 +29,7 @@
     "argon2": "^0.45.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "countries-and-timezones": "^3.8.0",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.7",

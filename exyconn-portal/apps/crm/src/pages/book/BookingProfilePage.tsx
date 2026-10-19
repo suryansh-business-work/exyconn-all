@@ -1,17 +1,21 @@
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, ButtonBase, Divider, Flex, Stack, Text } from '@exyconn/shell/components/ui';
+import { Alert, ButtonBase, Divider, Flex, Stack, Text } from '@exyconn/shell/components/ui';
 import { usePublicBookingPageQuery } from '@exyconn/shell/graphql/generated';
 import { BookingFrame } from './BookingFrame';
 import { BookingProfileSkeleton } from './BookingSkeletons';
+import { useBookingAddress } from './useBookingAddress';
+import { useTrackView } from './useTrackView';
 
-/** A company's scheduling page (crm.exyconn.com/book/:org): every meeting it takes bookings for. */
+/** A company's scheduling page (/organization/:org/book/:page): every meeting it takes bookings for. */
 export function BookingProfilePage() {
   const t = useT();
-  const { org = '' } = useParams();
-  const { data, loading } = usePublicBookingPageQuery({ variables: { org } });
+  const { at } = useBookingAddress();
+  const { data, loading } = usePublicBookingPageQuery({ variables: at });
   const page = data?.publicBookingPage;
+  useTrackView(at, '', Boolean(page));
   if (loading && !page) {
     return <BookingProfileSkeleton />;
   }
@@ -23,7 +27,7 @@ export function BookingProfilePage() {
     );
   }
   return (
-    <BookingFrame>
+    <BookingFrame brand={page}>
       <Stack spacing={1} sx={{ textAlign: 'center', mb: 3 }}>
         <Text component="h1" size="lg" weight="bold">
           {page.organizationName}
@@ -41,38 +45,47 @@ export function BookingProfilePage() {
           <li key={meeting.slug}>
             <ButtonBase
               component={RouterLink}
-              to={`/book/${page.organizationSlug}/${meeting.slug}`}
-              sx={{ width: '100%', textAlign: 'left', p: 2, display: 'block' }}
+              to={`/book/${at.page}/${meeting.slug}`}
+              sx={{
+                width: '100%',
+                textAlign: 'left',
+                p: 2,
+                display: 'block',
+                borderLeft: 4,
+                borderLeftColor: 'transparent',
+                '&:hover, &:focus-visible': {
+                  bgcolor: 'action.hover',
+                  borderLeftColor: 'primary.main',
+                },
+              }}
             >
               <Flex direction="row" spacing={1.5} alignItems="center">
-                <Box
-                  aria-hidden
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
-                    bgcolor: 'primary.main',
-                    flexShrink: 0,
-                  }}
-                />
                 <Text weight="bold" sx={{ flex: 1 }}>
                   {meeting.title}
                 </Text>
-                <ChevronRightIcon />
+                <ChevronRightIcon color="primary" />
               </Flex>
-              <Text
-                size="sm"
-                color="text.secondary"
-                sx={{
-                  mt: 1,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}
-              >
-                {t('{minutes} min', { minutes: meeting.durationMinutes })} · {meeting.description}
-              </Text>
+              <Flex direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.5 }}>
+                <ScheduleIcon fontSize="small" color="action" />
+                <Text size="sm" color="text.secondary">
+                  {t('{minutes} min', { minutes: meeting.durationMinutes })}
+                </Text>
+              </Flex>
+              {meeting.description && (
+                <Text
+                  size="sm"
+                  color="text.secondary"
+                  sx={{
+                    mt: 1,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {meeting.description}
+                </Text>
+              )}
             </ButtonBase>
           </li>
         ))}

@@ -4,7 +4,7 @@ import { Alert, Link } from '@exyconn/shell/components/ui';
 import { GmailAccountStatus, useGmailAccountsQuery } from '@exyconn/shell/graphql/generated';
 
 /** Where the CRM's Gmail accounts are reconnected. */
-const CONNECT_GMAIL_PATH = '/crm/settings/gmail';
+const CONNECT_GMAIL_PATH = '/settings/gmail';
 
 /**
  * Says which enabled accounts Google refused, so a thread missing from the list is explained:

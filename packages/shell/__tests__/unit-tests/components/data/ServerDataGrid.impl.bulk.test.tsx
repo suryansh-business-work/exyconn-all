@@ -60,6 +60,20 @@ function select(...ids: string[]) {
   );
 }
 
+/** A server holding `total` matching rows `r1…`, serving whichever page is asked for. */
+function serverOf(total: number) {
+  return vi.fn<Fetch>(async ({ page, pageSize }) => {
+    const start = page * pageSize;
+    const count = Math.max(0, Math.min(pageSize, total - start));
+    const rows = Array.from({ length: count }, (_, index) => ({ id: `r${start + index + 1}` }));
+    return { rows, totalCount: total };
+  });
+}
+
+function idsFrom(first: number, last: number): string[] {
+  return Array.from({ length: last - first + 1 }, (_, index) => `r${first + index}`);
+}
+
 beforeEach(() => {
   resetFakeGrid();
 });
@@ -184,5 +198,59 @@ describe('ServerDataGridImpl bulk actions', () => {
       ),
     );
     expect(screen.queryByRole('button', { name: 'Select page' })).not.toBeInTheDocument();
+  });
+
+  it('selects every row the current query matches and deletes them all, page by page', async () => {
+    const onBulkDone = vi.fn();
+    const chunks = [idsFrom(1, 200), idsFrom(201, 400), idsFrom(401, 450)].map((ids) =>
+      bulkAction(ids, TableBulkAction.Delete, ids.length),
+    );
+    const fetchRows = renderBulkGrid(
+      [bulkInfo(true, false).mock, ...chunks.map((chunk) => chunk.mock)],
+      { onBulkDone },
+      serverOf(450),
+    );
+    await screen.findByRole('button', { name: 'Select page' });
+    await loadPage(getRowsParams({ sortModel: [{ colId: 'name', sort: 'desc' }] }));
+    select('r1', 'r2');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select all 450 matching' }));
+    expect(screen.getByRole('status')).toHaveTextContent('All 450 matching rows are selected');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete selected' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent(
+      'Delete 450 rows matching the current filters? This cannot be undone.',
+    );
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => expect(onBulkDone).toHaveBeenCalledTimes(1));
+    expect(chunks.every((chunk) => chunk.delivered())).toBe(true);
+    expect(fetchRows).toHaveBeenCalledWith(
+      expect.objectContaining({
+        page: 2,
+        pageSize: 200,
+        sorts: [{ field: 'name', dir: 'DESC' }],
+      }),
+    );
+    expect(await screen.findByText('450 rows deleted')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.getByRole('status')).toHaveTextContent('');
+  });
+
+  it('leaves “all matching” when a row is ticked or the sort changes', async () => {
+    renderBulkGrid([bulkInfo(true, false).mock], {}, serverOf(60));
+    await screen.findByRole('button', { name: 'Select page' });
+    await loadPage(getRowsParams());
+
+    select('r1');
+    fireEvent.click(screen.getByRole('button', { name: 'Select all 60 matching' }));
+    select('r1', 'r2');
+    expect(screen.getByRole('status')).toHaveTextContent('2 selected');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select all 60 matching' }));
+    act(() => agGrid.props.onSortChanged());
+    expect(screen.getByRole('status')).toHaveTextContent('');
+    expect(screen.queryByRole('button', { name: /Select all/ })).not.toBeInTheDocument();
   });
 });

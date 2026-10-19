@@ -4,7 +4,7 @@ import EventIcon from '@mui/icons-material/Event';
 import NoteIcon from '@mui/icons-material/StickyNote2';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useT } from '@exyconn/i18n';
-import { Button, Flex } from '@exyconn/shell/components/ui';
+import { Box, Button } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ActivityType } from '@exyconn/shell/graphql/generated';
 import {
@@ -35,7 +35,14 @@ export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
   const close = () => setLogging(null);
   return (
     <>
-      <Flex direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 1,
+          // Equal-width cells: two across the narrow profile column, more where there is room.
+          gridTemplateColumns: (theme) => `repeat(auto-fit, minmax(${theme.spacing(15)}, 1fr))`,
+        }}
+      >
         {QUICK.map((action) => (
           <Button
             key={action.type}
@@ -43,12 +50,13 @@ export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
             variant="outlined"
             startIcon={action.icon}
             onClick={() => setLogging(action.type)}
+            sx={{ whiteSpace: 'nowrap' }}
           >
             {t(action.label)}
           </Button>
         ))}
         {extra}
-      </Flex>
+      </Box>
       <CrudDialog open={logging !== null} title={t('Log activity')} onClose={close}>
         {logging && (
           <LogActivityForm target={target} type={logging} onDone={close} onCancel={close} />

@@ -22,8 +22,8 @@ const url = () => screen.getByLabelText('current url');
 
 describe('DealsViewToggle', () => {
   it('names the two views of the deals', () => {
-    expect(DEALS_BOARD_PATH).toBe('/crm/deals');
-    expect(DEALS_LIST_PATH).toBe('/crm/deals/list');
+    expect(DEALS_BOARD_PATH).toBe('/deals');
+    expect(DEALS_LIST_PATH).toBe('/deals/list');
   });
 
   it('selects the board on the board route and switches to the list', async () => {
@@ -64,7 +64,7 @@ describe('DealsViewToggle', () => {
   });
 
   it('treats any other route as the board', () => {
-    renderAt('/crm');
+    renderAt('/');
 
     expect(screen.getByRole('button', { name: 'board view' })).toHaveAttribute(
       'aria-pressed',

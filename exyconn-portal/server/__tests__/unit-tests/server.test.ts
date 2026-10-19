@@ -56,6 +56,7 @@ jest.mock('../../src/lib/migrations', () => ({
 }));
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
 jest.mock('../../src/modules/gmail', () => ({ migrateLegacyGmailConnection: jest.fn() }));
+jest.mock('../../src/modules/crm/crm.origin.backfill', () => ({ backfillCrmOrigins: jest.fn() }));
 jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
 jest.mock('../../src/modules/calling-bot-demo', () => ({
   migratePhoneProvider: jest.fn(),
@@ -86,6 +87,7 @@ const MODULES = {
   hr: '../../src/modules/hr',
   clients: '../../src/modules/clients',
   gmail: '../../src/modules/gmail',
+  crmOrigins: '../../src/modules/crm/crm.origin.backfill',
   callingBot: '../../src/modules/calling-bot-demo',
 } as const;
 
@@ -179,6 +181,7 @@ describe('server bootstrap', () => {
       'position-defaults',
       'client-tax-ids',
       'gmail-multi-account',
+      'crm-record-origins',
       'calling-bot-phone-provider',
       'calling-bot-phone-fields',
     ]);
@@ -186,6 +189,7 @@ describe('server bootstrap', () => {
     expect(m.hr.backfillPositionDefaults).toHaveBeenCalled();
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
     expect(m.gmail.migrateLegacyGmailConnection).toHaveBeenCalled();
+    expect(m.crmOrigins.backfillCrmOrigins).toHaveBeenCalled();
     expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
     expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
     expect(m.callingBot.ensureCallingBotScenarios).toHaveBeenCalled();
@@ -197,6 +201,7 @@ describe('server bootstrap', () => {
       'ensureTaxSlabs',
       'backfillPositionDefaults',
       'migrateClientTaxIds',
+      'backfillCrmOrigins',
       'ensureWhatsappDemoSeeds',
     ]);
     // Admin access, the log-group backfill, status monitors, the Gmail account migration, the two

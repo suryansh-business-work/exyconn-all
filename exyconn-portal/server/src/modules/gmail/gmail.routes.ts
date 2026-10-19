@@ -5,7 +5,8 @@ import { recordAudit } from '../audit';
 import { finishGmailConnect, takeGmailState } from './gmail.connect';
 import { GMAIL_AUDIT_MODULE } from './gmail.audit';
 
-const withParams = (returnTo: string, params: Record<string, string>) =>
+/** The portal page a callback returns to, with what happened added to its query. */
+export const withParams = (returnTo: string, params: Record<string, string>) =>
   `${returnTo}${returnTo.includes('?') ? '&' : '?'}${new URLSearchParams(params).toString()}`;
 
 interface ConnectState {

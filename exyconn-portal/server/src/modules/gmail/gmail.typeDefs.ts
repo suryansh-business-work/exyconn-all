@@ -82,7 +82,7 @@ export const gmailTypeDefs = gql`
   }
 
   input SendCrmEmailInput {
-    "The connected account to send from; it has to be enabled for the CRM."
+    "The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM."
     fromAccountId: ID!
     to: [String!]!
     cc: [String!]
@@ -111,7 +111,7 @@ export const gmailTypeDefs = gql`
     gmailAccounts: [GmailAccount!]!
     "Whether Tech has saved and turned on the Google client the accounts connect through."
     gmailClientReady: Boolean!
-    "The account a new email to the record goes from by default; null when none is enabled."
+    "The mailbox (Gmail or Microsoft) a new email to the record goes from by default; null when none is enabled."
     crmEmailSender(object: CrmTimelineObject!, id: ID!): ID
   }
 

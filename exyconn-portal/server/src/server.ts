@@ -30,6 +30,7 @@ import {
 } from './modules/calling-bot-demo';
 import { migrateClientTaxIds } from './modules/clients';
 import { migrateLegacyGmailConnection } from './modules/gmail';
+import { backfillCrmOrigins } from './modules/crm/crm.origin.backfill';
 import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
@@ -96,6 +97,11 @@ async function bootstrap(): Promise<void> {
   );
   // The CRM's one Gmail mailbox of old releases becomes its first connected account, once.
   await runAsPlatform(() => runOnce('gmail-multi-account', migrateLegacyGmailConnection));
+  // Companies and contacts from before origins were kept learn who or what filed them, once.
+  await forEachOrganization(
+    () => runOnce('crm-record-origins', backfillCrmOrigins),
+    'backfillCrmOrigins',
+  );
   // exyconn.com is the CMS's first site: seeded insert-only from the migrated pages, so an
   // editor's change is never undone and a page added in a later release still arrives.
   await ensureCmsDefaults();

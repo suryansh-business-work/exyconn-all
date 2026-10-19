@@ -112,7 +112,7 @@ const DECLARATIONS: Declaration[] = [
     hit: (row) => ({
       title: text(row.name),
       subtitle: subtitle(row.stage, row.owner, row.email),
-      link: '/crm/leads',
+      link: '/leads',
     }),
   },
   {
@@ -124,7 +124,7 @@ const DECLARATIONS: Declaration[] = [
     hit: (row) => ({
       title: text(row.title),
       subtitle: subtitle(row.companyName, row.stage, row.owner),
-      link: '/crm/deals',
+      link: '/deals',
     }),
   },
   {
@@ -136,7 +136,7 @@ const DECLARATIONS: Declaration[] = [
     hit: (row) => ({
       title: text(row.name),
       subtitle: subtitle(row.domain, row.status),
-      link: '/crm/companies',
+      link: '/companies',
     }),
   },
   {
@@ -148,7 +148,7 @@ const DECLARATIONS: Declaration[] = [
     hit: (row) => ({
       title: text(row.name),
       subtitle: subtitle(row.companyName, row.email),
-      link: '/crm/contacts',
+      link: '/contacts',
     }),
   },
   {

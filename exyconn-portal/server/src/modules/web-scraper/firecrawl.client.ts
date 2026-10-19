@@ -1,6 +1,7 @@
 /**
  * Firecrawl's scrape endpoint (v2): one page, main content only, as markdown. Called from this
- * server with the active config's key, so the key never reaches a browser.
+ * server with the active config's key, so the key never reaches a browser. A self-hosted
+ * Firecrawl without authentication has no key, and then no Authorization header is sent.
  */
 
 const TIMEOUT_MS = 60_000;
@@ -24,9 +25,13 @@ export async function firecrawlScrape(
   apiKey: string,
   url: string,
 ): Promise<ScrapedPage> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`;
+  }
   const response = await fetch(scrapeUrlOf(baseUrl), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    headers,
     body: JSON.stringify({ url, formats: ['markdown'], onlyMainContent: true }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });

@@ -1,39 +1,59 @@
-import { createHash } from 'node:crypto';
+import { stampOrigin, type RecordOrigin } from '../crm/crm.origin';
+import { isValidObjectId } from 'mongoose';
 import { ActivityModel } from '../crm/activity.model';
 import { CompanyModel } from '../crm/company.model';
 import { withPrimaries } from '../crm/crm.profile';
-import { isEmailAddress } from '../../utils/emailAddress';
-import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import {
+  companyMatcher,
+  leadExtras,
+  type CompanyMatcher,
+  type LeadExtra,
+  type LeadMatch,
+} from './lead-match';
+import { mergeLead } from './lead-merge.service';
+import {
+  checkedBatch,
+  domainOf,
+  locationOf,
+  placeholderDomain,
+  type LeadImportInput,
+} from './lead-row';
+
+export { domainOf, MAX_IMPORT, placeholderDomain, type LeadImportInput } from './lead-row';
 
 /**
  * CRM > Tools > Lead generator > "Add to CRM": the chosen Google Places results become CRM
- * companies. A place already filed (same Place ID), or a business whose website domain is already
- * an account, is skipped rather than duplicated — so running the same search twice is harmless.
+ * companies. A business already in the CRM (see lead-match.ts) is never filed twice: it is skipped,
+ * or — when the user agreed in the review step — its extra details are added to the existing
+ * company without changing anything already filled in. Running the same search twice is harmless.
  */
 
 export const LEAD_SOURCE = 'Google Places';
-export const MAX_IMPORT = 100;
 
-export interface LeadImportInput {
+export type LeadImportStatus = 'NEW' | 'DUPLICATE' | 'DUPLICATE_WITH_EXTRA';
+
+export interface LeadImportPreview {
   placeId: string;
   name: string;
-  phone?: string | null;
-  website?: string | null;
-  address?: string | null;
-  city?: string | null;
-  country?: string | null;
-  lat: number;
-  lng: number;
-  mapUrl?: string | null;
-  emails?: string[] | null;
-  primaryType?: string | null;
+  status: LeadImportStatus;
+  existingCompanyId: string | null;
+  existingName: string | null;
+  extras: LeadExtra[];
+}
+
+/** A lead the user agreed to merge into the company the preview matched. */
+export interface LeadMergeInput {
+  placeId: string;
+  companyId: string;
 }
 
 export interface LeadImportSkip {
   placeId: string;
   name: string;
   reason: string;
+  /** The company it duplicates, when there is one. */
+  companyId: string | null;
 }
 
 export interface LeadImportFiled {
@@ -41,89 +61,24 @@ export interface LeadImportFiled {
   companyId: string;
 }
 
+export interface LeadImportMerged {
+  placeId: string;
+  companyId: string;
+  name: string;
+  added: LeadExtra[];
+}
+
 export interface LeadImportResult {
   created: number;
   skipped: number;
+  merged: number;
   filed: LeadImportFiled[];
+  merges: LeadImportMerged[];
   skips: LeadImportSkip[];
 }
 
-/** The registrable host of a website, without www. — what a CRM company's `domain` holds. */
-export function domainOf(website: string | null | undefined): string {
-  if (!website) {
-    return '';
-  }
-  try {
-    const url = new URL(website);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-      return '';
-    }
-    return url.hostname.toLowerCase().replace(/^www\./, '');
-  } catch {
-    return '';
-  }
-}
-
-/**
- * A company must have a unique domain. A business with no website gets a reserved `.invalid`
- * one (RFC 2606: never resolves) made from its name and Place ID, so it can still be filed and
- * its real domain typed in later.
- */
-export function placeholderDomain(name: string, placeId: string): string {
-  const slug = name
-    .toLowerCase()
-    .normalize('NFKD')
-    .replaceAll(/\p{M}/gu, '')
-    .replaceAll(/[^a-z\d]+/g, '-')
-    .replaceAll(/^-|-$/g, '')
-    .slice(0, 40);
-  const hash = createHash('sha1').update(placeId).digest('hex').slice(0, 8);
-  return `${slug || 'place'}-${hash}.no-website.invalid`;
-}
-
-/** Only Google's own Maps links are stored as a map URL. */
-function safeMapUrl(value: string | null | undefined): string {
-  if (!value) {
-    return '';
-  }
-  try {
-    const url = new URL(value);
-    const google = url.hostname === 'maps.google.com' || url.hostname.endsWith('.google.com');
-    return url.protocol === 'https:' && google ? url.toString() : '';
-  } catch {
-    return '';
-  }
-}
-
-const clip = (value: string | null | undefined, max: number) => (value ?? '').trim().slice(0, max);
-
-/** Refuses a row that is not a place at all; trims everything else to sane lengths. */
-function checkedRow(row: LeadImportInput): LeadImportInput {
-  const placeId = clip(row.placeId, 300);
-  const name = clip(row.name, 200);
-  const latOk = Number.isFinite(row.lat) && Math.abs(row.lat) <= 90;
-  const lngOk = Number.isFinite(row.lng) && Math.abs(row.lng) <= 180;
-  if (!placeId || !name || !latOk || !lngOk) {
-    badRequest('Each lead needs a Place ID, a name and valid coordinates.');
-  }
-  return {
-    placeId,
-    name,
-    phone: clip(row.phone, 40),
-    website: domainOf(row.website) ? clip(row.website, 500) : '',
-    address: clip(row.address, 500),
-    city: clip(row.city, 120),
-    country: clip(row.country, 2).toUpperCase(),
-    lat: row.lat,
-    lng: row.lng,
-    mapUrl: safeMapUrl(row.mapUrl),
-    emails: (row.emails ?? []).map((email) => email.trim().toLowerCase()).filter(isEmailAddress),
-    primaryType: clip(row.primaryType, 120),
-  };
-}
-
 /** The company document for one place. */
-function companyOf(row: LeadImportInput, domain: string, owner: string) {
+function companyOf(row: LeadImportInput, domain: string, origin: RecordOrigin) {
   const profile = withPrimaries(
     {
       emails: (row.emails ?? []).map((address) => ({ address, label: 'Work' })),
@@ -136,12 +91,14 @@ function companyOf(row: LeadImportInput, domain: string, owner: string) {
     name: row.name,
     domain,
     industry: row.primaryType ?? '',
-    owner,
+    // Whoever ran the import is its lead owner, not the account's owner: nobody has taken it on.
+    owner: '',
+    ...stampOrigin(origin),
     website: row.website ?? '',
     address: row.address ?? '',
     city: row.city ?? '',
     country: row.country ?? '',
-    location: [row.city, row.country].filter(Boolean).join(', '),
+    location: locationOf(row),
     lat: row.lat,
     lng: row.lng,
     placeId: row.placeId,
@@ -150,60 +107,90 @@ function companyOf(row: LeadImportInput, domain: string, owner: string) {
   };
 }
 
-/** Which of these places and domains are already accounts. */
-async function existing(rows: { placeId: string; domain: string }[]) {
-  const found = await CompanyModel.find({
-    $or: [
-      { placeId: { $in: rows.map((row) => row.placeId) } },
-      { domain: { $in: rows.map((row) => row.domain) } },
-    ],
-  })
-    .select('placeId domain')
-    .lean();
-  return {
-    placeIds: new Set(found.map((company) => company.placeId).filter(Boolean)),
-    domains: new Set(found.map((company) => company.domain)),
-  };
+/** What each lead would do on import: be filed, be skipped, or add details to a company. */
+export async function previewLeads(input: LeadImportInput[]): Promise<LeadImportPreview[]> {
+  const rows = checkedBatch(input);
+  const matcher = await companyMatcher(rows);
+  return rows.map((row): LeadImportPreview => {
+    const match = matcher.match(row);
+    if (!match) {
+      const fresh: LeadImportPreview = {
+        placeId: row.placeId,
+        name: row.name,
+        status: 'NEW',
+        existingCompanyId: null,
+        existingName: null,
+        extras: [],
+      };
+      return fresh;
+    }
+    const extras = leadExtras(row, match.company);
+    return {
+      placeId: row.placeId,
+      name: row.name,
+      status: extras.length > 0 ? 'DUPLICATE_WITH_EXTRA' : 'DUPLICATE',
+      existingCompanyId: String(match.company._id),
+      existingName: match.company.name,
+      extras,
+    };
+  });
 }
+
+/** Why a duplicate was not filed, by the rule that matched it. */
+function duplicateReason({ company, kind }: LeadMatch, row: LeadImportInput): string {
+  switch (kind) {
+    case 'DOMAIN':
+      return `A company with the domain ${company.domain} already exists`;
+    case 'PHONE':
+      return `A company with the phone number ${row.phone ?? ''} already exists`;
+    case 'NAME':
+      return `A company named ${company.name} in ${company.city ?? ''} already exists`;
+    default:
+      return 'Already in the CRM';
+  }
+}
+
+const REVIEW_STALE = 'The CRM changed since the review. Run Add to CRM again.';
+const MERGE_OUTCOME_REASONS = {
+  NOTHING_NEW: 'Already in the CRM, with nothing new to add',
+  GONE: 'The company was deleted during the import. Run Add to CRM again.',
+  BUSY: 'The company was being edited at the same time. Run Add to CRM again.',
+} as const;
 
 /** Mongo's duplicate-key code: a parallel import filed the same domain first. */
 const DUPLICATE_KEY = 11000;
 
-/** Files the places as companies, owned by `owner`, each with a note on its timeline. */
-export async function importLeads(
-  input: LeadImportInput[],
-  owner: string,
-): Promise<LeadImportResult> {
-  if (input.length === 0 || input.length > MAX_IMPORT) {
-    badRequest(`Add between 1 and ${MAX_IMPORT} leads at a time.`);
-  }
-  const rows = input.map(checkedRow).map((row) => ({
-    row,
-    domain: domainOf(row.website) || placeholderDomain(row.name, row.placeId),
-  }));
-  const known = await existing(rows.map(({ row, domain }) => ({ placeId: row.placeId, domain })));
-  const result: LeadImportResult = { created: 0, skipped: 0, filed: [], skips: [] };
-  const skip = (row: LeadImportInput, reason: string) => {
-    result.skipped += 1;
-    result.skips.push({ placeId: row.placeId, name: row.name, reason });
+/** One import call's running tally. */
+class ImportRun {
+  readonly result: LeadImportResult = {
+    created: 0,
+    skipped: 0,
+    merged: 0,
+    filed: [],
+    merges: [],
+    skips: [],
   };
 
-  for (const { row, domain } of rows) {
-    if (known.placeIds.has(row.placeId)) {
-      skip(row, 'Already in the CRM');
-      continue;
-    }
-    if (known.domains.has(domain)) {
-      skip(row, `A company with the domain ${domain} already exists`);
-      continue;
-    }
+  constructor(
+    private readonly matcher: CompanyMatcher,
+    private readonly origin: RecordOrigin,
+  ) {}
+
+  skip(row: LeadImportInput, reason: string, companyId: string | null = null) {
+    this.result.skipped += 1;
+    this.result.skips.push({ placeId: row.placeId, name: row.name, reason, companyId });
+  }
+
+  /** Files a lead that matched nothing, with a note on its timeline. */
+  async create(row: LeadImportInput) {
+    const domain = domainOf(row.website) || placeholderDomain(row.name, row.placeId);
+    const doc = companyOf(row, domain, this.origin);
     try {
-      const company = await CompanyModel.create(companyOf(row, domain, owner));
+      const company = await CompanyModel.create(doc);
       const id = company._id.toHexString();
-      known.placeIds.add(row.placeId);
-      known.domains.add(domain);
-      result.created += 1;
-      result.filed.push({ placeId: row.placeId, companyId: id });
+      this.matcher.remember({ ...doc, _id: company._id });
+      this.result.created += 1;
+      this.result.filed.push({ placeId: row.placeId, companyId: id });
       await ActivityModel.create({
         type: 'NOTE',
         subject: `Added from ${LEAD_SOURCE}`,
@@ -212,15 +199,74 @@ export async function importLeads(
         relatedId: id,
         relatedName: row.name,
         done: true,
-        owner,
+        // An activity always names somebody: the importer's email when the account has no name.
+        owner: this.origin.userName || this.origin.userEmail,
       });
     } catch (error) {
       if ((error as { code?: unknown }).code !== DUPLICATE_KEY) {
         throw error;
       }
       logger.info({ placeId: row.placeId }, 'Lead import skipped a duplicate filed in parallel');
-      skip(row, 'Already in the CRM');
+      this.skip(row, 'Already in the CRM');
     }
   }
-  return result;
+
+  /** A lead already in the CRM: merged when the user asked for it, otherwise skipped. */
+  async settle(row: LeadImportInput, match: LeadMatch, requested: string | undefined) {
+    const companyId = String(match.company._id);
+    if (requested === undefined) {
+      this.skip(row, duplicateReason(match, row), companyId);
+      return;
+    }
+    if (requested !== companyId) {
+      this.skip(row, REVIEW_STALE, companyId);
+      return;
+    }
+    const merge = await mergeLead(row, match.company._id);
+    if (merge.outcome !== 'MERGED') {
+      this.skip(row, MERGE_OUTCOME_REASONS[merge.outcome], companyId);
+      return;
+    }
+    this.matcher.remember(merge.company);
+    this.result.merged += 1;
+    this.result.merges.push({
+      placeId: row.placeId,
+      companyId,
+      name: merge.company.name,
+      added: merge.added,
+    });
+  }
+}
+
+/** Which company each lead the user agreed to merge goes into. */
+function mergeTargets(mergeInto: LeadMergeInput[]): Map<string, string> {
+  return new Map(
+    mergeInto
+      .filter((merge) => isValidObjectId(merge.companyId))
+      .map((merge) => [merge.placeId.trim(), merge.companyId]),
+  );
+}
+
+/**
+ * Files the new places as companies brought in by `origin` (owned by nobody yet), adds the extra details of the duplicates
+ * listed in `mergeInto`, and skips every other duplicate.
+ */
+export async function importLeads(
+  input: LeadImportInput[],
+  origin: RecordOrigin,
+  mergeInto: LeadMergeInput[] = [],
+): Promise<LeadImportResult> {
+  const rows = checkedBatch(input);
+  const targets = mergeTargets(mergeInto);
+  const matcher = await companyMatcher(rows);
+  const run = new ImportRun(matcher, origin);
+  for (const row of rows) {
+    const match = matcher.match(row);
+    if (match) {
+      await run.settle(row, match, targets.get(row.placeId));
+    } else {
+      await run.create(row);
+    }
+  }
+  return run.result;
 }

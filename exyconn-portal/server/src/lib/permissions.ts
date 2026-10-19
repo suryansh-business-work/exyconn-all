@@ -23,6 +23,7 @@ const HAND_WRITTEN_MODULES = [
   'CmsFragment',
   'CmsPage',
   'CmsSite',
+  'CrmIntegration',
   'Newsletter',
   'Branding',
   'Infrastructure',

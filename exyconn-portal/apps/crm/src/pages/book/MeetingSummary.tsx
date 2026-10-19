@@ -22,19 +22,21 @@ function Fact({ icon, children }: Readonly<{ icon: ReactNode; children: ReactNod
 
 interface MeetingSummaryProps {
   meeting: PublicMeetingFieldsFragment;
+  /** The company's booking page, which the back button returns to. */
+  backTo: string;
   /** The chosen time, e.g. "8:30 pm – 9:00 pm, Friday, October 16", once one is picked. */
   chosen?: string;
   zone?: string;
 }
 
 /** The left column: whose meeting, how long, where, the picked time, and what it is about. */
-export function MeetingSummary({ meeting, chosen, zone }: Readonly<MeetingSummaryProps>) {
+export function MeetingSummary({ meeting, backTo, chosen, zone }: Readonly<MeetingSummaryProps>) {
   const t = useT();
   const navigate = useNavigate();
   return (
     <Stack spacing={2}>
       <IconButton
-        onClick={() => navigate(`/book/${meeting.organizationSlug}`)}
+        onClick={() => navigate(backTo)}
         aria-label={t('All meetings')}
         sx={{ alignSelf: 'flex-start', border: 1, borderColor: 'divider' }}
       >

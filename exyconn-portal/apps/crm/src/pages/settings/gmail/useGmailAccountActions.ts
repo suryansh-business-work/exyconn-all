@@ -1,28 +1,21 @@
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import {
   CrmGmailReadyDocument,
+  CrmIntegrationStatusDocument,
+  CrmEmailSendersDocument,
   GmailAccountsDocument,
   useDisconnectGmailAccountMutation,
   useSetGmailAccountEnabledMutation,
   useStartGmailConnectMutation,
   type GmailAccountFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
+import { oauthReturnAddress, useOAuthReturnNotice } from '../../../integrations/useOAuthReturn';
 
-const CONNECTED = 'gmailConnected';
-const FAILED = 'gmailError';
-
-/** This page's address without the outcome of an earlier try, for Google to come back to. */
-function returnAddress(): string {
-  const url = new URL(globalThis.location.href);
-  url.searchParams.delete(CONNECTED);
-  url.searchParams.delete(FAILED);
-  return url.toString();
-}
+/** Where Google's callback puts the outcome on the address it returns to. */
+const RETURN_KEYS = { connected: 'gmailConnected', failed: 'gmailError' };
 
 /**
  * Connect (another, or the same again), turn on/off and disconnect a Gmail account. Google
@@ -31,28 +24,17 @@ function returnAddress(): string {
 export function useGmailAccountActions() {
   const notify = useNotify();
   const confirm = useConfirm();
-  const [params, setParams] = useSearchParams();
-  const refetchQueries = [GmailAccountsDocument, CrmGmailReadyDocument];
+  const refetchQueries = [
+    GmailAccountsDocument,
+    CrmGmailReadyDocument,
+    CrmIntegrationStatusDocument,
+    CrmEmailSendersDocument,
+  ];
   const [start, { loading: connecting }] = useStartGmailConnectMutation();
   const [setEnabled] = useSetGmailAccountEnabledMutation({ refetchQueries });
   const [disconnect] = useDisconnectGmailAccountMutation({ refetchQueries });
 
-  useEffect(() => {
-    const connected = params.get(CONNECTED);
-    const failed = params.get(FAILED);
-    if (connected === null && failed === null) {
-      return;
-    }
-    if (failed === null) {
-      notify('Gmail connected as {email}', 'success', { email: connected ?? '' });
-    } else {
-      notify(failed, 'error');
-    }
-    const rest = new URLSearchParams(params);
-    rest.delete(CONNECTED);
-    rest.delete(FAILED);
-    setParams(rest, { replace: true });
-  }, [params, setParams, notify]);
+  useOAuthReturnNotice(RETURN_KEYS, 'Gmail connected as {email}');
 
   const run = async (action: () => Promise<unknown>, failure: string) => {
     try {
@@ -65,7 +47,7 @@ export function useGmailAccountActions() {
 
   const connect = () =>
     run(async () => {
-      const { data } = await start({ variables: { returnTo: returnAddress() } });
+      const { data } = await start({ variables: { returnTo: oauthReturnAddress(RETURN_KEYS) } });
       if (data?.startGmailConnect) {
         globalThis.location.assign(data.startGmailConnect);
       }

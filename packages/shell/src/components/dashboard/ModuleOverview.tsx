@@ -17,7 +17,7 @@ export interface OverviewBreakdown {
 
 export interface OverviewLink {
   label: string;
-  /** Path inside this app, e.g. "/crm/leads". */
+  /** Path inside this app, e.g. "/leads". */
   to: string;
 }
 

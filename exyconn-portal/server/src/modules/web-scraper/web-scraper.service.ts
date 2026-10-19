@@ -11,7 +11,10 @@ import { WebScrapeModel } from './web-scrape.model';
 export interface FirecrawlConfigInput {
   label: string;
   baseUrl: string;
-  /** Empty when editing keeps the stored key. */
+  /**
+   * Required for Firecrawl's hosted API only; a self-hosted Firecrawl without authentication
+   * needs none. Empty when editing keeps the stored key.
+   */
   apiKey: string;
   isActive?: boolean | null;
 }
@@ -27,14 +30,42 @@ const CHARS_PER_TOKEN = 4;
 export const EXPECTED_OUTPUT_TOKENS = 800;
 
 const NOT_CONFIGURED =
-  'Firecrawl is not configured. Add an API key in Tech > Environment Variables > Firecrawl.';
+  'Firecrawl is not configured. Add a config in Tech > Environment Variables > Firecrawl.';
+
+/** Firecrawl's hosted API, the one install that always needs an API key. */
+const HOSTED_HOSTNAME = 'api.firecrawl.dev';
+const HTTP_PROTOCOLS = new Set(['http:', 'https:']);
+const KEY_LABEL = 'An API key for the hosted Firecrawl API';
+
+/** Refuses a base URL that is not an http(s) address. */
+function assertBaseUrl(baseUrl: string): void {
+  const url = URL.canParse(baseUrl) ? new URL(baseUrl) : null;
+  if (!url || !HTTP_PROTOCOLS.has(url.protocol)) {
+    badRequest('Base URL must be an http:// or https:// address.');
+  }
+}
+
+/** True for Firecrawl's hosted API; a self-hosted Firecrawl may run without authentication. */
+const isHostedBaseUrl = (baseUrl: string) =>
+  URL.canParse(baseUrl) && new URL(baseUrl).hostname === HOSTED_HOSTNAME;
+
+/** A config can run when it has a key, or points at a self-hosted Firecrawl that needs none. */
+const canRun = (config: { baseUrl: string; apiKey?: string | null }) =>
+  Boolean(config.apiKey?.trim()) || !isHostedBaseUrl(config.baseUrl);
+
+/** The hosted API needs a key; a self-hosted base URL does not. */
+function requireKeyFor(baseUrl: string, apiKey: string | undefined): void {
+  if (isHostedBaseUrl(baseUrl)) {
+    requireSecret(apiKey, KEY_LABEL);
+  }
+}
 
 /** A typed address with no scheme is read as https. */
 const withScheme = (raw: string) => (/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
 
 async function activeConfig() {
   const config = await FirecrawlConfigModel.findOne({ isActive: true }).lean();
-  if (!config?.apiKey) {
+  if (!config || !canRun(config)) {
     throw new ConfigurationError(NOT_CONFIGURED);
   }
   return config;
@@ -73,14 +104,22 @@ export const firecrawlConfigs = {
   },
 
   async create(input: FirecrawlConfigInput) {
-    requireSecret(input.apiKey, 'Firecrawl API key');
+    assertBaseUrl(input.baseUrl);
+    requireKeyFor(input.baseUrl, input.apiKey);
     if (input.isActive) {
       await FirecrawlConfigModel.updateMany({}, { isActive: false });
     }
     return (await FirecrawlConfigModel.create(input)).toObject();
   },
 
+  /** A blank key keeps the stored one, which must exist when the base URL is the hosted API. */
   async update(id: string, input: FirecrawlConfigInput) {
+    assertBaseUrl(input.baseUrl);
+    if (isHostedBaseUrl(input.baseUrl) && !input.apiKey.trim()) {
+      const current = await FirecrawlConfigModel.findById(id).select('apiKey').lean();
+      if (!current) notFound('Firecrawl config');
+      requireKeyFor(input.baseUrl, current.apiKey);
+    }
     if (input.isActive) {
       await FirecrawlConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
@@ -93,11 +132,11 @@ export const firecrawlConfigs = {
     return doc;
   },
 
-  /** Scrapes example.com with this config's key; Firecrawl's error is kept. */
+  /** Scrapes example.com with this config (and its key, if any); Firecrawl's error is kept. */
   async test(id: string) {
     const config = await FirecrawlConfigModel.findById(id).lean();
     if (!config) notFound('Firecrawl config');
-    requireSecret(config.apiKey, 'Firecrawl API key');
+    requireKeyFor(config.baseUrl, config.apiKey);
     const page = await firecrawlScrape(config.baseUrl, config.apiKey, 'https://example.com');
     return `Firecrawl answered with ${page.markdown.length} characters of markdown.`;
   },
@@ -108,9 +147,12 @@ export const firecrawlConfigs = {
     return true;
   },
 
+  /** An active config with a key, or an active self-hosted one that needs none. */
   async ready(): Promise<boolean> {
-    const config = await FirecrawlConfigModel.findOne({ isActive: true }).select('apiKey').lean();
-    return Boolean(config?.apiKey);
+    const config = await FirecrawlConfigModel.findOne({ isActive: true })
+      .select('baseUrl apiKey')
+      .lean();
+    return Boolean(config && canRun(config));
   },
 };
 

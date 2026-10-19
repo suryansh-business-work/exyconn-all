@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -12,7 +13,24 @@ import {
   useTestFirecrawlConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { maskedSecret } from './secret';
-import { FirecrawlConfigForm, type FirecrawlConfigRow } from './forms/firecrawl-config';
+import {
+  FirecrawlConfigForm,
+  isHostedFirecrawl,
+  type FirecrawlConfigRow,
+} from './forms/firecrawl-config';
+
+/** A self-hosted Firecrawl without authentication has no key and still runs. */
+const isKeylessSelfHosted = (row: FirecrawlConfigRow) =>
+  !row.hasApiKey && !isHostedFirecrawl(row.baseUrl);
+
+/** The stored key, masked, or a note that a self-hosted install needs none. */
+function ApiKeyCell({ row }: Readonly<{ row: FirecrawlConfigRow }>) {
+  const t = useT();
+  if (isKeylessSelfHosted(row)) {
+    return <>{t('No key (self-hosted)')}</>;
+  }
+  return <>{maskedSecret(row.hasApiKey, row.apiKeyHint)}</>;
+}
 
 const COLUMNS: Column<FirecrawlConfigRow>[] = [
   { key: 'label', label: 'Label' },
@@ -20,7 +38,7 @@ const COLUMNS: Column<FirecrawlConfigRow>[] = [
   {
     key: 'hasApiKey',
     label: 'API key',
-    render: (r) => maskedSecret(r.hasApiKey, r.apiKeyHint),
+    render: (r) => <ApiKeyCell row={r} />,
   },
   {
     key: 'isActive',
@@ -30,7 +48,7 @@ const COLUMNS: Column<FirecrawlConfigRow>[] = [
 ];
 
 /**
- * Environment Variables > Firecrawl: the key behind CRM > Tools > Website scraper. Firecrawl's
+ * Environment Variables > Firecrawl: the install behind CRM > Tools > Website scraper. Firecrawl's
  * hosted API (firecrawl.dev) or a self-hosted Firecrawl, chosen by the base URL.
  */
 export function FirecrawlConfigsPanel() {
@@ -60,10 +78,10 @@ export function FirecrawlConfigsPanel() {
   const actions: RowAction<FirecrawlConfigRow>[] = [
     {
       icon: <CheckCircleIcon fontSize="small" />,
-      tooltip: 'Test Firecrawl key',
-      ariaLabel: 'test firecrawl key',
+      tooltip: 'Test Firecrawl',
+      ariaLabel: 'test firecrawl',
       color: 'primary',
-      hidden: (row) => !row.hasApiKey,
+      hidden: (row) => !row.hasApiKey && isHostedFirecrawl(row.baseUrl),
       onClick: test,
     },
   ];
@@ -81,7 +99,7 @@ export function FirecrawlConfigsPanel() {
     <Box>
       <PageHeader
         title="Firecrawl"
-        subtitle="Reads web pages for the CRM website scraper. Get a key at firecrawl.dev, or point the base URL at a self-hosted Firecrawl."
+        subtitle="Reads web pages for the CRM website scraper. Get a key at firecrawl.dev, or point the base URL at a self-hosted Firecrawl (no key needed without authentication)."
         actionLabel="New Firecrawl config"
         onAction={crud.openCreate}
       />
@@ -91,7 +109,7 @@ export function FirecrawlConfigsPanel() {
         actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage="No Firecrawl key yet: the CRM website scraper is off."
+        emptyMessage="No Firecrawl config yet: the CRM website scraper is off."
         loading={loading}
         onRefresh={refetch}
       />
