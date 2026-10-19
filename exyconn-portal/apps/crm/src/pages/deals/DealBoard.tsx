@@ -1,5 +1,5 @@
 import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';
-import { Stack } from '@exyconn/shell/components/ui';
+import { Box, Stack, portalShadow } from '@exyconn/shell/components/ui';
 import type { DealStage } from '@exyconn/shell/graphql/generated';
 import { DealCard } from './DealCard';
 import { DealColumn } from './DealColumn';
@@ -49,11 +49,22 @@ export function DealBoard({ deals, onOpen, onMove }: Readonly<DealBoardProps>) {
       </Stack>
       <DragOverlay>
         {board.activeDeal ? (
-          <DealCard
-            deal={board.activeDeal}
-            accent={STAGE_ACCENTS[board.targetStage ?? board.activeDeal.stage]}
-            onOpen={onOpen}
-          />
+          // Lifted off the board: the raised shadow says the card is in hand.
+          <Box
+            data-testid="deal-drag-overlay"
+            sx={(theme) => ({
+              borderRadius: 1,
+              cursor: 'grabbing',
+              boxShadow: portalShadow[theme.palette.mode].xl,
+              '& > button': { mb: 0 },
+            })}
+          >
+            <DealCard
+              deal={board.activeDeal}
+              accent={STAGE_ACCENTS[board.targetStage ?? board.activeDeal.stage]}
+              onOpen={onOpen}
+            />
+          </Box>
         ) : null}
       </DragOverlay>
     </DndContext>
