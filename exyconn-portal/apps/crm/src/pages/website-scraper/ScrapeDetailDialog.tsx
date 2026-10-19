@@ -68,8 +68,8 @@ export function ScrapeDetailDialog({
   const scrape = data?.getWebScrape;
   const remove = useDeleteScrape(onDeleted);
   const retry = () => {
-    refetch().catch((failure: unknown) =>
-      portalLogger.warn('crm: reloading a scraped page failed', failure),
+    refetch().catch((error_: unknown) =>
+      portalLogger.warn('crm: reloading a scraped page failed', error_),
     );
   };
 
@@ -108,8 +108,8 @@ export function ScrapeDetailDialog({
             onClick={() => {
               remove
                 .run(scrape)
-                .catch((failure: unknown) =>
-                  portalLogger.warn('crm: deleting a scraped page failed', failure),
+                .catch((error_: unknown) =>
+                  portalLogger.warn('crm: deleting a scraped page failed', error_),
                 );
             }}
             sx={{ mr: 'auto' }}

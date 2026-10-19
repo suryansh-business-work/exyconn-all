@@ -7,6 +7,7 @@ import {
   type CmsDesignSystemRow,
   type DesignSystemFormValues,
 } from '../../../../../../src/pages/website/forms/cms-design-system';
+import { toDesignValues } from '../../../../../../src/pages/website/forms/cms-design-system/cms-design-system.types';
 import { renderWithProviders } from '../../../../test-utils';
 import { UrlProbe } from '../../../cms/cms-helpers';
 
@@ -144,7 +145,7 @@ describe('DesignSystemForm', () => {
   it('never creates a design system: the create step resolves without a mutation', async () => {
     setup(`${BASE}/palette`);
 
-    await expect(gql.saveOptions?.create({} as DesignSystemFormValues)).resolves.toBeUndefined();
+    await expect(gql.saveOptions?.create(toDesignValues(design))).resolves.toBeUndefined();
     expect(gql.update).not.toHaveBeenCalled();
   });
 

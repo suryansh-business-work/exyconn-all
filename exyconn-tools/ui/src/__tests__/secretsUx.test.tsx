@@ -26,6 +26,12 @@ describe('MissingKeyAlert', () => {
     expect(screen.getByRole('button', { name: /add key/i })).toBeInTheDocument();
   });
 
+  it('falls back to a generic label for a key that is not configured', () => {
+    render(wrap(<MissingKeyAlert secretKey="unknown_key" />));
+    expect(screen.getByText('API key required')).toBeInTheDocument();
+    expect(screen.getByText(/runs with your own API key/)).toBeInTheDocument();
+  });
+
   it('renders a tool-specific hint when given one', () => {
     render(wrap(<MissingKeyAlert secretKey="openai_api_key" hint="Only needed for rewriting." />));
     expect(screen.getByText('Only needed for rewriting.')).toBeInTheDocument();

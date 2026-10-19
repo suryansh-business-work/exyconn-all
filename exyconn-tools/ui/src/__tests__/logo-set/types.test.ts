@@ -59,9 +59,8 @@ describe('logo-set size catalogue', () => {
   it('lists every size once, and every scope option points at a real size or group', () => {
     expect(ALL_SIZES).toHaveLength(FAVICON_SIZES.length + ICON_SIZES.length + LOGO_SIZES.length + SPLASH_SIZES.length);
     expect(CANVAS_SIZES).toBe(ALL_SIZES);
-    const keys = new Set(
-      ALL_SIZES.map((size) => `${size.category}-${size.width}${size.category === 'splash' ? `x${size.height}` : ''}`)
-    );
+    const heightSuffix = (size: (typeof ALL_SIZES)[number]) => (size.category === 'splash' ? `x${size.height}` : '');
+    const keys = new Set(ALL_SIZES.map((size) => `${size.category}-${size.width}${heightSuffix(size)}`));
     SCOPE_OPTIONS.filter((option) => !option.value.endsWith('-all') && option.value !== 'all').forEach((option) => {
       expect(keys.has(option.value)).toBe(true);
     });

@@ -21,7 +21,7 @@ const readItem = (element: HTMLElement, params: readonly string[]): FilterItem =
   values: Object.fromEntries(
     params.map((param) => [param, words(element.getAttribute(`data-filter-${param}`) ?? "")])
   ),
-  text: element.dataset.search ?? (element.textContent as string),
+  text: element.dataset.search ?? element.textContent,
 });
 
 /** Re-appends the items in sort order; hidden ones move too, so the order survives a reset. */

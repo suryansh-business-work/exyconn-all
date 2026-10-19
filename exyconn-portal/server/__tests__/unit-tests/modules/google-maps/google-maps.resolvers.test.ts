@@ -126,7 +126,7 @@ describe('the CRM side', () => {
     )) as { places: Array<{ placeId: string; existingCompanyId: string | null }> };
 
     expect(page.places).toEqual([
-      expect.objectContaining({ placeId: 'place-1', existingCompanyId: String(filed._id) }),
+      expect.objectContaining({ placeId: 'place-1', existingCompanyId: filed._id.toHexString() }),
       expect.objectContaining({ placeId: 'place-2', existingCompanyId: null }),
     ]);
   });

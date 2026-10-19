@@ -45,8 +45,8 @@ export function ExportRecordsButton({
 
   const choose = (keys: readonly string[]) => {
     setAnchor(null);
-    run(keys).catch((failure: unknown) =>
-      portalLogger.error('Starting a CRM export failed', failure),
+    run(keys).catch((error_: unknown) =>
+      portalLogger.error('Starting a CRM export failed', error_),
     );
   };
 

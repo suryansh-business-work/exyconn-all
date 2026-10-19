@@ -59,7 +59,7 @@ export function CategoryManager({ section }: Readonly<{ section: LineSection }>)
   };
 
   return (
-    <div className="gcc-categories" aria-label={L.categories} role="group">
+    <fieldset className="gcc-categories" aria-label={L.categories}>
       {own.map((category) => (
         <Chip
           key={category.id}
@@ -83,6 +83,6 @@ export function CategoryManager({ section }: Readonly<{ section: LineSection }>)
         </p>
       )}
       <NameDialog request={naming} onClose={() => setNaming(null)} />
-    </div>
+    </fieldset>
   );
 }

@@ -146,6 +146,24 @@ describe('useBusinessSearch', () => {
     expect(hook.result.current.successMessage).toBe('Found 2 businesses in the selected area');
   });
 
+  it('drops details that answer after the maximum was already reached', async () => {
+    maps.searchAnswers.push({
+      status: 'OK',
+      results: [placeAt(1, 1), placeAt(2, 2), placeAt(3, 3)],
+    });
+    // Google answers details asynchronously, so every place in the page is asked for first.
+    maps.getDetails.mockImplementation((_request: unknown, callback: (details: unknown) => void) => {
+      queueMicrotask(() => callback({ website: 'https://shop.test' }));
+    });
+    const hook = renderHook(() => useBusinessSearch());
+
+    await search(hook, [SQUARE, '', ['cafe'], 2]);
+
+    expect(maps.getDetails).toHaveBeenCalledTimes(3);
+    expect(hook.result.current.businesses.map((b) => b.placeId)).toEqual(['place-1-1', 'place-2-2']);
+    expect(hook.result.current.businesses[1].website).toBe('https://shop.test');
+  });
+
   it('merges categories, ignores duplicates, places without a location and failed searches', async () => {
     maps.searchAnswers.push(
       { status: 'OK', results: [placeAt(1, 1)] },

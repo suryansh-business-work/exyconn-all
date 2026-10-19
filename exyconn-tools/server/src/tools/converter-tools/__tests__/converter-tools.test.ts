@@ -15,6 +15,7 @@ import { pdfWithText } from "../../../__tests__/helpers/pdf";
 import routes from "../routes";
 import * as services from "../services";
 import * as controllers from "../controllers";
+import { asResponse, fakeRequest } from "../../../__tests__/helpers/express";
 
 const app = mountRouter(routes);
 
@@ -475,7 +476,7 @@ describe("controllers called directly", () => {
     mocks.safeRequest.mockRejectedValue(new Error("no url"));
     const res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
 
-    await controllers[name]({ body: {} } as never, res as never);
+    await controllers[name](fakeRequest({}), asResponse(res));
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
@@ -498,7 +499,7 @@ describe("controllers called directly", () => {
       controllers.convertXmlToMarkdown,
     ]) {
       const res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
-      await handler({ body: hostile } as never, res as never);
+      await handler(fakeRequest(hostile), asResponse(res));
       expect(res.status).toHaveBeenCalledWith(500);
     }
   });

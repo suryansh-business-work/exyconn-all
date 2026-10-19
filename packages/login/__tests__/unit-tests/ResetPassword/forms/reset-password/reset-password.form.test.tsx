@@ -92,7 +92,7 @@ describe('ResetPasswordForm', () => {
   });
 
   it('shows a generic reason for a non-Error failure, cleared on the next attempt', async () => {
-    resetPassword.mockImplementationOnce(() => Promise.reject('offline'));
+    resetPassword.mockRejectedValueOnce('offline');
     const user = renderForm();
     await fill(user, typed(12), typed(12));
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not reset the password');

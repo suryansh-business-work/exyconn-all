@@ -9,7 +9,7 @@ const MAX_KEY = 64;
 /** Canvas coordinates. Generous, but bounded so a stored graph cannot hold absurd numbers. */
 const MAX_COORDINATE = 1_000_000;
 
-const coordinate = z.number().finite().min(-MAX_COORDINATE).max(MAX_COORDINATE);
+const coordinate = z.number().min(-MAX_COORDINATE).max(MAX_COORDINATE);
 
 export const workflowGraphSchema = z.object({
   nodes: z

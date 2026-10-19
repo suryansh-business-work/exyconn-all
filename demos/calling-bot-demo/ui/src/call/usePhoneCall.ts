@@ -57,8 +57,8 @@ export function usePhoneCall(scenarioId: string | null) {
           variables: { input: { channel: CallingBotChannel.Phone, phone, scenarioId } },
         });
         setCallId(started?.startCallingBotCall.call.id ?? null);
-      } catch (failure) {
-        setError(errorMessage(failure, t('The phone call could not be placed.')));
+      } catch (error_) {
+        setError(errorMessage(error_, t('The phone call could not be placed.')));
       }
     },
     [scenarioId, startCall, t],

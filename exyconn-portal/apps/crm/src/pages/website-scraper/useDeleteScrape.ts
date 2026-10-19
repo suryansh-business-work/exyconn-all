@@ -30,9 +30,9 @@ export function useDeleteScrape(onDeleted: () => void) {
       await deleteScrape({ variables: { id: scrape.id } });
       notify(t('Scraped page deleted'), 'success');
       onDeleted();
-    } catch (failure) {
-      portalLogger.warn('crm: deleting a scraped page failed', failure);
-      notify(errorMessage(failure, t('Could not delete the scraped page.')), 'error');
+    } catch (error_) {
+      portalLogger.warn('crm: deleting a scraped page failed', error_);
+      notify(errorMessage(error_, t('Could not delete the scraped page.')), 'error');
     }
   };
 

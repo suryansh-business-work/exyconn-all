@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ComponentProps } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { listPath, type DemoRow, type WorkflowRow } from '../model/api';
 import { useStudio } from '../../StudioContext';
 import { WorkflowDetailsDialog } from '../WorkflowDetailsDialog';
 import { EditorHeader } from './EditorHeader';
-import { FlowWorkspace } from './FlowWorkspace';
+import { FlowWorkspace, type FlowTools } from './FlowWorkspace';
 import { PreviewPane } from './panels/PreviewPane';
 import { usePreviewBundle } from './usePreviewBundle';
 import { useUnloadGuard } from './useUnloadGuard';
@@ -26,6 +26,13 @@ interface EditorWorkspaceProps {
 const run = (task: () => Promise<unknown>) => () => {
   task().catch((error: unknown) => console.error('Workflow editor action failed', error));
 };
+
+type HeaderProps = Omit<ComponentProps<typeof EditorHeader>, 'errors' | 'onTidy'>;
+
+/** The workspace's header render callback: the editor header with the workspace's tools. */
+function renderHeader({ errors, tidy }: FlowTools, props: Readonly<HeaderProps>) {
+  return <EditorHeader {...props} errors={errors} onTidy={tidy} />;
+}
 
 /** One chat workflow's editor: the flow workspace with Save, Publish, details and Preview. */
 export function EditorWorkspace({
@@ -79,6 +86,21 @@ export function EditorWorkspace({
     />
   );
 
+  const headerProps: HeaderProps = {
+    name: meta?.name ?? workflow.name,
+    workflowKey: workflow.key,
+    status: workflow.status,
+    version: workflow.version,
+    dirty: editor.dirty,
+    busy: actions.busy,
+    onBack: run(back),
+    onDetails: () => setDetailsOpen(true),
+    onPreview: () => setPreviewOpen(true),
+    onDiscard: run(actions.onDiscard),
+    onSave: run(actions.onSave),
+    onPublish: run(actions.onPublish),
+  };
+
   return (
     <>
       <FlowWorkspace
@@ -88,24 +110,7 @@ export function EditorWorkspace({
         preview={preview}
         previewOpen={previewOpen}
         onClosePreview={() => setPreviewOpen(false)}
-        header={({ errors, tidy }) => (
-          <EditorHeader
-            name={meta?.name ?? workflow.name}
-            workflowKey={workflow.key}
-            status={workflow.status}
-            version={workflow.version}
-            dirty={editor.dirty}
-            errors={errors}
-            busy={actions.busy}
-            onBack={run(back)}
-            onDetails={() => setDetailsOpen(true)}
-            onTidy={tidy}
-            onPreview={() => setPreviewOpen(true)}
-            onDiscard={run(actions.onDiscard)}
-            onSave={run(actions.onSave)}
-            onPublish={run(actions.onPublish)}
-          />
-        )}
+        header={(tools) => renderHeader(tools, headerProps)}
       />
       <WorkflowDetailsDialog
         open={detailsOpen}

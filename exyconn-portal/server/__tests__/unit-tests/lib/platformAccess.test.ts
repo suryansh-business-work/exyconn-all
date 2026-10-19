@@ -114,7 +114,11 @@ describe('assertPlatformOrganization', () => {
   it('does not take an account with no roles on its token for a platform administrator', async () => {
     await operator();
     const ctx = {
-      user: { id: String(new Types.ObjectId()), email: 'u@example.com', organizationId: null },
+      user: {
+        id: new Types.ObjectId().toHexString(),
+        email: 'u@example.com',
+        organizationId: null,
+      },
       organizationId: null,
     } as unknown as GraphQLContext;
 

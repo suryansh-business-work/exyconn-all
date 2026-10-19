@@ -19,6 +19,7 @@ import NotionFaqGenerator from '../../tools/notion-faq-generator';
 import PdfFaqGenerator from '../../tools/pdf-faq-generator';
 import WebpageFaqGenerator from '../../tools/webpage-faq-generator';
 import WebsiteFaqGenerator from '../../tools/website-faq-generator';
+import { sentJsonOf } from '../helpers/requests';
 
 const generate = vi.mocked(generateWithOpenAI);
 const USAGE = { promptTokens: 1, completionTokens: 2, totalTokens: 3 };
@@ -332,7 +333,7 @@ describe('website-faq-generator', () => {
     submit();
 
     expect(await screen.findByText('Website FAQs')).toBeInTheDocument();
-    expect(JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body))).toEqual({
+    expect(sentJsonOf(fetchMock)).toEqual({
       url: 'https://example.org',
     });
     expect(generate.mock.calls[0][2]).toContain('Opening hours are 9 to 5.');

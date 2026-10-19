@@ -10,6 +10,7 @@ import { mountRouter } from "../../../__tests__/helpers/mountRouter";
 import { findSitemapsController } from "../controllers";
 import routes from "../routes";
 import { findSitemaps } from "../services";
+import { asResponse, fakeRequest } from "../../../__tests__/helpers/express";
 
 type Reply =
   { status?: number; data: unknown; headers?: Record<string, string> } | Error;
@@ -26,14 +27,19 @@ function serve(pages: Record<string, Reply>) {
   });
 }
 
+const urlEntry = (i: number) => `<url><loc>https://acme.io/${i}</loc></url>`;
 const urlset = (count: number) =>
-  `<?xml version="1.0"?><urlset>${Array.from({ length: count }, (_, i) => `<url><loc>https://acme.io/${i}</loc></url>`).join("")}</urlset>`;
+  `<?xml version="1.0"?><urlset>${Array.from({ length: count }, (_, i) => urlEntry(i)).join("")}</urlset>`;
+
+/** `<name>value</name>`, or nothing when there is no value. */
+const tag = (name: string, value?: string) =>
+  value ? `<${name}>${value}</${name}>` : "";
 
 const index = (...locs: Array<string | { loc?: string; lastmod?: string }>) =>
   `<sitemapindex>${locs
     .map((entry) => {
       const item = typeof entry === "string" ? { loc: entry } : entry;
-      return `<sitemap>${item.loc ? `<loc>${item.loc}</loc>` : ""}${item.lastmod ? `<lastmod>${item.lastmod}</lastmod>` : ""}</sitemap>`;
+      return `<sitemap>${tag("loc", item.loc)}${tag("lastmod", item.lastmod)}</sitemap>`;
     })
     .join("")}</sitemapindex>`;
 
@@ -427,7 +433,7 @@ describe("POST /find", () => {
     );
     const res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
 
-    await findSitemapsController({ body: hostile } as never, res as never);
+    await findSitemapsController(fakeRequest(hostile), asResponse(res));
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({

@@ -40,8 +40,8 @@ async function threadText(threadId: string): Promise<string> {
     .sort({ sentAt: -1 })
     .limit(THREAD_MESSAGES)
     .lean();
+  messages.reverse();
   return messages
-    .reverse()
     .map(
       (m) =>
         `From ${m.from} (${m.sentAt.toISOString()}):\n${(m.bodyText || m.snippet).slice(0, MESSAGE_CHARS)}`,

@@ -1712,6 +1712,15 @@ export const findToolById = (id: string): ToolItem | undefined => getAllTools().
 export const getCategoryOfTool = (id: string): ToolCategory | undefined =>
   toolsData.find((cat) => cat.items.some((item) => item.id === id));
 
+// A tool together with the category it belongs to
+export const findToolWithCategory = (id: string): { tool: ToolItem; category: ToolCategory } | undefined => {
+  for (const category of toolsData) {
+    const tool = category.items.find((item) => item.id === id);
+    if (tool) return { tool, category };
+  }
+  return undefined;
+};
+
 // Category by its URL slug
 export const findCategoryBySlug = (slug: string): ToolCategory | undefined =>
   toolsData.find((cat) => cat.slug === slug);

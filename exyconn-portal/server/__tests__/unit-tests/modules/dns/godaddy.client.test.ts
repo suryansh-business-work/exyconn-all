@@ -118,7 +118,7 @@ describe('with the active configuration', () => {
     const { url, init } = call();
     expect(url).toBe('https://api.godaddy.com/v1/domains/exyconn.com/records/A/www');
     expect(init.method).toBe('PUT');
-    expect(JSON.parse(String(init.body))).toEqual(records);
+    expect(JSON.parse(init.body as string)).toEqual(records);
   });
 
   it('points the domain at new nameservers with a PATCH', async () => {
@@ -128,6 +128,6 @@ describe('with the active configuration', () => {
     const { url, init } = call();
     expect(url).toBe('https://api.godaddy.com/v1/domains/exyconn.com');
     expect(init.method).toBe('PATCH');
-    expect(JSON.parse(String(init.body))).toEqual({ nameServers: ['a.ns.net', 'b.ns.net'] });
+    expect(JSON.parse(init.body as string)).toEqual({ nameServers: ['a.ns.net', 'b.ns.net'] });
   });
 });

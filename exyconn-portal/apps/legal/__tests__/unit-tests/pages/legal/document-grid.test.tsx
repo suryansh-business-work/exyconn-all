@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, onTestFinished, vi } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import type { ColDef, ICellRendererParams, ValueFormatterParams } from 'ag-grid-community';
 import type { RowActionSpec } from '@exyconn/crud';
@@ -28,12 +28,14 @@ const shownOwner = (data: PagedLegalDocumentRow) =>
     context: { t: (source: string) => source },
   } as ValueFormatterParams<PagedLegalDocumentRow>);
 
-/** Renders the Link column's cell for a row, inside a parent that records row clicks. */
+/** Renders the Link column's cell for a row; clicks that bubble out of it reach `onRowClick`. */
 function renderLinkCell(data: PagedLegalDocumentRow | undefined, onRowClick = vi.fn()) {
   const Cell = column('fileUrl').cellRenderer as ComponentType<CellParams>;
   const params = { data } as CellParams;
+  document.addEventListener('click', onRowClick);
+  onTestFinished(() => document.removeEventListener('click', onRowClick));
   return renderWithProviders(
-    <div data-testid="row" onClick={onRowClick} role="presentation">
+    <div data-testid="row">
       <Cell {...params} />
     </div>,
   );

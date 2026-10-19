@@ -43,6 +43,6 @@ describe('money', () => {
     const base = { locale: 'en-US', rates: [usd] };
     expect(formatMoney(800_000, { ...base, currency: 'USD' })).toBe('$100');
     expect(formatMoney(800_000, { ...base, currency: 'USD', display: 'code' })).toMatch(/USD\s100/);
-    expect(formatMoney(150_000_000_00, { ...base, currency: 'INR', compact: true })).toBe('₹150M');
+    expect(formatMoney(15_000_000_000, { ...base, currency: 'INR', compact: true })).toBe('₹150M');
   });
 });

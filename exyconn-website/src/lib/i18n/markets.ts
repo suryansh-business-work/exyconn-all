@@ -31,7 +31,7 @@ export const MARKETS: readonly Market[] = marketList;
  * English, and the largest English market: a person whose browser asks for a language the
  * site does not publish gets a page they can read, in a market they can change in one click.
  */
-export const DEFAULT_MARKET: Market = MARKETS.filter((market) => market.path === "en-us")[0];
+export const DEFAULT_MARKET: Market = MARKETS.find((market) => market.path === "en-us") as Market;
 
 const BY_PATH = new Map(MARKETS.map((market) => [market.path, market]));
 

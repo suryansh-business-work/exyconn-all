@@ -4,6 +4,7 @@ import { invalidatePlatformOperatorCache } from '../../../../../src/lib/platform
 import { ROLES } from '../../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../../src/middleware/auth';
 import { codeOf } from '../../codeOf';
+import { requestUrl } from '../../../../fetchUrl';
 
 /** Never a literal credential: each only has to look like a long key. */
 const PAYPAL_SECRET = `pp_${'p'.repeat(24)}`;
@@ -72,7 +73,7 @@ describe('PayPal accounts', () => {
     expect(PaypalConfig.hasClientSecret(listed[0])).toBe(true);
     expect(PaypalConfig.clientSecretHint(listed[0])).toBe('pppp');
     expect(tested).toBe(true);
-    expect(String(fetchMock.mock.calls[0][0])).toBe(
+    expect(requestUrl(fetchMock.mock.calls[0][0])).toBe(
       'https://api-m.sandbox.paypal.com/v1/oauth2/token',
     );
     expect(deleted).toBe(true);
@@ -122,7 +123,7 @@ describe('Payoneer accounts', () => {
     expect(PayoneerConfig.hasApiToken(listed[0])).toBe(true);
     expect(PayoneerConfig.apiTokenHint(listed[0])).toBe('tttt');
     expect(tested).toBe(true);
-    expect(String(fetchMock.mock.calls[0][0])).toBe(
+    expect(requestUrl(fetchMock.mock.calls[0][0])).toBe(
       'https://api.live.oscato.com/api/charges/credential-check',
     );
     expect(deleted).toBe(true);

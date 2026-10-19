@@ -63,12 +63,12 @@ export function tableBulkInfo(schema: GraphQLSchema, list: string): BulkInfo {
   };
 }
 
-function failureOf(id: string, error: unknown): BulkFailure {
-  const code = error instanceof GraphQLError ? error.extensions.code : undefined;
-  if (FATAL_CODES.has(code)) {
+/** A delete that failed: reported against its record, unless it refuses the whole action. */
+function failureOf(id: string, error: GraphQLError): BulkFailure {
+  if (FATAL_CODES.has(error.extensions.code)) {
     throw error;
   }
-  return { id, message: error instanceof Error ? error.message : 'Could not delete it' };
+  return { id, message: error.message };
 }
 
 /**
@@ -87,7 +87,8 @@ async function deleteEach(
       await runOperation(schema, ctx, operation, { id });
       result.succeeded += 1;
     } catch (error) {
-      result.failures.push(failureOf(id, error));
+      // runOperation only ever throws a GraphQLError: the resolver's own, or graphql's wrapper.
+      result.failures.push(failureOf(id, error as GraphQLError));
     }
   }
   return result;

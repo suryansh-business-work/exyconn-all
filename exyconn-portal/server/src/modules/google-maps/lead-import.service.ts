@@ -17,6 +17,7 @@ import {
   domainOf,
   locationOf,
   placeholderDomain,
+  type CheckedLead,
   type LeadImportInput,
 } from './lead-row';
 
@@ -78,10 +79,10 @@ export interface LeadImportResult {
 }
 
 /** The company document for one place. */
-function companyOf(row: LeadImportInput, domain: string, origin: RecordOrigin) {
+function companyOf(row: CheckedLead, domain: string, origin: RecordOrigin) {
   const profile = withPrimaries(
     {
-      emails: (row.emails ?? []).map((address) => ({ address, label: 'Work' })),
+      emails: row.emails.map((address) => ({ address, label: 'Work' })),
       phones: row.phone ? [{ number: row.phone, label: 'Work' }] : [],
     },
     false,
@@ -90,19 +91,19 @@ function companyOf(row: LeadImportInput, domain: string, origin: RecordOrigin) {
     ...profile,
     name: row.name,
     domain,
-    industry: row.primaryType ?? '',
+    industry: row.primaryType,
     // Whoever ran the import is its lead owner, not the account's owner: nobody has taken it on.
     owner: '',
     ...stampOrigin(origin),
-    website: row.website ?? '',
-    address: row.address ?? '',
-    city: row.city ?? '',
-    country: row.country ?? '',
+    website: row.website,
+    address: row.address,
+    city: row.city,
+    country: row.country,
     location: locationOf(row),
     lat: row.lat,
     lng: row.lng,
     placeId: row.placeId,
-    mapUrl: row.mapUrl ?? '',
+    mapUrl: row.mapUrl,
     leadSource: LEAD_SOURCE,
   };
 }
@@ -129,7 +130,7 @@ export async function previewLeads(input: LeadImportInput[]): Promise<LeadImport
       placeId: row.placeId,
       name: row.name,
       status: extras.length > 0 ? 'DUPLICATE_WITH_EXTRA' : 'DUPLICATE',
-      existingCompanyId: String(match.company._id),
+      existingCompanyId: match.company._id.toHexString(),
       existingName: match.company.name,
       extras,
     };
@@ -137,14 +138,14 @@ export async function previewLeads(input: LeadImportInput[]): Promise<LeadImport
 }
 
 /** Why a duplicate was not filed, by the rule that matched it. */
-function duplicateReason({ company, kind }: LeadMatch, row: LeadImportInput): string {
+function duplicateReason({ company, kind }: LeadMatch, row: CheckedLead): string {
   switch (kind) {
     case 'DOMAIN':
       return `A company with the domain ${company.domain} already exists`;
     case 'PHONE':
-      return `A company with the phone number ${row.phone ?? ''} already exists`;
+      return `A company with the phone number ${row.phone} already exists`;
     case 'NAME':
-      return `A company named ${company.name} in ${company.city ?? ''} already exists`;
+      return `A company named ${company.name} in ${row.city} already exists`;
     default:
       return 'Already in the CRM';
   }
@@ -176,13 +177,13 @@ class ImportRun {
     private readonly origin: RecordOrigin,
   ) {}
 
-  skip(row: LeadImportInput, reason: string, companyId: string | null = null) {
+  skip(row: CheckedLead, reason: string, companyId: string | null = null) {
     this.result.skipped += 1;
     this.result.skips.push({ placeId: row.placeId, name: row.name, reason, companyId });
   }
 
   /** Files a lead that matched nothing, with a note on its timeline. */
-  async create(row: LeadImportInput) {
+  async create(row: CheckedLead) {
     const domain = domainOf(row.website) || placeholderDomain(row.name, row.placeId);
     const doc = companyOf(row, domain, this.origin);
     try {
@@ -212,8 +213,8 @@ class ImportRun {
   }
 
   /** A lead already in the CRM: merged when the user asked for it, otherwise skipped. */
-  async settle(row: LeadImportInput, match: LeadMatch, requested: string | undefined) {
-    const companyId = String(match.company._id);
+  async settle(row: CheckedLead, match: LeadMatch, requested: string | undefined) {
+    const companyId = match.company._id.toHexString();
     if (requested === undefined) {
       this.skip(row, duplicateReason(match, row), companyId);
       return;

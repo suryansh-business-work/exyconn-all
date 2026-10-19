@@ -13,6 +13,7 @@ import ParaphrasingTool from '../../tools/paraphrasing-tool';
 import PlagiarismChecker from '../../tools/plagiarism-checker';
 import SentenceRewriter from '../../tools/sentence-rewriter';
 import SummaryGenerator from '../../tools/summary-generator';
+import { sentJson, sentJsonOf } from '../helpers/requests';
 
 const TEXT = 'This is a sample paragraph with enough characters to analyse.';
 
@@ -77,7 +78,7 @@ describe.each(REWRITERS)('%s', (_id, Tool, boxLabel, style) => {
         expect(screen.getByText(suggestion)).toBeInTheDocument();
       }
       const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-      expect(JSON.parse(String(init.body))).toEqual({ text: TEXT, style });
+      expect(sentJson(init)).toEqual({ text: TEXT, style });
       unmount();
     }
   });
@@ -140,7 +141,7 @@ describe('summary-generator', () => {
     expect(screen.getByText('92% compressed')).toBeInTheDocument();
     expect(screen.getByText('1/6 sentences')).toBeInTheDocument();
     expect(screen.getByText('16/200 chars')).toBeInTheDocument();
-    expect(JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body))).toEqual({ text: TEXT });
+    expect(sentJsonOf(fetchMock)).toEqual({ text: TEXT });
 
     fireEvent.click(screen.getByRole('button', { name: /copy/i }));
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('A short summary.');
@@ -205,7 +206,7 @@ describe('plagiarism-checker', () => {
       for (const { phrase } of phrases) {
         expect(screen.getByText(phrase)).toBeInTheDocument();
       }
-      expect(JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body))).toEqual({ text: TEXT });
+      expect(sentJsonOf(fetchMock)).toEqual({ text: TEXT });
       cleanup();
     }
   });
@@ -261,7 +262,7 @@ describe('ai-text-generator', () => {
     expect(await screen.findByText(/Readability Grade: Grade 8/)).toBeInTheDocument();
     expect(screen.getByText(/Add a call to action/)).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({
+    expect(sentJson(init)).toEqual({
       text: 'Generate a Tagline / Slogan about: remote work. Tone: witty.',
       style: 'tagline',
     });

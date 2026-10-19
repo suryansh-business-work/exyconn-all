@@ -1,6 +1,6 @@
 import { env } from '../../config/env';
 import { runAsPlatform } from '../../lib/tenant';
-import { badRequest, notFound } from '../../utils/errors';
+import { badRequest } from '../../utils/errors';
 import { secretHint } from '../tech/tech.secrets';
 import { randomToken, sha256 } from '../auth/google/google-sign-in.oauth';
 import {
@@ -72,8 +72,7 @@ export async function saveMicrosoftConfig(input: MicrosoftMailConfigInput, actor
   if (!TENANT.test(tenant)) {
     badRequest('The tenant is common, organizations, consumers, a tenant id or a domain.');
   }
-  await readMicrosoftConfig();
-  const saved = await runAsPlatform(() =>
+  return runAsPlatform(() =>
     MicrosoftMailConfigModel.findOneAndUpdate(
       { key: KEY },
       {
@@ -85,17 +84,15 @@ export async function saveMicrosoftConfig(input: MicrosoftMailConfigInput, actor
           ...(clientSecret === '' ? {} : { clientSecret }),
         },
       },
-      { new: true },
+      { upsert: true, new: true },
     ).lean<MicrosoftMailConfigDocument>(),
   );
-  if (!saved) notFound('Microsoft mail config');
-  return saved;
 }
 
 export interface MicrosoftConnectActor {
   id: string;
   name: string;
-  organizationId: string;
+  organizationId: string | null;
 }
 
 /** Microsoft's consent page for one more mailbox (or the same one, to renew its token). */
@@ -147,7 +144,7 @@ export async function finishMicrosoftConnect(
     code_verifier: state.codeVerifier,
     redirect_uri: microsoftRedirectUri(),
   });
-  if (!tokens.refresh_token || !tokens.access_token) {
+  if (!tokens.refresh_token) {
     throw new Error('Microsoft did not grant offline access. Try Connect again.');
   }
   const email = await mailboxAddress(tokens.access_token);
@@ -165,7 +162,7 @@ export async function testMicrosoftMail(): Promise<string> {
     mailboxes.map(async (mailbox) => {
       try {
         const tokens = await refreshMailbox(mailbox);
-        const address = await mailboxAddress(tokens.access_token ?? '');
+        const address = await mailboxAddress(tokens.access_token);
         await noteMicrosoftOutcome(mailbox.id, { refreshToken: tokens.refresh_token });
         return `${address}: ok`;
       } catch (error) {

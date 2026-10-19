@@ -2,7 +2,7 @@ import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { companyProfileFields } from './crm.profile';
 import { companyGeoFields } from './crm.geo';
 import { originFields } from './crm.origin';
-import { tagFields } from './crm.tags';
+import { tagFields } from './crm.tag-fields';
 
 /** Roughly how big the account is, for segmenting the book of business. */
 export const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-1000', '1000+'] as const;

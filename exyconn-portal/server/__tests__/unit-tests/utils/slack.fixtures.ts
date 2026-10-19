@@ -38,5 +38,5 @@ export function sentCall(
   index = 0,
 ): { method: string; body: Record<string, unknown> } {
   const [url, init] = fetchMock.mock.calls[index] as [string, RequestInit];
-  return { method: url.replace('https://slack.com/api/', ''), body: JSON.parse(String(init.body)) };
+  return { method: url.replace('https://slack.com/api/', ''), body: JSON.parse(init.body as string) };
 }

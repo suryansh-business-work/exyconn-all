@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { vi } from 'vitest';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { OpenAIProvider } from '../../shared/context/OpenAIContext';
 import { SecretsProvider } from '../../shared/context/SecretsContext';
@@ -75,4 +75,4 @@ export async function clickAway() {
   });
 }
 
-export { waitFor };
+export { waitFor } from '@testing-library/react';

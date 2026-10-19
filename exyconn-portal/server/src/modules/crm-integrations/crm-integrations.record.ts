@@ -83,7 +83,7 @@ export async function logActivity(log: ActivityLog): Promise<string> {
     done: true,
     owner: log.owner,
   });
-  return String(row._id);
+  return row._id.toHexString();
 }
 
 /** One audit line naming the record and the provider, never the number or the text. */

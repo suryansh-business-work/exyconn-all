@@ -53,11 +53,14 @@ const smsConfigSchema = z.discriminatedUnion('provider', [twilioConfig, msg91Sms
 export type CallConfigValues = z.infer<typeof callConfigSchema>;
 export type SmsConfigValues = z.infer<typeof smsConfigSchema>;
 
-/** Parses with a schema, refusing with the first problem in the words the form shows. */
+/**
+ * Parses with a schema, refusing with the first problem in the words the form shows. A failed
+ * parse always carries at least one issue.
+ */
 function parsed<T>(schema: z.ZodType<T>, input: unknown): T {
   const result = schema.safeParse(input);
   if (!result.success) {
-    badRequest(result.error.issues[0]?.message ?? 'Check the details and try again.');
+    badRequest(result.error.issues[0].message);
   }
   return result.data;
 }

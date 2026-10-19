@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import { useT } from '@exyconn/i18n';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { queryData } from '@exyconn/shell/utils/queryData';
 import {
   SearchLeadPlacesDocument,
   type LeadSearchInput,
@@ -10,6 +12,10 @@ import {
   type SearchLeadPlacesQueryVariables,
 } from '@exyconn/shell/graphql/generated';
 import type { LeadPlace, LeadImportResult } from './leadTypes';
+
+/** The generated document, typed so `client.query` infers its data and variables. */
+const SEARCH_LEAD_PLACES: TypedDocumentNode<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables> =
+  SearchLeadPlacesDocument;
 
 /** Adds the next page's places, skipping any already listed. */
 function appendNew(current: LeadPlace[], next: LeadPlace[]): LeadPlace[] {
@@ -32,39 +38,37 @@ export function useLeadSearch() {
       setLoading(true);
       setError(null);
       try {
-        const { data } = await client.query<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>({
-          query: SearchLeadPlacesDocument,
+        const result = await client.query({
+          query: SEARCH_LEAD_PLACES,
           variables: { input: variables },
           fetchPolicy: 'network-only',
         });
-        const page = data?.searchLeadPlaces;
-        setPlaces((current) =>
-          append ? appendNew(current, page?.places ?? []) : (page?.places ?? []),
-        );
-        setNextPageToken(page?.nextPageToken ?? null);
-      } catch (failure) {
-        portalLogger.warn('crm: lead search failed', failure);
-        setError(errorMessage(failure, t('Could not search Google Places')));
+        const page = queryData(result, 'The lead search').searchLeadPlaces;
+        setPlaces((current) => (append ? appendNew(current, page.places) : page.places));
+        setNextPageToken(page.nextPageToken ?? null);
       } finally {
         setLoading(false);
       }
     },
-    [client, t],
+    [client],
   );
+
+  const fail = (error_: unknown) => {
+    portalLogger.warn('crm: lead search failed', error_);
+    setError(errorMessage(error_, t('Could not search Google Places')));
+  };
 
   const search = (next: LeadSearchInput) => {
     setInput(next);
     setPlaces([]);
-    run(next, false).catch((failure: unknown) => portalLogger.warn('crm: lead search', failure));
+    run(next, false).catch(fail);
   };
 
   const loadMore = () => {
     if (!input || !nextPageToken) {
       return;
     }
-    run({ ...input, pageToken: nextPageToken }, true).catch((failure: unknown) =>
-      portalLogger.warn('crm: lead search next page', failure),
-    );
+    run({ ...input, pageToken: nextPageToken }, true).catch(fail);
   };
 
   /** Marks the places just filed, so their rows link to the new companies. */

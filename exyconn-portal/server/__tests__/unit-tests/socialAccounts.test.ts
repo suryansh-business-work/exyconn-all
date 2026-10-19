@@ -14,6 +14,7 @@ import { ROLES, type Role } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
 import { useTestOrganization } from '../helpers';
 import { OPERATOR_ORGANIZATION_ID, seedPlatformOperator } from './security-authz.operator';
+import { requestUrl } from '../fetchUrl';
 
 const ORGANIZATION = useTestOrganization();
 
@@ -40,7 +41,7 @@ const META = {
 /** Answers each provider URL with the JSON a real one would send. */
 function fakeProvider(routes: Record<string, unknown>) {
   return jest.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
-    const url = String(input);
+    const url = requestUrl(input);
     const key = Object.keys(routes).find((prefix) => url.includes(prefix));
     const body = key ? routes[key] : { error: { message: `unexpected ${url}` } };
     return new Response(JSON.stringify(body), { status: key ? 200 : 400 });

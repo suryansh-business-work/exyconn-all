@@ -93,7 +93,7 @@ describe('MyOffComputerTime withdrawing a claim', () => {
   });
 
   it('falls back to a plain message when the failure carries no reason', async () => {
-    const user = renderList(vi.fn(() => Promise.reject(new Response(null, { status: 500 }))));
+    const user = renderList(vi.fn().mockRejectedValue(new Response(null, { status: 500 })));
 
     const dialog = await askToWithdraw(user);
     await user.click(within(dialog).getByRole('button', { name: 'Withdraw' }));

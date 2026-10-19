@@ -15,22 +15,24 @@ import {
 } from "../middleware";
 import { createConcurrencyLimit } from "../middleware/limits";
 
+class FakeResponse extends EventEmitter {
+  statusCode?: number;
+
+  body?: unknown;
+
+  status = (code: number) => {
+    this.statusCode = code;
+    return this;
+  };
+
+  json = (body: unknown) => {
+    this.body = body;
+    return this;
+  };
+}
+
 function fakeResponse() {
-  const res = new EventEmitter() as EventEmitter & {
-    statusCode?: number;
-    body?: unknown;
-    status: (code: number) => typeof res;
-    json: (body: unknown) => typeof res;
-  };
-  res.status = (code: number) => {
-    res.statusCode = code;
-    return res;
-  };
-  res.json = (body: unknown) => {
-    res.body = body;
-    return res;
-  };
-  return res;
+  return new FakeResponse();
 }
 
 afterEach(() => {

@@ -21,6 +21,15 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useListContactsQuery: () => gql.contacts(),
 }));
 
+vi.mock('../../../../../../src/records/quick-create', async (importOriginal) => {
+  const stubs = await import('../../../quick-create-stubs');
+  return {
+    ...(await importOriginal<typeof import('../../../../../../src/records/quick-create')>()),
+    CreateCompanyPanel: stubs.CreateCompanyPanelStub,
+    CreateContactPanel: stubs.CreateContactPanelStub,
+  };
+});
+
 const COMPANIES = [companyRow(), companyRow({ id: 'company-2', name: 'Globex' })];
 const CONTACTS = [
   contactRow(),
@@ -176,5 +185,39 @@ describe('DealForm', () => {
     await press('Cancel');
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+  it('creates a company and a contact from their pickers and picks each once re-read', async () => {
+    const refetchCompanies = vi.fn().mockResolvedValue({});
+    const refetchContacts = vi.fn().mockResolvedValue({});
+    gql.companies.mockReturnValue({
+      data: {
+        listCompanies: [...COMPANIES, companyRow({ id: 'new-company', name: 'New company' })],
+      },
+      refetch: refetchCompanies,
+    });
+    gql.contacts.mockReturnValue({
+      data: {
+        listContacts: [
+          ...CONTACTS,
+          contactRow({ id: 'new-contact', name: 'New contact', companyName: '' }),
+        ],
+      },
+      refetch: refetchContacts,
+    });
+    renderForm();
+
+    await chooseOption('Company', 'Create Company');
+    await press('Save new company');
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /^Company/ })).toHaveTextContent('New company'),
+    );
+    expect(refetchCompanies).toHaveBeenCalledTimes(1);
+
+    await chooseOption('Contact', 'Create Contact');
+    await press('Save new contact');
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /^Contact/ })).toHaveTextContent('New contact'),
+    );
+    expect(refetchContacts).toHaveBeenCalledTimes(1);
   });
 });

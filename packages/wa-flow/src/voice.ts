@@ -85,8 +85,7 @@ function callOrder(graph: WaGraph): WaNode[] {
   const seen = new Set<string>();
   const queue = [graph.start];
   const order: WaNode[] = [];
-  while (queue.length > 0) {
-    const id = queue.shift() ?? '';
+  for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
     const node = byId.get(id);
     if (!node || seen.has(id)) {
       continue;

@@ -101,7 +101,7 @@ export function fakeGmail(mailboxes: Record<string, FakeMailbox>) {
       return json({ messages: box.threads[decodeURIComponent(path.slice(9))] ?? [] });
     }
     if (path === '/messages/send') {
-      const body = JSON.parse(String(init?.body)) as { raw: string; threadId?: string };
+      const body = JSON.parse(init?.body as string) as { raw: string; threadId?: string };
       const raw = Buffer.from(body.raw, 'base64url').toString('utf8');
       sent.push({ mailbox: email, threadId: body.threadId, raw });
       const id = `sent-${nextId++}`;
@@ -159,4 +159,4 @@ export const saveClient = () =>
 export const connectAccount = (email: string, fields: Record<string, unknown> = {}) =>
   runAsPlatform(() =>
     GmailAccountModel.create({ email, refreshToken: seal(`refresh-${email}`), ...fields }),
-  ).then((account) => String(account._id));
+  ).then((account) => account._id.toHexString());

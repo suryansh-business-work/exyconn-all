@@ -60,9 +60,9 @@ export function startHarness(options: HarnessOptions = {}) {
   Object.defineProperty(host, "clientWidth", { get: () => size.width });
   Object.defineProperty(host, "clientHeight", { get: () => size.height });
   const chapters = [document.createElement("section"), document.createElement("section")];
-  vi.spyOn(chapters[1], "getBoundingClientRect").mockReturnValue({
-    top: SECOND_CHAPTER_TOP,
-  } as DOMRect);
+  vi.spyOn(chapters[1], "getBoundingClientRect").mockReturnValue(
+    new DOMRect(0, SECOND_CHAPTER_TOP, 0, 0)
+  );
   const built = makeBuilt();
   vi.mocked(buildScene).mockReturnValue(built as unknown as Built);
   const drawn: Drawn[] = [];

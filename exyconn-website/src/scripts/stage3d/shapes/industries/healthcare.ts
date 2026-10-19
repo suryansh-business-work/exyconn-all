@@ -46,13 +46,8 @@ const beat = (x: number): Vec3[] =>
     [0.58, 0],
   ].map(([dx, dy]): Vec3 => [x + dx, ECG_Y + dy, ECG_Z]);
 
-const ECG: Vec3[] = [
-  [-1.62, ECG_Y, ECG_Z],
-  ...beat(-1.3),
-  ...beat(-0.4),
-  ...beat(0.5),
-  [1.55, ECG_Y, ECG_Z],
-];
+const ECG_END: Vec3 = [1.55, ECG_Y, ECG_Z];
+const ECG: Vec3[] = [[-1.62, ECG_Y, ECG_Z], ...beat(-1.3), ...beat(-0.4), ...beat(0.5), ECG_END];
 
 /** Lit windows, leaving the entrance clear. */
 const facade = (r: Random): Vec3 => {
@@ -153,6 +148,6 @@ export const HEALTHCARE: IndustryLandmark = {
     [-0.6, GROUND + 1.05, FRONT_Z],
     [0.6, GROUND + 1.05, FRONT_Z],
     [DOOR.x0, GROUND + 0.35, FRONT_Z],
-    [ECG[ECG.length - 1][0], ECG_Y, ECG_Z],
+    [ECG_END[0], ECG_Y, ECG_Z],
   ],
 };

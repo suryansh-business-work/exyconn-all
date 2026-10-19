@@ -34,7 +34,7 @@ const ToolLayout: React.FC<Readonly<ToolLayoutProps>> = ({
   actions,
 }) => {
   const { pathname } = useLocation();
-  const toolId = pathname.split('/').pop() ?? '';
+  const toolId = pathname.slice(pathname.lastIndexOf('/') + 1);
   const tool = findToolById(toolId);
   const category = getCategoryOfTool(toolId);
 

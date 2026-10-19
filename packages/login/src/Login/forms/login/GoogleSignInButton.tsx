@@ -10,7 +10,7 @@ import { GOOGLE_PARAMS } from './useGoogleTicket';
 
 /** This page without the outcome of an earlier Google attempt, so a retry starts clean. */
 function returnAddress(): string {
-  const url = new URL(window.location.href);
+  const url = new URL(globalThis.location.href);
   GOOGLE_PARAMS.forEach((param) => url.searchParams.delete(param));
   return url.toString();
 }
@@ -34,7 +34,7 @@ export function GoogleSignInButton({ onError }: Readonly<{ onError: (message: st
     try {
       const { data: started } = await start({ variables: { returnTo: returnAddress() } });
       if (started?.startGoogleSignIn) {
-        window.location.assign(started.startGoogleSignIn);
+        globalThis.location.assign(started.startGoogleSignIn);
       }
     } catch (err) {
       setLeaving(false);

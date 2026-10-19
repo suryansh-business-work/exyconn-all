@@ -73,14 +73,14 @@ describe('MfaChallengeForm', () => {
   });
 
   it('falls back to a generic message for a non-Error failure', async () => {
-    verify.mockImplementation(() => Promise.reject('nope'));
+    verify.mockRejectedValue('nope');
     const user = renderMfa();
     await enter(user, '654321');
     expect(await screen.findByRole('alert')).toHaveTextContent('That code was not accepted');
   });
 
   it('stays on the step when the answer has no session, clearing an old error', async () => {
-    verify.mockImplementationOnce(() => Promise.reject('nope'));
+    verify.mockRejectedValueOnce('nope');
     const user = renderMfa();
     await enter(user, '654321');
     expect(await screen.findByRole('alert')).toBeInTheDocument();

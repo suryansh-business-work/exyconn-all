@@ -9,6 +9,7 @@ import { seoRoutes, metaForPath } from '../shared/seo/routes';
 import { SITE_ORIGIN, HUB_PATH, categoryPath } from '../shared/seo/site';
 import { toolsData, getAllTools } from '../shared/data/toolsData';
 import { getToolDetails } from '../shared/data/toolDetails';
+import { toolMeta } from '../shared/seo/pages';
 
 const routes = seoRoutes();
 const types = (meta: PageMeta): unknown[] => (meta.jsonLd ?? []).map((node: JsonLdNode) => node['@type']);
@@ -83,5 +84,17 @@ describe('metaForPath', () => {
     expect(head).toContain('<link rel="canonical" href="https://tools.exyconn.com/tools/merge-pdf">');
     expect(head).toContain('<meta property="og:image" content="https://tools.exyconn.com/og-image.png">');
     expect(head).toContain('"@type":"FAQPage"');
+  });
+});
+
+describe('toolMeta', () => {
+  it('falls back to the registry entry for a tool that has no details yet', () => {
+    const category = toolsData[0];
+    const draft = { ...category.items[0], id: 'draft-tool', name: 'Draft Tool', url: '/tools/draft-tool' };
+    const meta = toolMeta(draft, category);
+    expect(meta.title).toBe('Draft Tool — Free Online Tool | Exyconn Tools');
+    expect(meta.description).toBe(draft.description);
+    expect(meta.keywords).toEqual(['draft tool', 'free online tool']);
+    expect(types(meta)).toEqual(['WebApplication', 'BreadcrumbList']);
   });
 });

@@ -8,6 +8,11 @@ import { OperatorSelect } from './fields/OperatorSelect';
 import { PropertyPicker } from './fields/PropertyPicker';
 import type { ConditionPath, FilterBuilderValues } from './filter-builder.types';
 
+interface ValuesError {
+  message?: string;
+  root?: { message?: string };
+}
+
 interface FilterConditionRowProps {
   path: ConditionPath;
   properties: readonly CrmPropertyInfo[];
@@ -25,7 +30,10 @@ export function FilterConditionRow({
   const key = useWatch({ control, name: `${path}.property` });
   const op = useWatch({ control, name: `${path}.op` });
   const { errors } = useFormState({ control, name: `${path}.values` });
-  const valuesError = (get(errors, `${path}.values`) as { message?: string } | undefined)?.message;
+  // A problem with the values sits on the list itself, or under `root` once its boxes
+  // (values.0, values.1) are registered fields of their own.
+  const valuesErrors = get(errors, `${path}.values`) as ValuesError | undefined;
+  const valuesError = valuesErrors?.root?.message ?? valuesErrors?.message;
   const property = properties.find((candidate) => candidate.key === key);
 
   return (

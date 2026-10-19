@@ -11,6 +11,7 @@ import { ROLES, type Role } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
 import { useTestOrganization } from '../helpers';
 import { OPERATOR_ORGANIZATION_ID, seedPlatformOperator } from './security-authz.operator';
+import { requestUrl } from '../fetchUrl';
 
 const ORGANIZATION = useTestOrganization();
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
@@ -37,8 +38,8 @@ function fakeThreads(routes: Array<[RegExp, unknown]>, calls: Call[] = []) {
   // A route answering with a list gives its answers in turn, the last one from then on.
   const turns = new Map<RegExp, number>();
   jest.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
-    const url = String(input);
-    calls.push({ url, method: init?.method ?? 'GET', body: String(init?.body ?? '') });
+    const url = requestUrl(input);
+    calls.push({ url, method: init?.method ?? 'GET', body: (init?.body as string | undefined) ?? '' });
     const hit = routes.find(([pattern]) => pattern.test(url));
     const status = hit ? 200 : 400;
     let body: unknown = { error: { message: `unexpected ${url}` } };

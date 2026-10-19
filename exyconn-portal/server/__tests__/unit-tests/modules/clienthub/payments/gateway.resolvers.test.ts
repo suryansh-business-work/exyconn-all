@@ -8,6 +8,7 @@ import { invalidatePlatformOperatorCache } from '../../../../../src/lib/platform
 import { ROLES } from '../../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../../src/middleware/auth';
 import { codeOf } from '../../codeOf';
+import { requestUrl } from '../../../../fetchUrl';
 
 /** Never a literal credential: each only has to look like a long key. */
 const STRIPE_KEY = `sk_test_${'k'.repeat(24)}`;
@@ -59,7 +60,7 @@ describe('Stripe accounts', () => {
     expect(updated).toMatchObject({ id, label: 'Renamed' });
     expect(listed.map((row) => row.id)).toEqual([id]);
     expect(tested).toBe(true);
-    expect(String(fetchMock.mock.calls[0][0])).toBe('https://api.stripe.com/v1/balance');
+    expect(requestUrl(fetchMock.mock.calls[0][0])).toBe('https://api.stripe.com/v1/balance');
     expect(deleted).toBe(true);
     const summaries = await AuditLogModel.find({ module: 'TechConfig' }).sort({ _id: 1 }).lean();
     expect(summaries.map((row) => row.summary)).toEqual([
@@ -118,7 +119,7 @@ describe('Razorpay accounts', () => {
     expect(updated).toMatchObject({ id, label: 'India 2', keyId: 'rzp_live_id' });
     expect(listed).toHaveLength(1);
     expect(tested).toBe(true);
-    expect(String(fetchMock.mock.calls[0][0])).toBe('https://api.razorpay.com/v1/payments?count=1');
+    expect(requestUrl(fetchMock.mock.calls[0][0])).toBe('https://api.razorpay.com/v1/payments?count=1');
     expect(deleted).toBe(true);
     expect(await AuditLogModel.countDocuments({ module: 'TechConfig' })).toBe(3);
   });

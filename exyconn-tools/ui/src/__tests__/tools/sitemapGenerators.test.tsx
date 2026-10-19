@@ -247,7 +247,7 @@ describe('robots-sitemap-generator', () => {
     const userAgentBoxes = screen.getAllByRole('combobox');
     expect(userAgentBoxes.length).toBe(2);
     const ruleDeletes = deletes().filter((icon) => !icon.closest('button')?.hasAttribute('disabled'));
-    fireEvent.click(ruleDeletes[ruleDeletes.length - 1].closest('button') as HTMLElement);
+    fireEvent.click(ruleDeletes.at(-1)?.closest('button') as HTMLElement);
     await waitFor(() => expect(screen.getAllByRole('combobox')).toHaveLength(1));
   });
 

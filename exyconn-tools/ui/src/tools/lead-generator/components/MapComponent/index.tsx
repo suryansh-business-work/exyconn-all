@@ -72,7 +72,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   };
 
   if (!apiKey || loadError || !isLoaded) {
-    return <MapLoadingStates apiKey={apiKey} loadError={loadError} isLoaded={isLoaded} />;
+    return <MapLoadingStates apiKey={apiKey} loadError={loadError} />;
   }
 
   return (

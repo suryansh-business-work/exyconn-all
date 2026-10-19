@@ -1,13 +1,19 @@
 import { useCallback } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import {
   CmsPreviewTokenDocument,
   type CmsPreviewTokenQuery,
+  type CmsPreviewTokenQueryVariables,
 } from '@exyconn/shell/graphql/generated';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { queryData } from '@exyconn/shell/utils/queryData';
 import { siteOrigin, useCurrentSite } from '../site';
+
+/** The generated document, typed so `client.query` infers its data and variables. */
+const CMS_PREVIEW_TOKEN: TypedDocumentNode<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables> =
+  CmsPreviewTokenDocument;
 
 /** The address of a page's draft on the website (/cms-preview, valid two hours). */
 export function usePreviewUrl(): (pageId: string) => Promise<string> {
@@ -15,8 +21,8 @@ export function usePreviewUrl(): (pageId: string) => Promise<string> {
   const { site } = useCurrentSite();
   return useCallback(
     async (pageId: string) => {
-      const result = await client.query<CmsPreviewTokenQuery>({
-        query: CmsPreviewTokenDocument,
+      const result = await client.query({
+        query: CMS_PREVIEW_TOKEN,
         variables: { pageId },
         fetchPolicy: 'network-only',
       });

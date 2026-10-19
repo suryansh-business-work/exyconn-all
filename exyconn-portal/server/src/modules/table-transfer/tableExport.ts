@@ -40,7 +40,8 @@ async function readAll(
 ): Promise<unknown[]> {
   const rows: unknown[] = [];
   let totalCount = Number.POSITIVE_INFINITY;
-  for (let page = 0; rows.length < totalCount; page += 1) {
+  let page = 0;
+  while (rows.length < totalCount) {
     const input = { ...args.input, page, pageSize: EXPORT_PAGE_SIZE };
     const result = (await runOperation<PageData>(schema, ctx, source, { input }))[args.list];
     if (result.totalCount > EXPORT_MAX_ROWS) {
@@ -53,6 +54,7 @@ async function readAll(
     }
     rows.push(...result.rows);
     totalCount = result.totalCount;
+    page += 1;
   }
   return rows;
 }

@@ -6,8 +6,10 @@ import { logger } from '../../utils/logger';
 export const accountUrl = (accountSid: string): string =>
   `https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(accountSid)}`;
 
-export const basicAuth = (accountSid: string, authToken: string): string =>
-  `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString('base64')}`;
+export const basicAuth = (accountSid: string, authToken: string): string => {
+  const credentials = `${accountSid}:${authToken}`;
+  return `Basic ${Buffer.from(credentials).toString('base64')}`;
+};
 
 export interface PlaceTwilioCall {
   config: Pick<

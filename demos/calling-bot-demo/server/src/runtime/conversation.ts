@@ -27,7 +27,7 @@ export class Conversation {
   private speakingUntil = 0;
   private ended = false;
 
-  constructor(
+  private constructor(
     private readonly call: CallingBotCallRecord,
     private readonly config: CallingBotConfigRecord,
     private readonly transport: Transport,
@@ -51,10 +51,24 @@ export class Conversation {
       () => this.end('ENDED', 'Time limit reached'),
       config.maxCallSeconds * 1000,
     );
-    setStatus(call, 'LIVE', { answeredAt: new Date() }).catch((error) =>
+  }
+
+  /** Answers a call: marks it live and greets the caller. */
+  static open(
+    call: CallingBotCallRecord,
+    config: CallingBotConfigRecord,
+    transport: Transport,
+  ): Conversation {
+    const conversation = new Conversation(call, config, transport);
+    conversation.start();
+    return conversation;
+  }
+
+  private start(): void {
+    setStatus(this.call, 'LIVE', { answeredAt: new Date() }).catch((error) =>
       log.error('could not mark the call live', { callId: this.id, error: errorText(error) }),
     );
-    this.say(config.greeting);
+    this.say(this.config.greeting);
   }
 
   private get id(): string {

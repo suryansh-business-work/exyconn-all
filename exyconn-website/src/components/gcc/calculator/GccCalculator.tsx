@@ -34,10 +34,10 @@ function LocalCalculator({
   const store = useEstimateStore(preset, presetScenario);
   if (!store.active) {
     return (
-      <div className="gcc-loading" role="status">
+      <output className="gcc-loading">
         <CircularProgress size={20} aria-hidden="true" />
         <span>{UI.loading}</span>
-      </div>
+      </output>
     );
   }
   return <Workspace key={store.revision} preset={preset} brand={brand} store={store} />;

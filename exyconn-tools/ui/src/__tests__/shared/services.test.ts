@@ -110,7 +110,8 @@ describe('api base URL outside local development', () => {
 });
 
 describe('generateWithOpenAI', () => {
-  const okBody = (content: string | null, usage = { prompt_tokens: 3, completion_tokens: 4, total_tokens: 7 }) => ({
+  const defaultUsage = { prompt_tokens: 3, completion_tokens: 4, total_tokens: 7 };
+  const okBody = (content: string | null, usage = defaultUsage) => ({
     choices: content === null ? [] : [{ message: { content } }],
     usage,
   });

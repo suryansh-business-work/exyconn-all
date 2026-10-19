@@ -140,6 +140,14 @@ describe('ImageUpload (shared)', () => {
     expect(deleteImage).not.toHaveBeenCalled();
   });
 
+  it('draws the empty drop zone as a circle when asked, and with the given radius otherwise', () => {
+    const { unmount } = setup({ circular: true });
+    expect(screen.getByText('Upload Image').parentElement).toHaveStyle({ borderRadius: '50%' });
+    unmount();
+    setup({ borderRadius: 3 });
+    expect(screen.getByText('Upload Image').parentElement).not.toHaveStyle({ borderRadius: '50%' });
+  });
+
   it('clears the file input after a selection so the same file can be chosen again', async () => {
     vi.mocked(uploadImage).mockResolvedValue({ success: true, url: 'u' });
     const { input } = setup();
@@ -222,6 +230,29 @@ describe('PdfPreview', () => {
     await screen.findByText('1 page');
     await waitFor(() => expect(renderPage).toHaveBeenCalled());
     expect(screen.getByText('1 page')).toBeInTheDocument();
+  });
+
+  it('drops a load that is overtaken by a newer file, before or after the PDF is parsed', async () => {
+    pdf.getDocument.mockReset();
+    let readFirst: (buf: ArrayBuffer) => void = () => undefined;
+    const slowRead = { arrayBuffer: () => new Promise<ArrayBuffer>((resolve) => (readFirst = resolve)) } as unknown as File;
+    let parseSecond: (doc: unknown) => void = () => undefined;
+    pdf.getDocument.mockReturnValueOnce({ promise: new Promise((resolve) => (parseSecond = resolve)) });
+    const { rerender } = render(<PdfPreview file={slowRead} />);
+    const slowParse = pdfFile();
+    rerender(<PdfPreview file={slowParse} />);
+    await waitFor(() => expect(pdf.getDocument).toHaveBeenCalledTimes(1));
+
+    documentWith(3);
+    rerender(<PdfPreview file={pdfFile()} />);
+    expect(await screen.findByText('Page 1 of 3')).toBeInTheDocument();
+
+    await act(async () => {
+      readFirst(new ArrayBuffer(4));
+      parseSecond({ numPages: 9, getPage: vi.fn() });
+    });
+    expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
+    expect(pdf.getDocument).toHaveBeenCalledTimes(2);
   });
 
   it('forgets the document when the file is removed', async () => {

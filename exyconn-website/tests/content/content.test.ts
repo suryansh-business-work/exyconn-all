@@ -155,7 +155,7 @@ describe("blog", () => {
 
   it("keeps outcome-led titles of at most eight words", () => {
     // The list pages' titles are the CMS's (catalogue defaults = exyconn.com's seeded pages).
-    const cmsTitle = (key: string) => String(cmsComponent(key)?.defaultProps.title ?? "");
+    const cmsTitle = (key: string) => cmsDefaults<{ title: string }>(key).title;
     [
       cmsTitle("blog.list"),
       cmsTitle("casestudy.list"),

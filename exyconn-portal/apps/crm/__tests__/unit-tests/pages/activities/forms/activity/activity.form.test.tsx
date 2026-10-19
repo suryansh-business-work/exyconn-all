@@ -23,6 +23,15 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useListCompaniesQuery: () => gql.companies(),
 }));
 
+vi.mock('../../../../../../src/records/quick-create', async (importOriginal) => {
+  const stubs = await import('../../../quick-create-stubs');
+  return {
+    ...(await importOriginal<typeof import('../../../../../../src/records/quick-create')>()),
+    CreateCompanyPanel: stubs.CreateCompanyPanelStub,
+    CreateContactPanel: stubs.CreateContactPanelStub,
+  };
+});
+
 function renderForm(initial: ReturnType<typeof activityRow> | null = null) {
   const onDone = vi.fn();
   const onCancel = vi.fn();
@@ -178,5 +187,38 @@ describe('ActivityForm', () => {
     await press('Cancel');
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+  it('creates the contact or company it is about from the picker', async () => {
+    const refetchContacts = vi.fn().mockResolvedValue({});
+    const refetchCompanies = vi.fn().mockResolvedValue({});
+    gql.contacts.mockReturnValue({
+      data: { listContacts: [contactRow({ id: 'new-contact', name: 'New contact' })] },
+      refetch: refetchContacts,
+    });
+    gql.companies.mockReturnValue({
+      data: { listCompanies: [companyRow({ id: 'new-company', name: 'New company' })] },
+      refetch: refetchCompanies,
+    });
+    renderForm();
+
+    await chooseOption('About', 'Contact');
+    await chooseOption('Related to', 'Create Contact');
+    await press('Save new contact');
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /^Related to/ })).toHaveTextContent(
+        'New contact',
+      ),
+    );
+    expect(refetchContacts).toHaveBeenCalledTimes(1);
+
+    await chooseOption('About', 'Company');
+    await chooseOption('Related to', 'Create Company');
+    await press('Save new company');
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /^Related to/ })).toHaveTextContent(
+        'New company',
+      ),
+    );
+    expect(refetchCompanies).toHaveBeenCalledTimes(1);
   });
 });

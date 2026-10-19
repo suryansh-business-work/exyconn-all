@@ -107,7 +107,7 @@ export function SlotStep({ at, slug, zone, onZone, onPick }: Readonly<SlotStepPr
             selected={selected}
             label={when.time}
             onSelect={setSelected}
-            onNext={() => selected && onPick(selected)}
+            onNext={onPick}
           />
         )}
       </Box>

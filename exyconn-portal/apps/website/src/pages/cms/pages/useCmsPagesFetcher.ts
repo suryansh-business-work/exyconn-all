@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import {
@@ -11,6 +12,9 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { queryData } from '@exyconn/shell/utils/queryData';
 import type { CmsPageRow } from './pages-grid';
+
+/** The generated document, typed so `client.query` infers its data and variables. */
+const CMS_PAGES: TypedDocumentNode<CmsPagesQuery, CmsPagesQueryVariables> = CmsPagesDocument;
 
 export interface PageFilters {
   status: CmsDocumentStatus | '';
@@ -30,8 +34,8 @@ export function useCmsPagesFetcher(siteId: string, filters: PageFilters) {
   return useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<CmsPageRow>> => {
       const { status, kind } = latest.current;
-      const result = await client.query<CmsPagesQuery, CmsPagesQueryVariables>({
-        query: CmsPagesDocument,
+      const result = await client.query({
+        query: CMS_PAGES,
         variables: {
           siteId,
           input: {

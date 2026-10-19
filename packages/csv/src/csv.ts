@@ -101,8 +101,10 @@ export function parseCsv(text: string): string[][] {
     row.push(field);
     rows.push(row);
   }
-  while (rows.length > 0 && isBlank(rows[rows.length - 1])) {
+  let last = rows.at(-1);
+  while (last && isBlank(last)) {
     rows.pop();
+    last = rows.at(-1);
   }
   return rows;
 }

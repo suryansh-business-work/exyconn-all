@@ -65,7 +65,7 @@ describe('ForgotPasswordForm', () => {
   });
 
   it('reports a generic failure for a non-Error rejection', async () => {
-    requestReset.mockImplementation(() => Promise.reject('offline'));
+    requestReset.mockRejectedValue('offline');
     const { user } = renderForm();
     await user.type(screen.getByLabelText('Email'), 'asha@example.com');
     await send(user);

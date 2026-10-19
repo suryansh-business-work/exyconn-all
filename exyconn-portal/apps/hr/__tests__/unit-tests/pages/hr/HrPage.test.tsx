@@ -14,6 +14,7 @@ import { renderWithProviders } from '../../test-utils';
 import { mutationTuple, queryResult } from '../../harness/gql-doubles';
 import { UrlProbe } from '../../harness/url-probe';
 import { statFigure } from '../../harness/stat-card';
+import { authValue } from '../../harness/auth-double';
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
@@ -99,7 +100,9 @@ beforeEach(() => {
       ],
     }) as never,
   );
-  vi.mocked(useAuth).mockReturnValue({ user: { id: 'hr-1', roles: ['HR'] } } as never);
+  vi.mocked(useAuth).mockReturnValue(
+    authValue({ id: 'hr-1', name: 'HR', email: 'hr@example.com', roles: ['HR'] }),
+  );
 });
 
 describe('HrPage', () => {

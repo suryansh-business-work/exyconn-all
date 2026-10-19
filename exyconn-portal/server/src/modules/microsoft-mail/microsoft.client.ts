@@ -53,7 +53,7 @@ export async function microsoftApp(): Promise<MicrosoftMailConfigDocument> {
 }
 
 export interface MicrosoftTokens {
-  access_token?: string;
+  access_token: string;
   refresh_token?: string;
 }
 
@@ -72,7 +72,7 @@ export async function requestTokens(
       ...grant,
     }),
   });
-  const body = (await response.json()) as MicrosoftTokens & {
+  const body = (await response.json()) as Partial<MicrosoftTokens> & {
     error?: string;
     error_description?: string;
   };
@@ -84,7 +84,7 @@ export async function requestTokens(
     const reason = (body.error_description ?? body.error ?? 'no reason').split(/\r?\n/)[0];
     throw new Error(`Microsoft refused: ${reason}`);
   }
-  return body;
+  return { access_token: body.access_token, refresh_token: body.refresh_token };
 }
 
 /**

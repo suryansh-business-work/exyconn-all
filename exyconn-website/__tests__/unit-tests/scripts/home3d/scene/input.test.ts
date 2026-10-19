@@ -9,7 +9,7 @@ import {
 
 const chapterAt = (top: number): HTMLElement => {
   const chapter = document.createElement("section");
-  vi.spyOn(chapter, "getBoundingClientRect").mockReturnValue({ top } as DOMRect);
+  vi.spyOn(chapter, "getBoundingClientRect").mockReturnValue(new DOMRect(0, top, 0, 0));
   return chapter;
 };
 

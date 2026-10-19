@@ -41,7 +41,8 @@ const parseDim = (value: string): number => Math.max(1, Number.parseInt(value, 1
 
 export default function ResizeImage() {
   const [file, setFile] = useState<File | null>(null);
-  const [original, setOriginal] = useState<Dimensions | null>(null);
+  // Zero until an image loads; every control that reads it is disabled until then.
+  const [original, setOriginal] = useState<Dimensions>({ width: 0, height: 0 });
   const [previewUrl, setPreviewUrl] = useState('');
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -50,7 +51,7 @@ export default function ResizeImage() {
   const [processing, setProcessing] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState<{ blob: Blob; dims: Dimensions } | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; dims: Dimensions; fileName: string } | null>(null);
 
   const loadFile = useCallback(async (f: File) => {
     if (!ACCEPTED_TYPES.has(f.type)) {
@@ -90,17 +91,16 @@ export default function ResizeImage() {
   const onWidthChange = (value: string) => {
     const w = parseDim(value);
     setWidth(w);
-    if (locked && original) setHeight(lockedHeight(original, w));
+    if (locked) setHeight(lockedHeight(original, w));
   };
 
   const onHeightChange = (value: string) => {
     const h = parseDim(value);
     setHeight(h);
-    if (locked && original) setWidth(lockedWidth(original, h));
+    if (locked) setWidth(lockedWidth(original, h));
   };
 
   const applyPercent = (percent: number) => {
-    if (!original) return;
     const dims = scaleByPercent(original, percent);
     setWidth(dims.width);
     setHeight(dims.height);
@@ -111,12 +111,13 @@ export default function ResizeImage() {
     setHeight(h);
   };
 
-  const resize = async () => {
-    if (!file) return;
+  const resize = async (source: File) => {
     setProcessing(true);
     try {
-      const blob = await resizeImage(file, { width, height, format });
-      setResult({ blob, dims: { width, height } });
+      const blob = await resizeImage(source, { width, height, format });
+      const dims = { width, height };
+      // Named for the format it was encoded in, even if the format is changed afterwards.
+      setResult({ blob, dims, fileName: outputFileName(source.name, format, dims) });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Resize failed.');
     } finally {
@@ -124,9 +125,8 @@ export default function ResizeImage() {
     }
   };
 
-  const download = () => {
-    if (result && file) downloadBlob(result.blob, outputFileName(file.name, format, result.dims));
-  };
+
+  const resizeAction = file ? () => resize(file) : undefined;
 
   return (
     <ToolLayout toolName="Resize Image" toolIcon={<MdAspectRatio />} toolColor={COLOR}>
@@ -168,7 +168,7 @@ export default function ResizeImage() {
               </Button>
             </Paper>
 
-            {file && original && (
+            {file && (
               <Paper sx={{ p: 2, mt: 2, textAlign: 'center' }}>
                 <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
                   <strong>{file.name}</strong>
@@ -211,14 +211,14 @@ export default function ResizeImage() {
                   type="number"
                   label="Width (px)"
                   value={width || ''}
-                  disabled={!original}
+                  disabled={!file}
                   onChange={(e) => onWidthChange(e.target.value)}
                 />
                 <Tooltip title={locked ? 'Aspect ratio locked' : 'Aspect ratio unlocked'}>
                   <span>
                     <IconButton
                       size="small"
-                      disabled={!original}
+                      disabled={!file}
                       onClick={() => setLocked((v) => !v)}
                       aria-label="Toggle aspect ratio lock"
                       sx={{ color: locked ? COLOR : 'text.secondary' }}
@@ -232,7 +232,7 @@ export default function ResizeImage() {
                   type="number"
                   label="Height (px)"
                   value={height || ''}
-                  disabled={!original}
+                  disabled={!file}
                   onChange={(e) => onHeightChange(e.target.value)}
                 />
               </Stack>
@@ -242,7 +242,7 @@ export default function ResizeImage() {
               </Typography>
               <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
                 {PERCENT_PRESETS.map((p) => (
-                  <Button key={p} size="small" variant="outlined" disabled={!original} onClick={() => applyPercent(p)}>
+                  <Button key={p} size="small" variant="outlined" disabled={!file} onClick={() => applyPercent(p)}>
                     {p}%
                   </Button>
                 ))}
@@ -257,7 +257,7 @@ export default function ResizeImage() {
                     key={preset.label}
                     label={preset.label}
                     size="small"
-                    disabled={!original}
+                    disabled={!file}
                     onClick={() => applyPreset(preset.width, preset.height)}
                   />
                 ))}
@@ -282,8 +282,8 @@ export default function ResizeImage() {
               <Button
                 variant="contained"
                 fullWidth
-                onClick={resize}
-                disabled={!file || processing}
+                onClick={resizeAction}
+                disabled={!resizeAction || processing}
                 sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#2563eb' }, mt: 1 }}
               >
                 {processing ? 'Resizing…' : 'Resize Image'}
@@ -294,7 +294,7 @@ export default function ResizeImage() {
                   variant="outlined"
                   fullWidth
                   startIcon={<Download />}
-                  onClick={download}
+                  onClick={() => downloadBlob(result.blob, result.fileName)}
                   sx={{ mt: 2, color: COLOR, borderColor: COLOR }}
                 >
                   Download ({result.dims.width} × {result.dims.height})

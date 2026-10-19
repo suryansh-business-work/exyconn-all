@@ -10,6 +10,7 @@ import { SocialMediaPostModel } from '../../../../src/modules/social-accounts/so
 import type { SocialApp } from '../../../../src/modules/social-accounts/social.constants';
 import type { Role } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { requestUrl } from '../../../fetchUrl';
 
 /** One request the fake network saw. */
 export interface Call {
@@ -29,11 +30,11 @@ export type Route = [RegExp, number, unknown];
 export function fakeFetch(routes: Route[]): Call[] {
   const calls: Call[] = [];
   jest.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
-    const url = String(input);
+    const url = requestUrl(input);
     calls.push({
       url,
       method: init?.method ?? 'GET',
-      body: String(init?.body ?? ''),
+      body: (init?.body as string | undefined) ?? '',
       headers: (init?.headers ?? {}) as Record<string, string>,
     });
     const hit = routes.find(([pattern]) => pattern.test(url));

@@ -10,6 +10,7 @@ import ContactExtractor from '../../tools/contact-extractor';
 import SiteStructureAnalyzer from '../../tools/site-structure-analyzer';
 import WebsitePageScanner from '../../tools/website-page-scanner';
 import WebsiteUrlExtractor from '../../tools/website-url-extractor';
+import { partText, sentJsonOf } from '../helpers/requests';
 
 let downloads: string[];
 let blobTexts: string[];
@@ -38,7 +39,7 @@ beforeEach(() => {
     class extends Real {
       constructor(parts?: BlobPart[], options?: BlobPropertyBag) {
         super(parts, options);
-        blobTexts.push(String(parts?.[0] ?? ''));
+        blobTexts.push(partText(parts?.[0]));
       }
     }
   );
@@ -52,7 +53,7 @@ afterEach(() => {
 });
 
 const bodyOf = (fetchMock: ReturnType<typeof stubFetch>) =>
-  JSON.parse(String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body));
+  sentJsonOf(fetchMock);
 
 async function failures(trigger: () => void, messages: { server: string; fallback: string }) {
   stubFetch(jsonReply({ error: messages.server }, { ok: false, status: 400 }));

@@ -105,7 +105,7 @@ export async function updateView(ctx: GraphQLContext, id: string, input: CrmView
   if (!row) {
     notFound('View');
   }
-  return present(row as unknown as ViewRow, userIdOf(ctx));
+  return present(row, userIdOf(ctx));
 }
 
 /** Which record type a view lists, so its permission can be checked before anything else. */

@@ -17,9 +17,9 @@ export function useScrape(onScraped: (id: string) => void) {
       if (data) {
         onScraped(data.scrapeWebsite.id);
       }
-    } catch (failure) {
-      portalLogger.warn('crm: scraping a website failed', failure);
-      setError(errorMessage(failure, t('Could not scrape the page.')));
+    } catch (error_) {
+      portalLogger.warn('crm: scraping a website failed', error_);
+      setError(errorMessage(error_, t('Could not scrape the page.')));
     }
   };
 

@@ -16,6 +16,7 @@ import SerpChecker from '../../tools/serp-checker';
 import SerpSimulator from '../../tools/serp-simulator';
 import WebsiteAuthorityChecker from '../../tools/website-authority-checker';
 import WebsiteTrafficChecker from '../../tools/website-traffic-checker';
+import { sentJsonOf } from '../helpers/requests';
 
 beforeEach(() => {
   Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
@@ -30,7 +31,7 @@ const pressEnter = (label: string | RegExp) => fireEvent.keyDown(screen.getByLab
 const typeInto = (label: string | RegExp, value: string) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 const bodyOf = (fetchMock: ReturnType<typeof stubFetch>, call = 0) =>
-  JSON.parse(String((fetchMock.mock.calls[call] as [string, RequestInit])[1].body));
+  sentJsonOf(fetchMock, call);
 
 /** What the SEO check endpoint really answers with. */
 const seoData = (overrides: Record<string, unknown> = {}) => ({
@@ -268,7 +269,7 @@ describe('backlink-checker', () => {
   });
 
   it('opens an external link in a new tab, and copes with a page that has no links', async () => {
-    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const open = vi.spyOn(globalThis, 'open').mockImplementation(() => null);
     stubFetch(apiOk(linkData()));
     renderTool(BacklinkChecker);
     typeInto('URL', 'https://example.org');
@@ -358,7 +359,7 @@ describe('competitor-finder', () => {
     expect(screen.getByText('tools')).toBeInTheDocument();
     expect(screen.getByText('rival.test')).toBeInTheDocument();
     expect(screen.getByText('+1')).toBeInTheDocument();
-    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const open = vi.spyOn(globalThis, 'open').mockImplementation(() => null);
     fireEvent.click(document.querySelector('svg[data-testid="OpenInNewIcon"]') as SVGElement);
     expect(open).toHaveBeenCalledWith('https://rival.test', '_blank');
     expect(screen.getByText('(no text)')).toBeInTheDocument();

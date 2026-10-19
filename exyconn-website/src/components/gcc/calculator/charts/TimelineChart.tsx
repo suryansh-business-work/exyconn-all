@@ -55,12 +55,7 @@ export function TimelineChart({ months, format, locale }: Readonly<TimelineProps
       <figcaption>{RESULTS.timelineCaption(months.length)}</figcaption>
       <details className="gcc-timeline__table">
         <summary>{RESULTS.timelineTable}</summary>
-        <div
-          className="gcc-table-scroll"
-          tabIndex={0}
-          role="region"
-          aria-label={RESULTS.timelineTable}
-        >
+        <section className="gcc-table-scroll" tabIndex={0} aria-label={RESULTS.timelineTable}>
           <table>
             <thead>
               <tr>
@@ -81,7 +76,7 @@ export function TimelineChart({ months, format, locale }: Readonly<TimelineProps
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </details>
     </figure>
   );

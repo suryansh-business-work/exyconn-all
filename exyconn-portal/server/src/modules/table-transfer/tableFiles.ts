@@ -127,7 +127,7 @@ async function readXlsx(content: Buffer): Promise<string[][]> {
 }
 
 function readGrid(fileName: string, content: Buffer): Promise<string[][]> | string[][] {
-  const extension = fileName.toLowerCase().split('.').pop() ?? '';
+  const extension = fileName.slice(fileName.lastIndexOf('.') + 1).toLowerCase();
   if (extension === 'xlsx') {
     return readXlsx(content);
   }

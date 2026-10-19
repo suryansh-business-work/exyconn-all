@@ -6,7 +6,7 @@ import type { UseFormRegisterReturn } from "react-hook-form";
 import type { CaptchaState } from "./useCaptcha";
 
 const COPY = {
-  label: (question: string) => (question ? `Security question: ${question}` : "Security question"),
+  label: (question: string) => `Security question: ${question}`,
   loading: "Loading the security question…",
   failed: "The security question could not be loaded. Try again.",
   reload: "New security question",

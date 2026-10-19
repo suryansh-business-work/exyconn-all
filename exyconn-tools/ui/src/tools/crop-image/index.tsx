@@ -32,7 +32,7 @@ export default function CropImage() {
   const [processing, setProcessing] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
-  const [resultUrl, setResultUrl] = useState('');
+  const [result, setResult] = useState<{ url: string; fileName: string } | null>(null);
 
   const loadFile = useCallback((f: File) => {
     if (!f.type.startsWith('image/')) {
@@ -43,9 +43,9 @@ export default function CropImage() {
     setAreaPixels(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
-    setResultUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return '';
+    setResult((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return null;
     });
     setImageSrc((prev) => {
       if (prev) URL.revokeObjectURL(prev);
@@ -75,11 +75,12 @@ export default function CropImage() {
     }
     setProcessing(true);
     try {
-      const blob = await getCroppedBlob(imageSrc, areaPixels, outputMime(file.type));
-      const url = URL.createObjectURL(blob);
-      setResultUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return url;
+      const mime = outputMime(file.type);
+      const blob = await getCroppedBlob(imageSrc, areaPixels, mime);
+      const next = { url: URL.createObjectURL(blob), fileName: cropFileName(file.name, mime) };
+      setResult((prev) => {
+        if (prev) URL.revokeObjectURL(prev.url);
+        return next;
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Crop failed.');
@@ -88,11 +89,10 @@ export default function CropImage() {
     }
   };
 
-  const download = () => {
-    if (!resultUrl || !file) return;
+  const download = (target: { url: string; fileName: string }) => {
     const a = document.createElement('a');
-    a.href = resultUrl;
-    a.download = cropFileName(file.name, outputMime(file.type));
+    a.href = target.url;
+    a.download = target.fileName;
     a.click();
   };
 
@@ -224,11 +224,11 @@ export default function CropImage() {
               >
                 {processing ? 'Cropping…' : 'Crop Image'}
               </Button>
-              {resultUrl && (
+              {result && (
                 <>
                   <Box
                     component="img"
-                    src={resultUrl}
+                    src={result.url}
                     alt="Cropped result preview"
                     sx={{ mt: 2, maxWidth: '100%', borderRadius: 1, border: 1, borderColor: 'divider' }}
                   />
@@ -236,7 +236,7 @@ export default function CropImage() {
                     variant="outlined"
                     fullWidth
                     startIcon={<Download />}
-                    onClick={download}
+                    onClick={() => download(result)}
                     sx={{ mt: 2, color: COLOR, borderColor: COLOR }}
                   >
                     Download Cropped Image

@@ -107,6 +107,58 @@ describe('tableQuery', () => {
     });
   });
 
+  it('translates the remaining operators, keeping valueless ones and dropping an empty IN', async () => {
+    const { model, raw } = fakeModel();
+    await tableQuery(
+      model,
+      page({
+        filters: [
+          { field: 'name', op: 'NOT_CONTAINS', value: 'x.' },
+          { field: 'name', op: 'ENDS_WITH', value: 'son' },
+          { field: 'status', op: 'NOT_EQUALS', value: 'VOID' },
+          { field: 'amount', op: 'GTE', value: '1' },
+          { field: 'amount', op: 'LTE', value: '5' },
+          { field: 'status', op: 'BLANK', value: '' },
+          { field: 'name', op: 'NOT_BLANK', value: '' },
+          { field: 'status', op: 'IN', value: '', values: ['PAID', 'SENT'] },
+          { field: 'status', op: 'IN', value: '', values: [] },
+          { field: 'status', op: 'IN', value: '' },
+        ],
+      }),
+      CONFIG,
+    );
+    expect(raw.find).toHaveBeenCalledWith({
+      archivedAt: null,
+      $and: [
+        { name: { $not: /x\./i } },
+        { name: { $regex: 'son$', $options: 'i' } },
+        { status: { $ne: 'VOID' } },
+        { amount: { $gte: '1' } },
+        { amount: { $lte: '5' } },
+        { status: { $in: [null, ''] } },
+        { name: { $nin: [null, ''] } },
+        { status: { $in: ['PAID', 'SENT'] } },
+      ],
+    });
+  });
+
+  it('sorts by several allowed columns in order, skipping the ones not allowed', async () => {
+    const { model, chain } = fakeModel();
+    const config = { ...CONFIG, sortFields: ['name', 'amount'] };
+    await tableQuery(
+      model,
+      page({
+        sorts: [
+          { field: 'amount', dir: 'DESC' },
+          { field: 'salary', dir: 'ASC' },
+          { field: 'name', dir: 'ASC' },
+        ],
+      }),
+      config,
+    );
+    expect(chain.sort).toHaveBeenLastCalledWith({ amount: -1, name: 1 });
+  });
+
   it('sorts by an allowed field and falls back for any other', async () => {
     const { model, chain } = fakeModel();
     await tableQuery(model, page({ sort: { field: 'name', dir: 'ASC' } }), CONFIG);
@@ -146,6 +198,31 @@ describe('tableQuery', () => {
       await expect(
         tableQuery(model, page({ filters: [{ field: 'status', op: 'EQUALS', value }] }), CONFIG),
       ).rejects.toThrow(`limited to ${TABLE_QUERY_LIMITS.maxFilterValueLength} characters`);
+    });
+
+    it('refuses an IN filter with too many values, and accepts one at the limit', async () => {
+      const { model } = fakeModel();
+      const values = Array.from({ length: TABLE_QUERY_LIMITS.maxFilterValues }, (_v, i) => `v${i}`);
+      const filter = (list: string[]) => [
+        { field: 'status', op: 'IN' as const, value: '', values: list },
+      ];
+      await expect(
+        tableQuery(model, page({ filters: filter(values) }), CONFIG),
+      ).resolves.toBeDefined();
+      await expect(
+        tableQuery(model, page({ filters: filter([...values, 'one-more']) }), CONFIG),
+      ).rejects.toThrow(`An IN filter is limited to ${TABLE_QUERY_LIMITS.maxFilterValues} values`);
+    });
+
+    it('refuses too many sort columns', async () => {
+      const { model } = fakeModel();
+      const sorts = Array.from({ length: TABLE_QUERY_LIMITS.maxSorts + 1 }, () => ({
+        field: 'name',
+        dir: 'ASC' as const,
+      }));
+      await expect(tableQuery(model, page({ sorts }), CONFIG)).rejects.toThrow(
+        `At most ${TABLE_QUERY_LIMITS.maxSorts} sort columns per request`,
+      );
     });
 
     it('refuses a page too far in', async () => {

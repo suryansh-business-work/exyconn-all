@@ -112,6 +112,15 @@ describe("where the portal URL comes from", () => {
     expect(fetch.mock.calls[0][0]).toBe("https://runtime.test/graphql");
   });
 
+  it("refuses to run when neither environment carries it", async () => {
+    vi.stubEnv("PUBLIC_PORTAL_GRAPHQL_URL", undefined);
+    const fetch = answer({ data: {} });
+    await expect(portalRequest("query { x }")).rejects.toThrow(
+      "PUBLIC_PORTAL_GRAPHQL_URL is not set"
+    );
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("ignores PORTAL_FIXTURES outside development, so a production build always asks the portal", async () => {
     vi.stubEnv("DEV", false);
     vi.stubEnv("PORTAL_FIXTURES", FIXTURES);

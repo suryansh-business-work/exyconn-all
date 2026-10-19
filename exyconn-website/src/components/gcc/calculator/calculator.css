@@ -33,6 +33,7 @@
 .gcc-label__tip {
   min-width: 0;
   min-height: 0;
+  pointer-events: auto;
 }
 
 .gcc-loading {
@@ -244,9 +245,6 @@
   display: inline-flex;
   gap: var(--space-1);
   align-items: center;
-}
-.gcc-label__tip {
-  pointer-events: auto;
 }
 .gcc-advanced,
 .gcc-line {
@@ -632,7 +630,15 @@
   display: grid;
   gap: var(--space-3);
 }
-.gcc-exports__groups > div {
+/* Button groups and the category chips are fieldsets (their own group role); no fieldset frame. */
+.gcc-exports__groups > fieldset,
+fieldset.gcc-categories {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.gcc-exports__groups > fieldset {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);

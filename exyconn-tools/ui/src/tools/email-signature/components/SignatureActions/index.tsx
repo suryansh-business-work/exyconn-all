@@ -40,19 +40,15 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
   };
 
   const handleCopyRichText = async () => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = signatureHTML;
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    document.body.appendChild(tempDiv);
-    const selection = globalThis.getSelection();
-
     try {
-      const range = document.createRange();
-      range.selectNodeContents(tempDiv);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-      document.execCommand('copy');
+      // HTML for email clients that paste formatting, plain text for the ones that do not.
+      const plainText = new DOMParser().parseFromString(signatureHTML, 'text/html').body.textContent ?? '';
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': new Blob([signatureHTML], { type: 'text/html' }),
+          'text/plain': new Blob([plainText], { type: 'text/plain' }),
+        }),
+      ]);
 
       setCopied('text');
       setSnackbar({
@@ -63,9 +59,6 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
       setTimeout(() => setCopied(null), 2000);
     } catch {
       setSnackbar({ open: true, message: 'Failed to copy. Please try again.', severity: 'error' });
-    } finally {
-      selection?.removeAllRanges();
-      tempDiv.remove();
     }
   };
 

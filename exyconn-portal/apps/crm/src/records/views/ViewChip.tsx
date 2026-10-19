@@ -28,5 +28,10 @@ export function ViewChip({ label, selected, onClick, sharedBy }: Readonly<ViewCh
     return chip;
   }
   const title = sharedBy ? t('Shared by {name}', { name: sharedBy }) : t('Shared with the team');
-  return <Tooltip title={title}>{chip}</Tooltip>;
+  // The title describes the chip; its name stays the view name.
+  return (
+    <Tooltip title={title} describeChild>
+      {chip}
+    </Tooltip>
+  );
 }

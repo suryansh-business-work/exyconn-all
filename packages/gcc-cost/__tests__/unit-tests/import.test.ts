@@ -57,7 +57,7 @@ describe('JSON import', () => {
     withTotals.estimate.total = 1;
     const result = parseEstimateFile(JSON.stringify(withTotals));
     expect(result).toMatchObject({ ok: false, reason: 'invalid' });
-    const badId = exported(estimate({ id: 'Bad ID!' as string }));
+    const badId = exported(estimate({ id: 'Bad ID!' }));
     expect(parseEstimateFile(badId)).toMatchObject({ ok: false, reason: 'invalid' });
     const formula = JSON.parse(exported(estimate({ scenarios: [scenario({ lines: [line()] })] })));
     formula.estimate.scenarios[0].lines[0].unitPrice = '=1+1';

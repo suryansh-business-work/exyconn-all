@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import DownloadIcon from '@mui/icons-material/Download';
 import { Box, Text } from '@exyconn/shell/components/ui';
@@ -12,10 +13,17 @@ import {
   ListUsersDocument,
   FilterOp,
   type ListSalarySlipsPagedQuery,
+  type ListSalarySlipsPagedQueryVariables,
   type ListUsersQuery,
+  type ListUsersQueryVariables,
 } from '@exyconn/shell/graphql/generated';
 import { queryData } from '@exyconn/shell/utils/queryData';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
+
+/** The generated documents, typed so `client.query` infers their data and variables. */
+const SALARY_SLIPS: TypedDocumentNode<ListSalarySlipsPagedQuery, ListSalarySlipsPagedQueryVariables> =
+  ListSalarySlipsPagedDocument;
+const USERS: TypedDocumentNode<ListUsersQuery, ListUsersQueryVariables> = ListUsersDocument;
 
 type Slip = ListSalarySlipsPagedQuery['listSalarySlipsPaged']['rows'][number] & {
   employeeName: string;
@@ -42,8 +50,8 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
       setLoading(true);
       try {
         const [slips, users] = await Promise.all([
-          client.query<ListSalarySlipsPagedQuery>({
-            query: ListSalarySlipsPagedDocument,
+          client.query({
+            query: SALARY_SLIPS,
             fetchPolicy: 'network-only',
             variables: {
               input: {
@@ -56,7 +64,7 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
               },
             },
           }),
-          client.query<ListUsersQuery>({ query: ListUsersDocument }),
+          client.query({ query: USERS }),
         ]);
         if (isCancelled()) return;
         const names = new Map(

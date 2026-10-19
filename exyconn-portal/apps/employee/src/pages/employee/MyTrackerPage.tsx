@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import type { TypedDocumentNode } from '@apollo/client';
 import { skipToken, useQuery } from '@apollo/client/react';
 import {
   MyTrackerDayDocument,
@@ -18,6 +19,10 @@ import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
 import { MyTrackerAccessBanner } from './MyTrackerAccessBanner';
 import { MyOffComputerTime } from './MyOffComputerTime';
 
+/** The generated document, typed so `useQuery` infers its data and variables. */
+const MY_TRACKER_DAY: TypedDocumentNode<MyTrackerDayQuery, MyTrackerDayQueryVariables> =
+  MyTrackerDayDocument;
+
 /** Employee self-view of their own tracker activity — no employee picker. */
 export function MyTrackerPage() {
   const { settings, formatDate, formatTime, formatDateTime } = useSettings();
@@ -29,8 +34,8 @@ export function MyTrackerPage() {
   const projectsQuery = useTrackerProjectOptionsQuery();
   // Apollo 4 will not skip a query with required variables through `{ skip: true }` —
   // the options still demand them. `skipToken` is its way of saying "not yet".
-  const dayQuery = useQuery<MyTrackerDayQuery, MyTrackerDayQueryVariables>(
-    MyTrackerDayDocument,
+  const dayQuery = useQuery(
+    MY_TRACKER_DAY,
     month.dayRange ? { variables: month.dayRange } : skipToken,
   );
 

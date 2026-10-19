@@ -23,7 +23,7 @@ import { between, jitter, onBox, pickIndex, type Random, type Vec3 } from "../sa
  */
 const SHOP: Block = [0, -0.6, 2.2, 0.55, 1.45];
 const FRONT_Z = SHOP[1] + SHOP[3] / 2;
-const WINDOW = { x0: -0.9, x1: 0.35, y0: GROUND + 0.15, y1: GROUND + 1.0 };
+const WINDOW = { x0: -0.9, x1: 0.35, y0: GROUND + 0.15, y1: GROUND + 1 };
 const DOOR = { x0: 0.5, x1: 0.85, y0: GROUND, y1: GROUND + 0.95 };
 const AWNING = { y0: GROUND + 1.1, y1: GROUND + 0.86, z1: FRONT_Z + 0.42, half: 1.05 };
 const SIGN_Y = GROUND + 1.29;

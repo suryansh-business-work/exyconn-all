@@ -19,7 +19,8 @@
     "start": "node dist/runtime/main.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "mongoose": "^8.9.5",
@@ -30,12 +31,14 @@
     "@exyconn/config": "workspace:*",
     "@types/node": "^22.10.5",
     "@types/ws": "^8.18.1",
+    "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^10.9.1",
     "globals": "^17.12.0",
     "prettier": "^3.4.2",
     "tsx": "^4.19.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.69.0"
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^5.0.0"
   },
   "prettier": "@exyconn/config/prettier.json"
 }

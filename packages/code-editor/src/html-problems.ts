@@ -55,15 +55,31 @@ function locator(text: string): (index: number) => { line: number; column: numbe
   };
 }
 
+type Report = (index: number, message: string) => void;
+
+/** Closes the innermost open `name`, reporting a stray closing tag or what it closes early. */
+function closeTag(open: OpenTag[], name: string, index: number, report: Report): void {
+  const depth = lastOpen(open, name);
+  if (depth < 0) {
+    report(index, `</${name}> closes an element that was never opened`);
+    return;
+  }
+  for (const unclosed of open.splice(depth).slice(1)) {
+    report(unclosed.index, `<${unclosed.name}> is not closed before </${name}>`);
+  }
+}
+
 /**
  * Tags that do not pair up in an HTML or MJML snippet: a closing tag nothing opened, one that
  * closes the wrong element, and elements left open. Monaco has no HTML diagnostics of its own.
  */
 export function htmlProblems(text: string): CodeProblem[] {
   const at = locator(text);
+  const lower = text.toLowerCase();
   const problems: CodeProblem[] = [];
-  const report = (index: number, message: string) =>
+  const report: Report = (index, message) => {
     problems.push({ ...at(index), message, severity: 'error' });
+  };
   const open: OpenTag[] = [];
 
   TOKEN.lastIndex = 0;
@@ -72,26 +88,18 @@ export function htmlProblems(text: string): CodeProblem[] {
     if (rawName === undefined) continue;
     const name = rawName.toLowerCase();
     if (closing) {
-      const depth = lastOpen(open, name);
-      if (depth < 0) {
-        report(match.index, `</${name}> closes an element that was never opened`);
-        continue;
-      }
-      for (const unclosed of open.splice(depth).slice(1)) {
-        report(unclosed.index, `<${unclosed.name}> is not closed before </${name}>`);
-      }
+      closeTag(open, name, match.index, report);
       continue;
     }
     if (selfClosing || VOID_ELEMENTS.has(name)) continue;
     if (RAW_TEXT.has(name)) {
-      const end = text.toLowerCase().indexOf(`</${name}`, match.index + whole.length);
+      // Raw text runs to its closing tag; the scan resumes there.
+      const end = lower.indexOf(`</${name}`, match.index + whole.length);
       if (end < 0) {
         report(match.index, `<${name}> is not closed`);
         break;
       }
       TOKEN.lastIndex = end;
-      open.push({ name, index: match.index });
-      continue;
     }
     open.push({ name, index: match.index });
   }

@@ -1,4 +1,4 @@
-import { Kind, type DocumentNode } from 'graphql';
+import { Kind } from 'graphql';
 import { typeDefs } from '../../src/graphql';
 
 /**

@@ -40,7 +40,7 @@ const contact = () =>
       owner: 'Ravi',
       emails: [{ address: 'asha.personal@mail.test', label: 'Personal', primary: false }],
     }),
-  ).then((row) => String(row._id));
+  ).then((row) => row._id.toHexString());
 
 const fromAsha = (id: string, threadId: string, at: string, to: string) =>
   gmailMessage({ id, threadId, from: `Asha <${ASHA}>`, to, subject: 'Pricing', at, text: id });
@@ -102,8 +102,8 @@ describe('crmEmailThreads across connected accounts', () => {
       CompanyModel.create({ name: 'Solo', domain: 'gmail.com', owner: 'Ravi' }),
     );
 
-    await asOperator(() => crmEmailThreads('COMPANY', String(acme._id)));
-    await asOperator(() => crmEmailThreads('COMPANY', String(free._id)));
+    await asOperator(() => crmEmailThreads('COMPANY', acme._id.toHexString()));
+    await asOperator(() => crmEmailThreads('COMPANY', free._id.toHexString()));
 
     expect(gmail.queries.map((query) => query.q)).toEqual([
       'from:@acme.test OR to:@acme.test OR cc:@acme.test',

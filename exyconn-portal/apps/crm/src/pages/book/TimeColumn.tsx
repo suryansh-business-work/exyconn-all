@@ -7,7 +7,7 @@ interface TimeColumnProps {
   selected: string | null;
   label: (slot: string) => string;
   onSelect: (slot: string) => void;
-  onNext: () => void;
+  onNext: (slot: string) => void;
 }
 
 /** The picked day's free times; choosing one shows "Next" beside it. */
@@ -36,7 +36,7 @@ export function TimeColumn({
               <Button variant="contained" color="inherit" aria-pressed>
                 {label(slot)}
               </Button>
-              <Button variant="contained" onClick={onNext}>
+              <Button variant="contained" onClick={() => onNext(slot)}>
                 {t('Next')}
               </Button>
             </Box>

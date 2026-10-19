@@ -31,16 +31,17 @@ function credentialsPacket(username: string, password: string): Buffer {
 }
 
 async function handshake(socket: Socket, proxy: ReacherProxy): Promise<string> {
-  const method = proxy.username ? USER_PASS : NO_AUTH;
+  const { username } = proxy;
+  const method = username ? USER_PASS : NO_AUTH;
   socket.write(Buffer.from([SOCKS_VERSION, 1, method]));
   const greeting = await nextReply(socket);
   if (greeting[0] !== SOCKS_VERSION || greeting[1] !== method) {
     throw new Error('The proxy is not a SOCKS5 proxy, or refused this way of signing in.');
   }
-  if (method === NO_AUTH) {
+  if (!username) {
     return 'The SOCKS5 proxy answered and needs no sign-in.';
   }
-  socket.write(credentialsPacket(proxy.username ?? '', proxy.password ?? ''));
+  socket.write(credentialsPacket(username, proxy.password ?? ''));
   const auth = await nextReply(socket);
   if (auth[1] !== 0) {
     throw new Error('The SOCKS5 proxy refused the username or password.');

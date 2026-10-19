@@ -19,8 +19,8 @@ export const idSchema = z.string().regex(ID_PATTERN, 'Use lowercase letters, dig
 export const currencySchema = z.string().regex(CURRENCY_PATTERN, 'Use a 3-letter ISO code');
 const text = (max: number) => z.string().trim().max(max);
 const label = (max: number) => text(max).min(1, 'Required');
-const amount = z.number().finite().min(0).max(LIMITS.amount);
-const percent = z.number().finite().min(0).max(100);
+const amount = z.number().min(0).max(LIMITS.amount);
+const percent = z.number().min(0).max(100);
 const month = z.number().int().min(1).max(LIMITS.months);
 const count = (max: number) => z.number().int().min(0).max(max);
 const isoDate = z.union([z.literal(''), z.string().regex(DATE_PATTERN)]);
@@ -54,7 +54,7 @@ export const costLineSchema = z
     label: label(120),
     description: text(500),
     pricing: z.enum(PRICING_MODELS),
-    quantity: z.number().finite().min(0).max(LIMITS.quantity),
+    quantity: z.number().min(0).max(LIMITS.quantity),
     unitPrice: amount,
     currency: currencySchema,
     ratePct: percent,
@@ -114,11 +114,11 @@ export const officeSchema = z.strictObject({
   model: z.enum(OFFICE_MODELS),
   seats: count(LIMITS.headcount),
   utilisationPct: percent,
-  areaPerSeatSqft: z.number().finite().min(0).max(1000),
+  areaPerSeatSqft: z.number().min(0).max(1000),
   rentPerSqftMonthly: amount,
   camPerSqftMonthly: amount,
   seatPriceMonthly: amount,
-  depositMonths: z.number().finite().min(0).max(24),
+  depositMonths: z.number().min(0).max(24),
   fitoutPerSqft: amount,
   furnitureSetup: amount,
   internetMonthly: amount,
@@ -154,9 +154,9 @@ export const tokenUsageSchema = z
     outputPerMTok: amount,
     cachedInputPerMTok: amount,
     batchDiscountPct: percent,
-    inputMTokMonthly: z.number().finite().min(0).max(LIMITS.quantity),
-    outputMTokMonthly: z.number().finite().min(0).max(LIMITS.quantity),
-    cachedInputMTokMonthly: z.number().finite().min(0).max(LIMITS.quantity),
+    inputMTokMonthly: z.number().min(0).max(LIMITS.quantity),
+    outputMTokMonthly: z.number().min(0).max(LIMITS.quantity),
+    cachedInputMTokMonthly: z.number().min(0).max(LIMITS.quantity),
     batchSharePct: percent,
     startMonth: month,
     source: sourceSchema,
@@ -197,7 +197,7 @@ export const assumptionsSchema = z.strictObject({
   techGrowthPct: percent,
   attritionPct: percent,
   contingencyPct: percent,
-  workingCapitalMonths: z.number().finite().min(0).max(24),
+  workingCapitalMonths: z.number().min(0).max(24),
   paymentTiming: z.enum(['advance', 'arrears']),
   discountRatePct: percent.nullable(),
   pfWageCeilingMonthly: amount,
@@ -223,7 +223,7 @@ export const scenarioSchema = z.strictObject({
 
 export const fxRateSchema = z.strictObject({
   currency: currencySchema,
-  inrPerUnit: z.number().finite().positive().max(1_000_000),
+  inrPerUnit: z.number().positive().max(1_000_000),
   source: text(120),
   asOf: isoDate,
   userProvided: z.boolean(),

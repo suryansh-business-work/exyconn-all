@@ -37,7 +37,7 @@ export function attach() {
     .mockImplementation((() => ({ unref: jest.fn() })) as unknown as typeof setInterval);
   jest.spyOn(logger, 'info').mockImplementation(() => undefined);
   attachChatSocket(server as unknown as Server);
-  const heartbeat = interval.mock.calls[0][0] as () => void;
+  const heartbeat = interval.mock.calls[0][0];
   interval.mockRestore();
   return { server, heartbeat };
 }
@@ -61,7 +61,7 @@ export function connect(
     socket: { remoteAddress },
   };
   server.emit('upgrade', req, { destroy: jest.fn() }, Buffer.alloc(0));
-  const helloTimeout = timer.mock.calls[0][0] as () => void;
+  const helloTimeout = timer.mock.calls[0][0];
   timer.mockRestore();
   const peer = [...chatHub.all()].find((entry) => entry.socket === (ws as unknown));
   return { ws, peer: peer as ChatPeer, helloTimeout };

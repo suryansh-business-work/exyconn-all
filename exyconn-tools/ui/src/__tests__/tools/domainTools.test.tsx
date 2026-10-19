@@ -28,6 +28,7 @@ import SubdomainFinder from '../../tools/subdomain-finder';
 import TxtRecordChecker from '../../tools/txt-record-checker';
 import WebsiteStatusChecker from '../../tools/website-status-checker';
 import WhoisLookup from '../../tools/whois-lookup';
+import { sentJson } from '../helpers/requests';
 
 interface Case {
   name: string;
@@ -53,7 +54,7 @@ const CASES: Case[] = [
       {
         data: {
           domain: 'example.org',
-          ip: '1.2.3.4',
+          ip: '192.0.2.4',
           isClean: true,
           listedCount: 0,
           totalChecked: 2,
@@ -62,12 +63,12 @@ const CASES: Case[] = [
             { blacklist: 'bl.spamcop.net', listed: false },
           ],
         },
-        shows: ['CLEAN', '0/2 blacklists', 'IP: 1.2.3.4', 'zen.spamhaus.org'],
+        shows: ['CLEAN', '0/2 blacklists', 'IP: 192.0.2.4', 'zen.spamhaus.org'],
       },
       {
         data: {
           domain: 'bad.test',
-          ip: '5.6.7.8',
+          ip: '192.0.2.5',
           isClean: false,
           listedCount: 1,
           totalChecked: 1,
@@ -76,7 +77,7 @@ const CASES: Case[] = [
         shows: ['LISTED', 'Listed'],
       },
       {
-        data: { domain: 'none.test', ip: '9.9.9.9', isClean: true, listedCount: 0, totalChecked: 0 },
+        data: { domain: 'none.test', ip: '203.0.113.9', isClean: true, listedCount: 0, totalChecked: 0 },
         shows: ['CLEAN'],
       },
     ],
@@ -129,8 +130,8 @@ const CASES: Case[] = [
     fallback: 'Check failed',
     variants: [
       {
-        data: { domain: 'example.org', available: false, ips: ['1.1.1.1'], message: 'Domain is registered' },
-        shows: ['Taken', 'Resolves to:', '1.1.1.1'],
+        data: { domain: 'example.org', available: false, ips: ['198.51.100.1'], message: 'Domain is registered' },
+        shows: ['Taken', 'Resolves to:', '198.51.100.1'],
       },
       {
         data: { domain: 'free.test', available: true, ips: [], message: 'Domain might be available' },
@@ -179,12 +180,12 @@ const CASES: Case[] = [
   {
     name: 'ip-lookup',
     Tool: IpLookup,
-    input: '8.8.8.8',
-    body: { ip: '8.8.8.8' },
+    input: '192.0.2.8',
+    body: { ip: '192.0.2.8' },
     fallback: 'IP lookup failed',
     variants: [
       {
-        data: { query: '8.8.8.8', country: 'United States', isp: 'Google LLC' },
+        data: { query: '192.0.2.8', country: 'United States', isp: 'Google LLC' },
         shows: ['United States', 'Google LLC'],
       },
     ],
@@ -219,11 +220,11 @@ const CASES: Case[] = [
         data: {
           domain: 'example.org',
           nameservers: [
-            { nameserver: 'ns1.example.org', ips: ['10.0.0.1', '10.0.0.2'] },
+            { nameserver: 'ns1.example.org', ips: ['198.51.100.10', '198.51.100.11'] },
             { nameserver: 'ns2.example.org', ips: [] },
           ],
         },
-        shows: ['ns1.example.org', '10.0.0.1', 'ns2.example.org'],
+        shows: ['ns1.example.org', '198.51.100.10', 'ns2.example.org'],
       },
     ],
   },
@@ -301,13 +302,13 @@ const CASES: Case[] = [
   {
     name: 'reverse-ip-lookup',
     Tool: ReverseIpLookup,
-    input: '8.8.8.8',
-    body: { ip: '8.8.8.8' },
+    input: '192.0.2.8',
+    body: { ip: '192.0.2.8' },
     fallback: 'Reverse IP lookup failed',
     variants: [
-      { data: { ip: '8.8.8.8', count: 1, hostnames: ['dns.google'] }, shows: ['1 hostname(s) found', 'dns.google'] },
+      { data: { ip: '192.0.2.8', count: 1, hostnames: ['dns.google'] }, shows: ['1 hostname(s) found', 'dns.google'] },
       {
-        data: { ip: '1.1.1.1', count: 0, hostnames: [], message: 'No reverse DNS records found' },
+        data: { ip: '198.51.100.1', count: 0, hostnames: [], message: 'No reverse DNS records found' },
         shows: ['No reverse DNS records found'],
       },
     ],
@@ -366,9 +367,9 @@ const CASES: Case[] = [
           domain: 'example.org',
           totalFound: 1,
           totalChecked: 45,
-          subdomains: [{ subdomain: 'www.example.org', ips: ['9.9.9.9'] }],
+          subdomains: [{ subdomain: 'www.example.org', ips: ['203.0.113.9'] }],
         },
-        shows: ['1 found', '45 checked', 'www.example.org', '9.9.9.9'],
+        shows: ['1 found', '45 checked', 'www.example.org', '203.0.113.9'],
       },
     ],
   },
@@ -469,7 +470,7 @@ describe.each(CASES)('$name', ({ Tool, input, body, variants, fallback }) => {
       }
       const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
       expect(init.method).toBe('POST');
-      expect(JSON.parse(String(init.body))).toEqual(body);
+      expect(sentJson(init)).toEqual(body);
       unmount();
     }
   });
@@ -548,7 +549,7 @@ describe('URL tools', () => {
 
       await waitFor(() => expect(fetchMock).toHaveBeenCalled());
       const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-      const { url } = JSON.parse(String(init.body)) as { url: string };
+      const { url } = sentJson(init) as { url: string };
       expect(url).toBe(value.startsWith('http') ? value : `https://${value}`);
       unmount();
     }
@@ -558,7 +559,7 @@ describe('URL tools', () => {
 describe('dns-lookup', () => {
   it('posts the domain with the record type chosen and lists every record set', async () => {
     const fetchMock = stubFetch(
-      apiOk({ domain: 'example.org', A: ['1.1.1.1', '2.2.2.2'], SOA: { nsname: 'ns1' }, MX: [] })
+      apiOk({ domain: 'example.org', A: ['198.51.100.1', '198.51.100.2'], SOA: { nsname: 'ns1' }, MX: [] })
     );
     const { container } = renderTool(DnsLookup);
 
@@ -571,7 +572,7 @@ describe('dns-lookup', () => {
     expect(screen.getByText('1 record')).toBeInTheDocument();
     expect(screen.getByText('0 record(s)')).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ domain: 'example.org', type: 'MX' });
+    expect(sentJson(init)).toEqual({ domain: 'example.org', type: 'MX' });
   });
 
   it('locks the button while looking up', async () => {

@@ -34,10 +34,7 @@ export function ExportActions() {
   const [busy, setBusy] = useState(false);
   const estimate = live.valid ? live.estimate : null;
 
-  const exportFile = (kind: "csv" | "json") => {
-    if (!estimate) {
-      return;
-    }
+  const exportFile = (estimate: Estimate, kind: "csv" | "json") => {
     const stem = fileStem(estimate.name);
     if (kind === "csv") {
       saveText(estimateCsv(estimate, live.outcomes), `${stem}.csv`, "text/csv;charset=utf-8");
@@ -48,10 +45,7 @@ export function ExportActions() {
     setNotice({ severity: "success", text: X.done[kind] });
   };
 
-  const pdf = async () => {
-    if (!estimate) {
-      return;
-    }
+  const pdf = async (estimate: Estimate) => {
     setBusy(true);
     try {
       await downloadPdf(
@@ -90,21 +84,33 @@ export function ExportActions() {
         </Alert>
       )}
       <div className="gcc-exports__groups">
-        <div role="group" aria-label={X.download}>
-          <Button variant="contained" disabled={disabled || busy} onClick={pdf}>
+        <fieldset aria-label={X.download}>
+          <Button
+            variant="contained"
+            disabled={disabled || busy}
+            onClick={estimate ? () => pdf(estimate) : undefined}
+          >
             {busy ? X.pdfBusy : X.pdf}
           </Button>
-          <Button variant="outlined" disabled={disabled} onClick={() => exportFile("csv")}>
+          <Button
+            variant="outlined"
+            disabled={disabled}
+            onClick={estimate ? () => exportFile(estimate, "csv") : undefined}
+          >
             {X.csv}
           </Button>
-          <Button variant="outlined" disabled={disabled} onClick={() => exportFile("json")}>
+          <Button
+            variant="outlined"
+            disabled={disabled}
+            onClick={estimate ? () => exportFile(estimate, "json") : undefined}
+          >
             {X.json}
           </Button>
           <Button variant="outlined" disabled={disabled} onClick={() => globalThis.print()}>
             {X.print}
           </Button>
-        </div>
-        <div role="group" aria-label={X.share}>
+        </fieldset>
+        <fieldset aria-label={X.share}>
           <Button variant="outlined" onClick={() => setDialog("import")}>
             {X.importJson}
           </Button>
@@ -114,13 +120,15 @@ export function ExportActions() {
           <Button variant="outlined" disabled={disabled} onClick={() => setDialog("email")}>
             {X.email}
           </Button>
-        </div>
-        <div role="group" aria-label={X.plan}>
+        </fieldset>
+        <fieldset aria-label={X.plan}>
           <Button
             variant="outlined"
             disabled={disabled}
-            onClick={() =>
-              estimate && store.duplicate(estimate, `${estimate.name}${UI.estimates.copySuffix}`)
+            onClick={
+              estimate
+                ? () => store.duplicate(estimate, `${estimate.name}${UI.estimates.copySuffix}`)
+                : undefined
             }
           >
             {X.duplicate}
@@ -131,7 +139,7 @@ export function ExportActions() {
           <Button variant="contained" color="secondary" onClick={() => setDialog("consult")}>
             {X.consult}
           </Button>
-        </div>
+        </fieldset>
       </div>
       {estimate && <PrintReport report={report(estimate, live.outcomes)} />}
       <ImportDialog open={dialog === "import"} onClose={() => setDialog(null)} />

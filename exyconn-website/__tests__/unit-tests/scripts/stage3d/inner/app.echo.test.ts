@@ -129,6 +129,52 @@ describe("startInnerScene echo hosts", () => {
   });
 });
 
+describe("startInnerScene scroll stories", () => {
+  const liveEcho = (inStory: boolean) => {
+    const story = document.createElement("section");
+    story.dataset.stageStory = "";
+    const echo = document.createElement("div");
+    echo.dataset.stageLive = "";
+    setSize(echo, 300, 300);
+    if (inStory) {
+      story.append(echo);
+      document.body.append(story);
+    } else {
+      document.body.append(echo);
+    }
+    vi.spyOn(story, "getBoundingClientRect").mockReturnValue(
+      DOMRect.fromRect({ x: 0, y: 0, width: 300, height: 1000 })
+    );
+    return echo;
+  };
+
+  it("keeps drawing in a live echo of a story, turning with the story and never sinking", async () => {
+    const echo = liveEcho(true);
+    const { world, particles } = await start(true, [echo]);
+    bandShown(true, echo);
+    heroGone();
+    for (let frame = 0; frame < 40; frame += 1) {
+      flushFrame();
+    }
+    // Still asking for frames once settled: the story turns the scene as it is read.
+    expect(pendingFrames()).toBe(1);
+    expect(world.root.position.y).toBe(0);
+    expect(particles.uniforms.uPointerMix.value).toBe(0);
+    expect(world.root.rotation.y).not.toBe(0);
+  });
+
+  it("settles and stops drawing in a live echo outside any story", async () => {
+    const echo = liveEcho(false);
+    await start(true, [echo]);
+    bandShown(true, echo);
+    heroGone();
+    for (let frame = 0; frame < 200 && pendingFrames() > 0; frame += 1) {
+      flushFrame();
+    }
+    expect(pendingFrames()).toBe(0);
+  });
+});
+
 describe("startInnerScene highlights and resizing", () => {
   it("lights a requested tag and animates the fade while live", async () => {
     const { particles } = await start(true);

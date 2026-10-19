@@ -23,6 +23,7 @@ jest.mock('../../src/modules/ai/ai.actions', () => ({
   runAssist: jest.fn(async (name: string, prompt: string) => `${name}: ${prompt.length}`),
 }));
 import { runAssist } from '../../src/modules/ai/ai.actions';
+import { requestUrl } from '../fetchUrl';
 
 const ORGANIZATION = useTestOrganization();
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
@@ -40,7 +41,7 @@ const HOUR = 3_600_000;
 /** Answers each provider URL with the JSON a real one would send, in order of the first match. */
 function fakeNetwork(routes: Array<[RegExp, number, unknown]>) {
   return jest.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
-    const url = String(input);
+    const url = requestUrl(input);
     const hit = routes.find(([pattern]) => pattern.test(url));
     const [, status, body] = hit ?? [/./, 400, { error: { message: `unexpected ${url}` } }];
     return new Response(JSON.stringify(body), { status });

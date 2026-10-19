@@ -10,7 +10,11 @@ function normalize(value: unknown): unknown {
   }
 
   if (value && typeof value === 'object') {
-    return JSON.parse(JSON.stringify(value));
+    // Not a clone: the JSON round trip is the point. It turns what the wire cannot carry into
+    // JSON values (a Date into its ISO string, an ObjectId into its hex, anything with toJSON
+    // into that), which structuredClone would keep as class instances.
+    const json = JSON.stringify(value);
+    return JSON.parse(json);
   }
 
   return value;

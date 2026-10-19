@@ -22,6 +22,18 @@ export interface LeadImportInput {
   primaryType?: string | null;
 }
 
+/** A lead after {@link checkedRow}: every optional text is a string and the emails a list. */
+export type CheckedLead = LeadImportInput & {
+  phone: string;
+  website: string;
+  address: string;
+  city: string;
+  country: string;
+  mapUrl: string;
+  emails: string[];
+  primaryType: string;
+};
+
 /** The registrable host of a website, without www. — what a CRM company's `domain` holds. */
 export function domainOf(website: string | null | undefined): string {
   if (!website) {
@@ -72,7 +84,7 @@ function safeMapUrl(value: string | null | undefined): string {
 const clip = (value: string | null | undefined, max: number) => (value ?? '').trim().slice(0, max);
 
 /** Refuses a row that is not a place at all; trims everything else to sane lengths. */
-export function checkedRow(row: LeadImportInput): LeadImportInput {
+export function checkedRow(row: LeadImportInput): CheckedLead {
   const placeId = clip(row.placeId, 300);
   const name = clip(row.name, 200);
   const latOk = Number.isFinite(row.lat) && Math.abs(row.lat) <= 90;
@@ -100,7 +112,7 @@ export function checkedRow(row: LeadImportInput): LeadImportInput {
 export const MAX_IMPORT = 100;
 
 /** Every lead of a preview or import call, checked; refuses an empty or oversized batch. */
-export function checkedBatch(input: LeadImportInput[]): LeadImportInput[] {
+export function checkedBatch(input: LeadImportInput[]): CheckedLead[] {
   if (input.length === 0 || input.length > MAX_IMPORT) {
     badRequest(`Add between 1 and ${MAX_IMPORT} leads at a time.`);
   }

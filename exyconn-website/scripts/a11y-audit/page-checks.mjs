@@ -1,6 +1,7 @@
 /**
  * Checks axe-core does not make, run inside the page. `inPageChecks` is serialised with
- * `Function#toString`, so it must not reference anything outside its own body.
+ * `Function#toString`, so it must not reference anything outside its own body. Every element
+ * they read is in the document, so its `textContent` is a string and it has a parent.
  *
  * - 2.5.8 target size (24×24 CSS px, with the spacing and inline-link exceptions)
  * - icon inventory: rendered size per context, hidden from assistive tech or not
@@ -33,7 +34,7 @@ export function inPageChecks() {
       typeof el.className === "string"
         ? el.className.trim().split(/\s+/).slice(0, 3).join(".")
         : "";
-    const text = (el.getAttribute("aria-label") ?? el.textContent ?? "")
+    const text = (el.getAttribute("aria-label") ?? el.textContent)
       .trim()
       .replaceAll(/\s+/g, " ")
       .slice(0, 40);
@@ -66,8 +67,7 @@ export function inPageChecks() {
     if (el.tagName !== "A" || getComputedStyle(el).display !== "inline") {
       return false;
     }
-    const block = el.parentElement;
-    return (block?.textContent ?? "").trim().length > (el.textContent ?? "").trim().length + 10;
+    return el.parentElement.textContent.trim().length > el.textContent.trim().length + 10;
   };
   const distanceToRect = (x, y, rect) => {
     const dx = Math.max(rect.left - x, 0, x - rect.right);
@@ -101,7 +101,7 @@ export function inPageChecks() {
   });
 
   const icons = [...document.querySelectorAll('i[class*="fa-"], svg')]
-    .filter((el) => !el.parentElement?.closest("svg") && visible(el))
+    .filter((el) => !el.parentElement.closest("svg") && visible(el))
     .map((el) => {
       const rect = el.getBoundingClientRect();
       const context = CONTEXTS.find(([, selector]) => el.closest(selector))?.[0] ?? "content";
@@ -123,7 +123,7 @@ export function inPageChecks() {
     .filter(
       (el) => !el.closest("[inert]") && visible(el) && el.getBoundingClientRect().right > vw + 1
     )
-    .filter((el) => !el.parentElement || el.parentElement.getBoundingClientRect().right <= vw + 1)
+    .filter((el) => el.parentElement.getBoundingClientRect().right <= vw + 1)
     .filter(
       (el) => !el.closest('[style*="overflow"], .overflow-x-auto, .overflow-hidden, pre, table')
     )
@@ -205,7 +205,7 @@ export function focusSnapshot() {
   const top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
   const bar = top && !el.contains(top) && !top.contains(el) ? pinned(top) : null;
   const cover = bar && !bar.contains(el) ? bar : null;
-  const text = (el.getAttribute("aria-label") ?? el.textContent ?? "")
+  const text = (el.getAttribute("aria-label") ?? el.textContent)
     .trim()
     .replaceAll(/\s+/g, " ")
     .slice(0, 40);

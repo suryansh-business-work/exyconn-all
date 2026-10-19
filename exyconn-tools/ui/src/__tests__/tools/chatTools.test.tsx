@@ -17,6 +17,7 @@ import ChatWithPdf from '../../tools/chat-with-pdf';
 import ChatWithText from '../../tools/chat-with-text';
 import ChatWithWebsite from '../../tools/chat-with-website';
 import ChatWithWord from '../../tools/chat-with-word';
+import { sentJson } from '../helpers/requests';
 
 const generate = vi.mocked(generateWithOpenAI);
 const USAGE = { promptTokens: 11, completionTokens: 22, totalTokens: 33 };
@@ -125,7 +126,7 @@ describe('chat-with-website', () => {
     fetchSite();
     await waitFor(() => expect(screen.getByPlaceholderText('Ask about this website...')).toBeEnabled());
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ url: 'https://example.org' });
+    expect(sentJson(init)).toEqual({ url: 'https://example.org' });
 
     ask('Ask about this website...', 'When are you open?');
     expect(await screen.findByText('Nine to five.')).toBeInTheDocument();
@@ -251,9 +252,9 @@ describe.each(FILE_CASES)('$name', ({ Tool, placeholder, file, mime, promptPrefi
 
     upload(container, file);
 
-    expect(await screen.findByText(new RegExp(`${file.name} loaded! \\(15 chars\\)`))).toBeInTheDocument();
+    expect(await screen.findByText(new RegExp(String.raw`${file.name} loaded! \(15 chars\)`))).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toMatchObject({ mimeType: mime, fileName: file.name });
+    expect(sentJson(init)).toMatchObject({ mimeType: mime, fileName: file.name });
     ask(placeholder, 'Summarise it');
     expect(await screen.findByText('An answer.')).toBeInTheDocument();
     expect(generate.mock.calls[0][2]).toBe(`${promptPrefix}\nExtracted words\n\nQuestion: Summarise it`);

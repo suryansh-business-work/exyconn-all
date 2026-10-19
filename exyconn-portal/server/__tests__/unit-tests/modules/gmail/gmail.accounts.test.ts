@@ -55,7 +55,7 @@ describe('the single-mailbox migration', () => {
       connectedByName: 'Ravi',
     });
     const message = await CrmEmailMessageModel.findOne({ gmailId: 'old-1' }).lean();
-    expect(message).toMatchObject({ accountId: String(accounts[0]._id), mailbox: LEGACY });
+    expect(message).toMatchObject({ accountId: accounts[0]._id.toHexString(), mailbox: LEGACY });
     // The old fields stay, so a rollback still finds its connection.
     const kept = await GmailConfigModel.findOne({ key: 'default' }).lean();
     expect(kept?.refreshToken).toBe(config.refreshToken);
@@ -80,7 +80,7 @@ describe('connected accounts', () => {
 
     const again = await saveConnectedAccount(LEGACY, seal('two'), 'Mira');
 
-    expect(String(again._id)).toBe(String(first._id));
+    expect(again._id.toHexString()).toBe(first._id.toHexString());
     expect(again).toMatchObject({ status: 'CONNECTED', lastError: '', connectedByName: 'Mira' });
     // Whether the CRM uses it stays the team's choice.
     expect(again.enabled).toBe(false);
@@ -89,7 +89,7 @@ describe('connected accounts', () => {
 
   it('turns an account off and disconnects it, never exposing its token', async () => {
     const account = await saveConnectedAccount(LEGACY, seal('one'), 'Ravi');
-    const id = String(account._id);
+    const id = account._id.toHexString();
 
     const off = await setGmailAccountEnabled(id, false);
     expect(presentGmailAccount(off)).not.toHaveProperty('refreshToken');

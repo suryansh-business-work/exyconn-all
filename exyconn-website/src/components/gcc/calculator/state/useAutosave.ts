@@ -26,14 +26,14 @@ export function useAutosave(
   }, [active]);
 
   useEffect(() => {
-    if (!live.valid) {
+    const estimate = live.estimate;
+    if (!live.valid || !estimate) {
       if (saveState.kind !== "conflict") {
         setSaveState({ kind: "invalid", count: live.issueCount });
       }
       return undefined;
     }
-    const estimate = live.estimate;
-    if (!estimate || saveState.kind === "conflict") {
+    if (saveState.kind === "conflict") {
       return undefined;
     }
     if (snapshot(estimate) === saved.current) {

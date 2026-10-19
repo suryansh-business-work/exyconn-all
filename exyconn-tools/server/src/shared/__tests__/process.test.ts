@@ -16,9 +16,10 @@ type FakeChild = EventEmitter & {
 };
 
 function child(withStderr = true): FakeChild {
-  const fake = new EventEmitter() as FakeChild;
-  fake.stderr = withStderr ? new EventEmitter() : null;
-  fake.kill = vi.fn();
+  const fake: FakeChild = Object.assign(new EventEmitter(), {
+    stderr: withStderr ? new EventEmitter() : null,
+    kill: vi.fn(),
+  });
   mocks.spawn.mockReturnValue(fake);
   return fake;
 }

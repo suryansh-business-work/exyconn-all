@@ -13,7 +13,8 @@ export interface UploadedFile {
 const readAsDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
+    // readAsDataURL always yields a data: URL string.
+    reader.onload = () => resolve(reader.result as string);
     reader.onerror = () => reject(reader.error ?? new Error('Could not read the file'));
     reader.readAsDataURL(file);
   });

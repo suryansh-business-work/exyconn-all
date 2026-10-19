@@ -2,7 +2,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { MenuItem, TextField } from '@exyconn/shell/components/ui';
 import type { CrmOp } from '@exyconn/shell/graphql/generated';
-import { OP_LABELS, opArity } from '../../operators';
+import { OP_LABELS, blankValues, opArity } from '../../operators';
 import type { ConditionPath, FilterBuilderValues } from '../filter-builder.types';
 
 interface OperatorSelectProps {
@@ -34,7 +34,7 @@ export function OperatorSelect({ path, ops }: Readonly<OperatorSelectProps>) {
             field.onChange(next);
             // One date and a from/to pair are different values, so a new shape starts empty.
             if (previous === '' || opArity(previous) !== opArity(next)) {
-              setValue(`${path}.values`, []);
+              setValue(`${path}.values`, blankValues(next));
             }
           }}
           error={Boolean(fieldState.error)}

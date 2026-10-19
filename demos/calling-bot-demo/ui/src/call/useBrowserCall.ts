@@ -127,9 +127,9 @@ export function useBrowserCall(scenarioId: string | null) {
         throw new Error(t('The call could not be started.'));
       }
       connect(url, current);
-    } catch (failure) {
+    } catch (error_) {
       player.close();
-      finish(errorMessage(failure, t('Allow the microphone, then try again.')));
+      finish(errorMessage(error_, t('Allow the microphone, then try again.')));
     }
   }, [connect, finish, scenarioId, startCall, t]);
 

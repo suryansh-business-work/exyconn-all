@@ -13,7 +13,7 @@ import Download from '@mui/icons-material/Download';
 import { MdPhoto } from 'react-icons/md';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import ResultsList from './ResultsList';
-import { ACCEPTED_TYPES, MAX_FILES, ConvertItem, convertToJpg, downloadBlob, outputFileName } from './utils';
+import { ACCEPTED_TYPES, MAX_FILES, ConvertItem, DoneItem, convertToJpg, downloadBlob, outputFileName } from './utils';
 
 const COLOR = '#ef4444';
 
@@ -62,12 +62,12 @@ export default function ConvertToJpg() {
       setProgress(i + 1);
       try {
         const blob = await convertToJpg(next[i].file, quality / 100);
-        next[i] = { ...next[i], status: 'done', blob, error: undefined };
+        next[i] = { id: next[i].id, file: next[i].file, status: 'done', blob };
       } catch (err) {
         next[i] = {
-          ...next[i],
+          id: next[i].id,
+          file: next[i].file,
           status: 'error',
-          blob: undefined,
           error: err instanceof Error ? err.message : 'Conversion failed.',
         };
       }
@@ -76,13 +76,13 @@ export default function ConvertToJpg() {
     setProcessing(false);
   };
 
-  const downloadItem = (item: ConvertItem) => {
-    if (item.blob) downloadBlob(item.blob, outputFileName(item.file.name));
+  const downloadItem = (item: DoneItem) => {
+    downloadBlob(item.blob, outputFileName(item.file.name));
   };
 
   const downloadAll = async () => {
     for (const item of items) {
-      if (item.status === 'done' && item.blob) {
+      if (item.status === 'done') {
         downloadBlob(item.blob, outputFileName(item.file.name));
         await new Promise((resolve) => setTimeout(resolve, 300));
       }

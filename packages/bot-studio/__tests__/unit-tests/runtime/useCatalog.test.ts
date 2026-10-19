@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import type { CatalogWarn } from '@exyconn/wa-flow';
-import type { DemoBundle } from '@exyconn/wa-flow/engine';
 import { useCatalog } from '../../../src/runtime/useCatalog';
 
 const api = vi.hoisted(() => {

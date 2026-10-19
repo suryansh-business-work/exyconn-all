@@ -99,4 +99,56 @@ describe("GCC estimate storage", () => {
     localStorage.setItem(`exyconn.gcc.v1.backup.${original.id}`, "{bad");
     expect(readBackup(original.id)).toBeNull();
   });
+
+  it("reports a full storage quota under Firefox's name too", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("full", "NS_ERROR_DOM_QUOTA_REACHED");
+    });
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    expect(backupEstimate(make("Too big"))).toEqual({ ok: false, reason: "quota" });
+  });
+
+  it("reads an index it cannot parse as empty", () => {
+    localStorage.setItem("exyconn.gcc.v1.index", "{not json");
+    expect(readIndex()).toEqual({ version: 1, activeId: null, entries: [] });
+  });
+
+  it("leaves the active estimate alone when another one is removed", () => {
+    const first = make("First");
+    const active = make("Active");
+    saveEstimate(first, null);
+    saveEstimate(active, null);
+    expect(removeEstimate(first.id)).toEqual({ ok: true });
+    expect(readIndex()).toMatchObject({ activeId: active.id, entries: [{ id: active.id }] });
+  });
+
+  it("has no active estimate once the last one is removed", () => {
+    const only = make("Only");
+    saveEstimate(only, null);
+    removeEstimate(only.id);
+    expect(readIndex()).toEqual({ version: 1, activeId: null, entries: [] });
+  });
+
+  describe("without browser storage", () => {
+    it.each([
+      ["is missing", () => vi.stubGlobal("localStorage", undefined)],
+      [
+        "is blocked",
+        () =>
+          vi.spyOn(globalThis, "localStorage", "get").mockImplementation(() => {
+            throw new DOMException("denied", "SecurityError");
+          }),
+      ],
+    ])("reports storage as unavailable when it %s", (_how, block) => {
+      const estimate = make("Nowhere");
+      block();
+      expect(saveEstimate(estimate, null)).toEqual({ ok: false, reason: "unavailable" });
+      expect(readEstimate(estimate.id)).toEqual({ ok: false, reason: "unavailable" });
+      expect(removeEstimate(estimate.id)).toEqual({ ok: false, reason: "unavailable" });
+      expect(setActive(estimate.id)).toEqual({ ok: false, reason: "unavailable" });
+      expect(readIndex()).toEqual({ version: 1, activeId: null, entries: [] });
+      expect(readBackup(estimate.id)).toBeNull();
+      vi.unstubAllGlobals();
+    });
+  });
 });

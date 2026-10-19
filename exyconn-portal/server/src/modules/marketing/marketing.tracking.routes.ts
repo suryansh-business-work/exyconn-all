@@ -28,7 +28,7 @@ export function marketingTrackingRouter(): Router {
   const router = Router();
 
   router.get('/o/:token.gif', (req, res) => {
-    const token = String(req.params.token ?? '');
+    const { token } = req.params;
     // Answer FIRST, record after. The pixel's job is to load; the counting is our problem.
     res.set({
       'Content-Type': 'image/gif',
@@ -42,7 +42,7 @@ export function marketingTrackingRouter(): Router {
   });
 
   router.get('/c/:token', async (req, res) => {
-    const token = String(req.params.token ?? '');
+    const { token } = req.params;
     // Express has already decoded the query string; decoding it again would let `%2525`-style
     // input turn into a different URL than the one that was signed.
     const target = safeRedirectTarget(typeof req.query.u === 'string' ? req.query.u : undefined);
@@ -83,9 +83,6 @@ export function marketingTrackingRouter(): Router {
  * in the stored body verbatim), or whose campaign body has since been edited, is refused.
  */
 async function isTrustedLink(token: string, url: string, signature: string): Promise<boolean> {
-  if (!token) {
-    return false;
-  }
   if (signature) {
     return verifyLinkSignature(token, url, signature);
   }
@@ -106,9 +103,6 @@ async function isTrustedLink(token: string, url: string, signature: string): Pro
  * where the last one drifts every time a mail client re-renders a cached message.
  */
 async function recordOpen(token: string): Promise<void> {
-  if (!token) {
-    return;
-  }
   const filter = { trackingTokenHash: hashTrackingToken(token) };
   // Not `$min`: the row is written with `openedAt: null`, and null sorts below every date,
   // so `$min` would never replace it and no open would ever be dated.
@@ -118,9 +112,6 @@ async function recordOpen(token: string): Promise<void> {
 
 /** Counts a click, and keeps the URL so "which link" is answerable. */
 async function recordClick(token: string, url: string): Promise<void> {
-  if (!token) {
-    return;
-  }
   const send = await CampaignSendModel.findOneAndUpdate(
     { trackingTokenHash: hashTrackingToken(token) },
     { $inc: { clickCount: 1 }, $set: { lastClickedAt: new Date() } },

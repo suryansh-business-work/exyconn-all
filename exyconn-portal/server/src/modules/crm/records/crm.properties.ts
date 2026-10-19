@@ -188,7 +188,7 @@ export async function updateProperty(ctx: GraphQLContext, id: string, update: Cr
     entityLabel: row.label,
     summary: `Changed the ${OBJECT_DEFS[row.object].module} property "${row.label}"`,
   });
-  return present(row as unknown as PropertyRow);
+  return present(row);
 }
 
 export async function deleteProperty(ctx: GraphQLContext, id: string): Promise<boolean> {

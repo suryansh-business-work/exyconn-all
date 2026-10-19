@@ -24,8 +24,8 @@ export function SingleCheckPanel() {
         variables: { email, source: EmailVerificationSource.Single },
       });
       setResult(data?.verifyEmail ?? null);
-    } catch (failure) {
-      setError(errorMessage(failure, t('Could not check the email')));
+    } catch (error_) {
+      setError(errorMessage(error_, t('Could not check the email')));
     }
   };
 

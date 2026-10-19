@@ -20,7 +20,7 @@ export const listGmailAccounts = () =>
 
 /** What the CRM sees of an account: never its token. */
 export const presentGmailAccount = (account: GmailAccountDocument) => ({
-  id: String(account._id),
+  id: account._id.toHexString(),
   email: account.email,
   enabled: account.enabled,
   status: account.status,
@@ -90,7 +90,7 @@ const mailboxOf = (
   config: { clientId: string; clientSecret: string },
   account: GmailAccountDocument,
 ): Mailbox & { id: string } => ({
-  id: String(account._id),
+  id: account._id.toHexString(),
   clientId: config.clientId,
   clientSecret: config.clientSecret,
   refreshToken: account.refreshToken,
@@ -146,6 +146,6 @@ export async function migrateLegacyGmailConnection(): Promise<void> {
   // The mail it synced was all this mailbox's; say so, so threads group by account.
   await CrmEmailMessageModel.updateMany(
     { accountId: { $in: ['', null] } },
-    { $set: { accountId: String(account._id), mailbox: account.email } },
+    { $set: { accountId: account._id.toHexString(), mailbox: account.email } },
   );
 }

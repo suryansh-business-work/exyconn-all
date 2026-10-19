@@ -169,17 +169,19 @@ describe('SearchStepper location step', () => {
 
   it('geocodes a typed place and shows the resolved name', async () => {
     const onLocationChange = vi.fn();
+    const onLocationModeChange = vi.fn();
     maps.geocodeAnswer = {
       status: 'OK',
       results: [{ formatted_address: 'Mumbai, India', geometry: { location: { lat: () => 19.07, lng: () => 72.87 } } }],
     };
-    mount({ onLocationChange });
+    mount({ onLocationChange, onLocationModeChange });
     fireEvent.change(screen.getByPlaceholderText(LOCATION_PLACEHOLDER), { target: { value: 'Mumbai' } });
 
     await advance('Go');
 
     expect(maps.geocode).toHaveBeenCalledWith({ address: 'Mumbai' }, expect.any(Function));
     expect(onLocationChange).toHaveBeenCalledWith(19.07, 72.87);
+    expect(onLocationModeChange).toHaveBeenCalledWith('search');
     expect(screen.getByText('✓ Mumbai, India')).toBeInTheDocument();
     expect(screen.getByText('Select Business Categories')).toBeInTheDocument();
   });

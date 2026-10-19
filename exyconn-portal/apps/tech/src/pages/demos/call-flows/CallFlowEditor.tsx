@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ComponentProps } from 'react';
 import { VOICE_NODE_TYPES } from '@exyconn/wa-flow';
 import {
   FlowProvider,
   FlowWorkspace,
   PreviewPane,
+  type FlowTools,
   useGraphEditor,
   useUnloadGuard,
 } from '@exyconn/bot-studio/studio';
@@ -18,6 +19,16 @@ import { REHEARSAL_KEY, flowOf, rehearsalBundle, type CallFlowRow } from './call
 /** A call flow is one graph: a Jump has nowhere else to go. */
 const FLOW_KEYS = [REHEARSAL_KEY];
 const REFRESH = { refetchQueries: ['CallingBotScenarioFlows'], awaitRefetchQueries: true };
+
+/** What the header shows beyond the workspace's own error count and Tidy command. */
+type HeaderState = Omit<ComponentProps<typeof CallFlowHeader>, 'errors' | 'onTidy'>;
+
+/** Fills the workspace's header slot with this flow's header. */
+function headerSlot(state: HeaderState) {
+  return ({ errors, tidy }: FlowTools) => (
+    <CallFlowHeader {...state} errors={errors} onTidy={tidy} />
+  );
+}
 
 /** One example's call flow in the React Flow editor, saved straight to the example. */
 export function CallFlowEditor({
@@ -36,26 +47,23 @@ export function CallFlowEditor({
   const [scriptOpen, setScriptOpen] = useState(false);
   useUnloadGuard(editor.dirty);
 
+  const reportSaveError = (error: unknown) => {
+    console.error('Could not save the call flow', error);
+    notify(errorMessage(error, 'Could not save the call flow'), 'error');
+  };
   const persist = async (flow: unknown, done: string) => {
-    try {
-      const result = await save({ variables: { id: row.id, flow } });
-      const saved = result.data?.saveCallingBotScenarioFlow;
-      if (saved) {
-        editor.adopt({
-          revision: `${saved.id}:${saved.updatedAt}`,
-          graph: flowOf({ ...row, ...saved }),
-        });
-        notify(done, 'success');
-      }
-    } catch (error) {
-      console.error('Could not save the call flow', error);
-      notify(errorMessage(error, 'Could not save the call flow'), 'error');
+    const result = await save({ variables: { id: row.id, flow } });
+    const saved = result.data?.saveCallingBotScenarioFlow;
+    if (saved) {
+      editor.adopt({
+        revision: `${saved.id}:${saved.updatedAt}`,
+        graph: flowOf({ ...row, ...saved }),
+      });
+      notify(done, 'success');
     }
   };
   const onSave = () => {
-    persist(editor.graph, 'Call flow saved').catch((error: unknown) =>
-      console.error('Could not save the call flow', error),
-    );
+    persist(editor.graph, 'Call flow saved').catch(reportSaveError);
   };
   const onRemove = async () => {
     const ok = await confirm({
@@ -66,7 +74,7 @@ export function CallFlowEditor({
       destructive: true,
     });
     if (ok) {
-      await persist(null, 'Call flow removed');
+      await persist(null, 'Call flow removed').catch(reportSaveError);
     }
   };
 
@@ -88,24 +96,20 @@ export function CallFlowEditor({
         preview={preview}
         previewOpen={rehearsing}
         onClosePreview={() => setRehearsing(false)}
-        header={({ errors, tidy }) => (
-          <CallFlowHeader
-            title={row.title}
-            hasFlow={Boolean(row.flow)}
-            dirty={editor.dirty}
-            errors={errors}
-            busy={saving.loading}
-            onTidy={tidy}
-            onRehearse={() => setRehearsing(true)}
-            onScript={() => setScriptOpen(true)}
-            onSave={onSave}
-            onRemove={() => {
-              onRemove().catch((error: unknown) =>
-                console.error('Could not remove the call flow', error),
-              );
-            }}
-          />
-        )}
+        header={headerSlot({
+          title: row.title,
+          hasFlow: Boolean(row.flow),
+          dirty: editor.dirty,
+          busy: saving.loading,
+          onRehearse: () => setRehearsing(true),
+          onScript: () => setScriptOpen(true),
+          onSave,
+          onRemove: () => {
+            onRemove().catch((error: unknown) =>
+              console.error('Could not remove the call flow', error),
+            );
+          },
+        })}
       />
       <CallScriptDialog
         open={scriptOpen}

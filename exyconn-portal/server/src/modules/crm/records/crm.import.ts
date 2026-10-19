@@ -101,9 +101,13 @@ function withDefaults(object: CrmObject, values: Record<string, unknown>, owner:
   return doc;
 }
 
+/** The company name a contact row gives, or '' when it gives none. */
+const companyNameOf = (row: ParsedRow): string =>
+  typeof row.values.companyName === 'string' ? row.values.companyName : '';
+
 /** Links each contact row to the company of the name it gives, and uses that company's name. */
 async function linkCompanies(rows: ParsedRow[]): Promise<void> {
-  const names = [...new Set(rows.map((r) => r.values.companyName).filter(Boolean))];
+  const names = [...new Set(rows.map(companyNameOf).filter(Boolean))];
   if (names.length === 0) {
     return;
   }
@@ -113,7 +117,7 @@ async function linkCompanies(rows: ParsedRow[]): Promise<void> {
     .lean();
   const byName = new Map(companies.map((c) => [c.name.toLowerCase(), c]));
   for (const row of rows) {
-    const company = byName.get(String(row.values.companyName ?? '').toLowerCase());
+    const company = byName.get(companyNameOf(row).toLowerCase());
     if (company) {
       row.values.companyId = company._id.toHexString();
       row.values.companyName = company.name;

@@ -75,7 +75,7 @@ describe('LogoSet wiring', () => {
     const scale = screen.getByText('Scale').closest('div')?.parentElement?.parentElement as HTMLElement;
     fireEvent.change(within(scale).getByRole('slider'), { target: { value: 2 } });
     await waitFor(() => expect(saved().globalSettings.scale).toBe(2));
-    expect(Object.keys(saved().sizeSettings).sort()).toEqual(['favicon-16', 'favicon-32', 'favicon-48']);
+    expect(Object.keys(saved().sizeSettings).sort((a, b) => a.localeCompare(b))).toEqual(['favicon-16', 'favicon-32', 'favicon-48']);
   });
 
   it('edits the custom sizes through the dialog', async () => {

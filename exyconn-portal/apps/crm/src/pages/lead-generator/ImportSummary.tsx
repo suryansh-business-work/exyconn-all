@@ -1,6 +1,7 @@
 import { Link as RouterLink } from 'react-router-dom';
+import CloseIcon from '@mui/icons-material/Close';
 import { useT } from '@exyconn/i18n';
-import { Alert, Button, Link, Stack, Text } from '@exyconn/shell/components/ui';
+import { Alert, Button, IconButton, Link, Stack, Text } from '@exyconn/shell/components/ui';
 import type { LeadImportResult } from './leadTypes';
 
 interface ImportSummaryProps {
@@ -17,11 +18,16 @@ export function ImportSummary({ summary, onClose }: Readonly<ImportSummaryProps>
   return (
     <Alert
       severity={changed ? 'success' : 'info'}
-      onClose={onClose}
       action={
-        <Button component={RouterLink} to="/companies" color="inherit" size="small">
-          {t('View companies')}
-        </Button>
+        <>
+          <Button component={RouterLink} to="/companies" color="inherit" size="small">
+            {t('View companies')}
+          </Button>
+          {/* MUI drops its own close button when `action` is set, so it lives here. */}
+          <IconButton color="inherit" size="small" aria-label={t('Close')} onClick={onClose}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </>
       }
     >
       <Stack spacing={0.5}>

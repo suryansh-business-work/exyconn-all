@@ -98,7 +98,7 @@ export function startPhoneCall(socket: WebSocket, ticketed: TicketedCall): void 
       setStatus(ticketed.call, 'LIVE', { providerCallId: message.start?.callId ?? '' }).catch(
         (error) => log.error('could not record the phone call id', { error: errorText(error) }),
       );
-      conversation = new Conversation(ticketed.call, ticketed.config, transport);
+      conversation = Conversation.open(ticketed.call, ticketed.config, transport);
     } else if (message.event === 'media' && message.media?.payload) {
       conversation?.hear(message.media.payload);
     }

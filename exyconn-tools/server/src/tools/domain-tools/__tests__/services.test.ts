@@ -81,7 +81,7 @@ beforeEach(() => {
   mocks.createConnection.mockReset();
   mocks.axiosGet.mockReset();
   mocks.safeRequest.mockReset();
-  mocks.resolvePublicAddresses.mockReset().mockResolvedValue(["93.184.216.34"]);
+  mocks.resolvePublicAddresses.mockReset().mockResolvedValue(["203.0.113.34"]);
   mocks.sockets.length = 0;
   vi.useFakeTimers();
   vi.setSystemTime(new Date("2026-10-10T00:00:00Z"));
@@ -90,6 +90,44 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
 });
+
+function whoisSocket() {
+  const socket = Object.assign(new EventEmitter(), {
+    write: vi.fn(),
+    end: vi.fn(),
+    setTimeout: vi.fn(),
+  });
+  mocks.createConnection.mockImplementation(
+    (_port: number, _host: string, onConnect: () => void) => {
+      queueMicrotask(onConnect);
+      return socket;
+    },
+  );
+  return socket;
+}
+
+function tlsSocket(cert: unknown, authorized = true) {
+  const socket = Object.assign(new EventEmitter(), {
+    authorized,
+    getPeerCertificate: () => cert,
+    getProtocol: () => "TLSv1.3",
+    end: vi.fn(),
+    setTimeout: vi.fn(),
+  });
+  mocks.tlsConnect.mockImplementation(
+    (_options: unknown, onSecure: () => void) => {
+      queueMicrotask(onSecure);
+      return socket;
+    },
+  );
+  return socket;
+}
+
+/** Settles the nth socket the check created: connected, timed out or errored. */
+async function settle(index: number, event: "connect" | "timeout" | "error") {
+  const socket = mocks.sockets[index] as EventEmitter;
+  socket.emit(event);
+}
 
 describe("cleanDomain", () => {
   it("strips the protocol and anything after the first slash", () => {
@@ -124,7 +162,7 @@ describe("DNS record checks", () => {
   });
 
   it("looks up every record type, an unknown one as empty", async () => {
-    resolver(mocks.dns.resolve4, () => ["1.1.1.1"]);
+    resolver(mocks.dns.resolve4, () => ["198.51.100.1"]);
     resolver(mocks.dns.resolve6, () => NOT_FOUND);
     resolver(mocks.dns.resolveMx, () => NOT_FOUND);
     resolver(mocks.dns.resolveTxt, () => NOT_FOUND);
@@ -135,7 +173,7 @@ describe("DNS record checks", () => {
 
     await expect(services.dnsLookup("example.org")).resolves.toEqual({
       domain: "example.org",
-      A: ["1.1.1.1"],
+      A: ["198.51.100.1"],
       AAAA: [],
       MX: [],
       TXT: [],
@@ -205,13 +243,13 @@ describe("DNS record checks", () => {
   it("resolves each nameserver's addresses, keeping one whose lookup fails", async () => {
     resolver(mocks.dns.resolveNs, () => ["ns1.test", "ns2.test"]);
     resolver(mocks.dns.resolve4, (host) =>
-      host === "ns1.test" ? ["10.0.0.1"] : NOT_FOUND,
+      host === "ns1.test" ? ["198.51.100.10"] : NOT_FOUND,
     );
 
     await expect(services.checkNameservers("example.org")).resolves.toEqual({
       domain: "example.org",
       nameservers: [
-        { nameserver: "ns1.test", ips: ["10.0.0.1"] },
+        { nameserver: "ns1.test", ips: ["198.51.100.10"] },
         { nameserver: "ns2.test", ips: [] },
       ],
       count: 2,
@@ -219,12 +257,12 @@ describe("DNS record checks", () => {
   });
 
   it("calls a name with an address registered, and one without possibly available", async () => {
-    resolver(mocks.dns.resolve4, () => ["1.2.3.4"]);
+    resolver(mocks.dns.resolve4, () => ["192.0.2.4"]);
     await expect(
       services.checkDomainAvailability("taken.test"),
     ).resolves.toMatchObject({
       available: false,
-      ips: ["1.2.3.4"],
+      ips: ["192.0.2.4"],
     });
 
     resolver(mocks.dns.resolve4, () => NOT_FOUND);
@@ -240,15 +278,15 @@ describe("DNS record checks", () => {
 
   it("reverses an address, or says there is no record", async () => {
     resolver(mocks.dns.reverse, () => ["host.test"]);
-    await expect(services.reverseIPLookup("1.2.3.4")).resolves.toEqual({
-      ip: "1.2.3.4",
+    await expect(services.reverseIPLookup("192.0.2.4")).resolves.toEqual({
+      ip: "192.0.2.4",
       hostnames: ["host.test"],
       count: 1,
     });
 
     resolver(mocks.dns.reverse, () => NOT_FOUND);
-    await expect(services.reverseIPLookup("1.2.3.4")).resolves.toEqual({
-      ip: "1.2.3.4",
+    await expect(services.reverseIPLookup("192.0.2.4")).resolves.toEqual({
+      ip: "192.0.2.4",
       hostnames: [],
       count: 0,
       message: "No reverse DNS records found",
@@ -318,7 +356,7 @@ describe("DNS record checks", () => {
   it("lists the common subdomains that resolve", async () => {
     resolver(mocks.dns.resolve4, (host) =>
       host === "www.example.org" || host === "api.example.org"
-        ? ["9.9.9.9"]
+        ? ["203.0.113.9"]
         : NOT_FOUND,
     );
 
@@ -336,14 +374,14 @@ describe("DNS record checks", () => {
 describe("blacklist check", () => {
   it("queries each blacklist with the reversed address", async () => {
     resolver(mocks.dns.resolve4, (host) => {
-      if (host === "example.org") return ["1.2.3.4"];
-      return host === "4.3.2.1.zen.spamhaus.org" ? ["127.0.0.2"] : NOT_FOUND;
+      if (host === "example.org") return ["192.0.2.4"];
+      return host === "4.2.0.192.zen.spamhaus.org" ? ["127.0.0.2"] : NOT_FOUND;
     });
 
     const result = await services.checkBlacklist("example.org");
 
     expect(result).toMatchObject({
-      ip: "1.2.3.4",
+      ip: "192.0.2.4",
       listedCount: 1,
       isClean: false,
       totalChecked: 8,
@@ -357,7 +395,7 @@ describe("blacklist check", () => {
 
   it("is clean when nothing lists the address", async () => {
     resolver(mocks.dns.resolve4, (host) =>
-      host === "example.org" ? ["1.2.3.4"] : NOT_FOUND,
+      host === "example.org" ? ["192.0.2.4"] : NOT_FOUND,
     );
 
     await expect(services.checkBlacklist("example.org")).resolves.toMatchObject(
@@ -430,24 +468,6 @@ describe("whoisLookup", () => {
     });
   });
 
-  function whoisSocket() {
-    const socket = new EventEmitter() as EventEmitter & {
-      write: ReturnType<typeof vi.fn>;
-      end: ReturnType<typeof vi.fn>;
-      setTimeout: ReturnType<typeof vi.fn>;
-    };
-    socket.write = vi.fn();
-    socket.end = vi.fn();
-    socket.setTimeout = vi.fn();
-    mocks.createConnection.mockImplementation(
-      (_port: number, _host: string, onConnect: () => void) => {
-        queueMicrotask(onConnect);
-        return socket;
-      },
-    );
-    return socket;
-  }
-
   it("falls back to a WHOIS query over TCP when RDAP fails", async () => {
     mocks.axiosGet.mockRejectedValue(new Error("rdap down"));
     const socket = whoisSocket();
@@ -498,15 +518,7 @@ describe("whoisLookup", () => {
 describe("registration dates from the WHOIS fallback", () => {
   it("has no events or status to report, and says so", async () => {
     mocks.axiosGet.mockRejectedValue(new Error("rdap down"));
-    const socket = new EventEmitter() as EventEmitter & Record<string, unknown>;
-    socket.write = vi.fn();
-    socket.setTimeout = vi.fn();
-    mocks.createConnection.mockImplementation(
-      (_p: number, _h: string, onConnect: () => void) => {
-        queueMicrotask(onConnect);
-        return socket;
-      },
-    );
+    const socket = whoisSocket();
 
     const expiry = services.checkDomainExpiry("example.org");
     await vi.advanceTimersByTimeAsync(0);
@@ -598,11 +610,11 @@ describe("ipLookup", () => {
   it("returns the provider's answer for a valid address", async () => {
     mocks.axiosGet.mockResolvedValue({ data: { country: "US" } });
 
-    await expect(services.ipLookup(" 8.8.8.8 ")).resolves.toEqual({
+    await expect(services.ipLookup(" 192.0.2.8 ")).resolves.toEqual({
       country: "US",
     });
     expect(mocks.axiosGet.mock.calls[0][0]).toBe(
-      "http://ip-api.com/json/8.8.8.8?fields=66846719",
+      "http://ip-api.com/json/192.0.2.8?fields=66846719",
     );
   });
 
@@ -616,7 +628,7 @@ describe("ipLookup", () => {
   it("hides the provider's failure behind a fixed message", async () => {
     mocks.axiosGet.mockRejectedValue(new Error("429"));
 
-    await expect(services.ipLookup("8.8.8.8")).rejects.toThrow(
+    await expect(services.ipLookup("192.0.2.8")).rejects.toThrow(
       "Failed to lookup IP information",
     );
   });
@@ -854,22 +866,6 @@ describe("checkRedirects", () => {
 });
 
 describe("SSL checks", () => {
-  function tlsSocket(cert: unknown, authorized = true) {
-    const socket = new EventEmitter() as EventEmitter & Record<string, unknown>;
-    socket.authorized = authorized;
-    socket.getPeerCertificate = () => cert;
-    socket.getProtocol = () => "TLSv1.3";
-    socket.end = vi.fn();
-    socket.setTimeout = vi.fn();
-    mocks.tlsConnect.mockImplementation(
-      (_options: unknown, onSecure: () => void) => {
-        queueMicrotask(onSecure);
-        return socket;
-      },
-    );
-    return socket;
-  }
-
   const CERT = {
     subject: { CN: "example.org" },
     issuer: { CN: "CA" },
@@ -890,7 +886,7 @@ describe("SSL checks", () => {
     >;
 
     expect(mocks.tlsConnect.mock.calls[0][0]).toEqual({
-      host: "93.184.216.34",
+      host: "203.0.113.34",
       port: 443,
       servername: "example.org",
     });
@@ -905,7 +901,7 @@ describe("SSL checks", () => {
   it("sends no server name for an IP literal, and reports no alt names", async () => {
     tlsSocket({ ...CERT, subjectaltname: undefined }, false);
 
-    const result = (await services.checkSSL("8.8.8.8")) as Record<
+    const result = (await services.checkSSL("192.0.2.8")) as Record<
       string,
       unknown
     >;
@@ -924,9 +920,10 @@ describe("SSL checks", () => {
   });
 
   it("rejects on a socket error and on a timeout", async () => {
-    const socket = new EventEmitter() as EventEmitter & Record<string, unknown>;
-    socket.end = vi.fn();
-    socket.setTimeout = vi.fn();
+    const socket = Object.assign(new EventEmitter(), {
+      end: vi.fn(),
+      setTimeout: vi.fn(),
+    });
     mocks.tlsConnect.mockReturnValue(socket);
 
     const failing = services.checkSSL("example.org");
@@ -936,9 +933,10 @@ describe("SSL checks", () => {
 
     const slow = services.checkSSL("example.org");
     await vi.advanceTimersByTimeAsync(0);
-    const [, onTimeout] = (
-      socket.setTimeout as ReturnType<typeof vi.fn>
-    ).mock.calls.at(-1) as [number, () => void];
+    const [, onTimeout] = socket.setTimeout.mock.calls.at(-1) as [
+      number,
+      () => void,
+    ];
     onTimeout();
     await expect(slow).rejects.toThrow("Connection timeout");
   });
@@ -961,12 +959,6 @@ describe("SSL checks", () => {
 });
 
 describe("checkOpenPorts", () => {
-  /** Settles the nth socket the check created: connected, timed out or errored. */
-  async function settle(index: number, event: "connect" | "timeout" | "error") {
-    const socket = mocks.sockets[index] as EventEmitter;
-    socket.emit(event);
-  }
-
   it("scans the vetted address and reports each port's state", async () => {
     const pending = services.checkOpenPorts(
       "https://example.org/",
@@ -982,7 +974,7 @@ describe("checkOpenPorts", () => {
 
     expect(
       (mocks.sockets[0] as { connect: ReturnType<typeof vi.fn> }).connect,
-    ).toHaveBeenCalledWith(22, "93.184.216.34");
+    ).toHaveBeenCalledWith(22, "203.0.113.34");
     expect(result).toMatchObject({
       host: "example.org",
       totalChecked: 3,

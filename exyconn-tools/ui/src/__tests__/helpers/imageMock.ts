@@ -16,9 +16,9 @@ export interface FakeImageOptions {
 }
 
 export class FakeImage {
-  static instances: FakeImage[] = [];
+  static readonly instances: FakeImage[] = [];
 
-  static options: FakeImageOptions = {};
+  static readonly options: FakeImageOptions = {};
 
   onload: ((event?: Event) => void) | null = null;
 
@@ -51,7 +51,9 @@ export class FakeImage {
   }
 
   addEventListener(type: string, listener: () => void) {
-    (this.listeners[type] ??= []).push(listener);
+    const listeners = this.listeners[type] ?? [];
+    listeners.push(listener);
+    this.listeners[type] = listeners;
   }
 
   get src() {
@@ -78,8 +80,9 @@ export class FakeImage {
 
 /** Replaces the global `Image`; `FakeImage.instances` lists what the code under test created. */
 export function installFakeImage(options: FakeImageOptions = {}) {
-  FakeImage.instances = [];
-  FakeImage.options = options;
+  FakeImage.instances.length = 0;
+  for (const key of Object.keys(FakeImage.options) as Array<keyof FakeImageOptions>) delete FakeImage.options[key];
+  Object.assign(FakeImage.options, options);
   vi.stubGlobal('Image', FakeImage);
   return FakeImage;
 }

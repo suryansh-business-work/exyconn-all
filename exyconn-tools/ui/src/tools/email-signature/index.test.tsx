@@ -50,6 +50,7 @@ vi.mock('react-quill-new', () => ({
 vi.mock('quill/dist/quill.snow.css', () => ({}));
 
 import EmailSignature from './index';
+import { readText, sentJson } from '../../__tests__/helpers/requests';
 
 const STORAGE_KEY = 'email-signature-form-data';
 // A Tooltip's title becomes the accessible name of the button it wraps.
@@ -71,17 +72,13 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
-  Reflect.deleteProperty(document, 'execCommand');
   localStorage.clear();
 });
 
-const readBlob = (blob: Blob) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(blob);
-  });
+/** jsdom has no ClipboardItem; this one keeps the blobs it was given. */
+class FakeClipboardItem {
+  constructor(readonly items: Record<string, Blob>) {}
+}
 
 /** Holds back timers of the given delay so a "copied" state can be asserted without racing it. */
 function holdTimers(delay: number) {
@@ -275,7 +272,7 @@ describe('email-signature form tabs', () => {
     expect(sig.getByRole('link', { name: 'https://book.example' })).toHaveAttribute('href', 'https://book.example');
     expect(sig.getByRole('link', { name: '+1 555 0111' })).toHaveAttribute('href', 'tel:+1 555 0111');
 
-    fireEvent.click(screen.getAllByRole('button').filter((b) => b.querySelector('[data-testid="DeleteIcon"]'))[0]);
+    fireEvent.click(screen.getAllByRole('button').find((b) => b.querySelector('[data-testid="DeleteIcon"]')) as HTMLElement);
     expect(screen.getByText('(1)')).toBeInTheDocument();
     expect(sig.queryByText('Booking:')).toBeNull();
     expect(sig.getByText('Fax:')).toBeInTheDocument();
@@ -427,15 +424,10 @@ describe('email-signature actions', () => {
     expect(await snackbar('Failed to copy. Please try again.')).toBeInTheDocument();
   });
 
-  it('copies the formatted signature by selecting a hidden copy of it', async () => {
-    const selected: string[] = [];
-    Object.defineProperty(document, 'execCommand', {
-      value: vi.fn(() => {
-        selected.push(globalThis.getSelection()?.toString() ?? '');
-        return true;
-      }),
-      configurable: true,
-    });
+  it('copies the formatted signature as HTML with a plain-text alternative', async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { write }, configurable: true });
+    vi.stubGlobal('ClipboardItem', FakeClipboardItem);
     const held = holdTimers(2000);
     ready();
 
@@ -443,25 +435,28 @@ describe('email-signature actions', () => {
 
     expect(await snackbar('Signature copied! Paste directly into your email client.')).toBeInTheDocument();
     expect(held).toHaveLength(1);
-    expect(document.execCommand).toHaveBeenCalledWith('copy');
-    expect(selected[0]).toContain('Ada Lovelace');
-    expect(document.body.querySelectorAll('div[style*="left: -9999px"]')).toHaveLength(0);
+    const [[item]] = write.mock.calls[0] as [[FakeClipboardItem]];
+    const html = await readText(item.items['text/html']);
+    const plain = await readText(item.items['text/plain']);
+    expect(html).toContain('Ada Lovelace');
+    expect(html).toContain('<table');
+    expect(plain).toContain('Ada Lovelace');
+    expect(plain).not.toContain('<');
     expect(
       screen.getByRole('button', { name: COPY_SIGNATURE }).querySelector('[data-testid="CheckIcon"]')
     ).not.toBeNull();
   });
 
-  it('reports a failure to copy the formatted signature and removes the hidden copy', async () => {
-    Object.defineProperty(document, 'execCommand', {
-      value: vi.fn(() => {
-        throw new Error('not allowed');
-      }),
-      configurable: true,
-    });
+  it('reports a failure to copy the formatted signature', async () => {
+    const write = vi.fn().mockRejectedValue(new Error('not allowed'));
+    Object.defineProperty(navigator, 'clipboard', { value: { write }, configurable: true });
+    vi.stubGlobal('ClipboardItem', FakeClipboardItem);
     ready();
     fireEvent.click(screen.getByRole('button', { name: COPY_SIGNATURE }));
     expect(await snackbar('Failed to copy. Please try again.')).toBeInTheDocument();
-    expect(document.body.querySelectorAll('div[style*="left: -9999px"]')).toHaveLength(0);
+    expect(
+      screen.getByRole('button', { name: COPY_SIGNATURE }).querySelector('[data-testid="CheckIcon"]')
+    ).toBeNull();
   });
 
   it('downloads the signature as an HTML file named after the person', async () => {
@@ -475,7 +470,7 @@ describe('email-signature actions', () => {
     expect(click.mock.contexts[0]).toMatchObject({ download: 'email-signature-ada-byron-lovelace.html' });
     const blob = vi.mocked(URL.createObjectURL).mock.calls.at(-1)?.[0] as Blob;
     expect(blob.type).toBe('text/html');
-    expect(await readBlob(blob)).toContain('Ada  Byron Lovelace');
+    expect(await readText(blob)).toContain('Ada  Byron Lovelace');
     expect(URL.revokeObjectURL).toHaveBeenCalled();
   });
 
@@ -521,7 +516,7 @@ describe('email-signature actions', () => {
       expect(await snackbar('Test email sent successfully! Check your inbox.')).toBeInTheDocument();
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
       expect(url).toMatch(/\/email\/send-signature-test$/);
-      expect(JSON.parse(String(init.body))).toMatchObject({
+      expect(sentJson(init)).toMatchObject({
         to: 'me@example.org',
         senderName: 'Ada Lovelace',
         signatureHtml: expect.stringContaining('Ada Lovelace'),

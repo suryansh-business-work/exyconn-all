@@ -38,6 +38,16 @@ export function opArity(op: CrmOp): OpArity {
   return op === CrmOp.Between ? 'two' : 'one';
 }
 
+const VALUE_COUNT: Readonly<Record<OpArity, number>> = { none: 0, one: 1, two: 2, many: 0 };
+
+/**
+ * The empty values an operator starts with: one blank box, a blank from/to pair, or nothing.
+ * A box always holds a string, so an untouched one reads as blank ("Enter a value") rather
+ * than as missing, and never falls back to the value the condition was opened with.
+ */
+export const blankValues = (op: CrmOp): string[] =>
+  Array.from({ length: VALUE_COUNT[opArity(op)] }, () => '');
+
 /** The server allows this many OR groups, and this many conditions inside each. */
 export const MAX_GROUPS = 10;
 export const MAX_CONDITIONS = 20;

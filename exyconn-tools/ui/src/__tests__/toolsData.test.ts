@@ -20,6 +20,7 @@ import {
   findToolById,
   getCategoryOfTool,
   getToolsByCategory,
+  findToolWithCategory,
 } from '../shared/data/toolsData';
 import { toolDetails } from '../shared/data/toolDetails';
 
@@ -116,6 +117,19 @@ describe('toolsData registry', () => {
   it('returns the full list for the "All" pseudo-category', () => {
     expect(getToolsByCategory('All')).toHaveLength(allTools.length);
     expect(getToolsByCategory('Not A Category')).toEqual([]);
+  });
+
+  it('returns exactly the tools of a named category', () => {
+    const [first, second] = toolsData;
+    expect(getToolsByCategory(first.category)).toEqual(first.items);
+    expect(getToolsByCategory(second.category)).toEqual(second.items);
+  });
+
+  it('finds a tool together with the category that lists it, and nothing for an unknown id', () => {
+    const category = toolsData[1];
+    const tool = category.items[0];
+    expect(findToolWithCategory(tool.id)).toEqual({ tool, category });
+    expect(findToolWithCategory('no-such-tool')).toBeUndefined();
   });
 });
 

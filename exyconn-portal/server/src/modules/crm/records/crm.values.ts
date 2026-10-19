@@ -11,8 +11,10 @@ export type Coerced = { ok: true; value: unknown } | { ok: false; error: string 
 const MAX_TEXT = 10_000;
 const TRUE_WORDS: ReadonlySet<string> = new Set(['true', 'yes', 'y', '1']);
 const FALSE_WORDS: ReadonlySet<string> = new Set(['false', 'no', 'n', '0']);
-/** A date (2026-10-15) or an ISO date-time — the only shapes that read the same everywhere. */
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}(?:[T ][\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?$/;
+/** A calendar date, 2026-10-15: the first ten characters of every value `date` accepts. */
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+/** What may follow the day: a time (`T10:30:00.000`) with an optional `Z` or `+05:30` zone. */
+const ISO_TIME = /^[T ][\d:.]+(?:Z|[+-]\d{2}:?\d{2})?$/;
 /** Digit-group separators and currency signs a spreadsheet leaves in a number. */
 const NUMBER_NOISE = /[\s,₹$€£¥]/g;
 
@@ -21,6 +23,10 @@ const fail = (error: string): Coerced => ({ ok: false, error });
 
 export const isBlank = (raw: unknown): boolean =>
   raw === null || raw === undefined || (typeof raw === 'string' && raw.trim() === '');
+
+/** A date (2026-10-15) or an ISO date-time — the only shapes that read the same everywhere. */
+const isIsoDate = (value: string): boolean =>
+  ISO_DAY.test(value.slice(0, 10)) && (value.length === 10 || ISO_TIME.test(value.slice(10)));
 
 const isLabelChar = (c: string) => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c === '-';
 
@@ -80,7 +86,7 @@ function date(property: PropertyDef, raw: unknown): Coerced {
     return Number.isNaN(raw.getTime()) ? fail(`${property.label} is not a date`) : ok(raw);
   }
   const value = String(raw).trim();
-  const parsed = ISO_DATE.test(value) ? new Date(value) : null;
+  const parsed = isIsoDate(value) ? new Date(value) : null;
   return parsed && !Number.isNaN(parsed.getTime())
     ? ok(parsed)
     : fail(`${property.label} "${value}" is not a date; use a date like 2026-10-15`);

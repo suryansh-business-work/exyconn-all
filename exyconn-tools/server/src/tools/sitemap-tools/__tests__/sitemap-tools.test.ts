@@ -9,6 +9,7 @@ vi.mock("../../../shared/security/safe-http", () => ({
 import { mountRouter } from "../../../__tests__/helpers/mountRouter";
 import routes from "../routes";
 import * as services from "../services";
+import { asResponse, fakeRequest } from "../../../__tests__/helpers/express";
 
 const app = mountRouter(routes);
 
@@ -27,8 +28,9 @@ const entry = (loc: string, extra = "") =>
   `<url><loc>${loc}</loc>${extra}</url>`;
 const urlset = (...entries: string[]) =>
   `<?xml version="1.0"?><urlset>${entries.join("")}</urlset>`;
+const indexEntry = (loc: string) => `<sitemap><loc>${loc}</loc></sitemap>`;
 const index = (...locs: string[]) =>
-  `<sitemapindex>${locs.map((loc) => `<sitemap><loc>${loc}</loc></sitemap>`).join("")}</sitemapindex>`;
+  `<sitemapindex>${locs.map(indexEntry).join("")}</sitemapindex>`;
 
 beforeEach(() => {
   mocks.safeRequest.mockReset();
@@ -664,8 +666,8 @@ describe("routes", () => {
     serve({ "https://a.test/s.xml": SITEMAP });
 
     await validateSitemapController(
-      { body: { url: "https://a.test/s.xml" } } as never,
-      res as never,
+      fakeRequest({ url: "https://a.test/s.xml" }),
+      asResponse(res),
     );
     vi.unstubAllEnvs();
 
@@ -710,9 +712,9 @@ describe("routes", () => {
     const controllers = await import("../controllers.js");
     const res = { json: vi.fn(), status: vi.fn().mockReturnThis() };
 
-    controllers.generateSitemapController({ body: {} } as never, res as never);
-    controllers.generateIndexController({ body: {} } as never, res as never);
-    controllers.generateRobotsController({ body: {} } as never, res as never);
+    controllers.generateSitemapController(fakeRequest({}), asResponse(res));
+    controllers.generateIndexController(fakeRequest({}), asResponse(res));
+    controllers.generateRobotsController(fakeRequest({}), asResponse(res));
 
     await vi.waitFor(() => expect(res.status).toHaveBeenCalledTimes(3));
     expect(res.status).toHaveBeenCalledWith(500);

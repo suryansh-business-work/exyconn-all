@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { downloadBase64File } from '@exyconn/shell/utils/file';
@@ -7,7 +8,12 @@ import {
   ClientHubInvoicePdfDocument,
   useClientHubEmailInvoiceMutation,
   type ClientHubInvoicePdfQuery,
+  type ClientHubInvoicePdfQueryVariables,
 } from '@exyconn/shell/graphql/generated';
+
+/** The generated document, typed so `client.query` infers its data and variables. */
+const INVOICE_PDF: TypedDocumentNode<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables> =
+  ClientHubInvoicePdfDocument;
 
 /** Download the invoice PDF, or have it emailed to the signed-in contact. */
 export function useInvoiceActions() {
@@ -18,8 +24,8 @@ export function useInvoiceActions() {
   const download = useCallback(
     (invoice: { id: string; number: string }) => {
       apollo
-        .query<ClientHubInvoicePdfQuery>({
-          query: ClientHubInvoicePdfDocument,
+        .query({
+          query: INVOICE_PDF,
           variables: { id: invoice.id },
           fetchPolicy: 'network-only',
         })
