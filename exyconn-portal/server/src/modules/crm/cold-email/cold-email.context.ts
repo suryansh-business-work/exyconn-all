@@ -5,9 +5,8 @@ import type { AiActor } from '../../ai/ai.service';
 import { OrganizationModel } from '../../organizations/organization.model';
 import { WebScrapeModel } from '../../web-scraper/web-scrape.model';
 import { webScraper } from '../../web-scraper/web-scraper.service';
-import { CompanyModel } from '../company.model';
-import { ContactModel } from '../contact.model';
 import { crmTimeline } from '../timeline/crm.timeline';
+import { companyFacts, contactFacts } from './cold-email.facts';
 import type { ColdEmailObject } from './cold-email.model';
 
 /** How much of their website the model reads, so one long page cannot spend the budget. */
@@ -15,61 +14,9 @@ export const MAX_WEBSITE_CHARS = 6000;
 /** The latest touchpoints the model reads, so it does not pitch someone already talking to us. */
 const HISTORY_ITEMS = 10;
 
-type Fact = string | number | null | undefined;
-
-const COMPANY_SELECT =
-  'name domain website industry size employeeCount annualRevenue foundedYear city country description tags';
-const CONTACT_SELECT =
-  'name title department companyId companyName website city country description tags';
-
-/** "Label: value", or nothing when the value is unknown. */
-const fact = (label: string, value: Fact) =>
-  value === null || value === undefined || value === '' ? [] : [`${label}: ${value}`];
-
-const tagsOf = (tags: string[] | null | undefined) => (tags?.length ? tags.join(', ') : '');
-
-async function companyFacts(id: string) {
-  const company = await CompanyModel.findById(id).select(COMPANY_SELECT).lean();
-  if (!company) {
-    return null;
-  }
-  const lines = [
-    ...fact('Company', company.name),
-    ...fact('Industry', company.industry),
-    ...fact('Website', company.website || company.domain),
-    ...fact('Size', company.size),
-    ...fact('Employees', company.employeeCount),
-    ...fact('Annual revenue', company.annualRevenue),
-    ...fact('Founded', company.foundedYear),
-    ...fact('Location', [company.city, company.country].filter(Boolean).join(', ')),
-    ...fact('Tags', tagsOf(company.tags)),
-    ...fact('About the company', company.description),
-  ];
-  return { name: company.name, website: company.website || company.domain, lines };
-}
-
-async function contactFacts(id: string) {
-  const contact = await ContactModel.findById(id).select(CONTACT_SELECT).lean();
-  if (!contact) {
-    return null;
-  }
-  const company = contact.companyId ? await companyFacts(contact.companyId) : null;
-  const lines = [
-    ...fact('Person', contact.name),
-    ...fact('Job title', contact.title),
-    ...fact('Department', contact.department),
-    ...fact('Works at', contact.companyName),
-    ...fact('Location', [contact.city, contact.country].filter(Boolean).join(', ')),
-    ...fact('Tags', tagsOf(contact.tags)),
-    ...fact('About the person', contact.description),
-    ...(company?.lines ?? []),
-  ];
-  return { name: contact.name, website: contact.website || company?.website || '', lines };
-}
-
 /** The record's name, website and profile lines; not found when it is gone. */
 export async function recordFacts(object: ColdEmailObject, id: string) {
-  const facts = object === 'CONTACT' ? await contactFacts(id) : await companyFacts(id);
+  const facts = object === 'CONTACT' ? await contactFacts(id) : await companyFacts(id, true);
   if (!facts) {
     notFound(object === 'CONTACT' ? 'Contact' : 'Company');
   }

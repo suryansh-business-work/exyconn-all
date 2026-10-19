@@ -40,6 +40,8 @@ export function coldEmailPrompt(input: ColdEmailPromptInput): string {
     `Write a cold email from ${input.senderName} at ${input.organizationName} to ${input.recipientName}.`,
     'Rules:',
     '- Personalise it from the business context below; mention something specific about them.',
+    "- Speak to the person's role and the company's industry, size and situation where the context gives them.",
+    '- Our internal notes, tags, deal stages and lead details are background only: never quote them or say we keep records on them.',
     '- At most 150 words in the body, plain text, paragraphs separated by blank lines.',
     '- One clear call to action.',
     '- No invented facts, numbers, clients or results; use only what the context says.',
