@@ -14,7 +14,7 @@ vi.mock('react-chartjs-2', async () => {
 
 const report = workspace();
 
-/** The whole stat tile (label and figure) whose label is `label`. */
+/** The whole stat tile (figure, then label) whose label is `label`. */
 function tile(section: HTMLElement, label: string) {
   return within(section).getByText(label).parentElement?.parentElement?.textContent;
 }
@@ -26,9 +26,9 @@ describe('UsersSection', () => {
     expect(
       within(section).getByText('Every account in the company, and the roles they hold'),
     ).toBeInTheDocument();
-    expect(tile(section, 'Online now')).toBe('Online now3');
-    expect(tile(section, 'Blocked')).toBe('Blocked1');
-    expect(tile(section, 'Joined in period')).toBe('Joined in period2');
+    expect(tile(section, 'Online now')).toBe('3Online now');
+    expect(tile(section, 'Blocked')).toBe('1Blocked');
+    expect(tile(section, 'Joined in period')).toBe('2Joined in period');
     expect(within(section).getByRole('heading', { name: 'Users by role' })).toBeInTheDocument();
     expect(drawnLabels()).toHaveLength(2);
     expect(drawnLabels()[0]).toBe('EMPLOYEE');
@@ -39,9 +39,9 @@ describe('EmployeesSection', () => {
   it('counts active employees, departments and countries, naming each country', () => {
     renderWithProviders(<EmployeesSection employees={report.employees} />);
     const section = screen.getByRole('region', { name: 'Employees' });
-    expect(tile(section, 'Active employees')).toBe('Active employees7');
-    expect(tile(section, 'Departments')).toBe('Departments2');
-    expect(tile(section, 'Countries')).toBe('Countries2');
+    expect(tile(section, 'Active employees')).toBe('7Active employees');
+    expect(tile(section, 'Departments')).toBe('2Departments');
+    expect(tile(section, 'Countries')).toBe('2Countries');
     expect(drawnLabels()).toContain(`${countryName('IN')}|Company's country`);
   });
 
@@ -50,8 +50,8 @@ describe('EmployeesSection', () => {
       <EmployeesSection employees={{ ...report.employees, byStatus: [], byCountry: [] }} />,
     );
     const section = screen.getByRole('region', { name: 'Employees' });
-    expect(tile(section, 'Active employees')).toBe('Active employees0');
-    expect(tile(section, 'Countries')).toBe('Countries0');
+    expect(tile(section, 'Active employees')).toBe('0Active employees');
+    expect(tile(section, 'Countries')).toBe('0Countries');
   });
 });
 
@@ -59,10 +59,10 @@ describe('TrackerSection', () => {
   it('shows tracker access, recorded time and the breakdown charts', () => {
     renderWithProviders(<TrackerSection tracker={report.tracker} />);
     const section = screen.getByRole('region', { name: 'Employee tracker' });
-    expect(tile(section, 'Tracker access')).toBe('Tracker access8');
-    expect(tile(section, 'Active hours')).toBe('Active hours120.3h');
-    expect(tile(section, 'Activity')).toBe('Activity82%');
-    expect(tile(section, 'Sessions')).toBe('Sessions31');
+    expect(tile(section, 'Tracker access')).toBe('8Tracker access');
+    expect(tile(section, 'Active hours')).toBe('120.3hActive hours');
+    expect(tile(section, 'Activity')).toBe('82%Activity');
+    expect(tile(section, 'Sessions')).toBe('31Sessions');
     expect(within(section).getByRole('heading', { name: 'Top applications' })).toBeInTheDocument();
     expect(drawnLabels()).toEqual([
       expect.any(String),
