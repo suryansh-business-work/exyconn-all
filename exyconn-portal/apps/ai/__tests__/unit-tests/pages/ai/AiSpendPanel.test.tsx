@@ -89,13 +89,14 @@ describe('AiSpendPanel', () => {
     expect(onRefresh).toHaveBeenCalledTimes(2);
   });
 
-  it('holds the refresh while the summary is loading', () => {
+  it('holds the refresh while the summary is loading, keeping the rows already shown', () => {
     renderWithProviders(
       <AiSpendPanel summary={SUMMARY} loading onRefresh={vi.fn()} periodLabel="this month" />,
     );
     for (const button of screen.getAllByRole('button', { name: 'Refresh table' })) {
       expect(button).toBeDisabled();
     }
-    expect(screen.queryByText('Asha')).not.toBeInTheDocument();
+    // A refresh keeps the current rows in place instead of flashing placeholders.
+    expect(screen.getByText('Asha')).toBeInTheDocument();
   });
 });
