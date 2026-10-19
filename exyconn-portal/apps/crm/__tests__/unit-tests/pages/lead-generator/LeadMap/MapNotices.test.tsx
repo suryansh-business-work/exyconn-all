@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { screen, within } from '@testing-library/react';
-import {
-  MapKeyMissing,
-  MapKeyRejected,
-  MapLoadFailed,
-} from '../../../../../src/pages/lead-generator/LeadMap/MapNotices';
+import { MapKeyRejected, MapLoadFailed } from '@exyconn/shell/components/maps';
+import { MapKeyMissing } from '../../../../../src/pages/lead-generator/LeadMap/MapNotices';
 import { renderWithProviders } from '../../../test-utils';
 
 describe('map notices', () => {

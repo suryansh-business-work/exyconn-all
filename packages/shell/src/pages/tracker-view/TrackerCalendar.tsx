@@ -12,6 +12,7 @@ const MARKS: Readonly<Record<TrackerDayMark, { label: string; color: string }>> 
   SHORT: { label: 'Short', color: 'error.main' },
   LEAVE: { label: 'Leave', color: 'info.main' },
   HOLIDAY: { label: 'Holiday', color: 'text.secondary' },
+  WEEK_OFF: { label: 'Week off', color: 'text.secondary' },
 };
 
 interface DayCellProps {
@@ -19,11 +20,13 @@ interface DayCellProps {
   selected: boolean;
   /** Leave, a holiday, or a finished working day below the contracted hours. */
   mark: TrackerDayMark | undefined;
+  /** What the off day is called: the leave code (EL, CL) or the holiday's name. */
+  offLabel: string | undefined;
   onSelect: (date: string) => void;
 }
 
 /** A single day cell — dims out-of-month days and shows worked time + activity. */
-function DayCell({ cell, selected, mark, onSelect }: Readonly<DayCellProps>) {
+function DayCell({ cell, selected, mark, offLabel, onSelect }: Readonly<DayCellProps>) {
   const t = useT();
   const { bucket } = cell;
   const shown = mark ? MARKS[mark] : undefined;
@@ -59,7 +62,7 @@ function DayCell({ cell, selected, mark, onSelect }: Readonly<DayCellProps>) {
         </Text>
         {shown && (
           <Text size="caption" weight="medium" color={shown.color} noWrap>
-            {t(shown.label)}
+            {offLabel ?? t(shown.label)}
           </Text>
         )}
         {bucket && (
@@ -89,6 +92,8 @@ interface TrackerCalendarProps {
   selectedDate: string | null;
   onSelectDay: (date: string) => void;
   dayMarks?: ReadonlyMap<string, TrackerDayMark>;
+  /** Each named off day's label: the leave code (EL, CL) or the holiday's name. */
+  dayLabels?: ReadonlyMap<string, string>;
 }
 
 /** Presentational month grid: weekday header + clickable day cells. No data hooks. */
@@ -97,6 +102,7 @@ export function TrackerCalendar({
   selectedDate,
   onSelectDay,
   dayMarks,
+  dayLabels,
 }: Readonly<TrackerCalendarProps>) {
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 0.5 }}>
@@ -111,6 +117,7 @@ export function TrackerCalendar({
           cell={cell}
           selected={cell.dateKey === selectedDate}
           mark={cell.inMonth ? dayMarks?.get(cell.dateKey) : undefined}
+          offLabel={cell.inMonth ? dayLabels?.get(cell.dateKey) : undefined}
           onSelect={onSelectDay}
         />
       ))}

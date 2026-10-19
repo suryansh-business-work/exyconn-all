@@ -3208,6 +3208,8 @@ export type CreateUserInput = {
   locationCode?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  /** A personal address to keep on file; null or empty clears it. */
+  personalEmail?: InputMaybe<Scalars['String']['input']>;
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
@@ -3218,6 +3220,8 @@ export type CreateUserInput = {
   teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
+  /** Days of the week they work, 0 is Sunday. Null follows the workspace's week. */
+  workDays?: InputMaybe<Array<Scalars['Int']['input']>>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
   workLocation?: InputMaybe<WorkLocation>;
   workLocationNote?: InputMaybe<Scalars['String']['input']>;
@@ -4477,6 +4481,14 @@ export type EmployeeDocumentPage = {
   rows: Array<EmployeeDocument>;
   totalCount: Scalars['Int']['output'];
 };
+
+/** Which of an employee's two addresses a verification code is for. */
+export enum EmployeeEmailKind {
+  /** The work address the person signs in with (User.email). */
+  Official = 'OFFICIAL',
+  /** The personal address HR keeps on file (User.personalEmail). */
+  Personal = 'PERSONAL'
+}
 
 /** A licence seat one employee holds, shown beside the assets they hold. */
 export type EmployeeLicenceSeat = {
@@ -7840,6 +7852,8 @@ export type Mutation = {
    * so it can also be passed on by hand.
    */
   requestContractSignature: ContractSignatureRequest;
+  /** HR/ADMIN: emails a six-digit code to one of an employee's addresses to prove it is theirs. */
+  requestEmployeeEmailCode: Scalars['Boolean']['output'];
   /**
    * Self-service reset: emails a one-hour link to the address if an account has it.
    * Always true, so the answer does not reveal which addresses have accounts.
@@ -7985,6 +7999,8 @@ export type Mutation = {
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
   setDefaultCmsSite: CmsSite;
+  /** HR/ADMIN: sets the days people work unless HR gave them their own week. At least one day. */
+  setDefaultWorkDays: WorkWeek;
   /** Points the domain's nameservers at Cloudflare, back at GoDaddy, or at a custom set. */
   setDomainNameservers: Array<Scalars['String']['output']>;
   /**
@@ -8165,13 +8181,21 @@ export type Mutation = {
    */
   trackerHeartbeat: TrackerMe;
   trackerLogin: TrackerLoginPayload;
-  /** Marks the caller in for their current local day. Tracking cannot start until they have. */
+  /**
+   * Marks the caller in for their current local day, pinning where they were. Tracking cannot
+   * start until they have. Refused on their week off, a holiday or approved leave.
+   */
   trackerMarkAttendance: TrackerWorkday;
+  /**
+   * Pins where the caller is while a tracking session is open. Answers false when the pin was
+   * within 200 m of their last one today and so was not kept.
+   */
+  trackerRecordLocation: Scalars['Boolean']['output'];
   /** Sets the CALLER's own timezone. Must be a resolvable IANA zone name. */
   trackerSetTimezone: TrackerAccess;
   /**
    * Opens a tracking session. Refused until the employee has accepted the disclosure AND
-   * marked their attendance for the day. An unknown or missing projectId books the time
+   * marked their attendance for the day, and on their week off, a holiday or approved leave. An unknown or missing projectId books the time
    * against the house-wide Global Project rather than failing the start.
    */
   trackerStartSession: TrackerSession;
@@ -8357,6 +8381,8 @@ export type Mutation = {
   verifyClientHubCode: ClientHubSignIn;
   /** Checks one address now and keeps the result. */
   verifyEmail: EmailVerification;
+  /** HR/ADMIN: checks the code the employee read out and marks that address verified. */
+  verifyEmployeeEmailCode: User;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
   /** Public: exchanges the emailed code for a demo-only pass. */
@@ -10309,6 +10335,12 @@ export type MutationRequestContractSignatureArgs = {
 };
 
 
+export type MutationRequestEmployeeEmailCodeArgs = {
+  employeeId: Scalars['ID']['input'];
+  kind: EmployeeEmailKind;
+};
+
+
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
 };
@@ -10677,6 +10709,11 @@ export type MutationSetDealStageArgs = {
 
 export type MutationSetDefaultCmsSiteArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationSetDefaultWorkDaysArgs = {
+  days: Array<Scalars['Int']['input']>;
 };
 
 
@@ -11079,8 +11116,14 @@ export type MutationTrackerLoginArgs = {
 
 
 export type MutationTrackerMarkAttendanceArgs = {
+  location: TrackerLocationInput;
   note?: InputMaybe<Scalars['String']['input']>;
   status: AttendanceStatus;
+};
+
+
+export type MutationTrackerRecordLocationArgs = {
+  location: TrackerLocationInput;
 };
 
 
@@ -11976,6 +12019,13 @@ export type MutationVerifyClientHubCodeArgs = {
 export type MutationVerifyEmailArgs = {
   email: Scalars['String']['input'];
   source?: InputMaybe<EmailVerificationSource>;
+};
+
+
+export type MutationVerifyEmployeeEmailCodeArgs = {
+  code: Scalars['String']['input'];
+  employeeId: Scalars['ID']['input'];
+  kind: EmployeeEmailKind;
 };
 
 
@@ -13788,8 +13838,12 @@ export type Query = {
   emailVerificationBatches: Array<EmailVerificationBatch>;
   emailVerificationsPaged: EmailVerificationPage;
   emailVerifierConfigs: Array<EmailVerifierConfig>;
+  /** HR/ADMIN: an employee's tracked time over a range priced at their pay rate. ISO date-times. */
+  employeeEarnings: TrackerEarnings;
   /** One employee's balances for a year, every type their country offers filled in. HR. */
   employeeLeaveBalances: Array<LeaveBalance>;
+  /** HR, ADMIN or the employee's manager: their location pins on one local day, oldest first. */
+  employeeLocations: Array<TrackerLocation>;
   /**
    * ONE employee's salary structure, looked up by the employee rather than by structure id.
    * Null until HR has set one up. This is what the employee record reads.
@@ -14345,10 +14399,14 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The caller's own tracked time over a range priced at their pay rate. ISO date-times. */
+  myTrackerEarnings: TrackerEarnings;
   /** The caller's own contracted hours per day over a range of at most 62 days. */
   myTrackerExpected: TrackerExpected;
   /** The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
   myTrackerExpectedReport: TableFile;
+  /** The caller's own location pins on one local day (YYYY-MM-DD), oldest first. */
+  myTrackerLocations: Array<TrackerLocation>;
   /** The caller's own off-computer entries in a range, any status. */
   myTrackerManualEntries: Array<TrackerManualEntry>;
   /**
@@ -14644,6 +14702,8 @@ export type Query = {
   whatsappDemos: Array<WhatsappDemo>;
   whatsappWorkflow?: Maybe<WhatsappWorkflow>;
   whatsappWorkflows: Array<WhatsappWorkflow>;
+  /** The workspace's working week. Readable by any signed-in person. */
+  workWeek: WorkWeek;
   /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
   workspaceAnalytics: WorkspaceAnalytics;
 };
@@ -14962,9 +15022,22 @@ export type QueryEmailVerificationsPagedArgs = {
 };
 
 
+export type QueryEmployeeEarningsArgs = {
+  employeeId: Scalars['ID']['input'];
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+};
+
+
 export type QueryEmployeeLeaveBalancesArgs = {
   employeeId: Scalars['ID']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type QueryEmployeeLocationsArgs = {
+  date: Scalars['String']['input'];
+  employeeId: Scalars['ID']['input'];
 };
 
 
@@ -15992,6 +16065,12 @@ export type QueryMyTrackerDayArgs = {
 };
 
 
+export type QueryMyTrackerEarningsArgs = {
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+};
+
+
 export type QueryMyTrackerExpectedArgs = {
   from: Scalars['DateTime']['input'];
   timezone: Scalars['String']['input'];
@@ -16003,6 +16082,11 @@ export type QueryMyTrackerExpectedReportArgs = {
   from: Scalars['DateTime']['input'];
   timezone: Scalars['String']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryMyTrackerLocationsArgs = {
+  date: Scalars['String']['input'];
 };
 
 
@@ -18940,8 +19024,24 @@ export type TrackerDeviceInput = {
 };
 
 /**
- * What an employee was contracted to work over a range: their working day on Monday to
- * Friday, nothing on weekends, the public holidays they observe or approved leave.
+ * What an employee's tracked time over a range pays at their salary structure's rate.
+ * amount is only set for HOURLY pay; other pay types are not paid by the hour.
+ */
+export type TrackerEarnings = {
+  __typename?: 'TrackerEarnings';
+  /** trackedMs as hours times rate, rounded to two places. Null unless payType is HOURLY. */
+  amount?: Maybe<Scalars['Float']['output']>;
+  currency: Scalars['String']['output'];
+  payType: PayType;
+  /** The salary structure's rate: per hour when payType is HOURLY. Zero when HR has set none. */
+  rate: Scalars['Float']['output'];
+  /** Measured active time plus approved off-computer time, in milliseconds. */
+  trackedMs: Scalars['Float']['output'];
+};
+
+/**
+ * What an employee was contracted to work over a range: their working day on their work
+ * days, nothing on their week off, the public holidays they observe or approved leave.
  */
 export type TrackerExpected = {
   __typename?: 'TrackerExpected';
@@ -18954,6 +19054,8 @@ export type TrackerExpectedDay = {
   __typename?: 'TrackerExpectedDay';
   date: Scalars['String']['output'];
   expectedMs: Scalars['Float']['output'];
+  /** The leave type's code (CL, EL) on leave, the holiday's name on a holiday, else null. */
+  offLabel?: Maybe<Scalars['String']['output']>;
   /** Null on a working day. */
   offReason?: Maybe<TrackerOffReason>;
 };
@@ -18980,6 +19082,42 @@ export type TrackerIntervalInput = {
   startedAt: Scalars['DateTime']['input'];
   windows?: InputMaybe<Array<TrackerWindowUsageInput>>;
 };
+
+/** One pin on an employee's day. */
+export type TrackerLocation = {
+  __typename?: 'TrackerLocation';
+  accuracyM: Scalars['Float']['output'];
+  capturedAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  kind: TrackerLocationKind;
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
+  source: TrackerLocationSource;
+};
+
+/** One location fix as a tracker app reports it. */
+export type TrackerLocationInput = {
+  /** How far off the fix may be, in metres. */
+  accuracyM: Scalars['Float']['input'];
+  capturedAt: Scalars['DateTime']['input'];
+  /** Degrees, -90 to 90. */
+  lat: Scalars['Float']['input'];
+  /** Degrees, -180 to 180. */
+  lng: Scalars['Float']['input'];
+  source: TrackerLocationSource;
+};
+
+/** Why a pin was taken: marking attendance, or moving while tracking. */
+export enum TrackerLocationKind {
+  Attendance = 'ATTENDANCE',
+  Move = 'MOVE'
+}
+
+/** Where a location fix came from: the phone's GPS or the computer's location service. */
+export enum TrackerLocationSource {
+  Gps = 'GPS',
+  System = 'SYSTEM'
+}
 
 export type TrackerLoginPayload = {
   __typename?: 'TrackerLoginPayload';
@@ -19120,6 +19258,7 @@ export type TrackerNoticeInput = {
 export enum TrackerOffReason {
   Holiday = 'HOLIDAY',
   Leave = 'LEAVE',
+  /** The employee's week off: a day outside their work days (named WEEKEND for compatibility). */
   Weekend = 'WEEKEND'
 }
 
@@ -19373,6 +19512,8 @@ export type TrackerWorkProfile = {
   __typename?: 'TrackerWorkProfile';
   /** The contracted day in milliseconds — the unit every tracker total is in. */
   targetMs: Scalars['Float']['output'];
+  /** The days of the week this person works (0 is Sunday): their own week, else the workspace's. */
+  workDays: Array<Scalars['Int']['output']>;
   workHoursPerDay: Scalars['Int']['output'];
   workLocation: WorkLocation;
   workLocationNote: Scalars['String']['output'];
@@ -19400,6 +19541,10 @@ export type TrackerWorkday = {
    * measured and this was claimed; a client adding them must say which is which.
    */
   manualMs: Scalars['Float']['output'];
+  /** The leave type's code on leave, the holiday's name on a holiday, else null. */
+  offLabel?: Maybe<Scalars['String']['output']>;
+  /** Why today is off — week off, holiday or approved leave. Null on a working day; tracking is refused while set. */
+  offReason?: Maybe<TrackerOffReason>;
   targetMs: Scalars['Float']['output'];
 };
 
@@ -19539,6 +19684,8 @@ export type UpdateUserInput = {
   managerId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
+  /** A personal address to keep on file; null or empty clears it. */
+  personalEmail?: InputMaybe<Scalars['String']['input']>;
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
@@ -19549,6 +19696,8 @@ export type UpdateUserInput = {
   teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
+  /** Days of the week they work, 0 is Sunday. Null follows the workspace's week. */
+  workDays?: InputMaybe<Array<Scalars['Int']['input']>>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
   workLocation?: InputMaybe<WorkLocation>;
   workLocationNote?: InputMaybe<Scalars['String']['input']>;
@@ -19574,7 +19723,12 @@ export type User = {
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
   designation?: Maybe<Scalars['String']['output']>;
+  /** The days this person works: their own week, else the workspace's. */
+  effectiveWorkDays: Array<Scalars['Int']['output']>;
+  /** The official (work) address the person signs in with. */
   email: Scalars['String']['output'];
+  /** When the official address was proven by a code sent to it. Cleared when it changes. */
+  emailVerifiedAt?: Maybe<Scalars['DateTime']['output']>;
   employmentStatus: EmploymentStatus;
   /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
   employmentTypeCode?: Maybe<Scalars['String']['output']>;
@@ -19598,6 +19752,10 @@ export type User = {
   name: Scalars['String']['output'];
   /** The company this person belongs to; null for a platform administrator. */
   organizationId?: Maybe<Scalars['ID']['output']>;
+  /** A personal address HR keeps on file. Never used to sign in. */
+  personalEmail?: Maybe<Scalars['String']['output']>;
+  /** When the personal address was proven by a code sent to it. Cleared when it changes. */
+  personalEmailVerifiedAt?: Maybe<Scalars['DateTime']['output']>;
   /** A number colleagues can reach the person on; set by the person in their profile. */
   phone?: Maybe<Scalars['String']['output']>;
   /** The day this employee comes off probation. Null when they are not on one. */
@@ -19618,6 +19776,8 @@ export type User = {
    */
   timezone?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
+  /** The days this person works (0 is Sunday). Null when they follow the workspace's week. */
+  workDays?: Maybe<Array<Scalars['Int']['output']>>;
   /**
    * The contracted working day, in hours. Every arrangement has one — flexible moves the
    * clock time, not the length of the day. Null on accounts that predate the field; readers
@@ -20465,6 +20625,13 @@ export enum WorkLocation {
   Other = 'OTHER'
 }
 
+/** The workspace's working week. */
+export type WorkWeek = {
+  __typename?: 'WorkWeek';
+  /** Days of the week people work unless HR set their own: 0 is Sunday, 6 is Saturday. */
+  defaultWorkDays: Array<Scalars['Int']['output']>;
+};
+
 /** One arrow between two boxes, by their keys. */
 export type WorkflowEdge = {
   __typename?: 'WorkflowEdge';
@@ -20990,6 +21157,7 @@ export type ResolversTypes = ResolversObject<{
   EmployeeDocument: ResolverTypeWrapper<EmployeeDocument>;
   EmployeeDocumentInput: EmployeeDocumentInput;
   EmployeeDocumentPage: ResolverTypeWrapper<EmployeeDocumentPage>;
+  EmployeeEmailKind: EmployeeEmailKind;
   EmployeeLicenceSeat: ResolverTypeWrapper<EmployeeLicenceSeat>;
   EmployeeName: ResolverTypeWrapper<EmployeeName>;
   EmployeeOption: ResolverTypeWrapper<EmployeeOption>;
@@ -21591,10 +21759,15 @@ export type ResolversTypes = ResolversObject<{
   TrackerDayBucket: ResolverTypeWrapper<TrackerDayBucket>;
   TrackerDevice: ResolverTypeWrapper<TrackerDevice>;
   TrackerDeviceInput: TrackerDeviceInput;
+  TrackerEarnings: ResolverTypeWrapper<TrackerEarnings>;
   TrackerExpected: ResolverTypeWrapper<TrackerExpected>;
   TrackerExpectedDay: ResolverTypeWrapper<TrackerExpectedDay>;
   TrackerInterval: ResolverTypeWrapper<TrackerInterval>;
   TrackerIntervalInput: TrackerIntervalInput;
+  TrackerLocation: ResolverTypeWrapper<TrackerLocation>;
+  TrackerLocationInput: TrackerLocationInput;
+  TrackerLocationKind: TrackerLocationKind;
+  TrackerLocationSource: TrackerLocationSource;
   TrackerLoginPayload: ResolverTypeWrapper<TrackerLoginPayload>;
   TrackerManualEntry: ResolverTypeWrapper<TrackerManualEntry>;
   TrackerManualEntryInput: TrackerManualEntryInput;
@@ -21712,6 +21885,7 @@ export type ResolversTypes = ResolversObject<{
   WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
   WhatsappWorkflowStatus: WhatsappWorkflowStatus;
   WorkLocation: WorkLocation;
+  WorkWeek: ResolverTypeWrapper<WorkWeek>;
   WorkflowEdge: ResolverTypeWrapper<WorkflowEdge>;
   WorkflowEdgeInput: WorkflowEdgeInput;
   WorkflowGraphInput: WorkflowGraphInput;
@@ -22507,10 +22681,13 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerDayBucket: TrackerDayBucket;
   TrackerDevice: TrackerDevice;
   TrackerDeviceInput: TrackerDeviceInput;
+  TrackerEarnings: TrackerEarnings;
   TrackerExpected: TrackerExpected;
   TrackerExpectedDay: TrackerExpectedDay;
   TrackerInterval: TrackerInterval;
   TrackerIntervalInput: TrackerIntervalInput;
+  TrackerLocation: TrackerLocation;
+  TrackerLocationInput: TrackerLocationInput;
   TrackerLoginPayload: TrackerLoginPayload;
   TrackerManualEntry: TrackerManualEntry;
   TrackerManualEntryInput: TrackerManualEntryInput;
@@ -22609,6 +22786,7 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappWorkflow: WhatsappWorkflow;
   WhatsappWorkflowCreateInput: WhatsappWorkflowCreateInput;
   WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
+  WorkWeek: WorkWeek;
   WorkflowEdge: WorkflowEdge;
   WorkflowEdgeInput: WorkflowEdgeInput;
   WorkflowGraphInput: WorkflowGraphInput;
@@ -27001,6 +27179,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
   requestClientHubCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestClientHubCodeArgs, 'email'>>;
   requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
+  requestEmployeeEmailCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestEmployeeEmailCodeArgs, 'employeeId' | 'kind'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
@@ -27068,6 +27247,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setCrmTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetCrmTagsArgs, 'id' | 'object' | 'tags'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setDefaultCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationSetDefaultCmsSiteArgs, 'id'>>;
+  setDefaultWorkDays?: Resolver<ResolversTypes['WorkWeek'], ParentType, ContextType, RequireFields<MutationSetDefaultWorkDaysArgs, 'days'>>;
   setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
   setGmailAccountEnabled?: Resolver<ResolversTypes['GmailAccount'], ParentType, ContextType, RequireFields<MutationSetGmailAccountEnabledArgs, 'enabled' | 'id'>>;
@@ -27144,7 +27324,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
-  trackerMarkAttendance?: Resolver<ResolversTypes['TrackerWorkday'], ParentType, ContextType, RequireFields<MutationTrackerMarkAttendanceArgs, 'status'>>;
+  trackerMarkAttendance?: Resolver<ResolversTypes['TrackerWorkday'], ParentType, ContextType, RequireFields<MutationTrackerMarkAttendanceArgs, 'location' | 'status'>>;
+  trackerRecordLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTrackerRecordLocationArgs, 'location'>>;
   trackerSetTimezone?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationTrackerSetTimezoneArgs, 'timezone'>>;
   trackerStartSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStartSessionArgs, 'startedAt'>>;
   trackerStopSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStopSessionArgs, 'endedAt' | 'sessionId'>>;
@@ -27296,6 +27477,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
   verifyClientHubCode?: Resolver<ResolversTypes['ClientHubSignIn'], ParentType, ContextType, RequireFields<MutationVerifyClientHubCodeArgs, 'code' | 'email'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerification'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email'>>;
+  verifyEmployeeEmailCode?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationVerifyEmployeeEmailCodeArgs, 'code' | 'employeeId' | 'kind'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
   verifyWhatsappDemoCode?: Resolver<ResolversTypes['WhatsappDemoSignIn'], ParentType, ContextType, RequireFields<MutationVerifyWhatsappDemoCodeArgs, 'code' | 'email'>>;
   whatsappDemoParse?: Resolver<ResolversTypes['WhatsappDemoParseResult'], ParentType, ContextType, RequireFields<MutationWhatsappDemoParseArgs, 'input'>>;
@@ -28277,7 +28459,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   emailVerificationBatches?: Resolver<Array<ResolversTypes['EmailVerificationBatch']>, ParentType, ContextType>;
   emailVerificationsPaged?: Resolver<ResolversTypes['EmailVerificationPage'], ParentType, ContextType, RequireFields<QueryEmailVerificationsPagedArgs, 'input'>>;
   emailVerifierConfigs?: Resolver<Array<ResolversTypes['EmailVerifierConfig']>, ParentType, ContextType>;
+  employeeEarnings?: Resolver<ResolversTypes['TrackerEarnings'], ParentType, ContextType, RequireFields<QueryEmployeeEarningsArgs, 'employeeId' | 'from' | 'to'>>;
   employeeLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType, RequireFields<QueryEmployeeLeaveBalancesArgs, 'employeeId' | 'year'>>;
+  employeeLocations?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryEmployeeLocationsArgs, 'date' | 'employeeId'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
   firecrawlConfigs?: Resolver<Array<ResolversTypes['FirecrawlConfig']>, ParentType, ContextType>;
   firecrawlReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -28739,8 +28923,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerAccess?: Resolver<Maybe<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   myTrackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryMyTrackerCalendarArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryMyTrackerDayArgs, 'end' | 'start'>>;
+  myTrackerEarnings?: Resolver<ResolversTypes['TrackerEarnings'], ParentType, ContextType, RequireFields<QueryMyTrackerEarningsArgs, 'from' | 'to'>>;
   myTrackerExpected?: Resolver<ResolversTypes['TrackerExpected'], ParentType, ContextType, RequireFields<QueryMyTrackerExpectedArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerExpectedReport?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryMyTrackerExpectedReportArgs, 'from' | 'timezone' | 'to'>>;
+  myTrackerLocations?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryMyTrackerLocationsArgs, 'date'>>;
   myTrackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryMyTrackerManualEntriesArgs, 'from' | 'to'>>;
   myTrackerMessages?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType, Partial<QueryMyTrackerMessagesArgs>>;
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
@@ -28894,6 +29080,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   whatsappDemos?: Resolver<Array<ResolversTypes['WhatsappDemo']>, ParentType, ContextType, Partial<QueryWhatsappDemosArgs>>;
   whatsappWorkflow?: Resolver<Maybe<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, RequireFields<QueryWhatsappWorkflowArgs, 'id'>>;
   whatsappWorkflows?: Resolver<Array<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, Partial<QueryWhatsappWorkflowsArgs>>;
+  workWeek?: Resolver<ResolversTypes['WorkWeek'], ParentType, ContextType>;
   workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
 }>;
 
@@ -30169,6 +30356,15 @@ export type TrackerDeviceResolvers<ContextType = GraphQLContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TrackerEarningsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerEarnings'] = ResolversParentTypes['TrackerEarnings']> = ResolversObject<{
+  amount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  payType?: Resolver<ResolversTypes['PayType'], ParentType, ContextType>;
+  rate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  trackedMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TrackerExpectedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerExpected'] = ResolversParentTypes['TrackerExpected']> = ResolversObject<{
   days?: Resolver<Array<ResolversTypes['TrackerExpectedDay']>, ParentType, ContextType>;
   workHoursPerDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -30178,6 +30374,7 @@ export type TrackerExpectedResolvers<ContextType = GraphQLContext, ParentType ex
 export type TrackerExpectedDayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerExpectedDay'] = ResolversParentTypes['TrackerExpectedDay']> = ResolversObject<{
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   expectedMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  offLabel?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   offReason?: Resolver<Maybe<ResolversTypes['TrackerOffReason']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -30192,6 +30389,17 @@ export type TrackerIntervalResolvers<ContextType = GraphQLContext, ParentType ex
   mouseCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerLocationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerLocation'] = ResolversParentTypes['TrackerLocation']> = ResolversObject<{
+  accuracyM?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  capturedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['TrackerLocationKind'], ParentType, ContextType>;
+  lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  lng?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['TrackerLocationSource'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30377,6 +30585,7 @@ export type TrackerTotalsResolvers<ContextType = GraphQLContext, ParentType exte
 
 export type TrackerWorkProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerWorkProfile'] = ResolversParentTypes['TrackerWorkProfile']> = ResolversObject<{
   targetMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  workDays?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>;
   workHoursPerDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   workLocation?: Resolver<ResolversTypes['WorkLocation'], ParentType, ContextType>;
   workLocationNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -30392,6 +30601,8 @@ export type TrackerWorkdayResolvers<ContextType = GraphQLContext, ParentType ext
   attendanceStatus?: Resolver<Maybe<ResolversTypes['AttendanceStatus']>, ParentType, ContextType>;
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  offLabel?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  offReason?: Resolver<Maybe<ResolversTypes['TrackerOffReason']>, ParentType, ContextType>;
   targetMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -30461,7 +30672,9 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   dateOfBirth?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  effectiveWorkDays?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emailVerifiedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   employmentStatus?: Resolver<ResolversTypes['EmploymentStatus'], ParentType, ContextType>;
   employmentTypeCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gradeCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -30477,6 +30690,8 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   managerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   organizationId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  personalEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  personalEmailVerifiedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   region?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -30486,6 +30701,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   teamName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  workDays?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
   workHoursPerDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   workLocation?: Resolver<Maybe<ResolversTypes['WorkLocation']>, ParentType, ContextType>;
   workLocationNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -30989,6 +31205,11 @@ export type WhatsappWorkflowResolvers<ContextType = GraphQLContext, ParentType e
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedByName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WorkWeekResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkWeek'] = ResolversParentTypes['WorkWeek']> = ResolversObject<{
+  defaultWorkDays?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -31581,9 +31802,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerDay?: TrackerDayResolvers<ContextType>;
   TrackerDayBucket?: TrackerDayBucketResolvers<ContextType>;
   TrackerDevice?: TrackerDeviceResolvers<ContextType>;
+  TrackerEarnings?: TrackerEarningsResolvers<ContextType>;
   TrackerExpected?: TrackerExpectedResolvers<ContextType>;
   TrackerExpectedDay?: TrackerExpectedDayResolvers<ContextType>;
   TrackerInterval?: TrackerIntervalResolvers<ContextType>;
+  TrackerLocation?: TrackerLocationResolvers<ContextType>;
   TrackerLoginPayload?: TrackerLoginPayloadResolvers<ContextType>;
   TrackerManualEntry?: TrackerManualEntryResolvers<ContextType>;
   TrackerMe?: TrackerMeResolvers<ContextType>;
@@ -31654,6 +31877,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   WhatsappFunnelStep?: WhatsappFunnelStepResolvers<ContextType>;
   WhatsappPublishedWorkflow?: WhatsappPublishedWorkflowResolvers<ContextType>;
   WhatsappWorkflow?: WhatsappWorkflowResolvers<ContextType>;
+  WorkWeek?: WorkWeekResolvers<ContextType>;
   WorkflowEdge?: WorkflowEdgeResolvers<ContextType>;
   WorkflowNode?: WorkflowNodeResolvers<ContextType>;
   WorkspaceAnalytics?: WorkspaceAnalyticsResolvers<ContextType>;

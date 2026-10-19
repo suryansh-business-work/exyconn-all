@@ -14,6 +14,7 @@ vi.mock('../../../src/main/portal-client', () => ({
 vi.mock('../../../src/main/notifier', () => h.mocks);
 vi.mock('../../../src/main/screenshots-window', () => h.mocks);
 vi.mock('../../../src/main/capture-bridge', () => h.mocks);
+vi.mock('../../../src/main/location-bridge', () => h.mocks);
 vi.mock('../../../src/main/window-chrome', () => h.mocks);
 vi.mock('../../../src/main/window-material', () => h.mocks);
 vi.mock('../../../src/main/close-guard', () => h.mocks);

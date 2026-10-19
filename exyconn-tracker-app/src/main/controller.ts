@@ -2,6 +2,7 @@ import {
   TrackerController as CoreController,
   type CaptureReport,
   type ComposeInput,
+  type LocationProvider,
 } from '@exyconn/tracker-core';
 import type { AppPreferences, PermissionKind, PermissionState, TrackerState } from '@shared/types';
 import { secureStore } from './store';
@@ -32,11 +33,14 @@ export class TrackerController extends CoreController<
      * it unit-testable.
      */
     composeWithWebcam: (input: ComposeInput) => Promise<string | null>,
+    /** Where this computer is — injected for the same reason: it is read through a window. */
+    location: LocationProvider,
   ) {
     super({
       portal,
       store: secureStore,
       deviceInfo: collectDeviceInfo,
+      location,
       notifier: {
         autoPaused: notifyAutoPaused,
         autoStopped: notifyAutoStopped,

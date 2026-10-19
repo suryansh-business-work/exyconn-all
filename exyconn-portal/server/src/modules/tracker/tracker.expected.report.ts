@@ -21,7 +21,7 @@ const HEADERS = [
 
 /** What the Remarks column says about a day that carries no hours. */
 const OFF_REMARKS: Readonly<Record<string, string>> = {
-  WEEKEND: 'Weekend',
+  WEEKEND: 'Week off',
   LEAVE: 'On leave',
 };
 

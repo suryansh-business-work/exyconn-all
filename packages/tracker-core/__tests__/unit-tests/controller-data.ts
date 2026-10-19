@@ -1,5 +1,5 @@
 import type { LoginResponse, TrackerMeResponse } from '../../src/portal/client';
-import type { DeviceInfo, Workday } from '../../src/types';
+import type { DeviceInfo, TrackerLocationInput, Workday } from '../../src/types';
 import { ENGINE_SETTINGS } from './engine-fixture';
 
 export const WORKDAY: Workday = {
@@ -9,6 +9,17 @@ export const WORKDAY: Workday = {
   attendanceStatus: 'PRESENT',
   attendanceNote: null,
   attendanceMarked: true,
+  offReason: null,
+  offLabel: null,
+};
+
+/** A confirmed attendance fix; coordinates are arbitrary test values. */
+export const LOCATION: TrackerLocationInput = {
+  lat: 12.9716,
+  lng: 77.5946,
+  accuracyM: 20,
+  source: 'GPS',
+  capturedAt: '2026-02-03T09:00:00.000Z',
 };
 
 /** What the portal says about the signed-in employee; override per test. */
@@ -26,6 +37,7 @@ export function me(overrides: Partial<TrackerMeResponse> = {}): TrackerMeRespons
       workLocationNote: '',
       workHoursPerDay: 8,
       targetMs: 8 * 3_600_000,
+      workDays: [1, 2, 3, 4, 5],
     },
     workday: WORKDAY,
     projects: [

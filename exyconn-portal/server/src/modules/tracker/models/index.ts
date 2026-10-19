@@ -7,3 +7,4 @@ export { TrackerScreenshotModel, type TrackerScreenshotDocument } from './screen
 export { TrackerSettingsModel, type TrackerSettingsDocument } from './settings.model';
 export { TrackerManualEntryModel, type TrackerManualEntryDocument } from './manual-entry.model';
 export { TrackerMessageModel, type TrackerMessageDocument } from './message.model';
+export { TrackerLocationModel, type TrackerLocationDocument } from './location.model';

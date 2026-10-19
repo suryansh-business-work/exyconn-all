@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useT } from '@exyconn/i18n';
 import { Link, Stack, Text } from '@exyconn/shell/components/ui';
-import { MapSkeleton } from '../MapSkeleton';
+import { MapSkeleton } from '@exyconn/shell/components/maps';
 import { useGoogleMapsClientConfigQuery } from '@exyconn/shell/graphql/generated';
 import { googleMapsLink, positionOf, type MapTarget } from '../mapLinks';
 

@@ -15,6 +15,7 @@ import useBrandTheme from './hooks/useBrandTheme';
 import useShutterSound from './hooks/useShutterSound';
 import useCaptureNotification from './hooks/useCaptureNotification';
 import useCaptureBridge from './hooks/useCaptureBridge';
+import useLocationBridge from './hooks/useLocationBridge';
 import useTrackerState from './hooks/useTrackerState';
 import useUpdateState from './hooks/useUpdateState';
 import UpdateBanner from './components/UpdateBanner';
@@ -77,6 +78,8 @@ export default function App(): ReactElement {
   // still find its way to the gallery.
   useShutterSound();
   useCaptureBridge();
+  // Same reason: the move check while tracking asks for a fix whatever page is open.
+  useLocationBridge();
   useCaptureNotification(state?.timezone ?? deviceTimezone());
 
   return (

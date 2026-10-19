@@ -1,6 +1,6 @@
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
-import type { TrackerStatus } from '@exyconn/tracker-core';
+import { trackerErrorText, type TrackerStatus, type Workday } from '@exyconn/tracker-core';
 import { resumeTracking, tracker } from '../../tracker/instance';
 import { usePendingAction } from '../../hooks/usePendingAction';
 import { run } from '../../tracker/run';
@@ -26,6 +26,8 @@ interface Props {
    * than one that plainly cannot be pressed yet.
    */
   attendanceMarked: boolean;
+  /** Today, so a Start refused for an off day is worded as the off-day banner words it. */
+  workday: Workday | null;
 }
 
 /**
@@ -33,9 +35,10 @@ interface Props {
  * flight shows a spinner and holds the others; a refusal (screen capture declined, attendance
  * not marked, the portal unreachable) is shown in the controller's own sentence.
  */
-export function TrackingControls({ status, attendanceMarked }: Readonly<Props>) {
+export function TrackingControls({ status, attendanceMarked, workday }: Readonly<Props>) {
   const t = useT();
-  const { pending, error, perform } = usePendingAction<ControlAction>();
+  const { pending, error: failure, perform } = usePendingAction<ControlAction>();
+  const error = failure === null ? null : trackerErrorText(failure, workday, t);
   const isIdle = status === 'idle';
   const isTracking = status === 'tracking';
   const isPaused = status === 'paused';

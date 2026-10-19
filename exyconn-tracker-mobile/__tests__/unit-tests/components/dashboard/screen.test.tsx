@@ -41,6 +41,8 @@ const WORKDAY = {
   attendanceStatus: 'PRESENT' as const,
   attendanceNote: null,
   attendanceMarked: true,
+  offReason: null,
+  offLabel: null,
 };
 
 beforeEach(() => {

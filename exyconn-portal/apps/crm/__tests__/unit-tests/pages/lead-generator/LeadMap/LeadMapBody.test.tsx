@@ -16,7 +16,7 @@ const script = vi.hoisted(() => ({
   state: { isLoaded: true, loadError: undefined as Error | undefined, authFailed: false },
 }));
 
-vi.mock('../../../../../src/maps/mapsScript', () => ({
+vi.mock('@exyconn/shell/components/maps/mapsScript', () => ({
   useMapsScript: () => script.state,
 }));
 

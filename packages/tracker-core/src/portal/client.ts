@@ -4,8 +4,10 @@ import {
   MarkMyTrackerMessagesReadDocument,
   MyTrackerCalendarDocument,
   MyTrackerDayDocument,
+  MyTrackerEarningsDocument,
   MyTrackerExpectedDocument,
   MyTrackerExpectedReportDocument,
+  MyTrackerLocationsDocument,
   MyTrackerManualEntriesDocument,
   MyTrackerMessagesDocument,
   MyTrackerTotalsDocument,
@@ -21,6 +23,7 @@ import {
   TranslateMissingDocument,
   TrackerMarkAttendanceDocument,
   TrackerMeDocument,
+  TrackerRecordLocationDocument,
   TrackerSetTimezoneDocument,
   TrackerStartSessionDocument,
   TrackerStopSessionDocument,
@@ -51,6 +54,9 @@ import type {
   TrackerMessageKind,
   TrackerProject,
   TrackerSettings,
+  TrackerEarnings,
+  TrackerLocationInput,
+  TrackerLocationPin,
   TrackerTask,
   TrackerTotals,
   WebcamCorner,
@@ -346,9 +352,35 @@ export function createPortalClient(config: PortalClientConfig) {
       await authed(TrackerAcceptConsentDocument, { signedName });
     },
 
-    /** Marks the employee in for their own local day — the same record HR's page writes. */
-    async markAttendance(status: AttendanceStatus, note: string | null): Promise<Workday> {
-      return (await authed(TrackerMarkAttendanceDocument, { status, note })).trackerMarkAttendance;
+    /**
+     * Marks the employee in for their own local day — the same record HR's page writes — and
+     * pins where they were. The portal refuses on their week off, a holiday or approved leave.
+     */
+    async markAttendance(
+      status: AttendanceStatus,
+      note: string | null,
+      location: TrackerLocationInput,
+    ): Promise<Workday> {
+      return (await authed(TrackerMarkAttendanceDocument, { status, note, location }))
+        .trackerMarkAttendance;
+    },
+
+    /**
+     * Pins where the employee is while a session is open. False when the portal did not keep
+     * it because it was within 200 m of their last pin today.
+     */
+    async recordLocation(location: TrackerLocationInput): Promise<boolean> {
+      return (await authed(TrackerRecordLocationDocument, { location })).trackerRecordLocation;
+    },
+
+    /** The employee's OWN pins on one local day (`YYYY-MM-DD`), oldest first. */
+    async fetchMyLocations(date: string): Promise<TrackerLocationPin[]> {
+      return (await authed(MyTrackerLocationsDocument, { date })).myTrackerLocations;
+    },
+
+    /** The employee's OWN tracked time over an ISO range, priced at their pay rate. */
+    async fetchMyEarnings(from: string, to: string): Promise<TrackerEarnings> {
+      return (await authed(MyTrackerEarningsDocument, { from, to })).myTrackerEarnings;
     },
 
     /**

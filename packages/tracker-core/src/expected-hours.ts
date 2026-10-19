@@ -11,8 +11,10 @@ import { formatHoursMinutes } from './format';
 export interface ExpectedDay {
   date: string;
   expectedMs: number;
-  /** WEEKEND, HOLIDAY or LEAVE; null on a working day. */
+  /** WEEKEND (the employee's week off), HOLIDAY or LEAVE; null on a working day. */
   offReason?: string | null;
+  /** The leave type's code (CL, EL) on leave, the holiday's name on a holiday, else null. */
+  offLabel?: string | null;
 }
 
 /** The employee's contract over a range, as the portal's `trackerExpected` returns it. */
@@ -54,10 +56,17 @@ export interface MonthTarget {
   leaveMs: number;
   /** Public holidays the employee observes. */
   holidayDates: ReadonlySet<string>;
+  /** Days outside the employee's working week. */
+  weekOffDates: ReadonlySet<string>;
+  /** What to call each off day that has a name: the leave code (CL, EL) or the holiday's name. */
+  offLabels: ReadonlyMap<string, string>;
 }
 
-/** How a calendar marks a day: on leave, a holiday, or a finished day that fell short. */
-export type DayMark = 'LEAVE' | 'HOLIDAY' | 'SHORT';
+/**
+ * How a calendar marks a day: on leave, a holiday, the employee's week off, or a finished day
+ * that fell short. A leave or holiday mark's label is in `MonthTarget.offLabels`.
+ */
+export type DayMark = 'LEAVE' | 'HOLIDAY' | 'WEEK_OFF' | 'SHORT';
 
 const MS_PER_HOUR = 3_600_000;
 
@@ -93,6 +102,8 @@ export function monthTarget(
   const shortDates = new Set<string>();
   const leaveDates = new Set<string>();
   const holidayDates = new Set<string>();
+  const weekOffDates = new Set<string>();
+  const offLabels = new Map<string, string>();
   let expectedMs = 0;
   let expectedSoFarMs = 0;
   for (const day of contract.days) {
@@ -100,6 +111,11 @@ export function monthTarget(
       leaveDates.add(day.date);
     } else if (day.offReason === 'HOLIDAY') {
       holidayDates.add(day.date);
+    } else if (day.offReason === 'WEEKEND') {
+      weekOffDates.add(day.date);
+    }
+    if (day.offLabel) {
+      offLabels.set(day.date, day.offLabel);
     }
     expectedMs += day.expectedMs;
     if (day.date < todayKey) {
@@ -119,6 +135,8 @@ export function monthTarget(
     leaveDates,
     leaveMs: leaveDates.size * contract.workHoursPerDay * MS_PER_HOUR,
     holidayDates,
+    weekOffDates,
+    offLabels,
   };
 }
 
@@ -127,6 +145,9 @@ export function dayMarksOf(target: MonthTarget): ReadonlyMap<string, DayMark> {
   const marks = new Map<string, DayMark>();
   for (const date of target.shortDates) {
     marks.set(date, 'SHORT');
+  }
+  for (const date of target.weekOffDates) {
+    marks.set(date, 'WEEK_OFF');
   }
   for (const date of target.holidayDates) {
     marks.set(date, 'HOLIDAY');

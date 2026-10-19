@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { device, FROM, ME, signInAsTheEmployee, TO } from './resolverMocks';
 import { trackerResolvers } from '../../../../src/modules/tracker/tracker.resolvers';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { officeFix } from '../../../fixtures/location';
 
 const Mutation = trackerResolvers.Mutation;
 const app: GraphQLContext = { user: null, ip: 'caller-address' };
@@ -61,12 +62,22 @@ describe('what a device token may write', () => {
       true,
     );
     await expect(
-      Mutation.trackerMarkAttendance(null, { status: 'PRESENT', note: null }, app),
+      Mutation.trackerMarkAttendance(
+        null,
+        { status: 'PRESENT', note: null, location: officeFix },
+        app,
+      ),
     ).resolves.toEqual({ attendanceMarked: true });
 
     expect(device.acceptConsent).toHaveBeenCalledWith(ME, 'Asha');
     expect(device.me).toHaveBeenCalledWith(ME, 'laptop-1');
-    expect(device.markAttendance).toHaveBeenCalledWith(ME, 'Asia/Kolkata', 'PRESENT', null);
+    expect(device.markAttendance).toHaveBeenCalledWith(
+      ME,
+      'Asia/Kolkata',
+      'PRESENT',
+      null,
+      officeFix,
+    );
   });
 
   it('keeps the device alive and answers the same payload as trackerMe', async () => {

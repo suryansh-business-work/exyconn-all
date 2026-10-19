@@ -10,12 +10,13 @@ import {
   Typography,
 } from '@exyconn/ui';
 import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
-import type { AttendanceStatus, Workday } from '@shared/types';
-import { ATTENDANCE_OPTIONS, humanize } from '@exyconn/tracker-core';
+import type { AttendanceStatus, TrackerLocationInput, Workday } from '@shared/types';
+import { ATTENDANCE_OPTIONS, humanize, trackerErrorText } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
 import usePendingAction from '../hooks/usePendingAction';
 import { run } from '../run';
+import LocationMapDialog from './LocationMapDialog';
 
 interface Props {
   workday: Workday | null;
@@ -28,14 +29,19 @@ interface Props {
  * said they worked is a question payroll cannot answer later. It is the same record as the
  * employee portal's own "Mark attendance", so somebody who marked in there this morning
  * arrives here already done.
+ *
+ * Where they are is pinned with it: the location is read first and shown on a map, and the
+ * mark is only sent once they confirm that is where they are working from.
  */
 export default function AttendanceGate({ workday }: Readonly<Props>): ReactElement {
   const t = useT();
   const [status, setStatus] = useState<AttendanceStatus>('PRESENT');
   const [note, setNote] = useState('');
-  const { pending, error, perform } = usePendingAction<'mark'>();
+  const [fix, setFix] = useState<TrackerLocationInput | null>(null);
+  const { pending, error, perform, clearError } = usePendingAction<'locate' | 'mark'>();
   const busy = pending !== null;
-  useAnnounce(error, 'assertive');
+  const errorText = error === null ? null : trackerErrorText(error, workday, t);
+  useAnnounce(errorText, 'assertive');
 
   // Null until the portal has said what today is — a loader, not a gap that later jumps in.
   if (workday === null) {
@@ -66,12 +72,28 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
     );
   }
 
-  const mark = (): Promise<boolean> =>
+  const locate = (): Promise<boolean> =>
     perform(
+      'locate',
+      async () => setFix(await globalThis.tracker.getLocation()),
+      t('Could not read your location.'),
+    );
+
+  const mark = async (confirmed: TrackerLocationInput): Promise<void> => {
+    const marked = await perform(
       'mark',
-      () => globalThis.tracker.markAttendance(status, note.trim() || null),
+      () => globalThis.tracker.markAttendance(status, note.trim() || null, confirmed),
       t('Could not mark your attendance.'),
     );
+    if (marked) {
+      setFix(null);
+    }
+  };
+
+  const cancel = (): void => {
+    setFix(null);
+    clearError();
+  };
 
   return (
     <Stack spacing={1.25}>
@@ -99,19 +121,39 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
         disabled={busy}
         onChange={(event) => setNote(event.target.value)}
       />
-      {error !== null && (
+      {errorText !== null && fix === null && (
         <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
-          {error}
+          {errorText}
         </Alert>
       )}
       <Button
         variant="contained"
         startIcon={<HowToRegOutlined />}
-        loading={busy}
-        onClick={() => run(mark)}
+        loading={pending === 'locate'}
+        disabled={busy}
+        onClick={() => run(locate)}
       >
         {t('Mark attendance')}
       </Button>
+      <LocationMapDialog
+        location={fix}
+        title={t('Your location')}
+        description={t(
+          'Your attendance is marked with this location. Is this where you are working from?',
+        )}
+        onClose={cancel}
+        confirm={{
+          label: t('Confirm & mark attendance'),
+          busy: pending === 'mark',
+          error: errorText,
+          // The pin on the map is the pin sent: never read again between confirm and send.
+          onConfirm: () => {
+            if (fix !== null) {
+              run(() => mark(fix));
+            }
+          },
+        }}
+      />
     </Stack>
   );
 }

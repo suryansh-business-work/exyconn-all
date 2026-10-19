@@ -116,6 +116,7 @@ query MyWorkProfile {
     workLocation
     workLocationNote
     workHoursPerDay
+    effectiveWorkDays
   }
 }
 

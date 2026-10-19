@@ -32,6 +32,10 @@ fragment UserFields on User {
   country
   region
   city
+  emailVerifiedAt
+  personalEmail
+  personalEmailVerifiedAt
+  workDays
 }
 
 query ListUsers {
@@ -106,6 +110,7 @@ query GetUser($id: ID!) {
   getUser(id: $id) {
     ...UserFields
     ...ProfileDetailsFields
+    effectiveWorkDays
     createdAt
     updatedAt
   }
@@ -161,5 +166,33 @@ mutation UpdateSettings($input: UpdateSettingsInput!) {
     dateFormat
     timeFormat
     timezone
+  }
+}
+
+# The workspace's working week: the days people work unless HR gave them their own.
+query WorkWeek {
+  workWeek {
+    defaultWorkDays
+  }
+}
+
+mutation SetDefaultWorkDays($days: [Int!]!) {
+  setDefaultWorkDays(days: $days) {
+    defaultWorkDays
+  }
+}
+
+# HR proves an employee's official or personal address with a six-digit code sent to it.
+mutation RequestEmployeeEmailCode($employeeId: ID!, $kind: EmployeeEmailKind!) {
+  requestEmployeeEmailCode(employeeId: $employeeId, kind: $kind)
+}
+
+mutation VerifyEmployeeEmailCode($employeeId: ID!, $kind: EmployeeEmailKind!, $code: String!) {
+  verifyEmployeeEmailCode(employeeId: $employeeId, kind: $kind, code: $code) {
+    id
+    email
+    emailVerifiedAt
+    personalEmail
+    personalEmailVerifiedAt
   }
 }

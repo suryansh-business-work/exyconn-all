@@ -13,7 +13,11 @@ import {
   Text,
 } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { useMyHolidaysQuery, useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  useMyHolidaysQuery,
+  useMyLeaveRequestsQuery,
+  useMyWorkProfileQuery,
+} from '@exyconn/shell/graphql/generated';
 import { buildAttendanceMonth, type AttendanceInput } from './attendanceDays';
 import { AttendanceDayCell } from './AttendanceDayCell';
 import { AttendanceLegend } from './AttendanceLegend';
@@ -35,8 +39,9 @@ export function AttendanceCalendar({
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const leaves = useMyLeaveRequestsQuery({ fetchPolicy: 'cache-and-network' });
   const holidays = useMyHolidaysQuery({ fetchPolicy: 'cache-and-network' });
-  const loading = attendanceLoading || leaves.loading || holidays.loading;
-  const error = leaves.error ?? holidays.error;
+  const profile = useMyWorkProfileQuery({ fetchPolicy: 'cache-and-network' });
+  const loading = attendanceLoading || leaves.loading || holidays.loading || profile.loading;
+  const error = leaves.error ?? holidays.error ?? profile.error;
 
   const days = buildAttendanceMonth(
     month,
@@ -44,6 +49,7 @@ export function AttendanceCalendar({
     leaves.data?.myLeaveRequests ?? [],
     holidays.data?.myHolidays ?? [],
     new Date(),
+    profile.data?.me.effectiveWorkDays,
   );
 
   return (

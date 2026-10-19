@@ -80,7 +80,13 @@ export function installNavigationGuards(): void {
       }
     };
     contents.on('will-navigate', blockForeign);
-    contents.on('will-redirect', blockForeign);
+    // Fired for every frame's redirects: only the window itself is guarded, so the embedded
+    // Google map (CSP frame-src allows maps.google.com → www.google.com) may follow its own.
+    contents.on('will-redirect', (event) => {
+      if (event.isMainFrame) {
+        blockForeign(event, event.url);
+      }
+    });
     contents.on('will-attach-webview', (event) => event.preventDefault());
   });
 }

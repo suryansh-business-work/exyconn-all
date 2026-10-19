@@ -23,6 +23,7 @@ import { trackerTimeLogService } from './tracker.timelog.service';
 import { trackerWorkdayService } from './tracker.workday.service';
 import { trackerMessageService, type NoticeInput } from './tracker.message.service';
 import { setPresence } from './tracker.presence.service';
+import type { LocationInput } from './tracker.location.service';
 import type { ManualEntryStatus, PresenceStatus, TrackerMessageKind } from './tracker.constants';
 import {
   getTrackerSettings,
@@ -509,12 +510,12 @@ export const trackerResolvers = {
     /** Marks the caller in for their own local day — the device token decides whose day. */
     trackerMarkAttendance: async (
       _p: unknown,
-      { status, note }: { status: string; note?: string | null },
+      { status, note, location }: { status: string; note?: string | null; location: LocationInput },
       ctx: GraphQLContext,
     ) => {
       const { userId, deviceId } = await assertTrackerDevice(ctx);
       const state = await trackerDeviceService.me(userId, deviceId);
-      return trackerDeviceService.markAttendance(userId, state.timezone, status, note);
+      return trackerDeviceService.markAttendance(userId, state.timezone, status, note, location);
     },
     /** Keep-alive: touches lastSeenAt and answers with the state the app should adopt. */
     trackerHeartbeat: async (

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { monthBounds, type ReportDay } from '@exyconn/tracker-core';
+import { monthBounds, type ExpectedRange, type ReportDay } from '@exyconn/tracker-core';
 import { sumReport, type ReportTotals } from '../lib/report/totals';
 import { tracker } from '../tracker/instance';
 import { useReload } from './useReload';
 
 export interface ReportQuery {
   days: ReportDay[];
+  /** The month's contracted hours per day; null until it arrives, or when it failed. */
+  contract: ExpectedRange | null;
   totals: ReportTotals;
   /** True until the first answer for this month — the skeletons' cue. */
   loading: boolean;
@@ -25,6 +27,7 @@ export interface ReportQuery {
  */
 export function useMyReport(month: Date, zone: string): ReportQuery {
   const [days, setDays] = useState<ReportDay[]>([]);
+  const [contract, setContract] = useState<ExpectedRange | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,11 +42,11 @@ export function useMyReport(month: Date, zone: string): ReportQuery {
       setLoading(true);
     }
     setError(null);
-    tracker
-      .getReport(fromISO, toISO)
-      .then((rows) => {
+    Promise.all([tracker.getReport(fromISO, toISO), tracker.getExpected(fromISO, toISO)])
+      .then(([rows, expected]) => {
         if (active) {
           setDays(rows);
+          setContract(expected);
           setLoading(false);
           setRefreshing(false);
         }
@@ -52,6 +55,7 @@ export function useMyReport(month: Date, zone: string): ReportQuery {
         console.error('Failed to load report', cause);
         if (active) {
           setDays([]);
+          setContract(null);
           setError('Could not load your report. Check your connection and try again.');
           setLoading(false);
           setRefreshing(false);
@@ -62,5 +66,5 @@ export function useMyReport(month: Date, zone: string): ReportQuery {
     };
   }, [fromISO, toISO, attempt, isReload]);
 
-  return { days, totals: sumReport(days), loading, refreshing, error, reload };
+  return { days, contract, totals: sumReport(days), loading, refreshing, error, reload };
 }

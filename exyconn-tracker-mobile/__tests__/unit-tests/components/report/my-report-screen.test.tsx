@@ -57,6 +57,7 @@ const reload = { report: vi.fn(), day: vi.fn(), insights: vi.fn() };
 function report(overrides: Partial<ReportQuery> = {}): ReportQuery {
   return {
     days: [reportDay('2026-02-03', 6 * HOUR, 2 * HOUR)],
+    contract: null,
     totals: { activeMs: 6 * HOUR, idleMs: 2 * HOUR, activityPercent: 75 },
     loading: false,
     refreshing: false,

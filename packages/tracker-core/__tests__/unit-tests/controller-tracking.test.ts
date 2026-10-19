@@ -108,9 +108,16 @@ describe('TrackerController workday', () => {
     const marked = { ...WORKDAY, attendanceStatus: 'WFH' as const, activeMs: 0 };
     vi.mocked(setup.portal.markAttendance).mockResolvedValue(marked);
 
-    await expect(setup.controller.markAttendance('WFH', 'home today')).resolves.toBe(marked);
+    const pin = {
+      lat: 12.97,
+      lng: 77.59,
+      accuracyM: 20,
+      source: 'GPS' as const,
+      capturedAt: '2026-02-03T10:00:00.000Z',
+    };
+    await expect(setup.controller.markAttendance('WFH', 'home today', pin)).resolves.toBe(marked);
 
-    expect(setup.portal.markAttendance).toHaveBeenCalledWith('WFH', 'home today');
+    expect(setup.portal.markAttendance).toHaveBeenCalledWith('WFH', 'home today', pin);
     expect(setup.latest().workday).toEqual(marked);
     await expect(setup.controller.start()).resolves.toBeUndefined();
     await setup.controller.stop();

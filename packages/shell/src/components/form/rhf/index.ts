@@ -14,4 +14,5 @@ export { RhfCurrencyField, useCompanyCurrency } from './RhfCurrencyField';
 export { RhfRichText } from './RhfRichText';
 export { RhfCodeEditor } from './RhfCodeEditor';
 export { RhfImageField } from './RhfImageField';
+export { RhfWorkDays } from './RhfWorkDays';
 export type { SelectOption } from './types';

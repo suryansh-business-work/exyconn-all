@@ -344,6 +344,7 @@ export const trackerTypeDefs = gql`
 
   "Why a day carries no expected hours."
   enum TrackerOffReason {
+    "The employee's week off: a day outside their work days (named WEEKEND for compatibility)."
     WEEKEND
     HOLIDAY
     LEAVE
@@ -355,11 +356,13 @@ export const trackerTypeDefs = gql`
     expectedMs: Float!
     "Null on a working day."
     offReason: TrackerOffReason
+    "The leave type's code (CL, EL) on leave, the holiday's name on a holiday, else null."
+    offLabel: String
   }
 
   """
-  What an employee was contracted to work over a range: their working day on Monday to
-  Friday, nothing on weekends, the public holidays they observe or approved leave.
+  What an employee was contracted to work over a range: their working day on their work
+  days, nothing on their week off, the public holidays they observe or approved leave.
   """
   type TrackerExpected {
     workHoursPerDay: Int!
@@ -386,6 +389,8 @@ export const trackerTypeDefs = gql`
     workHoursPerDay: Int!
     "The contracted day in milliseconds — the unit every tracker total is in."
     targetMs: Float!
+    "The days of the week this person works (0 is Sunday): their own week, else the workspace's."
+    workDays: [Int!]!
   }
 
   "One project time may be booked against."
@@ -414,6 +419,60 @@ export const trackerTypeDefs = gql`
     attendanceNote: String
     "Tracking cannot start until this is true."
     attendanceMarked: Boolean!
+    "Why today is off — week off, holiday or approved leave. Null on a working day; tracking is refused while set."
+    offReason: TrackerOffReason
+    "The leave type's code on leave, the holiday's name on a holiday, else null."
+    offLabel: String
+  }
+
+  "Where a location fix came from: the phone's GPS or the computer's location service."
+  enum TrackerLocationSource {
+    GPS
+    SYSTEM
+  }
+
+  "Why a pin was taken: marking attendance, or moving while tracking."
+  enum TrackerLocationKind {
+    ATTENDANCE
+    MOVE
+  }
+
+  "One location fix as a tracker app reports it."
+  input TrackerLocationInput {
+    "Degrees, -90 to 90."
+    lat: Float!
+    "Degrees, -180 to 180."
+    lng: Float!
+    "How far off the fix may be, in metres."
+    accuracyM: Float!
+    source: TrackerLocationSource!
+    capturedAt: DateTime!
+  }
+
+  "One pin on an employee's day."
+  type TrackerLocation {
+    id: ID!
+    lat: Float!
+    lng: Float!
+    accuracyM: Float!
+    source: TrackerLocationSource!
+    kind: TrackerLocationKind!
+    capturedAt: DateTime!
+  }
+
+  """
+  What an employee's tracked time over a range pays at their salary structure's rate.
+  amount is only set for HOURLY pay; other pay types are not paid by the hour.
+  """
+  type TrackerEarnings {
+    payType: PayType!
+    "The salary structure's rate: per hour when payType is HOURLY. Zero when HR has set none."
+    rate: Float!
+    currency: String!
+    "Measured active time plus approved off-computer time, in milliseconds."
+    trackedMs: Float!
+    "trackedMs as hours times rate, rounded to two places. Null unless payType is HOURLY."
+    amount: Float
   }
 
   """
@@ -780,6 +839,14 @@ export const trackerTypeDefs = gql`
     myTrackerExpectedReport(from: DateTime!, to: DateTime!, timezone: String!): TableFile!
     "Every IANA zone the server resolves, sorted - the phone zone picker has no runtime list."
     trackerTimezones: [String!]!
+    "The caller's own location pins on one local day (YYYY-MM-DD), oldest first."
+    myTrackerLocations(date: String!): [TrackerLocation!]!
+    "HR, ADMIN or the employee's manager: their location pins on one local day, oldest first."
+    employeeLocations(employeeId: ID!, date: String!): [TrackerLocation!]!
+    "The caller's own tracked time over a range priced at their pay rate. ISO date-times."
+    myTrackerEarnings(from: String!, to: String!): TrackerEarnings!
+    "HR/ADMIN: an employee's tracked time over a range priced at their pay rate. ISO date-times."
+    employeeEarnings(employeeId: ID!, from: String!, to: String!): TrackerEarnings!
     "The caller's own off-computer entries in a range, any status."
     myTrackerManualEntries(from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
     """
@@ -862,8 +929,20 @@ export const trackerTypeDefs = gql`
     signature ledger — so one press of "I agree" counts in Legal, HR and the tracker at once.
     """
     trackerAcceptConsent(signedName: String): Boolean!
-    "Marks the caller in for their current local day. Tracking cannot start until they have."
-    trackerMarkAttendance(status: AttendanceStatus!, note: String): TrackerWorkday!
+    """
+    Marks the caller in for their current local day, pinning where they were. Tracking cannot
+    start until they have. Refused on their week off, a holiday or approved leave.
+    """
+    trackerMarkAttendance(
+      status: AttendanceStatus!
+      note: String
+      location: TrackerLocationInput!
+    ): TrackerWorkday!
+    """
+    Pins where the caller is while a tracking session is open. Answers false when the pin was
+    within 200 m of their last one today and so was not kept.
+    """
+    trackerRecordLocation(location: TrackerLocationInput!): Boolean!
     """
     Desktop keep-alive, called on a timer for as long as the app is signed in.
 
@@ -875,7 +954,7 @@ export const trackerTypeDefs = gql`
     trackerHeartbeat(device: TrackerDeviceInput): TrackerMe!
     """
     Opens a tracking session. Refused until the employee has accepted the disclosure AND
-    marked their attendance for the day. An unknown or missing projectId books the time
+    marked their attendance for the day, and on their week off, a holiday or approved leave. An unknown or missing projectId books the time
     against the house-wide Global Project rather than failing the start.
     """
     trackerStartSession(startedAt: DateTime!, projectId: ID, taskId: ID): TrackerSession!

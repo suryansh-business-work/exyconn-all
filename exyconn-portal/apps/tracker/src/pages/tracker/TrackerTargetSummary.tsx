@@ -11,10 +11,13 @@ import {
 } from '@exyconn/tracker-core';
 import { Alert, Button, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
+import { useWeekLabel } from '@exyconn/shell/components/work';
 
 interface TrackerTargetSummaryProps {
   target: MonthTarget | null;
   workHoursPerDay: number | null;
+  /** The weekdays the employee works (0 is Sunday); null until the contract loads. */
+  workDays: readonly number[] | null;
   loading: boolean;
   error: Error | undefined;
   downloading: boolean;
@@ -28,12 +31,14 @@ interface TrackerTargetSummaryProps {
 export function TrackerTargetSummary({
   target,
   workHoursPerDay,
+  workDays,
   loading,
   error,
   downloading,
   onDownload,
 }: Readonly<TrackerTargetSummaryProps>) {
   const t = useT();
+  const weekLabel = useWeekLabel();
   if (error) {
     return (
       <Alert severity="error" sx={{ mb: 1.5 }}>
@@ -49,11 +54,11 @@ export function TrackerTargetSummary({
     hours: formatHoursMinutes(target?.leaveMs ?? 0),
   });
   const hint =
-    workHoursPerDay === null
+    workHoursPerDay === null || workDays === null
       ? ''
       : t(
-          '{hours}h a day, Monday to Friday, less holidays and approved leave, which is already taken off the expected hours. Days marked Short fell below it.',
-          { hours: workHoursPerDay },
+          '{hours}h a day on {days}, less holidays and approved leave, which is already taken off the expected hours. Days marked Short fell below it.',
+          { hours: workHoursPerDay, days: weekLabel(workDays) },
         );
   return (
     <>

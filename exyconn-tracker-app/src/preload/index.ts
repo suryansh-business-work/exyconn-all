@@ -9,6 +9,8 @@ import {
   type CaptureResult,
   type DayDetail,
   type ExpectedRange,
+  type LocationRequest,
+  type LocationResult,
   type LoginResult,
   type ManualEntry,
   type ManualEntryDraft,
@@ -22,6 +24,9 @@ import {
   type ScreenshotsRange,
   type TrackerMessage,
   type TrackerMessageKind,
+  type TrackerEarnings,
+  type TrackerLocationInput,
+  type TrackerLocationPin,
   type TrackerState,
   type TrackerTask,
   type TrackerTotals,
@@ -43,9 +48,15 @@ const api = {
   /** `signedName` is the employee's typed signature on the disclosure. */
   acceptConsent: (signedName: string): Promise<void> =>
     ipcRenderer.invoke(IPC.acceptConsent, signedName),
-  /** Marks the employee in for today; resolves to the day as the portal now sees it. */
-  markAttendance: (status: AttendanceStatus, note: string | null): Promise<Workday> =>
-    ipcRenderer.invoke(IPC.markAttendance, status, note),
+  /**
+   * Marks the employee in for today with the fix they confirmed on the map (from
+   * `getLocation`); resolves to the day as the portal now sees it.
+   */
+  markAttendance: (
+    status: AttendanceStatus,
+    note: string | null,
+    location: TrackerLocationInput,
+  ): Promise<Workday> => ipcRenderer.invoke(IPC.markAttendance, status, note, location),
   /** Chooses the project the next session books against; resolves to the project now in force. */
   setProject: (projectId: string): Promise<string> => ipcRenderer.invoke(IPC.setProject, projectId),
   setTask: (taskId: string): Promise<string> => ipcRenderer.invoke(IPC.setTask, taskId),
@@ -62,6 +73,14 @@ const api = {
     ipcRenderer.invoke(IPC.getDay, start, end),
   /** The employee's own all-time totals, for the dashboard's "All time" tiles. */
   getTotals: (): Promise<TrackerTotals> => ipcRenderer.invoke(IPC.getTotals),
+  /** Where this computer is now, for the attendance confirmation; rejects when access is off. */
+  getLocation: (): Promise<TrackerLocationInput> => ipcRenderer.invoke(IPC.getLocation),
+  /** The employee's own pins on one local day (`YYYY-MM-DD`), oldest first. */
+  getLocations: (date: string): Promise<TrackerLocationPin[]> =>
+    ipcRenderer.invoke(IPC.getLocations, date),
+  /** Tracked time over an ISO range, priced at the employee's pay rate. */
+  getEarnings: (from: string, to: string): Promise<TrackerEarnings> =>
+    ipcRenderer.invoke(IPC.getEarnings, from, to),
   /** Persists the employee's chosen zone; resolves to the zone now in force. */
   setTimezone: (timezone: string): Promise<string> => ipcRenderer.invoke(IPC.setTimezone, timezone),
   /** The app's words in one language, keyed by the English they were written in. */
@@ -187,6 +206,18 @@ const api = {
   },
   sendCaptureResult: (result: CaptureResult): void => {
     ipcRenderer.send(IPC.captureResult, result);
+  },
+  /**
+   * Main needs a location fix, which only a renderer can read (`navigator.geolocation`). The
+   * listener answers on `sendLocationResult` with the same request id.
+   */
+  onLocationRequested: (listener: (request: LocationRequest) => void): (() => void) => {
+    const handler = (_event: unknown, request: LocationRequest): void => listener(request);
+    ipcRenderer.on(IPC.locationRequested, handler);
+    return () => ipcRenderer.removeListener(IPC.locationRequested, handler);
+  },
+  sendLocationResult: (result: LocationResult): void => {
+    ipcRenderer.send(IPC.locationResult, result);
   },
   /**
    * A quit is being held because an upload is still going up. `pending` is how many items

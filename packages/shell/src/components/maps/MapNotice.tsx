@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import { Box, Stack, Text } from '@exyconn/shell/components/ui';
+import { Box, Stack, Text } from '@/components/ui';
 
 type NoticeTone = 'info' | 'error';
 

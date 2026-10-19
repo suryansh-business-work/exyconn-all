@@ -17,6 +17,7 @@ import {
   TrackerWindowUsageModel,
 } from '../../../../src/modules/tracker/models';
 import { codeOf } from '../codeOf';
+import { officeFix } from '../../../fixtures/location';
 
 const DEVICE_ID = 'device-sessions';
 const STARTED = new Date('2026-07-13T09:00:00.000Z');
@@ -32,7 +33,7 @@ async function readyToTrack() {
   const userId = user._id.toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: 'admin', consentedAt: new Date() });
   await TrackerDeviceModel.create({ userId, deviceId: DEVICE_ID, tokenHash: 'h', platform: 'ios' });
-  await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', 'In the office');
+  await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', 'In the office', officeFix);
   return userId;
 }
 

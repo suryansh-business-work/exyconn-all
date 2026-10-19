@@ -33,6 +33,8 @@ interface TrackerViewProps {
   empty?: boolean;
   /** Leave, holidays and finished days short of the contracted hours (drawn in red). */
   dayMarks?: ReadonlyMap<string, TrackerDayMark>;
+  /** Each named off day's label: the leave code (EL, CL) or the holiday's name. */
+  dayLabels?: ReadonlyMap<string, string>;
 }
 
 /** Presentational calendar + day-detail composition shared by both tracker views. */
@@ -53,6 +55,7 @@ export function TrackerView({
   formatDateTime,
   empty = false,
   dayMarks,
+  dayLabels,
 }: Readonly<TrackerViewProps>) {
   if (empty) {
     return (
@@ -90,6 +93,7 @@ export function TrackerView({
               selectedDate={selectedDate}
               onSelectDay={onSelectDay}
               dayMarks={dayMarks}
+              dayLabels={dayLabels}
             />
           </Box>
           <Box sx={[panel, { mt: 1.5 }]}>

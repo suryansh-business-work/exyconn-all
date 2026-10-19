@@ -8,7 +8,12 @@ import { DAY_STATUS_STYLE } from './dayStatusStyle';
 export function AttendanceDayCell({ day }: Readonly<{ day: AttendanceDay }>) {
   const t = useT();
   const style = day.status === 'NONE' ? null : DAY_STATUS_STYLE[day.status];
-  const label = [format(day.date, 'd MMMM'), style && t(style.label), day.holiday]
+  const isHoliday = day.status === 'HOLIDAY';
+  // A holiday is called by its name; any other day by its status, with the leave's code or
+  // the holiday it worked through underneath.
+  const title = isHoliday ? day.holiday : style && t(style.label);
+  const note = isHoliday ? undefined : (day.leaveType ?? day.holiday);
+  const label = [format(day.date, 'd MMMM'), style && t(style.label), day.leaveType, day.holiday]
     .filter(Boolean)
     .join(', ');
   return (
@@ -41,17 +46,17 @@ export function AttendanceDayCell({ day }: Readonly<{ day: AttendanceDay }>) {
           noWrap
           sx={{ color: style.tone, fontWeight: 600, display: { xs: 'none', sm: 'block' } }}
         >
-          {t(style.label)}
+          {title}
         </Text>
       )}
-      {day.holiday && day.status !== 'HOLIDAY' && (
+      {note && (
         <Text
           size="caption"
           color="text.secondary"
           noWrap
           sx={{ display: { xs: 'none', sm: 'block' } }}
         >
-          {day.holiday}
+          {note}
         </Text>
       )}
     </Box>

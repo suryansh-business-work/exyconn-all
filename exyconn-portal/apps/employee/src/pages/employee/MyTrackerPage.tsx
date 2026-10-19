@@ -10,11 +10,13 @@ import {
   type MyTrackerDayQueryVariables,
   useMyTrackerAccessQuery,
   useMyTrackerCalendarQuery,
+  useMyTrackerExpectedQuery,
   useTrackerProjectOptionsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { useTrackerMonth } from '@exyconn/shell/pages/tracker-view/useTrackerMonth';
 import { buildTrackerMonth } from '@exyconn/shell/pages/tracker-view/buildTrackerMonth';
 import { TrackerView } from '@exyconn/shell/pages/tracker-view/TrackerView';
+import { useMonthTarget } from '@exyconn/shell/pages/tracker-view/useMonthTarget';
 import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
 import { MyTrackerAccessBanner } from './MyTrackerAccessBanner';
 import { MyOffComputerTime } from './MyOffComputerTime';
@@ -31,6 +33,10 @@ export function MyTrackerPage() {
   const calendarQuery = useMyTrackerCalendarQuery({
     variables: { from: month.range.from, to: month.range.to, timezone: settings.timezone },
   });
+  // The month's contract, so the calendar marks week offs, leave and holidays as HR sees them.
+  const expectedQuery = useMyTrackerExpectedQuery({
+    variables: { ...month.range, timezone: settings.timezone },
+  });
   const projectsQuery = useTrackerProjectOptionsQuery();
   // Apollo 4 will not skip a query with required variables through `{ skip: true }` —
   // the options still demand them. `skipToken` is its way of saying "not yet".
@@ -44,6 +50,7 @@ export function MyTrackerPage() {
     () => buildTrackerMonth(month.month, buckets, new Date()),
     [month.month, buckets],
   );
+  const target = useMonthTarget(expectedQuery.data?.myTrackerExpected, buckets, settings.timezone);
 
   return (
     <Box>
@@ -68,6 +75,8 @@ export function MyTrackerPage() {
         timezone={settings.timezone}
         formatTime={formatTime}
         formatDateTime={formatDateTime}
+        dayMarks={target.dayMarks}
+        dayLabels={target.dayLabels}
       />
       <MyOffComputerTime
         from={month.range.from}

@@ -7,3 +7,12 @@ export {
   workHours,
   type WorkArrangement,
 } from './work-arrangement';
+export { WorkDayChips } from './WorkDayChips';
+export {
+  WEEK_DAYS,
+  inWeekOrder,
+  useWeekLabel,
+  useWeekdayName,
+  weekdayName,
+  type WeekdayWidth,
+} from './work-days';

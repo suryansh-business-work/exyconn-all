@@ -7,6 +7,7 @@ import { trackerDeviceService } from '../../../../src/modules/tracker/tracker.de
 import { updateTrackerSettings } from '../../../../src/modules/tracker/tracker.settings.service';
 import { TrackerAccessModel, TrackerDeviceModel } from '../../../../src/modules/tracker/models';
 import { codeOf } from '../codeOf';
+import { officeFix } from '../../../fixtures/location';
 
 const DEVICE_ID = 'device-consent';
 const SLUG = 'tracking-disclosure';
@@ -134,7 +135,13 @@ describe('marking attendance from the app', () => {
   it('answers with the day it marked, in the employee’s zone', async () => {
     const userId = await grantedEmployee();
 
-    const workday = await trackerDeviceService.markAttendance(userId, 'UTC', 'WFH', 'From home');
+    const workday = await trackerDeviceService.markAttendance(
+      userId,
+      'UTC',
+      'WFH',
+      'From home',
+      officeFix,
+    );
 
     expect(workday).toMatchObject({
       attendanceMarked: true,
@@ -148,7 +155,7 @@ describe('marking attendance from the app', () => {
     await TrackerAccessModel.updateOne({ userId }, { isActive: false });
 
     await expect(
-      codeOf(trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT')),
+      codeOf(trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix)),
     ).resolves.toBe('FORBIDDEN');
   });
 
@@ -156,8 +163,8 @@ describe('marking attendance from the app', () => {
     const userId = await grantedEmployee();
     await UserModel.deleteOne({ _id: userId });
 
-    await expect(trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT')).rejects.toThrow(
-      'Account no longer exists',
-    );
+    await expect(
+      trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix),
+    ).rejects.toThrow('Account no longer exists');
   });
 });

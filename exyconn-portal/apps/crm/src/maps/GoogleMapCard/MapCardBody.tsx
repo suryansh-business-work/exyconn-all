@@ -1,8 +1,8 @@
 import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
-import { MapSkeleton } from '../MapSkeleton';
-import { useMapsScript } from '../mapsScript';
+import { MapSkeleton } from '@exyconn/shell/components/maps';
+import { useMapsScript } from '@exyconn/shell/components/maps/mapsScript';
 import { addressText, positionOf, type MapTarget } from '../mapLinks';
 import { useGeocodedPosition } from './useGeocodedPosition';
 

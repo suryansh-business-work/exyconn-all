@@ -125,6 +125,7 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
                 days={days}
                 loading={loading}
                 marks={marks}
+                labels={target?.offLabels}
                 selected={selected}
                 maxDate={today}
                 onSelect={selectDate}

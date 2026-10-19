@@ -20,6 +20,7 @@ query MyTrackerExpected($from: DateTime!, $to: DateTime!, $timezone: String!) {
       date
       expectedMs
       offReason
+      offLabel
     }
   }
 }

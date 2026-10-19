@@ -16,7 +16,11 @@ const MARKED: Workday = {
   attendanceStatus: 'PRESENT',
   attendanceNote: null,
   attendanceMarked: true,
+  offReason: null,
+  offLabel: null,
 };
+
+const TODAY: Workday = { ...MARKED, attendanceStatus: null, attendanceMarked: false };
 
 function markAttendance(): void {
   fireEvent.click(screen.getByRole('button', { name: 'Mark attendance' }));
@@ -25,7 +29,7 @@ function markAttendance(): void {
 describe('AttendanceForm', () => {
   it('explains the gate, and marks the employee present by default with no note', async () => {
     vi.mocked(tracker.markAttendance).mockResolvedValue(MARKED);
-    renderWithProviders(<AttendanceForm />);
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
     expect(
       screen.getByText('Mark your attendance for today before you start tracking.'),
     ).toBeInTheDocument();
@@ -40,7 +44,7 @@ describe('AttendanceForm', () => {
 
   it('marks the status picked from the list, with the note trimmed', async () => {
     vi.mocked(tracker.markAttendance).mockResolvedValue(MARKED);
-    renderWithProviders(<AttendanceForm />);
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
     fireEvent.click(screen.getByRole('button', { name: 'Attendance: Present' }));
     fireEvent.click(screen.getByRole('radio', { name: 'Working from home' }));
     expect(
@@ -52,7 +56,7 @@ describe('AttendanceForm', () => {
   });
 
   it("holds the note to the portal form's limit", async () => {
-    renderWithProviders(<AttendanceForm />);
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
     typeInto('note', 'a'.repeat(ATTENDANCE_NOTE_MAX + 1));
     markAttendance();
     expect(
@@ -65,7 +69,7 @@ describe('AttendanceForm', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const cause = new Error('Attendance is already marked for today.');
     vi.mocked(tracker.markAttendance).mockRejectedValue(cause);
-    renderWithProviders(<AttendanceForm />);
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
     markAttendance();
     expect(await screen.findByText('Attendance is already marked for today.')).toBeInTheDocument();
     expect(error).toHaveBeenCalledWith('Mark attendance failed', cause);
@@ -74,7 +78,7 @@ describe('AttendanceForm', () => {
   it('falls back to a plain sentence when the failure has no reason', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.mocked(tracker.markAttendance).mockRejectedValue(undefined);
-    renderWithProviders(<AttendanceForm />);
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
     markAttendance();
     expect(await screen.findByText('Could not mark your attendance.')).toBeInTheDocument();
   });
@@ -83,7 +87,7 @@ describe('AttendanceForm', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const failure = new Error('Translations unavailable');
     vi.mocked(tracker.markAttendance).mockRejectedValue(new Error('offline'));
-    renderWithProviders(<AttendanceForm />, {
+    renderWithProviders(<AttendanceForm workday={TODAY} />, {
       onMissing: failingOn('Could not mark your attendance.', failure),
     });
     markAttendance();

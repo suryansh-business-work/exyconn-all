@@ -19,6 +19,7 @@ import {
 import { updateTrackerSettings } from '../../src/modules/tracker/tracker.settings.service';
 import { runForOrganization, runInScope } from '../../src/lib/tenant';
 import { seedOrganization, seedUser } from '../helpers';
+import { officeFix } from '../fixtures/location';
 
 // The mailer talks to SMTP; stub the access-granted email so grants work offline.
 jest.mock('../../src/utils/mailer', () => ({
@@ -122,7 +123,7 @@ async function grantedSession() {
   await trackerAdminService.grantAccess(user.id, 'admin');
   await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
   await trackerDeviceService.acceptConsent(user.id);
-  await trackerDeviceService.markAttendance(user.id, 'UTC', 'PRESENT', null);
+  await trackerDeviceService.markAttendance(user.id, 'UTC', 'PRESENT', null, officeFix);
   const session = await trackerDeviceService.startSession(user.id, 'device-1', new Date());
   return { user, sessionId: String((session as { _id: unknown })._id) };
 }

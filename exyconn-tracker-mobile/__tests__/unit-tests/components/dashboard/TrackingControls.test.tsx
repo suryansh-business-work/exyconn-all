@@ -49,7 +49,9 @@ describe('TrackingControls', () => {
   ] as [TrackerStatus, boolean, string[]][])(
     'when %s (attendance marked: %s) enables only %j',
     (status, attendanceMarked, expected) => {
-      renderWithProviders(<TrackingControls status={status} attendanceMarked={attendanceMarked} />);
+      renderWithProviders(
+        <TrackingControls status={status} attendanceMarked={attendanceMarked} workday={null} />,
+      );
       expect(enabled()).toEqual(expected);
     },
   );
@@ -57,7 +59,7 @@ describe('TrackingControls', () => {
   it('starts tracking, holding every button while the start is in flight', async () => {
     const start = deferred();
     vi.mocked(tracker.start).mockReturnValue(start.promise);
-    renderWithProviders(<TrackingControls status="idle" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="idle" attendanceMarked workday={null} />);
     fireEvent.click(button('Start'));
     expect(tracker.start).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(enabled()).toEqual([]));
@@ -68,33 +70,33 @@ describe('TrackingControls', () => {
   });
 
   it('pauses a running session', async () => {
-    renderWithProviders(<TrackingControls status="tracking" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="tracking" attendanceMarked workday={null} />);
     fireEvent.click(button('Pause'));
     await waitFor(() => expect(tracker.pause).toHaveBeenCalledTimes(1));
   });
 
   it('resumes through the capture-aware path, not the bare controller', async () => {
-    renderWithProviders(<TrackingControls status="paused" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="paused" attendanceMarked workday={null} />);
     fireEvent.click(button('Resume'));
     await waitFor(() => expect(resumeTracking).toHaveBeenCalledTimes(1));
   });
 
   it('stops a paused session', async () => {
-    renderWithProviders(<TrackingControls status="paused" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="paused" attendanceMarked workday={null} />);
     fireEvent.click(button('Stop'));
     await waitFor(() => expect(tracker.stop).toHaveBeenCalledTimes(1));
   });
 
   it('shows the controller’s own reason when an action is refused', async () => {
     vi.mocked(tracker.start).mockRejectedValue(new Error('Screen capture was declined.'));
-    renderWithProviders(<TrackingControls status="idle" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="idle" attendanceMarked workday={null} />);
     fireEvent.click(button('Start'));
     expect(await screen.findByText('Screen capture was declined.')).toBeInTheDocument();
   });
 
   it('falls back to its own sentence when the failure says nothing', async () => {
     vi.mocked(tracker.stop).mockRejectedValue('offline');
-    renderWithProviders(<TrackingControls status="tracking" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="tracking" attendanceMarked workday={null} />);
     fireEvent.click(button('Stop'));
     expect(await screen.findByText('Could not stop tracking.')).toBeInTheDocument();
   });
@@ -103,14 +105,14 @@ describe('TrackingControls', () => {
     vi.mocked(tracker.pause).mockImplementation(() => {
       throw new Error(NO_MESSAGE);
     });
-    renderWithProviders(<TrackingControls status="tracking" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="tracking" attendanceMarked workday={null} />);
     fireEvent.click(button('Pause'));
     expect(await screen.findByText('Could not pause tracking.')).toBeInTheDocument();
   });
 
   it('reports a resume that fails', async () => {
     vi.mocked(resumeTracking).mockRejectedValue(new Error('Screen capture is needed to resume.'));
-    renderWithProviders(<TrackingControls status="paused" attendanceMarked />);
+    renderWithProviders(<TrackingControls status="paused" attendanceMarked workday={null} />);
     fireEvent.click(button('Resume'));
     expect(await screen.findByText('Screen capture is needed to resume.')).toBeInTheDocument();
   });

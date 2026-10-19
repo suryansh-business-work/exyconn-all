@@ -10,6 +10,9 @@
   <!-- The webcam photo, when the workspace has switched it on. -->
   <key>com.apple.security.device.camera</key>
   <true/>
+  <!-- Core Location under the hardened runtime: the attendance pin and moves while tracking. -->
+  <key>com.apple.security.personal-information.location</key>
+  <true/>
   <!-- Reaching the portal over HTTPS. -->
   <key>com.apple.security.network.client</key>
   <true/>

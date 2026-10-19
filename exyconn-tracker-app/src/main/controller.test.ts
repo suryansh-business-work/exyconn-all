@@ -142,6 +142,7 @@ const WORK_PROFILE: WorkProfile = {
   workLocationNote: '',
   workHoursPerDay: 8,
   targetMs: 8 * 3_600_000,
+  workDays: [1, 2, 3, 4, 5],
 };
 
 /** An employee who has already marked themselves in, which is what lets tracking start. */
@@ -152,6 +153,8 @@ const WORKDAY: Workday = {
   attendanceStatus: 'PRESENT',
   attendanceNote: null,
   attendanceMarked: true,
+  offReason: null,
+  offLabel: null,
 };
 
 const PROJECTS: TrackerProject[] = [{ id: 'p-global', name: 'Global Project', key: 'GLBL' }];
@@ -181,6 +184,16 @@ async function signedInController() {
     (state) => states.push(state),
     () => undefined,
     () => Promise.resolve(null),
+    {
+      current: () =>
+        Promise.resolve({
+          lat: 12.97,
+          lng: 77.59,
+          accuracyM: 30,
+          source: 'SYSTEM',
+          capturedAt: '2026-09-04T09:00:00.000Z',
+        }),
+    },
   );
   await controller.restore();
   return { controller, states };
@@ -301,7 +314,13 @@ describe('the working day', () => {
     vi.mocked(portal.markAttendance).mockResolvedValue(WORKDAY);
     const { controller } = await signedInController();
 
-    await controller.markAttendance('PRESENT', null);
+    await controller.markAttendance('PRESENT', null, {
+      lat: 12.97,
+      lng: 77.59,
+      accuracyM: 20,
+      source: 'SYSTEM',
+      capturedAt: '2026-02-03T10:00:00.000Z',
+    });
     expect(controller.getState().workday?.attendanceMarked).toBe(true);
 
     await controller.start();

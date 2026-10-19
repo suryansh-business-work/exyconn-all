@@ -18,7 +18,10 @@ afterEach(cleanup);
 
 describe('TrackingControls', () => {
   it('spins on the pressed button and holds the others until the command answers', async () => {
-    await mount(<TrackingControls status="tracking" attendanceMarked />, trackerState('tracking'));
+    await mount(
+      <TrackingControls status="tracking" attendanceMarked workday={null} />,
+      trackerState('tracking'),
+    );
     const pause = deferred();
     overrideTracker({ pause: () => pause.promise });
 
@@ -33,7 +36,10 @@ describe('TrackingControls', () => {
   });
 
   it('shows the controller’s own reason when a command is refused', async () => {
-    await mount(<TrackingControls status="idle" attendanceMarked />, trackerState('idle'));
+    await mount(
+      <TrackingControls status="idle" attendanceMarked workday={null} />,
+      trackerState('idle'),
+    );
     overrideTracker({
       start: () =>
         Promise.reject(
@@ -48,7 +54,10 @@ describe('TrackingControls', () => {
   });
 
   it('runs resume and stop from a paused session', async () => {
-    await mount(<TrackingControls status="paused" attendanceMarked />, trackerState('paused'));
+    await mount(
+      <TrackingControls status="paused" attendanceMarked workday={null} />,
+      trackerState('paused'),
+    );
     const calls: string[] = [];
     overrideTracker({
       resume: () => Promise.resolve(calls.push('resume')),

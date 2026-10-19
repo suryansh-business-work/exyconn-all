@@ -23,6 +23,8 @@ export interface AutoStartInput {
   status: TrackerStatus;
   /** Tracking cannot start before the employee has marked themselves in. */
   attendanceMarked: boolean;
+  /** Today is the employee's week off, a holiday or approved leave: nothing auto-starts. */
+  offDay: boolean;
   /**
    * The employee stopped or paused it themselves inside this window.
    *
@@ -82,7 +84,7 @@ export function decideAutoAction(input: AutoStartInput): AutoAction {
   }
   // Inside it: start only from a standing start. `paused` is the employee's own choice and
   // `consent-required` has a screen in front of it that a schedule must not click through.
-  if (input.status !== 'idle' || input.overridden || !input.attendanceMarked) {
+  if (input.status !== 'idle' || input.overridden || !input.attendanceMarked || input.offDay) {
     return 'none';
   }
   return 'start';

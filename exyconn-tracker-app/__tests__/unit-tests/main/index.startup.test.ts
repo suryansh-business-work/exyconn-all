@@ -15,6 +15,7 @@ vi.mock('../../../src/main/portal-client', () => ({
 vi.mock('../../../src/main/notifier', () => h.mocks);
 vi.mock('../../../src/main/screenshots-window', () => h.mocks);
 vi.mock('../../../src/main/capture-bridge', () => h.mocks);
+vi.mock('../../../src/main/location-bridge', () => h.mocks);
 vi.mock('../../../src/main/window-chrome', () => h.mocks);
 vi.mock('../../../src/main/window-material', () => h.mocks);
 vi.mock('../../../src/main/close-guard', () => h.mocks);
@@ -29,6 +30,7 @@ type PermissionHandler = (
   contents: unknown,
   permission: string,
   callback: (granted: boolean) => void,
+  details: { requestingUrl: string },
 ) => void;
 
 afterEach(() => {
@@ -48,15 +50,20 @@ describe('startup', () => {
     expect(tray.args[0]).toBeTypeOf('function');
   });
 
-  it('grants the pages the camera and nothing else', async () => {
+  it('grants the pages the camera, and no location to a foreign page', async () => {
     await launch();
     const [[handler]] = electron.session.defaultSession.setPermissionRequestHandler.mock
       .calls as unknown as [[PermissionHandler]];
     const answers = ['media', 'geolocation', 'notifications'].map((permission) => {
       let granted: boolean | undefined;
-      handler({}, permission, (value) => {
-        granted = value;
-      });
+      handler(
+        {},
+        permission,
+        (value) => {
+          granted = value;
+        },
+        { requestingUrl: 'https://maps.google.com/' },
+      );
       return granted;
     });
 

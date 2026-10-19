@@ -11,6 +11,7 @@ const PROFILE: WorkProfile = {
   workLocationNote: '',
   workHoursPerDay: 6,
   targetMs: 6 * HOUR,
+  workDays: [1, 2, 3, 4, 5],
 };
 
 const WORKDAY: Workday = {
@@ -20,6 +21,8 @@ const WORKDAY: Workday = {
   attendanceStatus: 'PRESENT',
   attendanceNote: null,
   attendanceMarked: true,
+  offReason: null,
+  offLabel: null,
 };
 
 describe('dayFigures', () => {

@@ -75,6 +75,21 @@ const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
         ios: { deploymentTarget: '16.4' },
       },
     ],
+    [
+      // Foreground location only: a pin when attendance is marked, then the five-minute check
+      // while tracking. No background permission is asked for — with the app backgrounded the
+      // check runs only as far as the existing tracking session keeps the JS runtime alive.
+      'expo-location',
+      {
+        locationWhenInUsePermission:
+          'Exyconn Tracker records where you are when you mark attendance and while you track time.',
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        isIosBackgroundLocationEnabled: false,
+        isAndroidBackgroundLocationEnabled: false,
+        isAndroidForegroundServiceEnabled: false,
+      },
+    ],
     './plugins/with-android-release-signing',
   ],
   experiments: { typedRoutes: true },

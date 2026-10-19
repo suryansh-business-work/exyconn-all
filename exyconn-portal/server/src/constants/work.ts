@@ -34,7 +34,8 @@ export function workTargetMs(hours: number | null | undefined): number {
 }
 
 /**
- * Days of the week (0 = Sunday) with no contracted hours. There is no per-company working
- * week yet, so the tracker's expected-hours report reads every workspace as Monday–Friday.
+ * Days of the week (0 = Sunday … 6 = Saturday) a workspace works when HR has not set its own
+ * week. A workspace's default lives on its settings and an employee may carry their own; this
+ * is only what both fall back to.
  */
-export const WEEKEND_DAYS: ReadonlySet<number> = new Set([0, 6]);
+export const DEFAULT_WORK_DAYS: readonly number[] = [1, 2, 3, 4, 5];

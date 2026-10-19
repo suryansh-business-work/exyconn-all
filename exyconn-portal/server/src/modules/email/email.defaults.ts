@@ -403,6 +403,23 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
         </mj-text>`),
   },
   {
+    key: 'employee-email-code',
+    name: 'Employee — email verification code',
+    description:
+      'Sent when HR verifies an employee’s official or personal email. The employee reads {{code}} back to HR; it works once and expires in {{expiresIn}}.',
+    subject: '{{code}} is your {{companyName}} email verification code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Confirm this email address</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          HR is confirming that this address belongs to you. Give them this code to verify it.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you were not expecting this, ignore this email and let HR know.
+        </mj-text>`),
+  },
+  {
     key: 'client-hub-invite',
     name: 'Client hub — access granted',
     description:

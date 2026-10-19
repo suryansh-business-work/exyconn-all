@@ -15,7 +15,7 @@ const maps = vi.hoisted(() => ({
   geocode: vi.fn(),
 }));
 
-vi.mock('../../../../src/maps/mapsScript', () => ({ useMapsScript: () => maps.script }));
+vi.mock('@exyconn/shell/components/maps/mapsScript', () => ({ useMapsScript: () => maps.script }));
 
 vi.mock('../../../../src/maps/GoogleMapCard/useGeocodedPosition', () => ({
   useGeocodedPosition: (address: string, enabled: boolean) => {

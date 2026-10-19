@@ -18,6 +18,8 @@ function renderCalendar(loading: boolean) {
     <ReportCalendar
       days={[reportDay('2026-01-07', 7 * HOUR, HOUR), reportDay('2026-01-08', 0, 0)]}
       loading={loading}
+      marks={new Map()}
+      labels={new Map()}
       month={JANUARY}
       selected={SELECTED}
       maxDate={TODAY}

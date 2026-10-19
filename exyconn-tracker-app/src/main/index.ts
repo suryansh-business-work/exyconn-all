@@ -10,6 +10,7 @@ import {
   type PresenceStatus,
   type ReportExport,
   type ScreenshotsRange,
+  type TrackerLocationInput,
   type TrackerMessageKind,
   type TrackerState,
   type UpdateState,
@@ -20,6 +21,7 @@ import { notifyScreenshotCaptured } from './notifier';
 import { TrackerTray } from './tray';
 import { closeScreenshotsWindow, openScreenshotsWindow } from './screenshots-window';
 import { composeWithWebcam, registerCaptureBridge } from './capture-bridge';
+import { registerLocationBridge, systemLocation } from './location-bridge';
 import { applyWindowChrome, registerWindowControls } from './window-chrome';
 import { wantsTransparency, windowGroundOptions } from './window-material';
 import { holdForUpload, type CloseGuardHooks } from './close-guard';
@@ -29,7 +31,7 @@ import { saveHoursReportFile, saveReportFile } from './report-file';
 import { PORTAL_GRAPHQL_URL } from './portal-client';
 import { installMainCrashHandlers } from './crash-handlers';
 import { setLogUser } from './logger';
-import { handleTrusted, installNavigationGuards } from './web-security';
+import { handleTrusted, installNavigationGuards, isAppUrl } from './web-security';
 
 /**
  * This app's Windows AppUserModelID. Kept identical to `appId` in electron-builder.yml, which
@@ -251,8 +253,10 @@ function registerIpc(ctrl: TrackerController): void {
     await ctrl.logout();
   });
   handleTrusted(IPC.acceptConsent, (_e, signedName: string) => ctrl.acceptConsent(signedName));
-  handleTrusted(IPC.markAttendance, (_e, status: AttendanceStatus, note: string | null) =>
-    ctrl.markAttendance(status, note),
+  handleTrusted(
+    IPC.markAttendance,
+    (_e, status: AttendanceStatus, note: string | null, location: TrackerLocationInput) =>
+      ctrl.markAttendance(status, note, location),
   );
   handleTrusted(IPC.setProject, (_e, projectId: string) => ctrl.setProject(projectId));
   handleTrusted(IPC.setTask, (_e, taskId: string) => ctrl.setTask(taskId));
@@ -264,6 +268,10 @@ function registerIpc(ctrl: TrackerController): void {
   handleTrusted(IPC.getExpected, (_e, from: string, to: string) => ctrl.getExpected(from, to));
   handleTrusted(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
   handleTrusted(IPC.getTotals, () => ctrl.getTotals());
+  // The fix the confirmation's map shows; confirming sends this same fix with the mark.
+  handleTrusted(IPC.getLocation, () => ctrl.readLocation());
+  handleTrusted(IPC.getLocations, (_e, date: string) => ctrl.getLocations(date));
+  handleTrusted(IPC.getEarnings, (_e, from: string, to: string) => ctrl.getEarnings(from, to));
   handleTrusted(IPC.setTimezone, (_e, timezone: string) => ctrl.setTimezone(timezone));
   handleTrusted(IPC.getTranslations, (_e, locale: string) => ctrl.getTranslations(locale));
   handleTrusted(IPC.translateMissing, (_e, locale: string, sources: string[]) =>
@@ -332,13 +340,19 @@ function registerIpc(ctrl: TrackerController): void {
 /**
  * What the app's own pages may ask Chromium for.
  *
- * Only `media` — the webcam photo — and only for the tracker's own windows. Electron grants
- * every permission by default, and an employee-monitoring app that silently held a
- * microphone, geolocation or notification-spam permission it never uses would be exactly the
- * thing this app spends its consent screen promising it is not.
+ * `media` — the webcam photo — and `geolocation` — the attendance pin and the moves while
+ * tracking, read through the OS location service (see location-bridge.ts). Geolocation only
+ * for the app's own pages: the embedded Google map must never be handed the employee's
+ * position. Electron grants every permission by default, and an employee-monitoring app that
+ * silently held a microphone or notification-spam permission it never uses would be exactly
+ * the thing this app spends its consent screen promising it is not.
  */
 function lockDownPermissions(): void {
-  session.defaultSession.setPermissionRequestHandler((_contents, permission, callback) => {
+  session.defaultSession.setPermissionRequestHandler((_contents, permission, callback, details) => {
+    if (permission === 'geolocation') {
+      callback(isAppUrl(details.requestingUrl));
+      return;
+    }
     callback(permission === 'media');
   });
 }
@@ -364,9 +378,14 @@ if (app.requestSingleInstanceLock()) {
       app.setAppUserModelId(APP_USER_MODEL_ID);
       lockDownPermissions();
       registerCaptureBridge();
+      registerLocationBridge();
+      const location = systemLocation(() => window);
       registerWindowControls();
-      controller = new TrackerController(broadcast, announceCapture, (input) =>
-        composeWithWebcam(window, input),
+      controller = new TrackerController(
+        broadcast,
+        announceCapture,
+        (input) => composeWithWebcam(window, input),
+        location,
       );
       window = createWindow();
       tray = new TrackerTray(() => window, {

@@ -28,6 +28,15 @@ export const SESSION_STATUSES = ['active', 'stopped'] as const;
  */
 export const MANUAL_ENTRY_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
 
+/** Where a location pin came from: a phone's GPS or a computer's location service. */
+export const LOCATION_SOURCES = ['GPS', 'SYSTEM'] as const;
+
+/** Why a pin was taken: marking attendance, or moving while tracking. */
+export const LOCATION_KINDS = ['ATTENDANCE', 'MOVE'] as const;
+
+/** A move closer than this to the day's last pin is the same place, and is not kept. */
+export const LOCATION_MIN_MOVE_METRES = 200;
+
 /**
  * What an employee has said they are doing right now.
  *
@@ -255,3 +264,5 @@ export type SessionStatus = (typeof SESSION_STATUSES)[number];
 export type PresenceStatus = (typeof PRESENCE_STATUSES)[number];
 export type TrackerMessageKind = (typeof TRACKER_MESSAGE_KINDS)[number];
 export type TrackerMessageDirection = (typeof TRACKER_MESSAGE_DIRECTIONS)[number];
+export type LocationSource = (typeof LOCATION_SOURCES)[number];
+export type LocationKind = (typeof LOCATION_KINDS)[number];

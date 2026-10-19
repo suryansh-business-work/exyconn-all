@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { useMapsScript } from '../../../src/maps/mapsScript';
+import { useMapsScript } from '@exyconn/shell/components/maps/mapsScript';
 
 const loader = vi.hoisted(() => ({ options: vi.fn() }));
 
@@ -40,7 +40,7 @@ describe('useMapsScript', () => {
     act(() => (globalThis as MapsGlobal).gm_authFailure?.());
 
     expect(first.result.current.authFailed).toBe(true);
-    expect(error).toHaveBeenCalledWith('crm: Google rejected the Maps JavaScript key');
+    expect(error).toHaveBeenCalledWith('maps: Google rejected the Maps JavaScript key');
     expect(renderHook(() => useMapsScript('maps-key')).result.current.authFailed).toBe(true);
   });
 });
