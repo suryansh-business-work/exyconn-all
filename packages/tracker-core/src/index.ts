@@ -15,6 +15,7 @@ export * from './capture-overlay';
 export * from './capture-policy';
 export * from './controller';
 export * from './engine';
+export * from './expected-hours';
 export * from './foreground-usage';
 export * from './insights';
 export * from './format';

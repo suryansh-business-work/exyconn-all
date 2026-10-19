@@ -3,6 +3,7 @@ import type { PortalClient, TrackerMeResponse } from './portal/client';
 import { describeLoginFailure } from './portal/login-message';
 import { TrackerAuthError } from './portal/portal-error';
 import { describeSyncFailure } from './portal/sync-message';
+import type { ExpectedRange, HoursReportFile } from './expected-hours';
 import { isAwayPresence } from './presence';
 import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from './schedule';
 import { deviceTimezone, effectiveTimezone } from './timezone';
@@ -135,6 +136,8 @@ export interface ControllerDeps<Permissions, Preferences, PermissionKind> {
     | 'trackerMe'
     | 'heartbeat'
     | 'fetchMyReport'
+    | 'fetchMyExpected'
+    | 'fetchMyExpectedReport'
     | 'fetchMyDay'
     | 'setTimezone'
     | 'fetchMyTotals'
@@ -742,6 +745,16 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
    */
   getReport(from: string, to: string): Promise<ReportDay[]> {
     return this.deps.portal.fetchMyReport(from, to, this.timezone);
+  }
+
+  /** The employee's own contracted hours per day, keyed in the same zone as `getReport`. */
+  getExpected(from: string, to: string): Promise<ExpectedRange> {
+    return this.deps.portal.fetchMyExpected(from, to, this.timezone);
+  }
+
+  /** The employee's own month as an XLSX, keyed in the same zone as `getReport`. */
+  getExpectedReport(from: string, to: string): Promise<HoursReportFile> {
+    return this.deps.portal.fetchMyExpectedReport(from, to, this.timezone);
   }
 
   /** One day of the employee's own work — totals plus that day's screenshots. */

@@ -12,7 +12,13 @@ function day(date: string, activeMs: number, idleMs: number): ReportDay {
 const DAYS = [day('2026-09-01', 3_000_000, 1_000_000), day('2026-09-02', 600_000, 400_000)];
 const EMPTY_TOTALS = { activeMs: 0, idleMs: 0, activityPercent: 0 };
 
-let latest: ReportQuery = { days: [], totals: EMPTY_TOTALS, loading: false, error: null };
+let latest: ReportQuery = {
+  days: [],
+  contract: null,
+  totals: EMPTY_TOTALS,
+  loading: false,
+  error: null,
+};
 
 function Probe({ month, zone }: Readonly<{ month: Date; zone: string }>): ReactElement {
   latest = useMyReport(month, zone);

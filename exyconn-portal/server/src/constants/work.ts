@@ -32,3 +32,9 @@ const MS_PER_HOUR = 3_600_000;
 export function workTargetMs(hours: number | null | undefined): number {
   return (hours ?? DEFAULT_WORK_HOURS_PER_DAY) * MS_PER_HOUR;
 }
+
+/**
+ * Days of the week (0 = Sunday) with no contracted hours. There is no per-company working
+ * week yet, so the tracker's expected-hours report reads every workspace as Monday–Friday.
+ */
+export const WEEKEND_DAYS: ReadonlySet<number> = new Set([0, 6]);

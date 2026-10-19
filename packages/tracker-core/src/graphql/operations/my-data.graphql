@@ -6,9 +6,29 @@ query MyTrackerCalendar($from: DateTime!, $to: DateTime!, $timezone: String!) {
     date
     activeMs
     idleMs
+    manualMs
     keyCount
     mouseCount
     sessions
+  }
+}
+
+query MyTrackerExpected($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerExpected(from: $from, to: $to, timezone: $timezone) {
+    workHoursPerDay
+    days {
+      date
+      expectedMs
+      offReason
+    }
+  }
+}
+
+query MyTrackerExpectedReport($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerExpectedReport(from: $from, to: $to, timezone: $timezone) {
+    fileName
+    mimeType
+    contentBase64
   }
 }
 

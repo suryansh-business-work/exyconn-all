@@ -16,6 +16,8 @@ import {
 } from './tracker.device.service';
 import { trackerAdminService } from './tracker.admin.service';
 import { trackerBillingService } from './tracker.billing.service';
+import { trackerExpectedService } from './tracker.expected.service';
+import { trackerExpectedReport } from './tracker.expected.report';
 import { trackerManualService, type ManualEntryInput } from './tracker.manual.service';
 import { trackerTimeLogService } from './tracker.timelog.service';
 import { trackerWorkdayService } from './tracker.workday.service';
@@ -125,6 +127,22 @@ export const trackerResolvers = {
       await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
       return trackerAdminService.calendar(userId, from, to, timezone);
     },
+    trackerExpected: async (
+      _p: unknown,
+      { userId, from, to, timezone }: { userId: string; from: Date; to: Date; timezone: string },
+      ctx: GraphQLContext,
+    ) => {
+      await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
+      return trackerExpectedService.expected(userId, from, to, timezone);
+    },
+    trackerExpectedReport: async (
+      _p: unknown,
+      { userId, from, to, timezone }: { userId: string; from: Date; to: Date; timezone: string },
+      ctx: GraphQLContext,
+    ) => {
+      await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
+      return trackerExpectedReport.build(userId, from, to, timezone);
+    },
     trackerDay: async (
       _p: unknown,
       { userId, start, end }: { userId: string; start: Date; end: Date },
@@ -208,6 +226,22 @@ export const trackerResolvers = {
     ) => {
       const user = assertAuthenticated(ctx);
       return trackerAdminService.calendar(user.id, from, to, timezone);
+    },
+    myTrackerExpected: async (
+      _p: unknown,
+      { from, to, timezone }: { from: Date; to: Date; timezone: string },
+      ctx: GraphQLContext,
+    ) => {
+      const user = assertAuthenticated(ctx);
+      return trackerExpectedService.expected(user.id, from, to, timezone);
+    },
+    myTrackerExpectedReport: async (
+      _p: unknown,
+      { from, to, timezone }: { from: Date; to: Date; timezone: string },
+      ctx: GraphQLContext,
+    ) => {
+      const user = assertAuthenticated(ctx);
+      return trackerExpectedReport.build(user.id, from, to, timezone);
     },
     myTrackerDay: async (
       _p: unknown,

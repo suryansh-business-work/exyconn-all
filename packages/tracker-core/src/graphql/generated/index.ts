@@ -3695,6 +3695,12 @@ export type TrackerNoticeInput = {
   userIds: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
+/** Why a day carries no expected hours. */
+export type TrackerOffReason =
+  | 'HOLIDAY'
+  | 'LEAVE'
+  | 'WEEKEND';
+
 /** The installers a build can produce. */
 export type TrackerPlatform =
   /** An APK to install directly, plus an AAB for the Play Store. */
@@ -4164,7 +4170,25 @@ export type MyTrackerCalendarQueryVariables = Exact<{
 }>;
 
 
-export type MyTrackerCalendarQuery = { myTrackerCalendar: Array<{ date: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, sessions: number }> };
+export type MyTrackerCalendarQuery = { myTrackerCalendar: Array<{ date: string, activeMs: number, idleMs: number, manualMs: number, keyCount: number, mouseCount: number, sessions: number }> };
+
+export type MyTrackerExpectedQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type MyTrackerExpectedQuery = { myTrackerExpected: { workHoursPerDay: number, days: Array<{ date: string, expectedMs: number, offReason: TrackerOffReason | null }> } };
+
+export type MyTrackerExpectedReportQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type MyTrackerExpectedReportQuery = { myTrackerExpectedReport: { fileName: string, mimeType: string, contentBase64: string } };
 
 export type MyTrackerDayQueryVariables = Exact<{
   start: Scalars['DateTime']['input'];
@@ -4553,12 +4577,34 @@ export const MyTrackerCalendarDocument = new TypedDocumentString(`
     date
     activeMs
     idleMs
+    manualMs
     keyCount
     mouseCount
     sessions
   }
 }
     `) as unknown as TypedDocumentString<MyTrackerCalendarQuery, MyTrackerCalendarQueryVariables>;
+export const MyTrackerExpectedDocument = new TypedDocumentString(`
+    query MyTrackerExpected($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerExpected(from: $from, to: $to, timezone: $timezone) {
+    workHoursPerDay
+    days {
+      date
+      expectedMs
+      offReason
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<MyTrackerExpectedQuery, MyTrackerExpectedQueryVariables>;
+export const MyTrackerExpectedReportDocument = new TypedDocumentString(`
+    query MyTrackerExpectedReport($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerExpectedReport(from: $from, to: $to, timezone: $timezone) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+    `) as unknown as TypedDocumentString<MyTrackerExpectedReportQuery, MyTrackerExpectedReportQueryVariables>;
 export const MyTrackerDayDocument = new TypedDocumentString(`
     query MyTrackerDay($start: DateTime!, $end: DateTime!) {
   myTrackerDay(start: $start, end: $end) {

@@ -87,6 +87,8 @@ export function rig(token: string | null = null): Rig {
     trackerMe: vi.fn(() => Promise.resolve(me())),
     heartbeat: vi.fn(() => Promise.resolve(me())),
     fetchMyReport: vi.fn(() => Promise.resolve([])),
+    fetchMyExpected: vi.fn(() => Promise.resolve({ workHoursPerDay: 8, days: [] })),
+    fetchMyExpectedReport: vi.fn(),
     fetchMyDay: vi.fn(),
     setTimezone: vi.fn((zone: string) => Promise.resolve(zone)),
     fetchMyTotals: vi.fn(),

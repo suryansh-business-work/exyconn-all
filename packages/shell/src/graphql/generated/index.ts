@@ -13707,6 +13707,10 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The caller's own contracted hours per day over a range of at most 62 days. */
+  myTrackerExpected: TrackerExpected;
+  /** The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
+  myTrackerExpectedReport: TableFile;
   /** The caller's own off-computer entries in a range, any status. */
   myTrackerManualEntries: Array<TrackerManualEntry>;
   /**
@@ -13919,6 +13923,10 @@ export type Query = {
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
+  /** One employee's contracted hours per day over a range of at most 62 days. */
+  trackerExpected: TrackerExpected;
+  /** One employee's month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
+  trackerExpectedReport: TableFile;
   /**
    * The latest tracker installers. Any signed-in employee (or tracker device) may read it —
    * the files themselves live on a public GitHub release. With a platform (android, ios,
@@ -15294,6 +15302,20 @@ export type QueryMyTrackerDayArgs = {
 };
 
 
+export type QueryMyTrackerExpectedArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryMyTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryMyTrackerManualEntriesArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -15775,6 +15797,22 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryTrackerExpectedArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -18160,6 +18198,25 @@ export type TrackerDeviceInput = {
   totalMemoryMb?: InputMaybe<Scalars['Int']['input']>;
 };
 
+/**
+ * What an employee was contracted to work over a range: their working day on Monday to
+ * Friday, nothing on weekends, the public holidays they observe or approved leave.
+ */
+export type TrackerExpected = {
+  __typename?: 'TrackerExpected';
+  days: Array<TrackerExpectedDay>;
+  workHoursPerDay: Scalars['Int']['output'];
+};
+
+/** One day of the range, with what the employee was contracted to work on it. */
+export type TrackerExpectedDay = {
+  __typename?: 'TrackerExpectedDay';
+  date: Scalars['String']['output'];
+  expectedMs: Scalars['Float']['output'];
+  /** Null on a working day. */
+  offReason?: Maybe<TrackerOffReason>;
+};
+
 export type TrackerInterval = {
   __typename?: 'TrackerInterval';
   activeMs: Scalars['Float']['output'];
@@ -18317,6 +18374,13 @@ export type TrackerNoticeInput = {
   /** Leave empty to reach every employee with an active tracker grant. */
   userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
+
+/** Why a day carries no expected hours. */
+export enum TrackerOffReason {
+  Holiday = 'HOLIDAY',
+  Leave = 'LEAVE',
+  Weekend = 'WEEKEND'
+}
 
 /** The installers a build can produce. */
 export enum TrackerPlatform {
@@ -27326,6 +27390,26 @@ export type SendTrackerNoticeMutationVariables = Exact<{
 
 
 export type SendTrackerNoticeMutation = { __typename?: 'Mutation', sendTrackerNotice: number };
+
+export type TrackerExpectedQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type TrackerExpectedQuery = { __typename?: 'Query', trackerExpected: { __typename?: 'TrackerExpected', workHoursPerDay: number, days: Array<{ __typename?: 'TrackerExpectedDay', date: string, expectedMs: number, offReason?: TrackerOffReason | null }> } };
+
+export type TrackerExpectedReportQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type TrackerExpectedReportQuery = { __typename?: 'Query', trackerExpectedReport: { __typename?: 'TableFile', fileName: string, mimeType: string, contentBase64: string } };
 
 export type FirecrawlConfigFieldsFragment = { __typename?: 'FirecrawlConfig', id: string, label: string, baseUrl: string, hasApiKey: boolean, apiKeyHint?: string | null, isActive: boolean, updatedAt: string };
 
@@ -72915,6 +72999,112 @@ export function useSendTrackerNoticeMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<SendTrackerNoticeMutation, SendTrackerNoticeMutationVariables>(SendTrackerNoticeDocument, options);
       }
 export type SendTrackerNoticeMutationHookResult = ReturnType<typeof useSendTrackerNoticeMutation>;
+export const TrackerExpectedDocument = gql`
+    query TrackerExpected($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerExpected(userId: $userId, from: $from, to: $to, timezone: $timezone) {
+    workHoursPerDay
+    days {
+      date
+      expectedMs
+      offReason
+    }
+  }
+}
+    `;
+
+/**
+ * __useTrackerExpectedQuery__
+ *
+ * To run a query within a React component, call `useTrackerExpectedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerExpectedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerExpectedQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      timezone: // value for 'timezone'
+ *   },
+ * });
+ */
+export function useTrackerExpectedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables> & ({ variables: TrackerExpectedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TrackerExpectedQuery, TrackerExpectedQueryVariables>(TrackerExpectedDocument, options);
+      }
+export function useTrackerExpectedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TrackerExpectedQuery, TrackerExpectedQueryVariables>(TrackerExpectedDocument, options);
+        }
+// @ts-ignore
+export function useTrackerExpectedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedQuery, TrackerExpectedQueryVariables>;
+// @ts-ignore
+export function useTrackerExpectedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedQuery | undefined, TrackerExpectedQueryVariables>;
+export function useTrackerExpectedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TrackerExpectedQuery, TrackerExpectedQueryVariables>(TrackerExpectedDocument, options);
+        }
+export type TrackerExpectedQueryHookResult = ReturnType<typeof useTrackerExpectedQuery>;
+export type TrackerExpectedLazyQueryHookResult = ReturnType<typeof useTrackerExpectedLazyQuery>;
+export type TrackerExpectedSuspenseQueryHookResult = ReturnType<typeof useTrackerExpectedSuspenseQuery>;
+export const TrackerExpectedReportDocument = gql`
+    query TrackerExpectedReport($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerExpectedReport(
+    userId: $userId
+    from: $from
+    to: $to
+    timezone: $timezone
+  ) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+    `;
+
+/**
+ * __useTrackerExpectedReportQuery__
+ *
+ * To run a query within a React component, call `useTrackerExpectedReportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerExpectedReportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerExpectedReportQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      timezone: // value for 'timezone'
+ *   },
+ * });
+ */
+export function useTrackerExpectedReportQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables> & ({ variables: TrackerExpectedReportQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>(TrackerExpectedReportDocument, options);
+      }
+export function useTrackerExpectedReportLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>(TrackerExpectedReportDocument, options);
+        }
+// @ts-ignore
+export function useTrackerExpectedReportSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>;
+// @ts-ignore
+export function useTrackerExpectedReportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedReportQuery | undefined, TrackerExpectedReportQueryVariables>;
+export function useTrackerExpectedReportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>(TrackerExpectedReportDocument, options);
+        }
+export type TrackerExpectedReportQueryHookResult = ReturnType<typeof useTrackerExpectedReportQuery>;
+export type TrackerExpectedReportLazyQueryHookResult = ReturnType<typeof useTrackerExpectedReportLazyQuery>;
+export type TrackerExpectedReportSuspenseQueryHookResult = ReturnType<typeof useTrackerExpectedReportSuspenseQuery>;
 export const FirecrawlConfigsDocument = gql`
     query FirecrawlConfigs {
   firecrawlConfigs {

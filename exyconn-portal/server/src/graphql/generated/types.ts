@@ -13706,6 +13706,10 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The caller's own contracted hours per day over a range of at most 62 days. */
+  myTrackerExpected: TrackerExpected;
+  /** The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
+  myTrackerExpectedReport: TableFile;
   /** The caller's own off-computer entries in a range, any status. */
   myTrackerManualEntries: Array<TrackerManualEntry>;
   /**
@@ -13918,6 +13922,10 @@ export type Query = {
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
+  /** One employee's contracted hours per day over a range of at most 62 days. */
+  trackerExpected: TrackerExpected;
+  /** One employee's month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
+  trackerExpectedReport: TableFile;
   /**
    * The latest tracker installers. Any signed-in employee (or tracker device) may read it —
    * the files themselves live on a public GitHub release. With a platform (android, ios,
@@ -15293,6 +15301,20 @@ export type QueryMyTrackerDayArgs = {
 };
 
 
+export type QueryMyTrackerExpectedArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryMyTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryMyTrackerManualEntriesArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -15774,6 +15796,22 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryTrackerExpectedArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -18159,6 +18197,25 @@ export type TrackerDeviceInput = {
   totalMemoryMb?: InputMaybe<Scalars['Int']['input']>;
 };
 
+/**
+ * What an employee was contracted to work over a range: their working day on Monday to
+ * Friday, nothing on weekends, the public holidays they observe or approved leave.
+ */
+export type TrackerExpected = {
+  __typename?: 'TrackerExpected';
+  days: Array<TrackerExpectedDay>;
+  workHoursPerDay: Scalars['Int']['output'];
+};
+
+/** One day of the range, with what the employee was contracted to work on it. */
+export type TrackerExpectedDay = {
+  __typename?: 'TrackerExpectedDay';
+  date: Scalars['String']['output'];
+  expectedMs: Scalars['Float']['output'];
+  /** Null on a working day. */
+  offReason?: Maybe<TrackerOffReason>;
+};
+
 export type TrackerInterval = {
   __typename?: 'TrackerInterval';
   activeMs: Scalars['Float']['output'];
@@ -18316,6 +18373,13 @@ export type TrackerNoticeInput = {
   /** Leave empty to reach every employee with an active tracker grant. */
   userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
+
+/** Why a day carries no expected hours. */
+export enum TrackerOffReason {
+  Holiday = 'HOLIDAY',
+  Leave = 'LEAVE',
+  Weekend = 'WEEKEND'
+}
 
 /** The installers a build can produce. */
 export enum TrackerPlatform {
@@ -20732,6 +20796,8 @@ export type ResolversTypes = ResolversObject<{
   TrackerDayBucket: ResolverTypeWrapper<TrackerDayBucket>;
   TrackerDevice: ResolverTypeWrapper<TrackerDevice>;
   TrackerDeviceInput: TrackerDeviceInput;
+  TrackerExpected: ResolverTypeWrapper<TrackerExpected>;
+  TrackerExpectedDay: ResolverTypeWrapper<TrackerExpectedDay>;
   TrackerInterval: ResolverTypeWrapper<TrackerInterval>;
   TrackerIntervalInput: TrackerIntervalInput;
   TrackerLoginPayload: ResolverTypeWrapper<TrackerLoginPayload>;
@@ -20744,6 +20810,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerMessageKind: TrackerMessageKind;
   TrackerMessageThread: ResolverTypeWrapper<TrackerMessageThread>;
   TrackerNoticeInput: TrackerNoticeInput;
+  TrackerOffReason: TrackerOffReason;
   TrackerPlatform: TrackerPlatform;
   TrackerPresence: TrackerPresence;
   TrackerPresenceState: ResolverTypeWrapper<TrackerPresenceState>;
@@ -21608,6 +21675,8 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerDayBucket: TrackerDayBucket;
   TrackerDevice: TrackerDevice;
   TrackerDeviceInput: TrackerDeviceInput;
+  TrackerExpected: TrackerExpected;
+  TrackerExpectedDay: TrackerExpectedDay;
   TrackerInterval: TrackerInterval;
   TrackerIntervalInput: TrackerIntervalInput;
   TrackerLoginPayload: TrackerLoginPayload;
@@ -27514,6 +27583,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerAccess?: Resolver<Maybe<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   myTrackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryMyTrackerCalendarArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryMyTrackerDayArgs, 'end' | 'start'>>;
+  myTrackerExpected?: Resolver<ResolversTypes['TrackerExpected'], ParentType, ContextType, RequireFields<QueryMyTrackerExpectedArgs, 'from' | 'timezone' | 'to'>>;
+  myTrackerExpectedReport?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryMyTrackerExpectedReportArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryMyTrackerManualEntriesArgs, 'from' | 'to'>>;
   myTrackerMessages?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType, Partial<QueryMyTrackerMessagesArgs>>;
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
@@ -27626,6 +27697,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryTrackerCalendarArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryTrackerDayArgs, 'end' | 'start' | 'userId'>>;
   trackerDevices?: Resolver<Array<ResolversTypes['TrackerDevice']>, ParentType, ContextType, Partial<QueryTrackerDevicesArgs>>;
+  trackerExpected?: Resolver<ResolversTypes['TrackerExpected'], ParentType, ContextType, RequireFields<QueryTrackerExpectedArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
+  trackerExpectedReport?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryTrackerExpectedReportArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerLatestRelease?: Resolver<Maybe<ResolversTypes['TrackerRelease']>, ParentType, ContextType, Partial<QueryTrackerLatestReleaseArgs>>;
   trackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryTrackerManualEntriesArgs, 'from' | 'to' | 'userId'>>;
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
@@ -28918,6 +28991,19 @@ export type TrackerDeviceResolvers<ContextType = GraphQLContext, ParentType exte
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   totalMemoryMb?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerExpectedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerExpected'] = ResolversParentTypes['TrackerExpected']> = ResolversObject<{
+  days?: Resolver<Array<ResolversTypes['TrackerExpectedDay']>, ParentType, ContextType>;
+  workHoursPerDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerExpectedDayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerExpectedDay'] = ResolversParentTypes['TrackerExpectedDay']> = ResolversObject<{
+  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expectedMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  offReason?: Resolver<Maybe<ResolversTypes['TrackerOffReason']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30290,6 +30376,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerDay?: TrackerDayResolvers<ContextType>;
   TrackerDayBucket?: TrackerDayBucketResolvers<ContextType>;
   TrackerDevice?: TrackerDeviceResolvers<ContextType>;
+  TrackerExpected?: TrackerExpectedResolvers<ContextType>;
+  TrackerExpectedDay?: TrackerExpectedDayResolvers<ContextType>;
   TrackerInterval?: TrackerIntervalResolvers<ContextType>;
   TrackerLoginPayload?: TrackerLoginPayloadResolvers<ContextType>;
   TrackerManualEntry?: TrackerManualEntryResolvers<ContextType>;

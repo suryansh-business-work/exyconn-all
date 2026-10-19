@@ -18,6 +18,9 @@ import {
 import { useTrackerMonth } from '@exyconn/shell/pages/tracker-view/useTrackerMonth';
 import { buildTrackerMonth } from '@exyconn/shell/pages/tracker-view/buildTrackerMonth';
 import { TrackerEmployeePicker } from './TrackerEmployeePicker';
+import { TrackerTargetSummary } from './TrackerTargetSummary';
+import { useTrackerTarget } from './useTrackerTarget';
+import { useHoursReportDownload } from './useHoursReportDownload';
 import { TrackerView } from '@exyconn/shell/pages/tracker-view/TrackerView';
 
 /** Query-string key holding whose tracker is on screen. */
@@ -81,12 +84,35 @@ export function TrackerPage() {
     () => buildTrackerMonth(month.month, buckets, new Date()),
     [month.month, buckets],
   );
+  const target = useTrackerTarget({
+    employeeId,
+    range: month.range,
+    timezone: settings.timezone,
+    buckets,
+  });
+  const report = useHoursReportDownload({
+    employeeId,
+    range: month.range,
+    timezone: settings.timezone,
+  });
 
   return (
     <Box>
       <PageHeader title="Time Tracker" subtitle="Worked hours, activity & screenshots">
         <TrackerEmployeePicker options={options} value={employeeId} onChange={setEmployeeId} />
       </PageHeader>
+      {employeeId && (
+        <TrackerTargetSummary
+          target={target.target}
+          workHoursPerDay={target.workHoursPerDay}
+          loading={target.loading}
+          error={target.error}
+          downloading={report.downloading}
+          onDownload={() => {
+            report.download().catch((error: unknown) => console.error(error));
+          }}
+        />
+      )}
       <TrackerView
         monthLabel={month.monthLabel}
         onPrev={month.prev}
@@ -102,6 +128,7 @@ export function TrackerPage() {
         timezone={settings.timezone}
         formatTime={formatTime}
         formatDateTime={formatDateTime}
+        dayMarks={target.dayMarks}
         empty={!employeeId}
       />
     </Box>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { ReportDay } from '@shared/types';
+import type { ExpectedRange, ReportDay } from '@shared/types';
 import { activityPercent, monthBounds } from '@exyconn/tracker-core';
 
 export interface ReportTotals {
@@ -10,6 +10,8 @@ export interface ReportTotals {
 
 export interface ReportQuery {
   days: ReportDay[];
+  /** The month's contracted hours per day; null until it arrives, or when it failed. */
+  contract: ExpectedRange | null;
   totals: ReportTotals;
   loading: boolean;
   error: string | null;
@@ -34,6 +36,7 @@ function sum(days: readonly ReportDay[]): ReportTotals {
  */
 export default function useMyReport(month: Date, zone: string): ReportQuery {
   const [days, setDays] = useState<ReportDay[]>([]);
+  const [contract, setContract] = useState<ExpectedRange | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { fromISO, toISO } = monthBounds(month, zone);
@@ -42,11 +45,14 @@ export default function useMyReport(month: Date, zone: string): ReportQuery {
     let active = true;
     setLoading(true);
     setError(null);
-    globalThis.tracker
-      .getReport(fromISO, toISO)
-      .then((rows) => {
+    Promise.all([
+      globalThis.tracker.getReport(fromISO, toISO),
+      globalThis.tracker.getExpected(fromISO, toISO),
+    ])
+      .then(([rows, expected]) => {
         if (active) {
           setDays(rows);
+          setContract(expected);
           setLoading(false);
         }
       })
@@ -54,6 +60,7 @@ export default function useMyReport(month: Date, zone: string): ReportQuery {
         console.error('Failed to load report', cause);
         if (active) {
           setDays([]);
+          setContract(null);
           setError('Could not load your report. Check your connection and try again.');
           setLoading(false);
         }
@@ -63,5 +70,5 @@ export default function useMyReport(month: Date, zone: string): ReportQuery {
     };
   }, [fromISO, toISO]);
 
-  return { days, totals: sum(days), loading, error };
+  return { days, contract, totals: sum(days), loading, error };
 }

@@ -44,6 +44,8 @@ export const {
   trackerMe,
   heartbeat,
   fetchMyReport,
+  fetchMyExpected,
+  fetchMyExpectedReport,
   fetchMyDay,
   setTimezone,
   fetchMyTotals,
