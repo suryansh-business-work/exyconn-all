@@ -7,15 +7,19 @@ export { credential };
 export const CLIENT_ID = 'client-123.apps.googleusercontent.com';
 
 /** Stores the install's Google client, switched on unless told otherwise. */
+/**
+ * Saves the one Google sign-in config. An upsert: reading the config earlier in a test may
+ * already have created the default row, and a second insert would hit its unique key.
+ */
 export const storeGoogleClient = (fields: Record<string, unknown> = {}) =>
   runAsPlatform(() =>
-    GoogleSignInConfigModel.create({
-      key: 'default',
-      clientId: CLIENT_ID,
-      clientSecret: credential('google'),
-      enabled: true,
-      ...fields,
-    }),
+    GoogleSignInConfigModel.findOneAndUpdate(
+      { key: 'default' },
+      {
+        $set: { clientId: CLIENT_ID, clientSecret: credential('google'), enabled: true, ...fields },
+      },
+      { upsert: true, new: true },
+    ),
   );
 
 /** An unsigned ID token carrying `claims`, as Google's token endpoint hands one back. */

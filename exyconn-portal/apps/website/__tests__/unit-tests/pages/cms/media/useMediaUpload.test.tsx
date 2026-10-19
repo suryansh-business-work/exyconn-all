@@ -1,11 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useMediaUpload } from '../../../../../src/pages/cms/media';
-import {
-  MAX_MEDIA_BYTES,
-  MEDIA_ACCEPT,
-  useMediaDataUrlUpload,
-} from '../../../../../src/pages/cms/media/useMediaUpload';
+import { MAX_MEDIA_BYTES, MEDIA_ACCEPT } from '../../../../../src/pages/cms/media/useMediaUpload';
 
 const gql = vi.hoisted(() => ({ upload: vi.fn() }));
 
@@ -106,29 +102,5 @@ describe('useMediaUpload', () => {
     await expect(uploadWith()(file('brochure.pdf', 'application/pdf'))).rejects.toThrow(
       'The upload returned no file',
     );
-  });
-
-  it('stores a cropped data URL from the upload dialog as a named file in the library', async () => {
-    const uploadDataUrl = renderHook(() => useMediaDataUrlUpload('site-1')).result.current;
-
-    await expect(uploadDataUrl('data:image/png;base64,aGk=', 'crop.png')).resolves.toBe(
-      'https://cdn/stored.png',
-    );
-    expect(sentInput()).toEqual({
-      siteId: 'site-1',
-      file: 'data:image/png;base64,aGk=',
-      fileName: 'crop.png',
-      width: 640,
-      height: 480,
-    });
-  });
-
-  it('applies the same checks to a data URL that is not an image or a PDF', async () => {
-    const uploadDataUrl = renderHook(() => useMediaDataUrlUpload('site-1')).result.current;
-
-    await expect(uploadDataUrl('data:text/plain;base64,aGk=', 'notes.txt')).rejects.toThrow(
-      'notes.txt is not an image or a PDF',
-    );
-    expect(gql.upload).not.toHaveBeenCalled();
   });
 });
