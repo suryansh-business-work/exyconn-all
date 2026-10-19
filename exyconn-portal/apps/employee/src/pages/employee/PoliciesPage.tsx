@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Grid, radius, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Grid, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useMyPoliciesQuery } from '@exyconn/shell/graphql/generated';
@@ -38,7 +38,7 @@ export function PoliciesPage() {
       <PageHeader title="Policies" subtitle="Company policies & guidelines" />
 
       {outstanding.length > 0 ? (
-        <Alert severity="warning" variant="outlined" sx={{ mb: 2, borderRadius: `${radius.sm}px` }}>
+        <Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
           {outstandingNotice}
         </Alert>
       ) : null}

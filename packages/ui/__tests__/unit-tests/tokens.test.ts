@@ -8,6 +8,8 @@ import { color } from '../../src/tokens/colors.tokens';
 import { tint, tintOpacity } from '../../src/tokens/backgrounds.token';
 import { COLOR_MODES, modeTokens, tokensFor } from '../../src/tokens/modes';
 import { createAppTheme } from '../../src/theme';
+import { glowCanvas, pastelTone, washCanvas } from '../../src/tokens/canvas.token';
+import { AA_LARGE, contrastRatio } from '../../src/a11y/contrast';
 
 describe('scales', () => {
   it('derives spacing from the 8px unit', () => {
@@ -81,5 +83,31 @@ describe('modes', () => {
     expect(theme.typography.fontWeightRegular).toBe(fontWeight.regular);
     expect(theme.typography.fontWeightMedium).toBe(fontWeight.medium);
     expect(theme.typography.fontWeightBold).toBe(fontWeight.bold);
+  });
+});
+
+describe('the canvas and the pastel bubble', () => {
+  it('lays a light wash diagonally through evenly spaced stops, over its ground', () => {
+    const canvas = washCanvas('#ffffff', ['#000000', '#111111', '#222222']);
+    expect(canvas.image).toBe('linear-gradient(135deg, #000000 0%, #111111 50%, #222222 100%)');
+    expect(canvas.stops).toEqual(['#ffffff', '#000000', '#111111', '#222222']);
+  });
+
+  it('lays dark glows over the ground, each stop its glow at its brightest', () => {
+    const canvas = glowCanvas('#000000', [{ color: '#ffffff', opacity: 0.5, at: '0% 0%' }]);
+    expect(canvas.image).toBe(
+      'radial-gradient(55% 55% at 0% 0%, rgba(255, 255, 255, 0.5), transparent 70%)',
+    );
+    expect(canvas.stops).toEqual(['#000000', '#808080']);
+  });
+
+  it.each(COLOR_MODES)('tints a bubble from any accent and draws its icon at 3:1 (%s)', (mode) => {
+    const surface = tokensFor(mode).background.panel;
+    for (const accent of [color.amber[500], color.blue[400], color.green[300], color.violet[400]]) {
+      const tone = pastelTone(accent, surface, mode);
+      expect(tone.fill).not.toBe(surface);
+      expect(tone.ring).toMatch(/^rgba\(/);
+      expect(contrastRatio(tone.ink, tone.fill)).toBeGreaterThanOrEqual(AA_LARGE);
+    }
   });
 });

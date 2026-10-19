@@ -1,15 +1,17 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import {
-  CARD_RADIUS,
-  Box,
   Chip,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  readableInk,
   fontWeight,
+  radius,
 } from '@/components/ui';
+import { IconBubble } from '@/components/dashboard/IconBubble';
+
+/** The switcher's bubble: a step smaller than a stat tile's. */
+const SWITCHER_BUBBLE = 36;
 import type { PortalAppKey } from '@/config/apps';
 
 export interface PortalEntry {
@@ -29,32 +31,17 @@ interface PortalListItemProps {
   onSelect: (entry: PortalEntry) => void;
 }
 
-/** One portal in the switcher: accent-tinted icon, name, and what it is for. */
+/** One portal in the switcher: its icon in a pastel bubble of its accent, name, and purpose. */
 export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps>) {
-  const Icon = entry.icon;
-
   return (
     <ListItemButton
       selected={entry.isCurrent}
       aria-current={entry.isCurrent ? 'page' : undefined}
       onClick={() => onSelect(entry)}
-      sx={{ borderRadius: `${CARD_RADIUS}px`, mb: 0.5, alignItems: 'flex-start', py: 1.5 }}
+      sx={{ borderRadius: `${radius.xl}px`, mb: 0.5, alignItems: 'flex-start', py: 1.5 }}
     >
-      <ListItemIcon sx={{ minWidth: 44, mt: 0.5 }}>
-        <Box
-          sx={{
-            width: 34,
-            height: 34,
-            borderRadius: 1,
-            display: 'grid',
-            placeItems: 'center',
-            // Whichever ink reads on this module's colour — white vanishes on amber or teal.
-            color: readableInk(entry.accent),
-            bgcolor: entry.accent,
-          }}
-        >
-          <Icon fontSize="small" />
-        </Box>
+      <ListItemIcon sx={{ minWidth: 48, mt: 0.5 }}>
+        <IconBubble icon={entry.icon} accent={entry.accent} size={SWITCHER_BUBBLE} />
       </ListItemIcon>
       <ListItemText
         primary={entry.label}

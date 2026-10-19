@@ -1,4 +1,4 @@
-import { List, ListItemButton, ListItemIcon, Tooltip } from '@/components/ui';
+import { List, ListItemButton, ListItemIcon, Tooltip, radius } from '@/components/ui';
 import type { NavNode } from './moduleNav';
 
 interface SidebarRailProps {
@@ -28,12 +28,15 @@ export function SidebarRail({ nodes, trail, onSelect }: Readonly<SidebarRailProp
               aria-current={current && isPage ? 'page' : undefined}
               aria-label={node.label}
               onClick={() => onSelect(node)}
-              sx={{ borderRadius: 1, justifyContent: 'center', minHeight: 40, px: 1 }}
+              sx={{
+                borderRadius: `${radius.pill}px`,
+                justifyContent: 'center',
+                minHeight: 40,
+                px: 1,
+              }}
             >
-              {/* Monochrome, as in the expanded tree: the current module is marked by its row. */}
-              <ListItemIcon
-                sx={{ minWidth: 0, color: current ? 'text.primary' : 'text.secondary' }}
-              >
+              {/* As in the expanded tree: muted, until the current module's pill gives it the accent. */}
+              <ListItemIcon sx={{ minWidth: 0, color: current ? undefined : 'text.secondary' }}>
                 <node.icon fontSize="small" />
               </ListItemIcon>
             </ListItemButton>

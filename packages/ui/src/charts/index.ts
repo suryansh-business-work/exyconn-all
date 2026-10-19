@@ -9,8 +9,10 @@ export {
   CHART_SERIES_LIGHT,
   CHART_SERIES_DARK,
   CHART_STATUS,
+  PASTEL_CHART,
   chartPalette,
   wash,
   type ChartPalette,
+  type ChartSet,
 } from './palette';
 export type { ChartData, ChartSeries, ValueFormatter } from './chart.types';

@@ -5,6 +5,7 @@ import { Bar } from 'react-chartjs-2';
 import type { ChartOptions } from 'chart.js';
 import './chart-setup';
 import { useChartPalette } from './useChartPalette';
+import { barFill } from './palette';
 import { axisChrome, sharedPlugins } from './chart-options';
 import type { ChartData, ValueFormatter } from './chart.types';
 import { useChartLabel } from './chart-label';
@@ -23,6 +24,8 @@ interface Props {
 
 /** Mark spec: never fill the slot — the leftover band is air, not a wider bar. */
 const MAX_BAR_THICKNESS = 24;
+const BAR_RADIUS = 4;
+const SOFT_BAR_RADIUS = 8;
 /** The gap that separates touching marks. Surface-coloured, so it reads as white space. */
 const GAP = 2;
 
@@ -62,18 +65,24 @@ export function BarChart({
         .every((above) => (above.values[valueIndex] ?? 0) <= 0);
     };
 
+    // The pastel set's bars are softer at the end; the flat set keeps its 4px.
+    const barRadius = palette.gradient ? SOFT_BAR_RADIUS : BAR_RADIUS;
     return {
       labels: [...data.labels],
       datasets: data.series.map((series, index) => ({
         label: series.label,
         data: [...series.values],
-        backgroundColor: series.color ?? palette.series[index % palette.series.length],
+        backgroundColor: barFill(
+          palette,
+          series.color ?? palette.series[index % palette.series.length],
+          horizontal,
+        ),
         // The gap: surface-coloured, only where a segment meets the next one.
         borderColor: palette.surface,
         borderWidth: stacked ? { top: GAP, right: 0, bottom: 0, left: 0 } : 0,
         borderRadius: stacked
-          ? (ctx: { dataIndex: number }) => (isStackTop(index, ctx.dataIndex) ? 4 : 0)
-          : 4,
+          ? (ctx: { dataIndex: number }) => (isStackTop(index, ctx.dataIndex) ? barRadius : 0)
+          : barRadius,
         // Square where it grows from the baseline, rounded only at the data end.
         borderSkipped: 'start' as const,
         maxBarThickness: MAX_BAR_THICKNESS,
@@ -81,7 +90,7 @@ export function BarChart({
         barPercentage: 0.9,
       })),
     };
-  }, [data, palette, stacked]);
+  }, [data, palette, stacked, horizontal]);
 
   const options = useMemo<ChartOptions<'bar'>>(() => {
     const chrome = axisChrome(palette, formatValue, integer);

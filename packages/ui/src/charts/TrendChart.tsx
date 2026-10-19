@@ -5,7 +5,7 @@ import { Line } from 'react-chartjs-2';
 import type { ChartOptions } from 'chart.js';
 import './chart-setup';
 import { useChartPalette } from './useChartPalette';
-import { wash } from './palette';
+import { areaFill } from './palette';
 import { axisChrome, sharedPlugins } from './chart-options';
 import type { ChartData, ValueFormatter } from './chart.types';
 import { useChartLabel } from './chart-label';
@@ -48,10 +48,10 @@ export function TrendChart({
           data: [...series.values],
           borderColor: color,
           // A wash, never a saturated block — and only under a lone series.
-          backgroundColor: area && single ? wash(color) : 'transparent',
+          backgroundColor: area && single ? areaFill(palette, color, 0.1) : 'transparent',
           fill: area && single,
-          borderWidth: 2,
-          tension: 0.3,
+          borderWidth: palette.gradient ? 2.5 : 2,
+          tension: palette.gradient ? 0.4 : 0.3,
           pointRadius: 4,
           pointHoverRadius: 6,
           pointBackgroundColor: color,

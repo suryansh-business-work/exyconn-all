@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import type { Theme } from '@/components/ui';
-import { Box, borderWidth, Drawer, enterAnimation, Toolbar } from '@/components/ui';
+import { Box, Drawer, enterAnimation, Toolbar } from '@/components/ui';
+import { pageFrame } from '@/components/glass/glass';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
@@ -18,13 +19,16 @@ const DRAWER_WIDTH = 288;
 /** Collapsed width: one icon plus its hit area, nothing else. */
 const RAIL_WIDTH = 64;
 
-const drawerPaper = (t: Theme, width: number) => ({
+/**
+ * The navigation column. Docked, it is no surface at all: its pill rows sit straight on the
+ * pastel canvas beside the frosted page frame. Sliding over the page on a phone, it is the
+ * solid sidebar colour, because the page beneath would otherwise show through its text.
+ */
+const drawerPaper = (t: Theme, width: number, floating: boolean) => ({
   width,
   boxSizing: 'border-box' as const,
-  // One hairline down the edge, so the navigation reads as its own column beside the page.
   border: 'none',
-  borderRight: `${borderWidth.hairline}px solid ${t.palette.divider}`,
-  background: t.palette.background.sidebar,
+  background: floating ? t.palette.background.sidebar : 'transparent',
   overflowX: 'hidden' as const,
   transition: t.transitions.create('width', { duration: t.transitions.duration.shorter }),
 });
@@ -49,7 +53,7 @@ export function PortalLayout() {
         display: 'flex',
         minHeight: '100vh',
         color: 'text.primary',
-        // Transparent, so the theme's dotted canvas on <body> shows between the panels.
+        // Transparent, so the theme's pastel canvas on <body> shows round the frame.
         background: 'transparent',
       }}
     >
@@ -69,7 +73,7 @@ export function PortalLayout() {
           ModalProps={{ keepMounted: true }}
           sx={(t) => ({
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': drawerPaper(t, DRAWER_WIDTH),
+            '& .MuiDrawer-paper': drawerPaper(t, DRAWER_WIDTH, true),
           })}
         >
           <Sidebar roles={user.roles} onNavigate={() => setMobileOpen(false)} />
@@ -79,7 +83,7 @@ export function PortalLayout() {
           open
           sx={(t) => ({
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': drawerPaper(t, width),
+            '& .MuiDrawer-paper': drawerPaper(t, width, false),
           })}
         >
           <Sidebar roles={user.roles} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
@@ -100,12 +104,19 @@ export function PortalLayout() {
         {/* Spacer the height of the fixed topbar. */}
         <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT } }} />
         <Box
-          sx={{
-            px: PAGE_GUTTER,
-            pt: 1,
-            // Clear of the home indicator on an installed app; zero in a browser tab.
-            pb: { xs: 'calc(env(safe-area-inset-bottom) + 16px)', md: 3 },
-          }}
+          sx={[
+            {
+              px: PAGE_GUTTER,
+              pt: { xs: 1, md: 3 },
+              // Clear of the home indicator on an installed app; zero in a browser tab.
+              pb: { xs: 'calc(env(safe-area-inset-bottom) + 16px)', md: 3 },
+              // The frame fills the screen below the topbar, keeping a gutter of canvas round it.
+              mr: { md: 2 },
+              mb: { md: 2 },
+              minHeight: { md: `calc(100vh - ${TOPBAR_HEIGHT}px - 16px)` },
+            },
+            pageFrame,
+          ]}
         >
           {/* Keyed by path: a crashed page leaves the sidebar working, and navigating clears it. */}
           <PageErrorBoundary key={pathname}>

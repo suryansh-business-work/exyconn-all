@@ -77,7 +77,14 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
         sx={{ position: 'relative', zIndex: zIndex.raised, width: '100%', maxWidth: 1100 }}
       >
         <Flex direction="column" spacing={2} sx={{ width: '100%', maxWidth: 380, minWidth: 0 }}>
-          <Box sx={[readingPanel, { width: '100%', borderRadius: `${CARD_RADIUS}px` }]}>
+          {/* Solid, not glass: the card floats over branding artwork nobody chose in advance,
+              and frosted glass over a dark photograph would drop its text below AA. */}
+          <Box
+            sx={[
+              readingPanel,
+              { width: '100%', borderRadius: `${CARD_RADIUS}px`, bgcolor: 'background.paper' },
+            ]}
+          >
             <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
               <Box
                 component="img"

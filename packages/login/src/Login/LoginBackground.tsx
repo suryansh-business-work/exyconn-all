@@ -1,4 +1,4 @@
-import { Box, alpha, useTheme } from '@exyconn/shell/components/ui';
+import { Box, alpha, tokensFor, useTheme } from '@exyconn/shell/components/ui';
 
 interface LoginBackgroundProps {
   imageUrl: string;
@@ -14,10 +14,21 @@ interface LoginBackgroundProps {
 export function LoginBackground({ imageUrl, accentColor, isDark }: Readonly<LoginBackgroundProps>) {
   // The page colour of the mode in force, so the sign-in ground is the same canvas as every
   // page behind it rather than a grey of its own.
-  const base = useTheme().palette.background.default;
+  const { palette } = useTheme();
+  const base = palette.background.default;
 
   return (
-    <Box aria-hidden sx={{ position: 'absolute', inset: 0, bgcolor: base }}>
+    // The portal's pastel canvas, under the artwork, so a portal without a picture still
+    // signs in on the same wash as every page behind it.
+    <Box
+      aria-hidden
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        bgcolor: base,
+        backgroundImage: tokensFor(palette.mode).canvas.image,
+      }}
+    >
       {imageUrl && (
         <Box
           component="img"

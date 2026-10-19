@@ -148,6 +148,8 @@ export const orange = {
   800: '#b54708',
   /** The brand orange as ink on the light grounds — the reference's #E5532D measures 3.6:1. */
   900: '#b93c0b',
+  /** The light-mode warning ink: 4.5:1 on every stop of the pastel canvas, not only on white. */
+  950: '#a8410a',
 } as const;
 
 export const amber = {
@@ -193,7 +195,60 @@ export const cyan = {
   600: '#0891b2',
 } as const;
 
-export const sky = { 500: '#0ea5e9' } as const;
+/**
+ * Sky — the canvas's top-left wash, the current navigation pill and the first chart slot.
+ * `50` is the canvas stop, `100`/`200` the selected pill's gloss, `300`/`400` the dark and light
+ * chart fills, `800` the ink a selected icon wears on the pill.
+ */
+export const sky = {
+  50: '#e2eefc',
+  100: '#e8f2fe',
+  200: '#d3e6fc',
+  300: '#8cc4ff',
+  400: '#6aaef0',
+  500: '#0ea5e9',
+  600: '#3d8fe0',
+  700: '#2d5a99',
+  800: '#1d5fa8',
+  900: '#1d3a66',
+  /** The dark canvas's top-left glow, laid on at a low opacity. */
+  glow: '#5a96ff',
+  /** The dark focus ring and the selected icon on the dark pill. */
+  ice: '#9cc7ff',
+  /** The dark selected pill, top to bottom: night-tinted sky. */
+  dusk: '#2a3a63',
+  deep: '#223154',
+} as const;
+
+/** Lavender — the canvas's second stop and a chart slot. */
+export const lavender = {
+  50: '#ece8fc',
+  300: '#b8a9ff',
+  400: '#a594f0',
+  glow: '#9a7bff',
+} as const;
+
+/** Blush — the canvas's third stop (pink) and a chart slot. */
+export const blush = {
+  50: '#f9e8f2',
+  300: '#ff9fd0',
+  400: '#f08cbf',
+  glow: '#ff78be',
+} as const;
+
+/** Peach — the canvas's bottom-right stop and a chart slot. */
+export const peach = {
+  50: '#fdeee3',
+  300: '#ffb98a',
+  400: '#f6a873',
+  glow: '#ffa878',
+} as const;
+
+/** Mint, butter, periwinkle and coral — the rest of the pastel chart set. */
+export const mint = { 300: '#7fe0b8', 400: '#5cc9a0' } as const;
+export const butter = { 300: '#ffe08a', 400: '#f2c94c' } as const;
+export const periwinkle = { 300: '#9fb0ff', 400: '#7c8cf0' } as const;
+export const coral = { 300: '#ff9d9d', 400: '#ef8a8a' } as const;
 
 /**
  * The portal neutral: a cool, faintly blue grey — a soft grey canvas, white cards and a deep
@@ -203,7 +258,11 @@ export const sky = { 500: '#0ea5e9' } as const;
  * ink on the dark grounds. `100` is the light page and the dark ink alike.
  */
 export const mist = {
+  /** The light canvas's solid ground — what the pastel wash is laid over and falls back to. */
+  75: '#f1f3f9',
   100: '#eef0f3',
+  /** The light quiet surface: a hovered row, the tab track, a neutral chip. */
+  150: '#e8ecf5',
   200: '#e4e7ec',
   250: '#dfe2e8',
   400: '#9ba2b0',
@@ -214,6 +273,22 @@ export const mist = {
   850: '#1b2130',
   900: '#171b25',
   950: '#0f121a',
+} as const;
+
+/**
+ * Night — the dark mode's neutral: a deep navy-indigo canvas, translucent indigo glass and a
+ * cool off-white ink. `950` is the canvas, `900` an opaque surface (menus, dialogs), `850` the
+ * glass a card is tinted with, `800` the quiet surface, `500` a control's edge (3:1 on every
+ * dark ground), `400` the muted ink and `100` the ink.
+ */
+export const night = {
+  100: '#eef1f8',
+  400: '#a3abc0',
+  500: '#7a84a0',
+  800: '#242b44',
+  850: '#1c2340',
+  900: '#161b2e',
+  950: '#0c1020',
 } as const;
 
 /** Every ramp under one name, so a consumer imports `color` and nothing else. */
@@ -239,7 +314,15 @@ export const color = {
   teal,
   cyan,
   sky,
+  lavender,
+  blush,
+  peach,
+  mint,
+  butter,
+  periwinkle,
+  coral,
   mist,
+  night,
 } as const;
 
 /** The families a categorical accent may be drawn from. */

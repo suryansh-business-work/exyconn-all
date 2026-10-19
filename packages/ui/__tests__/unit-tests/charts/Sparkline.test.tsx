@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Sparkline } from '../../../src/charts/Sparkline';
-import { CHART_SERIES_DARK, CHART_SERIES_LIGHT, wash } from '../../../src/charts/palette';
+import { CHART_SERIES_LIGHT, PASTEL_CHART, wash } from '../../../src/charts/palette';
 import { renderWithProviders } from '../test-utils';
 import { lastCall, type CapturedChart } from './chart-mock';
 
@@ -59,6 +59,6 @@ describe('Sparkline', () => {
 
   it('uses the dark palette under a dark theme', () => {
     renderWithProviders(<Sparkline values={[1, 2]} />, { mode: 'dark' });
-    expect(lastCall(calls).data.datasets[0].borderColor).toBe(CHART_SERIES_DARK[0]);
+    expect(lastCall(calls).data.datasets[0].borderColor).toBe(PASTEL_CHART.dark.series[0]);
   });
 });

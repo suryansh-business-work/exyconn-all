@@ -1,5 +1,5 @@
 import { alpha } from '../styles';
-import { black } from './colors.tokens';
+import { black, night } from './colors.tokens';
 import type { ColorMode } from './modes/color-mode';
 
 /**
@@ -39,23 +39,24 @@ export interface ShadowScale {
   xl: string;
 }
 
-/** One black shadow at an opacity. Only this file composes a shadow colour. */
-function shade(opacity: number): string {
-  return alpha(black, opacity);
+/** One shadow colour at an opacity. Only this file composes a shadow colour. */
+function shade(base: string, opacity: number): string {
+  return alpha(base, opacity);
 }
 
 /**
- * Soft, wide shadows: a tight contact shade under the edge and a long diffuse one that lifts a
- * card off the grey canvas without drawing a line round it. Dark mode needs a denser shade,
- * because on a near-black ground a 10% shadow is not there.
+ * Soft, wide, diffuse shadows: a faint contact shade under the edge and a long blur that lifts
+ * frosted glass off the canvas without drawing a line round it. By day the shade is a navy tint
+ * rather than black — a grey shadow on a pastel wash reads as dirt. Dark mode needs a denser
+ * shade, because on a near-black ground a 10% shadow is not there.
  */
-function shadowScale(faint: number, soft: number): ShadowScale {
+function shadowScale(base: string, faint: number, soft: number): ShadowScale {
   return {
-    xs: `0 1px 2px 0 ${shade(faint)}`,
-    sm: `0 1px 2px 0 ${shade(faint)}, 0 6px 20px -4px ${shade(soft)}`,
-    md: `0 2px 4px -1px ${shade(faint)}, 0 12px 28px -6px ${shade(soft)}`,
-    lg: `0 4px 8px -2px ${shade(faint)}, 0 20px 40px -8px ${shade(soft)}`,
-    xl: `0 8px 16px -4px ${shade(faint)}, 0 32px 64px -12px ${shade(soft)}`,
+    xs: `0 1px 2px 0 ${shade(base, faint)}`,
+    sm: `0 1px 2px 0 ${shade(base, faint)}, 0 10px 30px -8px ${shade(base, soft)}`,
+    md: `0 2px 6px -1px ${shade(base, faint)}, 0 18px 40px -12px ${shade(base, soft)}`,
+    lg: `0 4px 10px -2px ${shade(base, faint)}, 0 28px 56px -14px ${shade(base, soft)}`,
+    xl: `0 8px 18px -4px ${shade(base, faint)}, 0 40px 80px -16px ${shade(base, soft)}`,
   };
 }
 
@@ -64,6 +65,6 @@ function shadowScale(faint: number, soft: number): ShadowScale {
  * keep `boxShadow` above — this scale belongs to `createAppTheme` and the shell's surfaces.
  */
 export const portalShadow: Record<ColorMode, ShadowScale> = {
-  light: shadowScale(0.04, 0.08),
-  dark: shadowScale(0.3, 0.5),
+  light: shadowScale(night[850], 0.05, 0.1),
+  dark: shadowScale(black, 0.3, 0.5),
 };

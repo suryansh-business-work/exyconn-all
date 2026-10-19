@@ -16,6 +16,7 @@ export * from './selection.token';
 export * from './tracker.token';
 export * from './box-shadow.token';
 export * from './backgrounds.token';
+export * from './canvas.token';
 export * from './motion.token';
 export * from './z-index.token';
 export * from './modes';

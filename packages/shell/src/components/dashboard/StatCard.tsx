@@ -1,9 +1,12 @@
+import type { SvgIconComponent } from '@mui/icons-material';
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { Box, Skeleton, Stack, Typography, iconSize, fontWeight } from '@/components/ui';
+import { Box, Chip, Skeleton, Stack, Typography, fontWeight } from '@/components/ui';
+import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { panel } from '../glass/glass';
-import { color, numeric, radius, Sparkline } from '@exyconn/ui';
+import { color, numeric, Sparkline } from '@exyconn/ui';
+import { IconBubble } from './IconBubble';
 
 export interface StatItem {
   label: string;
@@ -18,6 +21,8 @@ export interface StatItem {
   value: string;
   delta?: number;
   accent?: string;
+  /** The icon in the tile's pastel bubble. A neutral chart glyph stands in when none is given. */
+  icon?: SvgIconComponent;
   series?: number[];
 }
 
@@ -26,13 +31,17 @@ interface StatCardProps extends StatItem {
   loading?: boolean;
 }
 
-/** A stat tile: label, a large light figure, a trend pill and a mini sparkline. */
+/**
+ * A stat tile: the accent's icon in a pastel bubble, a trend pill, a large light figure with
+ * its muted label beneath, and a mini sparkline.
+ */
 export function StatCard({
   label,
   labelValues,
   value,
   delta,
   accent = color.orange[500],
+  icon = InsightsOutlinedIcon,
   series,
   loading = false,
 }: Readonly<StatCardProps>) {
@@ -40,47 +49,14 @@ export function StatCard({
   const up = (delta ?? 0) >= 0;
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Stack
-        direction="row"
-        sx={{
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        }}
-      >
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-          }}
-        >
-          {t(label, labelValues)}
-        </Typography>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <IconBubble icon={icon} accent={accent} />
         {delta !== undefined && (
-          <Stack
-            direction="row"
-            spacing={0.5}
-            sx={{
-              alignItems: 'center',
-              px: 1,
-              borderRadius: `${radius.sm}px`,
-              bgcolor: 'background.muted',
-              color: up ? 'success.main' : 'error.main',
-            }}
-          >
-            {up ? (
-              <TrendingUpIcon sx={{ fontSize: iconSize.md }} />
-            ) : (
-              <TrendingDownIcon sx={{ fontSize: iconSize.md }} />
-            )}
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: fontWeight.bold,
-              }}
-            >
-              {Math.abs(delta)}%
-            </Typography>
-          </Stack>
+          <Chip
+            color={up ? 'success' : 'error'}
+            icon={up ? <TrendingUpIcon /> : <TrendingDownIcon />}
+            label={`${Math.abs(delta)}%`}
+          />
         )}
       </Stack>
       {/* Sized like a heading, but not one: four numbers as <h6> straight after the page's
@@ -88,16 +64,15 @@ export function StatCard({
       <Typography
         variant="h4"
         component="p"
-        sx={{
-          fontWeight: fontWeight.regular,
-          fontVariantNumeric: numeric.tabular,
-          mt: 1,
-        }}
+        sx={{ fontWeight: fontWeight.light, fontVariantNumeric: numeric.tabular, mt: 2 }}
       >
         {loading ? <Skeleton width="40%" /> : value}
       </Typography>
+      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: fontWeight.medium }}>
+        {t(label, labelValues)}
+      </Typography>
       {series && !loading && (
-        <Box sx={{ mt: 1 }}>
+        <Box sx={{ mt: 1.5 }}>
           <Sparkline values={series} color={accent} height={28} />
         </Box>
       )}

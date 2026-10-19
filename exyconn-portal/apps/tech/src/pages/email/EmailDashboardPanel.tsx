@@ -6,7 +6,6 @@ import {
   color,
   Flex,
   Grid,
-  radius,
   Text,
   TrendChart,
   type ChartData,
@@ -99,7 +98,7 @@ export function EmailDashboardPanel() {
     <Box>
       {/* First, because every other number here can look healthy while nothing has left. */}
       {board && !board.configured ? (
-        <Alert severity="error" variant="outlined" sx={{ mb: 2, borderRadius: `${radius.sm}px` }}>
+        <Alert severity="error" variant="outlined" sx={{ mb: 2 }}>
           {t('No active SMTP configuration, so nothing can be sent. Add one under Settings.')}
         </Alert>
       ) : null}

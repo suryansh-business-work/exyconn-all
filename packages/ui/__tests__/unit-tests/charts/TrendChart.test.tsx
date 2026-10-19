@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { TrendChart } from '../../../src/charts/TrendChart';
 import { ChartLabelContext } from '../../../src/charts/chart-label';
-import { CHART_SERIES_LIGHT, wash } from '../../../src/charts/palette';
+import { CHART_SERIES_LIGHT, PASTEL_CHART, wash } from '../../../src/charts/palette';
+import { renderWithProviders } from '../test-utils';
 import type { ChartData } from '../../../src/charts/chart.types';
 import { lastCall, type CapturedChart } from './chart-mock';
 
@@ -62,6 +63,19 @@ describe('TrendChart', () => {
     });
     expect(options.scales?.y?.ticks).toMatchObject({ precision: 0 });
     expect(options.plugins?.legend?.display).toBe(false);
+  });
+
+  it('draws the portal theme s pastels as a softer line over a fading area', () => {
+    renderWithProviders(<TrendChart data={single} formatValue={count} area />);
+    const [sent] = lastCall(calls).data.datasets;
+    expect(sent).toMatchObject({
+      borderColor: PASTEL_CHART.light.series[0],
+      borderWidth: 2.5,
+      tension: 0.4,
+      fill: true,
+    });
+    const fill = sent.backgroundColor as unknown as (context: { chart: object }) => string;
+    expect(fill({ chart: {} })).toMatch(/^rgba\(/);
   });
 
   it('never washes when several series would collide', () => {

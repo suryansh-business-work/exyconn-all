@@ -1,4 +1,22 @@
-import { amber, azure, emerald, green, indigo, orange, pink, red } from '../tokens/colors.tokens';
+import {
+  amber,
+  azure,
+  blush,
+  butter,
+  coral,
+  emerald,
+  green,
+  indigo,
+  lavender,
+  mint,
+  orange,
+  peach,
+  periwinkle,
+  pink,
+  red,
+  sky,
+} from '../tokens/colors.tokens';
+import type { ColorMode } from '../tokens/modes/color-mode';
 
 /**
  * The chart palette.
@@ -62,6 +80,51 @@ export const CHART_STATUS = {
   critical: red[700],
 } as const;
 
+/** A theme's own chart colours: eight categorical slots and a five-step magnitude ramp. */
+export interface ChartSet {
+  series: readonly string[];
+  sequential: readonly string[];
+}
+
+/**
+ * The portals' pastel set — sky, peach, lavender, mint, pink, butter, periwinkle, coral — drawn
+ * with soft gradient fills. Adjacent slots alternate cool and warm, and light and deep, so
+ * neighbours stay tellable apart; past eight series, fold the tail into "Other".
+ *
+ * Pastels sit below 3:1 on the light card by nature, as the validated set's aqua and yellow
+ * already did. That is allowed only because every chart here ships a table view (ChartCard):
+ * the values are always readable without relying on the fill. On the dark card every slot
+ * clears 3:1.
+ */
+export const PASTEL_CHART: Record<ColorMode, ChartSet> = {
+  light: {
+    series: [
+      sky[400],
+      peach[400],
+      lavender[400],
+      mint[400],
+      blush[400],
+      butter[400],
+      periwinkle[400],
+      coral[400],
+    ],
+    sequential: [sky[200], sky[300], sky[400], sky[600], sky[800]],
+  },
+  dark: {
+    series: [
+      sky[300],
+      peach[300],
+      lavender[300],
+      mint[300],
+      blush[300],
+      butter[300],
+      periwinkle[300],
+      coral[300],
+    ],
+    sequential: [sky[900], sky[700], sky[600], sky[300], sky[200]],
+  },
+};
+
 export interface ChartPalette {
   /** Categorical slots for this mode, in their fixed order. */
   series: readonly string[];
@@ -76,24 +139,35 @@ export interface ChartPalette {
   /** Axis labels and legend text. Text NEVER wears a series colour. */
   ink: string;
   inkStrong: string;
+  /**
+   * Whether marks are filled with a soft gradient of their colour (the portals' pastel set)
+   * rather than flat (the validated default the desktop tracker keeps).
+   */
+  gradient: boolean;
 }
 
-/** Everything a chart needs to paint itself in one mode. */
+/**
+ * Everything a chart needs to paint itself in one mode. A theme that brings its own `set` —
+ * the portal theme's pastels — is drawn with it and with gradient fills; any other theme (the
+ * desktop tracker's) keeps the validated flat palette above.
+ */
 export function chartPalette(
   mode: 'light' | 'dark',
   surface: string,
   grid: string,
   ink: string,
   inkStrong: string,
+  set?: ChartSet,
 ): ChartPalette {
   const light = mode === 'light';
   return {
-    series: light ? CHART_SERIES_LIGHT : CHART_SERIES_DARK,
-    sequential: light ? CHART_SEQUENTIAL_LIGHT : CHART_SEQUENTIAL_DARK,
+    series: set?.series ?? (light ? CHART_SERIES_LIGHT : CHART_SERIES_DARK),
+    sequential: set?.sequential ?? (light ? CHART_SEQUENTIAL_LIGHT : CHART_SEQUENTIAL_DARK),
     surface,
     grid,
     ink,
     inkStrong,
+    gradient: set !== undefined,
   };
 }
 
@@ -104,4 +178,52 @@ export function wash(hex: string, alpha = 0.1): string {
   const g = (value >> 8) & 255;
   const b = value & 255;
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/** Just enough of Chart.js's scriptable context to lay a gradient across the plot area. */
+interface FillContext {
+  chart: {
+    ctx: CanvasRenderingContext2D;
+    chartArea?: { top: number; bottom: number; left: number; right: number };
+  };
+}
+
+/**
+ * A soft gradient fill for a mark: the colour at `from` opacity where the values are largest,
+ * fading to `to` at the baseline — across the plot area, so every bar of a series shares one
+ * gradient. Until Chart.js has laid the plot area out (its first pass), the flat wash stands in.
+ */
+export function fadeFill(color: string, from: number, to: number, horizontal = false) {
+  return ({ chart }: FillContext): CanvasGradient | string => {
+    const area = chart.chartArea;
+    if (!area) {
+      return wash(color, from);
+    }
+    const gradient = horizontal
+      ? chart.ctx.createLinearGradient(area.right, 0, area.left, 0)
+      : chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    gradient.addColorStop(0, wash(color, from));
+    gradient.addColorStop(1, wash(color, to));
+    return gradient;
+  };
+}
+
+/** How deep a soft bar's gradient runs: full colour at the data end, a little faded at the base. */
+const BAR_FADE = { from: 1, to: 0.7 } as const;
+
+/** A bar's fill: a soft gradient of its colour in the pastel set, the flat colour otherwise. */
+export function barFill(palette: ChartPalette, color: string, horizontal: boolean) {
+  return palette.gradient ? fadeFill(color, BAR_FADE.from, BAR_FADE.to, horizontal) : color;
+}
+
+/** How much deeper the pastel area gradient starts than the flat wash it replaces. */
+const AREA_DEPTH = 3.5;
+
+/**
+ * The fill under an area line: a gradient fading from `strength` × 3.5 at the line to nothing
+ * at the baseline in the pastel set — deeper at the line, where the eye reads it — and a flat
+ * `strength` wash otherwise.
+ */
+export function areaFill(palette: ChartPalette, color: string, strength: number) {
+  return palette.gradient ? fadeFill(color, strength * AREA_DEPTH, 0) : wash(color, strength);
 }

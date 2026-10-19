@@ -1,4 +1,5 @@
 import { borderWidth } from '../../tokens/border.token';
+import { SOLID_SURFACES } from '../../tokens/canvas.token';
 import { enterFrom, keyframeName } from '../../tokens/motion.token';
 import { numeric } from '../../tokens/typography.token';
 import type { ComponentGroup, ThemeParts } from '../parts';
@@ -27,8 +28,21 @@ export function baseline({ mode, t }: ThemeParts): ComponentGroup {
       styleOverrides: {
         // Native scrollbars, date inputs and autofill follow the palette instead of staying light.
         html: { colorScheme: mode },
-        // The page is a plain soft canvas; the white cards on it carry the structure.
-        body: { backgroundColor: t.background.page },
+        // The page is the pastel canvas: a solid ground with the wash painted on a fixed layer
+        // behind everything, so it stays put while the page scrolls and is never repainted.
+        // Asked for more contrast or less transparency, the ground stands alone.
+        body: {
+          backgroundColor: t.canvas.ground,
+          '&::before': {
+            content: '""',
+            position: 'fixed',
+            inset: 0,
+            zIndex: -1,
+            pointerEvents: 'none',
+            backgroundImage: t.canvas.image,
+          },
+          [SOLID_SURFACES]: { '&::before': { display: 'none' } },
+        },
         a: { textDecoration: 'none', color: 'inherit' },
         /**
          * A `<button>` does not inherit colour or type from its parent — the UA paints it

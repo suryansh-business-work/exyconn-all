@@ -4,8 +4,15 @@ import { COLOR_MODES, tokensFor } from '../../src/tokens/modes';
 import { scrim, tint } from '../../src/tokens/backgrounds.token';
 import { focusRing } from '../../src/tokens/box-shadow.token';
 import { enterAnimation, staggerDelay } from '../../src/tokens/motion.token';
-import { BASE_RADIUS, CARD_RADIUS } from '../../src/tokens/border.token';
-import { mist, orange, white } from '../../src/tokens/colors.tokens';
+import {
+  BASE_RADIUS,
+  CARD_RADIUS,
+  DIALOG_RADIUS,
+  FLOATING_RADIUS,
+  FRAME_RADIUS,
+} from '../../src/tokens/border.token';
+import { mist, night, orange, white } from '../../src/tokens/colors.tokens';
+import { AA_TEXT, contrastRatio } from '../../src/a11y/contrast';
 
 type StyleFn = (args: {
   ownerState: Record<string, unknown>;
@@ -43,14 +50,65 @@ describe.each(COLOR_MODES)('%s mode overrides', (mode) => {
     expect(
       chip({ ownerState: { color: 'default', variant: 'outlined' }, theme: null }),
     ).toMatchObject({ borderColor: t.divider });
-    expect(chip({ ownerState: { color: 'primary' }, theme: null })).not.toHaveProperty(
-      'backgroundColor',
-    );
+    // No colour at all reads as the neutral chip.
+    expect(chip({ ownerState: {}, theme: null })).toMatchObject({
+      backgroundColor: t.background.muted,
+    });
+    expect(
+      chip({ ownerState: { color: 'primary', variant: 'outlined' }, theme: null }),
+    ).not.toHaveProperty('backgroundColor');
     const remove = override(mode, 'MuiChip', 'deleteIcon');
     expect(remove({ ownerState: { color: 'default' }, theme: null })).toMatchObject({
       color: t.text.secondary,
     });
-    expect(remove({ ownerState: { color: 'primary' }, theme: null })).toEqual({});
+    expect(remove({ ownerState: { color: 'primary' }, theme: null })).toMatchObject({
+      color: 'inherit',
+    });
+  });
+
+  it('dresses a coloured chip as a readable pastel pill', () => {
+    const chip = override(mode, 'MuiChip', 'root');
+    for (const color of ['primary', 'secondary', 'success', 'warning', 'error', 'info']) {
+      const style = chip({ ownerState: { color, variant: 'filled' }, theme: null });
+      expect(style.borderRadius).toBe('9999px');
+      const fill = style.backgroundColor as string;
+      expect(fill).not.toBe(t.background.panel);
+      expect(contrastRatio(style.color as string, fill)).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+
+  it('frosts a modal backdrop and leaves an invisible one alone', () => {
+    const backdrop = override(mode, 'MuiBackdrop', 'root');
+    expect(backdrop({ ownerState: { invisible: true }, theme: null })).toEqual({});
+    expect(backdrop({ ownerState: { invisible: false }, theme: null })).toHaveProperty(
+      'backdropFilter',
+    );
+  });
+
+  it('makes a card frosted glass that turns solid when transparency is unwelcome', () => {
+    const card = createAppTheme(mode).components?.MuiCard?.styleOverrides?.root as Record<
+      string,
+      unknown
+    >;
+    expect(card).toMatchObject({
+      backgroundColor: t.glass.card,
+      borderRadius: `${CARD_RADIUS}px`,
+      boxShadow: t.shadow.sm,
+    });
+    const solid = Object.entries(card).find(([key]) => key.startsWith('@media'));
+    expect(solid?.[0]).toContain('prefers-reduced-transparency');
+    expect(solid?.[1]).toMatchObject({ backgroundColor: t.background.panel });
+  });
+
+  it('wears the glossy pastel pill on the current list row, its icon in the accent', () => {
+    const row = createAppTheme(mode).components?.MuiListItemButton?.styleOverrides?.root as Record<
+      string,
+      Record<string, string>
+    >;
+    const current = row['&.Mui-selected, &.Mui-selected:hover, &.Mui-selected.Mui-focusVisible'];
+    expect(current.backgroundImage).toContain(t.selected.top);
+    expect(current.color).toBe(t.selected.ink);
+    expect(row['&.Mui-selected .MuiListItemIcon-root'].color).toBe(t.selected.icon);
   });
 
   it('gives an alert a hairline in its own hue unless it is filled', () => {
@@ -105,34 +163,42 @@ describe.each(COLOR_MODES)('%s mode overrides', (mode) => {
     expect(row({ ownerState: {}, theme: null })).toHaveProperty('fontSize');
   });
 
-  it('paints the page as a plain canvas in the page colour', () => {
+  it('paints the page as the pastel canvas over its solid ground', () => {
     const baseline = createAppTheme(mode).components?.MuiCssBaseline?.styleOverrides as Record<
       string,
-      Record<string, string>
+      Record<string, Record<string, string>>
     >;
-    expect(baseline.body).toEqual({ backgroundColor: t.background.page });
+    expect(baseline.body).toMatchObject({ backgroundColor: t.background.page });
+    expect(baseline.body['&::before']).toMatchObject({
+      position: 'fixed',
+      backgroundImage: t.canvas.image,
+    });
   });
 });
 
 describe('the portal palette', () => {
-  it('puts white cards on a grey canvas in light mode and inverts the ink accent in dark', () => {
+  it('puts frosted cards on a pastel canvas by day and a navy night, inverting the ink accent', () => {
     expect(tokensFor('light')).toMatchObject({
       primary: mist[850],
       onPrimary: white,
       secondary: orange[900],
-      background: { page: mist[100], panel: white },
+      background: { page: mist[75], panel: white },
+      glass: { card: 'rgba(255, 255, 255, 0.72)' },
     });
     expect(tokensFor('dark')).toMatchObject({
       primary: mist[100],
       onPrimary: mist[950],
       secondary: orange[200],
-      background: { page: mist[950], panel: mist[900] },
+      background: { page: night[950], panel: night[900] },
     });
   });
 
-  it('caps every portal corner at 4px', () => {
-    expect(BASE_RADIUS).toBe(4);
-    expect(CARD_RADIUS).toBe(4);
+  it('rounds controls, cards, floating panels, dialogs and the frame on one rising scale', () => {
+    expect(BASE_RADIUS).toBe(12);
+    expect(FLOATING_RADIUS).toBe(16);
+    expect(CARD_RADIUS).toBe(20);
+    expect(DIALOG_RADIUS).toBe(24);
+    expect(FRAME_RADIUS).toBe(28);
   });
 
   it('draws a focus ring as a hairline shadow in the accent', () => {

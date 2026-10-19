@@ -98,7 +98,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
         />
 
         {policy.acknowledged ? (
-          <Alert severity="success" variant="outlined" sx={{ borderRadius: `${radius.sm}px` }}>
+          <Alert severity="success" variant="outlined">
             {signedNotice}
           </Alert>
         ) : null}
