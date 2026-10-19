@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
-// The portals' face, bundled: the theme asks for "Inter Variable" (tokens/typography.token.ts).
+// The portals' faces, bundled: the theme asks for "Inter Variable" for UI and body text and
+// "Outfit Variable" for headings and figures (tokens/typography.token.ts).
 import '@fontsource-variable/inter';
+import '@fontsource-variable/outfit';
 import { ApolloProvider } from '@apollo/client/react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';

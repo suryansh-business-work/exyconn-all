@@ -3,6 +3,7 @@ import { BASE_RADIUS } from '../tokens/border.token';
 import type { ShadowScale } from '../tokens/box-shadow.token';
 import { duration, easing } from '../tokens/motion.token';
 import { fontFamily, fontWeight, letterSpacing } from '../tokens/typography.token';
+import { PASTEL_CHART, type ChartSet } from '../charts/palette';
 import { tokensFor, type ColorMode } from '../tokens/modes';
 import { baseline } from './components/baseline';
 import { feedback } from './components/feedback';
@@ -25,7 +26,20 @@ declare module '@mui/material/styles' {
     muted: string;
     sidebar: string;
   }
+  /**
+   * A theme's own chart colours. The portal theme brings its pastel set; a theme without one
+   * (the desktop tracker's) draws with the validated default palette.
+   */
+  interface Palette {
+    chart?: ChartSet;
+  }
+  interface PaletteOptions {
+    chart?: ChartSet;
+  }
 }
+
+/** Display type: Outfit, for headings and the big figures. */
+const display = { fontFamily: fontFamily.display };
 
 /**
  * MUI's 25 elevation steps, folded onto the five shadcn shadows: 1 is `xs`, 2–3 `sm` (a card),
@@ -46,7 +60,7 @@ function elevationSteps(scale: ShadowScale): Shadows {
 }
 
 /**
- * Builds the Exyconn portal theme — shadcn/ui's zinc theme, drawn with MUI — for a mode.
+ * Builds the Exyconn portal theme — frosted glass on a pastel canvas, drawn with MUI — for a mode.
  *
  * Every value comes from `src/tokens` — this file decides which token plays which MUI role,
  * and the files in `./components` decide how each MUI family wears them. A colour that is not
@@ -82,6 +96,7 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       divider: t.divider,
       // shadcn's `accent`: every hovered row, option and cell fills with the muted surface.
       action: { hover: t.background.muted },
+      chart: PASTEL_CHART[mode],
     },
     shape: { borderRadius: BASE_RADIUS },
     shadows: elevationSteps(t.shadow),
@@ -99,22 +114,28 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       fontWeightRegular: fontWeight.regular,
       fontWeightMedium: fontWeight.medium,
       fontWeightBold: fontWeight.bold,
+      h1: { ...display, fontWeight: fontWeight.medium, letterSpacing: letterSpacing.tighter },
+      h2: { ...display, fontWeight: fontWeight.medium, letterSpacing: letterSpacing.tighter },
+      h3: { ...display, fontWeight: fontWeight.medium, letterSpacing: letterSpacing.tight },
       /**
-       * The page title: large, light and tight, sized against the screen
-       * rather than fixed, so "Purchase orders" is one line on a phone instead of three.
-       * `clamp` keeps it between 1.5rem and the 2rem a desk gets.
+       * The page title — the reference's friendly greeting: large, geometric and tight, sized
+       * against the screen rather than fixed, so "Purchase orders" is one line on a phone
+       * instead of three. `clamp` keeps it between 1.75rem and the 2.5rem a desk gets. A stat
+       * tile's figure borrows this size at the light weight.
        */
       h4: {
-        fontSize: 'clamp(1.5rem, 1.1rem + 2vw, 2.25rem)',
-        fontWeight: fontWeight.regular,
+        ...display,
+        fontSize: 'clamp(1.75rem, 1.2rem + 2.2vw, 2.5rem)',
+        fontWeight: fontWeight.medium,
         letterSpacing: letterSpacing.tighter,
       },
       h5: {
+        ...display,
         fontSize: 'clamp(1.25rem, 1rem + 1.2vw, 1.5rem)',
         fontWeight: fontWeight.medium,
         letterSpacing: letterSpacing.tight,
       },
-      h6: { fontWeight: fontWeight.medium, letterSpacing: letterSpacing.snug },
+      h6: { ...display, fontWeight: fontWeight.medium, letterSpacing: letterSpacing.snug },
       subtitle2: { fontWeight: fontWeight.semibold },
       button: { textTransform: 'none', fontWeight: fontWeight.medium },
       overline: { fontWeight: fontWeight.semibold, letterSpacing: letterSpacing.wide },

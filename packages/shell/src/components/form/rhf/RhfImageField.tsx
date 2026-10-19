@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
 } from '@/components/ui';
+import type { CropOptions } from '@/components/ui/ImageUploadDialog';
 
 interface RhfImageFieldProps {
   name: string;
@@ -27,6 +28,8 @@ interface RhfImageFieldProps {
    * thing being chosen is a clip rather than a still.
    */
   media?: 'image' | 'all';
+  /** How the crop step starts (shape, Fit / Fill, background) — e.g. a logo: 1:1, fit, auto. */
+  cropOptions?: Readonly<CropOptions>;
 }
 
 /**
@@ -40,6 +43,7 @@ export function RhfImageField({
   helperText,
   editableUrl = false,
   media = 'image',
+  cropOptions,
 }: Readonly<RhfImageFieldProps>) {
   const { control } = useFormContext();
   const [open, setOpen] = useState(false);
@@ -98,6 +102,7 @@ export function RhfImageField({
               folder={folder}
               currentUrl={url || null}
               media={media}
+              cropOptions={cropOptions}
               onClose={() => setOpen(false)}
               onUploaded={(uploaded) => field.onChange(uploaded)}
             />

@@ -95,6 +95,7 @@ export function EmailVerifierConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="EmailVerifierConfig"
         columns={COLUMNS}
         rows={data?.emailVerifierConfigs ?? []}
         actions={actions}

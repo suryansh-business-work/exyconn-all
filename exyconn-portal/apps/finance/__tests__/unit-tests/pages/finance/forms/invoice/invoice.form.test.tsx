@@ -143,13 +143,13 @@ describe('InvoiceForm', () => {
   it('switches to the currency a newly picked client is invoiced in', async () => {
     const user = userEvent.setup();
     renderForm(<InvoiceForm initial={invoiceRow()} {...handlers()} />);
-    expect(field('currency')).toHaveValue('Indian Rupee (INR)');
+    expect(field('currency')).toHaveValue('INR — Indian Rupee (₹)');
 
     await user.clear(screen.getByRole('combobox', { name: 'Client' }));
     await user.type(screen.getByRole('combobox', { name: 'Client' }), 'Glob');
     await user.click(await screen.findByRole('option', { name: 'Globex · Globex Corp' }));
 
-    expect(field('currency')).toHaveValue('US Dollar (USD)');
+    expect(field('currency')).toHaveValue('USD — US Dollar ($)');
   });
 
   it('leaves the currency alone for a client with none on file', async () => {
@@ -161,7 +161,7 @@ describe('InvoiceForm', () => {
     await user.click(await screen.findByRole('option', { name: 'Initech · Initech LLC' }));
 
     expect(field('clientId')).toHaveValue('Initech · Initech LLC');
-    expect(field('currency')).toHaveValue('Indian Rupee (INR)');
+    expect(field('currency')).toHaveValue('INR — Indian Rupee (₹)');
   });
 
   it('still opens with no client list loaded', () => {

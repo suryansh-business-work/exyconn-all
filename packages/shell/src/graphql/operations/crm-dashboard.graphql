@@ -1,0 +1,61 @@
+# CRM > Overview: one period's numbers, charts and findings, in one request.
+query CrmDashboard($from: DateTime!, $to: DateTime!) {
+  crmDashboard(from: $from, to: $to) {
+    timezone
+    granularity
+    kpis {
+      openDealCount
+      openPipelineValue
+      weightedPipelineValue
+      wonCount
+      wonValue
+      lostCount
+      winRate
+      newLeads
+      newContacts
+      newCompanies
+      overdueTasks
+      overdueReminders
+      meetingsBooked
+    }
+    pipelineByStage {
+      stage
+      count
+      value
+    }
+    wonOverTime {
+      key
+      start
+      count
+      value
+    }
+    leadsBySource {
+      source
+      count
+      won
+    }
+    activitiesOverTime {
+      key
+      start
+      call
+      email
+      meeting
+      note
+      task
+    }
+    topOwners {
+      owner
+      value
+      count
+    }
+    insights {
+      kind
+      tone
+      count
+      label
+      compareLabel
+      ratio
+      days
+    }
+  }
+}

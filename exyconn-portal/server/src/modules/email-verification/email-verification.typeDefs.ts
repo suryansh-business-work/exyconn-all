@@ -95,6 +95,11 @@ export const emailVerificationTypeDefs = gql`
     emailVerification: EmailVerification
   }
 
+  extend type CrmEmailAddress {
+    "The latest check of this address; null when it was never checked."
+    verification: EmailVerification
+  }
+
   extend type Query {
     emailVerificationsPaged(input: TableQueryInput!): EmailVerificationPage!
     emailVerificationBatches: [EmailVerificationBatch!]!

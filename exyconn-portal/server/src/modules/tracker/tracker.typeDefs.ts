@@ -342,6 +342,30 @@ export const trackerTypeDefs = gql`
     manualMs: Float!
   }
 
+  "Why a day carries no expected hours."
+  enum TrackerOffReason {
+    WEEKEND
+    HOLIDAY
+    LEAVE
+  }
+
+  "One day of the range, with what the employee was contracted to work on it."
+  type TrackerExpectedDay {
+    date: String!
+    expectedMs: Float!
+    "Null on a working day."
+    offReason: TrackerOffReason
+  }
+
+  """
+  What an employee was contracted to work over a range: their working day on Monday to
+  Friday, nothing on weekends, the public holidays they observe or approved leave.
+  """
+  type TrackerExpected {
+    workHoursPerDay: Int!
+    days: [TrackerExpectedDay!]!
+  }
+
   type TrackerDay {
     intervals: [TrackerInterval!]!
     screenshots: [TrackerScreenshot!]!
@@ -672,6 +696,20 @@ export const trackerTypeDefs = gql`
       timezone: String!
     ): [TrackerDayBucket!]!
     trackerDay(userId: ID!, start: DateTime!, end: DateTime!): TrackerDay!
+    "One employee's contracted hours per day over a range of at most 62 days."
+    trackerExpected(
+      userId: ID!
+      from: DateTime!
+      to: DateTime!
+      timezone: String!
+    ): TrackerExpected!
+    "One employee's month as an XLSX: date, expected hrs, logged hrs, deficit and remarks."
+    trackerExpectedReport(
+      userId: ID!
+      from: DateTime!
+      to: DateTime!
+      timezone: String!
+    ): TableFile!
     """
     The latest tracker installers. Any signed-in employee (or tracker device) may read it —
     the files themselves live on a public GitHub release. With a platform (android, ios,
@@ -736,6 +774,10 @@ export const trackerTypeDefs = gql`
     myTrackerAccess: TrackerAccess
     myTrackerCalendar(from: DateTime!, to: DateTime!, timezone: String!): [TrackerDayBucket!]!
     myTrackerDay(start: DateTime!, end: DateTime!): TrackerDay!
+    "The caller's own contracted hours per day over a range of at most 62 days."
+    myTrackerExpected(from: DateTime!, to: DateTime!, timezone: String!): TrackerExpected!
+    "The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks."
+    myTrackerExpectedReport(from: DateTime!, to: DateTime!, timezone: String!): TableFile!
     "Every IANA zone the server resolves, sorted - the phone zone picker has no runtime list."
     trackerTimezones: [String!]!
     "The caller's own off-computer entries in a range, any status."

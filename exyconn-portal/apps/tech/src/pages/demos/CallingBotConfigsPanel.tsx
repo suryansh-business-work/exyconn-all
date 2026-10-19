@@ -114,6 +114,7 @@ export function CallingBotConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="CallingBotConfig"
         columns={COLUMNS}
         rows={data?.callingBotConfigs ?? []}
         actions={actions}

@@ -87,6 +87,7 @@ export function CloudflareConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="CloudflareConfig"
         columns={columns}
         rows={rows}
         actions={actions}

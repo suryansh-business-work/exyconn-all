@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import {
+  ConnectMailboxLink,
   DetailLayout,
   EmailThreads,
   RecordDetailSkeleton,
@@ -80,6 +81,7 @@ export function ContactDetailPage() {
   return (
     <Box>
       <DetailLayout aside={<ContactProfile contact={contact} onSaved={reload} />}>
+        <ConnectMailboxLink />
         <Tabber basePath={`/contacts/${contact.id}`} items={tabs} ariaLabel="Contact" />
       </DetailLayout>
     </Box>

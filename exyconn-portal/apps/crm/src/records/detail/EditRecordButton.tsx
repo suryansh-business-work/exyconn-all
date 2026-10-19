@@ -17,10 +17,17 @@ interface EditRecordButtonProps {
   renderForm: (handlers: EditFormHandlers) => ReactNode;
   /** Called after a save, so the page reloads the record. */
   onSaved: () => void;
+  /** A plain text button with no icon or outline, for compact toolbars (the quick view). */
+  textOnly?: boolean;
 }
 
 /** "Edit" in a record's profile header, opening the record's form in a dialog. */
-export function EditRecordButton({ label, renderForm, onSaved }: Readonly<EditRecordButtonProps>) {
+export function EditRecordButton({
+  label,
+  renderForm,
+  onSaved,
+  textOnly = false,
+}: Readonly<EditRecordButtonProps>) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
@@ -32,11 +39,11 @@ export function EditRecordButton({ label, renderForm, onSaved }: Readonly<EditRe
     <>
       <Button
         size="small"
-        variant="outlined"
-        startIcon={<EditIcon />}
+        variant={textOnly ? 'text' : 'outlined'}
+        startIcon={textOnly ? undefined : <EditIcon />}
         aria-label={t(label)}
         onClick={() => setOpen(true)}
-        sx={{ flexShrink: 0, alignSelf: 'flex-start' }}
+        sx={{ flexShrink: 0 }}
       >
         {t('Edit')}
       </Button>

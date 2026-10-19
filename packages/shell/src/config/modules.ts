@@ -25,6 +25,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import SchemaIcon from '@mui/icons-material/Schema';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import BusinessIcon from '@mui/icons-material/Business';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
@@ -62,7 +63,6 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
-import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -483,11 +483,27 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Pipeline',
       },
       {
+        // Reminders, dated activities and booked meetings by month, week or day.
+        key: 'crm-calendar',
+        label: 'Calendar',
+        path: '/calendar',
+        icon: CalendarMonthIcon,
+        group: 'Pipeline',
+      },
+      {
         // Calendly-style meeting types with a public booking link, and their bookings.
         key: 'crm-meetings',
         label: 'Meetings',
         path: '/meetings',
         icon: EventAvailableIcon,
+        group: 'Pipeline',
+      },
+      {
+        // AI-written first emails to a contact or company, every version kept, sent from the CRM.
+        key: 'crm-cold-emails',
+        label: 'Cold emails',
+        path: '/cold-emails',
+        icon: ForwardToInboxIcon,
         group: 'Pipeline',
       },
       {
@@ -534,14 +550,6 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Custom Properties',
         path: '/settings/properties',
         icon: TuneIcon,
-        group: 'Configuration',
-      },
-      {
-        // The Gmail accounts the CRM reads contacts' threads from and sends as.
-        key: 'crm-connect-gmail',
-        label: 'Connect Gmail',
-        path: '/settings/gmail',
-        icon: AlternateEmailIcon,
         group: 'Configuration',
       },
       {

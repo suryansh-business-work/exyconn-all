@@ -12,9 +12,10 @@ import {
   radius,
 } from '@/components/ui';
 
-const NAV_CORNER = `${radius.sm}px`;
 import type { NavNode } from './moduleNav';
 import type { NavState } from './useNavState';
+
+const NAV_CORNER = `${radius.pill}px`;
 
 interface Props {
   node: NavNode;
@@ -25,22 +26,21 @@ interface Props {
 }
 
 /**
- * A nav row on the 4px corner. The current page is a white (card-coloured) row lifted off the canvas the
- * sidebar sits on — the same language as the cards on the page.
+ * A nav row is a pill. The current page wears the theme's glossy pastel pill (its icon in the
+ * accent); every other row is plain text on the canvas, filling with the quiet surface on hover.
  */
 const rowSx = (depth: number) => ({
   borderRadius: NAV_CORNER,
   mb: 0.5,
   py: 0.5,
   pl: 1.5 + depth * 1.5,
-  '&.Mui-selected, &.Mui-selected:hover': { bgcolor: 'background.paper', boxShadow: 1 },
 });
 
 /**
  * One page in the sidebar.
  *
  * The icon is muted until the row is the current page, which the theme then fills with the
- * muted surface and the foreground ink — the icon takes that ink too. Thirty-three rows each wearing the
+ * glossy pastel pill and the foreground ink — the icon takes the pill's accent. Thirty-three rows each wearing the
  * module's colour is thirty-three things competing to be looked at, and the one that matters —
  * where you are — stops standing out at all.
  */
@@ -56,7 +56,8 @@ function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
       onClick={() => onSelect(node)}
       sx={rowSx(depth)}
     >
-      <ListItemIcon sx={{ minWidth: 32, color: selected ? 'inherit' : 'text.secondary' }}>
+      {/* The current row's icon takes the theme's selected accent. */}
+      <ListItemIcon sx={{ minWidth: 32, color: selected ? undefined : 'text.secondary' }}>
         <Icon fontSize="small" />
       </ListItemIcon>
       <ListItemText

@@ -417,3 +417,22 @@ mutation MarkTrackerThreadRead($userId: ID!) {
 mutation SendTrackerNotice($input: TrackerNoticeInput!) {
   sendTrackerNotice(input: $input)
 }
+
+query TrackerExpected($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerExpected(userId: $userId, from: $from, to: $to, timezone: $timezone) {
+    workHoursPerDay
+    days {
+      date
+      expectedMs
+      offReason
+    }
+  }
+}
+
+query TrackerExpectedReport($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerExpectedReport(userId: $userId, from: $from, to: $to, timezone: $timezone) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}

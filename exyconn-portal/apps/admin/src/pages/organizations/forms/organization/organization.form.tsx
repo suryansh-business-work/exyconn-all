@@ -3,14 +3,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL, HTTP_URL } from '@exyconn/regex';
-import { countryOptions, currencyOptions, timezoneOptions, useI18n } from '@exyconn/i18n';
+import { countryOptions, timezoneOptions, useI18n } from '@exyconn/i18n';
 import {
   RhfAutocomplete,
+  RhfCurrencyField,
   RhfImageField,
   RhfSelect,
   RhfTextField,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   TaxSystem,
@@ -32,7 +34,7 @@ const schema = z.object({
     .max(60, 'Keep the handle under 60 characters'),
   legalName: z.string().trim(),
   country: z.string().trim().length(2, 'Pick the country the company operates in'),
-  currency: z.string().trim().length(3, 'Pick the currency it keeps books in'),
+  currency: currencyField,
   locale: z.string().trim().min(2, 'Pick the language its portal reads in'),
   timezone: z.string().trim().min(1, 'Pick the timezone it works by'),
   // A select hands back its option's value as text; it becomes a number on the way out.
@@ -99,7 +101,6 @@ export function OrganizationForm({ initial, onDone, onCancel }: Readonly<Organiz
   const [createOrganization] = useCreateOrganizationMutation();
   const [updateOrganization] = useUpdateOrganizationMutation();
   const countries = useMemo(() => countryOptions(locale), [locale]);
-  const currencies = useMemo(() => currencyOptions(locale), [locale]);
   const zones = useMemo(() => timezoneOptions(initial?.timezone ?? ''), [initial?.timezone]);
 
   const methods = useForm<Values>({
@@ -139,10 +140,9 @@ export function OrganizationForm({ initial, onDone, onCancel }: Readonly<Organiz
         label="Country"
         options={countries.map((option) => ({ value: option.code, label: option.label }))}
       />
-      <RhfAutocomplete
-        name="currency"
-        label="Currency"
-        options={currencies.map((option) => ({ value: option.code, label: option.label }))}
+      {/* This is where the company's currency is set, so it never defaults to one. */}
+      <RhfCurrencyField
+        defaultToCompany={false}
         helperText="What this company keeps its books in"
       />
       <RhfTextField name="locale" label="Language" helperText="A BCP 47 tag, such as en or de-DE" />

@@ -9,7 +9,7 @@ import {
   sha256,
   verifiedEmailOf,
 } from '../auth/google/google-sign-in.oauth';
-import { gmailClient } from './gmail.client';
+import { EMAIL_ACCOUNTS_UNAVAILABLE, gmailClient } from './gmail.client';
 import { enabledMailboxes, noteAccountOutcome, saveConnectedAccount } from './gmail.accounts';
 import {
   GmailAccountModel,
@@ -92,7 +92,7 @@ export interface ConnectActor {
 export async function startGmailConnect(returnTo: string, actor: ConnectActor): Promise<string> {
   const config = await readGmailConfig();
   if (!config.clientId || !config.clientSecret) {
-    badRequest('Save the Google client ID and secret in Tech > Environment Variables > Gmail.');
+    badRequest(EMAIL_ACCOUNTS_UNAVAILABLE);
   }
   if (!PORTAL_ORIGINS.has(new URL(returnTo).origin)) {
     badRequest('That is not a portal address.');

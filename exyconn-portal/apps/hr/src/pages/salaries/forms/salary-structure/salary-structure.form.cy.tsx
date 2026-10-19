@@ -35,7 +35,7 @@ describe('SalaryStructureForm', () => {
   it('takes a currency from the ISO 4217 list', () => {
     mount();
     cy.get('input[name="currency"]').type('Euro');
-    cy.contains('li', 'Euro (EUR)').click();
+    cy.contains('li', 'EUR — Euro (€)').click();
     cy.contains('button', 'Create').click();
     cy.contains('Currency is required').should('not.exist');
   });

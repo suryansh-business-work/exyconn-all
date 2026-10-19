@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BarChart } from '../../../src/charts/BarChart';
 import { ChartLabelContext } from '../../../src/charts/chart-label';
-import { CHART_SERIES_DARK, CHART_SERIES_LIGHT } from '../../../src/charts/palette';
+import { CHART_SERIES_LIGHT, PASTEL_CHART, wash } from '../../../src/charts/palette';
 import type { ChartData } from '../../../src/charts/chart.types';
 import { renderWithProviders } from '../test-utils';
 import { lastCall, type CapturedChart } from './chart-mock';
@@ -129,6 +129,10 @@ describe('BarChart', () => {
 
   it('paints with the dark palette under a dark theme', () => {
     renderWithProviders(<BarChart data={data} formatValue={hours} />, { mode: 'dark' });
-    expect(lastCall(calls).data.datasets[0].backgroundColor).toBe(CHART_SERIES_DARK[0]);
+    // The portal theme's pastel set, filled with a gradient that starts as the flat colour.
+    const fill = lastCall(calls).data.datasets[0].backgroundColor as unknown as (context: {
+      chart: { chartArea?: undefined };
+    }) => string;
+    expect(fill({ chart: {} })).toBe(wash(PASTEL_CHART.dark.series[0], 1));
   });
 });

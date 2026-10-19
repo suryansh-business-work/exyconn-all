@@ -51,7 +51,8 @@ describe('the bulk resolvers', () => {
   const signedIn = { user: { id: 'u1', email: 'u@x.com', roles: [] } } as unknown as GraphQLContext;
   const anonymous = {} as GraphQLContext;
   const { tableBulkInfo } = tableTransferResolvers.Query;
-  const { tableBulkAction } = tableTransferResolvers.Mutation;
+  const { startTableBulkJob } = tableTransferResolvers.Mutation;
+  const { tableBulkJob } = tableTransferResolvers.Query;
 
   it('describes the bulk actions of a list to anybody signed in', () => {
     expect(tableBulkInfo(null, { list: 'listProbesPaged' }, signedIn, info)).toEqual({
@@ -63,14 +64,13 @@ describe('the bulk resolvers', () => {
     );
   });
 
-  it('runs a bulk action only for somebody signed in', async () => {
-    const args = { list: 'listProbesPaged', ids: ['p1'], action: 'DELETE' as const };
-    await expect(tableBulkAction(null, args, signedIn, info)).resolves.toEqual({
-      succeeded: 1,
-      failures: [],
-    });
-    await expect(
-      codeOf(Promise.resolve().then(() => tableBulkAction(null, args, anonymous, info))),
-    ).resolves.toBe('UNAUTHENTICATED');
+  it('starts and reads bulk jobs only for somebody signed in', async () => {
+    const input = { list: 'listProbesPaged', ids: ['p1'], action: 'DELETE' as const };
+    await expect(codeOf(startTableBulkJob(null, { input }, anonymous, info))).resolves.toBe(
+      'UNAUTHENTICATED',
+    );
+    await expect(codeOf(tableBulkJob(null, { id: 'x' }, anonymous))).resolves.toBe(
+      'UNAUTHENTICATED',
+    );
   });
 });

@@ -22,6 +22,9 @@ export type Scalars = {
 
 export type Activity = {
   __typename?: 'Activity';
+  /** The user the reminder email goes to; empty without a reminder. */
+  assigneeId: Scalars['String']['output'];
+  assigneeName: Scalars['String']['output'];
   /** Photos, documents and call or meeting recordings. */
   attachments: Array<FileAttachment>;
   createdAt: Scalars['DateTime']['output'];
@@ -35,12 +38,18 @@ export type Activity = {
   relatedId: Scalars['String']['output'];
   relatedName: Scalars['String']['output'];
   relatedType: ActivitySubject;
+  /** When the assignee is emailed about it; null when nobody asked for a reminder. */
+  remindAt?: Maybe<Scalars['DateTime']['output']>;
+  /** When the reminder went out; null until then, and again after its time is moved. */
+  reminderSentAt?: Maybe<Scalars['DateTime']['output']>;
   subject: Scalars['String']['output'];
   type: ActivityType;
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type ActivityInput = {
+  /** The user to remind; required with remindAt. */
+  assigneeId?: InputMaybe<Scalars['String']['input']>;
   attachments?: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
@@ -50,6 +59,8 @@ export type ActivityInput = {
   relatedId?: InputMaybe<Scalars['String']['input']>;
   relatedName?: InputMaybe<Scalars['String']['input']>;
   relatedType: ActivitySubject;
+  /** Set to email the assignee at this time (must be in the future); null removes the reminder. */
+  remindAt?: InputMaybe<Scalars['DateTime']['input']>;
   subject: Scalars['String']['input'];
   type: ActivityType;
 };
@@ -2275,6 +2286,61 @@ export enum CmsSiteStatus {
   Draft = 'DRAFT'
 }
 
+/** A cold email being prepared for one contact or company, with every version written so far. */
+export type ColdEmailDraft = {
+  __typename?: 'ColdEmailDraft';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  /** What we are offering, in the person's words; empty means an introduction to the company. */
+  goal: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  object: CrmTimelineObject;
+  recordId: Scalars['ID']['output'];
+  recordName: Scalars['String']['output'];
+  status: ColdEmailStatus;
+  /** One of the record's addresses (a company's include its people's). */
+  toEmail: Scalars['String']['output'];
+  tone: ColdEmailTone;
+  updatedAt: Scalars['DateTime']['output'];
+  variantCount: Scalars['Int']['output'];
+  variants: Array<ColdEmailVariant>;
+};
+
+export type ColdEmailDraftPage = {
+  __typename?: 'ColdEmailDraftPage';
+  rows: Array<ColdEmailDraft>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ColdEmailStatus {
+  Draft = 'DRAFT',
+  /** One of its versions has been sent. */
+  Sent = 'SENT'
+}
+
+export enum ColdEmailTone {
+  Brief = 'BRIEF',
+  Formal = 'FORMAL',
+  Friendly = 'FRIENDLY'
+}
+
+/** One AI-written version of a cold email, which the person may edit before sending. */
+export type ColdEmailVariant = {
+  __typename?: 'ColdEmailVariant';
+  body: Scalars['String']['output'];
+  /** What the AI run cost, in US dollars. */
+  costUsd: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** What this version was asked to do differently; empty for the first one. */
+  instruction: Scalars['String']['output'];
+  sentAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The stored email message it went out as (Emails tab); empty until sent. */
+  sentMessageId: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  tone: ColdEmailTone;
+};
+
 export type Company = {
   __typename?: 'Company';
   address: Scalars['String']['output'];
@@ -2773,6 +2839,16 @@ export type CostCenterPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type CreateColdEmailDraftInput = {
+  goal?: InputMaybe<Scalars['String']['input']>;
+  object: CrmTimelineObject;
+  /** Read their website through Firecrawl first; costs a Firecrawl call. */
+  readWebsite?: InputMaybe<Scalars['Boolean']['input']>;
+  recordId: Scalars['ID']['input'];
+  toEmail: Scalars['String']['input'];
+  tone: ColdEmailTone;
+};
+
 export type CreateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
@@ -2821,6 +2897,44 @@ export type CreatedWebhook = {
   secret: Scalars['String']['output'];
   webhook: Webhook;
 };
+
+/** Activities logged in one period, per type. */
+export type CrmActivityPeriod = {
+  __typename?: 'CrmActivityPeriod';
+  call: Scalars['Int']['output'];
+  email: Scalars['Int']['output'];
+  key: Scalars['String']['output'];
+  meeting: Scalars['Int']['output'];
+  note: Scalars['Int']['output'];
+  start: Scalars['DateTime']['output'];
+  task: Scalars['Int']['output'];
+};
+
+/** One dated thing on the CRM calendar. */
+export type CrmCalendarItem = {
+  __typename?: 'CrmCalendarItem';
+  done: Scalars['Boolean']['output'];
+  endAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The activity's id, or booking:<id> for a meeting booking. */
+  id: Scalars['ID']['output'];
+  kind: CrmCalendarKind;
+  /** The assignee, the owner or the meeting's host. */
+  person: Scalars['String']['output'];
+  relatedId: Scalars['String']['output'];
+  relatedName: Scalars['String']['output'];
+  relatedType?: Maybe<ActivitySubject>;
+  startAt: Scalars['DateTime']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** What a calendar entry is, which decides its colour. */
+export enum CrmCalendarKind {
+  Activity = 'ACTIVITY',
+  Booking = 'BOOKING',
+  Meeting = 'MEETING',
+  Reminder = 'REMINDER',
+  Task = 'TASK'
+}
 
 /** A company's calling account. The auth token never leaves the server. */
 export type CrmCallConfig = {
@@ -2890,12 +3004,56 @@ export type CrmConditionInput = {
   values: Array<Scalars['String']['input']>;
 };
 
+export type CrmDashboard = {
+  __typename?: 'CrmDashboard';
+  activitiesOverTime: Array<CrmActivityPeriod>;
+  from: Scalars['DateTime']['output'];
+  granularity: CrmDashboardGranularity;
+  insights: Array<CrmInsight>;
+  kpis: CrmDashboardKpis;
+  leadsBySource: Array<CrmSourceCount>;
+  pipelineByStage: Array<CrmStageValue>;
+  /** The admin-configured zone the periods are counted in. */
+  timezone: Scalars['String']['output'];
+  to: Scalars['DateTime']['output'];
+  topOwners: Array<CrmOwnerValue>;
+  wonOverTime: Array<CrmPeriodValue>;
+};
+
+/** How the time charts are bucketed: days for a month, weeks up to about six months, months beyond. */
+export enum CrmDashboardGranularity {
+  Day = 'DAY',
+  Month = 'MONTH',
+  Week = 'WEEK'
+}
+
+/** Headline numbers. Open pipeline and overdue work are as of now; the rest cover the period. */
+export type CrmDashboardKpis = {
+  __typename?: 'CrmDashboardKpis';
+  lostCount: Scalars['Int']['output'];
+  meetingsBooked: Scalars['Int']['output'];
+  newCompanies: Scalars['Int']['output'];
+  newContacts: Scalars['Int']['output'];
+  newLeads: Scalars['Int']['output'];
+  openDealCount: Scalars['Int']['output'];
+  openPipelineValue: Scalars['Float']['output'];
+  overdueReminders: Scalars['Int']['output'];
+  overdueTasks: Scalars['Int']['output'];
+  weightedPipelineValue: Scalars['Float']['output'];
+  /** Won over won plus lost in the period, 0-1; null when nothing closed. */
+  winRate?: Maybe<Scalars['Float']['output']>;
+  wonCount: Scalars['Int']['output'];
+  wonValue: Scalars['Float']['output'];
+};
+
 /** One email address of a contact or company; exactly one is primary. */
 export type CrmEmailAddress = {
   __typename?: 'CrmEmailAddress';
   address: Scalars['String']['output'];
   label: Scalars['String']['output'];
   primary: Scalars['Boolean']['output'];
+  /** The latest check of this address; null when it was never checked. */
+  verification?: Maybe<EmailVerification>;
 };
 
 export type CrmEmailAddressInput = {
@@ -3004,6 +3162,34 @@ export type CrmImportResult = {
   updated: Scalars['Int']['output'];
 };
 
+/** A finding from the data. The client writes the sentence from kind and these values. */
+export type CrmInsight = {
+  __typename?: 'CrmInsight';
+  /** The group it is compared with, for a conversion finding. */
+  compareLabel: Scalars['String']['output'];
+  count: Scalars['Int']['output'];
+  days: Scalars['Int']['output'];
+  kind: CrmInsightKind;
+  /** The group it is about: a lead source, a record origin or a deal stage. */
+  label: Scalars['String']['output'];
+  ratio: Scalars['Float']['output'];
+  tone: CrmInsightTone;
+};
+
+export enum CrmInsightKind {
+  CompanyOriginConversion = 'COMPANY_ORIGIN_CONVERSION',
+  LeadSourceConversion = 'LEAD_SOURCE_CONVERSION',
+  OverdueReminders = 'OVERDUE_REMINDERS',
+  OverdueTasks = 'OVERDUE_TASKS',
+  PastCloseDate = 'PAST_CLOSE_DATE',
+  StuckDeals = 'STUCK_DEALS'
+}
+
+export enum CrmInsightTone {
+  Positive = 'POSITIVE',
+  Warning = 'WARNING'
+}
+
 /** Which contact actions a record page can offer. */
 export type CrmIntegrationStatus = {
   __typename?: 'CrmIntegrationStatus';
@@ -3055,6 +3241,22 @@ export enum CrmOriginSource {
   User = 'USER',
   Website = 'WEBSITE'
 }
+
+export type CrmOwnerValue = {
+  __typename?: 'CrmOwnerValue';
+  count: Scalars['Int']['output'];
+  owner: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
+/** Won deals in one period; key is the period in the company's zone (2026-10-19, 2026-W42, 2026-10). */
+export type CrmPeriodValue = {
+  __typename?: 'CrmPeriodValue';
+  count: Scalars['Int']['output'];
+  key: Scalars['String']['output'];
+  start: Scalars['DateTime']['output'];
+  value: Scalars['Float']['output'];
+};
 
 /** One phone number of a contact or company; exactly one is primary. */
 export type CrmPhoneNumber = {
@@ -3248,6 +3450,20 @@ export type CrmSort = {
 export type CrmSortInput = {
   dir: SortDir;
   property: Scalars['String']['input'];
+};
+
+export type CrmSourceCount = {
+  __typename?: 'CrmSourceCount';
+  count: Scalars['Int']['output'];
+  source: LeadSource;
+  won: Scalars['Int']['output'];
+};
+
+export type CrmStageValue = {
+  __typename?: 'CrmStageValue';
+  count: Scalars['Int']['output'];
+  stage: DealStage;
+  value: Scalars['Float']['output'];
 };
 
 export enum CrmTagObject {
@@ -6672,6 +6888,8 @@ export type Mutation = {
   acknowledgePolicy: PolicyAcknowledgement;
   /** Admin > Clients: gives a person client hub access and emails them where to sign in. */
   addClientContact: ClientContact;
+  /** Writes another version (at most 10 per draft); spends AI budget. */
+  addColdEmailVariant: ColdEmailDraft;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
@@ -6760,6 +6978,8 @@ export type Mutation = {
   createCmsFragment: CmsFragment;
   createCmsPage: CmsPage;
   createCmsSite: CmsSite;
+  /** Writes the first version with the AI from the record's business context; spends AI budget. */
+  createColdEmailDraft: ColdEmailDraft;
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -6941,6 +7161,8 @@ export type Mutation = {
   deleteCmsFragment: Scalars['Boolean']['output'];
   deleteCmsPage: Scalars['Boolean']['output'];
   deleteCmsSite: Scalars['Boolean']['output'];
+  deleteColdEmailDraft: Scalars['Boolean']['output'];
+  deleteColdEmailVariant: ColdEmailDraft;
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
   deleteCompanyExpense: Scalars['Boolean']['output'];
@@ -7264,6 +7486,8 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
+  /** Sends one version from a CRM mailbox; it shows on the record's Emails tab and timeline. */
+  sendColdEmailVariant: ColdEmailDraft;
   sendCrmEmail: CrmEmailMessage;
   sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
@@ -7398,6 +7622,8 @@ export type Mutation = {
   /** Starts connecting an account: returns the provider's consent page to open. MARKETING. */
   startSocialConnect: Scalars['String']['output'];
   startSprint: Sprint;
+  /** Queues a delete, archive or restore of up to 50,000 rows; the job reports its progress. */
+  startTableBulkJob: TableBulkJob;
   /** Asks GitHub to build the chosen installers off the given branch. */
   startTrackerBuild: Scalars['Boolean']['output'];
   /**
@@ -7424,8 +7650,6 @@ export type Mutation = {
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
-  /** Deletes, archives or restores up to 200 selected rows of a list. */
-  tableBulkAction: TableBulkResult;
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
@@ -7545,6 +7769,7 @@ export type Mutation = {
   updateCmsFragment: CmsFragment;
   updateCmsPageSettings: CmsPage;
   updateCmsSite: CmsSite;
+  updateColdEmailVariant: ColdEmailDraft;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
@@ -7690,6 +7915,13 @@ export type MutationAcknowledgePolicyArgs = {
 
 export type MutationAddClientContactArgs = {
   input: ClientContactInput;
+};
+
+
+export type MutationAddColdEmailVariantArgs = {
+  id: Scalars['ID']['input'];
+  instruction?: InputMaybe<Scalars['String']['input']>;
+  tone?: InputMaybe<ColdEmailTone>;
 };
 
 
@@ -7996,6 +8228,11 @@ export type MutationCreateCmsPageArgs = {
 
 export type MutationCreateCmsSiteArgs = {
   input: CmsSiteInput;
+};
+
+
+export type MutationCreateColdEmailDraftArgs = {
+  input: CreateColdEmailDraftInput;
 };
 
 
@@ -8750,6 +8987,17 @@ export type MutationDeleteCmsPageArgs = {
 
 export type MutationDeleteCmsSiteArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteColdEmailDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteColdEmailVariantArgs = {
+  draftId: Scalars['ID']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 
@@ -9773,6 +10021,11 @@ export type MutationSendCampaignArgs = {
 };
 
 
+export type MutationSendColdEmailVariantArgs = {
+  input: SendColdEmailVariantInput;
+};
+
+
 export type MutationSendCrmEmailArgs = {
   input: SendCrmEmailInput;
 };
@@ -10109,6 +10362,11 @@ export type MutationStartSprintArgs = {
 };
 
 
+export type MutationStartTableBulkJobArgs = {
+  input: TableBulkJobInput;
+};
+
+
 export type MutationStartTrackerBuildArgs = {
   platforms: Array<TrackerPlatform>;
   ref: Scalars['String']['input'];
@@ -10146,13 +10404,6 @@ export type MutationSubscribeToStatusArgs = {
 
 export type MutationSyncSocialAccountArgs = {
   id: Scalars['ID']['input'];
-};
-
-
-export type MutationTableBulkActionArgs = {
-  action: TableBulkAction;
-  ids: Array<Scalars['ID']['input']>;
-  list: Scalars['String']['input'];
 };
 
 
@@ -10499,6 +10750,14 @@ export type MutationUpdateCmsPageSettingsArgs = {
 export type MutationUpdateCmsSiteArgs = {
   id: Scalars['ID']['input'];
   input: CmsSiteInput;
+};
+
+
+export type MutationUpdateColdEmailVariantArgs = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 
@@ -12844,6 +13103,8 @@ export type Query = {
   /** Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech). */
   cmsSiteDns: CmsSiteDns;
   cmsSites: Array<CmsSite>;
+  coldEmailDraft: ColdEmailDraft;
+  coldEmailDrafts: ColdEmailDraftPage;
   /**
    * The company's finances between two dates. Both bounds are inclusive of the days they
    * fall on, as the caller sends them.
@@ -12860,7 +13121,11 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
+  /** Reminders, dated activities and meeting bookings from from (inclusive) to to (exclusive); at most 62 days. */
+  crmCalendar: Array<CrmCalendarItem>;
   crmCallConfigs: Array<CrmCallConfig>;
+  /** CRM overview for from (inclusive) to to (exclusive); at most three years. */
+  crmDashboard: CrmDashboard;
   /** The mailbox (Gmail or Microsoft) a new email to the record goes from by default; null when none is enabled. */
   crmEmailSender?: Maybe<Scalars['ID']['output']>;
   /** Every Gmail and Microsoft mailbox a CRM email may go from; empty outside the operator's CRM. */
@@ -13442,6 +13707,10 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The caller's own contracted hours per day over a range of at most 62 days. */
+  myTrackerExpected: TrackerExpected;
+  /** The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
+  myTrackerExpectedReport: TableFile;
   /** The caller's own off-computer entries in a range, any status. */
   myTrackerManualEntries: Array<TrackerManualEntry>;
   /**
@@ -13617,6 +13886,8 @@ export type Query = {
   systemHealth: SystemHealth;
   /** Whether a list's selected rows can be deleted and archived. */
   tableBulkInfo: TableBulkInfo;
+  /** A bulk job's progress, for the person who started it. */
+  tableBulkJob?: Maybe<TableBulkJob>;
   /** Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT. */
   tableExport: TableFile;
   /** The sample file to fill in for an import into this list. */
@@ -13652,6 +13923,10 @@ export type Query = {
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
+  /** One employee's contracted hours per day over a range of at most 62 days. */
+  trackerExpected: TrackerExpected;
+  /** One employee's month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
+  trackerExpectedReport: TableFile;
   /**
    * The latest tracker installers. Any signed-in employee (or tracker device) may read it —
    * the files themselves live on a public GitHub release. With a platform (android, ios,
@@ -13910,6 +14185,16 @@ export type QueryCmsSiteDnsArgs = {
 };
 
 
+export type QueryColdEmailDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryColdEmailDraftsArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryCompanyFinanceArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -13928,6 +14213,18 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmCalendarArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryCrmDashboardArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
 };
 
 
@@ -15005,6 +15302,20 @@ export type QueryMyTrackerDayArgs = {
 };
 
 
+export type QueryMyTrackerExpectedArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryMyTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryMyTrackerManualEntriesArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -15414,6 +15725,11 @@ export type QueryTableBulkInfoArgs = {
 };
 
 
+export type QueryTableBulkJobArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryTableExportArgs = {
   columns: Array<TableExportColumnInput>;
   fileName: Scalars['String']['input'];
@@ -15481,6 +15797,22 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryTrackerExpectedArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -15984,6 +16316,15 @@ export type SearchHit = {
   link: Scalars['String']['output'];
   subtitle: Scalars['String']['output'];
   title: Scalars['String']['output'];
+};
+
+export type SendColdEmailVariantInput = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders). */
+  fromAccountId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
 };
 
 export type SendCrmEmailInput = {
@@ -17120,12 +17461,42 @@ export type TableBulkInfo = {
   deletable: Scalars['Boolean']['output'];
 };
 
-export type TableBulkResult = {
-  __typename?: 'TableBulkResult';
-  /** Rows that could not be deleted, with why; the rest were. */
+/** A bulk action working through its rows in the background, in chunks. */
+export type TableBulkJob = {
+  __typename?: 'TableBulkJob';
+  action: TableBulkAction;
+  /** Why the whole job stopped, when it failed. */
+  error?: Maybe<Scalars['String']['output']>;
+  failedCount: Scalars['Int']['output'];
+  /** The first rows that could not be changed, with why. */
   failures: Array<TableBulkFailure>;
+  id: Scalars['ID']['output'];
+  processed: Scalars['Int']['output'];
+  status: TableBulkJobStatus;
   succeeded: Scalars['Int']['output'];
+  /** Rows the job acts on; known once the matching rows are read. */
+  total: Scalars['Int']['output'];
 };
+
+/** A bulk action to run in the background: on ticked rows, or on every row a list's query matches. */
+export type TableBulkJobInput = {
+  action: TableBulkAction;
+  /** The record type of a client-side table's rows, e.g. Holiday; it takes DELETE only. */
+  entity?: InputMaybe<Scalars['String']['input']>;
+  /** The ticked rows. Leave empty, with variables, to act on every row the list's query matches. */
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  /** The paged list the rows belong to. Leave empty for a client-side table and name the entity. */
+  list?: InputMaybe<Scalars['String']['input']>;
+  /** The variables the list's own query loads pages with, for Select all matching. */
+  variables?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export enum TableBulkJobStatus {
+  Done = 'DONE',
+  Failed = 'FAILED',
+  Queued = 'QUEUED',
+  Running = 'RUNNING'
+}
 
 /** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
 export type TableExportColumnInput = {
@@ -17827,6 +18198,25 @@ export type TrackerDeviceInput = {
   totalMemoryMb?: InputMaybe<Scalars['Int']['input']>;
 };
 
+/**
+ * What an employee was contracted to work over a range: their working day on Monday to
+ * Friday, nothing on weekends, the public holidays they observe or approved leave.
+ */
+export type TrackerExpected = {
+  __typename?: 'TrackerExpected';
+  days: Array<TrackerExpectedDay>;
+  workHoursPerDay: Scalars['Int']['output'];
+};
+
+/** One day of the range, with what the employee was contracted to work on it. */
+export type TrackerExpectedDay = {
+  __typename?: 'TrackerExpectedDay';
+  date: Scalars['String']['output'];
+  expectedMs: Scalars['Float']['output'];
+  /** Null on a working day. */
+  offReason?: Maybe<TrackerOffReason>;
+};
+
 export type TrackerInterval = {
   __typename?: 'TrackerInterval';
   activeMs: Scalars['Float']['output'];
@@ -17984,6 +18374,13 @@ export type TrackerNoticeInput = {
   /** Leave empty to reach every employee with an active tracker grant. */
   userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
+
+/** Why a day carries no expected hours. */
+export enum TrackerOffReason {
+  Holiday = 'HOLIDAY',
+  Leave = 'LEAVE',
+  Weekend = 'WEEKEND'
+}
 
 /** The installers a build can produce. */
 export enum TrackerPlatform {
@@ -20997,6 +21394,90 @@ export type ComplianceOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ComplianceOverviewQuery = { __typename?: 'Query', complianceOverview: { __typename?: 'ComplianceOverview', risks: number, openRisks: number, risksPastReview: number, findings: number, openFindings: number, findingsOverdue: number, audits: number, auditsPlanned: number, objectives: number, objectivesAtRisk: number, reviews: number, lastReviewOn?: string | null, lastReviewTitle: string, risksByStatus: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, findingsByType: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, residualHeat: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, standardCoverage: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }> } };
 
+export type CrmCalendarQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type CrmCalendarQuery = { __typename?: 'Query', crmCalendar: Array<{ __typename?: 'CrmCalendarItem', id: string, kind: CrmCalendarKind, title: string, startAt: string, endAt?: string | null, done: boolean, relatedType?: ActivitySubject | null, relatedId: string, relatedName: string, person: string }> };
+
+export type ColdEmailVariantFieldsFragment = { __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string };
+
+export type ColdEmailDraftRowFieldsFragment = { __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string };
+
+export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
+
+export type ColdEmailDraftsQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ColdEmailDraftsQuery = { __typename?: 'Query', coldEmailDrafts: { __typename?: 'ColdEmailDraftPage', totalCount: number, rows: Array<{ __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string }> } };
+
+export type ColdEmailDraftQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type CreateColdEmailDraftMutationVariables = Exact<{
+  input: CreateColdEmailDraftInput;
+}>;
+
+
+export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type AddColdEmailVariantMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  instruction?: InputMaybe<Scalars['String']['input']>;
+  tone?: InputMaybe<ColdEmailTone>;
+}>;
+
+
+export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type UpdateColdEmailVariantMutationVariables = Exact<{
+  draftId: Scalars['ID']['input'];
+  variantId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  body: Scalars['String']['input'];
+}>;
+
+
+export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type DeleteColdEmailVariantMutationVariables = Exact<{
+  draftId: Scalars['ID']['input'];
+  variantId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type DeleteColdEmailDraftMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteColdEmailDraftMutation = { __typename?: 'Mutation', deleteColdEmailDraft: boolean };
+
+export type SendColdEmailVariantMutationVariables = Exact<{
+  input: SendColdEmailVariantInput;
+}>;
+
+
+export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type CrmDashboardQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type CrmDashboardQuery = { __typename?: 'Query', crmDashboard: { __typename?: 'CrmDashboard', timezone: string, granularity: CrmDashboardGranularity, kpis: { __typename?: 'CrmDashboardKpis', openDealCount: number, openPipelineValue: number, weightedPipelineValue: number, wonCount: number, wonValue: number, lostCount: number, winRate?: number | null, newLeads: number, newContacts: number, newCompanies: number, overdueTasks: number, overdueReminders: number, meetingsBooked: number }, pipelineByStage: Array<{ __typename?: 'CrmStageValue', stage: DealStage, count: number, value: number }>, wonOverTime: Array<{ __typename?: 'CrmPeriodValue', key: string, start: string, count: number, value: number }>, leadsBySource: Array<{ __typename?: 'CrmSourceCount', source: LeadSource, count: number, won: number }>, activitiesOverTime: Array<{ __typename?: 'CrmActivityPeriod', key: string, start: string, call: number, email: number, meeting: number, note: number, task: number }>, topOwners: Array<{ __typename?: 'CrmOwnerValue', owner: string, value: number, count: number }>, insights: Array<{ __typename?: 'CrmInsight', kind: CrmInsightKind, tone: CrmInsightTone, count: number, label: string, compareLabel: string, ratio: number, days: number }> } };
+
 export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
 export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
@@ -21063,7 +21544,7 @@ export type ListContactsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListContactsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21188,14 +21669,14 @@ export type GetContactQueryVariables = Exact<{
 }>;
 
 
-export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean, verification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }>, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type GetCompanyQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, leadOwner: string, tags: Array<string>, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean, verification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }>, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type CrmTimelineQueryVariables = Exact<{
   object: CrmTimelineObject;
@@ -21358,7 +21839,7 @@ export type SearchLeadsQueryVariables = Exact<{
 }>;
 
 
-export type SearchLeadsQuery = { __typename?: 'Query', searchLeads: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+export type SearchLeadsQuery = { __typename?: 'Query', searchLeads: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }> } };
 
 export type SearchCompaniesQueryVariables = Exact<{
   query: CrmQueryInput;
@@ -21372,7 +21853,7 @@ export type SearchContactsQueryVariables = Exact<{
 }>;
 
 
-export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type CreateCrmPropertyMutationVariables = Exact<{
   input: CrmPropertyInput;
@@ -21442,7 +21923,7 @@ export type ListLeadsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListLeadsPagedQuery = { __typename?: 'Query', listLeadsPaged: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+export type ListLeadsPagedQuery = { __typename?: 'Query', listLeadsPaged: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string } | null }> } };
 
 export type ListLeadsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21575,7 +22056,7 @@ export type SetDomainNameserversMutationVariables = Exact<{
 
 export type SetDomainNameserversMutation = { __typename?: 'Mutation', setDomainNameservers: Array<string> };
 
-export type EmailVerificationBadgeFragment = { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string };
+export type EmailVerificationBadgeFragment = { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string, checkedBy: string };
 
 export type EmailVerificationFieldsFragment = { __typename?: 'EmailVerification', email: string, syntaxValid: boolean, hasMx: boolean, deliverable: boolean, catchAll: boolean, disposable: boolean, roleAccount: boolean, suggestion: string, source: EmailVerificationSource, checkedBy: string, id: string, status: EmailVerificationStatus, reason: string, checkedAt: string };
 
@@ -26319,14 +26800,21 @@ export type TableBulkInfoQueryVariables = Exact<{
 
 export type TableBulkInfoQuery = { __typename?: 'Query', tableBulkInfo: { __typename?: 'TableBulkInfo', deletable: boolean, archivable: boolean } };
 
-export type TableBulkActionMutationVariables = Exact<{
-  list: Scalars['String']['input'];
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
-  action: TableBulkAction;
+export type TableBulkJobFieldsFragment = { __typename?: 'TableBulkJob', id: string, action: TableBulkAction, status: TableBulkJobStatus, total: number, processed: number, succeeded: number, failedCount: number, error?: string | null, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> };
+
+export type StartTableBulkJobMutationVariables = Exact<{
+  input: TableBulkJobInput;
 }>;
 
 
-export type TableBulkActionMutation = { __typename?: 'Mutation', tableBulkAction: { __typename?: 'TableBulkResult', succeeded: number, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } };
+export type StartTableBulkJobMutation = { __typename?: 'Mutation', startTableBulkJob: { __typename?: 'TableBulkJob', id: string, action: TableBulkAction, status: TableBulkJobStatus, total: number, processed: number, succeeded: number, failedCount: number, error?: string | null, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } };
+
+export type TableBulkJobQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TableBulkJobQuery = { __typename?: 'Query', tableBulkJob?: { __typename?: 'TableBulkJob', id: string, action: TableBulkAction, status: TableBulkJobStatus, total: number, processed: number, succeeded: number, failedCount: number, error?: string | null, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } | null };
 
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -26902,6 +27390,26 @@ export type SendTrackerNoticeMutationVariables = Exact<{
 
 
 export type SendTrackerNoticeMutation = { __typename?: 'Mutation', sendTrackerNotice: number };
+
+export type TrackerExpectedQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type TrackerExpectedQuery = { __typename?: 'Query', trackerExpected: { __typename?: 'TrackerExpected', workHoursPerDay: number, days: Array<{ __typename?: 'TrackerExpectedDay', date: string, expectedMs: number, offReason?: TrackerOffReason | null }> } };
+
+export type TrackerExpectedReportQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type TrackerExpectedReportQuery = { __typename?: 'Query', trackerExpectedReport: { __typename?: 'TableFile', fileName: string, mimeType: string, contentBase64: string } };
 
 export type FirecrawlConfigFieldsFragment = { __typename?: 'FirecrawlConfig', id: string, label: string, baseUrl: string, hasApiKey: boolean, apiKeyHint?: string | null, isActive: boolean, updatedAt: string };
 
@@ -28244,6 +28752,43 @@ export const ComplianceStatsFieldsFragmentDoc = gql`
   }
 }
     `;
+export const ColdEmailDraftRowFieldsFragmentDoc = gql`
+    fragment ColdEmailDraftRowFields on ColdEmailDraft {
+  id
+  object
+  recordId
+  recordName
+  toEmail
+  status
+  variantCount
+  createdByName
+  updatedAt
+}
+    `;
+export const ColdEmailVariantFieldsFragmentDoc = gql`
+    fragment ColdEmailVariantFields on ColdEmailVariant {
+  id
+  subject
+  body
+  instruction
+  tone
+  costUsd
+  createdAt
+  sentAt
+  sentMessageId
+}
+    `;
+export const ColdEmailDraftFieldsFragmentDoc = gql`
+    fragment ColdEmailDraftFields on ColdEmailDraft {
+  ...ColdEmailDraftRowFields
+  goal
+  tone
+  createdAt
+  variants {
+    ...ColdEmailVariantFields
+  }
+}
+    `;
 export const CompanyFieldsFragmentDoc = gql`
     fragment CompanyFields on Company {
   id
@@ -28497,6 +29042,7 @@ export const EmailVerificationBadgeFragmentDoc = gql`
   status
   reason
   checkedAt
+  checkedBy
 }
     `;
 export const EmailVerificationFieldsFragmentDoc = gql`
@@ -29952,6 +30498,22 @@ export const SupportSlaPolicyFieldsFragmentDoc = gql`
   firstResponseMinutes
   resolutionMinutes
   active
+}
+    `;
+export const TableBulkJobFieldsFragmentDoc = gql`
+    fragment TableBulkJobFields on TableBulkJob {
+  id
+  action
+  status
+  total
+  processed
+  succeeded
+  failedCount
+  failures {
+    id
+    message
+  }
+  error
 }
     `;
 export const PexelsMediaFieldsFragmentDoc = gql`
@@ -39498,6 +40060,452 @@ export function useComplianceOverviewSuspenseQuery(baseOptions?: ApolloReactHook
 export type ComplianceOverviewQueryHookResult = ReturnType<typeof useComplianceOverviewQuery>;
 export type ComplianceOverviewLazyQueryHookResult = ReturnType<typeof useComplianceOverviewLazyQuery>;
 export type ComplianceOverviewSuspenseQueryHookResult = ReturnType<typeof useComplianceOverviewSuspenseQuery>;
+export const CrmCalendarDocument = gql`
+    query CrmCalendar($from: DateTime!, $to: DateTime!) {
+  crmCalendar(from: $from, to: $to) {
+    id
+    kind
+    title
+    startAt
+    endAt
+    done
+    relatedType
+    relatedId
+    relatedName
+    person
+  }
+}
+    `;
+
+/**
+ * __useCrmCalendarQuery__
+ *
+ * To run a query within a React component, call `useCrmCalendarQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmCalendarQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmCalendarQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useCrmCalendarQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables> & ({ variables: CrmCalendarQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmCalendarQuery, CrmCalendarQueryVariables>(CrmCalendarDocument, options);
+      }
+export function useCrmCalendarLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmCalendarQuery, CrmCalendarQueryVariables>(CrmCalendarDocument, options);
+        }
+// @ts-ignore
+export function useCrmCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmCalendarQuery, CrmCalendarQueryVariables>;
+// @ts-ignore
+export function useCrmCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmCalendarQuery | undefined, CrmCalendarQueryVariables>;
+export function useCrmCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmCalendarQuery, CrmCalendarQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmCalendarQuery, CrmCalendarQueryVariables>(CrmCalendarDocument, options);
+        }
+export type CrmCalendarQueryHookResult = ReturnType<typeof useCrmCalendarQuery>;
+export type CrmCalendarLazyQueryHookResult = ReturnType<typeof useCrmCalendarLazyQuery>;
+export type CrmCalendarSuspenseQueryHookResult = ReturnType<typeof useCrmCalendarSuspenseQuery>;
+export const ColdEmailDraftsDocument = gql`
+    query ColdEmailDrafts($input: TableQueryInput!) {
+  coldEmailDrafts(input: $input) {
+    rows {
+      ...ColdEmailDraftRowFields
+    }
+    totalCount
+  }
+}
+    ${ColdEmailDraftRowFieldsFragmentDoc}`;
+
+/**
+ * __useColdEmailDraftsQuery__
+ *
+ * To run a query within a React component, call `useColdEmailDraftsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useColdEmailDraftsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useColdEmailDraftsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useColdEmailDraftsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables> & ({ variables: ColdEmailDraftsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>(ColdEmailDraftsDocument, options);
+      }
+export function useColdEmailDraftsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>(ColdEmailDraftsDocument, options);
+        }
+// @ts-ignore
+export function useColdEmailDraftsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>;
+// @ts-ignore
+export function useColdEmailDraftsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftsQuery | undefined, ColdEmailDraftsQueryVariables>;
+export function useColdEmailDraftsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ColdEmailDraftsQuery, ColdEmailDraftsQueryVariables>(ColdEmailDraftsDocument, options);
+        }
+export type ColdEmailDraftsQueryHookResult = ReturnType<typeof useColdEmailDraftsQuery>;
+export type ColdEmailDraftsLazyQueryHookResult = ReturnType<typeof useColdEmailDraftsLazyQuery>;
+export type ColdEmailDraftsSuspenseQueryHookResult = ReturnType<typeof useColdEmailDraftsSuspenseQuery>;
+export const ColdEmailDraftDocument = gql`
+    query ColdEmailDraft($id: ID!) {
+  coldEmailDraft(id: $id) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useColdEmailDraftQuery__
+ *
+ * To run a query within a React component, call `useColdEmailDraftQuery` and pass it any options that fit your needs.
+ * When your component renders, `useColdEmailDraftQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useColdEmailDraftQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useColdEmailDraftQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables> & ({ variables: ColdEmailDraftQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>(ColdEmailDraftDocument, options);
+      }
+export function useColdEmailDraftLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>(ColdEmailDraftDocument, options);
+        }
+// @ts-ignore
+export function useColdEmailDraftSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>;
+// @ts-ignore
+export function useColdEmailDraftSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ColdEmailDraftQuery | undefined, ColdEmailDraftQueryVariables>;
+export function useColdEmailDraftSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ColdEmailDraftQuery, ColdEmailDraftQueryVariables>(ColdEmailDraftDocument, options);
+        }
+export type ColdEmailDraftQueryHookResult = ReturnType<typeof useColdEmailDraftQuery>;
+export type ColdEmailDraftLazyQueryHookResult = ReturnType<typeof useColdEmailDraftLazyQuery>;
+export type ColdEmailDraftSuspenseQueryHookResult = ReturnType<typeof useColdEmailDraftSuspenseQuery>;
+export const CreateColdEmailDraftDocument = gql`
+    mutation CreateColdEmailDraft($input: CreateColdEmailDraftInput!) {
+  createColdEmailDraft(input: $input) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useCreateColdEmailDraftMutation__
+ *
+ * To run a mutation, you first call `useCreateColdEmailDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateColdEmailDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createColdEmailDraftMutation, { data, loading, error }] = useCreateColdEmailDraftMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateColdEmailDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateColdEmailDraftMutation, CreateColdEmailDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateColdEmailDraftMutation, CreateColdEmailDraftMutationVariables>(CreateColdEmailDraftDocument, options);
+      }
+export type CreateColdEmailDraftMutationHookResult = ReturnType<typeof useCreateColdEmailDraftMutation>;
+export const AddColdEmailVariantDocument = gql`
+    mutation AddColdEmailVariant($id: ID!, $instruction: String, $tone: ColdEmailTone) {
+  addColdEmailVariant(id: $id, instruction: $instruction, tone: $tone) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useAddColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useAddColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addColdEmailVariantMutation, { data, loading, error }] = useAddColdEmailVariantMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      instruction: // value for 'instruction'
+ *      tone: // value for 'tone'
+ *   },
+ * });
+ */
+export function useAddColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AddColdEmailVariantMutation, AddColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AddColdEmailVariantMutation, AddColdEmailVariantMutationVariables>(AddColdEmailVariantDocument, options);
+      }
+export type AddColdEmailVariantMutationHookResult = ReturnType<typeof useAddColdEmailVariantMutation>;
+export const UpdateColdEmailVariantDocument = gql`
+    mutation UpdateColdEmailVariant($draftId: ID!, $variantId: ID!, $subject: String!, $body: String!) {
+  updateColdEmailVariant(
+    draftId: $draftId
+    variantId: $variantId
+    subject: $subject
+    body: $body
+  ) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useUpdateColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateColdEmailVariantMutation, { data, loading, error }] = useUpdateColdEmailVariantMutation({
+ *   variables: {
+ *      draftId: // value for 'draftId'
+ *      variantId: // value for 'variantId'
+ *      subject: // value for 'subject'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useUpdateColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateColdEmailVariantMutation, UpdateColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateColdEmailVariantMutation, UpdateColdEmailVariantMutationVariables>(UpdateColdEmailVariantDocument, options);
+      }
+export type UpdateColdEmailVariantMutationHookResult = ReturnType<typeof useUpdateColdEmailVariantMutation>;
+export const DeleteColdEmailVariantDocument = gql`
+    mutation DeleteColdEmailVariant($draftId: ID!, $variantId: ID!) {
+  deleteColdEmailVariant(draftId: $draftId, variantId: $variantId) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useDeleteColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useDeleteColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteColdEmailVariantMutation, { data, loading, error }] = useDeleteColdEmailVariantMutation({
+ *   variables: {
+ *      draftId: // value for 'draftId'
+ *      variantId: // value for 'variantId'
+ *   },
+ * });
+ */
+export function useDeleteColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteColdEmailVariantMutation, DeleteColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteColdEmailVariantMutation, DeleteColdEmailVariantMutationVariables>(DeleteColdEmailVariantDocument, options);
+      }
+export type DeleteColdEmailVariantMutationHookResult = ReturnType<typeof useDeleteColdEmailVariantMutation>;
+export const DeleteColdEmailDraftDocument = gql`
+    mutation DeleteColdEmailDraft($id: ID!) {
+  deleteColdEmailDraft(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteColdEmailDraftMutation__
+ *
+ * To run a mutation, you first call `useDeleteColdEmailDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteColdEmailDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteColdEmailDraftMutation, { data, loading, error }] = useDeleteColdEmailDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteColdEmailDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteColdEmailDraftMutation, DeleteColdEmailDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteColdEmailDraftMutation, DeleteColdEmailDraftMutationVariables>(DeleteColdEmailDraftDocument, options);
+      }
+export type DeleteColdEmailDraftMutationHookResult = ReturnType<typeof useDeleteColdEmailDraftMutation>;
+export const SendColdEmailVariantDocument = gql`
+    mutation SendColdEmailVariant($input: SendColdEmailVariantInput!) {
+  sendColdEmailVariant(input: $input) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useSendColdEmailVariantMutation__
+ *
+ * To run a mutation, you first call `useSendColdEmailVariantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendColdEmailVariantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendColdEmailVariantMutation, { data, loading, error }] = useSendColdEmailVariantMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendColdEmailVariantMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendColdEmailVariantMutation, SendColdEmailVariantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SendColdEmailVariantMutation, SendColdEmailVariantMutationVariables>(SendColdEmailVariantDocument, options);
+      }
+export type SendColdEmailVariantMutationHookResult = ReturnType<typeof useSendColdEmailVariantMutation>;
+export const CrmDashboardDocument = gql`
+    query CrmDashboard($from: DateTime!, $to: DateTime!) {
+  crmDashboard(from: $from, to: $to) {
+    timezone
+    granularity
+    kpis {
+      openDealCount
+      openPipelineValue
+      weightedPipelineValue
+      wonCount
+      wonValue
+      lostCount
+      winRate
+      newLeads
+      newContacts
+      newCompanies
+      overdueTasks
+      overdueReminders
+      meetingsBooked
+    }
+    pipelineByStage {
+      stage
+      count
+      value
+    }
+    wonOverTime {
+      key
+      start
+      count
+      value
+    }
+    leadsBySource {
+      source
+      count
+      won
+    }
+    activitiesOverTime {
+      key
+      start
+      call
+      email
+      meeting
+      note
+      task
+    }
+    topOwners {
+      owner
+      value
+      count
+    }
+    insights {
+      kind
+      tone
+      count
+      label
+      compareLabel
+      ratio
+      days
+    }
+  }
+}
+    `;
+
+/**
+ * __useCrmDashboardQuery__
+ *
+ * To run a query within a React component, call `useCrmDashboardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmDashboardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmDashboardQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useCrmDashboardQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables> & ({ variables: CrmDashboardQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmDashboardQuery, CrmDashboardQueryVariables>(CrmDashboardDocument, options);
+      }
+export function useCrmDashboardLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmDashboardQuery, CrmDashboardQueryVariables>(CrmDashboardDocument, options);
+        }
+// @ts-ignore
+export function useCrmDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmDashboardQuery, CrmDashboardQueryVariables>;
+// @ts-ignore
+export function useCrmDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmDashboardQuery | undefined, CrmDashboardQueryVariables>;
+export function useCrmDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmDashboardQuery, CrmDashboardQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmDashboardQuery, CrmDashboardQueryVariables>(CrmDashboardDocument, options);
+        }
+export type CrmDashboardQueryHookResult = ReturnType<typeof useCrmDashboardQuery>;
+export type CrmDashboardLazyQueryHookResult = ReturnType<typeof useCrmDashboardLazyQuery>;
+export type CrmDashboardSuspenseQueryHookResult = ReturnType<typeof useCrmDashboardSuspenseQuery>;
 export const ListCompaniesDocument = gql`
     query ListCompanies {
   listCompanies {
@@ -40505,9 +41513,16 @@ export const GetContactDocument = gql`
     query GetContact($id: ID!) {
   getContact(id: $id) {
     ...ContactFields
+    emails {
+      address
+      verification {
+        ...EmailVerificationBadge
+      }
+    }
   }
 }
-    ${ContactFieldsFragmentDoc}`;
+    ${ContactFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
 
 /**
  * __useGetContactQuery__
@@ -40549,9 +41564,16 @@ export const GetCompanyDocument = gql`
     query GetCompany($id: ID!) {
   getCompany(id: $id) {
     ...CompanyFields
+    emails {
+      address
+      verification {
+        ...EmailVerificationBadge
+      }
+    }
   }
 }
-    ${CompanyFieldsFragmentDoc}`;
+    ${CompanyFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
 
 /**
  * __useGetCompanyQuery__
@@ -68924,42 +69946,80 @@ export function useTableBulkInfoSuspenseQuery(baseOptions?: ApolloReactHooks.Ski
 export type TableBulkInfoQueryHookResult = ReturnType<typeof useTableBulkInfoQuery>;
 export type TableBulkInfoLazyQueryHookResult = ReturnType<typeof useTableBulkInfoLazyQuery>;
 export type TableBulkInfoSuspenseQueryHookResult = ReturnType<typeof useTableBulkInfoSuspenseQuery>;
-export const TableBulkActionDocument = gql`
-    mutation TableBulkAction($list: String!, $ids: [ID!]!, $action: TableBulkAction!) {
-  tableBulkAction(list: $list, ids: $ids, action: $action) {
-    succeeded
-    failures {
-      id
-      message
-    }
+export const StartTableBulkJobDocument = gql`
+    mutation StartTableBulkJob($input: TableBulkJobInput!) {
+  startTableBulkJob(input: $input) {
+    ...TableBulkJobFields
   }
 }
-    `;
+    ${TableBulkJobFieldsFragmentDoc}`;
 
 /**
- * __useTableBulkActionMutation__
+ * __useStartTableBulkJobMutation__
  *
- * To run a mutation, you first call `useTableBulkActionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTableBulkActionMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useStartTableBulkJobMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartTableBulkJobMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [tableBulkActionMutation, { data, loading, error }] = useTableBulkActionMutation({
+ * const [startTableBulkJobMutation, { data, loading, error }] = useStartTableBulkJobMutation({
  *   variables: {
- *      list: // value for 'list'
- *      ids: // value for 'ids'
- *      action: // value for 'action'
+ *      input: // value for 'input'
  *   },
  * });
  */
-export function useTableBulkActionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TableBulkActionMutation, TableBulkActionMutationVariables>) {
+export function useStartTableBulkJobMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartTableBulkJobMutation, StartTableBulkJobMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<TableBulkActionMutation, TableBulkActionMutationVariables>(TableBulkActionDocument, options);
+        return ApolloReactHooks.useMutation<StartTableBulkJobMutation, StartTableBulkJobMutationVariables>(StartTableBulkJobDocument, options);
       }
-export type TableBulkActionMutationHookResult = ReturnType<typeof useTableBulkActionMutation>;
+export type StartTableBulkJobMutationHookResult = ReturnType<typeof useStartTableBulkJobMutation>;
+export const TableBulkJobDocument = gql`
+    query TableBulkJob($id: ID!) {
+  tableBulkJob(id: $id) {
+    ...TableBulkJobFields
+  }
+}
+    ${TableBulkJobFieldsFragmentDoc}`;
+
+/**
+ * __useTableBulkJobQuery__
+ *
+ * To run a query within a React component, call `useTableBulkJobQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTableBulkJobQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTableBulkJobQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTableBulkJobQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables> & ({ variables: TableBulkJobQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TableBulkJobQuery, TableBulkJobQueryVariables>(TableBulkJobDocument, options);
+      }
+export function useTableBulkJobLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TableBulkJobQuery, TableBulkJobQueryVariables>(TableBulkJobDocument, options);
+        }
+// @ts-ignore
+export function useTableBulkJobSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableBulkJobQuery, TableBulkJobQueryVariables>;
+// @ts-ignore
+export function useTableBulkJobSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableBulkJobQuery | undefined, TableBulkJobQueryVariables>;
+export function useTableBulkJobSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableBulkJobQuery, TableBulkJobQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TableBulkJobQuery, TableBulkJobQueryVariables>(TableBulkJobDocument, options);
+        }
+export type TableBulkJobQueryHookResult = ReturnType<typeof useTableBulkJobQuery>;
+export type TableBulkJobLazyQueryHookResult = ReturnType<typeof useTableBulkJobLazyQuery>;
+export type TableBulkJobSuspenseQueryHookResult = ReturnType<typeof useTableBulkJobSuspenseQuery>;
 export const ListEmailConfigsDocument = gql`
     query ListEmailConfigs {
   listEmailConfigs {
@@ -71939,6 +72999,112 @@ export function useSendTrackerNoticeMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<SendTrackerNoticeMutation, SendTrackerNoticeMutationVariables>(SendTrackerNoticeDocument, options);
       }
 export type SendTrackerNoticeMutationHookResult = ReturnType<typeof useSendTrackerNoticeMutation>;
+export const TrackerExpectedDocument = gql`
+    query TrackerExpected($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerExpected(userId: $userId, from: $from, to: $to, timezone: $timezone) {
+    workHoursPerDay
+    days {
+      date
+      expectedMs
+      offReason
+    }
+  }
+}
+    `;
+
+/**
+ * __useTrackerExpectedQuery__
+ *
+ * To run a query within a React component, call `useTrackerExpectedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerExpectedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerExpectedQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      timezone: // value for 'timezone'
+ *   },
+ * });
+ */
+export function useTrackerExpectedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables> & ({ variables: TrackerExpectedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TrackerExpectedQuery, TrackerExpectedQueryVariables>(TrackerExpectedDocument, options);
+      }
+export function useTrackerExpectedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TrackerExpectedQuery, TrackerExpectedQueryVariables>(TrackerExpectedDocument, options);
+        }
+// @ts-ignore
+export function useTrackerExpectedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedQuery, TrackerExpectedQueryVariables>;
+// @ts-ignore
+export function useTrackerExpectedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedQuery | undefined, TrackerExpectedQueryVariables>;
+export function useTrackerExpectedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedQuery, TrackerExpectedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TrackerExpectedQuery, TrackerExpectedQueryVariables>(TrackerExpectedDocument, options);
+        }
+export type TrackerExpectedQueryHookResult = ReturnType<typeof useTrackerExpectedQuery>;
+export type TrackerExpectedLazyQueryHookResult = ReturnType<typeof useTrackerExpectedLazyQuery>;
+export type TrackerExpectedSuspenseQueryHookResult = ReturnType<typeof useTrackerExpectedSuspenseQuery>;
+export const TrackerExpectedReportDocument = gql`
+    query TrackerExpectedReport($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerExpectedReport(
+    userId: $userId
+    from: $from
+    to: $to
+    timezone: $timezone
+  ) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+    `;
+
+/**
+ * __useTrackerExpectedReportQuery__
+ *
+ * To run a query within a React component, call `useTrackerExpectedReportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerExpectedReportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerExpectedReportQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      timezone: // value for 'timezone'
+ *   },
+ * });
+ */
+export function useTrackerExpectedReportQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables> & ({ variables: TrackerExpectedReportQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>(TrackerExpectedReportDocument, options);
+      }
+export function useTrackerExpectedReportLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>(TrackerExpectedReportDocument, options);
+        }
+// @ts-ignore
+export function useTrackerExpectedReportSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>;
+// @ts-ignore
+export function useTrackerExpectedReportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerExpectedReportQuery | undefined, TrackerExpectedReportQueryVariables>;
+export function useTrackerExpectedReportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TrackerExpectedReportQuery, TrackerExpectedReportQueryVariables>(TrackerExpectedReportDocument, options);
+        }
+export type TrackerExpectedReportQueryHookResult = ReturnType<typeof useTrackerExpectedReportQuery>;
+export type TrackerExpectedReportLazyQueryHookResult = ReturnType<typeof useTrackerExpectedReportLazyQuery>;
+export type TrackerExpectedReportSuspenseQueryHookResult = ReturnType<typeof useTrackerExpectedReportSuspenseQuery>;
 export const FirecrawlConfigsDocument = gql`
     query FirecrawlConfigs {
   firecrawlConfigs {

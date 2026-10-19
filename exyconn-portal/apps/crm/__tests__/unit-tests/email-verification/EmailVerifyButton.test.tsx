@@ -23,6 +23,14 @@ const RESULT: EmailVerificationBadgeFragment = {
   status: EmailVerificationStatus.Invalid,
   reason: 'No mailbox',
   checkedAt: '2026-10-15T10:00:00.000Z',
+  checkedBy: 'Ravi',
+};
+
+const STORED: EmailVerificationBadgeFragment = {
+  ...RESULT,
+  id: 'ev-2',
+  status: EmailVerificationStatus.Verified,
+  reason: 'Mailbox exists',
 };
 
 /** The per-tab memory of checked addresses lives for the module, so each test uses its own address. */
@@ -64,6 +72,22 @@ describe('EmailVerifyButton', () => {
     renderButton('Memo@b.io');
     expect(screen.getByRole('img', { name: /^Invalid:/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Check Memo@b.io again' })).toBeInTheDocument();
+  });
+
+  it('shows the stored check of the address with who made it, before any check here', () => {
+    renderWithProviders(<EmailVerifyButton email="stored@b.io" verification={STORED} />);
+    expect(
+      screen.getByRole('img', { name: /^Verified: Mailbox exists · checked .+ by Ravi$/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Check stored@b.io again' })).toBeInTheDocument();
+  });
+
+  it('replaces the stored check with one made here', async () => {
+    mocked.verify.mockResolvedValue(RESULT);
+    renderWithProviders(<EmailVerifyButton email="again@b.io" verification={STORED} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Check again@b.io again' }));
+    expect(await screen.findByRole('img', { name: /^Invalid: No mailbox/ })).toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: /^Verified:/ })).not.toBeInTheDocument();
   });
 
   it('shows no result when the check could not run', async () => {

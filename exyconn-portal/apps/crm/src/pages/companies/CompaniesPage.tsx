@@ -15,6 +15,7 @@ import { CompanyForm, type CompanyRow } from './forms/company';
 import { COMPANY_COLUMNS, type PagedCompanyRow, type CompaniesGridContext } from './companies-grid';
 import { color } from '@exyconn/shell/components/ui';
 import { RecordListToolbar, useRecordList, withRefreshSignal } from '../../records/list';
+import { RowClickGuard } from '../../records/list/RowClickGuard';
 import { RecordActions } from '../../records/RecordActions';
 import { usePreviewParam } from '../../records/quick-view';
 import { CompanyQuickView } from './CompanyQuickView';
@@ -80,41 +81,43 @@ export function CompaniesPage() {
   };
 
   return (
-    <CrudDashboard
-      key={records.gridKey}
-      title="Companies"
-      subtitle="Accounts, and who owns them"
-      entityLabel="company"
-      stats={statItems}
-      statsLoading={!statsData && statsLoading}
-      crud={withRefreshSignal(crud, records.refreshSignal)}
-      renderForm={(initial) => (
-        <CompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
-      )}
-      columnDefs={records.columnDefs}
-      onRowClick={(row) => openPreview(row.id)}
-      fetchRows={records.fetchRows}
-      bulkList="searchCompanies"
-      context={gridContext}
-      searchPlaceholder="Search by name, domain, industry or owner…"
-      initialSearch={records.initialSearch}
-      extraDialogs={
-        <CompanyQuickView id={previewId} onClose={closePreview} onSaved={crud.reload} />
-      }
-      toolbar={
-        <RecordListToolbar
-          records={records}
-          allLabel="All companies"
-          renderActions={(query) => (
-            <RecordActions
-              object={CrmObject.Company}
-              query={query}
-              fileName="companies"
-              onImported={crud.reload}
-            />
-          )}
-        />
-      }
-    />
+    <RowClickGuard>
+      <CrudDashboard
+        key={records.gridKey}
+        title="Companies"
+        subtitle="Accounts, and who owns them"
+        entityLabel="company"
+        stats={statItems}
+        statsLoading={!statsData && statsLoading}
+        crud={withRefreshSignal(crud, records.refreshSignal)}
+        renderForm={(initial) => (
+          <CompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+        )}
+        columnDefs={records.columnDefs}
+        onRowClick={(row) => openPreview(row.id)}
+        fetchRows={records.fetchRows}
+        bulkList="searchCompanies"
+        context={gridContext}
+        searchPlaceholder="Search by name, domain, industry or owner…"
+        initialSearch={records.initialSearch}
+        extraDialogs={
+          <CompanyQuickView id={previewId} onClose={closePreview} onSaved={crud.reload} />
+        }
+        toolbar={
+          <RecordListToolbar
+            records={records}
+            allLabel="All companies"
+            renderActions={(query) => (
+              <RecordActions
+                object={CrmObject.Company}
+                query={query}
+                fileName="companies"
+                onImported={crud.reload}
+              />
+            )}
+          />
+        }
+      />
+    </RowClickGuard>
   );
 }

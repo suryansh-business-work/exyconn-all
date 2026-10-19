@@ -23,6 +23,7 @@ import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
+import { startTableBulkJobs } from './modules/table-transfer';
 import {
   backfillPhoneFields,
   ensureCallingBotScenarios,
@@ -31,6 +32,8 @@ import {
 import { migrateClientTaxIds } from './modules/clients';
 import { migrateLegacyGmailConnection } from './modules/gmail';
 import { backfillCrmOrigins } from './modules/crm/crm.origin.backfill';
+import { backfillDealClosedAt } from './modules/crm/crm.deal-closed.backfill';
+import { startCrmReminderEmails } from './modules/crm/calendar/crm.reminder.email';
 import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
@@ -102,6 +105,12 @@ async function bootstrap(): Promise<void> {
     () => runOnce('crm-record-origins', backfillCrmOrigins),
     'backfillCrmOrigins',
   );
+  // Deals closed before close dates were kept take their last change as one, so "won this
+  // quarter" on the CRM dashboard counts them.
+  await forEachOrganization(
+    () => runOnce('crm-deal-closed-at', backfillDealClosedAt),
+    'backfillDealClosedAt',
+  );
   // exyconn.com is the CMS's first site: seeded insert-only from the migrated pages, so an
   // editor's change is never undone and a page added in a later release still arrives.
   await ensureCmsDefaults();
@@ -144,6 +153,9 @@ async function bootstrap(): Promise<void> {
   startWhatsappReminders();
   // Bulk email checks uploaded in CRM > Tools > Email verifier move on in the background.
   startEmailVerification();
+  // "Delete / Archive / Restore selected" on a table runs as a job, so a thousand rows never
+  // hold a request (or the person's screen) open; the worker carries on after a restart.
+  startTableBulkJobs();
   // A website chat question nobody on the team answers in time goes to the knowledge bot, so
   // the visitor is never left waiting on an empty desk.
   startChatHandoff();
@@ -157,6 +169,8 @@ async function bootstrap(): Promise<void> {
   // corrective action falls overdue, a follow-up is missed, and the record simply sits
   // there. The sweep asks every module what has come due and tells the people who own it.
   startReminderSweep();
+  // A CRM reminder set for 10:00 is emailed to its assignee at 10:00, signed in or not.
+  startCrmReminderEmails();
   // Does nothing until somebody sets a window in Admin > Settings; see audit.retention.ts.
   startAuditRetention();
   const app = await createApp();

@@ -8,6 +8,7 @@ import {
   type CaptureRequest,
   type CaptureResult,
   type DayDetail,
+  type ExpectedRange,
   type LoginResult,
   type ManualEntry,
   type ManualEntryDraft,
@@ -54,6 +55,9 @@ const api = {
   stop: (): Promise<void> => ipcRenderer.invoke(IPC.stop),
   getReport: (from: string, to: string): Promise<ReportDay[]> =>
     ipcRenderer.invoke(IPC.getReport, from, to),
+  /** The month's contracted hours per day, keyed in the same zone as `getReport`. */
+  getExpected: (from: string, to: string): Promise<ExpectedRange> =>
+    ipcRenderer.invoke(IPC.getExpected, from, to),
   getDay: (start: string, end: string): Promise<DayDetail> =>
     ipcRenderer.invoke(IPC.getDay, start, end),
   /** The employee's own all-time totals, for the dashboard's "All time" tiles. */
@@ -110,6 +114,12 @@ const api = {
    */
   saveReport: (report: ReportExport): Promise<SavedReport> =>
     ipcRenderer.invoke(IPC.saveReport, report),
+  /**
+   * Fetches the month's XLSX hours report (expected, logged, deficit, activity, remarks) and
+   * writes it to a file the employee picks. A null path means they cancelled.
+   */
+  saveHoursReport: (from: string, to: string): Promise<SavedReport> =>
+    ipcRenderer.invoke(IPC.saveHoursReport, from, to),
 
   // ── Updates ─────────────────────────────────────────────────────────────
   /** The version this install is running — what the About panel shows. */

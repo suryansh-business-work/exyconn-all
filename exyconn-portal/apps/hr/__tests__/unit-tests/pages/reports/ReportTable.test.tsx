@@ -88,10 +88,11 @@ describe('ReportTable', () => {
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it('locks the refresh while the rows are loading', () => {
+  it('locks the refresh while the rows are loading, keeping the rows already shown', () => {
     renderTable(ROWS, { loading: true });
 
     expect(screen.getByRole('button', { name: 'Refresh table' })).toBeDisabled();
-    expect(screen.queryByRole('cell', { name: 'Asha' })).not.toBeInTheDocument();
+    // A refetch keeps the current rows in place instead of flashing placeholders.
+    expect(screen.getByRole('cell', { name: 'Asha' })).toBeInTheDocument();
   });
 });

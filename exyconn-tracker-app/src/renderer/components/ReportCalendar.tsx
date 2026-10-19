@@ -2,16 +2,19 @@ import type { ReactElement } from 'react';
 import { useMemo } from 'react';
 import { CircularProgress, Stack, Typography, DateCalendar, DatePicker } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
+import type { DayMark } from '@exyconn/tracker-core';
 import { activityLevel, activityPercent } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
-import TrackedDay, { TrackedDatesContext } from './TrackedDay';
+import TrackedDay, { DayMarksContext, TrackedDatesContext } from './TrackedDay';
 
 interface Props {
   /** The visible month's days — the dotted cells are keyed off these. */
   days: readonly ReportDay[];
   /** The month's days are still on their way, so the dots are not drawn yet. */
   loading: boolean;
+  /** Leave, holidays and finished days short of the contract, ringed on the grid. */
+  marks?: ReadonlyMap<string, DayMark>;
   selected: Date;
   /** Today; the employee cannot look into the future. */
   maxDate: Date;
@@ -19,10 +22,13 @@ interface Props {
   onMonthChange: (month: Date) => void;
 }
 
+const NO_MARKS: ReadonlyMap<string, DayMark> = new Map();
+
 /** A jump-to-date picker, plus a month grid that dots every day with tracked time by activity. */
 export default function ReportCalendar({
   days,
   loading,
+  marks = NO_MARKS,
   selected,
   maxDate,
   onSelect,
@@ -63,15 +69,20 @@ export default function ReportCalendar({
         />
 
         <TrackedDatesContext.Provider value={trackedDates}>
-          <DateCalendar
-            value={selected}
-            maxDate={maxDate}
-            onChange={handleChange}
-            onMonthChange={onMonthChange}
-            slots={{ day: TrackedDay }}
-            sx={{ width: '100%', mx: 0 }}
-          />
+          <DayMarksContext.Provider value={marks}>
+            <DateCalendar
+              value={selected}
+              maxDate={maxDate}
+              onChange={handleChange}
+              onMonthChange={onMonthChange}
+              slots={{ day: TrackedDay }}
+              sx={{ width: '100%', mx: 0 }}
+            />
+          </DayMarksContext.Provider>
         </TrackedDatesContext.Provider>
+        <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+          {t('A red ring is a day below your expected hours, blue is leave, grey a holiday.')}
+        </Typography>
 
         {loading ? (
           <Stack

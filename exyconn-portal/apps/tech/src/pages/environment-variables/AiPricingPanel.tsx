@@ -74,6 +74,7 @@ export function AiPricingPanel() {
         )}
       </Text>
       <DataTable
+        bulkEntity="AiModelPrice"
         columns={columns}
         rows={data?.listAiModelPrices ?? []}
         onEdit={crud.openEdit}

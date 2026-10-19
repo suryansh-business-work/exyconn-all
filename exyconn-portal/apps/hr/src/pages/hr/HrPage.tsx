@@ -86,6 +86,7 @@ export function HrPage() {
       statsLoading={!data && loading}
     >
       <DataTable
+        bulkEntity="LeaveRequest"
         columns={columns}
         rows={rows}
         onRowClick={(row) => navigate(`/hr/employees/${row.employeeId}`)}

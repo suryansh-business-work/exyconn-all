@@ -91,13 +91,13 @@ describe('RhfCurrencyField', () => {
     renderCurrency('EUR', '');
 
     await expect.poll(() => formValues().currency).toBe('EUR');
-    expect(screen.getByRole('combobox', { name: 'Currency' })).toHaveValue('Euro (EUR)');
+    expect(screen.getByRole('combobox', { name: 'Currency' })).toHaveValue('EUR — Euro (€)');
   });
 
   it('never overwrites a currency already chosen', async () => {
     renderCurrency('EUR', 'USD');
 
-    expect(screen.getByRole('combobox', { name: 'Currency' })).toHaveValue('US Dollar (USD)');
+    expect(screen.getByRole('combobox', { name: 'Currency' })).toHaveValue('USD — US Dollar ($)');
     expect(formValues().currency).toBe('USD');
   });
 
@@ -105,6 +105,28 @@ describe('RhfCurrencyField', () => {
     renderCurrency('', '');
 
     expect(formValues().currency).toBe('');
+  });
+
+  it('leaves a blank field blank when it is not to default to the company currency', () => {
+    renderCurrency('EUR', '', <RhfCurrencyField defaultToCompany={false} />);
+
+    expect(formValues().currency).toBe('');
+    expect(screen.getByRole('combobox', { name: 'Currency' })).toHaveValue('');
+  });
+
+  it('finds a currency by its name or its code and stores the ISO code', async () => {
+    const user = userEvent.setup();
+    renderCurrency('', '', <RhfCurrencyField defaultToCompany={false} />);
+    const field = screen.getByRole('combobox', { name: 'Currency' });
+
+    await user.type(field, 'rupee');
+    expect(await screen.findByRole('option', { name: 'INR — Indian Rupee (₹)' })).toBeVisible();
+    expect(screen.queryByRole('option', { name: /^USD/ })).not.toBeInTheDocument();
+
+    await user.clear(field);
+    await user.type(field, 'jpy');
+    await user.click(await screen.findByRole('option', { name: 'JPY — Japanese Yen (¥)' }));
+    expect(formValues().currency).toBe('JPY');
   });
 
   it('works under another field name, label and hint', async () => {

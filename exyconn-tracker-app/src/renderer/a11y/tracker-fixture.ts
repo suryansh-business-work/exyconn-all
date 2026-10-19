@@ -166,6 +166,7 @@ function answers(state: TrackerState): Partial<Record<keyof TrackerApi, unknown>
   return {
     getState: state,
     getReport: REPORT,
+    getExpected: { workHoursPerDay: 8, days: [] },
     getDay: DAY,
     getTotals: { activeMs: 7_200_000, idleMs: 900_000, screenshots: 12, sessions: 4 },
     getTranslations: {},

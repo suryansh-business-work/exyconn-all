@@ -39,6 +39,7 @@ import {
   paypalWebhookRouter,
 } from './modules/clienthub/payments/webhook.wallets';
 import { SLACK_EVENTS_PATH, slackEventsRouter } from './modules/website-chat';
+import { tableBulkJobSchemaPlugin } from './modules/table-transfer';
 
 /**
  * Builds the Express app with the Apollo GraphQL middleware mounted at /graphql.
@@ -52,7 +53,8 @@ export async function createApp(): Promise<Express> {
     // Depth, alias, cost and token limits (see graphql/security/limits.ts). Armor also turns
     // off batched HTTP requests and stack traces in responses.
     ...armor,
-    plugins: [...armor.plugins, serverErrorLogPlugin],
+    // The table bulk worker runs the modules' own operations through the schema Apollo builds.
+    plugins: [...armor.plugins, serverErrorLogPlugin, tableBulkJobSchemaPlugin],
     // Explicit rather than Apollo's NODE_ENV default: the schema is not published in production.
     introspection: !env.isProduction,
     formatError: buildFormatError(env.isProduction),

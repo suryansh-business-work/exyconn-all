@@ -1,6 +1,7 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { Grid } from '@exyconn/shell/components/ui';
 import {
   RhfAutocomplete,
@@ -42,7 +43,7 @@ const schema = z
     clientId: z.string().trim().min(1, 'Client is required'),
     // At least one line: a retainer with nothing on it bills nothing, every period, silently.
     lines: z.array(lineSchema).min(1, 'Add at least one line'),
-    currency: z.string().trim().min(1, 'Currency is required'),
+    currency: currencyField,
     placeOfSupplyStateCode: gstStateCodeField,
     frequency: z.enum(RecurrenceFrequency),
     startDate: z.string().min(1, 'Start date is required'),

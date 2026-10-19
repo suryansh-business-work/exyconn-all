@@ -10,6 +10,11 @@ vi.mock('../../../../../src/records/detail', async (importOriginal) => ({
   ...(await import('../../record-detail-stubs')).detailStubs,
 }));
 
+// The record's cold emails load on their own; this page only places the section.
+vi.mock('../../../../../src/records/cold-email', () => ({
+  RecordColdEmails: ({ id }: Readonly<{ id: string }>) => <p>Cold emails of {id}</p>,
+}));
+
 function renderOverview(contact: ReturnType<typeof contactRow>) {
   const { container } = renderWithProviders(<ContactOverview contact={contact} />);
   return (label: string) => fieldValue(container, label);
@@ -21,6 +26,7 @@ describe('ContactOverview', () => {
 
     expect(screen.getByText('AI summary of Asha Rao')).toBeInTheDocument();
     expect(screen.getByText('Timeline of CONTACT contact-1, last 5')).toBeInTheDocument();
+    expect(screen.getByText('Cold emails of contact-1')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Profile overview' })).toBeInTheDocument();
   });
 

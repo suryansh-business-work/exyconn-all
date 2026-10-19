@@ -39,11 +39,11 @@ describe('DataTable', () => {
     cy.get('@delete').should('have.been.called');
   });
 
-  it('draws skeleton rows instead of data and actions while loading', () => {
+  it('draws skeleton rows while the first load has no rows yet', () => {
     cy.mount(
       <DataTable
         columns={columns}
-        rows={rows}
+        rows={[]}
         loading
         onEdit={cy.stub()}
         emptyMessage="Nothing here yet."
@@ -51,9 +51,14 @@ describe('DataTable', () => {
     );
     cy.contains('th', 'Name').should('be.visible');
     cy.get('[data-testid="table-skeleton-row"]').should('have.length', 5);
-    cy.contains('Alpha').should('not.exist');
     cy.get('[aria-label="edit"]').should('not.exist');
     cy.contains('Nothing here yet.').should('not.exist');
+  });
+
+  it('keeps the rows it has while a refetch loads, instead of flashing skeletons', () => {
+    cy.mount(<DataTable columns={columns} rows={rows} loading onEdit={cy.stub()} />);
+    cy.contains('Alpha').should('be.visible');
+    cy.get('[data-testid="table-skeleton-row"]').should('not.exist');
   });
 
   it('refreshes on demand and disables the button while loading', () => {

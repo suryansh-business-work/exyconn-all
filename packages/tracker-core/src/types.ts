@@ -260,6 +260,8 @@ export interface ReportDay {
   date: string;
   activeMs: number;
   idleMs: number;
+  /** Approved off-computer time; it counts towards the day's contracted hours. */
+  manualMs?: number | null;
   keyCount: number;
   mouseCount: number;
   sessions: number;

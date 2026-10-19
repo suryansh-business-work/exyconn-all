@@ -7,6 +7,8 @@ export const agGrid = {
   props: {} as FakeGridProps,
   datasource: null as IDatasource | null,
   purge: vi.fn(),
+  /** `refreshInfiniteCache`: re-reads the loaded blocks in place. */
+  refresh: vi.fn(),
   setFilterModel: vi.fn(),
   deselectAll: vi.fn(),
   setNodesSelected: vi.fn(),
@@ -53,7 +55,8 @@ function setGridOption(key: string, value: IDatasource): void {
 
 /**
  * Stands in for ag-grid's React grid, which needs a real layout engine: it records its props,
- * hands the datasource over on ready, and exposes `purgeInfiniteCache`, `setFilterModel` and
+ * hands the datasource over on ready, and exposes `purgeInfiniteCache`, `refreshInfiniteCache`,
+ * `setFilterModel` and
  * the selection and pager calls the bulk actions use through the ref.
  */
 export function FakeAgGrid(props: Readonly<FakeGridProps>) {
@@ -63,6 +66,7 @@ export function FakeAgGrid(props: Readonly<FakeGridProps>) {
       ? {
           api: {
             purgeInfiniteCache: agGrid.purge,
+            refreshInfiniteCache: agGrid.refresh,
             setFilterModel: agGrid.setFilterModel,
             deselectAll: agGrid.deselectAll,
             setNodesSelected: agGrid.setNodesSelected,
@@ -98,6 +102,7 @@ export function resetFakeGrid(): void {
   agGrid.props = {} as FakeGridProps;
   agGrid.datasource = null;
   agGrid.purge.mockClear();
+  agGrid.refresh.mockClear();
   agGrid.setFilterModel.mockClear();
   agGrid.deselectAll.mockClear();
   agGrid.setNodesSelected.mockClear();

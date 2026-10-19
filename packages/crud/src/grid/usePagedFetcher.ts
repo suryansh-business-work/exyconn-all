@@ -27,7 +27,9 @@ export function listFieldOf(document: DocumentNode): string | undefined {
  * time, so changing them needs a `refreshSignal` bump to make the grid re-read.
  *
  * The fetcher carries the name of the list it reads (`list`), which is what lets the grid ask
- * the server which columns filter and sort, and export and import the list on the server.
+ * the server which columns filter and sort, and export and import the list on the server, and
+ * the variables it sends for a page (`variablesFor`), which is what lets a bulk job act on every
+ * row matching the grid's query without the browser collecting the ids.
  */
 export function usePagedFetcher<TQuery, TRow>(
   document: TypedDocumentNode<TQuery, { input: TableQueryInput }>,
@@ -44,16 +46,19 @@ export function usePagedFetcher<TQuery, TRow>(
   extraFiltersRef.current = extraFilters;
 
   return useMemo(() => {
-    const fetchPage = async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
+    const variablesFor = (input: TableQueryInput) => {
       const filters = [...(input.filters ?? []), ...extraFiltersRef.current];
+      return { input: { ...input, filters } };
+    };
+    const fetchPage = async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
       const result = await client.query({
         query: document,
-        variables: { input: { ...input, filters } },
+        variables: variablesFor(input),
         fetchPolicy: 'network-only',
       });
       const page = selectRef.current(queryData(result, 'The paged list query'));
       return { rows: page.rows, totalCount: page.totalCount };
     };
-    return Object.assign(fetchPage, { list: listFieldOf(document) });
+    return Object.assign(fetchPage, { list: listFieldOf(document), variablesFor });
   }, [client, document]);
 }

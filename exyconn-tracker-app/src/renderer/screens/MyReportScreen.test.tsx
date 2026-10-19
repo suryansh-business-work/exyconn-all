@@ -16,6 +16,7 @@ describe('MyReportScreen', () => {
     const month = deferred<ReportDay[]>();
     stubTracker({
       getReport: () => month.promise,
+      getExpected: () => Promise.resolve({ workHoursPerDay: 8, days: [] }),
       getDay: () => new Promise<DayDetail>(() => undefined),
     });
     await render(<MyReportScreen timezone="UTC" />);
@@ -39,7 +40,8 @@ describe('MyReportScreen', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const getReport = vi.fn(() => Promise.reject(new Error('Offline')));
     const getDay = vi.fn(() => new Promise<DayDetail>(() => undefined));
-    stubTracker({ getReport, getDay });
+    const getExpected = () => Promise.resolve({ workHoursPerDay: 8, days: [] });
+    stubTracker({ getReport, getExpected, getDay });
     await render(<MyReportScreen timezone="UTC" />);
     await flush();
     expect(document.body.textContent).toContain('Could not load your report.');

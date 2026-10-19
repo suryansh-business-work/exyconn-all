@@ -78,6 +78,14 @@ describe('RowActionsCell', () => {
     expect(remove.querySelector('[data-testid="DeleteIcon"]')).not.toBeNull();
   });
 
+  it('shows each action’s label as a tooltip', async () => {
+    renderWithProviders(
+      <RowActionsCell {...actionParams(row, { edit: vi.fn() }, [EDIT_ACTION])} />,
+    );
+    await userEvent.hover(screen.getByRole('button', { name: 'edit' }));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('edit');
+  });
+
   it('drops a button whose handler the page did not supply', () => {
     renderWithProviders(
       <RowActionsCell {...actionParams(row, { edit: vi.fn() }, [EDIT_ACTION, DELETE_ACTION])} />,

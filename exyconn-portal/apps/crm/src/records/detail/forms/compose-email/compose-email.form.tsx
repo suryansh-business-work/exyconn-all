@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useT } from '@exyconn/i18n';
-import { Alert, Button, Flex } from '@exyconn/shell/components/ui';
+import { Link as RouterLink } from 'react-router-dom';
+import { Alert, Button, Flex, Link, TextField } from '@exyconn/shell/components/ui';
 import { RhfChipsInput, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -24,6 +25,7 @@ import {
 import { useComposeSender } from './useComposeSender';
 import { readMemory } from '../../../comms/commsStore';
 import { useFormMemory } from '../../../comms/useFormMemory';
+import { EMAIL_INTEGRATIONS_PATH } from '../../../../integrations/emailIntegrationsPath';
 
 const DRAFT = 'email-draft';
 
@@ -31,6 +33,8 @@ interface ComposeEmailFormProps {
   context: ComposeEmailContext;
   /** In the communication dock: keeps the draft while the page remounts on navigation. */
   memoryKey?: string;
+  /** Sends instead of the plain CRM send, e.g. a cold email version that must be tracked. */
+  send?: (values: ComposeEmailValues) => Promise<void>;
   onDone: () => void;
   onCancel: () => void;
 }
@@ -43,6 +47,7 @@ interface ComposeEmailFormProps {
 export function ComposeEmailForm({
   context,
   memoryKey,
+  send: sendOverride,
   onDone,
   onCancel,
 }: Readonly<ComposeEmailFormProps>) {
@@ -60,7 +65,7 @@ export function ComposeEmailForm({
       to: context.to,
       cc: [],
       subject: context.subject ?? '',
-      body: '',
+      body: context.body ?? '',
       instruction: '',
     },
   });
@@ -96,21 +101,25 @@ export function ComposeEmailForm({
     }
   };
 
+  const sendPlain = async (values: ComposeEmailValues) => {
+    await send({
+      variables: {
+        input: {
+          fromAccountId: values.fromAccountId,
+          to: values.to,
+          cc: values.cc,
+          subject: values.subject,
+          body: values.body,
+          threadId: context.threadId,
+          inReplyTo: context.inReplyTo,
+        },
+      },
+    });
+  };
+
   const onSubmit = async (values: ComposeEmailValues) => {
     try {
-      await send({
-        variables: {
-          input: {
-            fromAccountId: values.fromAccountId,
-            to: values.to,
-            cc: values.cc,
-            subject: values.subject,
-            body: values.body,
-            threadId: context.threadId,
-            inReplyTo: context.inReplyTo,
-          },
-        },
-      });
+      await (sendOverride ?? sendPlain)(values);
       notify('Email sent', 'success');
       onDone();
     } catch (error) {
@@ -128,7 +137,14 @@ export function ComposeEmailForm({
       onCancel={onCancel}
     >
       {!sender.loading && sender.options.length === 0 && (
-        <Alert severity="warning">
+        <Alert
+          severity="warning"
+          action={
+            <Link component={RouterLink} to={EMAIL_INTEGRATIONS_PATH} color="inherit">
+              {t('Connect a mailbox')}
+            </Link>
+          }
+        >
           {t(
             'No mailbox is turned on for the CRM. Connect a Gmail or Microsoft account in CRM > Integrations > Email.',
           )}
@@ -140,8 +156,18 @@ export function ComposeEmailForm({
         options={sender.options}
         helperText="The connected Gmail or Microsoft mailbox it is sent from"
       />
-      <RhfChipsInput name="to" label="To" helperText="Type an address and press Enter" />
-      <RhfChipsInput name="cc" label="Cc" />
+      {context.recipientsLocked ? (
+        <TextField
+          label={t('To')}
+          value={context.to.join(', ')}
+          slotProps={{ input: { readOnly: true } }}
+        />
+      ) : (
+        <>
+          <RhfChipsInput name="to" label="To" helperText="Type an address and press Enter" />
+          <RhfChipsInput name="cc" label="Cc" />
+        </>
+      )}
       <RhfTextField name="subject" label="Subject" />
       <Flex direction="column" spacing={1}>
         <RhfTextField

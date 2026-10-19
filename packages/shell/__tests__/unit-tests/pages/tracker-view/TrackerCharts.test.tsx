@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
-import { chartPalette } from '@exyconn/ui';
+import { PASTEL_CHART, wash } from '@exyconn/ui';
 import { TrackerMonthChart } from '@/pages/tracker-view/TrackerMonthChart';
 import { TrackerDayCharts } from '@/pages/tracker-view/TrackerDayCharts';
 import { renderWithProviders } from '../../test-utils';
@@ -9,9 +9,12 @@ import { HOUR_MS, makeBucket, makeDay, makeInterval, makeSession } from './fixtu
 interface BarProps {
   data: {
     labels: string[];
-    datasets: { label: string; data: number[]; backgroundColor: string }[];
+    datasets: { label: string; data: number[]; backgroundColor: Fill }[];
   };
 }
+
+/** The portal theme fills its bars with a gradient; before layout it is the flat colour. */
+type Fill = (context: { chart: Record<string, never> }) => string;
 
 /** chart.js needs a canvas jsdom lacks; the bar draws what it was handed as text instead. */
 vi.mock('react-chartjs-2', () => ({
@@ -19,7 +22,7 @@ vi.mock('react-chartjs-2', () => ({
     <output data-testid="bar">
       {data.labels.join(',')}
       {data.datasets.map((set) => (
-        <span key={set.label} data-color={set.backgroundColor}>
+        <span key={set.label} data-color={set.backgroundColor({ chart: {} })}>
           {`${set.label}=${set.data.join(',')}`}
         </span>
       ))}
@@ -27,7 +30,8 @@ vi.mock('react-chartjs-2', () => ({
   ),
 }));
 
-const lightSeries = chartPalette('light', '#fff', '#000', '#000', '#000').series;
+/** The portal theme's pastel slots, as a bar's gradient starts out before layout. */
+const lightSeries = PASTEL_CHART.light.series.map((slot) => wash(slot, 1));
 
 describe('TrackerMonthChart', () => {
   it('stacks worked, idle and off-computer hours per day in their fixed colours', () => {

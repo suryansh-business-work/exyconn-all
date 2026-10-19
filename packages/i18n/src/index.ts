@@ -14,6 +14,7 @@ export {
   currencyOptions,
   isValidCountry,
   normalizeCurrency,
+  type CurrencyOption,
   type IsoOption,
 } from './iso';
 export { activeFormatSettings, setActiveFormatSettings } from './active-settings';

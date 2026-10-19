@@ -40,7 +40,8 @@ export type { GridFetcher, ServerDataGridProps, TablePageResult } from './Server
  * through `ServerDataGrid` so ag-grid stays out of the main bundle. Styled from the MUI theme.
  *
  * While a page is loading its rows draw skeletons and the whole grid — search, refresh,
- * sorting, filters, pager and row actions — is locked until the server answers.
+ * sorting, filters, pager and row actions — is locked until the server answers. A bulk job
+ * never locks it: the job runs on the server and its progress sits in the toolbar.
  */
 function ServerDataGridImpl({
   columnDefs,
@@ -75,11 +76,14 @@ function ServerDataGridImpl({
   }, [columnDefs, t, tableInfo]);
   const gridRef = useRef<AgGridReact<unknown>>(null);
   const purge = useCallback(() => gridRef.current?.api?.purgeInfiniteCache(), []);
+  // Re-reads every loaded block while its rows stay on screen: no skeletons, no jump to page 1.
+  const refreshInPlace = useCallback(() => gridRef.current?.api?.refreshInfiniteCache(), []);
   const bulk = useTableBulk({
     list: bulkList ?? fetchRows.list,
     gridRef,
     fetchRows,
     reload: purge,
+    refresh: refreshInPlace,
     onDone: onBulkDone,
   });
   const { clearSelection } = bulk;
@@ -122,12 +126,14 @@ function ServerDataGridImpl({
   );
   const pageSizes = pageSizesFor(pageSize);
 
-  // Reload when the host signals an external data change (create/update/delete).
+  // The host changed rows (create/update/delete): re-read them in place, so a deleted row just
+  // leaves the page instead of the whole table flashing back to skeletons.
   useEffect(() => {
     if (refreshSignal > 0) {
-      reload();
+      clearSelection();
+      refreshInPlace();
     }
-  }, [refreshSignal, reload]);
+  }, [refreshSignal, clearSelection, refreshInPlace]);
 
   const handleRowClicked = useCallback(
     (event: RowClickedEvent<unknown>) => {

@@ -4,6 +4,7 @@ import type { ReactElement } from 'react';
 import { I18nProvider } from '@exyconn/i18n';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { StatRow } from '@/components/dashboard/StatRow';
+import WorkOutlineIcon from '@mui/icons-material/WorkOutlined';
 
 vi.mock('react-chartjs-2', () => ({
   Line: ({ data }: Readonly<{ data: { datasets: { data: number[] }[] } }>) => (
@@ -51,6 +52,19 @@ describe('StatCard', () => {
     const { container } = renderIn(<StatCard label="Revenue" value="₹10" delta={0} />);
     expect(screen.getByText('0%')).toBeInTheDocument();
     expect(container.querySelector('[data-testid="TrendingUpIcon"]')).toBeInTheDocument();
+  });
+
+  it('puts the given icon in the tile s bubble, and a neutral chart glyph otherwise', () => {
+    const { container, rerender } = renderIn(
+      <StatCard label="Revenue" value="₹10" icon={WorkOutlineIcon} />,
+    );
+    expect(container.querySelector('[data-testid="WorkOutlinedIcon"]')).toBeInTheDocument();
+    rerender(
+      <I18nProvider locale="en" messages={{}}>
+        <StatCard label="Revenue" value="₹10" />
+      </I18nProvider>,
+    );
+    expect(container.querySelector('[data-testid="InsightsOutlinedIcon"]')).toBeInTheDocument();
   });
 
   it('shows no trend pill without a delta', () => {

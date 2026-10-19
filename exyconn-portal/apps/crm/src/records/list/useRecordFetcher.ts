@@ -1,7 +1,7 @@
-import { useCallback, useRef, type RefObject } from 'react';
+import { useMemo, useRef, type RefObject } from 'react';
 import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
-import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
+import type { GridFetcher, TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type {
   CrmQueryInput,
   CrmSortInput,
@@ -33,6 +33,20 @@ export function sortsAfterHeader(
   return [{ property: header.field, dir: header.dir }];
 }
 
+/** The CRM query a page request asks for: the grid's page, search and header sort on the list's own. */
+function crmQueryOf(input: TableQueryInput, current: RecordQueryState): CrmQueryInput {
+  const search = input.search ?? '';
+  return {
+    page: input.page,
+    pageSize: input.pageSize,
+    search: search === '' ? null : search,
+    groups: toGroupInputs(current.groups),
+    sorts: sortsAfterHeader(input.sort, current.sorts),
+    // The grid's Archived switch: archived rows only, or (otherwise) none of them.
+    archived: input.archived,
+  };
+}
+
 /**
  * The `fetchRows` a CrudDashboard takes, sending the list's own query — the filter groups and
  * sorts — instead of the grid's column filters. The search box and the column headers still
@@ -40,22 +54,26 @@ export function sortsAfterHeader(
  * the query through `onChange` (no reload: the grid is already loading that page).
  *
  * It is stable for the page's lifetime, because the grid builds its datasource from it once;
- * the latest query is read from `queryRef` at fetch time.
+ * the latest query is read from `queryRef` at fetch time. `variablesFor` gives a bulk job the
+ * same query, so "Select all matching" pages through it on the server.
  */
 export function useRecordFetcher<TQuery, TRow>(
   document: RecordSearchDocument<TQuery>,
   select: (data: TQuery) => TablePageResult<TRow>,
   queryRef: RefObject<RecordQueryState>,
   onChange: (query: RecordQueryState) => void,
-): (input: TableQueryInput) => Promise<TablePageResult<TRow>> {
+): GridFetcher<TRow> {
   const client = useApolloClient();
   const selectRef = useRef(select);
   selectRef.current = select;
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  return useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
+  return useMemo(() => {
+    const variablesFor = (input: TableQueryInput) => ({
+      query: crmQueryOf(input, queryRef.current),
+    });
+    const fetchPage = async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
       const current = queryRef.current;
       const search = input.search ?? '';
       const sorts = sortsAfterHeader(input.sort, current.sorts);
@@ -64,22 +82,12 @@ export function useRecordFetcher<TQuery, TRow>(
       }
       const result = await client.query({
         query: document,
-        variables: {
-          query: {
-            page: input.page,
-            pageSize: input.pageSize,
-            search: search === '' ? null : search,
-            groups: toGroupInputs(current.groups),
-            sorts,
-            // The grid's Archived switch: archived rows only, or (otherwise) none of them.
-            archived: input.archived,
-          },
-        },
+        variables: { query: crmQueryOf(input, current) },
         fetchPolicy: 'network-only',
       });
       const page = selectRef.current(queryData(result, 'The CRM records query'));
       return { rows: page.rows, totalCount: page.totalCount };
-    },
-    [client, document, queryRef],
-  );
+    };
+    return Object.assign(fetchPage, { variablesFor });
+  }, [client, document, queryRef]);
 }

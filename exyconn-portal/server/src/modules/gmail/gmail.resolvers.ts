@@ -24,7 +24,7 @@ import {
 import { assertOperatorCrm, type SendCrmEmailInput } from './gmail.crm';
 import { crmEmailThreads } from './gmail.sync';
 import { auditGmail } from './gmail.audit';
-import { gmailClientConfig } from './gmail.client';
+import { forCrmUser, gmailClientConfig } from './gmail.client';
 import { auditMicrosoft } from '../microsoft-mail';
 import { defaultEmailSender, sendFromAnyMailbox } from '../crm-integrations/crm-integrations.email';
 
@@ -72,7 +72,7 @@ export const gmailResolvers = {
       ctx: GraphQLContext,
     ) => {
       await crmGmail(ctx, 'VIEW');
-      return crmEmailThreads(object, id);
+      return forCrmUser(() => crmEmailThreads(object, id));
     },
     crmEmailSender: async (
       _p: unknown,
@@ -150,7 +150,8 @@ export const gmailResolvers = {
       ctx: GraphQLContext,
     ) => {
       await crmUser(ctx, 'CREATE');
-      const { provider, sent } = await sendFromAnyMailbox(input, await actorNameOf(ctx));
+      const sentByName = await actorNameOf(ctx);
+      const { provider, sent } = await forCrmUser(() => sendFromAnyMailbox(input, sentByName));
       const summary = `Sent "${sent.subject}" from ${sent.mailbox} to ${sent.to.join(', ')}`;
       const audit = provider === 'MICROSOFT' ? auditMicrosoft : auditGmail;
       await audit(ctx, 'CREATE', { id: sent.gmailId, label: sent.subject }, summary);

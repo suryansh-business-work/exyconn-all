@@ -3,6 +3,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TrackerCalendar } from '@/pages/tracker-view/TrackerCalendar';
 import { buildTrackerMonth } from '@/pages/tracker-view/buildTrackerMonth';
+import type { TrackerDayMark } from '@/pages/tracker-view/tracker.types';
 import { renderWithProviders } from '../../test-utils';
 import { HOUR_MS, makeBucket } from './fixtures';
 
@@ -13,10 +14,18 @@ const days = buildTrackerMonth(
   new Date(2026, 2, 5),
 );
 
-function renderCalendar(selectedDate: string | null = null) {
+function renderCalendar(
+  selectedDate: string | null = null,
+  dayMarks?: ReadonlyMap<string, TrackerDayMark>,
+) {
   const onSelectDay = vi.fn();
   renderWithProviders(
-    <TrackerCalendar days={days} selectedDate={selectedDate} onSelectDay={onSelectDay} />,
+    <TrackerCalendar
+      days={days}
+      selectedDate={selectedDate}
+      onSelectDay={onSelectDay}
+      dayMarks={dayMarks}
+    />,
   );
   return onSelectDay;
 }
@@ -80,5 +89,32 @@ describe('TrackerCalendar', () => {
       getComputedStyle(cell.firstElementChild as Element).borderColor;
     expect(border(dayButtons()[9])).not.toBe(border(dayButtons()[8]));
     expect(border(dayButtons()[8])).toBe(border(dayButtons()[10]));
+  });
+
+  it('labels short, leave and holiday days in words, and only days of the month', () => {
+    renderCalendar(
+      null,
+      new Map<string, TrackerDayMark>([
+        ['2026-03-03', 'SHORT'],
+        ['2026-03-04', 'LEAVE'],
+        ['2026-03-06', 'HOLIDAY'],
+        ['2026-04-01', 'LEAVE'],
+      ]),
+    );
+
+    expect(within(dayButtons()[2]).getByText('Short')).toBeInTheDocument();
+    expect(within(dayButtons()[3]).getByText('Leave')).toBeInTheDocument();
+    expect(within(dayButtons()[5]).getByText('Holiday')).toBeInTheDocument();
+    expect(dayButtons()[4]).toHaveTextContent(/^5$/);
+    // 1 April sits in the padding after March: a mark there is not this month's to show.
+    expect(dayButtons()[31]).toHaveTextContent(/^1$/);
+  });
+
+  it('outlines a short day apart from an unmarked one', () => {
+    renderCalendar(null, new Map<string, TrackerDayMark>([['2026-03-03', 'SHORT']]));
+
+    const border = (cell: HTMLElement) =>
+      getComputedStyle(cell.firstElementChild as Element).borderColor;
+    expect(border(dayButtons()[2])).not.toBe(border(dayButtons()[4]));
   });
 });

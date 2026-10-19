@@ -55,6 +55,7 @@ const CONNECTION_TESTS: ReadonlySet<string> = new Set([
   'testGoogleSignInConfig',
   'testGmailConfig',
   'sendCrmEmail',
+  'sendColdEmailVariant',
   'crmEmailThreads',
   'testCallingBotConfig',
   'testCallingBotKey',

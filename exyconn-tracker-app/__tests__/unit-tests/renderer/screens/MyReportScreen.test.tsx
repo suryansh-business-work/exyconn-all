@@ -52,7 +52,11 @@ const getReport = vi.fn((_from: string, _to: string) => Promise.resolve(DAYS));
 
 async function open(): Promise<void> {
   getReport.mockClear();
-  stubTracker({ getReport, getDay: () => new Promise<DayDetail>(() => undefined) });
+  stubTracker({
+    getReport,
+    getExpected: () => Promise.resolve({ workHoursPerDay: 8, days: [] }),
+    getDay: () => new Promise<DayDetail>(() => undefined),
+  });
   await render(<MyReportScreen timezone="UTC" />);
   await flush();
 }

@@ -46,7 +46,7 @@ export async function microsoftApp(): Promise<MicrosoftMailConfigDocument> {
   );
   if (!config?.enabled || !config.clientId || !config.clientSecret) {
     throw new ConfigurationError(
-      'Microsoft mail is not set up. Save the app in Tech > Environment Variables > Microsoft mail.',
+      'Microsoft mail is not set up. Save the app in Tech > Environment Variables > Email accounts (OAuth).',
     );
   }
   return config;

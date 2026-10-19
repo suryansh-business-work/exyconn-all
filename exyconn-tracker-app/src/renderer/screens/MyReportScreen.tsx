@@ -21,7 +21,15 @@ import ReportMonthChart from '../components/ReportMonthChart';
 import ReportOverview from '../components/ReportOverview';
 import ReportTable from '../components/ReportTable';
 import ReportTotals from '../components/ReportTotals';
-import { formatMonthLabel } from '@exyconn/tracker-core';
+import ReportTarget from '../components/ReportTarget';
+import HoursReportButton from '../components/HoursReportButton';
+import {
+  dayMarksOf,
+  formatMonthLabel,
+  monthBounds,
+  monthTarget,
+  todayKeyIn,
+} from '@exyconn/tracker-core';
 import useMyDay from '../hooks/useMyDay';
 import useMyReport from '../hooks/useMyReport';
 import { panelProps, tabProps } from '../a11y/tabs';
@@ -67,7 +75,13 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
   const [month, setMonth] = useState<Date>(() => startOfMonth(today));
   const [selected, setSelected] = useState<Date>(today);
 
-  const { days, totals, loading, error } = useMyReport(month, timezone);
+  const { days, contract, totals, loading, error } = useMyReport(month, timezone);
+  const target = useMemo(
+    () => (contract ? monthTarget(contract, days, todayKeyIn(timezone)) : null),
+    [contract, days, timezone],
+  );
+  const marks = useMemo(() => (target ? dayMarksOf(target) : new Map()), [target]);
+  const bounds = monthBounds(month, timezone);
   useAnnounce(error, 'assertive');
   const monthLabel = formatMonthLabel(month);
   const day = useMyDay(selected, timezone);
@@ -110,6 +124,7 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
               <ReportCalendar
                 days={days}
                 loading={loading}
+                marks={marks}
                 selected={selected}
                 maxDate={today}
                 onSelect={selectDate}
@@ -132,6 +147,9 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
                 <MonthSkeleton />
               ) : (
                 <>
+                  {target && contract && (
+                    <ReportTarget target={target} workHoursPerDay={contract.workHoursPerDay} />
+                  )}
                   <ReportTotals totals={totals} />
                   <ReportMonthChart days={days} monthLabel={monthLabel} />
                   {/* Hours first, then how solid they were: the second chart only means
@@ -145,6 +163,12 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
                 loading={loading}
                 monthKey={monthKeyOf(month)}
                 monthLabel={monthLabel}
+              />
+              <HoursReportButton
+                fromISO={bounds.fromISO}
+                toISO={bounds.toISO}
+                monthLabel={monthLabel}
+                disabled={loading}
               />
             </>
           )}

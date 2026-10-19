@@ -28,8 +28,8 @@ function answer(result: { data?: unknown; loading?: boolean }) {
 }
 
 /** The figure a stat tile shows under its label row. */
-const tile = (label: string) =>
-  screen.getByText(label).parentElement?.nextElementSibling?.textContent ?? '';
+/** The figure on the stat tile with this label: the big number sits just above it. */
+const tile = (label: string) => screen.getByText(label).previousElementSibling?.textContent ?? '';
 
 describe('PayrollPage', () => {
   beforeEach(() => {

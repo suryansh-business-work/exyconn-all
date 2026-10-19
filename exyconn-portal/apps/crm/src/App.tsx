@@ -1,4 +1,4 @@
-import { Route } from 'react-router-dom';
+import { Navigate, Route } from 'react-router-dom';
 import { PortalApp } from '@exyconn/shell';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
@@ -13,10 +13,12 @@ import { EmailVerifierPage } from './pages/email-verifier';
 import { LeadGeneratorPage } from './pages/lead-generator';
 import { WebsiteScraperPage } from './pages/website-scraper';
 import { PropertiesPage } from './pages/settings';
-import { GmailAccountsPage } from './pages/settings/gmail';
 import { IntegrationsPage } from './pages/integrations';
+import { EMAIL_INTEGRATIONS_PATH } from './integrations/emailIntegrationsPath';
 import { CommsDockLayout } from './records/comms';
 import { MeetingsPage } from './pages/meetings';
+import { CalendarPage } from './pages/calendar';
+import { ColdEmailDraftPage, ColdEmailsPage } from './pages/cold-emails';
 import { BookingProfilePage, BookMeetingPage } from './pages/book';
 import { LegacyCrmRedirect } from './LegacyCrmRedirect';
 
@@ -51,12 +53,16 @@ export function App() {
         <Route path="/deals" element={<DealsPage />} />
         <Route path="/deals/list" element={<DealsListPage />} />
         <Route path="/activities" element={<ActivitiesPage />} />
+        <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/meetings/:tab?" element={<MeetingsPage />} />
+        <Route path="/cold-emails" element={<ColdEmailsPage />} />
+        <Route path="/cold-emails/:id" element={<ColdEmailDraftPage />} />
         <Route path="/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
         <Route path="/tools/lead-generator" element={<LeadGeneratorPage />} />
         <Route path="/tools/website-scraper" element={<WebsiteScraperPage />} />
         <Route path="/settings/properties/:object?" element={<PropertiesPage />} />
-        <Route path="/settings/gmail" element={<GmailAccountsPage />} />
+        {/* Mailboxes are connected in Integrations now; the old Connect Gmail page lands there. */}
+        <Route path="/settings/gmail" element={<Navigate to={EMAIL_INTEGRATIONS_PATH} replace />} />
         <Route path="/integrations/:tab?" element={<IntegrationsPage />} />
       </Route>
       <Route path="/crm/*" element={<LegacyCrmRedirect />} />

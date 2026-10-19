@@ -5,7 +5,7 @@ const STATE_TTL_SECONDS = 10 * 60;
 
 /**
  * The Microsoft Entra app the CRM's Outlook / Microsoft 365 mailboxes connect through (Tech >
- * Environment Variables > Microsoft mail). One row for the install, like the Gmail client; the
+ * Environment Variables > Email accounts (OAuth)). One row for the install, like the Gmail client; the
  * client secret is write-only.
  */
 const microsoftMailConfigSchema = new Schema(

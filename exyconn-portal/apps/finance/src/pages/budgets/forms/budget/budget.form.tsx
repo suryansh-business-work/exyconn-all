@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { YEAR_MONTH } from '@exyconn/regex';
 import {
   RhfTextField,
@@ -18,7 +19,7 @@ const schema = z.object({
   // Matches the server's monthKey exactly; anything else could never be compared to actuals.
   month: z.string().regex(YEAR_MONTH, 'Use YYYY-MM, e.g. 2026-04'),
   amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
-  currency: z.string().trim().min(1, 'Currency is required'),
+  currency: currencyField,
   note: z.string().trim(),
 });
 type Values = z.infer<typeof schema>;

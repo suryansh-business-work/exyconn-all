@@ -2,9 +2,7 @@ import {
   CrmObject,
   CrmOp,
   CrmPropertyType,
-  GmailAccountStatus,
   type CrmPropertyFieldsFragment,
-  type GmailAccountFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
 import type { CrmPropertyInfo } from '../../../../src/records/schema';
 
@@ -41,24 +39,6 @@ export function schemaProperty(overrides: Partial<CrmPropertyInfo> = {}): CrmPro
     filterOnly: false,
     ops: [CrmOp.Eq],
     options: [],
-    ...overrides,
-  };
-}
-
-/** A connected Gmail mailbox. */
-export function gmailAccount(
-  overrides: Partial<GmailAccountFieldsFragment> = {},
-): GmailAccountFieldsFragment {
-  return {
-    __typename: 'GmailAccount',
-    id: 'gmail-1',
-    email: 'sales@acme.io',
-    enabled: true,
-    status: GmailAccountStatus.Connected,
-    lastError: '',
-    connectedAt: '2026-10-01T10:00:00.000Z',
-    connectedByName: 'Priya',
-    lastSyncAt: null,
     ...overrides,
   };
 }

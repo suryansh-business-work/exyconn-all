@@ -10,6 +10,7 @@ export { initialsOf } from './initials';
 export { RecordAvatar } from './RecordAvatar';
 export { AiSummary } from './AiSummary';
 export { EmailThreads } from './email/EmailThreads';
+export { ConnectMailboxLink } from './email/ConnectMailboxLink';
 export { RecordDetailSkeleton } from './RecordDetailSkeleton';
 export { DetailList } from './DetailList';
 export { ProfileHeader } from './ProfileHeader';

@@ -135,7 +135,7 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
         </Flex>
 
         {error ? (
-          <Alert severity="error" variant="outlined" sx={{ borderRadius: `${radius.sm}px`, mb: 2 }}>
+          <Alert severity="error" variant="outlined" sx={{ mb: 2 }}>
             {error.message}
           </Alert>
         ) : null}

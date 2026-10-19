@@ -87,6 +87,7 @@ export function WebsitesPage() {
       statsLoading={loading && rows.length === 0}
     >
       <DataTable
+        bulkEntity="CmsSite"
         columns={columns}
         rows={rows}
         onEdit={crud.openEdit}

@@ -20,11 +20,45 @@ function byLabel(a: IsoOption, b: IsoOption): number {
   return a.label.localeCompare(b.label);
 }
 
-/** Every ISO 4217 currency this runtime knows, named in `locale`. */
-export function currencyOptions(locale: string): IsoOption[] {
+/** An ISO 4217 currency, described the way a money picker shows it. */
+export interface CurrencyOption extends IsoOption {
+  /** Its name in the reader's language: "Indian Rupee". */
+  name: string;
+  /** The sign it is written with in that language: "₹" — the code itself when it has none. */
+  symbol: string;
+  /** Digits after the decimal point: 2 for INR, 0 for JPY, 3 for KWD. */
+  minorUnits: number;
+}
+
+/** The sign and minor units ICU writes `code` with in `locale`. */
+function currencyNotation(
+  locale: string,
+  code: string,
+): Pick<CurrencyOption, 'symbol' | 'minorUnits'> {
+  const format = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: code,
+    currencyDisplay: 'narrowSymbol',
+  });
+  const symbol = format.formatToParts(0).find((part) => part.type === 'currency')?.value ?? code;
+  return { symbol, minorUnits: format.resolvedOptions().maximumFractionDigits ?? 0 };
+}
+
+/**
+ * Every ISO 4217 currency this runtime knows, named in `locale` and labelled
+ * "INR — Indian Rupee (₹)" so a picker can be searched by code or by name. The list, the
+ * names, the signs and the minor units all come from the runtime's ICU data
+ * (`Intl.supportedValuesOf`, `Intl.DisplayNames`, `Intl.NumberFormat`), never a table here.
+ */
+export function currencyOptions(locale: string): CurrencyOption[] {
   const names = new Intl.DisplayNames([locale], { type: 'currency' });
   return Intl.supportedValuesOf('currency')
-    .map((code) => ({ code, label: `${names.of(code) ?? code} (${code})` }))
+    .map((code) => {
+      const name = names.of(code) ?? code;
+      const notation = currencyNotation(locale, code);
+      const sign = notation.symbol === code ? '' : ` (${notation.symbol})`;
+      return { code, name, ...notation, label: `${code} — ${name}${sign}` };
+    })
     .sort(byLabel);
 }
 

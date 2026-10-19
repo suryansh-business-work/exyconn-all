@@ -1,2 +1,2 @@
 export { CrmPage } from './CrmPage';
-export { CrmOverviewPage } from './CrmOverviewPage';
+export { CrmOverviewPage } from './dashboard';

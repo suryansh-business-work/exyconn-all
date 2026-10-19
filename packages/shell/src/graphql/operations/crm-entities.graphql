@@ -333,12 +333,24 @@ mutation DeleteActivity($id: ID!) {
 query GetContact($id: ID!) {
   getContact(id: $id) {
     ...ContactFields
+    emails {
+      address
+      verification {
+        ...EmailVerificationBadge
+      }
+    }
   }
 }
 
 query GetCompany($id: ID!) {
   getCompany(id: $id) {
     ...CompanyFields
+    emails {
+      address
+      verification {
+        ...EmailVerificationBadge
+      }
+    }
   }
 }
 

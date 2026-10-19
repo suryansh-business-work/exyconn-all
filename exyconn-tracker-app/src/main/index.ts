@@ -25,7 +25,7 @@ import { wantsTransparency, windowGroundOptions } from './window-material';
 import { holdForUpload, type CloseGuardHooks } from './close-guard';
 import { secureStore } from './store';
 import { AppUpdater } from './updater';
-import { saveReportFile } from './report-file';
+import { saveHoursReportFile, saveReportFile } from './report-file';
 import { PORTAL_GRAPHQL_URL } from './portal-client';
 import { installMainCrashHandlers } from './crash-handlers';
 import { setLogUser } from './logger';
@@ -261,6 +261,7 @@ function registerIpc(ctrl: TrackerController): void {
   handleTrusted(IPC.resume, () => ctrl.resume());
   handleTrusted(IPC.stop, () => ctrl.stop());
   handleTrusted(IPC.getReport, (_e, from: string, to: string) => ctrl.getReport(from, to));
+  handleTrusted(IPC.getExpected, (_e, from: string, to: string) => ctrl.getExpected(from, to));
   handleTrusted(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
   handleTrusted(IPC.getTotals, () => ctrl.getTotals());
   handleTrusted(IPC.setTimezone, (_e, timezone: string) => ctrl.setTimezone(timezone));
@@ -307,6 +308,9 @@ function registerIpc(ctrl: TrackerController): void {
   // The dialog belongs to the tracker window, so it opens attached to it rather than
   // floating loose over whatever the employee was actually looking at.
   handleTrusted(IPC.saveReport, (_e, report: ReportExport) => saveReportFile(window, report));
+  handleTrusted(IPC.saveHoursReport, async (_e, from: string, to: string) =>
+    saveHoursReportFile(window, await ctrl.getExpectedReport(from, to)),
+  );
   handleTrusted(IPC.getAppVersion, () => app.getVersion());
   handleTrusted(IPC.getUpdate, () => updater.current);
   handleTrusted(IPC.checkForUpdate, () => updater.checkNow());

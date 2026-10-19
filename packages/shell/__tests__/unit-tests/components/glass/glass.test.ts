@@ -1,24 +1,44 @@
 import { describe, expect, it } from 'vitest';
 import {
   CARD_RADIUS,
-  borderWidth,
+  FRAME_RADIUS,
+  SOLID_SURFACES,
   createAppTheme,
   duration,
   easing,
+  glassCard,
   portalShadow,
+  tokensFor,
   transition,
 } from '@exyconn/ui';
-import { densePanel, glass, interactive, panel, readingPanel } from '@/components/glass/glass';
+import {
+  densePanel,
+  glass,
+  interactive,
+  pageFrame,
+  panel,
+  readingPanel,
+} from '@/components/glass/glass';
 
 describe.each(['light', 'dark'] as const)('glass surfaces in %s mode', (mode) => {
   const theme = createAppTheme(mode);
 
-  it('draws the card surface from the theme, with no padding of its own', () => {
+  it('draws the card surface as the theme s frosted glass, with no padding of its own', () => {
     expect(glass(theme)).toEqual({
-      background: theme.palette.background.paper,
-      border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
+      ...glassCard(tokensFor(mode)),
       borderRadius: `${CARD_RADIUS}px`,
-      boxShadow: portalShadow[mode].sm,
+    });
+    expect(glass(theme)).toMatchObject({ backgroundColor: tokensFor(mode).glass.card });
+  });
+
+  it('frames the page in a lighter frost on a desk, solid when transparency is unwelcome', () => {
+    const desk = pageFrame(theme)[theme.breakpoints.up('md')] as Record<string, unknown>;
+    expect(desk).toMatchObject({
+      backgroundColor: tokensFor(mode).glass.frame,
+      borderRadius: `${FRAME_RADIUS}px`,
+    });
+    expect(desk[SOLID_SURFACES]).toMatchObject({
+      backgroundColor: theme.palette.background.default,
     });
   });
 

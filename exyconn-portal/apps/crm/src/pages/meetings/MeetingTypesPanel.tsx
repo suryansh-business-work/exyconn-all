@@ -93,6 +93,7 @@ export function MeetingTypesPanel() {
       />
       <BookingPageLink />
       <DataTable
+        bulkEntity="MeetingType"
         columns={columns}
         rows={data?.meetingTypes ?? []}
         actions={actions}

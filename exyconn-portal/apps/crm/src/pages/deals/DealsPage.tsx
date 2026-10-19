@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Box, Stack } from '@exyconn/shell/components/ui';
+import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -11,9 +11,9 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { DealForm, type DealRow } from './forms/deal';
 import { DealBoardSkeleton } from './DealBoardSkeleton';
-import { DealColumn } from './DealColumn';
+import { DealBoard } from './DealBoard';
 import { DealsViewToggle } from './DealsViewToggle';
-import { PIPELINE_STAGES, STAGE_ACCENTS, stageLabel } from './deals.constants';
+import { PIPELINE_STAGES, stageLabel } from './deals.constants';
 
 /**
  * CRM → Deals: the pipeline as a board, where moving a deal is one drag. There is
@@ -84,18 +84,7 @@ export function DealsPage() {
       {loading && !data ? (
         <DealBoardSkeleton stages={PIPELINE_STAGES} />
       ) : (
-        <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: 1 }}>
-          {PIPELINE_STAGES.map((stage) => (
-            <DealColumn
-              key={stage}
-              stage={stage}
-              accent={STAGE_ACCENTS[stage]}
-              deals={deals.filter((deal) => deal.stage === stage)}
-              onOpen={setEditing}
-              onDropDeal={move}
-            />
-          ))}
-        </Stack>
+        <DealBoard deals={deals} onOpen={setEditing} onMove={move} />
       )}
     </Box>
   );

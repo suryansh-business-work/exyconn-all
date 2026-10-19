@@ -63,8 +63,8 @@ const EMPTY: Record<string, unknown> = {
   myLeaveBalances: [],
 };
 
-/** The figure on the stat tile with this label. */
-const tile = (label: string) => screen.getByText(label).parentElement?.nextElementSibling;
+/** The figure on the stat tile with this label: the big number sits just above it. */
+const tile = (label: string) => screen.getByText(label).previousElementSibling;
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });

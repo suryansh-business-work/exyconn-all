@@ -14,6 +14,9 @@ import {
   useMediaQuery,
   useTheme,
   fontWeight,
+  GLASS_BLUR,
+  SOLID_SURFACES,
+  tokensFor,
   type Theme,
 } from '@/components/ui';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -32,7 +35,7 @@ import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
 import { roleList } from '@/auth/roles';
 
-/** The topbar's actions: round card-coloured buttons with a hairline, set apart from the canvas. */
+/** The topbar's actions: round card-coloured buttons with a hairline, set apart from the glass. */
 const roundActions = (t: Theme) => ({
   display: 'flex',
   alignItems: 'center',
@@ -89,10 +92,12 @@ export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
       sx={(t) => ({
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
-        // The canvas itself, over a very light hairline: the topbar stays part of the page.
-        // Drawn as an inset shadow so the bar keeps the height the spacer under it reserves.
-        background: t.palette.background.default,
-        boxShadow: `inset 0 -${borderWidth.hairline}px 0 ${t.palette.background.muted}`,
+        // Frosted glass over the canvas, dense enough that a page scrolling beneath it never
+        // costs its text contrast (contrast.test.ts composites it over body ink). Solid where a
+        // person has asked for less transparency or more contrast.
+        background: tokensFor(t.palette.mode).glass.bar,
+        backdropFilter: GLASS_BLUR,
+        [SOLID_SURFACES]: { background: t.palette.background.default, backdropFilter: 'none' },
         // Installed to a home screen, the app owns the whole screen — including whatever is
         // behind the notch. These insets are zero in a browser tab.
         pt: 'env(safe-area-inset-top)',

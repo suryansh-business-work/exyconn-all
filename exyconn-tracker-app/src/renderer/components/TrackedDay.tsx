@@ -1,8 +1,13 @@
 import type { ReactElement } from 'react';
 import { createContext, useContext } from 'react';
-import { Box, PickerDay, trackerActivity, useTheme } from '@exyconn/ui';
+import { Box, PickerDay, trackerActivity, useTheme, type Theme } from '@exyconn/ui';
 import type { PickerDayProps } from '@exyconn/ui';
-import { formatDayLabel, formatHoursMinutes, type ActivityLevel } from '@exyconn/tracker-core';
+import {
+  formatDayLabel,
+  formatHoursMinutes,
+  type ActivityLevel,
+  type DayMark,
+} from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
 import { selectedFill } from '../theme';
 
@@ -18,6 +23,24 @@ export interface TrackedDate {
  * `PickerDayProps` — smuggling an extra prop through it needs an `any` cast, which this repo bans.
  */
 export const TrackedDatesContext = createContext<ReadonlyMap<string, TrackedDate>>(new Map());
+
+/** Leave, holidays and finished days short of the contract, by `yyyy-MM-dd` key. */
+export const DayMarksContext = createContext<ReadonlyMap<string, DayMark>>(new Map());
+
+/** What a mark adds to the day's name, so the ring is heard as well as seen. */
+const MARK_WORDS: Readonly<Record<DayMark, string>> = {
+  SHORT: 'below expected hours',
+  LEAVE: 'on leave',
+  HOLIDAY: 'holiday',
+};
+
+/** The ring a marked day wears. */
+function markColor(mark: DayMark, theme: Theme): string {
+  if (mark === 'SHORT') {
+    return theme.palette.error.main;
+  }
+  return mark === 'LEAVE' ? theme.palette.info.main : theme.palette.text.secondary;
+}
 
 /** The dot's colour, in words, so a screen reader hears what a sighted user sees. */
 const DAY_NAME_TEMPLATES: Readonly<Record<ActivityLevel, string>> = {
@@ -42,14 +65,19 @@ export default function TrackedDay({
   const theme = useTheme();
   const t = useT();
   const tracked = useContext(TrackedDatesContext);
+  const marks = useContext(DayMarksContext);
   const entry = outsideCurrentMonth ? undefined : tracked.get(dateKey(day));
-  const dayName =
+  const mark = outsideCurrentMonth ? undefined : marks.get(dateKey(day));
+  const trackedName =
     entry === undefined
       ? undefined
       : t(DAY_NAME_TEMPLATES[entry.level], {
           date: formatDayLabel(day),
           duration: formatHoursMinutes(entry.trackedMs),
         });
+  const baseName = trackedName ?? formatDayLabel(day);
+  const dayName = mark === undefined ? trackedName : `${baseName}, ${t(MARK_WORDS[mark])}`;
+  const ring = mark === undefined ? undefined : `inset 0 0 0 2px ${markColor(mark, theme)}`;
 
   return (
     <Box sx={{ position: 'relative' }}>
@@ -61,6 +89,7 @@ export default function TrackedDay({
         sx={{
           borderRadius: '50%',
           fontWeight: 600,
+          boxShadow: ring,
           '&.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus': selectedFill(theme),
         }}
       />

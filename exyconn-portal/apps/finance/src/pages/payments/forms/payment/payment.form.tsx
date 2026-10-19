@@ -1,7 +1,7 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useT } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -42,32 +42,39 @@ interface OpenInvoice {
 }
 
 type Translate = ReturnType<typeof useT>;
+/** An amount in the invoice's own currency, in the reader's notation. */
+type Money = (amount: number, currency: string) => string;
 
 /** What this payment will leave owing, said before it is recorded. */
-function effectOf(t: Translate, amount: number, invoice: OpenInvoice | undefined): string {
+function effectOf(
+  t: Translate,
+  money: Money,
+  amount: number,
+  invoice: OpenInvoice | undefined,
+): string {
   if (invoice === undefined) {
     return t('Choose an invoice to see what it will leave owing.');
   }
   const after = Math.round((invoice.balanceDue - amount) * 100) / 100;
   if (after < 0) {
-    return t('That is {currency} {amount} more than is owed.', {
-      currency: invoice.currency,
-      amount: Math.abs(after).toLocaleString(),
+    return t('That is {amount} more than is owed.', {
+      amount: money(Math.abs(after), invoice.currency),
     });
   }
   if (after === 0) {
     return t('{number} would be settled in full.', { number: invoice.number });
   }
-  return t('{currency} {owed} → {currency} {remaining} still owing.', {
-    currency: invoice.currency,
-    owed: invoice.balanceDue.toLocaleString(),
-    remaining: after.toLocaleString(),
+  return t('{owed} → {remaining} still owing.', {
+    owed: money(invoice.balanceDue, invoice.currency),
+    remaining: money(after, invoice.currency),
   });
 }
 
 /** React Hook Form + Zod form to record a receipt against an invoice. */
 export function PaymentForm({ onDone, onCancel }: Readonly<PaymentFormProps>) {
   const t = useT();
+  const { formatCurrency } = useFormatters();
+  const money: Money = (value, currency) => formatCurrency(value, { currency });
   const notify = useNotify();
   const { data } = useListInvoicesQuery();
   const [record] = useRecordPaymentMutation();
@@ -90,7 +97,10 @@ export function PaymentForm({ onDone, onCancel }: Readonly<PaymentFormProps>) {
   );
   const invoiceOptions: SelectOption[] = open.map((invoice) => ({
     value: invoice.id,
-    label: `${invoice.number} — ${invoice.currency} ${invoice.balanceDue.toLocaleString()} owing`,
+    label: t('{number} — {amount} owing', {
+      number: invoice.number,
+      amount: money(invoice.balanceDue, invoice.currency),
+    }),
   }));
   const chosen = open.find((invoice) => invoice.id === invoiceId);
 
@@ -125,7 +135,7 @@ export function PaymentForm({ onDone, onCancel }: Readonly<PaymentFormProps>) {
         helperText="Enter a negative amount to record a refund."
       />
       <Text size="sm" color="text.secondary">
-        {effectOf(t, Number(amount) || 0, chosen)}
+        {effectOf(t, money, Number(amount) || 0, chosen)}
       </Text>
       <RhfSelect name="method" label="Method" options={METHOD_OPTIONS} />
       <RhfTextField name="reference" label="Reference" helperText="UTR, cheque number, txn id…" />

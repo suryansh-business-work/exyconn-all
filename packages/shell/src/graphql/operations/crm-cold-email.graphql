@@ -1,0 +1,85 @@
+# CRM > Cold emails: AI-written first emails to a contact or company, in several versions,
+# sent through the CRM's mailboxes so they land on the record's Emails tab and timeline.
+
+fragment ColdEmailVariantFields on ColdEmailVariant {
+  id
+  subject
+  body
+  instruction
+  tone
+  costUsd
+  createdAt
+  sentAt
+  sentMessageId
+}
+
+fragment ColdEmailDraftRowFields on ColdEmailDraft {
+  id
+  object
+  recordId
+  recordName
+  toEmail
+  status
+  variantCount
+  createdByName
+  updatedAt
+}
+
+fragment ColdEmailDraftFields on ColdEmailDraft {
+  ...ColdEmailDraftRowFields
+  goal
+  tone
+  createdAt
+  variants {
+    ...ColdEmailVariantFields
+  }
+}
+
+query ColdEmailDrafts($input: TableQueryInput!) {
+  coldEmailDrafts(input: $input) {
+    rows {
+      ...ColdEmailDraftRowFields
+    }
+    totalCount
+  }
+}
+
+query ColdEmailDraft($id: ID!) {
+  coldEmailDraft(id: $id) {
+    ...ColdEmailDraftFields
+  }
+}
+
+mutation CreateColdEmailDraft($input: CreateColdEmailDraftInput!) {
+  createColdEmailDraft(input: $input) {
+    ...ColdEmailDraftFields
+  }
+}
+
+mutation AddColdEmailVariant($id: ID!, $instruction: String, $tone: ColdEmailTone) {
+  addColdEmailVariant(id: $id, instruction: $instruction, tone: $tone) {
+    ...ColdEmailDraftFields
+  }
+}
+
+mutation UpdateColdEmailVariant($draftId: ID!, $variantId: ID!, $subject: String!, $body: String!) {
+  updateColdEmailVariant(draftId: $draftId, variantId: $variantId, subject: $subject, body: $body) {
+    ...ColdEmailDraftFields
+  }
+}
+
+mutation DeleteColdEmailVariant($draftId: ID!, $variantId: ID!) {
+  deleteColdEmailVariant(draftId: $draftId, variantId: $variantId) {
+    ...ColdEmailDraftFields
+  }
+}
+
+mutation DeleteColdEmailDraft($id: ID!) {
+  deleteColdEmailDraft(id: $id)
+}
+
+mutation SendColdEmailVariant($input: SendColdEmailVariantInput!) {
+  sendColdEmailVariant(input: $input) {
+    ...ColdEmailDraftFields
+  }
+}

@@ -8,6 +8,7 @@ import { chartPalette, type ChartPalette } from './palette';
  * an automatic inversion of the light one, which is how dark-mode charts usually end up
  * either invisible or fluorescent.
  *
+ * The series come from the theme when it brings its own (the portal theme's pastels).
  * The chrome (grid, axis text) comes from the theme rather than the palette file, so a chart's
  * gridlines are the same hairline grey as every other divider in the product.
  */
@@ -19,5 +20,6 @@ export function useChartPalette(): ChartPalette {
     theme.palette.divider,
     theme.palette.text.secondary,
     theme.palette.text.primary,
+    theme.palette.chart,
   );
 }

@@ -36,12 +36,31 @@ export class GmailAuthError extends Error {
   }
 }
 
+/** What a CRM user is told while Tech has not set the OAuth apps up; the setup detail is Tech's. */
+export const EMAIL_ACCOUNTS_UNAVAILABLE =
+  'Email accounts are not available yet. Ask your administrator.';
+
+/**
+ * A CRM call that needs the platform's OAuth app. While Tech has not set it up, the CRM user is
+ * told plainly to ask their administrator instead of being shown where Tech saves the app.
+ */
+export async function forCrmUser<T>(work: () => Promise<T>): Promise<T> {
+  try {
+    return await work();
+  } catch (error) {
+    if (error instanceof ConfigurationError) {
+      throw new ConfigurationError(EMAIL_ACCOUNTS_UNAVAILABLE);
+    }
+    throw error;
+  }
+}
+
 /** The OAuth client Tech saved, or a message saying what Tech still has to do. */
 export async function gmailClientConfig(): Promise<GmailConfigDocument> {
   const config = await runAsPlatform(() => GmailConfigModel.findOne({ key: 'default' }).lean());
   if (!config?.enabled || !config.clientId || !config.clientSecret) {
     throw new ConfigurationError(
-      'Gmail is not set up. Save the Google client in Tech > Environment Variables > Gmail.',
+      'Gmail is not set up. Save the Google client in Tech > Environment Variables > Email accounts (OAuth).',
     );
   }
   return config;

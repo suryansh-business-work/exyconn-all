@@ -7,6 +7,7 @@ import type { GraphQLContext } from '../../middleware/auth';
 import type { PermissionAction } from '../permissions/permission.model';
 import { recordAudit } from '../audit';
 import { assertOperatorCrm } from '../gmail/gmail.crm';
+import { forCrmUser } from '../gmail/gmail.client';
 import {
   presentMicrosoftConfig,
   readMicrosoftConfig,
@@ -82,11 +83,12 @@ export const microsoftMailResolvers = {
       ctx: GraphQLContext,
     ) => {
       const user = await crmMailbox(ctx, 'EDIT');
-      return startMicrosoftConnect(returnTo, {
+      const actor = {
         id: user.id,
         name: await actorNameOf(ctx),
         organizationId: currentOrganizationId(),
-      });
+      };
+      return forCrmUser(() => startMicrosoftConnect(returnTo, actor));
     },
     setMicrosoftMailAccountEnabled: async (
       _p: unknown,

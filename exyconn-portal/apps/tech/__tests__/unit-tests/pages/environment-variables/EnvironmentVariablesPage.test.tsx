@@ -49,6 +49,10 @@ vi.mock('../../../../src/pages/environment-variables/PayoneerConfigsPanel', asyn
 vi.mock('../../../../src/pages/environment-variables/SonarConfigsPanel', async () =>
   (await import('./panel.harness')).panelModule('SonarConfigsPanel'),
 );
+vi.mock('../../../../src/pages/environment-variables/EmailAccountsPanel', async () => ({
+  ...(await import('./panel.harness')).panelModule('EmailAccountsPanel'),
+  EMAIL_ACCOUNTS_PATH: '/tech/environment-variables/email-accounts',
+}));
 vi.mock('../../../../src/pages/environment-variables/AiPricingPanel', async () =>
   (await import('./panel.harness')).panelModule('AiPricingPanel'),
 );
@@ -117,10 +121,19 @@ describe('EnvironmentVariablesPage', () => {
     ['paypal', 'PaypalConfigsPanel'],
     ['payoneer', 'PayoneerConfigsPanel'],
     ['sonarqube', 'SonarConfigsPanel'],
+    ['email-accounts', 'EmailAccountsPanel'],
   ])('shows the %s panel at its own address', (slug, panel) => {
     renderAt(`/tech/environment-variables/${slug}`);
     expect(screen.getByRole('region')).toContainElement(screen.getByTestId(panel));
     expect(screen.queryByTestId('SlackConfigsPanel')).not.toBeInTheDocument();
+  });
+
+  it('lists both OAuth apps under one Email accounts entry, with no separate Gmail or Microsoft one', () => {
+    renderAt('/tech/environment-variables/slack');
+    const nav = screen.getByRole('navigation', { name: 'Integration credentials' });
+    expect(within(nav).getByRole('button', { name: 'Email accounts (OAuth)' })).toBeInTheDocument();
+    expect(within(nav).queryByRole('button', { name: 'Gmail' })).not.toBeInTheDocument();
+    expect(within(nav).queryByRole('button', { name: 'Microsoft Mail' })).not.toBeInTheDocument();
   });
 
   it('moves to another integration when its menu entry is chosen', async () => {

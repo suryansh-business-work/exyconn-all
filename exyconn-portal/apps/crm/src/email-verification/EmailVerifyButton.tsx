@@ -14,23 +14,32 @@ import { useVerifyEmail } from './useVerifyEmail';
 const checkedThisSession = new Map<string, EmailVerificationBadgeFragment>();
 
 /**
- * A Verify button beside one address on a record's page. The result shows next to it as the
- * same chip the lists use, with the reason and time in its tooltip; the button checks again.
+ * A Verify button beside one address on a record's page. The latest result — stored, or made
+ * here — shows next to it as the same chip the lists use, with the reason, time and who checked
+ * in its tooltip; the button checks again.
  */
-export function EmailVerifyButton({ email }: Readonly<{ email: string }>) {
+export function EmailVerifyButton({
+  email,
+  verification = null,
+}: Readonly<{
+  email: string;
+  /** The stored check of the address, from the record; a check made here replaces it. */
+  verification?: EmailVerificationBadgeFragment | null;
+}>) {
   const t = useT();
   const verify = useVerifyEmail();
   const address = email.trim().toLowerCase();
-  const [result, setResult] = useState(() => checkedThisSession.get(address) ?? null);
+  const [checkedHere, setCheckedHere] = useState(() => checkedThisSession.get(address) ?? null);
   const [checking, setChecking] = useState(false);
+  const result = checkedHere ?? verification;
 
   const check = async () => {
     setChecking(true);
     try {
-      const verification = await verify(address);
-      if (verification) {
-        checkedThisSession.set(address, verification);
-        setResult(verification);
+      const fresh = await verify(address);
+      if (fresh) {
+        checkedThisSession.set(address, fresh);
+        setCheckedHere(fresh);
       }
     } finally {
       setChecking(false);

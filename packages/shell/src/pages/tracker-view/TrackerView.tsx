@@ -6,7 +6,12 @@ import { TrackerCalendar } from './TrackerCalendar';
 import { TrackerMonthChart } from './TrackerMonthChart';
 import { TrackerDayPanel } from './TrackerDayPanel';
 import type { TrackerDayCell } from './buildTrackerMonth';
-import type { DateTimeFormatter, TrackerDayBucketData, TrackerDayData } from './tracker.types';
+import type {
+  DateTimeFormatter,
+  TrackerDayBucketData,
+  TrackerDayData,
+  TrackerDayMark,
+} from './tracker.types';
 
 interface TrackerViewProps {
   monthLabel: string;
@@ -26,6 +31,8 @@ interface TrackerViewProps {
   formatTime: DateTimeFormatter;
   formatDateTime: DateTimeFormatter;
   empty?: boolean;
+  /** Leave, holidays and finished days short of the contracted hours (drawn in red). */
+  dayMarks?: ReadonlyMap<string, TrackerDayMark>;
 }
 
 /** Presentational calendar + day-detail composition shared by both tracker views. */
@@ -45,6 +52,7 @@ export function TrackerView({
   formatTime,
   formatDateTime,
   empty = false,
+  dayMarks,
 }: Readonly<TrackerViewProps>) {
   if (empty) {
     return (
@@ -77,7 +85,12 @@ export function TrackerView({
           }}
         >
           <Box sx={panel}>
-            <TrackerCalendar days={days} selectedDate={selectedDate} onSelectDay={onSelectDay} />
+            <TrackerCalendar
+              days={days}
+              selectedDate={selectedDate}
+              onSelectDay={onSelectDay}
+              dayMarks={dayMarks}
+            />
           </Box>
           <Box sx={[panel, { mt: 1.5 }]}>
             <TrackerMonthChart buckets={buckets} monthLabel={monthLabel} />

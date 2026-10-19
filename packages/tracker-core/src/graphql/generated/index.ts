@@ -18,6 +18,8 @@ export type Scalars = {
 };
 
 export type ActivityInput = {
+  /** The user to remind; required with remindAt. */
+  assigneeId: InputMaybe<Scalars['String']['input']>;
   attachments: InputMaybe<Array<FileAttachmentInput>>;
   done: Scalars['Boolean']['input'];
   dueDate: InputMaybe<Scalars['DateTime']['input']>;
@@ -27,6 +29,8 @@ export type ActivityInput = {
   relatedId: InputMaybe<Scalars['String']['input']>;
   relatedName: InputMaybe<Scalars['String']['input']>;
   relatedType: ActivitySubject;
+  /** Set to email the assignee at this time (must be in the future); null removes the reminder. */
+  remindAt: InputMaybe<Scalars['DateTime']['input']>;
   subject: Scalars['String']['input'];
   type: ActivityType;
 };
@@ -780,6 +784,16 @@ export type CmsSiteStatus =
   | 'ACTIVE'
   | 'DRAFT';
 
+export type ColdEmailStatus =
+  | 'DRAFT'
+  /** One of its versions has been sent. */
+  | 'SENT';
+
+export type ColdEmailTone =
+  | 'BRIEF'
+  | 'FORMAL'
+  | 'FRIENDLY';
+
 export type CompanyBenefitInput = {
   description: InputMaybe<Scalars['String']['input']>;
   icon: Scalars['String']['input'];
@@ -927,6 +941,16 @@ export type CostCenterInput = {
   ownerId: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateColdEmailDraftInput = {
+  goal: InputMaybe<Scalars['String']['input']>;
+  object: CrmTimelineObject;
+  /** Read their website through Firecrawl first; costs a Firecrawl call. */
+  readWebsite: InputMaybe<Scalars['Boolean']['input']>;
+  recordId: Scalars['ID']['input'];
+  toEmail: Scalars['String']['input'];
+  tone: ColdEmailTone;
+};
+
 export type CreateUserInput = {
   address: InputMaybe<Scalars['String']['input']>;
   avatarUrl: InputMaybe<Scalars['String']['input']>;
@@ -969,6 +993,14 @@ export type CreateUserInput = {
   workingTimeNote: InputMaybe<Scalars['String']['input']>;
 };
 
+/** What a calendar entry is, which decides its colour. */
+export type CrmCalendarKind =
+  | 'ACTIVITY'
+  | 'BOOKING'
+  | 'MEETING'
+  | 'REMINDER'
+  | 'TASK';
+
 export type CrmCallConfigInput = {
   /** Twilio Account SID or Vobiz Auth ID. */
   accountId: Scalars['String']['input'];
@@ -991,6 +1023,12 @@ export type CrmConditionInput = {
   /** Dates as ISO strings; BETWEEN takes two values, IN/NOT_IN any number. */
   values: Array<Scalars['String']['input']>;
 };
+
+/** How the time charts are bucketed: days for a month, weeks up to about six months, months beyond. */
+export type CrmDashboardGranularity =
+  | 'DAY'
+  | 'MONTH'
+  | 'WEEK';
 
 export type CrmEmailAddressInput = {
   address: Scalars['String']['input'];
@@ -1025,6 +1063,18 @@ export type CrmImportMode =
   | 'CREATE'
   | 'UPDATE'
   | 'UPSERT';
+
+export type CrmInsightKind =
+  | 'COMPANY_ORIGIN_CONVERSION'
+  | 'LEAD_SOURCE_CONVERSION'
+  | 'OVERDUE_REMINDERS'
+  | 'OVERDUE_TASKS'
+  | 'PAST_CLOSE_DATE'
+  | 'STUCK_DEALS';
+
+export type CrmInsightTone =
+  | 'POSITIVE'
+  | 'WARNING';
 
 export type CrmObject =
   | 'COMPANY'
@@ -3002,6 +3052,15 @@ export type SalaryStructureInput = {
   tdsPercent: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type SendColdEmailVariantInput = {
+  body: Scalars['String']['input'];
+  draftId: Scalars['ID']['input'];
+  /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders). */
+  fromAccountId: Scalars['ID']['input'];
+  subject: Scalars['String']['input'];
+  variantId: Scalars['ID']['input'];
+};
+
 export type SendCrmEmailInput = {
   body: Scalars['String']['input'];
   cc: InputMaybe<Array<Scalars['String']['input']>>;
@@ -3332,6 +3391,25 @@ export type TableBulkAction =
   /** Brings archived rows back into the table. */
   | 'RESTORE';
 
+/** A bulk action to run in the background: on ticked rows, or on every row a list's query matches. */
+export type TableBulkJobInput = {
+  action: TableBulkAction;
+  /** The record type of a client-side table's rows, e.g. Holiday; it takes DELETE only. */
+  entity: InputMaybe<Scalars['String']['input']>;
+  /** The ticked rows. Leave empty, with variables, to act on every row the list's query matches. */
+  ids: InputMaybe<Array<Scalars['ID']['input']>>;
+  /** The paged list the rows belong to. Leave empty for a client-side table and name the entity. */
+  list: InputMaybe<Scalars['String']['input']>;
+  /** The variables the list's own query loads pages with, for Select all matching. */
+  variables: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type TableBulkJobStatus =
+  | 'DONE'
+  | 'FAILED'
+  | 'QUEUED'
+  | 'RUNNING';
+
 /** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
 export type TableExportColumnInput = {
   field: Scalars['String']['input'];
@@ -3616,6 +3694,12 @@ export type TrackerNoticeInput = {
   /** Leave empty to reach every employee with an active tracker grant. */
   userIds: InputMaybe<Array<Scalars['ID']['input']>>;
 };
+
+/** Why a day carries no expected hours. */
+export type TrackerOffReason =
+  | 'HOLIDAY'
+  | 'LEAVE'
+  | 'WEEKEND';
 
 /** The installers a build can produce. */
 export type TrackerPlatform =
@@ -4086,7 +4170,25 @@ export type MyTrackerCalendarQueryVariables = Exact<{
 }>;
 
 
-export type MyTrackerCalendarQuery = { myTrackerCalendar: Array<{ date: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, sessions: number }> };
+export type MyTrackerCalendarQuery = { myTrackerCalendar: Array<{ date: string, activeMs: number, idleMs: number, manualMs: number, keyCount: number, mouseCount: number, sessions: number }> };
+
+export type MyTrackerExpectedQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type MyTrackerExpectedQuery = { myTrackerExpected: { workHoursPerDay: number, days: Array<{ date: string, expectedMs: number, offReason: TrackerOffReason | null }> } };
+
+export type MyTrackerExpectedReportQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type MyTrackerExpectedReportQuery = { myTrackerExpectedReport: { fileName: string, mimeType: string, contentBase64: string } };
 
 export type MyTrackerDayQueryVariables = Exact<{
   start: Scalars['DateTime']['input'];
@@ -4475,12 +4577,34 @@ export const MyTrackerCalendarDocument = new TypedDocumentString(`
     date
     activeMs
     idleMs
+    manualMs
     keyCount
     mouseCount
     sessions
   }
 }
     `) as unknown as TypedDocumentString<MyTrackerCalendarQuery, MyTrackerCalendarQueryVariables>;
+export const MyTrackerExpectedDocument = new TypedDocumentString(`
+    query MyTrackerExpected($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerExpected(from: $from, to: $to, timezone: $timezone) {
+    workHoursPerDay
+    days {
+      date
+      expectedMs
+      offReason
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<MyTrackerExpectedQuery, MyTrackerExpectedQueryVariables>;
+export const MyTrackerExpectedReportDocument = new TypedDocumentString(`
+    query MyTrackerExpectedReport($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerExpectedReport(from: $from, to: $to, timezone: $timezone) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+    `) as unknown as TypedDocumentString<MyTrackerExpectedReportQuery, MyTrackerExpectedReportQueryVariables>;
 export const MyTrackerDayDocument = new TypedDocumentString(`
     query MyTrackerDay($start: DateTime!, $end: DateTime!) {
   myTrackerDay(start: $start, end: $end) {

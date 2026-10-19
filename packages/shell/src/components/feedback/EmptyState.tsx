@@ -18,6 +18,9 @@ interface EmptyStateProps {
   icon?: ReactNode;
 }
 
+/** The empty state's icon bubble. */
+const EMPTY_BUBBLE = 64;
+
 /**
  * What a list shows when it has nothing in it.
  *
@@ -38,7 +41,22 @@ export function EmptyState({
   return (
     <CenteredState>
       <Box sx={{ textAlign: 'center', maxWidth: 360 }}>
-        <Box aria-hidden sx={{ color: 'text.secondary', mb: 1, '& svg': { fontSize: iconSize['3xl'] } }}>
+        {/* The icon in a soft round bubble of the quiet surface, as a stat tile's sits in its hue. */}
+        <Box
+          aria-hidden
+          sx={{
+            width: EMPTY_BUBBLE,
+            height: EMPTY_BUBBLE,
+            mx: 'auto',
+            mb: 1.5,
+            display: 'grid',
+            placeItems: 'center',
+            borderRadius: '50%',
+            bgcolor: 'background.muted',
+            color: 'text.secondary',
+            '& svg': { fontSize: iconSize['3xl'] },
+          }}
+        >
           {icon ?? <InboxOutlinedIcon />}
         </Box>
         <Typography sx={{ fontWeight: 'medium' }}>{t(title, titleValues)}</Typography>

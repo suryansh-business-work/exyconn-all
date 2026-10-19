@@ -118,6 +118,19 @@ describe('the mailboxes (CRM)', () => {
     await expect(asOperator(Query.microsoftMailClientReady, {}, sales())).resolves.toBe(true);
   });
 
+  it('tells a CRM user to ask their administrator while the app is not saved', async () => {
+    const start = asOperator(
+      Mutation.startMicrosoftMailConnect,
+      { returnTo: `${env.corsOrigins[0]}/integrations/email` },
+      sales(),
+    );
+
+    await expect(start).rejects.toThrow(
+      'Email accounts are not available yet. Ask your administrator.',
+    );
+    await expect(MicrosoftOAuthStateModel.countDocuments()).resolves.toBe(0);
+  });
+
   it('starts a connection that remembers the operator company and who asked', async () => {
     await saveApp();
     const ctx = sales();
@@ -128,7 +141,9 @@ describe('the mailboxes (CRM)', () => {
       ctx,
     )) as string;
 
-    expect(url).toMatch(/^https:\/\/login\.microsoftonline\.com\/common\/oauth2\/v2\.0\/authorize\?/);
+    expect(url).toMatch(
+      /^https:\/\/login\.microsoftonline\.com\/common\/oauth2\/v2\.0\/authorize\?/,
+    );
     const state = await MicrosoftOAuthStateModel.findOne().lean();
     expect(state).toMatchObject({
       actorId: ctx.user?.id,
@@ -140,7 +155,11 @@ describe('the mailboxes (CRM)', () => {
   it('turns a mailbox off and on, auditing each', async () => {
     const id = await connectMailbox(SALES);
 
-    const off = await asOperator(Mutation.setMicrosoftMailAccountEnabled, { id, enabled: false }, sales());
+    const off = await asOperator(
+      Mutation.setMicrosoftMailAccountEnabled,
+      { id, enabled: false },
+      sales(),
+    );
     await asOperator(Mutation.setMicrosoftMailAccountEnabled, { id, enabled: true }, sales());
 
     expect(off).toMatchObject({ id, enabled: false });

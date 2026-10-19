@@ -81,6 +81,10 @@ const view = () => {
 const callsFor = (document: DocumentNode) =>
   state.useQuery.mock.calls.filter(([doc]) => doc === document).map(([, options]) => options);
 
+/** A query that will not run: Apollo's skipToken, or a generated hook's `skip: true`. */
+const asksNothing = (options: unknown) =>
+  options === skipToken || (options as { skip?: boolean } | undefined)?.skip === true;
+
 function Url() {
   return <output>{useCurrentUrl()}</output>;
 }
@@ -120,7 +124,7 @@ describe('TrackerPage', () => {
     renderPage('/tracker?month=2026-01');
     expect(screen.getByRole('heading', { name: 'Time Tracker' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Employee' })).toHaveValue('');
-    expect(state.useQuery.mock.calls.every(([, options]) => options === skipToken)).toBe(true);
+    expect(state.useQuery.mock.calls.every(([, options]) => asksNothing(options))).toBe(true);
     expect(view().empty).toBe(true);
     expect(view().buckets).toEqual([]);
     expect(view().day).toBeUndefined();
@@ -141,7 +145,7 @@ describe('TrackerPage', () => {
         timezone: 'Asia/Kolkata',
       },
     });
-    const dayOptions = state.useQuery.mock.calls.at(-1)?.[1];
+    const dayOptions = callsFor(TrackerDayDocument).at(-1);
     expect(dayOptions).toEqual({
       variables: {
         userId: 'u1',
@@ -164,7 +168,7 @@ describe('TrackerPage', () => {
 
   it('skips the day query while no day is picked', () => {
     renderPage('/tracker?employee=u1&month=2026-01');
-    expect(state.useQuery.mock.calls.at(-1)?.[1]).toBe(skipToken);
+    expect(callsFor(TrackerDayDocument).at(-1)).toBe(skipToken);
     expect(view().day).toBeUndefined();
   });
 

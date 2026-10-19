@@ -17,30 +17,64 @@ afterEach(() => {
 });
 
 describe('currencyOptions', () => {
-  it('lists every currency the runtime knows, named and coded in the label', () => {
+  it('lists every currency the runtime knows, labelled code first with its name and sign', () => {
     const options = currencyOptions('en');
-    const euro = options.find((option) => option.code === 'EUR');
+    const rupee = options.find((option) => option.code === 'INR');
 
     expect(options).toHaveLength(Intl.supportedValuesOf('currency').length);
-    expect(euro?.label).toBe('Euro (EUR)');
+    expect(rupee).toEqual({
+      code: 'INR',
+      name: 'Indian Rupee',
+      symbol: '₹',
+      minorUnits: 2,
+      label: 'INR — Indian Rupee (₹)',
+    });
+  });
+
+  it('carries the minor units ISO 4217 gives each currency', () => {
+    const units = new Map(currencyOptions('en').map((option) => [option.code, option.minorUnits]));
+
+    expect(units.get('JPY')).toBe(0);
+    expect(units.get('USD')).toBe(2);
+    expect(units.get('KWD')).toBe(3);
+  });
+
+  it('leaves the sign out of the label when the currency is written with its code', () => {
+    const franc = currencyOptions('en').find((option) => option.code === 'CHF');
+
+    expect(franc?.symbol).toBe('CHF');
+    expect(franc?.label).toBe('CHF — Swiss Franc');
   });
 
   it('names currencies in the language asked for', () => {
     const dollar = currencyOptions('de').find((option) => option.code === 'USD');
 
-    expect(dollar?.label).toBe('US-Dollar (USD)');
+    expect(dollar?.label).toBe('USD — US-Dollar ($)');
   });
 
-  it('is sorted by label so a picker reads alphabetically', () => {
-    expect(isSortedByLabel(currencyOptions('en'))).toBe(true);
+  it('is sorted by label, which puts it in code order', () => {
+    const options = currencyOptions('en');
+
+    expect(isSortedByLabel(options)).toBe(true);
+    expect(options[0].code.localeCompare(options[1].code)).toBeLessThan(0);
   });
 
-  it('falls back to the code when the runtime has no name for it', () => {
+  it('falls back to the code, and no minor units, when the runtime has nothing for it', () => {
     vi.spyOn(Intl.DisplayNames.prototype, 'of').mockReturnValue(undefined);
+    vi.spyOn(Intl.NumberFormat.prototype, 'formatToParts').mockReturnValue([]);
+    vi.spyOn(Intl.NumberFormat.prototype, 'resolvedOptions').mockReturnValue(
+      {} as Intl.ResolvedNumberFormatOptions,
+    );
 
     const euro = currencyOptions('en').find((option) => option.code === 'EUR');
 
-    expect(euro?.label).toBe('EUR (EUR)');
+    expect(euro).toEqual({
+      code: 'EUR',
+      name: 'EUR',
+      symbol: 'EUR',
+      minorUnits: 0,
+      label: 'EUR — EUR',
+    });
   });
 
   it('refuses a locale tag the runtime cannot parse', () => {

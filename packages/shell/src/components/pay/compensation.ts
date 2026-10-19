@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { currencyField } from '@/utils/currencyField';
 import { PayType, type EmployeeSalaryQuery, type EmployeeSalaryInput } from '@/graphql/generated';
 
 /** The salary structure as it comes back for one employee, or null before HR sets one up. */
@@ -38,7 +39,7 @@ export const compensationSchema = z
   .object({
     payType: z.enum(PayType),
     payTypeNote: z.string().trim(),
-    currency: z.string().trim().min(1, 'Currency is required'),
+    currency: currencyField,
     basic: money('Basic'),
     hra: money('HRA'),
     allowances: money('Allowances'),

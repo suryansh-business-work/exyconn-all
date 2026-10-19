@@ -13,6 +13,7 @@ import {
   LeadOwnerField,
   Timeline,
 } from '../../../records/detail';
+import { RecordColdEmails } from '../../../records/cold-email';
 
 /** The Overview tab: what we know about the account, then its latest touchpoints. */
 export function CompanyOverview({ company }: Readonly<{ company: CompanyFieldsFragment }>) {
@@ -59,6 +60,7 @@ export function CompanyOverview({ company }: Readonly<{ company: CompanyFieldsFr
           {company.notes}
         </DetailField>
       </DetailList>
+      <RecordColdEmails id={company.id} />
       <Divider />
       <Text component="h2" size="label" weight="bold">
         {t('Recent activity')}

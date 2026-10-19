@@ -17,8 +17,12 @@ import {
 import { gmailResolvers } from '../../../../src/modules/gmail/gmail.resolvers';
 import { crmEmailThreads } from '../../../../src/modules/gmail/gmail.sync';
 import { GMAIL_AUDIT_MODULE } from '../../../../src/modules/gmail/gmail.audit';
-import { GmailAccountModel, GmailOAuthStateModel } from '../../../../src/modules/gmail/gmail.models';
+import {
+  GmailAccountModel,
+  GmailOAuthStateModel,
+} from '../../../../src/modules/gmail/gmail.models';
 import { OrganizationModel } from '../../../../src/modules/organizations/organization.model';
+import { ConfigurationError } from '../../../../src/utils/errors';
 import { asArg } from '../../../mockAs';
 import { connectAccount, saveClient } from './fakeGmail';
 
@@ -122,12 +126,7 @@ describe('the Tech Gmail client', () => {
     await expect(Mutation.testGmailConfig(null, {}, ctx)).rejects.toThrow(
       'Connect a Gmail account',
     );
-    expect(assertPlatformStaff).toHaveBeenLastCalledWith(
-      ctx,
-      'TechConfig',
-      [ROLES.TECH],
-      'EDIT',
-    );
+    expect(assertPlatformStaff).toHaveBeenLastCalledWith(ctx, 'TechConfig', [ROLES.TECH], 'EDIT');
   });
 });
 
@@ -212,6 +211,27 @@ describe('the CRM Gmail accounts', () => {
     ]);
   });
 
+  it('tells a CRM user to ask their administrator while the Google client is not saved', async () => {
+    const start = asOperator(async () =>
+      Mutation.startGmailConnect(null, { returnTo: 'http://localhost:1001/crm' }, ctx),
+    );
+
+    await expect(start).rejects.toThrow(
+      'Email accounts are not available yet. Ask your administrator.',
+    );
+    await expect(codeOf(start)).resolves.toBe('BAD_USER_INPUT');
+  });
+
+  it('hides the Tech setup detail when reading threads fails for want of the client', async () => {
+    jest
+      .mocked(crmEmailThreads)
+      .mockRejectedValueOnce(new ConfigurationError('Save the Google client in Tech.'));
+
+    await expect(
+      asOperator(async () => Query.crmEmailThreads(null, { object: 'CONTACT', id: 'c1' }, ctx)),
+    ).rejects.toThrow('Email accounts are not available yet. Ask your administrator.');
+  });
+
   it('reads a record’s threads and default sender through the operator’s accounts', async () => {
     const args = { object: 'CONTACT', id: 'c1' };
 
@@ -249,6 +269,17 @@ describe('sending and drafting', () => {
     expect(await auditRows('CrmMicrosoftMail')).toEqual([
       expect.objectContaining({ entityId: 'm1', summary }),
     ]);
+  });
+
+  it('hides the Tech setup detail when a send fails for want of the OAuth app', async () => {
+    jest
+      .mocked(sendFromAnyMailbox)
+      .mockRejectedValueOnce(new ConfigurationError('Save the app in Tech.'));
+
+    await expect(
+      asOperator(async () => Mutation.sendCrmEmail(null, { input }, ctx)),
+    ).rejects.toThrow('Email accounts are not available yet. Ask your administrator.');
+    expect(await auditRows()).toEqual([]);
   });
 
   it('drafts an email and summarises a record as the signed-in person', async () => {

@@ -1,4 +1,5 @@
 import type { ShadowScale } from '../box-shadow.token';
+import type { Canvas, GlassTokens } from '../canvas.token';
 
 /**
  * The contract every mode fills in — shadcn/ui's roles, in MUI's vocabulary.
@@ -56,4 +57,14 @@ export interface SemanticTokens {
   /** The keyboard focus ring. */
   ring: string;
   shadow: ShadowScale;
+  /** The pastel wash behind the whole app. `background.page` is its solid ground. */
+  canvas: Canvas;
+  /** The frosted-glass fills laid on the canvas. `background.panel` is a card's solid form. */
+  glass: GlassTokens;
+  /**
+   * The current navigation row and any selected list row: a glossy pastel pill, `top` to
+   * `bottom`, with a light catching its upper edge. Opaque, so its ink is checked against
+   * both ends without guessing what is behind it.
+   */
+  selected: { top: string; bottom: string; ink: string; icon: string; highlight: string };
 }

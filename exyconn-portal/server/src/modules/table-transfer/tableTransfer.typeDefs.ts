@@ -109,15 +109,47 @@ export const tableTransferTypeDefs = gql`
     message: String!
   }
 
-  type TableBulkResult {
+  enum TableBulkJobStatus {
+    QUEUED
+    RUNNING
+    DONE
+    FAILED
+  }
+
+  "A bulk action to run in the background: on ticked rows, or on every row a list's query matches."
+  input TableBulkJobInput {
+    "The paged list the rows belong to. Leave empty for a client-side table and name the entity."
+    list: String
+    "The record type of a client-side table's rows, e.g. Holiday; it takes DELETE only."
+    entity: String
+    action: TableBulkAction!
+    "The ticked rows. Leave empty, with variables, to act on every row the list's query matches."
+    ids: [ID!]
+    "The variables the list's own query loads pages with, for Select all matching."
+    variables: JSON
+  }
+
+  "A bulk action working through its rows in the background, in chunks."
+  type TableBulkJob {
+    id: ID!
+    action: TableBulkAction!
+    status: TableBulkJobStatus!
+    "Rows the job acts on; known once the matching rows are read."
+    total: Int!
+    processed: Int!
     succeeded: Int!
-    "Rows that could not be deleted, with why; the rest were."
+    failedCount: Int!
+    "The first rows that could not be changed, with why."
     failures: [TableBulkFailure!]!
+    "Why the whole job stopped, when it failed."
+    error: String
   }
 
   extend type Query {
     "Whether a list's selected rows can be deleted and archived."
     tableBulkInfo(list: String!): TableBulkInfo!
+    "A bulk job's progress, for the person who started it."
+    tableBulkJob(id: ID!): TableBulkJob
     "Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT."
     tableExport(
       list: String!
@@ -147,7 +179,7 @@ export const tableTransferTypeDefs = gql`
       rows: [JSON!]!
       firstRowNumber: Int!
     ): TableImportResult!
-    "Deletes, archives or restores up to 200 selected rows of a list."
-    tableBulkAction(list: String!, ids: [ID!]!, action: TableBulkAction!): TableBulkResult!
+    "Queues a delete, archive or restore of up to 50,000 rows; the job reports its progress."
+    startTableBulkJob(input: TableBulkJobInput!): TableBulkJob!
   }
 `;

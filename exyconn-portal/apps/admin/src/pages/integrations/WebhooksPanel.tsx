@@ -160,6 +160,7 @@ export function WebhooksPanel() {
       </Flex>
 
       <DataTable
+        bulkEntity="Webhook"
         columns={columns}
         rows={data?.listWebhooks ?? []}
         onDelete={(hook) => {

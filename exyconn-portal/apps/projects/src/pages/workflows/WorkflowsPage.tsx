@@ -76,6 +76,7 @@ export function WorkflowsPage() {
       ) : null}
 
       <DataTable
+        bulkEntity="ProjectWorkflow"
         columns={workflowColumns(formatDateTime)}
         rows={data?.projectWorkflows ?? []}
         onRowClick={(row) => navigate(editorPath(row.id))}

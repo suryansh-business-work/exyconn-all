@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import {
+  ConnectMailboxLink,
   DetailLayout,
   EmailThreads,
   RecordDetailSkeleton,
@@ -91,6 +92,7 @@ export function CompanyDetailPage() {
   ];
   return (
     <DetailLayout aside={<CompanyProfile company={company} onSaved={reload} />}>
+      <ConnectMailboxLink />
       <Tabber basePath={`/companies/${company.id}`} items={tabs} ariaLabel="Company" />
     </DetailLayout>
   );

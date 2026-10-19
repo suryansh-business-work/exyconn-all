@@ -33,6 +33,7 @@ function verification(
     status: EmailVerificationStatus.Verified,
     reason: 'Mailbox exists',
     checkedAt: '2026-10-15T10:00:00.000Z',
+    checkedBy: '',
     ...overrides,
   };
 }
@@ -42,6 +43,20 @@ describe('EmailStatusBadge', () => {
     renderWithProviders(<EmailStatusBadge verification={verification()} />);
     const chip = screen.getByRole('img', { name: /^Verified: Mailbox exists · checked / });
     expect(chip).toHaveAttribute('tabindex', '0');
+  });
+
+  it('names who checked the address, after when', () => {
+    renderWithProviders(<EmailStatusBadge verification={verification({ checkedBy: 'Meera' })} />);
+    expect(
+      screen.getByRole('img', { name: /^Verified: Mailbox exists · checked .+ by Meera$/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('leaves the checker out when it is not known', () => {
+    renderWithProviders(<EmailStatusBadge verification={verification()} />);
+    expect(screen.getByRole('img', { name: /^Verified:/ }).getAttribute('aria-label')).not.toMatch(
+      / by /,
+    );
   });
 
   it('falls back to the status label when the result has no reason', () => {

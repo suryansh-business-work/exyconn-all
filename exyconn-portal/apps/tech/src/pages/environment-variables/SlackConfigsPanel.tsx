@@ -82,6 +82,7 @@ export function SlackConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="SlackConfig"
         columns={columns}
         rows={rows}
         actions={actions}

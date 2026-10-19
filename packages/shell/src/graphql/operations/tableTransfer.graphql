@@ -88,12 +88,29 @@ query TableBulkInfo($list: String!) {
   }
 }
 
-mutation TableBulkAction($list: String!, $ids: [ID!]!, $action: TableBulkAction!) {
-  tableBulkAction(list: $list, ids: $ids, action: $action) {
-    succeeded
-    failures {
-      id
-      message
-    }
+fragment TableBulkJobFields on TableBulkJob {
+  id
+  action
+  status
+  total
+  processed
+  succeeded
+  failedCount
+  failures {
+    id
+    message
+  }
+  error
+}
+
+mutation StartTableBulkJob($input: TableBulkJobInput!) {
+  startTableBulkJob(input: $input) {
+    ...TableBulkJobFields
+  }
+}
+
+query TableBulkJob($id: ID!) {
+  tableBulkJob(id: $id) {
+    ...TableBulkJobFields
   }
 }

@@ -48,6 +48,7 @@ function CompanyQuickViewBody({ id, onClose, onSaved }: Readonly<CompanyQuickVie
       edit={
         company && (
           <EditRecordButton
+            textOnly
             label="Edit company"
             onSaved={() => {
               reload();

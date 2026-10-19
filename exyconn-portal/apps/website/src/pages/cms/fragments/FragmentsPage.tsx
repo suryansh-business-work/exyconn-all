@@ -115,6 +115,7 @@ export function FragmentsPage() {
         ))}
       </TextField>
       <DataTable
+        bulkEntity="CmsFragment"
         columns={columns}
         rows={rows}
         onRowClick={(row) => build(row.id)}

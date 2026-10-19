@@ -22,6 +22,9 @@ export type {
   ConsentPolicy,
   DayDetail,
   DayScreenshot,
+  ExpectedDay,
+  ExpectedRange,
+  HoursReportFile,
   LiveStats,
   LoginResult,
   ManualEntry,
@@ -142,6 +145,10 @@ export const IPC = {
   requestPermission: 'tracker:request-permission',
   openPrivacy: 'tracker:open-privacy',
   getReport: 'tracker:get-report',
+  /** The month's contracted hours per day: expected, weekends, holidays and leave. */
+  getExpected: 'tracker:get-expected',
+  /** Fetches the month's XLSX hours report and writes it to a file the employee chooses. */
+  saveHoursReport: 'tracker:save-hours-report',
   getDay: 'tracker:get-day',
   getTotals: 'tracker:get-totals',
   setTimezone: 'tracker:set-timezone',

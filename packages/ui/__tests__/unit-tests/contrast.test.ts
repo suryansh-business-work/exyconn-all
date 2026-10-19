@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   AA_LARGE,
   AA_TEXT,
+  blend,
+  composite,
   contrastRatio,
   ensureContrast,
+  parseAlpha,
   readableInk,
 } from '../../src/a11y/contrast';
 import { COLOR_MODES, tokensFor } from '../../src/tokens/modes';
@@ -108,5 +111,83 @@ describe.each(COLOR_MODES)('the edge of a control, %s mode', (mode) => {
     ['sidebar', t.background.sidebar],
   ])('is visible on the %s', (_name, surface) => {
     expect(contrastRatio(t.control, surface)).toBeGreaterThanOrEqual(AA_LARGE);
+  });
+});
+
+/**
+ * Frosted glass on a pastel canvas. Text on the canvas (the sidebar, a page title) reads
+ * against every flat colour the wash passes through; text on glass reads against the glass
+ * COMPOSITED over each of them. Blur is never counted on: only the fill and what is behind it.
+ */
+describe.each(COLOR_MODES)('the %s canvas and its glass', (mode) => {
+  const t = tokensFor(mode);
+  const inks = {
+    'text.primary': t.text.primary,
+    'text.secondary': t.text.secondary,
+    primary: t.primary,
+    success: t.success,
+    warning: t.warning,
+    error: t.error,
+    info: t.info,
+  };
+  const grounds = t.canvas.stops.flatMap((stop, index) => [
+    [`canvas stop ${index}`, stop],
+    [`card glass over stop ${index}`, composite(t.glass.card, stop)],
+    [`page frame over stop ${index}`, composite(t.glass.frame, stop)],
+    [`topbar over stop ${index}`, composite(t.glass.bar, stop)],
+    // A card inside the frame: two layers of glass over the wash.
+    [
+      `card in the frame over stop ${index}`,
+      composite(t.glass.card, composite(t.glass.frame, stop)),
+    ],
+  ]);
+
+  for (const [groundName, ground] of grounds) {
+    for (const [inkName, ink] of Object.entries(inks)) {
+      it(`${inkName} reads on the ${groundName} (${ink} on ${ground})`, () => {
+        expect(contrastRatio(ink, ground)).toBeGreaterThanOrEqual(AA_TEXT);
+      });
+    }
+    it(`a control edge and the focus ring show on the ${groundName}`, () => {
+      expect(contrastRatio(t.control, ground)).toBeGreaterThanOrEqual(AA_LARGE);
+      expect(contrastRatio(t.ring, ground)).toBeGreaterThanOrEqual(AA_LARGE);
+    });
+    it(`a field's edge shows against its own well on the ${groundName}`, () => {
+      expect(contrastRatio(t.control, composite(t.glass.field, ground))).toBeGreaterThanOrEqual(
+        AA_LARGE,
+      );
+    });
+  }
+
+  it('keeps the topbar readable even with the opposite ink scrolled right under it', () => {
+    // The worst thing that can scroll beneath the bar is a line of body text: the ink is the
+    // opposite extreme of the bar in both modes.
+    const bar = composite(t.glass.bar, t.text.primary);
+    expect(contrastRatio(t.text.secondary, bar)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
+  it('inks the selected pill at AA from its top to its bottom', () => {
+    for (const end of [t.selected.top, t.selected.bottom]) {
+      expect(contrastRatio(t.selected.ink, end)).toBeGreaterThanOrEqual(AA_TEXT);
+      expect(contrastRatio(t.selected.icon, end)).toBeGreaterThanOrEqual(AA_LARGE);
+    }
+  });
+});
+
+describe('compositing a translucent colour', () => {
+  it('reads the alpha of an rgba colour and treats anything else as opaque', () => {
+    expect(parseAlpha('rgba(255, 255, 255, 0.72)')).toBe(0.72);
+    expect(parseAlpha('#ffffff')).toBe(1);
+    expect(parseAlpha('rgb(1, 2, 3)')).toBe(1);
+  });
+
+  it('blends a colour over another at an opacity', () => {
+    expect(blend('#ffffff', '#000000', 0.5)).toBe('#808080');
+    expect(blend('#ffffff', '#000000', 0)).toBe('#000000');
+  });
+
+  it('composites an rgba fill over what is beneath it, and leaves an opaque one alone', () => {
+    expect(composite('rgba(255, 255, 255, 0.5)', '#000000')).toBe('#808080');
+    expect(composite('#123456', '#ffffff')).toBe('#123456');
   });
 });

@@ -7,6 +7,7 @@ import { Login } from '@exyconn/login';
 import { App } from '../../src/App';
 import { TechOverviewPage } from '../../src/pages/overview';
 import {
+  EMAIL_ACCOUNTS_PATH,
   EnvironmentVariablesPage,
   SocialAppsPage,
   SOCIAL_APPS_PATH,
@@ -87,8 +88,8 @@ describe('App', () => {
     for (const [path, page] of pages) {
       expect(elementAt(path)?.type).toBe(page);
     }
-    // Plus the two redirects: the old social-apps tab and the bare Demos group.
-    expect(routes()).toHaveLength(pages.length + 2);
+    // Plus the redirects: the old social-apps, Gmail and Microsoft Mail tabs and the bare Demos group.
+    expect(routes()).toHaveLength(pages.length + 4);
   });
 
   it('opens the Demos group on the calling bot', () => {
@@ -105,4 +106,14 @@ describe('App', () => {
     expect(redirect?.type).toBe(Navigate);
     expect(redirect?.props).toMatchObject({ to: SOCIAL_APPS_PATH, replace: true });
   });
+
+  it.each(['gmail', 'microsoft-mail'])(
+    'sends the old %s tab to the shared Email accounts (OAuth) section',
+    (slug) => {
+      render(<App />);
+      const redirect = elementAt(`/tech/environment-variables/${slug}`);
+      expect(redirect?.type).toBe(Navigate);
+      expect(redirect?.props).toMatchObject({ to: EMAIL_ACCOUNTS_PATH, replace: true });
+    },
+  );
 });

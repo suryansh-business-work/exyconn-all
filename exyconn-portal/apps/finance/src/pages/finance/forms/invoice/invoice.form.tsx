@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { currencyField } from '@exyconn/shell/utils/currencyField';
 import {
   RhfAutocomplete,
   RhfTextField,
@@ -40,7 +41,7 @@ const schema = z.object({
   clientId: z.string().trim().min(1, 'Client is required'),
   lines: z.array(lineSchema),
   amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
-  currency: z.string().trim().min(1, 'Currency is required'),
+  currency: currencyField,
   status: z.enum(InvoiceStatus),
   issuedDate: z.string().min(1, 'Issued date is required'),
   dueDate: z.string().min(1, 'Due date is required'),

@@ -2,7 +2,8 @@ import type { GraphQLResolveInfo } from 'graphql';
 import type { GraphQLContext } from '../../middleware/auth';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { exportTable, type ExportArgs } from './tableExport';
-import { runBulkAction, tableBulkInfo, type BulkArgs } from './tableBulk';
+import { tableBulkInfo } from './tableBulk';
+import { readBulkJob, startBulkJob, type StartBulkJobInput } from './tableBulkJob';
 import { parseTableFile } from './tableFiles';
 import { importRows, type ImportArgs } from './tableImport';
 import { tableInfo } from './tableInfo';
@@ -34,6 +35,8 @@ export const tableTransferResolvers = {
       assertAuthenticated(ctx);
       return tableBulkInfo(info.schema, list);
     },
+    tableBulkJob: (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) =>
+      readBulkJob(ctx, id),
     tableImportTemplate: (
       _p: unknown,
       args: TemplateArgs,
@@ -59,17 +62,15 @@ export const tableTransferResolvers = {
       assertAuthenticated(ctx);
       return importRows(info.schema, ctx, args);
     },
-    tableBulkAction: (
+    startTableBulkJob: (
       _p: unknown,
-      args: BulkArgs,
+      { input }: { input: StartBulkJobInput },
       ctx: GraphQLContext,
       info: GraphQLResolveInfo,
-    ) => {
-      assertAuthenticated(ctx);
-      return runBulkAction(info.schema, ctx, args);
-    },
+    ) => startBulkJob(info.schema, ctx, input),
   },
 };
 
 export { tableTransferTypeDefs } from './tableTransfer.typeDefs';
 export { registerBulkTarget, registerTable } from './registry';
+export { startTableBulkJobs, tableBulkJobSchemaPlugin } from './tableBulkJob.worker';

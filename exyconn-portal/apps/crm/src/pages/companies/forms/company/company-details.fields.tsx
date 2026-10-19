@@ -13,6 +13,9 @@ import { ContactPointsField, ProfileFields } from '../../../../records/profile';
 
 const STATUS_OPTIONS = enumOptions(Object.values(CompanyStatus));
 
+/** A logo lands square, whole and centred, on its own edge colour. */
+const LOGO_CROP = { aspect: 'square', fit: 'fit', background: 'auto' } as const;
+
 /** The account itself, how to reach it, how big it is, and where it is. */
 export function CompanyDetailsFields() {
   const t = useT();
@@ -27,6 +30,7 @@ export function CompanyDetailsFields() {
         label={t('Company logo')}
         folder="crm-companies"
         helperText={t('Shown on the company page and beside its people')}
+        cropOptions={LOGO_CROP}
       />
       <RhfTextField name="name" label="Company name" />
       <RhfTextField name="domain" label="Domain" helperText="e.g. exyconn.com" />

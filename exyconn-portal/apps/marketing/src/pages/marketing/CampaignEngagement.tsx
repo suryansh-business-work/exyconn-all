@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Divider, Flex, Grid, radius, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Divider, Flex, Grid, Text } from '@exyconn/shell/components/ui';
 import { BarChart, ChartCard, type ChartData } from '@exyconn/shell/components/ui';
 import { useCampaignMetricsQuery } from '@exyconn/shell/graphql/generated';
 import { DashboardSkeleton } from '@exyconn/shell/components/feedback/skeletons';
@@ -132,7 +132,7 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
         </Grid>
       </Grid>
 
-      <Alert severity="info" variant="outlined" sx={{ mt: 2, borderRadius: `${radius.sm}px` }}>
+      <Alert severity="info" variant="outlined" sx={{ mt: 2 }}>
         {opensCaveat}
       </Alert>
 

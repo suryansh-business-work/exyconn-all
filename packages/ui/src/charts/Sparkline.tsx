@@ -5,7 +5,7 @@ import { Line } from 'react-chartjs-2';
 import type { ChartOptions } from 'chart.js';
 import './chart-setup';
 import { useChartPalette } from './useChartPalette';
-import { wash } from './palette';
+import { areaFill } from './palette';
 
 interface Props {
   /** Oldest first. Fewer than two points is not a trend, so nothing is drawn. */
@@ -40,7 +40,7 @@ export function Sparkline({
         {
           data: [...values],
           borderColor: stroke,
-          backgroundColor: area ? wash(stroke, 0.2) : 'transparent',
+          backgroundColor: area ? areaFill(palette, stroke, 0.2) : 'transparent',
           fill: area,
           borderWidth: 1.5,
           tension: 0.35,
@@ -48,7 +48,7 @@ export function Sparkline({
         },
       ],
     }),
-    [values, stroke, area],
+    [values, stroke, area, palette],
   );
 
   const options = useMemo<ChartOptions<'line'>>(

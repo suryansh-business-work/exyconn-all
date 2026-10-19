@@ -57,6 +57,12 @@ jest.mock('../../src/lib/migrations', () => ({
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
 jest.mock('../../src/modules/gmail', () => ({ migrateLegacyGmailConnection: jest.fn() }));
 jest.mock('../../src/modules/crm/crm.origin.backfill', () => ({ backfillCrmOrigins: jest.fn() }));
+jest.mock('../../src/modules/crm/crm.deal-closed.backfill', () => ({
+  backfillDealClosedAt: jest.fn(),
+}));
+jest.mock('../../src/modules/crm/calendar/crm.reminder.email', () => ({
+  startCrmReminderEmails: jest.fn(),
+}));
 jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
 jest.mock('../../src/modules/calling-bot-demo', () => ({
   migratePhoneProvider: jest.fn(),
@@ -64,6 +70,7 @@ jest.mock('../../src/modules/calling-bot-demo', () => ({
   ensureCallingBotScenarios: jest.fn(),
 }));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
+jest.mock('../../src/modules/table-transfer', () => ({ startTableBulkJobs: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
 jest.mock('../../../../demos/whatsapp-demo/server/src', () => ({
   ensureWhatsappDemoSeeds: jest.fn(),
@@ -88,6 +95,7 @@ const MODULES = {
   clients: '../../src/modules/clients',
   gmail: '../../src/modules/gmail',
   crmOrigins: '../../src/modules/crm/crm.origin.backfill',
+  dealClosed: '../../src/modules/crm/crm.deal-closed.backfill',
   callingBot: '../../src/modules/calling-bot-demo',
 } as const;
 
@@ -109,9 +117,11 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/integrations', 'startWebhookDelivery'],
   ['../../src/modules/support', 'startInboundMail'],
   ['../../../../demos/whatsapp-demo/server/src/channel', 'startWhatsappReminders'],
+  ['../../src/modules/table-transfer', 'startTableBulkJobs'],
   ['../../src/modules/website-chat', 'startChatHandoff'],
   ['../../src/modules/ai', 'startAiWorker'],
   ['../../src/modules/reminders', 'startReminderSweep'],
+  ['../../src/modules/crm/calendar/crm.reminder.email', 'startCrmReminderEmails'],
   ['../../src/modules/audit', 'startAuditRetention'],
 ];
 
@@ -182,6 +192,7 @@ describe('server bootstrap', () => {
       'client-tax-ids',
       'gmail-multi-account',
       'crm-record-origins',
+      'crm-deal-closed-at',
       'calling-bot-phone-provider',
       'calling-bot-phone-fields',
     ]);
@@ -190,6 +201,7 @@ describe('server bootstrap', () => {
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
     expect(m.gmail.migrateLegacyGmailConnection).toHaveBeenCalled();
     expect(m.crmOrigins.backfillCrmOrigins).toHaveBeenCalled();
+    expect(m.dealClosed.backfillDealClosedAt).toHaveBeenCalled();
     expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
     expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
     expect(m.callingBot.ensureCallingBotScenarios).toHaveBeenCalled();
@@ -202,6 +214,7 @@ describe('server bootstrap', () => {
       'backfillPositionDefaults',
       'migrateClientTaxIds',
       'backfillCrmOrigins',
+      'backfillDealClosedAt',
       'ensureWhatsappDemoSeeds',
     ]);
     // Admin access, the log-group backfill, status monitors, the Gmail account migration, the two

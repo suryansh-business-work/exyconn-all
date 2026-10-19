@@ -90,6 +90,7 @@ export function GoogleMapsConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="GoogleMapsConfig"
         columns={COLUMNS}
         rows={data?.googleMapsConfigs ?? []}
         actions={actions}

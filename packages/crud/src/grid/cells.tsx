@@ -2,7 +2,7 @@ import type { MouseEvent } from 'react';
 import { useT } from '@exyconn/i18n';
 import { gridTranslator } from '@exyconn/shell/components/data/gridContext';
 import type { ICellRendererParams, ValueFormatterParams } from 'ag-grid-community';
-import { Flex, IconButton } from '@exyconn/shell/components/ui';
+import { Flex, IconButton, Tooltip } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
 import type { CrudGridContext, DatedCrudGridContext, RowActionSpec } from './types';
@@ -42,7 +42,10 @@ export function formatDateValue(params: ValueFormatterParams, emptyText: string)
 /** Params the actions cell gets: the specs are pinned to the column, handlers come from context. */
 type ActionCellParams = ICellRendererParams & { actionSpecs: readonly RowActionSpec[] };
 
-/** Renders the row's action buttons, resolving each spec's handler from the grid context. */
+/**
+ * Renders the row's action buttons, resolving each spec's handler from the grid context. Each
+ * shows its label as a tooltip as well as naming itself with it.
+ */
 export function RowActionsCell(params: Readonly<ActionCellParams>) {
   // Action names are written in the column model ("revoke device", "send contract"), which is
   // module scope and so cannot translate them itself. They are always copy, never a row's own
@@ -66,16 +69,17 @@ export function RowActionsCell(params: Readonly<ActionCellParams>) {
         if (spec.hidden?.(row as never)) {
           return null;
         }
+        const label = t(spec.label);
+        // The span keeps the tooltip working for a button that is ever disabled, which fires
+        // no pointer events of its own.
         return handler ? (
-          <IconButton
-            key={spec.key}
-            size="small"
-            aria-label={t(spec.label)}
-            color={spec.color}
-            onClick={run(handler)}
-          >
-            <Icon fontSize="small" />
-          </IconButton>
+          <Tooltip key={spec.key} title={label}>
+            <span>
+              <IconButton size="small" aria-label={label} color={spec.color} onClick={run(handler)}>
+                <Icon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
         ) : null;
       })}
     </Flex>

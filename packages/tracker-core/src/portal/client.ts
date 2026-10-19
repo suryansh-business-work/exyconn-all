@@ -4,6 +4,8 @@ import {
   MarkMyTrackerMessagesReadDocument,
   MyTrackerCalendarDocument,
   MyTrackerDayDocument,
+  MyTrackerExpectedDocument,
+  MyTrackerExpectedReportDocument,
   MyTrackerManualEntriesDocument,
   MyTrackerMessagesDocument,
   MyTrackerTotalsDocument,
@@ -55,6 +57,7 @@ import type {
   WorkProfile,
   Workday,
 } from '../types';
+import type { ExpectedRange, HoursReportFile } from '../expected-hours';
 import { summarizeDay } from './day-summary';
 import { TrackerAuthError, TrackerRejectedError } from './portal-error';
 
@@ -254,7 +257,9 @@ export function createPortalClient(config: PortalClientConfig) {
      */
     async fetchTranslations(locale: string): Promise<Record<string, string>> {
       const data = await request(LocaleBundleDocument, { locale }, null);
-      return Object.fromEntries(data.localeBundle.translations.map((row) => [row.source, row.text]));
+      return Object.fromEntries(
+        data.localeBundle.translations.map((row) => [row.source, row.text]),
+      );
     },
 
     /**
@@ -293,6 +298,24 @@ export function createPortalClient(config: PortalClientConfig) {
      */
     async fetchMyReport(from: string, to: string, timezone: string): Promise<ReportDay[]> {
       return (await authed(MyTrackerCalendarDocument, { from, to, timezone })).myTrackerCalendar;
+    },
+
+    /**
+     * The signed-in employee's OWN contracted hours per day, keyed by the same zone as
+     * `fetchMyReport` so each day's expected and worked figures describe one date.
+     */
+    async fetchMyExpected(from: string, to: string, timezone: string): Promise<ExpectedRange> {
+      return (await authed(MyTrackerExpectedDocument, { from, to, timezone })).myTrackerExpected;
+    },
+
+    /** The employee's OWN month as an XLSX: expected, logged, deficit, activity and remarks. */
+    async fetchMyExpectedReport(
+      from: string,
+      to: string,
+      timezone: string,
+    ): Promise<HoursReportFile> {
+      return (await authed(MyTrackerExpectedReportDocument, { from, to, timezone }))
+        .myTrackerExpectedReport;
     },
 
     /** One day of the employee's OWN work — totals plus that day's screenshots. */

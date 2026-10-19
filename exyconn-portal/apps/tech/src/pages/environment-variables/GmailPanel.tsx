@@ -6,10 +6,16 @@ import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { useGmailConfigQuery } from '@exyconn/shell/graphql/generated';
 import { GmailConfigForm } from './forms/gmail-config';
 import { GmailConnection } from './GmailConnection';
+import { RedirectUriInfo } from './RedirectUriInfo';
+
+/** What the Google client needs besides the redirect URI. */
+const GOOGLE_INSTRUCTIONS =
+  'Add this exact address as an authorised redirect URI on the Google OAuth client, and enable the Gmail API on its project:';
 
 /**
- * Environment Variables > Gmail: the Google OAuth client (Gmail API enabled) the CRM's Gmail
- * accounts connect through. The accounts themselves are connected in CRM > Connect Gmail.
+ * Environment Variables > Email accounts > Google OAuth app: the Google OAuth client (Gmail API
+ * enabled) the CRM's Gmail accounts connect through. The accounts themselves are connected in
+ * CRM > Integrations.
  */
 export function GmailPanel() {
   const t = useT();
@@ -40,13 +46,10 @@ export function GmailPanel() {
   return (
     <Box sx={panel} component="section" aria-labelledby="gmail-title">
       <Typography id="gmail-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-        {t('Gmail')}
+        {t('Google OAuth app')}
       </Typography>
       <GmailConnection config={config} />
-      <Alert severity="info" sx={{ mb: 2 }}>
-        {t('Add this as an authorised redirect URI on the Google OAuth client:')}{' '}
-        <strong>{config.redirectUri}</strong>
-      </Alert>
+      <RedirectUriInfo uri={config.redirectUri} instructions={GOOGLE_INSTRUCTIONS} />
       <GmailConfigForm key={config.updatedAt ?? 'new'} initial={config} />
     </Box>
   );

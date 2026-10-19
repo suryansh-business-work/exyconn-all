@@ -58,6 +58,36 @@ function toHex([r, g, b]: [number, number, number]): string {
   return `#${[r, g, b].map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')}`;
 }
 
+/** The opacity an `rgba()` colour is painted at; 1 for anything opaque. */
+export function parseAlpha(color: string): number {
+  const match = /rgba\([^)]*[,\s/]\s*([\d.]+)\s*\)$/i.exec(color.trim());
+  return match ? Number(match[1]) : 1;
+}
+
+/**
+ * `color` laid over `under` at `opacity`, as the screen shows it — `#rrggbb`.
+ *
+ * Contrast is between colours a person actually sees, and a translucent surface has no colour
+ * of its own: frosted glass over a pastel canvas is a different grey over each stop. Blur is
+ * never counted on; only the arithmetic of the fill over what is behind it.
+ */
+export function blend(color: string, under: string, opacity: number): string {
+  const top = parseColor(color);
+  const bottom = parseColor(under);
+  return toHex(
+    top.map((channel, i) => channel * opacity + bottom[i] * (1 - opacity)) as [
+      number,
+      number,
+      number,
+    ],
+  );
+}
+
+/** A colour that may carry its own alpha (`rgba()`), composited over an opaque `under`. */
+export function composite(color: string, under: string): string {
+  return blend(color, under, parseAlpha(color));
+}
+
 /**
  * `color`, moved toward black or white just far enough to reach `ratio` on `background`.
  *

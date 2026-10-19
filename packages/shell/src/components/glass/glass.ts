@@ -1,20 +1,30 @@
-import { CARD_RADIUS, borderWidth, duration, easing, portalShadow, transition } from '@exyconn/ui';
+import {
+  CARD_RADIUS,
+  FRAME_RADIUS,
+  SOLID_SURFACES,
+  borderWidth,
+  duration,
+  easing,
+  glassCard,
+  portalShadow,
+  tokensFor,
+  transition,
+} from '@exyconn/ui';
 import type { Theme, SystemStyleObject } from '@exyconn/ui/styles';
 
 /**
- * The surface itself — border, corner and shadow, in either colour mode — with no padding
- * of its own.
+ * The surface itself — frosted glass on the canvas, its corner and its soft shadow, in either
+ * colour mode — with no padding of its own. Turns solid where a person has asked for less
+ * transparency or more contrast.
  *
  * Reach for `panel`, `densePanel` or `readingPanel` below instead: they are this surface
  * with the padding already decided. This one is for a surface that sets its own, like a
  * strip whose content is flush to the edge.
  */
 export const glass = (theme: Theme): SystemStyleObject<Theme> => ({
-  background: theme.palette.background.paper,
-  border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
+  ...glassCard(tokensFor(theme.palette.mode)),
   // The card corner, as a px string: a panel and a card are the same shape.
   borderRadius: `${CARD_RADIUS}px`,
-  boxShadow: portalShadow[theme.palette.mode].sm,
 });
 
 /**
@@ -41,6 +51,23 @@ export const readingPanel = (theme: Theme): SystemStyleObject<Theme> => ({
   ...glass(theme),
   p: { xs: 2, md: 4 },
 });
+
+/**
+ * The large frosted frame the page content sits in on a desk-sized screen — the reference's
+ * rounded app surface. A lighter frost than a card, so the cards on it still lift. On a phone
+ * the content runs edge to edge instead: a frame there only costs width.
+ */
+export const pageFrame = (theme: Theme): SystemStyleObject<Theme> => {
+  const t = tokensFor(theme.palette.mode);
+  return {
+    [theme.breakpoints.up('md')]: {
+      backgroundColor: t.glass.frame,
+      border: `${borderWidth.hairline}px solid ${t.glass.edge}`,
+      borderRadius: `${FRAME_RADIUS}px`,
+      [SOLID_SURFACES]: { backgroundColor: t.background.page, borderColor: t.divider },
+    },
+  };
+};
 
 /**
  * The feedback a surface gives when it can be opened: it lifts on hover, settles on press.

@@ -104,6 +104,7 @@ export function FirecrawlConfigsPanel() {
         onAction={crud.openCreate}
       />
       <DataTable
+        bulkEntity="FirecrawlConfig"
         columns={COLUMNS}
         rows={data?.firecrawlConfigs ?? []}
         actions={actions}

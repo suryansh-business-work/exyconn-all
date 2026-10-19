@@ -1,38 +1,39 @@
-import { Link as RouterLink } from 'react-router-dom';
-import { useT } from '@exyconn/i18n';
-import { Box, Button, Chip, Flex, Text } from '@exyconn/shell/components/ui';
-import { panel } from '@exyconn/shell/components/glass/glass';
-import { ProviderLogo } from '../../../integrations/ProviderLogo';
+import { useGmailAccountsQuery } from '@exyconn/shell/graphql/generated';
+import { GmailAccountCard } from './GmailAccountCard';
+import { MailProviderCard, type MailProviderText } from './MailProviderCard';
+import { useGmailAccountActions } from './useGmailAccountActions';
 
-/** The existing page where Gmail mailboxes are connected and managed. */
-const GMAIL_SETTINGS_PATH = '/settings/gmail';
+const TEXT: MailProviderText = {
+  title: 'Gmail',
+  description: 'Send from Gmail mailboxes and see every thread with a contact on their page.',
+  connectLabel: 'Connect Gmail account',
+  empty: 'No Gmail account connected yet.',
+  loading: 'Loading the Gmail accounts',
+  loadError: 'Could not load the Gmail accounts.',
+};
 
-/** Whether a Gmail mailbox is ready, and the way to the page that manages them. */
+/** The Gmail mailboxes the CRM reads threads in and sends from. */
 export function GmailCard({ ready }: Readonly<{ ready: boolean }>) {
-  const t = useT();
+  const actions = useGmailAccountActions();
+  const { data, loading, error, refetch } = useGmailAccountsQuery({
+    fetchPolicy: 'cache-and-network',
+  });
+  const accounts = (data?.gmailAccounts ?? []).map((account) => (
+    <GmailAccountCard key={account.id} account={account} actions={actions} />
+  ));
   return (
-    <Box component="section" sx={panel} aria-labelledby="gmail-heading">
-      <Flex direction="column" spacing={1.5}>
-        <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-          <ProviderLogo provider="GMAIL" size={28} />
-          <Text id="gmail-heading" component="h2" weight="semibold">
-            {t('Gmail')}
-          </Text>
-          <Chip
-            size="small"
-            color={ready ? 'success' : 'default'}
-            label={ready ? t('Connected') : t('Not connected')}
-          />
-        </Flex>
-        <Text size="sm" color="text.secondary">
-          {t('Send from Gmail mailboxes and see every thread with a contact on their page.')}
-        </Text>
-        <Box>
-          <Button variant="contained" component={RouterLink} to={GMAIL_SETTINGS_PATH}>
-            {t('Manage Gmail accounts')}
-          </Button>
-        </Box>
-      </Flex>
-    </Box>
+    <MailProviderCard
+      provider="GMAIL"
+      text={TEXT}
+      ready={ready}
+      loaded={Boolean(data)}
+      loading={loading}
+      error={error}
+      refetch={refetch}
+      available={data?.gmailClientReady}
+      connecting={actions.connecting}
+      onConnect={actions.connect}
+      accounts={accounts}
+    />
   );
 }

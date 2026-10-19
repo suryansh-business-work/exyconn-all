@@ -48,7 +48,7 @@ describe('PaymentForm', () => {
       within(screen.getByRole('listbox'))
         .getAllByRole('option')
         .map((option) => option.textContent),
-    ).toEqual(['INV-001 — INR 750 owing', 'INV-004 — INR 750 owing', 'INV-005 — INR 90 owing']);
+    ).toEqual(['INV-001 — ₹750.00 owing', 'INV-004 — ₹750.00 owing', 'INV-005 — ₹90.00 owing']);
   });
 
   it('says what the payment will leave owing before it is recorded', async () => {
@@ -57,25 +57,25 @@ describe('PaymentForm', () => {
       screen.getByText('Choose an invoice to see what it will leave owing.'),
     ).toBeInTheDocument();
 
-    await chooseInvoice('INV-001 — INR 750 owing');
+    await chooseInvoice('INV-001 — ₹750.00 owing');
     typeAmount('250');
-    expect(screen.getByText('INR 750 → INR 500 still owing.')).toBeInTheDocument();
+    expect(screen.getByText('₹750.00 → ₹500.00 still owing.')).toBeInTheDocument();
 
     typeAmount('750');
     expect(screen.getByText('INV-001 would be settled in full.')).toBeInTheDocument();
 
     typeAmount('800');
-    expect(screen.getByText('That is INR 50 more than is owed.')).toBeInTheDocument();
+    expect(screen.getByText('That is ₹50.00 more than is owed.')).toBeInTheDocument();
 
     typeAmount('');
-    expect(screen.getByText('INR 750 → INR 750 still owing.')).toBeInTheDocument();
+    expect(screen.getByText('₹750.00 → ₹750.00 still owing.')).toBeInTheDocument();
   });
 
   it('records a bank transfer against the invoice and names it', async () => {
     const onDone = vi.fn();
     renderForm(<PaymentForm onDone={onDone} onCancel={vi.fn()} />);
 
-    await chooseInvoice('INV-001 — INR 750 owing');
+    await chooseInvoice('INV-001 — ₹750.00 owing');
     typeAmount('250');
     await userEvent.type(screen.getByLabelText('Reference'), 'UTR-77');
     await userEvent.click(screen.getByRole('button', { name: 'Record' }));
@@ -99,7 +99,7 @@ describe('PaymentForm', () => {
     gql.record.mockResolvedValue({ data: undefined });
     renderForm(<PaymentForm onDone={vi.fn()} onCancel={vi.fn()} />);
 
-    await chooseInvoice('INV-005 — INR 90 owing');
+    await chooseInvoice('INV-005 — ₹90.00 owing');
     typeAmount('-40');
     await userEvent.click(screen.getByRole('combobox', { name: /Method/ }));
     await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Upi' }));
@@ -128,7 +128,7 @@ describe('PaymentForm', () => {
     const onDone = vi.fn();
     gql.record.mockRejectedValueOnce(new Error('Invoice is already paid'));
     renderForm(<PaymentForm onDone={onDone} onCancel={vi.fn()} />);
-    await chooseInvoice('INV-001 — INR 750 owing');
+    await chooseInvoice('INV-001 — ₹750.00 owing');
     typeAmount('100');
 
     await userEvent.click(screen.getByRole('button', { name: 'Record' }));

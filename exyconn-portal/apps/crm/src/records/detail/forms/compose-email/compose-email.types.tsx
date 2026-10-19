@@ -26,6 +26,10 @@ export interface ComposeEmailContext {
   id: string;
   to: string[];
   subject?: string;
+  /** A message to start from, e.g. a cold email version. */
+  body?: string;
+  /** The recipient is fixed (a cold email goes to the draft's address): To is shown, not edited. */
+  recipientsLocked?: boolean;
   threadId?: string;
   inReplyTo?: string;
   /** The Gmail account a reply starts on: the one holding the thread. */

@@ -9,6 +9,7 @@ import { MicrosoftMailCard } from './MicrosoftMailCard';
 export function EmailIntegrationsPanel() {
   const t = useT();
   const { data } = useCrmIntegrationStatusQuery({ fetchPolicy: 'cache-and-network' });
+  const email = data?.crmIntegrationStatus.email;
   return (
     <Box>
       <PageHeader
@@ -21,8 +22,8 @@ export function EmailIntegrationsPanel() {
             'Email connections are available on the operator’s CRM only. Other companies’ CRMs cannot connect or send from a mailbox.',
           )}
         </Alert>
-        <GmailCard ready={data?.crmIntegrationStatus.email.gmail ?? false} />
-        <MicrosoftMailCard />
+        <GmailCard ready={email?.gmail ?? false} />
+        <MicrosoftMailCard ready={email?.microsoft ?? false} />
       </Stack>
     </Box>
   );

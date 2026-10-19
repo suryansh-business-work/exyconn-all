@@ -15,6 +15,7 @@ import {
   Toolbar,
   Tooltip,
   fontWeight,
+  radius,
 } from '@/components/ui';
 import { useT } from '@exyconn/i18n';
 import { useBrandLogo, useBrandMark } from '@/hooks/useBrandMark';
@@ -100,7 +101,10 @@ export function SidebarHeader({
         <Tooltip title={collapsed ? t('Other Portals') : ''} placement="right">
           <ListItemButton
             onClick={onOpenSwitcher}
-            sx={{ borderRadius: 1, justifyContent: collapsed ? 'center' : 'flex-start' }}
+            sx={{
+              borderRadius: `${radius.pill}px`,
+              justifyContent: collapsed ? 'center' : 'flex-start',
+            }}
           >
             <ListItemIcon sx={{ minWidth: collapsed ? 0 : 36 }}>
               <AppsIcon fontSize="small" />
