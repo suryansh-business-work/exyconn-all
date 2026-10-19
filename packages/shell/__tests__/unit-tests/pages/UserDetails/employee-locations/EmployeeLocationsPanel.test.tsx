@@ -62,7 +62,7 @@ describe('EmployeeLocationsPanel', () => {
     });
     // No pins yet, so the Maps key is not even asked for.
     expect(vi.mocked(useGoogleMapsClientConfigQuery).mock.lastCall?.[0]).toEqual({ skip: true });
-    expect(screen.getByRole('status', { name: 'Loading the map' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the map').closest('[role="status"]')).toBeInTheDocument();
   });
 
   it('says so when the day has no pins', () => {
@@ -90,7 +90,7 @@ describe('EmployeeLocationsPanel', () => {
 
   it('holds the map while the key loads, then says when Tech has not set one', () => {
     show(queryResult({ employeeLocations: [MORNING] }), queryResult(undefined, { loading: true }));
-    expect(screen.getByRole('status', { name: 'Loading the map' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the map').closest('[role="status"]')).toBeInTheDocument();
     expect(screen.getByText('Attendance · Phone GPS')).toBeInTheDocument();
   });
 

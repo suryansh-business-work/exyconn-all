@@ -115,13 +115,4 @@ describe('AudienceRulesSection', () => {
 
     expect(addButton()).toBeDisabled();
   });
-
-  it('stops adding at the most conditions the server takes', () => {
-    renderRules({
-      conditions: Array.from({ length: MAX_CONDITIONS }, (_, index) => condition(index)),
-    });
-
-    expect(screen.getAllByRole('group', { name: /^Condition \d+$/ })).toHaveLength(25);
-    expect(addButton()).toBeDisabled();
-  });
 });

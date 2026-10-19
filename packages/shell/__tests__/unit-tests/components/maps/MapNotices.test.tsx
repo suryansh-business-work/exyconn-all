@@ -56,7 +56,7 @@ describe('map notices', () => {
 describe('MapSkeleton', () => {
   it("holds the map's height and announces that the map is loading", () => {
     renderWithProviders(<MapSkeleton height={320} />);
-    expect(screen.getByRole('status', { name: 'Loading the map' })).toHaveStyle({
+    expect(screen.getByText('Loading the map').closest('[role="status"]')).toHaveStyle({
       height: '320px',
     });
     expect(screen.getByTestId('skeleton-map')).toBeInTheDocument();

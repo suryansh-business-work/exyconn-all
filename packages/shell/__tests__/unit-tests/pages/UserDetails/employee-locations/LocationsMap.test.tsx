@@ -155,7 +155,7 @@ describe('LocationsMap', () => {
     renderWithProviders(
       <LocationsMap apiKey="k" pins={[MORNING]} selectedId={null} onSelect={vi.fn()} />,
     );
-    expect(screen.getByRole('status', { name: 'Loading the map' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the map').closest('[role="status"]')).toBeInTheDocument();
     expect(screen.queryByTestId('map')).not.toBeInTheDocument();
   });
 

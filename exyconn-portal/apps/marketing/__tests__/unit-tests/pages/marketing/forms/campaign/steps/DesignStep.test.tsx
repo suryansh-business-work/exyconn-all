@@ -23,8 +23,9 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useListCampaignTemplatesQuery: () => gql.saved(),
   useTechEmailTemplateOptionsQuery: () => gql.tech(),
 }));
-vi.mock('../../../../../../../src/pages/marketing/forms/campaign-template', () =>
-  import('../form-stubs'),
+vi.mock(
+  '../../../../../../../src/pages/marketing/forms/campaign-template',
+  () => import('../form-stubs'),
 );
 
 const DESIGN: Design = {
@@ -37,7 +38,12 @@ function renderStep(values: Partial<CampaignStudioValues> = {}) {
   let form: UseFormReturn<CampaignStudioValues> | undefined;
   renderWithProviders(
     <StudioFormHarness
-      values={{ editorMode: EditorMode.Visual, design: DESIGN, mjml: designToMjml(DESIGN), ...values }}
+      values={{
+        editorMode: EditorMode.Visual,
+        design: DESIGN,
+        mjml: designToMjml(DESIGN),
+        ...values,
+      }}
       onForm={(value) => {
         form = value;
       }}
@@ -80,7 +86,9 @@ describe('DesignStep', () => {
       loading: false,
     });
     gql.tech.mockReturnValue({
-      data: { techEmailTemplateOptions: [{ key: 'welcome', name: 'Welcome', mjml: '<mjml>w</mjml>' }] },
+      data: {
+        techEmailTemplateOptions: [{ key: 'welcome', name: 'Welcome', mjml: '<mjml>w</mjml>' }],
+      },
     });
   });
 
@@ -150,7 +158,9 @@ describe('DesignStep', () => {
     expect(form().getValues('design').blocks).toEqual(PICKED_BLOCKS);
     expect(form().getValues('mjml')).toContain('From template');
     await waitFor(() =>
-      expect(screen.queryByRole('heading', { name: 'Start from a template' })).not.toBeInTheDocument(),
+      expect(
+        screen.queryByRole('heading', { name: 'Start from a template' }),
+      ).not.toBeInTheDocument(),
     );
   });
 
@@ -175,10 +185,14 @@ describe('DesignStep', () => {
       }),
     );
     expect(form().getValues('design')).toEqual(DESIGN);
-    expect(screen.getByRole('heading', { name: 'Start from a template' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(
+      await screen.findByRole('heading', { name: 'Start from a template' }),
+    ).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('button', { name: 'Close' }));
     await waitFor(() =>
-      expect(screen.queryByRole('heading', { name: 'Start from a template' })).not.toBeInTheDocument(),
+      expect(
+        screen.queryByRole('heading', { name: 'Start from a template' }),
+      ).not.toBeInTheDocument(),
     );
   });
 
@@ -206,7 +220,7 @@ describe('DesignStep', () => {
     await waitFor(() =>
       expect(screen.queryByRole('region', { name: 'Template form' })).not.toBeInTheDocument(),
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Save as template' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Save as template' }));
     await userEvent.click(screen.getByRole('button', { name: 'Close' }));
     await waitFor(() =>
       expect(screen.queryByRole('region', { name: 'Template form' })).not.toBeInTheDocument(),
