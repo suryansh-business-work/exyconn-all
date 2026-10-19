@@ -1,12 +1,14 @@
 import { Box, LinearProgress, Stack, Typography } from '@exyconn/ui';
 import { ImageCropper } from './ImageCropper';
 import type { CropRect } from './crop-image';
+import type { CropOptions } from './crop-options';
 import { isCroppable, type MediaSelection } from './useMediaUpload';
 
 interface MediaReviewProps {
   selection: MediaSelection;
   uploading: boolean;
   onCropChange: (rect: CropRect) => void;
+  cropOptions?: Readonly<CropOptions>;
 }
 
 /**
@@ -14,11 +16,20 @@ interface MediaReviewProps {
  * is chosen before anything is sent; a clip and a vector have nothing to crop, so they are
  * only previewed. Upload happens from the dialog's action bar, never on selection.
  */
-export function MediaReview({ selection, uploading, onCropChange }: Readonly<MediaReviewProps>) {
+export function MediaReview({
+  selection,
+  uploading,
+  onCropChange,
+  cropOptions,
+}: Readonly<MediaReviewProps>) {
   return (
     <Stack spacing={1.5}>
       {isCroppable(selection) && (
-        <ImageCropper src={selection.previewUrl} onCropChange={onCropChange} />
+        <ImageCropper
+          src={selection.previewUrl}
+          onCropChange={onCropChange}
+          options={cropOptions}
+        />
       )}
       {selection.isVideo && (
         <Box

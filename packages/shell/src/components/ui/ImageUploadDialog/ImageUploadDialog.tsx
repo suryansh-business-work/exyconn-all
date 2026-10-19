@@ -5,6 +5,7 @@ import { DeviceUploadTab } from './DeviceUploadTab';
 import { MediaReview } from './MediaReview';
 import { PexelsTab } from './PexelsTab';
 import type { CropRect } from './crop-image';
+import type { CropOptions } from './crop-options';
 import { useMediaUpload, type UploadDataUrl } from './useMediaUpload';
 
 /**
@@ -27,6 +28,8 @@ interface ImageUploadDialogProps {
   onUploaded: (url: string) => void;
   /** Stores the image somewhere else than the shared ImageKit upload (e.g. a site's library). */
   uploadDataUrl?: UploadDataUrl;
+  /** How the crop step starts: shape, Fit / Fill and background (e.g. a logo: 1:1, fit, auto). */
+  cropOptions?: Readonly<CropOptions>;
 }
 
 /**
@@ -44,6 +47,7 @@ export function ImageUploadDialog({
   onClose,
   onUploaded,
   uploadDataUrl,
+  cropOptions,
 }: Readonly<ImageUploadDialogProps>) {
   const [tab, setTab] = useState<TabKey>('device');
   const [crop, setCrop] = useState<CropRect | null>(null);
@@ -91,7 +95,12 @@ export function ImageUploadDialog({
       )}
       <DialogContent dividers>
         {selection && (
-          <MediaReview selection={selection} uploading={upload.uploading} onCropChange={setCrop} />
+          <MediaReview
+            selection={selection}
+            uploading={upload.uploading}
+            onCropChange={setCrop}
+            cropOptions={cropOptions}
+          />
         )}
         {!selection && tab === 'device' && (
           <DeviceUploadTab

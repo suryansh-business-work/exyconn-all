@@ -20,7 +20,11 @@ vi.mock('react-easy-crop', () => ({
 const CDN = 'https://ik.imagekit.io/exyconn/logo.png';
 
 function renderDialog(
-  props: { media?: 'image' | 'all'; folder?: string } = {},
+  props: {
+    media?: 'image' | 'all';
+    folder?: string;
+    cropOptions?: { background: 'transparent' };
+  } = {},
   mocks: MockLink.MockedResponse[] = [],
 ) {
   const onClose = vi.fn();
@@ -107,7 +111,7 @@ describe('ImageUploadDialog', () => {
       }),
     );
     const photo = pexelsItem();
-    const { onUploaded } = renderDialog({}, [
+    const { onUploaded } = renderDialog({ cropOptions: { background: 'transparent' } }, [
       {
         request: {
           query: SearchPexelsPhotosDocument,
@@ -131,7 +135,7 @@ describe('ImageUploadDialog', () => {
     expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
     expect(crop.cropImageToDataUrl).toHaveBeenCalledWith(
       photo.url,
-      { x: 1, y: 1, width: 5, height: 5 },
+      { x: 1, y: 1, width: 5, height: 5, fill: { kind: 'none' } },
       'image/jpeg',
     );
 
