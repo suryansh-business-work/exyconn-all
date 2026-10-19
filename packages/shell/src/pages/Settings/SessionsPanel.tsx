@@ -149,7 +149,7 @@ export function SessionsPanel() {
       <Heading level={6} sx={{ mb: 0.5 }}>
         {t('Where you are signed in')}
       </Heading>
-      <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1 }}>
         {t('End a session on a device you no longer have, without changing your password.')}
       </Text>
       {loading && sessions.length === 0 && <LinearProgress sx={{ mb: 1 }} />}

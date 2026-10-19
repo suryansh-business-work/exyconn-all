@@ -46,7 +46,7 @@ export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectShares
 
         {shares.newUrl ? (
           <Alert severity="success" onClose={shares.forget}>
-            <Text size="sm" sx={{ mb: 1 }}>
+            <Text component="p" size="sm" sx={{ mb: 1 }}>
               {t('Copy this link now — it is not stored and cannot be shown again.')}
             </Text>
             <Box

@@ -12,7 +12,7 @@ export function CodeBlock({ title, text }: Readonly<Props>) {
   }
   return (
     <Box>
-      <Text size="sm" weight="semibold" sx={{ mb: 0.5 }}>
+      <Text component="p" size="sm" weight="semibold" sx={{ mb: 0.5 }}>
         {title}
       </Text>
       <Box

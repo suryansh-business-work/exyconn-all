@@ -65,7 +65,7 @@ export function JobsPage() {
       )}
 
       <Box sx={panel}>
-        <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
+        <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1 }}>
           {t(
             'Running a job by hand is the same pass its timer takes, so pressing it twice is safe.',
           )}

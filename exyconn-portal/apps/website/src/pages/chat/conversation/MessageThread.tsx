@@ -53,7 +53,12 @@ export function MessageThread({
       <Box role="log" aria-live="polite" aria-label={t(label)} sx={{ p: 2 }}>
         <Flex direction="column" spacing={1.5}>
           {count === 0 && (
-            <Text size="sm" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+            <Text
+              component="p"
+              size="sm"
+              color="text.secondary"
+              sx={{ textAlign: 'center', py: 4 }}
+            >
               {t('No messages in this thread yet.')}
             </Text>
           )}

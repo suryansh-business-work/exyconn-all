@@ -46,12 +46,12 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
       </Flex>
 
       {review.score !== null && review.score !== undefined && (
-        <Text size="sm" color="text.secondary" sx={{ mt: 0.5 }}>
+        <Text component="p" size="sm" color="text.secondary" sx={{ mt: 0.5 }}>
           {t('Score: {score}/10', { score: review.score })}
         </Text>
       )}
 
-      <Text weight="medium" sx={{ mt: 2 }}>
+      <Text component="p" weight="medium" sx={{ mt: 2 }}>
         {t('Your self-assessment')}
       </Text>
       {open ? (
@@ -77,7 +77,7 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
         </Text>
       )}
 
-      <Text weight="medium" sx={{ mt: 2 }}>
+      <Text component="p" weight="medium" sx={{ mt: 2 }}>
         {t('Manager assessment')}
       </Text>
       <Text size="sm" sx={{ whiteSpace: 'pre-line' }}>
@@ -86,7 +86,7 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
 
       {review.actionPlan && (
         <>
-          <Text weight="medium" sx={{ mt: 2 }}>
+          <Text component="p" weight="medium" sx={{ mt: 2 }}>
             {t('Action plan')}
           </Text>
           <Text size="sm" sx={{ whiteSpace: 'pre-line' }}>

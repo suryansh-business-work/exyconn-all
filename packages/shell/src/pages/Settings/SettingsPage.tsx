@@ -26,7 +26,7 @@ export function SettingsPage() {
             <Heading level={6} sx={{ mb: 0.5 }}>
               Change password
             </Heading>
-            <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
+            <Text size="sm" component="p" color="text.secondary" sx={{ mb: 2 }}>
               Use a strong password you don't use elsewhere.
             </Text>
             <ChangePasswordForm />

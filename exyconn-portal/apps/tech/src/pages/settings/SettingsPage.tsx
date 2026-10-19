@@ -57,7 +57,7 @@ export function SettingsPage() {
       <PageHeader title="Settings" subtitle="Where tracker builds and status alerts go" />
       <Box sx={readingPanel}>
         {channels.error && (
-          <Text size="sm" color="error.main" sx={{ mb: 2 }}>
+          <Text component="p" size="sm" color="error.main" sx={{ mb: 2 }}>
             {channels.error.message}
           </Text>
         )}

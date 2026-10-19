@@ -72,7 +72,7 @@ export function AiSpendPanel({
   return (
     <Box sx={[panel, { mb: 1.5 }]}>
       <Text size="label">{t('Spend {period}', { period: t(periodLabel) })}</Text>
-      <Text size="sm" color="text.secondary" sx={{ mb: 1.5 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1.5 }}>
         {spendLine}
       </Text>
       <Grid container spacing={1.5}>

@@ -62,7 +62,7 @@ export function DepartmentCard({
       </AccordionSummary>
       <AccordionDetails>
         {department.description && (
-          <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
+          <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1 }}>
             {department.description}
           </Text>
         )}

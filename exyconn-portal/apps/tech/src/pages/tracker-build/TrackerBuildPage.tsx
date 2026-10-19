@@ -76,7 +76,7 @@ export function TrackerBuildPage() {
         onAction={() => setStarting(true)}
       />
       <Box sx={readingPanel}>
-        <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
+        <Text component="p" size="sm" color="text.secondary" sx={{ mb: 2 }}>
           {builds.error
             ? builds.error.message
             : t('The most recent runs of the tracker build workflow.')}

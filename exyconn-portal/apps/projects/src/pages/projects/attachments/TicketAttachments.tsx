@@ -71,7 +71,7 @@ export function TicketAttachments({
 
   return (
     <Box>
-      <Text size="label" sx={{ mb: 1 }}>
+      <Text component="p" size="label" sx={{ mb: 1 }}>
         {t('Attachments ({count})', { count: files.length })}
       </Text>
       <Divider sx={{ mb: 1.5 }} />

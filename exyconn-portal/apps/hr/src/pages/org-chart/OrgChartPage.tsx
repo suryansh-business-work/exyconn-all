@@ -27,7 +27,7 @@ function UnplacedGroup({ nodes, loading, onOpen }: Readonly<UnplacedGroupProps>)
   return (
     <Box sx={panel}>
       <Heading level={6}>{t('No manager set')}</Heading>
-      <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1 }}>
         {t('Active people with nobody above them and nobody reporting to them.')}
       </Text>
       {nodes.length === 0 && loading && (
@@ -73,7 +73,7 @@ export function OrgChartPage() {
       <Flex direction="column" spacing={2}>
         <Box sx={panel}>
           <Heading level={6}>{t('Reporting lines')}</Heading>
-          <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
+          <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1 }}>
             {t('Drag to pan, scroll to zoom. Click a person to open their record.')}
           </Text>
           {chart}

@@ -33,6 +33,16 @@ const drawerPaper = (t: Theme, width: number, floating: boolean) => ({
   transition: t.transitions.create('width', { duration: t.transitions.duration.shorter }),
 });
 
+/**
+ * The icon rail scrolls without a visible scrollbar. A classic (non-overlay) scrollbar would
+ * take 15px of its 64, pushing every icon and the current page's pill off-centre against the
+ * rail's left edge. Wheel, touch and keyboard focus still scroll it.
+ */
+const railScroll = {
+  scrollbarWidth: 'none' as const,
+  '&::-webkit-scrollbar': { display: 'none' },
+};
+
 /** Responsive portal shell: permanent drawer on desktop, temporary on mobile. */
 export function PortalLayout() {
   const { user } = useAuth();
@@ -83,7 +93,9 @@ export function PortalLayout() {
           open
           sx={(t) => ({
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': drawerPaper(t, width, false),
+            '& .MuiDrawer-paper': collapsed
+              ? { ...drawerPaper(t, width, false), ...railScroll }
+              : drawerPaper(t, width, false),
           })}
         >
           <Sidebar roles={user.roles} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />

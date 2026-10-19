@@ -74,7 +74,7 @@ export function ChatAlertSettings() {
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Box sx={{ p: 2, maxWidth: 360 }}>
-          <Text weight="semibold" sx={{ mb: 1 }}>
+          <Text component="p" weight="semibold" sx={{ mb: 1 }}>
             {t('Notify me about new chat messages')}
           </Text>
           <FormGroup>
@@ -92,7 +92,7 @@ export function ChatAlertSettings() {
               />
             ))}
           </FormGroup>
-          <Text size="sm" color="text.secondary" sx={{ mt: 1 }}>
+          <Text component="p" size="sm" color="text.secondary" sx={{ mt: 1 }}>
             {t('Saved in this browser only.')}
           </Text>
         </Box>

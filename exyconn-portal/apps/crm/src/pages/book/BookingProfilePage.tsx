@@ -38,7 +38,9 @@ export function BookingProfilePage() {
       </Stack>
       <Divider />
       {page.meetings.length === 0 && (
-        <Text sx={{ mt: 2 }}>{t('There is nothing to book right now.')}</Text>
+        <Text component="p" sx={{ mt: 2 }}>
+          {t('There is nothing to book right now.')}
+        </Text>
       )}
       <Stack component="ul" divider={<Divider />} sx={{ p: 0, m: 0, listStyle: 'none' }}>
         {page.meetings.map((meeting) => (

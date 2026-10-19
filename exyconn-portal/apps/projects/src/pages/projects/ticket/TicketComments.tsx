@@ -76,7 +76,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
 
   return (
     <Box>
-      <Text size="label" sx={{ mb: 1 }}>
+      <Text component="p" size="label" sx={{ mb: 1 }}>
         {t('Comments ({count})', { count: comments.length })}
       </Text>
       <Divider sx={{ mb: 1.5 }} />

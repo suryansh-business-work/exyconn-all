@@ -11,7 +11,7 @@ export function NeedsBiggerScreen({ onBack }: Readonly<{ onBack: () => void }>) 
   return (
     <CenteredState>
       <Text weight="bold">{t('Live editing needs a bigger screen')}</Text>
-      <Text size="sm" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
         {t('Open this page on a laptop to edit its design. You can still edit its content here.')}
       </Text>
       <Button onClick={onBack} sx={{ mt: 2 }}>

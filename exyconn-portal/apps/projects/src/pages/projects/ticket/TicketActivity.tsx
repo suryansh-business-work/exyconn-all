@@ -49,7 +49,7 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
 
   return (
     <Box>
-      <Text size="label" sx={{ mb: 1 }}>
+      <Text component="p" size="label" sx={{ mb: 1 }}>
         {t('History ({count})', { count: entries.length })}
       </Text>
       <Divider sx={{ mb: 1.5 }} />
