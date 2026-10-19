@@ -14,27 +14,35 @@ interface QuickViewToolbarProps {
 }
 
 /**
- * The quick view's top row: open the full page and edit on the left, close on the right — all
- * small controls on one centred line, with a divider under it. It stays put while the panel
+ * The quick view's top row: open the full page and edit (a plain text button) grouped on the
+ * left, close on the right — all on one vertically centred line, with a divider under it. It stays put while the panel
  * scrolls, so Close is always in reach.
  */
 export function QuickViewToolbar({ fullViewTo, edit, onClose }: Readonly<QuickViewToolbarProps>) {
   const t = useT();
   return (
     <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.paper' }}>
-      <Flex direction="row" alignItems="center" spacing={1} sx={{ px: 2, py: 1.5 }}>
-        <Button
-          size="small"
-          variant="outlined"
-          component={RouterLink}
-          to={fullViewTo}
-          startIcon={<OpenInFullIcon />}
-        >
-          {t('Full view')}
-        </Button>
-        {edit}
+      <Flex
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        spacing={1}
+        sx={{ px: 2, py: 1.5 }}
+      >
+        <Flex direction="row" alignItems="center" spacing={1}>
+          <Button
+            size="small"
+            variant="outlined"
+            component={RouterLink}
+            to={fullViewTo}
+            startIcon={<OpenInFullIcon />}
+          >
+            {t('Full view')}
+          </Button>
+          {edit}
+        </Flex>
         <Tooltip title={t('Close')}>
-          <IconButton size="small" onClick={onClose} aria-label={t('Close')} sx={{ ml: 'auto' }}>
+          <IconButton size="small" onClick={onClose} aria-label={t('Close')}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Tooltip>

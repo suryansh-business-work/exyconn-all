@@ -48,6 +48,7 @@ function ContactQuickViewBody({ id, onClose, onSaved }: Readonly<ContactQuickVie
       edit={
         contact && (
           <EditRecordButton
+            textOnly
             label="Edit contact"
             onSaved={() => {
               reload();
