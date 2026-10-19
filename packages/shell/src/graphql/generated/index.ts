@@ -751,28 +751,140 @@ export type AttendanceTrackerBrief = {
   sessions: Scalars['Int']['output'];
 };
 
-/** A saved set of people a campaign can be sent to: named clients, named contacts, a segment. */
+/** Where a matching company's addresses come from. */
+export enum AudienceCompanyEmailSource {
+  Both = 'BOTH',
+  CompanyEmails = 'COMPANY_EMAILS',
+  LinkedContacts = 'LINKED_CONTACTS'
+}
+
+export type AudienceCondition = {
+  __typename?: 'AudienceCondition';
+  field: Scalars['String']['output'];
+  operator: AudienceRuleOperator;
+  value: Scalars['String']['output'];
+};
+
+export type AudienceConditionInput = {
+  field: Scalars['String']['input'];
+  operator: AudienceRuleOperator;
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Every count of an audience, worked out on the server. */
+export type AudienceCounts = {
+  __typename?: 'AudienceCounts';
+  clients: Scalars['Int']['output'];
+  companies: Scalars['Int']['output'];
+  contacts: Scalars['Int']['output'];
+  duplicates: Scalars['Int']['output'];
+  /** Unique addresses a send will go to. */
+  eligible: Scalars['Int']['output'];
+  /** Left the company, excluded by hand, or filtered out by email status. */
+  excluded: Scalars['Int']['output'];
+  invalid: Scalars['Int']['output'];
+  /** Turned off the campaign's preference category; 0 without a campaign. */
+  optedOut: Scalars['Int']['output'];
+  /** Addresses picked from the records, before de-duplication. */
+  rawEmails: Scalars['Int']['output'];
+  recordsWithoutEmail: Scalars['Int']['output'];
+  /** Unsubscribed, bounced or blocked. */
+  suppressed: Scalars['Int']['output'];
+  uniqueEmails: Scalars['Int']['output'];
+};
+
+/** How many of a record's addresses are used. */
+export enum AudienceEmailSelection {
+  All = 'ALL',
+  Primary = 'PRIMARY',
+  SelectedTypes = 'SELECTED_TYPES'
+}
+
+/** Why an address will not be sent to. UNSUBSCRIBED, SPAM_COMPLAINT, BOUNCED and BLOCKED are never overridden. */
+export enum AudienceExclusionReason {
+  Blocked = 'BLOCKED',
+  Bounced = 'BOUNCED',
+  CategoryOptOut = 'CATEGORY_OPT_OUT',
+  EmailStatusFilter = 'EMAIL_STATUS_FILTER',
+  InvalidEmail = 'INVALID_EMAIL',
+  LeftCompany = 'LEFT_COMPANY',
+  ManuallyExcluded = 'MANUALLY_EXCLUDED',
+  SpamComplaint = 'SPAM_COMPLAINT',
+  Unsubscribed = 'UNSUBSCRIBED'
+}
+
+export type AudienceFilterCatalogue = {
+  __typename?: 'AudienceFilterCatalogue';
+  /** Every address label in use on contacts and companies, e.g. Work, Sales, Support. */
+  emailTypes: Array<Scalars['String']['output']>;
+  fields: Array<AudienceFilterField>;
+};
+
+export enum AudienceFilterEntity {
+  Company = 'COMPANY',
+  Contact = 'CONTACT',
+  Email = 'EMAIL'
+}
+
+/** One field an audience rule can test, with the operators it allows. */
+export type AudienceFilterField = {
+  __typename?: 'AudienceFilterField';
+  entity: AudienceFilterEntity;
+  key: Scalars['String']['output'];
+  kind: AudienceFilterKind;
+  label: Scalars['String']['output'];
+  operators: Array<AudienceRuleOperator>;
+  /** The fixed values of an ENUM or EMAIL_STATUS field; empty for the others. */
+  values: Array<Scalars['String']['output']>;
+};
+
+export enum AudienceFilterKind {
+  EmailStatus = 'EMAIL_STATUS',
+  Enum = 'ENUM',
+  LastContacted = 'LAST_CONTACTED',
+  Tags = 'TAGS',
+  Text = 'TEXT'
+}
+
+/** A saved set of campaign recipients: CRM rules, named records and how addresses are picked. */
 export type AudienceList = {
   __typename?: 'AudienceList';
+  allActiveClients: Scalars['Boolean']['output'];
   clientIds: Array<Scalars['String']['output']>;
+  companyEmailSource: AudienceCompanyEmailSource;
+  companyIds: Array<Scalars['String']['output']>;
+  conditions: Array<AudienceCondition>;
   contactIds: Array<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   description: Scalars['String']['output'];
-  dynamicSegment: AudienceSegment;
+  emailSelection: AudienceEmailSelection;
+  emailTypes: Array<Scalars['String']['output']>;
+  excludedEmails: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  /** The segment's parameter, e.g. the CompanyStatus for CONTACTS_BY_COMPANY_STATUS. */
-  segmentValue: Scalars['String']['output'];
+  recipientSource: AudienceRecipientSource;
+  ruleCombinator: AudienceRuleCombinator;
+  /** When a fixed audience was frozen; null for a dynamic one. */
+  snapshotAt?: Maybe<Scalars['DateTime']['output']>;
+  updateMode: AudienceUpdateMode;
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type AudienceListInput = {
+  allActiveClients?: InputMaybe<Scalars['Boolean']['input']>;
   clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  companyEmailSource: AudienceCompanyEmailSource;
+  companyIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  conditions?: InputMaybe<Array<AudienceConditionInput>>;
   contactIds?: InputMaybe<Array<Scalars['String']['input']>>;
   description?: InputMaybe<Scalars['String']['input']>;
-  dynamicSegment?: InputMaybe<AudienceSegment>;
+  emailSelection: AudienceEmailSelection;
+  emailTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludedEmails?: InputMaybe<Array<Scalars['String']['input']>>;
   name: Scalars['String']['input'];
-  segmentValue?: InputMaybe<Scalars['String']['input']>;
+  recipientSource: AudienceRecipientSource;
+  ruleCombinator: AudienceRuleCombinator;
+  updateMode: AudienceUpdateMode;
 };
 
 export type AudienceListPage = {
@@ -781,29 +893,90 @@ export type AudienceListPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-/** One resolved recipient of an audience, after de-duplication by address. */
-export type AudienceMember = {
-  __typename?: 'AudienceMember';
+/** One unique address in an audience and whether it will be sent to. */
+export type AudienceRecipient = {
+  __typename?: 'AudienceRecipient';
   company: Scalars['String']['output'];
   email: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  kind: AudienceMemberKind;
+  exclusion?: Maybe<AudienceExclusionReason>;
+  label: Scalars['String']['output'];
   name: Scalars['String']['output'];
-  status: Scalars['String']['output'];
+  sources: Array<AudienceRecipientOrigin>;
+  verification: Scalars['String']['output'];
 };
 
-/** Which register a resolved member came out of. */
-export enum AudienceMemberKind {
+/** A record behind an address. */
+export type AudienceRecipientOrigin = {
+  __typename?: 'AudienceRecipientOrigin';
+  id: Scalars['String']['output'];
+  kind: AudienceRecordKind;
+  name: Scalars['String']['output'];
+  via: AudienceRecordVia;
+};
+
+export type AudienceRecipientPage = {
+  __typename?: 'AudienceRecipientPage';
+  rows: Array<AudienceRecipient>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Which CRM registers the rules pick from. SELECTED_ONLY uses only the records named under Data sources. */
+export enum AudienceRecipientSource {
+  Both = 'BOTH',
+  Companies = 'COMPANIES',
+  Contacts = 'CONTACTS',
+  SelectedOnly = 'SELECTED_ONLY'
+}
+
+export enum AudienceRecordKind {
   Client = 'CLIENT',
+  Company = 'COMPANY',
   Contact = 'CONTACT'
 }
 
-/** A rule that picks audience members without anybody maintaining the list. */
-export enum AudienceSegment {
-  AllActiveClients = 'ALL_ACTIVE_CLIENTS',
-  AllActiveContacts = 'ALL_ACTIVE_CONTACTS',
-  ContactsByCompanyStatus = 'CONTACTS_BY_COMPANY_STATUS',
-  None = 'NONE'
+/** How a record got into the audience. */
+export enum AudienceRecordVia {
+  LinkedContact = 'LINKED_CONTACT',
+  Rules = 'RULES',
+  Selected = 'SELECTED'
+}
+
+/** Who an audience reaches right now. */
+export type AudienceResolution = {
+  __typename?: 'AudienceResolution';
+  counts: AudienceCounts;
+  /** One page of the recipients, searched by address, name or company. */
+  recipients: AudienceRecipientPage;
+  resolvedAt: Scalars['DateTime']['output'];
+};
+
+
+/** Who an audience reaches right now. */
+export type AudienceResolutionRecipientsArgs = {
+  input: TableQueryInput;
+};
+
+export enum AudienceRuleCombinator {
+  And = 'AND',
+  Or = 'OR'
+}
+
+export enum AudienceRuleOperator {
+  Contains = 'CONTAINS',
+  Equals = 'EQUALS',
+  IsEmpty = 'IS_EMPTY',
+  IsNotEmpty = 'IS_NOT_EMPTY',
+  Never = 'NEVER',
+  NotEquals = 'NOT_EQUALS',
+  OlderThanDays = 'OLDER_THAN_DAYS',
+  WithinDays = 'WITHIN_DAYS'
+}
+
+/** Whether membership is frozen at save (addresses, or records) or follows the CRM. */
+export enum AudienceUpdateMode {
+  Dynamic = 'DYNAMIC',
+  FixedRecords = 'FIXED_RECORDS',
+  FixedSnapshot = 'FIXED_SNAPSHOT'
 }
 
 export enum AuditAction {
@@ -1440,27 +1613,44 @@ export enum CallingBotTurnRole {
 
 export type Campaign = {
   __typename?: 'Campaign';
+  /** The visual editor's blocks. */
+  blocks: Scalars['JSON']['output'];
   body?: Maybe<Scalars['String']['output']>;
   budget: Scalars['Float']['output'];
+  campaignType: CampaignType;
   channel: CampaignChannel;
+  contentVersion: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
+  editorMode: EditorMode;
   endDate: Scalars['DateTime']['output'];
+  html: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lastSentAt?: Maybe<Scalars['DateTime']['output']>;
+  mjml: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  preferenceCategoryId: Scalars['String']['output'];
+  preheader: Scalars['String']['output'];
   /** Recipients reached by the last send. Null for campaigns never sent / created before email support. */
   recipientsCount?: Maybe<Scalars['Int']['output']>;
+  replyTo: Scalars['String']['output'];
   /** Stamped when the dispatcher claimed the campaign; what stops a second send. */
   scheduleDispatchedAt?: Maybe<Scalars['DateTime']['output']>;
   /** When the dispatcher should send this campaign unattended. */
   scheduledAt?: Maybe<Scalars['DateTime']['output']>;
   /** The audience a scheduled send goes to. */
   scheduledAudienceListId?: Maybe<Scalars['String']['output']>;
+  sendState: CampaignSendState;
+  senderEmail: Scalars['String']['output'];
+  senderName: Scalars['String']['output'];
+  sendingRevisionId: Scalars['String']['output'];
   startDate: Scalars['DateTime']['output'];
   status: CampaignStatus;
   subject?: Maybe<Scalars['String']['output']>;
   /** A stored email template to render through instead of the raw body. */
   templateKey?: Maybe<Scalars['String']['output']>;
+  text: Scalars['String']['output'];
+  trackClicks: Scalars['Boolean']['output'];
+  trackOpens: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -1470,6 +1660,52 @@ export enum CampaignChannel {
   Search = 'SEARCH',
   Social = 'SOCIAL'
 }
+
+/** What the latest send of a campaign did. bounced is null: no provider reports them here. */
+export type CampaignDeliveryStats = {
+  __typename?: 'CampaignDeliveryStats';
+  bounced?: Maybe<Scalars['Int']['output']>;
+  clickRate: Scalars['Int']['output'];
+  clicked: Scalars['Int']['output'];
+  eligible: Scalars['Int']['output'];
+  /** Opens are an estimate: privacy proxies and blocked images hide or invent them. */
+  estimatedOpens: Scalars['Int']['output'];
+  failed: Scalars['Int']['output'];
+  lastSentAt?: Maybe<Scalars['DateTime']['output']>;
+  preferenceChanges: Scalars['Int']['output'];
+  queued: Scalars['Int']['output'];
+  resolved: Scalars['Int']['output'];
+  runId: Scalars['String']['output'];
+  scheduledAt?: Maybe<Scalars['DateTime']['output']>;
+  sendState: CampaignSendState;
+  sent: Scalars['Int']['output'];
+  skipped: Scalars['Int']['output'];
+  unsubscribed: Scalars['Int']['output'];
+};
+
+/** A draft as the Email Studio saves it. Only the name is needed for a first save. */
+export type CampaignDraftInput = {
+  blocks?: InputMaybe<Scalars['JSON']['input']>;
+  budget?: InputMaybe<Scalars['Float']['input']>;
+  campaignType?: InputMaybe<CampaignType>;
+  channel?: InputMaybe<CampaignChannel>;
+  editorMode?: InputMaybe<EditorMode>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  mjml?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  preferenceCategoryId?: InputMaybe<Scalars['String']['input']>;
+  preheader?: InputMaybe<Scalars['String']['input']>;
+  replyTo?: InputMaybe<Scalars['String']['input']>;
+  /** The audience chosen in the Audience step. */
+  scheduledAudienceListId?: InputMaybe<Scalars['String']['input']>;
+  senderEmail?: InputMaybe<Scalars['String']['input']>;
+  senderName?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  status?: InputMaybe<CampaignStatus>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+  trackClicks?: InputMaybe<Scalars['Boolean']['input']>;
+  trackOpens?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 export type CampaignInput = {
   body?: InputMaybe<Scalars['String']['input']>;
@@ -1540,12 +1776,44 @@ export type CampaignPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-/** The first audience member's copy, rendered exactly as the send would render it. */
-export type CampaignPreview = {
-  __typename?: 'CampaignPreview';
-  body: Scalars['String']['output'];
-  recipient: Scalars['String']['output'];
+export type CampaignPreviewInput = {
+  campaignName: Scalars['String']['input'];
+  mjml: Scalars['String']['input'];
+  preheader: Scalars['String']['input'];
+  recordId?: InputMaybe<Scalars['String']['input']>;
+  recordKind?: InputMaybe<PreviewRecordKind>;
+  senderName: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+};
+
+/** The email as one recipient would get it, built by the pipeline the send uses. */
+export type CampaignPreviewResult = {
+  __typename?: 'CampaignPreviewResult';
+  html: Scalars['String']['output'];
+  issues: Array<MjmlIssue>;
+  missingVariables: Array<Scalars['String']['output']>;
+  preheader: Scalars['String']['output'];
+  recipient: PreviewRecipient;
   subject: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
+/** Everything checked before a real send; ERRORs block it. */
+export type CampaignQualityReport = {
+  __typename?: 'CampaignQualityReport';
+  canSend: Scalars['Boolean']['output'];
+  checks: Array<QualityCheck>;
+  /** The audience's counts for this campaign's category; null without an audience. */
+  counts?: Maybe<AudienceCounts>;
+};
+
+export type CampaignRevision = {
+  __typename?: 'CampaignRevision';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  subject: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 /** One recipient's copy of one campaign send, kept whether it worked or not. */
@@ -1561,18 +1829,19 @@ export type CampaignSend = {
   to: Scalars['String']['output'];
 };
 
-/** Outcome of a campaign email blast. */
-export type CampaignSendResult = {
-  __typename?: 'CampaignSendResult';
-  campaign: Campaign;
-  failed: Scalars['Int']['output'];
-  sent: Scalars['Int']['output'];
-  /** Recipients deliberately not written to — suppressed, or consent withdrawn. */
-  skipped: Scalars['Int']['output'];
-};
+/** Where the email delivery stands, separate from the campaign's marketing status. */
+export enum CampaignSendState {
+  Cancelled = 'CANCELLED',
+  Draft = 'DRAFT',
+  Failed = 'FAILED',
+  Queued = 'QUEUED',
+  Sending = 'SENDING',
+  Sent = 'SENT'
+}
 
 export enum CampaignSendStatus {
   Failed = 'FAILED',
+  Queued = 'QUEUED',
   Sent = 'SENT',
   Skipped = 'SKIPPED'
 }
@@ -1591,6 +1860,66 @@ export enum CampaignStatus {
   Paused = 'PAUSED',
   Planned = 'PLANNED'
 }
+
+/** What the studio needs to offer: verified senders, variables and categories. */
+export type CampaignStudioOptions = {
+  __typename?: 'CampaignStudioOptions';
+  categories: Array<PreferenceCategory>;
+  variables: Array<CampaignVariable>;
+  verifiedSenders: Array<Scalars['String']['output']>;
+};
+
+export type CampaignTemplate = {
+  __typename?: 'CampaignTemplate';
+  blocks: Scalars['JSON']['output'];
+  category: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  editorMode: EditorMode;
+  id: Scalars['ID']['output'];
+  mjml: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type CampaignTemplateInput = {
+  blocks?: InputMaybe<Scalars['JSON']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  editorMode: EditorMode;
+  mjml: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CampaignTemplateVersion = {
+  __typename?: 'CampaignTemplateVersion';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  note: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export enum CampaignType {
+  Announcement = 'ANNOUNCEMENT',
+  Event = 'EVENT',
+  FollowUp = 'FOLLOW_UP',
+  Newsletter = 'NEWSLETTER',
+  Other = 'OTHER',
+  Promotional = 'PROMOTIONAL'
+}
+
+/** One variable an email can use. */
+export type CampaignVariable = {
+  __typename?: 'CampaignVariable';
+  description: Scalars['String']['output'];
+  example: Scalars['String']['output'];
+  group: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
 
 /**
  * A reply the desk sends often, kept once instead of being retyped.
@@ -1672,6 +2001,12 @@ export type CaseStudyPage = {
   rows: Array<CaseStudy>;
   totalCount: Scalars['Int']['output'];
 };
+
+export enum CheckSeverity {
+  Error = 'ERROR',
+  Info = 'INFO',
+  Warning = 'WARNING'
+}
 
 export type Client = {
   __typename?: 'Client';
@@ -3533,6 +3868,21 @@ export type CrmViewInput = {
   sorts: Array<CrmSortInput>;
 };
 
+export type DashboardCampaign = {
+  __typename?: 'DashboardCampaign';
+  at?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  recipients?: Maybe<Scalars['Int']['output']>;
+  sendState?: Maybe<CampaignSendState>;
+};
+
+export type DashboardDay = {
+  __typename?: 'DashboardDay';
+  day: Scalars['String']['output'];
+  sent: Scalars['Int']['output'];
+};
+
 /** The MongoDB this server is connected to, reported by the database server. */
 export type DatabaseInfo = {
   __typename?: 'DatabaseInfo';
@@ -3834,6 +4184,11 @@ export type DraftCrmEmailInput = {
   object: CrmTimelineObject;
   threadId?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum EditorMode {
+  Code = 'CODE',
+  Visual = 'VISUAL'
+}
 
 export type EmailConfig = {
   __typename?: 'EmailConfig';
@@ -6595,27 +6950,110 @@ export type MarkAttendanceInput = {
   status: AttendanceStatus;
 };
 
-/** One address marketing must never write to again. */
+export type MarketingDashboard = {
+  __typename?: 'MarketingDashboard';
+  audiences: Scalars['Int']['output'];
+  campaigns: Scalars['Int']['output'];
+  clickRateLast30: Scalars['Int']['output'];
+  clickedLast30: Scalars['Int']['output'];
+  daily: Array<DashboardDay>;
+  drafts: Scalars['Int']['output'];
+  failedLast30: Scalars['Int']['output'];
+  recent: Array<DashboardCampaign>;
+  scheduled: Scalars['Int']['output'];
+  sending: Scalars['Int']['output'];
+  sentLast30: Scalars['Int']['output'];
+  suppressed: Scalars['Int']['output'];
+  unsubscribesLast30: Scalars['Int']['output'];
+  upcoming: Array<DashboardCampaign>;
+};
+
+export type MarketingFooter = {
+  __typename?: 'MarketingFooter';
+  companyName: Scalars['String']['output'];
+  contactLine: Scalars['String']['output'];
+  linkColor: Scalars['String']['output'];
+  postalAddress: Scalars['String']['output'];
+  privacyUrl: Scalars['String']['output'];
+  textColor: Scalars['String']['output'];
+  websiteUrl: Scalars['String']['output'];
+};
+
+export type MarketingFooterInput = {
+  companyName: Scalars['String']['input'];
+  contactLine?: InputMaybe<Scalars['String']['input']>;
+  linkColor?: InputMaybe<Scalars['String']['input']>;
+  postalAddress: Scalars['String']['input'];
+  privacyUrl?: InputMaybe<Scalars['String']['input']>;
+  textColor?: InputMaybe<Scalars['String']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** One address marketing must never write to again. Archived rows still block sends. */
 export type MarketingSuppression = {
   __typename?: 'MarketingSuppression';
+  addedByName: Scalars['String']['output'];
+  archivedAt?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** Read live from the CRM; only on the paged list and the lookup. */
+  linkedRecords?: Maybe<Array<SuppressionLink>>;
+  note: Scalars['String']['output'];
+  origin: SuppressionOrigin;
   reason: SuppressionReason;
+  scope: SuppressionScope;
+  /** Detail of where it came from — a campaign or contact id — or legacy free text. */
   source: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type MarketingSuppressionInput = {
+  /** Hide it from the list straight away. It is suppressed either way. */
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   email: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
   reason: SuppressionReason;
-  source?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** What adding an address would touch. */
+export type MarketingSuppressionLookup = {
+  __typename?: 'MarketingSuppressionLookup';
+  email: Scalars['String']['output'];
+  existing?: Maybe<MarketingSuppression>;
+  linkedRecords: Array<SuppressionLink>;
 };
 
 export type MarketingSuppressionPage = {
   __typename?: 'MarketingSuppressionPage';
   rows: Array<MarketingSuppression>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** The list's headline figures. Each address is counted once; archived rows count. */
+export type MarketingSuppressionSummary = {
+  __typename?: 'MarketingSuppressionSummary';
+  addedManually: Scalars['Int']['output'];
+  archived: Scalars['Int']['output'];
+  hardBounced: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+  unsubscribed: Scalars['Int']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type MarketingSuppressionsInput = {
+  emails: Array<Scalars['String']['input']>;
+  /** True when the addresses were read from an uploaded file (origin IMPORT). */
+  fromFile?: InputMaybe<Scalars['Boolean']['input']>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  reason: SuppressionReason;
+};
+
+export type MarketingSuppressionsResult = {
+  __typename?: 'MarketingSuppressionsResult';
+  added: Array<Scalars['String']['output']>;
+  alreadySuppressed: Array<Scalars['String']['output']>;
+  invalid: Array<Scalars['String']['output']>;
 };
 
 export type MeetingBooking = {
@@ -6857,6 +7295,12 @@ export enum MilestoneState {
   Planned = 'PLANNED'
 }
 
+export type MjmlIssue = {
+  __typename?: 'MjmlIssue';
+  line: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
 /** What one caller may do inside one module, folded down from every role they hold. */
 export type ModulePermission = {
   __typename?: 'ModulePermission';
@@ -6892,6 +7336,7 @@ export type Mutation = {
   addColdEmailVariant: ColdEmailDraft;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
+  addMarketingSuppressions: MarketingSuppressionsResult;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
   addMySupportReply: SupportReply;
   /** Adds somebody by hand (they agreed elsewhere); signing up again re-subscribes. */
@@ -6916,6 +7361,8 @@ export type Mutation = {
   assignSupportTicket: SupportTicket;
   /** Public: books a free start from a booking link. */
   bookMeeting: BookedMeeting;
+  /** Unschedules a queued send, or stops a running one before its next batch. */
+  cancelCampaignSend: Campaign;
   /** Withdraw a request that has not been carried out. */
   cancelItAccessRequest: ItAccessRequest;
   cancelMeetingBooking: MeetingBooking;
@@ -6957,6 +7404,7 @@ export type Mutation = {
   createApiKey: IssuedApiKey;
   createApplicant: Applicant;
   createAsset: Asset;
+  /** Saves the audience; a fixed one is frozen at the moment it is saved. */
   createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
@@ -7073,6 +7521,7 @@ export type Mutation = {
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
   createPosition: Position;
+  createPreferenceCategory: PreferenceCategory;
   createProblemReport: ProblemReport;
   createProduct: Product;
   createProject: Project;
@@ -7151,6 +7600,7 @@ export type Mutation = {
   deleteCallingBotConfig: Scalars['Boolean']['output'];
   deleteCallingBotScenario: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
+  deleteCampaignTemplate: Scalars['Boolean']['output'];
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
@@ -7218,8 +7668,6 @@ export type Mutation = {
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteManagementReview: Scalars['Boolean']['output'];
-  /** Deleting the row is how somebody is re-subscribed; there is no other way back. */
-  deleteMarketingSuppression: Scalars['Boolean']['output'];
   deleteMeetingType: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
@@ -7236,6 +7684,7 @@ export type Mutation = {
   deletePexelsConfig: Scalars['Boolean']['output'];
   deletePolicy: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
+  deletePreferenceCategory: Scalars['Boolean']['output'];
   deleteProblemReport: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
@@ -7289,6 +7738,7 @@ export type Mutation = {
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
+  duplicateCampaignTemplate: CampaignTemplate;
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
@@ -7362,6 +7812,8 @@ export type Mutation = {
   publishSocialMediaPostNow: SocialMediaPost;
   /** Refused with the issues listed when the draft has errors. */
   publishWhatsappWorkflow: WhatsappWorkflow;
+  /** Freezes the draft and queues it — now, or at scheduledAt. Refused while any check fails. */
+  queueCampaignSend: Campaign;
   /**
    * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
    * average cost, and re-reads the order's status from what has actually arrived.
@@ -7373,6 +7825,8 @@ export type Mutation = {
   recordStockMovement: StockMovement;
   /** At most 100 events per call; returns how many were newly stored. */
   recordWhatsappDemoEvents: Scalars['Int']['output'];
+  /** Lets campaigns reach the address again. Needs a reason; consent withdrawals need an administrator. */
+  removeMarketingSuppression: Scalars['Boolean']['output'];
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /**
@@ -7398,8 +7852,11 @@ export type Mutation = {
   resetPassword: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
   resetUserPassword: Scalars['String']['output'];
+  restoreCampaignTemplateVersion: CampaignTemplate;
   /** Copies a published version back into the draft (publish it to put it live). */
   restoreCmsPageRevision: CmsPage;
+  /** Sends the latest run's failed copies again; nobody gets a second copy. */
+  retryCampaignFailures: CampaignSendSummary;
   /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
   revealCallingBotSecret: Scalars['String']['output'];
   /** One saved credential of the config with this id, in full. Each reveal is audited. */
@@ -7452,6 +7909,9 @@ export type Mutation = {
   saveAiSpendLimit: AiSpendLimit;
   /** Saves an example's call flow (checked: voice steps only, no errors) and its script; null removes it. */
   saveCallingBotScenarioFlow: CallingBotScenario;
+  /** Creates (no id) or updates a draft. expectedVersion refuses a save over somebody else's. */
+  saveCampaignDraft: Campaign;
+  saveCampaignTemplate: CampaignTemplate;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
   /**
@@ -7464,6 +7924,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
+  saveMarketingFooter: MarketingFooter;
   /** Changing the booking page address stops the old one working. */
   saveMeetingSettings: MeetingSettings;
   saveMicrosoftMailConfig: MicrosoftMailConfig;
@@ -7480,12 +7941,8 @@ export type Mutation = {
    * exists. Returns a message safe to show the caller.
    */
   sendAdminCredentials: Scalars['String']['output'];
-  /**
-   * Emails the campaign's subject/body to every client in the audience list. With
-   * testEmail it goes to that one address only — a preview that needs no audience and
-   * leaves no send log or last-sent stamp behind.
-   */
-  sendCampaign: CampaignSendResult;
+  /** A [TEST] copy to a portal user's address: preview links, no tracking, not logged. */
+  sendCampaignTest: Scalars['Boolean']['output'];
   /** Sends one version from a CRM mailbox; it shows on the record's Emails tab and timeline. */
   sendColdEmailVariant: ColdEmailDraft;
   sendCrmEmail: CrmEmailMessage;
@@ -7540,6 +7997,7 @@ export type Mutation = {
   setGmailAccountEnabled: GmailAccount;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  setMarketingSuppressionArchived: MarketingSuppression;
   /** Turns a mailbox on or off for the CRM. */
   setMicrosoftMailAccountEnabled: MicrosoftMailAccount;
   /** Sets where one kind reaches this person. Returns the whole set, so a screen stays in step. */
@@ -7784,6 +8242,8 @@ export type Mutation = {
   updateDocPage: DocPage;
   updateEmailConfig: EmailConfig;
   updateEmailFragment: EmailFragment;
+  /** Public: saves a recipient's choices. Unsubscribing from all goes on the suppression list. */
+  updateEmailPreferences: PublicEmailPreferences;
   updateEmailTemplate: EmailTemplate;
   updateEmailVerifierConfig: EmailVerifierConfig;
   updateEmployeeDocument: EmployeeDocument;
@@ -7823,7 +8283,7 @@ export type Mutation = {
   updateLicence: Licence;
   updateLocation: Location;
   updateManagementReview: ManagementReview;
-  updateMarketingSuppression: MarketingSuppression;
+  updateMarketingSuppressionNote: MarketingSuppression;
   updateMeetingType: MeetingType;
   updateMilestone: Milestone;
   /**
@@ -7852,6 +8312,7 @@ export type Mutation = {
   updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
   updatePosition: Position;
+  updatePreferenceCategory: PreferenceCategory;
   /** A status change emails the reporter, when they left an address. */
   updateProblemReport: ProblemReport;
   updateProduct: Product;
@@ -7929,6 +8390,11 @@ export type MutationAddItIncidentUpdateArgs = {
   id: Scalars['ID']['input'];
   note: Scalars['String']['input'];
   status: ItIncidentStatus;
+};
+
+
+export type MutationAddMarketingSuppressionsArgs = {
+  input: MarketingSuppressionsInput;
 };
 
 
@@ -8013,6 +8479,11 @@ export type MutationBookMeetingArgs = {
   org: Scalars['String']['input'];
   page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
+};
+
+
+export type MutationCancelCampaignSendArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -8619,6 +9090,11 @@ export type MutationCreatePositionArgs = {
 };
 
 
+export type MutationCreatePreferenceCategoryArgs = {
+  input: PreferenceCategoryInput;
+};
+
+
 export type MutationCreateProblemReportArgs = {
   input: ProblemReportInput;
 };
@@ -8936,6 +9412,11 @@ export type MutationDeleteCallingBotScenarioArgs = {
 
 
 export type MutationDeleteCampaignArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCampaignTemplateArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9266,11 +9747,6 @@ export type MutationDeleteManagementReviewArgs = {
 };
 
 
-export type MutationDeleteMarketingSuppressionArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
 export type MutationDeleteMeetingTypeArgs = {
   id: Scalars['ID']['input'];
 };
@@ -9342,6 +9818,11 @@ export type MutationDeletePolicyArgs = {
 
 
 export type MutationDeletePositionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePreferenceCategoryArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9576,6 +10057,11 @@ export type MutationDraftCrmEmailArgs = {
 };
 
 
+export type MutationDuplicateCampaignTemplateArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDuplicateCmsPageArgs = {
   id: Scalars['ID']['input'];
   path: Scalars['String']['input'];
@@ -9760,6 +10246,13 @@ export type MutationPublishWhatsappWorkflowArgs = {
 };
 
 
+export type MutationQueueCampaignSendArgs = {
+  audienceListId: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+
 export type MutationReceivePurchaseOrderArgs = {
   id: Scalars['ID']['input'];
   lines: Array<PurchaseReceiptLineInput>;
@@ -9778,6 +10271,12 @@ export type MutationRecordStockMovementArgs = {
 
 export type MutationRecordWhatsappDemoEventsArgs = {
   events: Array<WhatsappDemoEventInput>;
+};
+
+
+export type MutationRemoveMarketingSuppressionArgs = {
+  id: Scalars['ID']['input'];
+  justification: Scalars['String']['input'];
 };
 
 
@@ -9833,8 +10332,19 @@ export type MutationResetUserPasswordArgs = {
 };
 
 
+export type MutationRestoreCampaignTemplateVersionArgs = {
+  templateId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+
 export type MutationRestoreCmsPageRevisionArgs = {
   revisionId: Scalars['ID']['input'];
+};
+
+
+export type MutationRetryCampaignFailuresArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -9943,6 +10453,19 @@ export type MutationSaveCallingBotScenarioFlowArgs = {
 };
 
 
+export type MutationSaveCampaignDraftArgs = {
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: CampaignDraftInput;
+};
+
+
+export type MutationSaveCampaignTemplateArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: CampaignTemplateInput;
+};
+
+
 export type MutationSaveCmsFragmentDraftArgs = {
   draft: CmsDraftInput;
   id: Scalars['ID']['input'];
@@ -9968,6 +10491,11 @@ export type MutationSaveGmailConfigArgs = {
 
 export type MutationSaveGoogleSignInConfigArgs = {
   input: GoogleSignInConfigInput;
+};
+
+
+export type MutationSaveMarketingFooterArgs = {
+  input: MarketingFooterInput;
 };
 
 
@@ -10014,10 +10542,11 @@ export type MutationScrapeWebsiteArgs = {
 };
 
 
-export type MutationSendCampaignArgs = {
-  audienceListId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationSendCampaignTestArgs = {
   id: Scalars['ID']['input'];
-  testEmail?: InputMaybe<Scalars['String']['input']>;
+  recordId?: InputMaybe<Scalars['String']['input']>;
+  recordKind?: InputMaybe<PreviewRecordKind>;
+  to: Scalars['String']['input'];
 };
 
 
@@ -10175,6 +10704,12 @@ export type MutationSetGmailAccountEnabledArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetMarketingSuppressionArchivedArgs = {
+  archived: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -10846,6 +11381,13 @@ export type MutationUpdateEmailFragmentArgs = {
 };
 
 
+export type MutationUpdateEmailPreferencesArgs = {
+  optedOutCategoryIds: Array<Scalars['String']['input']>;
+  token: Scalars['String']['input'];
+  unsubscribeAll: Scalars['Boolean']['input'];
+};
+
+
 export type MutationUpdateEmailTemplateArgs = {
   id: Scalars['ID']['input'];
   input: EmailTemplateInput;
@@ -11079,9 +11621,9 @@ export type MutationUpdateManagementReviewArgs = {
 };
 
 
-export type MutationUpdateMarketingSuppressionArgs = {
+export type MutationUpdateMarketingSuppressionNoteArgs = {
   id: Scalars['ID']['input'];
-  input: MarketingSuppressionInput;
+  note: Scalars['String']['input'];
 };
 
 
@@ -11188,6 +11730,12 @@ export type MutationUpdatePolicyArgs = {
 export type MutationUpdatePositionArgs = {
   id: Scalars['ID']['input'];
   input: PositionInput;
+};
+
+
+export type MutationUpdatePreferenceCategoryArgs = {
+  id: Scalars['ID']['input'];
+  input: PreferenceCategoryInput;
 };
 
 
@@ -12452,6 +13000,52 @@ export type PositionInput = {
   name: Scalars['String']['input'];
 };
 
+/** A kind of marketing email recipients can turn off. */
+export type PreferenceCategory = {
+  __typename?: 'PreferenceCategory';
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PreferenceCategoryInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  sortOrder?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type PreferenceCategoryPage = {
+  __typename?: 'PreferenceCategoryPage';
+  rows: Array<PreferenceCategory>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type PreviewRecipient = {
+  __typename?: 'PreviewRecipient';
+  email: Scalars['String']['output'];
+  kind: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+export enum PreviewRecordKind {
+  Company = 'COMPANY',
+  Contact = 'CONTACT'
+}
+
+/** A record to preview as. */
+export type PreviewRecordOption = {
+  __typename?: 'PreviewRecordOption';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: PreviewRecordKind;
+  name: Scalars['String']['output'];
+};
+
 export enum ProblemCategory {
   Data = 'DATA',
   Login = 'LOGIN',
@@ -12880,6 +13474,15 @@ export type PublicBookingPage = {
   organizationSlug: Scalars['String']['output'];
 };
 
+/** The public preference page's view of one recipient. The address is masked. */
+export type PublicEmailPreferences = {
+  __typename?: 'PublicEmailPreferences';
+  categories: Array<PublicPreferenceCategory>;
+  email: Scalars['String']['output'];
+  preview: Scalars['Boolean']['output'];
+  unsubscribedAll: Scalars['Boolean']['output'];
+};
+
 /** What the public booking page shows before anything is booked. */
 export type PublicMeeting = {
   __typename?: 'PublicMeeting';
@@ -12908,6 +13511,15 @@ export type PublicPolicy = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   version: Scalars['Int']['output'];
+};
+
+/** A category on the public preference page. */
+export type PublicPreferenceCategory = {
+  __typename?: 'PublicPreferenceCategory';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  subscribed: Scalars['Boolean']['output'];
 };
 
 /** What a public ticket link shows. No comments, history, attachments or ids. */
@@ -13002,6 +13614,14 @@ export type PurchaseReceiptLineInput = {
   quantity: Scalars['Int']['input'];
 };
 
+export type QualityCheck = {
+  __typename?: 'QualityCheck';
+  code: Scalars['String']['output'];
+  line?: Maybe<Scalars['Int']['output']>;
+  message: Scalars['String']['output'];
+  severity: CheckSeverity;
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -13028,8 +13648,12 @@ export type Query = {
   assetAssignments: Array<AssetAssignment>;
   /** HR/ADMIN: a specific employee's attendance records. */
   attendanceByEmployee: Array<Attendance>;
-  /** Who an audience currently reaches: named members plus its segment, de-duplicated. */
-  audienceMembers: Array<AudienceMember>;
+  /** The fields audience rules can test, and the address labels in use. */
+  audienceFilterCatalogue: AudienceFilterCatalogue;
+  /** The values in use for a text or tag field, for the rule builder's suggestions. */
+  audienceFilterValues: Array<Scalars['String']['output']>;
+  /** What a saved audience reaches now, honouring its fixed snapshot — for a campaign's preference category when given. */
+  audienceResolution: AudienceResolution;
   /** TECH: every background loop, with what its last pass did. */
   backgroundJobs: Array<BackgroundJob>;
   branding: Branding;
@@ -13048,15 +13672,18 @@ export type Query = {
   callingBotScenarioOptions: Array<CallingBotScenarioOption>;
   /** Every example call, for Tech. */
   callingBotScenarios: Array<CallingBotScenario>;
+  campaignDeliveryStats: CampaignDeliveryStats;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
   /** Campaigns as pickable options, so a lead can be attributed to one. CRM may read these. */
   campaignOptions: Array<CampaignOption>;
-  /** The first member's copy, rendered by the same code the send uses. Null for an empty audience. */
-  campaignPreview?: Maybe<CampaignPreview>;
+  campaignQualityChecks: CampaignQualityReport;
+  campaignRevisions: Array<CampaignRevision>;
   /** Sent, failed and skipped counts for one campaign. */
   campaignSendSummary: CampaignSendSummary;
+  campaignStudioOptions: CampaignStudioOptions;
+  campaignTemplateVersions: Array<CampaignTemplateVersion>;
   campaignTopLinks: Array<CampaignLinkStat>;
   /**
    * Whether the caller may export this module. Asked once before an export starts
@@ -13157,6 +13784,8 @@ export type Query = {
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
+  /** Public: a recipient's choices, by the token in their email. */
+  emailPreferences: PublicEmailPreferences;
   emailVerificationBatches: Array<EmailVerificationBatch>;
   emailVerificationsPaged: EmailVerificationPage;
   emailVerifierConfigs: Array<EmailVerifierConfig>;
@@ -13231,6 +13860,7 @@ export type Query = {
   getPerformanceReview: PerformanceReview;
   getPolicy: Policy;
   getPosition: Position;
+  getPreferenceCategory: PreferenceCategory;
   getProblemReport: ProblemReport;
   getProduct: Product;
   getProject: Project;
@@ -13347,6 +13977,7 @@ export type Query = {
   listBugsStats: TableStats;
   /** Every recipient of a campaign's sends, newest first. */
   listCampaignSends: Array<CampaignSend>;
+  listCampaignTemplates: Array<CampaignTemplate>;
   listCampaigns: Array<Campaign>;
   listCampaignsPaged: CampaignPage;
   listCampaignsStats: TableStats;
@@ -13528,6 +14159,8 @@ export type Query = {
   listPoliciesStats: TableStats;
   /** HR/ADMIN: job positions / designations. */
   listPositions: Array<Position>;
+  listPreferenceCategories: Array<PreferenceCategory>;
+  listPreferenceCategoriesPaged: PreferenceCategoryPage;
   listProblemReports: Array<ProblemReport>;
   listProblemReportsPaged: ProblemReportPage;
   listProblemReportsStats: TableStats;
@@ -13633,6 +14266,12 @@ export type Query = {
   localeBundle: LocaleBundle;
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
+  marketingDashboard: MarketingDashboard;
+  marketingFooter: MarketingFooter;
+  /** Every recorded change to an address, newest first — kept after a removal too. */
+  marketingSuppressionHistory: Array<AuditLog>;
+  marketingSuppressionLookup: MarketingSuppressionLookup;
+  marketingSuppressionSummary: MarketingSuppressionSummary;
   me: User;
   /** The path of this company's booking page inside its CRM address: /book/<page>. */
   meetingBookingPagePath: Scalars['String']['output'];
@@ -13744,10 +14383,15 @@ export type Query = {
   platformAnalytics: PlatformAnalytics;
   /** Who has signed a policy, newest first. */
   policyAcknowledgements: Array<PolicyAcknowledgement>;
+  /** What an unsaved audience would reach, always resolved live. */
+  previewAudience: AudienceResolution;
+  previewCampaignContent: CampaignPreviewResult;
   /** Renders a stored template with the values given, through the very code that sends it. */
   previewEmailTemplate: EmailPreview;
   /** Read-only: which of these leads are already CRM companies, and what extra details each would add. */
   previewLeadImport: Array<LeadImportPreview>;
+  /** Contacts and companies matching a search, to preview the email as one of them. */
+  previewRecordOptions: Array<PreviewRecordOption>;
   /** HR/ADMIN: active employees whose probation ends inside the next N days, soonest first. */
   probationsEnding: Array<User>;
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
@@ -13908,6 +14552,7 @@ export type Query = {
   teamPerformanceReviews: Array<PerformanceReview>;
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
+  techEmailTemplateOptions: Array<TechEmailTemplateOption>;
   trackerAccessList: Array<TrackerAccess>;
   /**
    * Billing for tracked time over a range. Active time only — idle minutes are time at a
@@ -14026,7 +14671,13 @@ export type QueryAttendanceByEmployeeArgs = {
 };
 
 
-export type QueryAudienceMembersArgs = {
+export type QueryAudienceFilterValuesArgs = {
+  field: Scalars['String']['input'];
+};
+
+
+export type QueryAudienceResolutionArgs = {
+  categoryId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
 };
 
@@ -14047,19 +14698,34 @@ export type QueryCallingBotRecentCallsArgs = {
 };
 
 
+export type QueryCampaignDeliveryStatsArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
 export type QueryCampaignMetricsArgs = {
   campaignId: Scalars['ID']['input'];
 };
 
 
-export type QueryCampaignPreviewArgs = {
-  audienceListId: Scalars['ID']['input'];
+export type QueryCampaignQualityChecksArgs = {
+  audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCampaignRevisionsArgs = {
+  campaignId: Scalars['ID']['input'];
 };
 
 
 export type QueryCampaignSendSummaryArgs = {
   campaignId: Scalars['ID']['input'];
+};
+
+
+export type QueryCampaignTemplateVersionsArgs = {
+  templateId: Scalars['ID']['input'];
 };
 
 
@@ -14284,6 +14950,11 @@ export type QueryDockerContainerDetailArgs = {
 
 export type QueryEmailDashboardArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryEmailPreferencesArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -14604,6 +15275,11 @@ export type QueryGetPolicyArgs = {
 
 
 export type QueryGetPositionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPreferenceCategoryArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -15113,6 +15789,11 @@ export type QueryListPoliciesPagedArgs = {
 };
 
 
+export type QueryListPreferenceCategoriesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListProblemReportsPagedArgs = {
   input: TableQueryInput;
 };
@@ -15263,6 +15944,16 @@ export type QueryLocaleBundleArgs = {
 };
 
 
+export type QueryMarketingSuppressionHistoryArgs = {
+  email: Scalars['String']['input'];
+};
+
+
+export type QueryMarketingSuppressionLookupArgs = {
+  email: Scalars['String']['input'];
+};
+
+
 export type QueryMeetingBookingsArgs = {
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
@@ -15370,6 +16061,16 @@ export type QueryPolicyAcknowledgementsArgs = {
 };
 
 
+export type QueryPreviewAudienceArgs = {
+  input: AudienceListInput;
+};
+
+
+export type QueryPreviewCampaignContentArgs = {
+  input: CampaignPreviewInput;
+};
+
+
 export type QueryPreviewEmailTemplateArgs = {
   key: Scalars['String']['input'];
   variables?: InputMaybe<Array<EmailVariableInput>>;
@@ -15378,6 +16079,11 @@ export type QueryPreviewEmailTemplateArgs = {
 
 export type QueryPreviewLeadImportArgs = {
   leads: Array<LeadImportInput>;
+};
+
+
+export type QueryPreviewRecordOptionsArgs = {
+  search: Scalars['String']['input'];
 };
 
 
@@ -17420,11 +18126,39 @@ export type SupportTicketPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-/** Why an address is on the marketing suppression list. */
+/** A contact or company holding a suppressed address, with all of its addresses. */
+export type SuppressionLink = {
+  __typename?: 'SuppressionLink';
+  emails: Array<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  kind: AudienceRecordKind;
+  name: Scalars['String']['output'];
+};
+
+/** What wrote the row, set by the server from the action — never chosen. */
+export enum SuppressionOrigin {
+  Admin = 'ADMIN',
+  Api = 'API',
+  Campaign = 'CAMPAIGN',
+  Crm = 'CRM',
+  Import = 'IMPORT',
+  Subscriber = 'SUBSCRIBER',
+  System = 'SYSTEM'
+}
+
+/** Why an address is on the marketing suppression list. BOUNCED is a hard bounce. */
 export enum SuppressionReason {
   Bounced = 'BOUNCED',
+  DoNotContact = 'DO_NOT_CONTACT',
   Manual = 'MANUAL',
+  Other = 'OTHER',
+  SpamComplaint = 'SPAM_COMPLAINT',
   Unsubscribed = 'UNSUBSCRIBED'
+}
+
+/** What a suppression stops: all of the organization's marketing, never transactional mail. */
+export enum SuppressionScope {
+  OrganizationMarketing = 'ORGANIZATION_MARKETING'
 }
 
 export type SystemHealth = {
@@ -17881,6 +18615,14 @@ export type TeamPage = {
   __typename?: 'TeamPage';
   rows: Array<Team>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** A Tech > Email template offered as a starting point. */
+export type TechEmailTemplateOption = {
+  __typename?: 'TechEmailTemplateOption';
+  key: Scalars['String']['output'];
+  mjml: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
@@ -20226,6 +20968,89 @@ export type GetAssetQueryVariables = Exact<{
 
 
 export type GetAssetQuery = { __typename?: 'Query', getAsset: { __typename?: 'Asset', id: string, assetTag: string, name: string, category: AssetCategory, status: AssetStatus, manufacturer: string, modelName: string, serialNumber: string, assignedToId: string, assignedToName: string, location: string, purchaseDate?: string | null, warrantyExpiry?: string | null, purchaseCost: number, notes: string, installedSoftware: Array<string>, edrStatus: AssetEdrStatus, edrCheckedAt?: string | null } };
+
+export type AudienceListFieldsFragment = { __typename?: 'AudienceList', id: string, name: string, description: string, recipientSource: AudienceRecipientSource, companyEmailSource: AudienceCompanyEmailSource, emailSelection: AudienceEmailSelection, emailTypes: Array<string>, updateMode: AudienceUpdateMode, ruleCombinator: AudienceRuleCombinator, clientIds: Array<string>, contactIds: Array<string>, companyIds: Array<string>, allActiveClients: boolean, excludedEmails: Array<string>, snapshotAt?: string | null, updatedAt: string, conditions: Array<{ __typename?: 'AudienceCondition', field: string, operator: AudienceRuleOperator, value: string }> };
+
+export type AudienceCountsFieldsFragment = { __typename?: 'AudienceCounts', contacts: number, companies: number, clients: number, recordsWithoutEmail: number, rawEmails: number, duplicates: number, uniqueEmails: number, invalid: number, suppressed: number, optedOut: number, excluded: number, eligible: number };
+
+export type AudienceRecipientFieldsFragment = { __typename?: 'AudienceRecipient', email: string, name: string, company: string, label: string, verification: string, exclusion?: AudienceExclusionReason | null, sources: Array<{ __typename?: 'AudienceRecipientOrigin', kind: AudienceRecordKind, id: string, name: string, via: AudienceRecordVia }> };
+
+export type ListAudienceListsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListAudienceListsQuery = { __typename?: 'Query', listAudienceLists: Array<{ __typename?: 'AudienceList', id: string, name: string, description: string, recipientSource: AudienceRecipientSource, companyEmailSource: AudienceCompanyEmailSource, emailSelection: AudienceEmailSelection, emailTypes: Array<string>, updateMode: AudienceUpdateMode, ruleCombinator: AudienceRuleCombinator, clientIds: Array<string>, contactIds: Array<string>, companyIds: Array<string>, allActiveClients: boolean, excludedEmails: Array<string>, snapshotAt?: string | null, updatedAt: string, conditions: Array<{ __typename?: 'AudienceCondition', field: string, operator: AudienceRuleOperator, value: string }> }> };
+
+export type ListAudienceListsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListAudienceListsPagedQuery = { __typename?: 'Query', listAudienceListsPaged: { __typename?: 'AudienceListPage', totalCount: number, rows: Array<{ __typename?: 'AudienceList', id: string, name: string, description: string, recipientSource: AudienceRecipientSource, companyEmailSource: AudienceCompanyEmailSource, emailSelection: AudienceEmailSelection, emailTypes: Array<string>, updateMode: AudienceUpdateMode, ruleCombinator: AudienceRuleCombinator, clientIds: Array<string>, contactIds: Array<string>, companyIds: Array<string>, allActiveClients: boolean, excludedEmails: Array<string>, snapshotAt?: string | null, updatedAt: string, conditions: Array<{ __typename?: 'AudienceCondition', field: string, operator: AudienceRuleOperator, value: string }> }> } };
+
+export type AudienceFilterCatalogueQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AudienceFilterCatalogueQuery = { __typename?: 'Query', audienceFilterCatalogue: { __typename?: 'AudienceFilterCatalogue', emailTypes: Array<string>, fields: Array<{ __typename?: 'AudienceFilterField', key: string, label: string, entity: AudienceFilterEntity, kind: AudienceFilterKind, operators: Array<AudienceRuleOperator>, values: Array<string> }> } };
+
+export type AudienceFilterValuesQueryVariables = Exact<{
+  field: Scalars['String']['input'];
+}>;
+
+
+export type AudienceFilterValuesQuery = { __typename?: 'Query', audienceFilterValues: Array<string> };
+
+export type PreviewAudienceCountsQueryVariables = Exact<{
+  input: AudienceListInput;
+}>;
+
+
+export type PreviewAudienceCountsQuery = { __typename?: 'Query', previewAudience: { __typename?: 'AudienceResolution', resolvedAt: string, counts: { __typename?: 'AudienceCounts', contacts: number, companies: number, clients: number, recordsWithoutEmail: number, rawEmails: number, duplicates: number, uniqueEmails: number, invalid: number, suppressed: number, optedOut: number, excluded: number, eligible: number } } };
+
+export type PreviewAudienceRecipientsQueryVariables = Exact<{
+  input: AudienceListInput;
+  page: TableQueryInput;
+}>;
+
+
+export type PreviewAudienceRecipientsQuery = { __typename?: 'Query', previewAudience: { __typename?: 'AudienceResolution', resolvedAt: string, recipients: { __typename?: 'AudienceRecipientPage', totalCount: number, rows: Array<{ __typename?: 'AudienceRecipient', email: string, name: string, company: string, label: string, verification: string, exclusion?: AudienceExclusionReason | null, sources: Array<{ __typename?: 'AudienceRecipientOrigin', kind: AudienceRecordKind, id: string, name: string, via: AudienceRecordVia }> }> } } };
+
+export type AudienceResolutionCountsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type AudienceResolutionCountsQuery = { __typename?: 'Query', audienceResolution: { __typename?: 'AudienceResolution', resolvedAt: string, counts: { __typename?: 'AudienceCounts', contacts: number, companies: number, clients: number, recordsWithoutEmail: number, rawEmails: number, duplicates: number, uniqueEmails: number, invalid: number, suppressed: number, optedOut: number, excluded: number, eligible: number } } };
+
+export type AudienceResolutionRecipientsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  page: TableQueryInput;
+}>;
+
+
+export type AudienceResolutionRecipientsQuery = { __typename?: 'Query', audienceResolution: { __typename?: 'AudienceResolution', resolvedAt: string, recipients: { __typename?: 'AudienceRecipientPage', totalCount: number, rows: Array<{ __typename?: 'AudienceRecipient', email: string, name: string, company: string, label: string, verification: string, exclusion?: AudienceExclusionReason | null, sources: Array<{ __typename?: 'AudienceRecipientOrigin', kind: AudienceRecordKind, id: string, name: string, via: AudienceRecordVia }> }> } } };
+
+export type CreateAudienceListMutationVariables = Exact<{
+  input: AudienceListInput;
+}>;
+
+
+export type CreateAudienceListMutation = { __typename?: 'Mutation', createAudienceList: { __typename?: 'AudienceList', id: string } };
+
+export type UpdateAudienceListMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: AudienceListInput;
+}>;
+
+
+export type UpdateAudienceListMutation = { __typename?: 'Mutation', updateAudienceList: { __typename?: 'AudienceList', id: string } };
+
+export type DeleteAudienceListMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAudienceListMutation = { __typename?: 'Mutation', deleteAudienceList: boolean };
 
 export type AuditLogRowFragment = { __typename?: 'AuditLog', id: string, actorId: string, actorName: string, actorEmail: string, action: AuditAction, module: string, entityId: string, entityLabel: string, summary: string, changes: string, ip: string, createdAt: string };
 
@@ -24253,19 +25078,19 @@ export type DeleteAppLogGroupMutationVariables = Exact<{
 
 export type DeleteAppLogGroupMutation = { __typename?: 'Mutation', deleteAppLogGroup: boolean };
 
-export type CampaignFieldsFragment = { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null };
+export type CampaignFieldsFragment = { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string };
 
 export type ListCampaignsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCampaignsQuery = { __typename?: 'Query', listCampaigns: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null }> };
+export type ListCampaignsQuery = { __typename?: 'Query', listCampaigns: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string }> };
 
 export type ListCampaignsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCampaignsPagedQuery = { __typename?: 'Query', listCampaignsPaged: { __typename?: 'CampaignPage', totalCount: number, rows: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null }> } };
+export type ListCampaignsPagedQuery = { __typename?: 'Query', listCampaignsPaged: { __typename?: 'CampaignPage', totalCount: number, rows: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string }> } };
 
 export type ListCampaignsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24294,23 +25119,6 @@ export type DeleteCampaignMutationVariables = Exact<{
 
 export type DeleteCampaignMutation = { __typename?: 'Mutation', deleteCampaign: boolean };
 
-export type SendCampaignMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  audienceListId?: InputMaybe<Scalars['ID']['input']>;
-  testEmail?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type SendCampaignMutation = { __typename?: 'Mutation', sendCampaign: { __typename?: 'CampaignSendResult', sent: number, failed: number, skipped: number, campaign: { __typename?: 'Campaign', id: string, lastSentAt?: string | null, recipientsCount?: number | null } } };
-
-export type CampaignPreviewQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  audienceListId: Scalars['ID']['input'];
-}>;
-
-
-export type CampaignPreviewQuery = { __typename?: 'Query', campaignPreview?: { __typename?: 'CampaignPreview', recipient: string, subject: string, body: string } | null };
-
 export type CampaignSendSummaryQueryVariables = Exact<{
   campaignId: Scalars['ID']['input'];
 }>;
@@ -24335,91 +25143,12 @@ export type CampaignLeadCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CampaignLeadCountsQuery = { __typename?: 'Query', campaignLeadCounts: Array<{ __typename?: 'CampaignLeadCount', campaignId: string, campaignName: string, leads: number }> };
 
-export type AudienceListFieldsFragment = { __typename?: 'AudienceList', id: string, name: string, description: string, clientIds: Array<string>, contactIds: Array<string>, dynamicSegment: AudienceSegment, segmentValue: string };
-
-export type AudienceMembersQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type AudienceMembersQuery = { __typename?: 'Query', audienceMembers: Array<{ __typename?: 'AudienceMember', id: string, email: string, name: string, company: string, status: string, kind: AudienceMemberKind }> };
-
-export type ListAudienceListsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ListAudienceListsQuery = { __typename?: 'Query', listAudienceLists: Array<{ __typename?: 'AudienceList', id: string, name: string, description: string, clientIds: Array<string>, contactIds: Array<string>, dynamicSegment: AudienceSegment, segmentValue: string }> };
-
-export type ListAudienceListsPagedQueryVariables = Exact<{
-  input: TableQueryInput;
-}>;
-
-
-export type ListAudienceListsPagedQuery = { __typename?: 'Query', listAudienceListsPaged: { __typename?: 'AudienceListPage', totalCount: number, rows: Array<{ __typename?: 'AudienceList', id: string, name: string, description: string, clientIds: Array<string>, contactIds: Array<string>, dynamicSegment: AudienceSegment, segmentValue: string }> } };
-
-export type CreateAudienceListMutationVariables = Exact<{
-  input: AudienceListInput;
-}>;
-
-
-export type CreateAudienceListMutation = { __typename?: 'Mutation', createAudienceList: { __typename?: 'AudienceList', id: string } };
-
-export type UpdateAudienceListMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  input: AudienceListInput;
-}>;
-
-
-export type UpdateAudienceListMutation = { __typename?: 'Mutation', updateAudienceList: { __typename?: 'AudienceList', id: string } };
-
-export type DeleteAudienceListMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type DeleteAudienceListMutation = { __typename?: 'Mutation', deleteAudienceList: boolean };
-
 export type ListCampaignSendsQueryVariables = Exact<{
   campaignId: Scalars['ID']['input'];
 }>;
 
 
 export type ListCampaignSendsQuery = { __typename?: 'Query', listCampaignSends: Array<{ __typename?: 'CampaignSend', id: string, to: string, recipientName: string, status: CampaignSendStatus, error: string, sentAt: string }> };
-
-export type MarketingSuppressionFieldsFragment = { __typename?: 'MarketingSuppression', id: string, email: string, reason: SuppressionReason, source: string, createdAt: string };
-
-export type ListMarketingSuppressionsPagedQueryVariables = Exact<{
-  input: TableQueryInput;
-}>;
-
-
-export type ListMarketingSuppressionsPagedQuery = { __typename?: 'Query', listMarketingSuppressionsPaged: { __typename?: 'MarketingSuppressionPage', totalCount: number, rows: Array<{ __typename?: 'MarketingSuppression', id: string, email: string, reason: SuppressionReason, source: string, createdAt: string }> } };
-
-export type ListMarketingSuppressionsStatsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ListMarketingSuppressionsStatsQuery = { __typename?: 'Query', listMarketingSuppressionsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
-
-export type CreateMarketingSuppressionMutationVariables = Exact<{
-  input: MarketingSuppressionInput;
-}>;
-
-
-export type CreateMarketingSuppressionMutation = { __typename?: 'Mutation', createMarketingSuppression: { __typename?: 'MarketingSuppression', id: string } };
-
-export type UpdateMarketingSuppressionMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  input: MarketingSuppressionInput;
-}>;
-
-
-export type UpdateMarketingSuppressionMutation = { __typename?: 'Mutation', updateMarketingSuppression: { __typename?: 'MarketingSuppression', id: string } };
-
-export type DeleteMarketingSuppressionMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type DeleteMarketingSuppressionMutation = { __typename?: 'Mutation', deleteMarketingSuppression: boolean };
 
 export type UnsubscribeFromMarketingMutationVariables = Exact<{
   token: Scalars['String']['input'];
@@ -26520,6 +27249,213 @@ export type DeleteStatusMaintenanceMutationVariables = Exact<{
 
 export type DeleteStatusMaintenanceMutation = { __typename?: 'Mutation', deleteStatusMaintenance: boolean };
 
+export type QualityCheckFieldsFragment = { __typename?: 'QualityCheck', code: string, severity: CheckSeverity, message: string, line?: number | null };
+
+export type CampaignTemplateFieldsFragment = { __typename?: 'CampaignTemplate', id: string, name: string, category: string, description: string, editorMode: EditorMode, blocks: any, mjml: string, version: number, updatedByName: string, updatedAt: string };
+
+export type PreferenceCategoryFieldsFragment = { __typename?: 'PreferenceCategory', id: string, name: string, description: string, isActive: boolean, sortOrder: number };
+
+export type PublicEmailPreferencesFieldsFragment = { __typename?: 'PublicEmailPreferences', email: string, preview: boolean, unsubscribedAll: boolean, categories: Array<{ __typename?: 'PublicPreferenceCategory', id: string, name: string, description: string, subscribed: boolean }> };
+
+export type CampaignStudioOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CampaignStudioOptionsQuery = { __typename?: 'Query', campaignStudioOptions: { __typename?: 'CampaignStudioOptions', verifiedSenders: Array<string>, variables: Array<{ __typename?: 'CampaignVariable', key: string, group: string, label: string, description: string, example: string }>, categories: Array<{ __typename?: 'PreferenceCategory', id: string, name: string, description: string, isActive: boolean, sortOrder: number }> } };
+
+export type PreviewCampaignContentQueryVariables = Exact<{
+  input: CampaignPreviewInput;
+}>;
+
+
+export type PreviewCampaignContentQuery = { __typename?: 'Query', previewCampaignContent: { __typename?: 'CampaignPreviewResult', subject: string, preheader: string, html: string, text: string, missingVariables: Array<string>, issues: Array<{ __typename?: 'MjmlIssue', line: number, message: string }>, recipient: { __typename?: 'PreviewRecipient', kind: string, name: string, email: string } } };
+
+export type CampaignQualityChecksQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  audienceListId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type CampaignQualityChecksQuery = { __typename?: 'Query', campaignQualityChecks: { __typename?: 'CampaignQualityReport', canSend: boolean, checks: Array<{ __typename?: 'QualityCheck', code: string, severity: CheckSeverity, message: string, line?: number | null }>, counts?: { __typename?: 'AudienceCounts', contacts: number, companies: number, clients: number, recordsWithoutEmail: number, rawEmails: number, duplicates: number, uniqueEmails: number, invalid: number, suppressed: number, optedOut: number, excluded: number, eligible: number } | null } };
+
+export type PreviewRecordOptionsQueryVariables = Exact<{
+  search: Scalars['String']['input'];
+}>;
+
+
+export type PreviewRecordOptionsQuery = { __typename?: 'Query', previewRecordOptions: Array<{ __typename?: 'PreviewRecordOption', kind: PreviewRecordKind, id: string, name: string, email: string }> };
+
+export type CampaignRevisionsQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input'];
+}>;
+
+
+export type CampaignRevisionsQuery = { __typename?: 'Query', campaignRevisions: Array<{ __typename?: 'CampaignRevision', id: string, version: number, subject: string, createdByName: string, createdAt: string }> };
+
+export type CampaignDeliveryStatsQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input'];
+}>;
+
+
+export type CampaignDeliveryStatsQuery = { __typename?: 'Query', campaignDeliveryStats: { __typename?: 'CampaignDeliveryStats', runId: string, sendState: CampaignSendState, scheduledAt?: string | null, lastSentAt?: string | null, resolved: number, eligible: number, queued: number, sent: number, failed: number, skipped: number, bounced?: number | null, unsubscribed: number, preferenceChanges: number, clicked: number, estimatedOpens: number, clickRate: number } };
+
+export type MarketingDashboardQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarketingDashboardQuery = { __typename?: 'Query', marketingDashboard: { __typename?: 'MarketingDashboard', campaigns: number, drafts: number, scheduled: number, sending: number, sentLast30: number, failedLast30: number, clickedLast30: number, clickRateLast30: number, unsubscribesLast30: number, suppressed: number, audiences: number, upcoming: Array<{ __typename?: 'DashboardCampaign', id: string, name: string, at?: string | null }>, recent: Array<{ __typename?: 'DashboardCampaign', id: string, name: string, at?: string | null, recipients?: number | null, sendState?: CampaignSendState | null }>, daily: Array<{ __typename?: 'DashboardDay', day: string, sent: number }> } };
+
+export type ListCampaignTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCampaignTemplatesQuery = { __typename?: 'Query', listCampaignTemplates: Array<{ __typename?: 'CampaignTemplate', id: string, name: string, category: string, description: string, editorMode: EditorMode, blocks: any, mjml: string, version: number, updatedByName: string, updatedAt: string }> };
+
+export type CampaignTemplateVersionsQueryVariables = Exact<{
+  templateId: Scalars['ID']['input'];
+}>;
+
+
+export type CampaignTemplateVersionsQuery = { __typename?: 'Query', campaignTemplateVersions: Array<{ __typename?: 'CampaignTemplateVersion', id: string, version: number, note: string, createdByName: string, createdAt: string }> };
+
+export type TechEmailTemplateOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TechEmailTemplateOptionsQuery = { __typename?: 'Query', techEmailTemplateOptions: Array<{ __typename?: 'TechEmailTemplateOption', key: string, name: string, mjml: string }> };
+
+export type ListPreferenceCategoriesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListPreferenceCategoriesPagedQuery = { __typename?: 'Query', listPreferenceCategoriesPaged: { __typename?: 'PreferenceCategoryPage', totalCount: number, rows: Array<{ __typename?: 'PreferenceCategory', id: string, name: string, description: string, isActive: boolean, sortOrder: number }> } };
+
+export type MarketingFooterQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarketingFooterQuery = { __typename?: 'Query', marketingFooter: { __typename?: 'MarketingFooter', companyName: string, contactLine: string, postalAddress: string, privacyUrl: string, websiteUrl: string, textColor: string, linkColor: string } };
+
+export type EmailPreferencesQueryVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+
+export type EmailPreferencesQuery = { __typename?: 'Query', emailPreferences: { __typename?: 'PublicEmailPreferences', email: string, preview: boolean, unsubscribedAll: boolean, categories: Array<{ __typename?: 'PublicPreferenceCategory', id: string, name: string, description: string, subscribed: boolean }> } };
+
+export type SaveCampaignDraftMutationVariables = Exact<{
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: CampaignDraftInput;
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type SaveCampaignDraftMutation = { __typename?: 'Mutation', saveCampaignDraft: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+
+export type QueueCampaignSendMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  audienceListId: Scalars['ID']['input'];
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+}>;
+
+
+export type QueueCampaignSendMutation = { __typename?: 'Mutation', queueCampaignSend: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+
+export type CancelCampaignSendMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CancelCampaignSendMutation = { __typename?: 'Mutation', cancelCampaignSend: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+
+export type RetryCampaignFailuresMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RetryCampaignFailuresMutation = { __typename?: 'Mutation', retryCampaignFailures: { __typename?: 'CampaignSendSummary', sent: number, failed: number, skipped: number } };
+
+export type SendCampaignTestMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  to: Scalars['String']['input'];
+  recordKind?: InputMaybe<PreviewRecordKind>;
+  recordId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SendCampaignTestMutation = { __typename?: 'Mutation', sendCampaignTest: boolean };
+
+export type SaveCampaignTemplateMutationVariables = Exact<{
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: CampaignTemplateInput;
+}>;
+
+
+export type SaveCampaignTemplateMutation = { __typename?: 'Mutation', saveCampaignTemplate: { __typename?: 'CampaignTemplate', id: string, name: string, category: string, description: string, editorMode: EditorMode, blocks: any, mjml: string, version: number, updatedByName: string, updatedAt: string } };
+
+export type DuplicateCampaignTemplateMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DuplicateCampaignTemplateMutation = { __typename?: 'Mutation', duplicateCampaignTemplate: { __typename?: 'CampaignTemplate', id: string } };
+
+export type RestoreCampaignTemplateVersionMutationVariables = Exact<{
+  templateId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+}>;
+
+
+export type RestoreCampaignTemplateVersionMutation = { __typename?: 'Mutation', restoreCampaignTemplateVersion: { __typename?: 'CampaignTemplate', id: string, name: string, category: string, description: string, editorMode: EditorMode, blocks: any, mjml: string, version: number, updatedByName: string, updatedAt: string } };
+
+export type DeleteCampaignTemplateMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCampaignTemplateMutation = { __typename?: 'Mutation', deleteCampaignTemplate: boolean };
+
+export type CreatePreferenceCategoryMutationVariables = Exact<{
+  input: PreferenceCategoryInput;
+}>;
+
+
+export type CreatePreferenceCategoryMutation = { __typename?: 'Mutation', createPreferenceCategory: { __typename?: 'PreferenceCategory', id: string } };
+
+export type UpdatePreferenceCategoryMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PreferenceCategoryInput;
+}>;
+
+
+export type UpdatePreferenceCategoryMutation = { __typename?: 'Mutation', updatePreferenceCategory: { __typename?: 'PreferenceCategory', id: string } };
+
+export type DeletePreferenceCategoryMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePreferenceCategoryMutation = { __typename?: 'Mutation', deletePreferenceCategory: boolean };
+
+export type SaveMarketingFooterMutationVariables = Exact<{
+  input: MarketingFooterInput;
+}>;
+
+
+export type SaveMarketingFooterMutation = { __typename?: 'Mutation', saveMarketingFooter: { __typename?: 'MarketingFooter', companyName: string } };
+
+export type UpdateEmailPreferencesMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+  optedOutCategoryIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  unsubscribeAll: Scalars['Boolean']['input'];
+}>;
+
+
+export type UpdateEmailPreferencesMutation = { __typename?: 'Mutation', updateEmailPreferences: { __typename?: 'PublicEmailPreferences', email: string, preview: boolean, unsubscribedAll: boolean, categories: Array<{ __typename?: 'PublicPreferenceCategory', id: string, name: string, description: string, subscribed: boolean }> } };
+
+export type GetCampaignQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCampaignQuery = { __typename?: 'Query', getCampaign: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+
 export type KbArticleFieldsFragment = { __typename?: 'KbArticle', id: string, title: string, slug: string, category: SupportCategory, summary: string, body: string, isPublished: boolean, updatedByName: string, updatedAt: string };
 
 export type ListKbArticlesPagedQueryVariables = Exact<{
@@ -26745,6 +27681,74 @@ export type ClientSupportTicketStatusQueryVariables = Exact<{
 
 
 export type ClientSupportTicketStatusQuery = { __typename?: 'Query', clientSupportTicketStatus?: { __typename?: 'ClientTicketStatus', reference: string, subject: string, status: SupportStatus, updatedAt: string, replies: Array<{ __typename?: 'SupportReply', id: string, body: string, authorName: string, createdAt: string }> } | null };
+
+export type SuppressionLinkFieldsFragment = { __typename?: 'SuppressionLink', kind: AudienceRecordKind, id: string, name: string, emails: Array<string> };
+
+export type MarketingSuppressionFieldsFragment = { __typename?: 'MarketingSuppression', id: string, email: string, reason: SuppressionReason, source: string, origin: SuppressionOrigin, scope: SuppressionScope, note: string, addedByName: string, archivedAt?: string | null, createdAt: string };
+
+export type ListMarketingSuppressionsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListMarketingSuppressionsPagedQuery = { __typename?: 'Query', listMarketingSuppressionsPaged: { __typename?: 'MarketingSuppressionPage', totalCount: number, rows: Array<{ __typename?: 'MarketingSuppression', id: string, email: string, reason: SuppressionReason, source: string, origin: SuppressionOrigin, scope: SuppressionScope, note: string, addedByName: string, archivedAt?: string | null, createdAt: string, linkedRecords?: Array<{ __typename?: 'SuppressionLink', kind: AudienceRecordKind, id: string, name: string, emails: Array<string> }> | null }> } };
+
+export type MarketingSuppressionSummaryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarketingSuppressionSummaryQuery = { __typename?: 'Query', marketingSuppressionSummary: { __typename?: 'MarketingSuppressionSummary', total: number, archived: number, unsubscribed: number, hardBounced: number, addedManually: number, updatedAt?: string | null } };
+
+export type MarketingSuppressionLookupQueryVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type MarketingSuppressionLookupQuery = { __typename?: 'Query', marketingSuppressionLookup: { __typename?: 'MarketingSuppressionLookup', email: string, existing?: { __typename?: 'MarketingSuppression', id: string, email: string, reason: SuppressionReason, source: string, origin: SuppressionOrigin, scope: SuppressionScope, note: string, addedByName: string, archivedAt?: string | null, createdAt: string } | null, linkedRecords: Array<{ __typename?: 'SuppressionLink', kind: AudienceRecordKind, id: string, name: string, emails: Array<string> }> } };
+
+export type MarketingSuppressionHistoryQueryVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type MarketingSuppressionHistoryQuery = { __typename?: 'Query', marketingSuppressionHistory: Array<{ __typename?: 'AuditLog', id: string, action: AuditAction, actorName: string, summary: string, createdAt: string }> };
+
+export type CreateMarketingSuppressionMutationVariables = Exact<{
+  input: MarketingSuppressionInput;
+}>;
+
+
+export type CreateMarketingSuppressionMutation = { __typename?: 'Mutation', createMarketingSuppression: { __typename?: 'MarketingSuppression', id: string } };
+
+export type AddMarketingSuppressionsMutationVariables = Exact<{
+  input: MarketingSuppressionsInput;
+}>;
+
+
+export type AddMarketingSuppressionsMutation = { __typename?: 'Mutation', addMarketingSuppressions: { __typename?: 'MarketingSuppressionsResult', added: Array<string>, alreadySuppressed: Array<string>, invalid: Array<string> } };
+
+export type UpdateMarketingSuppressionNoteMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  note: Scalars['String']['input'];
+}>;
+
+
+export type UpdateMarketingSuppressionNoteMutation = { __typename?: 'Mutation', updateMarketingSuppressionNote: { __typename?: 'MarketingSuppression', id: string, note: string } };
+
+export type SetMarketingSuppressionArchivedMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  archived: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetMarketingSuppressionArchivedMutation = { __typename?: 'Mutation', setMarketingSuppressionArchived: { __typename?: 'MarketingSuppression', id: string, archivedAt?: string | null } };
+
+export type RemoveMarketingSuppressionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  justification: Scalars['String']['input'];
+}>;
+
+
+export type RemoveMarketingSuppressionMutation = { __typename?: 'Mutation', removeMarketingSuppression: boolean };
 
 export type TableExportQueryVariables = Exact<{
   list: Scalars['String']['input'];
@@ -28315,6 +29319,63 @@ export const AssetFieldsFragmentDoc = gql`
   edrCheckedAt
 }
     `;
+export const AudienceListFieldsFragmentDoc = gql`
+    fragment AudienceListFields on AudienceList {
+  id
+  name
+  description
+  recipientSource
+  companyEmailSource
+  emailSelection
+  emailTypes
+  updateMode
+  ruleCombinator
+  conditions {
+    field
+    operator
+    value
+  }
+  clientIds
+  contactIds
+  companyIds
+  allActiveClients
+  excludedEmails
+  snapshotAt
+  updatedAt
+}
+    `;
+export const AudienceCountsFieldsFragmentDoc = gql`
+    fragment AudienceCountsFields on AudienceCounts {
+  contacts
+  companies
+  clients
+  recordsWithoutEmail
+  rawEmails
+  duplicates
+  uniqueEmails
+  invalid
+  suppressed
+  optedOut
+  excluded
+  eligible
+}
+    `;
+export const AudienceRecipientFieldsFragmentDoc = gql`
+    fragment AudienceRecipientFields on AudienceRecipient {
+  email
+  name
+  company
+  label
+  verification
+  exclusion
+  sources {
+    kind
+    id
+    name
+    via
+  }
+}
+    `;
 export const AuditLogRowFragmentDoc = gql`
     fragment AuditLogRow on AuditLog {
   id
@@ -29707,26 +30768,20 @@ export const CampaignFieldsFragmentDoc = gql`
   scheduledAt
   scheduledAudienceListId
   scheduleDispatchedAt
-}
-    `;
-export const AudienceListFieldsFragmentDoc = gql`
-    fragment AudienceListFields on AudienceList {
-  id
-  name
-  description
-  clientIds
-  contactIds
-  dynamicSegment
-  segmentValue
-}
-    `;
-export const MarketingSuppressionFieldsFragmentDoc = gql`
-    fragment MarketingSuppressionFields on MarketingSuppression {
-  id
-  email
-  reason
-  source
-  createdAt
+  campaignType
+  preferenceCategoryId
+  senderName
+  senderEmail
+  replyTo
+  preheader
+  editorMode
+  blocks
+  mjml
+  contentVersion
+  trackOpens
+  trackClicks
+  sendState
+  sendingRevisionId
 }
     `;
 export const MeetingTypeFieldsFragmentDoc = gql`
@@ -30437,6 +31492,50 @@ export const StatusMaintenanceFieldsFragmentDoc = gql`
   createdAt
 }
     `;
+export const QualityCheckFieldsFragmentDoc = gql`
+    fragment QualityCheckFields on QualityCheck {
+  code
+  severity
+  message
+  line
+}
+    `;
+export const CampaignTemplateFieldsFragmentDoc = gql`
+    fragment CampaignTemplateFields on CampaignTemplate {
+  id
+  name
+  category
+  description
+  editorMode
+  blocks
+  mjml
+  version
+  updatedByName
+  updatedAt
+}
+    `;
+export const PreferenceCategoryFieldsFragmentDoc = gql`
+    fragment PreferenceCategoryFields on PreferenceCategory {
+  id
+  name
+  description
+  isActive
+  sortOrder
+}
+    `;
+export const PublicEmailPreferencesFieldsFragmentDoc = gql`
+    fragment PublicEmailPreferencesFields on PublicEmailPreferences {
+  email
+  preview
+  unsubscribedAll
+  categories {
+    id
+    name
+    description
+    subscribed
+  }
+}
+    `;
 export const KbArticleFieldsFragmentDoc = gql`
     fragment KbArticleFields on KbArticle {
   id
@@ -30498,6 +31597,28 @@ export const SupportSlaPolicyFieldsFragmentDoc = gql`
   firstResponseMinutes
   resolutionMinutes
   active
+}
+    `;
+export const SuppressionLinkFieldsFragmentDoc = gql`
+    fragment SuppressionLinkFields on SuppressionLink {
+  kind
+  id
+  name
+  emails
+}
+    `;
+export const MarketingSuppressionFieldsFragmentDoc = gql`
+    fragment MarketingSuppressionFields on MarketingSuppression {
+  id
+  email
+  reason
+  source
+  origin
+  scope
+  note
+  addedByName
+  archivedAt
+  createdAt
 }
     `;
 export const TableBulkJobFieldsFragmentDoc = gql`
@@ -33825,6 +34946,475 @@ export function useGetAssetSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToke
 export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
 export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
 export type GetAssetSuspenseQueryHookResult = ReturnType<typeof useGetAssetSuspenseQuery>;
+export const ListAudienceListsDocument = gql`
+    query ListAudienceLists {
+  listAudienceLists {
+    ...AudienceListFields
+  }
+}
+    ${AudienceListFieldsFragmentDoc}`;
+
+/**
+ * __useListAudienceListsQuery__
+ *
+ * To run a query within a React component, call `useListAudienceListsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAudienceListsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAudienceListsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListAudienceListsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
+      }
+export function useListAudienceListsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
+        }
+// @ts-ignore
+export function useListAudienceListsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsQuery, ListAudienceListsQueryVariables>;
+// @ts-ignore
+export function useListAudienceListsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsQuery | undefined, ListAudienceListsQueryVariables>;
+export function useListAudienceListsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
+        }
+export type ListAudienceListsQueryHookResult = ReturnType<typeof useListAudienceListsQuery>;
+export type ListAudienceListsLazyQueryHookResult = ReturnType<typeof useListAudienceListsLazyQuery>;
+export type ListAudienceListsSuspenseQueryHookResult = ReturnType<typeof useListAudienceListsSuspenseQuery>;
+export const ListAudienceListsPagedDocument = gql`
+    query ListAudienceListsPaged($input: TableQueryInput!) {
+  listAudienceListsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AudienceListFields
+    }
+  }
+}
+    ${AudienceListFieldsFragmentDoc}`;
+
+/**
+ * __useListAudienceListsPagedQuery__
+ *
+ * To run a query within a React component, call `useListAudienceListsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAudienceListsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAudienceListsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListAudienceListsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables> & ({ variables: ListAudienceListsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
+      }
+export function useListAudienceListsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListAudienceListsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>;
+// @ts-ignore
+export function useListAudienceListsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsPagedQuery | undefined, ListAudienceListsPagedQueryVariables>;
+export function useListAudienceListsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
+        }
+export type ListAudienceListsPagedQueryHookResult = ReturnType<typeof useListAudienceListsPagedQuery>;
+export type ListAudienceListsPagedLazyQueryHookResult = ReturnType<typeof useListAudienceListsPagedLazyQuery>;
+export type ListAudienceListsPagedSuspenseQueryHookResult = ReturnType<typeof useListAudienceListsPagedSuspenseQuery>;
+export const AudienceFilterCatalogueDocument = gql`
+    query AudienceFilterCatalogue {
+  audienceFilterCatalogue {
+    emailTypes
+    fields {
+      key
+      label
+      entity
+      kind
+      operators
+      values
+    }
+  }
+}
+    `;
+
+/**
+ * __useAudienceFilterCatalogueQuery__
+ *
+ * To run a query within a React component, call `useAudienceFilterCatalogueQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAudienceFilterCatalogueQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAudienceFilterCatalogueQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAudienceFilterCatalogueQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>(AudienceFilterCatalogueDocument, options);
+      }
+export function useAudienceFilterCatalogueLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>(AudienceFilterCatalogueDocument, options);
+        }
+// @ts-ignore
+export function useAudienceFilterCatalogueSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>;
+// @ts-ignore
+export function useAudienceFilterCatalogueSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceFilterCatalogueQuery | undefined, AudienceFilterCatalogueQueryVariables>;
+export function useAudienceFilterCatalogueSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<AudienceFilterCatalogueQuery, AudienceFilterCatalogueQueryVariables>(AudienceFilterCatalogueDocument, options);
+        }
+export type AudienceFilterCatalogueQueryHookResult = ReturnType<typeof useAudienceFilterCatalogueQuery>;
+export type AudienceFilterCatalogueLazyQueryHookResult = ReturnType<typeof useAudienceFilterCatalogueLazyQuery>;
+export type AudienceFilterCatalogueSuspenseQueryHookResult = ReturnType<typeof useAudienceFilterCatalogueSuspenseQuery>;
+export const AudienceFilterValuesDocument = gql`
+    query AudienceFilterValues($field: String!) {
+  audienceFilterValues(field: $field)
+}
+    `;
+
+/**
+ * __useAudienceFilterValuesQuery__
+ *
+ * To run a query within a React component, call `useAudienceFilterValuesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAudienceFilterValuesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAudienceFilterValuesQuery({
+ *   variables: {
+ *      field: // value for 'field'
+ *   },
+ * });
+ */
+export function useAudienceFilterValuesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables> & ({ variables: AudienceFilterValuesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>(AudienceFilterValuesDocument, options);
+      }
+export function useAudienceFilterValuesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>(AudienceFilterValuesDocument, options);
+        }
+// @ts-ignore
+export function useAudienceFilterValuesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>;
+// @ts-ignore
+export function useAudienceFilterValuesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceFilterValuesQuery | undefined, AudienceFilterValuesQueryVariables>;
+export function useAudienceFilterValuesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<AudienceFilterValuesQuery, AudienceFilterValuesQueryVariables>(AudienceFilterValuesDocument, options);
+        }
+export type AudienceFilterValuesQueryHookResult = ReturnType<typeof useAudienceFilterValuesQuery>;
+export type AudienceFilterValuesLazyQueryHookResult = ReturnType<typeof useAudienceFilterValuesLazyQuery>;
+export type AudienceFilterValuesSuspenseQueryHookResult = ReturnType<typeof useAudienceFilterValuesSuspenseQuery>;
+export const PreviewAudienceCountsDocument = gql`
+    query PreviewAudienceCounts($input: AudienceListInput!) {
+  previewAudience(input: $input) {
+    resolvedAt
+    counts {
+      ...AudienceCountsFields
+    }
+  }
+}
+    ${AudienceCountsFieldsFragmentDoc}`;
+
+/**
+ * __usePreviewAudienceCountsQuery__
+ *
+ * To run a query within a React component, call `usePreviewAudienceCountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePreviewAudienceCountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePreviewAudienceCountsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function usePreviewAudienceCountsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables> & ({ variables: PreviewAudienceCountsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>(PreviewAudienceCountsDocument, options);
+      }
+export function usePreviewAudienceCountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>(PreviewAudienceCountsDocument, options);
+        }
+// @ts-ignore
+export function usePreviewAudienceCountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>;
+// @ts-ignore
+export function usePreviewAudienceCountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewAudienceCountsQuery | undefined, PreviewAudienceCountsQueryVariables>;
+export function usePreviewAudienceCountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>(PreviewAudienceCountsDocument, options);
+        }
+export type PreviewAudienceCountsQueryHookResult = ReturnType<typeof usePreviewAudienceCountsQuery>;
+export type PreviewAudienceCountsLazyQueryHookResult = ReturnType<typeof usePreviewAudienceCountsLazyQuery>;
+export type PreviewAudienceCountsSuspenseQueryHookResult = ReturnType<typeof usePreviewAudienceCountsSuspenseQuery>;
+export const PreviewAudienceRecipientsDocument = gql`
+    query PreviewAudienceRecipients($input: AudienceListInput!, $page: TableQueryInput!) {
+  previewAudience(input: $input) {
+    resolvedAt
+    recipients(input: $page) {
+      totalCount
+      rows {
+        ...AudienceRecipientFields
+      }
+    }
+  }
+}
+    ${AudienceRecipientFieldsFragmentDoc}`;
+
+/**
+ * __usePreviewAudienceRecipientsQuery__
+ *
+ * To run a query within a React component, call `usePreviewAudienceRecipientsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePreviewAudienceRecipientsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePreviewAudienceRecipientsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function usePreviewAudienceRecipientsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables> & ({ variables: PreviewAudienceRecipientsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>(PreviewAudienceRecipientsDocument, options);
+      }
+export function usePreviewAudienceRecipientsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>(PreviewAudienceRecipientsDocument, options);
+        }
+// @ts-ignore
+export function usePreviewAudienceRecipientsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>;
+// @ts-ignore
+export function usePreviewAudienceRecipientsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewAudienceRecipientsQuery | undefined, PreviewAudienceRecipientsQueryVariables>;
+export function usePreviewAudienceRecipientsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PreviewAudienceRecipientsQuery, PreviewAudienceRecipientsQueryVariables>(PreviewAudienceRecipientsDocument, options);
+        }
+export type PreviewAudienceRecipientsQueryHookResult = ReturnType<typeof usePreviewAudienceRecipientsQuery>;
+export type PreviewAudienceRecipientsLazyQueryHookResult = ReturnType<typeof usePreviewAudienceRecipientsLazyQuery>;
+export type PreviewAudienceRecipientsSuspenseQueryHookResult = ReturnType<typeof usePreviewAudienceRecipientsSuspenseQuery>;
+export const AudienceResolutionCountsDocument = gql`
+    query AudienceResolutionCounts($id: ID!, $categoryId: String) {
+  audienceResolution(id: $id, categoryId: $categoryId) {
+    resolvedAt
+    counts {
+      ...AudienceCountsFields
+    }
+  }
+}
+    ${AudienceCountsFieldsFragmentDoc}`;
+
+/**
+ * __useAudienceResolutionCountsQuery__
+ *
+ * To run a query within a React component, call `useAudienceResolutionCountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAudienceResolutionCountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAudienceResolutionCountsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      categoryId: // value for 'categoryId'
+ *   },
+ * });
+ */
+export function useAudienceResolutionCountsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables> & ({ variables: AudienceResolutionCountsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>(AudienceResolutionCountsDocument, options);
+      }
+export function useAudienceResolutionCountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>(AudienceResolutionCountsDocument, options);
+        }
+// @ts-ignore
+export function useAudienceResolutionCountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>;
+// @ts-ignore
+export function useAudienceResolutionCountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceResolutionCountsQuery | undefined, AudienceResolutionCountsQueryVariables>;
+export function useAudienceResolutionCountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<AudienceResolutionCountsQuery, AudienceResolutionCountsQueryVariables>(AudienceResolutionCountsDocument, options);
+        }
+export type AudienceResolutionCountsQueryHookResult = ReturnType<typeof useAudienceResolutionCountsQuery>;
+export type AudienceResolutionCountsLazyQueryHookResult = ReturnType<typeof useAudienceResolutionCountsLazyQuery>;
+export type AudienceResolutionCountsSuspenseQueryHookResult = ReturnType<typeof useAudienceResolutionCountsSuspenseQuery>;
+export const AudienceResolutionRecipientsDocument = gql`
+    query AudienceResolutionRecipients($id: ID!, $page: TableQueryInput!) {
+  audienceResolution(id: $id) {
+    resolvedAt
+    recipients(input: $page) {
+      totalCount
+      rows {
+        ...AudienceRecipientFields
+      }
+    }
+  }
+}
+    ${AudienceRecipientFieldsFragmentDoc}`;
+
+/**
+ * __useAudienceResolutionRecipientsQuery__
+ *
+ * To run a query within a React component, call `useAudienceResolutionRecipientsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAudienceResolutionRecipientsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAudienceResolutionRecipientsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useAudienceResolutionRecipientsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables> & ({ variables: AudienceResolutionRecipientsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>(AudienceResolutionRecipientsDocument, options);
+      }
+export function useAudienceResolutionRecipientsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>(AudienceResolutionRecipientsDocument, options);
+        }
+// @ts-ignore
+export function useAudienceResolutionRecipientsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>;
+// @ts-ignore
+export function useAudienceResolutionRecipientsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceResolutionRecipientsQuery | undefined, AudienceResolutionRecipientsQueryVariables>;
+export function useAudienceResolutionRecipientsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<AudienceResolutionRecipientsQuery, AudienceResolutionRecipientsQueryVariables>(AudienceResolutionRecipientsDocument, options);
+        }
+export type AudienceResolutionRecipientsQueryHookResult = ReturnType<typeof useAudienceResolutionRecipientsQuery>;
+export type AudienceResolutionRecipientsLazyQueryHookResult = ReturnType<typeof useAudienceResolutionRecipientsLazyQuery>;
+export type AudienceResolutionRecipientsSuspenseQueryHookResult = ReturnType<typeof useAudienceResolutionRecipientsSuspenseQuery>;
+export const CreateAudienceListDocument = gql`
+    mutation CreateAudienceList($input: AudienceListInput!) {
+  createAudienceList(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateAudienceListMutation__
+ *
+ * To run a mutation, you first call `useCreateAudienceListMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAudienceListMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAudienceListMutation, { data, loading, error }] = useCreateAudienceListMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAudienceListMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateAudienceListMutation, CreateAudienceListMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateAudienceListMutation, CreateAudienceListMutationVariables>(CreateAudienceListDocument, options);
+      }
+export type CreateAudienceListMutationHookResult = ReturnType<typeof useCreateAudienceListMutation>;
+export const UpdateAudienceListDocument = gql`
+    mutation UpdateAudienceList($id: ID!, $input: AudienceListInput!) {
+  updateAudienceList(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateAudienceListMutation__
+ *
+ * To run a mutation, you first call `useUpdateAudienceListMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAudienceListMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAudienceListMutation, { data, loading, error }] = useUpdateAudienceListMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAudienceListMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>(UpdateAudienceListDocument, options);
+      }
+export type UpdateAudienceListMutationHookResult = ReturnType<typeof useUpdateAudienceListMutation>;
+export const DeleteAudienceListDocument = gql`
+    mutation DeleteAudienceList($id: ID!) {
+  deleteAudienceList(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteAudienceListMutation__
+ *
+ * To run a mutation, you first call `useDeleteAudienceListMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAudienceListMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAudienceListMutation, { data, loading, error }] = useDeleteAudienceListMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteAudienceListMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>(DeleteAudienceListDocument, options);
+      }
+export type DeleteAudienceListMutationHookResult = ReturnType<typeof useDeleteAudienceListMutation>;
 export const ListAuditLogsPagedDocument = gql`
     query ListAuditLogsPaged($input: TableQueryInput!) {
   listAuditLogsPaged(input: $input) {
@@ -56472,92 +58062,6 @@ export function useDeleteCampaignMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<DeleteCampaignMutation, DeleteCampaignMutationVariables>(DeleteCampaignDocument, options);
       }
 export type DeleteCampaignMutationHookResult = ReturnType<typeof useDeleteCampaignMutation>;
-export const SendCampaignDocument = gql`
-    mutation SendCampaign($id: ID!, $audienceListId: ID, $testEmail: String) {
-  sendCampaign(id: $id, audienceListId: $audienceListId, testEmail: $testEmail) {
-    sent
-    failed
-    skipped
-    campaign {
-      id
-      lastSentAt
-      recipientsCount
-    }
-  }
-}
-    `;
-
-/**
- * __useSendCampaignMutation__
- *
- * To run a mutation, you first call `useSendCampaignMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSendCampaignMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [sendCampaignMutation, { data, loading, error }] = useSendCampaignMutation({
- *   variables: {
- *      id: // value for 'id'
- *      audienceListId: // value for 'audienceListId'
- *      testEmail: // value for 'testEmail'
- *   },
- * });
- */
-export function useSendCampaignMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendCampaignMutation, SendCampaignMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<SendCampaignMutation, SendCampaignMutationVariables>(SendCampaignDocument, options);
-      }
-export type SendCampaignMutationHookResult = ReturnType<typeof useSendCampaignMutation>;
-export const CampaignPreviewDocument = gql`
-    query CampaignPreview($id: ID!, $audienceListId: ID!) {
-  campaignPreview(id: $id, audienceListId: $audienceListId) {
-    recipient
-    subject
-    body
-  }
-}
-    `;
-
-/**
- * __useCampaignPreviewQuery__
- *
- * To run a query within a React component, call `useCampaignPreviewQuery` and pass it any options that fit your needs.
- * When your component renders, `useCampaignPreviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCampaignPreviewQuery({
- *   variables: {
- *      id: // value for 'id'
- *      audienceListId: // value for 'audienceListId'
- *   },
- * });
- */
-export function useCampaignPreviewQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CampaignPreviewQuery, CampaignPreviewQueryVariables> & ({ variables: CampaignPreviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<CampaignPreviewQuery, CampaignPreviewQueryVariables>(CampaignPreviewDocument, options);
-      }
-export function useCampaignPreviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CampaignPreviewQuery, CampaignPreviewQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<CampaignPreviewQuery, CampaignPreviewQueryVariables>(CampaignPreviewDocument, options);
-        }
-// @ts-ignore
-export function useCampaignPreviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CampaignPreviewQuery, CampaignPreviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignPreviewQuery, CampaignPreviewQueryVariables>;
-// @ts-ignore
-export function useCampaignPreviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignPreviewQuery, CampaignPreviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignPreviewQuery | undefined, CampaignPreviewQueryVariables>;
-export function useCampaignPreviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignPreviewQuery, CampaignPreviewQueryVariables>) {
-          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-// @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<CampaignPreviewQuery, CampaignPreviewQueryVariables>(CampaignPreviewDocument, options);
-        }
-export type CampaignPreviewQueryHookResult = ReturnType<typeof useCampaignPreviewQuery>;
-export type CampaignPreviewLazyQueryHookResult = ReturnType<typeof useCampaignPreviewLazyQuery>;
-export type CampaignPreviewSuspenseQueryHookResult = ReturnType<typeof useCampaignPreviewSuspenseQuery>;
 export const CampaignSendSummaryDocument = gql`
     query CampaignSendSummary($campaignId: ID!) {
   campaignSendSummary(campaignId: $campaignId) {
@@ -56735,234 +58239,6 @@ export function useCampaignLeadCountsSuspenseQuery(baseOptions?: ApolloReactHook
 export type CampaignLeadCountsQueryHookResult = ReturnType<typeof useCampaignLeadCountsQuery>;
 export type CampaignLeadCountsLazyQueryHookResult = ReturnType<typeof useCampaignLeadCountsLazyQuery>;
 export type CampaignLeadCountsSuspenseQueryHookResult = ReturnType<typeof useCampaignLeadCountsSuspenseQuery>;
-export const AudienceMembersDocument = gql`
-    query AudienceMembers($id: ID!) {
-  audienceMembers(id: $id) {
-    id
-    email
-    name
-    company
-    status
-    kind
-  }
-}
-    `;
-
-/**
- * __useAudienceMembersQuery__
- *
- * To run a query within a React component, call `useAudienceMembersQuery` and pass it any options that fit your needs.
- * When your component renders, `useAudienceMembersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAudienceMembersQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useAudienceMembersQuery(baseOptions: ApolloReactHooks.QueryHookOptions<AudienceMembersQuery, AudienceMembersQueryVariables> & ({ variables: AudienceMembersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<AudienceMembersQuery, AudienceMembersQueryVariables>(AudienceMembersDocument, options);
-      }
-export function useAudienceMembersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AudienceMembersQuery, AudienceMembersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<AudienceMembersQuery, AudienceMembersQueryVariables>(AudienceMembersDocument, options);
-        }
-// @ts-ignore
-export function useAudienceMembersSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<AudienceMembersQuery, AudienceMembersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceMembersQuery, AudienceMembersQueryVariables>;
-// @ts-ignore
-export function useAudienceMembersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceMembersQuery, AudienceMembersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AudienceMembersQuery | undefined, AudienceMembersQueryVariables>;
-export function useAudienceMembersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AudienceMembersQuery, AudienceMembersQueryVariables>) {
-          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-// @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<AudienceMembersQuery, AudienceMembersQueryVariables>(AudienceMembersDocument, options);
-        }
-export type AudienceMembersQueryHookResult = ReturnType<typeof useAudienceMembersQuery>;
-export type AudienceMembersLazyQueryHookResult = ReturnType<typeof useAudienceMembersLazyQuery>;
-export type AudienceMembersSuspenseQueryHookResult = ReturnType<typeof useAudienceMembersSuspenseQuery>;
-export const ListAudienceListsDocument = gql`
-    query ListAudienceLists {
-  listAudienceLists {
-    ...AudienceListFields
-  }
-}
-    ${AudienceListFieldsFragmentDoc}`;
-
-/**
- * __useListAudienceListsQuery__
- *
- * To run a query within a React component, call `useListAudienceListsQuery` and pass it any options that fit your needs.
- * When your component renders, `useListAudienceListsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListAudienceListsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useListAudienceListsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
-      }
-export function useListAudienceListsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
-        }
-// @ts-ignore
-export function useListAudienceListsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsQuery, ListAudienceListsQueryVariables>;
-// @ts-ignore
-export function useListAudienceListsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsQuery | undefined, ListAudienceListsQueryVariables>;
-export function useListAudienceListsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
-          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-// @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
-        }
-export type ListAudienceListsQueryHookResult = ReturnType<typeof useListAudienceListsQuery>;
-export type ListAudienceListsLazyQueryHookResult = ReturnType<typeof useListAudienceListsLazyQuery>;
-export type ListAudienceListsSuspenseQueryHookResult = ReturnType<typeof useListAudienceListsSuspenseQuery>;
-export const ListAudienceListsPagedDocument = gql`
-    query ListAudienceListsPaged($input: TableQueryInput!) {
-  listAudienceListsPaged(input: $input) {
-    totalCount
-    rows {
-      ...AudienceListFields
-    }
-  }
-}
-    ${AudienceListFieldsFragmentDoc}`;
-
-/**
- * __useListAudienceListsPagedQuery__
- *
- * To run a query within a React component, call `useListAudienceListsPagedQuery` and pass it any options that fit your needs.
- * When your component renders, `useListAudienceListsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListAudienceListsPagedQuery({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useListAudienceListsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables> & ({ variables: ListAudienceListsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
-      }
-export function useListAudienceListsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
-        }
-// @ts-ignore
-export function useListAudienceListsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>;
-// @ts-ignore
-export function useListAudienceListsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAudienceListsPagedQuery | undefined, ListAudienceListsPagedQueryVariables>;
-export function useListAudienceListsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>) {
-          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-// @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
-        }
-export type ListAudienceListsPagedQueryHookResult = ReturnType<typeof useListAudienceListsPagedQuery>;
-export type ListAudienceListsPagedLazyQueryHookResult = ReturnType<typeof useListAudienceListsPagedLazyQuery>;
-export type ListAudienceListsPagedSuspenseQueryHookResult = ReturnType<typeof useListAudienceListsPagedSuspenseQuery>;
-export const CreateAudienceListDocument = gql`
-    mutation CreateAudienceList($input: AudienceListInput!) {
-  createAudienceList(input: $input) {
-    id
-  }
-}
-    `;
-
-/**
- * __useCreateAudienceListMutation__
- *
- * To run a mutation, you first call `useCreateAudienceListMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateAudienceListMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createAudienceListMutation, { data, loading, error }] = useCreateAudienceListMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateAudienceListMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateAudienceListMutation, CreateAudienceListMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateAudienceListMutation, CreateAudienceListMutationVariables>(CreateAudienceListDocument, options);
-      }
-export type CreateAudienceListMutationHookResult = ReturnType<typeof useCreateAudienceListMutation>;
-export const UpdateAudienceListDocument = gql`
-    mutation UpdateAudienceList($id: ID!, $input: AudienceListInput!) {
-  updateAudienceList(id: $id, input: $input) {
-    id
-  }
-}
-    `;
-
-/**
- * __useUpdateAudienceListMutation__
- *
- * To run a mutation, you first call `useUpdateAudienceListMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateAudienceListMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateAudienceListMutation, { data, loading, error }] = useUpdateAudienceListMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateAudienceListMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>(UpdateAudienceListDocument, options);
-      }
-export type UpdateAudienceListMutationHookResult = ReturnType<typeof useUpdateAudienceListMutation>;
-export const DeleteAudienceListDocument = gql`
-    mutation DeleteAudienceList($id: ID!) {
-  deleteAudienceList(id: $id)
-}
-    `;
-
-/**
- * __useDeleteAudienceListMutation__
- *
- * To run a mutation, you first call `useDeleteAudienceListMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteAudienceListMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteAudienceListMutation, { data, loading, error }] = useDeleteAudienceListMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteAudienceListMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>(DeleteAudienceListDocument, options);
-      }
-export type DeleteAudienceListMutationHookResult = ReturnType<typeof useDeleteAudienceListMutation>;
 export const ListCampaignSendsDocument = gql`
     query ListCampaignSends($campaignId: ID!) {
   listCampaignSends(campaignId: $campaignId) {
@@ -57012,196 +58288,6 @@ export function useListCampaignSendsSuspenseQuery(baseOptions?: ApolloReactHooks
 export type ListCampaignSendsQueryHookResult = ReturnType<typeof useListCampaignSendsQuery>;
 export type ListCampaignSendsLazyQueryHookResult = ReturnType<typeof useListCampaignSendsLazyQuery>;
 export type ListCampaignSendsSuspenseQueryHookResult = ReturnType<typeof useListCampaignSendsSuspenseQuery>;
-export const ListMarketingSuppressionsPagedDocument = gql`
-    query ListMarketingSuppressionsPaged($input: TableQueryInput!) {
-  listMarketingSuppressionsPaged(input: $input) {
-    totalCount
-    rows {
-      ...MarketingSuppressionFields
-    }
-  }
-}
-    ${MarketingSuppressionFieldsFragmentDoc}`;
-
-/**
- * __useListMarketingSuppressionsPagedQuery__
- *
- * To run a query within a React component, call `useListMarketingSuppressionsPagedQuery` and pass it any options that fit your needs.
- * When your component renders, `useListMarketingSuppressionsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListMarketingSuppressionsPagedQuery({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useListMarketingSuppressionsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables> & ({ variables: ListMarketingSuppressionsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>(ListMarketingSuppressionsPagedDocument, options);
-      }
-export function useListMarketingSuppressionsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>(ListMarketingSuppressionsPagedDocument, options);
-        }
-// @ts-ignore
-export function useListMarketingSuppressionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>;
-// @ts-ignore
-export function useListMarketingSuppressionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListMarketingSuppressionsPagedQuery | undefined, ListMarketingSuppressionsPagedQueryVariables>;
-export function useListMarketingSuppressionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>) {
-          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-// @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>(ListMarketingSuppressionsPagedDocument, options);
-        }
-export type ListMarketingSuppressionsPagedQueryHookResult = ReturnType<typeof useListMarketingSuppressionsPagedQuery>;
-export type ListMarketingSuppressionsPagedLazyQueryHookResult = ReturnType<typeof useListMarketingSuppressionsPagedLazyQuery>;
-export type ListMarketingSuppressionsPagedSuspenseQueryHookResult = ReturnType<typeof useListMarketingSuppressionsPagedSuspenseQuery>;
-export const ListMarketingSuppressionsStatsDocument = gql`
-    query ListMarketingSuppressionsStats {
-  listMarketingSuppressionsStats {
-    total
-    counts {
-      field
-      buckets {
-        value
-        count
-      }
-    }
-    sums {
-      field
-      total
-    }
-  }
-}
-    `;
-
-/**
- * __useListMarketingSuppressionsStatsQuery__
- *
- * To run a query within a React component, call `useListMarketingSuppressionsStatsQuery` and pass it any options that fit your needs.
- * When your component renders, `useListMarketingSuppressionsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListMarketingSuppressionsStatsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useListMarketingSuppressionsStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>(ListMarketingSuppressionsStatsDocument, options);
-      }
-export function useListMarketingSuppressionsStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>(ListMarketingSuppressionsStatsDocument, options);
-        }
-// @ts-ignore
-export function useListMarketingSuppressionsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>;
-// @ts-ignore
-export function useListMarketingSuppressionsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListMarketingSuppressionsStatsQuery | undefined, ListMarketingSuppressionsStatsQueryVariables>;
-export function useListMarketingSuppressionsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>) {
-          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-// @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<ListMarketingSuppressionsStatsQuery, ListMarketingSuppressionsStatsQueryVariables>(ListMarketingSuppressionsStatsDocument, options);
-        }
-export type ListMarketingSuppressionsStatsQueryHookResult = ReturnType<typeof useListMarketingSuppressionsStatsQuery>;
-export type ListMarketingSuppressionsStatsLazyQueryHookResult = ReturnType<typeof useListMarketingSuppressionsStatsLazyQuery>;
-export type ListMarketingSuppressionsStatsSuspenseQueryHookResult = ReturnType<typeof useListMarketingSuppressionsStatsSuspenseQuery>;
-export const CreateMarketingSuppressionDocument = gql`
-    mutation CreateMarketingSuppression($input: MarketingSuppressionInput!) {
-  createMarketingSuppression(input: $input) {
-    id
-  }
-}
-    `;
-
-/**
- * __useCreateMarketingSuppressionMutation__
- *
- * To run a mutation, you first call `useCreateMarketingSuppressionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateMarketingSuppressionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createMarketingSuppressionMutation, { data, loading, error }] = useCreateMarketingSuppressionMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateMarketingSuppressionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateMarketingSuppressionMutation, CreateMarketingSuppressionMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateMarketingSuppressionMutation, CreateMarketingSuppressionMutationVariables>(CreateMarketingSuppressionDocument, options);
-      }
-export type CreateMarketingSuppressionMutationHookResult = ReturnType<typeof useCreateMarketingSuppressionMutation>;
-export const UpdateMarketingSuppressionDocument = gql`
-    mutation UpdateMarketingSuppression($id: ID!, $input: MarketingSuppressionInput!) {
-  updateMarketingSuppression(id: $id, input: $input) {
-    id
-  }
-}
-    `;
-
-/**
- * __useUpdateMarketingSuppressionMutation__
- *
- * To run a mutation, you first call `useUpdateMarketingSuppressionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateMarketingSuppressionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateMarketingSuppressionMutation, { data, loading, error }] = useUpdateMarketingSuppressionMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateMarketingSuppressionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateMarketingSuppressionMutation, UpdateMarketingSuppressionMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateMarketingSuppressionMutation, UpdateMarketingSuppressionMutationVariables>(UpdateMarketingSuppressionDocument, options);
-      }
-export type UpdateMarketingSuppressionMutationHookResult = ReturnType<typeof useUpdateMarketingSuppressionMutation>;
-export const DeleteMarketingSuppressionDocument = gql`
-    mutation DeleteMarketingSuppression($id: ID!) {
-  deleteMarketingSuppression(id: $id)
-}
-    `;
-
-/**
- * __useDeleteMarketingSuppressionMutation__
- *
- * To run a mutation, you first call `useDeleteMarketingSuppressionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteMarketingSuppressionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteMarketingSuppressionMutation, { data, loading, error }] = useDeleteMarketingSuppressionMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteMarketingSuppressionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteMarketingSuppressionMutation, DeleteMarketingSuppressionMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteMarketingSuppressionMutation, DeleteMarketingSuppressionMutationVariables>(DeleteMarketingSuppressionDocument, options);
-      }
-export type DeleteMarketingSuppressionMutationHookResult = ReturnType<typeof useDeleteMarketingSuppressionMutation>;
 export const UnsubscribeFromMarketingDocument = gql`
     mutation UnsubscribeFromMarketing($token: String!) {
   unsubscribeFromMarketing(token: $token)
@@ -68390,6 +69476,1147 @@ export function useDeleteStatusMaintenanceMutation(baseOptions?: ApolloReactHook
         return ApolloReactHooks.useMutation<DeleteStatusMaintenanceMutation, DeleteStatusMaintenanceMutationVariables>(DeleteStatusMaintenanceDocument, options);
       }
 export type DeleteStatusMaintenanceMutationHookResult = ReturnType<typeof useDeleteStatusMaintenanceMutation>;
+export const CampaignStudioOptionsDocument = gql`
+    query CampaignStudioOptions {
+  campaignStudioOptions {
+    verifiedSenders
+    variables {
+      key
+      group
+      label
+      description
+      example
+    }
+    categories {
+      ...PreferenceCategoryFields
+    }
+  }
+}
+    ${PreferenceCategoryFieldsFragmentDoc}`;
+
+/**
+ * __useCampaignStudioOptionsQuery__
+ *
+ * To run a query within a React component, call `useCampaignStudioOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCampaignStudioOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCampaignStudioOptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCampaignStudioOptionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>(CampaignStudioOptionsDocument, options);
+      }
+export function useCampaignStudioOptionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>(CampaignStudioOptionsDocument, options);
+        }
+// @ts-ignore
+export function useCampaignStudioOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>;
+// @ts-ignore
+export function useCampaignStudioOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignStudioOptionsQuery | undefined, CampaignStudioOptionsQueryVariables>;
+export function useCampaignStudioOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CampaignStudioOptionsQuery, CampaignStudioOptionsQueryVariables>(CampaignStudioOptionsDocument, options);
+        }
+export type CampaignStudioOptionsQueryHookResult = ReturnType<typeof useCampaignStudioOptionsQuery>;
+export type CampaignStudioOptionsLazyQueryHookResult = ReturnType<typeof useCampaignStudioOptionsLazyQuery>;
+export type CampaignStudioOptionsSuspenseQueryHookResult = ReturnType<typeof useCampaignStudioOptionsSuspenseQuery>;
+export const PreviewCampaignContentDocument = gql`
+    query PreviewCampaignContent($input: CampaignPreviewInput!) {
+  previewCampaignContent(input: $input) {
+    subject
+    preheader
+    html
+    text
+    missingVariables
+    issues {
+      line
+      message
+    }
+    recipient {
+      kind
+      name
+      email
+    }
+  }
+}
+    `;
+
+/**
+ * __usePreviewCampaignContentQuery__
+ *
+ * To run a query within a React component, call `usePreviewCampaignContentQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePreviewCampaignContentQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePreviewCampaignContentQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function usePreviewCampaignContentQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables> & ({ variables: PreviewCampaignContentQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>(PreviewCampaignContentDocument, options);
+      }
+export function usePreviewCampaignContentLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>(PreviewCampaignContentDocument, options);
+        }
+// @ts-ignore
+export function usePreviewCampaignContentSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>;
+// @ts-ignore
+export function usePreviewCampaignContentSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewCampaignContentQuery | undefined, PreviewCampaignContentQueryVariables>;
+export function usePreviewCampaignContentSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>(PreviewCampaignContentDocument, options);
+        }
+export type PreviewCampaignContentQueryHookResult = ReturnType<typeof usePreviewCampaignContentQuery>;
+export type PreviewCampaignContentLazyQueryHookResult = ReturnType<typeof usePreviewCampaignContentLazyQuery>;
+export type PreviewCampaignContentSuspenseQueryHookResult = ReturnType<typeof usePreviewCampaignContentSuspenseQuery>;
+export const CampaignQualityChecksDocument = gql`
+    query CampaignQualityChecks($id: ID!, $audienceListId: ID) {
+  campaignQualityChecks(id: $id, audienceListId: $audienceListId) {
+    canSend
+    checks {
+      ...QualityCheckFields
+    }
+    counts {
+      ...AudienceCountsFields
+    }
+  }
+}
+    ${QualityCheckFieldsFragmentDoc}
+${AudienceCountsFieldsFragmentDoc}`;
+
+/**
+ * __useCampaignQualityChecksQuery__
+ *
+ * To run a query within a React component, call `useCampaignQualityChecksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCampaignQualityChecksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCampaignQualityChecksQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      audienceListId: // value for 'audienceListId'
+ *   },
+ * });
+ */
+export function useCampaignQualityChecksQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables> & ({ variables: CampaignQualityChecksQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>(CampaignQualityChecksDocument, options);
+      }
+export function useCampaignQualityChecksLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>(CampaignQualityChecksDocument, options);
+        }
+// @ts-ignore
+export function useCampaignQualityChecksSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>;
+// @ts-ignore
+export function useCampaignQualityChecksSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignQualityChecksQuery | undefined, CampaignQualityChecksQueryVariables>;
+export function useCampaignQualityChecksSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CampaignQualityChecksQuery, CampaignQualityChecksQueryVariables>(CampaignQualityChecksDocument, options);
+        }
+export type CampaignQualityChecksQueryHookResult = ReturnType<typeof useCampaignQualityChecksQuery>;
+export type CampaignQualityChecksLazyQueryHookResult = ReturnType<typeof useCampaignQualityChecksLazyQuery>;
+export type CampaignQualityChecksSuspenseQueryHookResult = ReturnType<typeof useCampaignQualityChecksSuspenseQuery>;
+export const PreviewRecordOptionsDocument = gql`
+    query PreviewRecordOptions($search: String!) {
+  previewRecordOptions(search: $search) {
+    kind
+    id
+    name
+    email
+  }
+}
+    `;
+
+/**
+ * __usePreviewRecordOptionsQuery__
+ *
+ * To run a query within a React component, call `usePreviewRecordOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePreviewRecordOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePreviewRecordOptionsQuery({
+ *   variables: {
+ *      search: // value for 'search'
+ *   },
+ * });
+ */
+export function usePreviewRecordOptionsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables> & ({ variables: PreviewRecordOptionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>(PreviewRecordOptionsDocument, options);
+      }
+export function usePreviewRecordOptionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>(PreviewRecordOptionsDocument, options);
+        }
+// @ts-ignore
+export function usePreviewRecordOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>;
+// @ts-ignore
+export function usePreviewRecordOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PreviewRecordOptionsQuery | undefined, PreviewRecordOptionsQueryVariables>;
+export function usePreviewRecordOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PreviewRecordOptionsQuery, PreviewRecordOptionsQueryVariables>(PreviewRecordOptionsDocument, options);
+        }
+export type PreviewRecordOptionsQueryHookResult = ReturnType<typeof usePreviewRecordOptionsQuery>;
+export type PreviewRecordOptionsLazyQueryHookResult = ReturnType<typeof usePreviewRecordOptionsLazyQuery>;
+export type PreviewRecordOptionsSuspenseQueryHookResult = ReturnType<typeof usePreviewRecordOptionsSuspenseQuery>;
+export const CampaignRevisionsDocument = gql`
+    query CampaignRevisions($campaignId: ID!) {
+  campaignRevisions(campaignId: $campaignId) {
+    id
+    version
+    subject
+    createdByName
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useCampaignRevisionsQuery__
+ *
+ * To run a query within a React component, call `useCampaignRevisionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCampaignRevisionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCampaignRevisionsQuery({
+ *   variables: {
+ *      campaignId: // value for 'campaignId'
+ *   },
+ * });
+ */
+export function useCampaignRevisionsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CampaignRevisionsQuery, CampaignRevisionsQueryVariables> & ({ variables: CampaignRevisionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>(CampaignRevisionsDocument, options);
+      }
+export function useCampaignRevisionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>(CampaignRevisionsDocument, options);
+        }
+// @ts-ignore
+export function useCampaignRevisionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>;
+// @ts-ignore
+export function useCampaignRevisionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignRevisionsQuery | undefined, CampaignRevisionsQueryVariables>;
+export function useCampaignRevisionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CampaignRevisionsQuery, CampaignRevisionsQueryVariables>(CampaignRevisionsDocument, options);
+        }
+export type CampaignRevisionsQueryHookResult = ReturnType<typeof useCampaignRevisionsQuery>;
+export type CampaignRevisionsLazyQueryHookResult = ReturnType<typeof useCampaignRevisionsLazyQuery>;
+export type CampaignRevisionsSuspenseQueryHookResult = ReturnType<typeof useCampaignRevisionsSuspenseQuery>;
+export const CampaignDeliveryStatsDocument = gql`
+    query CampaignDeliveryStats($campaignId: ID!) {
+  campaignDeliveryStats(campaignId: $campaignId) {
+    runId
+    sendState
+    scheduledAt
+    lastSentAt
+    resolved
+    eligible
+    queued
+    sent
+    failed
+    skipped
+    bounced
+    unsubscribed
+    preferenceChanges
+    clicked
+    estimatedOpens
+    clickRate
+  }
+}
+    `;
+
+/**
+ * __useCampaignDeliveryStatsQuery__
+ *
+ * To run a query within a React component, call `useCampaignDeliveryStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCampaignDeliveryStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCampaignDeliveryStatsQuery({
+ *   variables: {
+ *      campaignId: // value for 'campaignId'
+ *   },
+ * });
+ */
+export function useCampaignDeliveryStatsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables> & ({ variables: CampaignDeliveryStatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>(CampaignDeliveryStatsDocument, options);
+      }
+export function useCampaignDeliveryStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>(CampaignDeliveryStatsDocument, options);
+        }
+// @ts-ignore
+export function useCampaignDeliveryStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>;
+// @ts-ignore
+export function useCampaignDeliveryStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignDeliveryStatsQuery | undefined, CampaignDeliveryStatsQueryVariables>;
+export function useCampaignDeliveryStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CampaignDeliveryStatsQuery, CampaignDeliveryStatsQueryVariables>(CampaignDeliveryStatsDocument, options);
+        }
+export type CampaignDeliveryStatsQueryHookResult = ReturnType<typeof useCampaignDeliveryStatsQuery>;
+export type CampaignDeliveryStatsLazyQueryHookResult = ReturnType<typeof useCampaignDeliveryStatsLazyQuery>;
+export type CampaignDeliveryStatsSuspenseQueryHookResult = ReturnType<typeof useCampaignDeliveryStatsSuspenseQuery>;
+export const MarketingDashboardDocument = gql`
+    query MarketingDashboard {
+  marketingDashboard {
+    campaigns
+    drafts
+    scheduled
+    sending
+    sentLast30
+    failedLast30
+    clickedLast30
+    clickRateLast30
+    unsubscribesLast30
+    suppressed
+    audiences
+    upcoming {
+      id
+      name
+      at
+    }
+    recent {
+      id
+      name
+      at
+      recipients
+      sendState
+    }
+    daily {
+      day
+      sent
+    }
+  }
+}
+    `;
+
+/**
+ * __useMarketingDashboardQuery__
+ *
+ * To run a query within a React component, call `useMarketingDashboardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMarketingDashboardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMarketingDashboardQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMarketingDashboardQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MarketingDashboardQuery, MarketingDashboardQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MarketingDashboardQuery, MarketingDashboardQueryVariables>(MarketingDashboardDocument, options);
+      }
+export function useMarketingDashboardLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MarketingDashboardQuery, MarketingDashboardQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MarketingDashboardQuery, MarketingDashboardQueryVariables>(MarketingDashboardDocument, options);
+        }
+// @ts-ignore
+export function useMarketingDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MarketingDashboardQuery, MarketingDashboardQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingDashboardQuery, MarketingDashboardQueryVariables>;
+// @ts-ignore
+export function useMarketingDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingDashboardQuery, MarketingDashboardQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingDashboardQuery | undefined, MarketingDashboardQueryVariables>;
+export function useMarketingDashboardSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingDashboardQuery, MarketingDashboardQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MarketingDashboardQuery, MarketingDashboardQueryVariables>(MarketingDashboardDocument, options);
+        }
+export type MarketingDashboardQueryHookResult = ReturnType<typeof useMarketingDashboardQuery>;
+export type MarketingDashboardLazyQueryHookResult = ReturnType<typeof useMarketingDashboardLazyQuery>;
+export type MarketingDashboardSuspenseQueryHookResult = ReturnType<typeof useMarketingDashboardSuspenseQuery>;
+export const ListCampaignTemplatesDocument = gql`
+    query ListCampaignTemplates {
+  listCampaignTemplates {
+    ...CampaignTemplateFields
+  }
+}
+    ${CampaignTemplateFieldsFragmentDoc}`;
+
+/**
+ * __useListCampaignTemplatesQuery__
+ *
+ * To run a query within a React component, call `useListCampaignTemplatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCampaignTemplatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCampaignTemplatesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCampaignTemplatesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>(ListCampaignTemplatesDocument, options);
+      }
+export function useListCampaignTemplatesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>(ListCampaignTemplatesDocument, options);
+        }
+// @ts-ignore
+export function useListCampaignTemplatesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>;
+// @ts-ignore
+export function useListCampaignTemplatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListCampaignTemplatesQuery | undefined, ListCampaignTemplatesQueryVariables>;
+export function useListCampaignTemplatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListCampaignTemplatesQuery, ListCampaignTemplatesQueryVariables>(ListCampaignTemplatesDocument, options);
+        }
+export type ListCampaignTemplatesQueryHookResult = ReturnType<typeof useListCampaignTemplatesQuery>;
+export type ListCampaignTemplatesLazyQueryHookResult = ReturnType<typeof useListCampaignTemplatesLazyQuery>;
+export type ListCampaignTemplatesSuspenseQueryHookResult = ReturnType<typeof useListCampaignTemplatesSuspenseQuery>;
+export const CampaignTemplateVersionsDocument = gql`
+    query CampaignTemplateVersions($templateId: ID!) {
+  campaignTemplateVersions(templateId: $templateId) {
+    id
+    version
+    note
+    createdByName
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useCampaignTemplateVersionsQuery__
+ *
+ * To run a query within a React component, call `useCampaignTemplateVersionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCampaignTemplateVersionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCampaignTemplateVersionsQuery({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *   },
+ * });
+ */
+export function useCampaignTemplateVersionsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables> & ({ variables: CampaignTemplateVersionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>(CampaignTemplateVersionsDocument, options);
+      }
+export function useCampaignTemplateVersionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>(CampaignTemplateVersionsDocument, options);
+        }
+// @ts-ignore
+export function useCampaignTemplateVersionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>;
+// @ts-ignore
+export function useCampaignTemplateVersionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CampaignTemplateVersionsQuery | undefined, CampaignTemplateVersionsQueryVariables>;
+export function useCampaignTemplateVersionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CampaignTemplateVersionsQuery, CampaignTemplateVersionsQueryVariables>(CampaignTemplateVersionsDocument, options);
+        }
+export type CampaignTemplateVersionsQueryHookResult = ReturnType<typeof useCampaignTemplateVersionsQuery>;
+export type CampaignTemplateVersionsLazyQueryHookResult = ReturnType<typeof useCampaignTemplateVersionsLazyQuery>;
+export type CampaignTemplateVersionsSuspenseQueryHookResult = ReturnType<typeof useCampaignTemplateVersionsSuspenseQuery>;
+export const TechEmailTemplateOptionsDocument = gql`
+    query TechEmailTemplateOptions {
+  techEmailTemplateOptions {
+    key
+    name
+    mjml
+  }
+}
+    `;
+
+/**
+ * __useTechEmailTemplateOptionsQuery__
+ *
+ * To run a query within a React component, call `useTechEmailTemplateOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTechEmailTemplateOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTechEmailTemplateOptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTechEmailTemplateOptionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>(TechEmailTemplateOptionsDocument, options);
+      }
+export function useTechEmailTemplateOptionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>(TechEmailTemplateOptionsDocument, options);
+        }
+// @ts-ignore
+export function useTechEmailTemplateOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>;
+// @ts-ignore
+export function useTechEmailTemplateOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechEmailTemplateOptionsQuery | undefined, TechEmailTemplateOptionsQueryVariables>;
+export function useTechEmailTemplateOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TechEmailTemplateOptionsQuery, TechEmailTemplateOptionsQueryVariables>(TechEmailTemplateOptionsDocument, options);
+        }
+export type TechEmailTemplateOptionsQueryHookResult = ReturnType<typeof useTechEmailTemplateOptionsQuery>;
+export type TechEmailTemplateOptionsLazyQueryHookResult = ReturnType<typeof useTechEmailTemplateOptionsLazyQuery>;
+export type TechEmailTemplateOptionsSuspenseQueryHookResult = ReturnType<typeof useTechEmailTemplateOptionsSuspenseQuery>;
+export const ListPreferenceCategoriesPagedDocument = gql`
+    query ListPreferenceCategoriesPaged($input: TableQueryInput!) {
+  listPreferenceCategoriesPaged(input: $input) {
+    totalCount
+    rows {
+      ...PreferenceCategoryFields
+    }
+  }
+}
+    ${PreferenceCategoryFieldsFragmentDoc}`;
+
+/**
+ * __useListPreferenceCategoriesPagedQuery__
+ *
+ * To run a query within a React component, call `useListPreferenceCategoriesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPreferenceCategoriesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPreferenceCategoriesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListPreferenceCategoriesPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables> & ({ variables: ListPreferenceCategoriesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>(ListPreferenceCategoriesPagedDocument, options);
+      }
+export function useListPreferenceCategoriesPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>(ListPreferenceCategoriesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListPreferenceCategoriesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>;
+// @ts-ignore
+export function useListPreferenceCategoriesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListPreferenceCategoriesPagedQuery | undefined, ListPreferenceCategoriesPagedQueryVariables>;
+export function useListPreferenceCategoriesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListPreferenceCategoriesPagedQuery, ListPreferenceCategoriesPagedQueryVariables>(ListPreferenceCategoriesPagedDocument, options);
+        }
+export type ListPreferenceCategoriesPagedQueryHookResult = ReturnType<typeof useListPreferenceCategoriesPagedQuery>;
+export type ListPreferenceCategoriesPagedLazyQueryHookResult = ReturnType<typeof useListPreferenceCategoriesPagedLazyQuery>;
+export type ListPreferenceCategoriesPagedSuspenseQueryHookResult = ReturnType<typeof useListPreferenceCategoriesPagedSuspenseQuery>;
+export const MarketingFooterDocument = gql`
+    query MarketingFooter {
+  marketingFooter {
+    companyName
+    contactLine
+    postalAddress
+    privacyUrl
+    websiteUrl
+    textColor
+    linkColor
+  }
+}
+    `;
+
+/**
+ * __useMarketingFooterQuery__
+ *
+ * To run a query within a React component, call `useMarketingFooterQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMarketingFooterQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMarketingFooterQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMarketingFooterQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MarketingFooterQuery, MarketingFooterQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MarketingFooterQuery, MarketingFooterQueryVariables>(MarketingFooterDocument, options);
+      }
+export function useMarketingFooterLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MarketingFooterQuery, MarketingFooterQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MarketingFooterQuery, MarketingFooterQueryVariables>(MarketingFooterDocument, options);
+        }
+// @ts-ignore
+export function useMarketingFooterSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MarketingFooterQuery, MarketingFooterQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingFooterQuery, MarketingFooterQueryVariables>;
+// @ts-ignore
+export function useMarketingFooterSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingFooterQuery, MarketingFooterQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingFooterQuery | undefined, MarketingFooterQueryVariables>;
+export function useMarketingFooterSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingFooterQuery, MarketingFooterQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MarketingFooterQuery, MarketingFooterQueryVariables>(MarketingFooterDocument, options);
+        }
+export type MarketingFooterQueryHookResult = ReturnType<typeof useMarketingFooterQuery>;
+export type MarketingFooterLazyQueryHookResult = ReturnType<typeof useMarketingFooterLazyQuery>;
+export type MarketingFooterSuspenseQueryHookResult = ReturnType<typeof useMarketingFooterSuspenseQuery>;
+export const EmailPreferencesDocument = gql`
+    query EmailPreferences($token: String!) {
+  emailPreferences(token: $token) {
+    ...PublicEmailPreferencesFields
+  }
+}
+    ${PublicEmailPreferencesFieldsFragmentDoc}`;
+
+/**
+ * __useEmailPreferencesQuery__
+ *
+ * To run a query within a React component, call `useEmailPreferencesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmailPreferencesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmailPreferencesQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useEmailPreferencesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<EmailPreferencesQuery, EmailPreferencesQueryVariables> & ({ variables: EmailPreferencesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmailPreferencesQuery, EmailPreferencesQueryVariables>(EmailPreferencesDocument, options);
+      }
+export function useEmailPreferencesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmailPreferencesQuery, EmailPreferencesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmailPreferencesQuery, EmailPreferencesQueryVariables>(EmailPreferencesDocument, options);
+        }
+// @ts-ignore
+export function useEmailPreferencesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmailPreferencesQuery, EmailPreferencesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailPreferencesQuery, EmailPreferencesQueryVariables>;
+// @ts-ignore
+export function useEmailPreferencesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailPreferencesQuery, EmailPreferencesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailPreferencesQuery | undefined, EmailPreferencesQueryVariables>;
+export function useEmailPreferencesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailPreferencesQuery, EmailPreferencesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmailPreferencesQuery, EmailPreferencesQueryVariables>(EmailPreferencesDocument, options);
+        }
+export type EmailPreferencesQueryHookResult = ReturnType<typeof useEmailPreferencesQuery>;
+export type EmailPreferencesLazyQueryHookResult = ReturnType<typeof useEmailPreferencesLazyQuery>;
+export type EmailPreferencesSuspenseQueryHookResult = ReturnType<typeof useEmailPreferencesSuspenseQuery>;
+export const SaveCampaignDraftDocument = gql`
+    mutation SaveCampaignDraft($id: ID, $input: CampaignDraftInput!, $expectedVersion: Int) {
+  saveCampaignDraft(id: $id, input: $input, expectedVersion: $expectedVersion) {
+    ...CampaignFields
+  }
+}
+    ${CampaignFieldsFragmentDoc}`;
+
+/**
+ * __useSaveCampaignDraftMutation__
+ *
+ * To run a mutation, you first call `useSaveCampaignDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveCampaignDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveCampaignDraftMutation, { data, loading, error }] = useSaveCampaignDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *      expectedVersion: // value for 'expectedVersion'
+ *   },
+ * });
+ */
+export function useSaveCampaignDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveCampaignDraftMutation, SaveCampaignDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveCampaignDraftMutation, SaveCampaignDraftMutationVariables>(SaveCampaignDraftDocument, options);
+      }
+export type SaveCampaignDraftMutationHookResult = ReturnType<typeof useSaveCampaignDraftMutation>;
+export const QueueCampaignSendDocument = gql`
+    mutation QueueCampaignSend($id: ID!, $audienceListId: ID!, $scheduledAt: DateTime) {
+  queueCampaignSend(
+    id: $id
+    audienceListId: $audienceListId
+    scheduledAt: $scheduledAt
+  ) {
+    ...CampaignFields
+  }
+}
+    ${CampaignFieldsFragmentDoc}`;
+
+/**
+ * __useQueueCampaignSendMutation__
+ *
+ * To run a mutation, you first call `useQueueCampaignSendMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useQueueCampaignSendMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [queueCampaignSendMutation, { data, loading, error }] = useQueueCampaignSendMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      audienceListId: // value for 'audienceListId'
+ *      scheduledAt: // value for 'scheduledAt'
+ *   },
+ * });
+ */
+export function useQueueCampaignSendMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<QueueCampaignSendMutation, QueueCampaignSendMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<QueueCampaignSendMutation, QueueCampaignSendMutationVariables>(QueueCampaignSendDocument, options);
+      }
+export type QueueCampaignSendMutationHookResult = ReturnType<typeof useQueueCampaignSendMutation>;
+export const CancelCampaignSendDocument = gql`
+    mutation CancelCampaignSend($id: ID!) {
+  cancelCampaignSend(id: $id) {
+    ...CampaignFields
+  }
+}
+    ${CampaignFieldsFragmentDoc}`;
+
+/**
+ * __useCancelCampaignSendMutation__
+ *
+ * To run a mutation, you first call `useCancelCampaignSendMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelCampaignSendMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelCampaignSendMutation, { data, loading, error }] = useCancelCampaignSendMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCancelCampaignSendMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CancelCampaignSendMutation, CancelCampaignSendMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CancelCampaignSendMutation, CancelCampaignSendMutationVariables>(CancelCampaignSendDocument, options);
+      }
+export type CancelCampaignSendMutationHookResult = ReturnType<typeof useCancelCampaignSendMutation>;
+export const RetryCampaignFailuresDocument = gql`
+    mutation RetryCampaignFailures($id: ID!) {
+  retryCampaignFailures(id: $id) {
+    sent
+    failed
+    skipped
+  }
+}
+    `;
+
+/**
+ * __useRetryCampaignFailuresMutation__
+ *
+ * To run a mutation, you first call `useRetryCampaignFailuresMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRetryCampaignFailuresMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [retryCampaignFailuresMutation, { data, loading, error }] = useRetryCampaignFailuresMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRetryCampaignFailuresMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RetryCampaignFailuresMutation, RetryCampaignFailuresMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RetryCampaignFailuresMutation, RetryCampaignFailuresMutationVariables>(RetryCampaignFailuresDocument, options);
+      }
+export type RetryCampaignFailuresMutationHookResult = ReturnType<typeof useRetryCampaignFailuresMutation>;
+export const SendCampaignTestDocument = gql`
+    mutation SendCampaignTest($id: ID!, $to: String!, $recordKind: PreviewRecordKind, $recordId: String) {
+  sendCampaignTest(id: $id, to: $to, recordKind: $recordKind, recordId: $recordId)
+}
+    `;
+
+/**
+ * __useSendCampaignTestMutation__
+ *
+ * To run a mutation, you first call `useSendCampaignTestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendCampaignTestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendCampaignTestMutation, { data, loading, error }] = useSendCampaignTestMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      to: // value for 'to'
+ *      recordKind: // value for 'recordKind'
+ *      recordId: // value for 'recordId'
+ *   },
+ * });
+ */
+export function useSendCampaignTestMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendCampaignTestMutation, SendCampaignTestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SendCampaignTestMutation, SendCampaignTestMutationVariables>(SendCampaignTestDocument, options);
+      }
+export type SendCampaignTestMutationHookResult = ReturnType<typeof useSendCampaignTestMutation>;
+export const SaveCampaignTemplateDocument = gql`
+    mutation SaveCampaignTemplate($id: ID, $input: CampaignTemplateInput!) {
+  saveCampaignTemplate(id: $id, input: $input) {
+    ...CampaignTemplateFields
+  }
+}
+    ${CampaignTemplateFieldsFragmentDoc}`;
+
+/**
+ * __useSaveCampaignTemplateMutation__
+ *
+ * To run a mutation, you first call `useSaveCampaignTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveCampaignTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveCampaignTemplateMutation, { data, loading, error }] = useSaveCampaignTemplateMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveCampaignTemplateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveCampaignTemplateMutation, SaveCampaignTemplateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveCampaignTemplateMutation, SaveCampaignTemplateMutationVariables>(SaveCampaignTemplateDocument, options);
+      }
+export type SaveCampaignTemplateMutationHookResult = ReturnType<typeof useSaveCampaignTemplateMutation>;
+export const DuplicateCampaignTemplateDocument = gql`
+    mutation DuplicateCampaignTemplate($id: ID!) {
+  duplicateCampaignTemplate(id: $id) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useDuplicateCampaignTemplateMutation__
+ *
+ * To run a mutation, you first call `useDuplicateCampaignTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDuplicateCampaignTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [duplicateCampaignTemplateMutation, { data, loading, error }] = useDuplicateCampaignTemplateMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDuplicateCampaignTemplateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DuplicateCampaignTemplateMutation, DuplicateCampaignTemplateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DuplicateCampaignTemplateMutation, DuplicateCampaignTemplateMutationVariables>(DuplicateCampaignTemplateDocument, options);
+      }
+export type DuplicateCampaignTemplateMutationHookResult = ReturnType<typeof useDuplicateCampaignTemplateMutation>;
+export const RestoreCampaignTemplateVersionDocument = gql`
+    mutation RestoreCampaignTemplateVersion($templateId: ID!, $version: Int!) {
+  restoreCampaignTemplateVersion(templateId: $templateId, version: $version) {
+    ...CampaignTemplateFields
+  }
+}
+    ${CampaignTemplateFieldsFragmentDoc}`;
+
+/**
+ * __useRestoreCampaignTemplateVersionMutation__
+ *
+ * To run a mutation, you first call `useRestoreCampaignTemplateVersionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRestoreCampaignTemplateVersionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [restoreCampaignTemplateVersionMutation, { data, loading, error }] = useRestoreCampaignTemplateVersionMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *      version: // value for 'version'
+ *   },
+ * });
+ */
+export function useRestoreCampaignTemplateVersionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RestoreCampaignTemplateVersionMutation, RestoreCampaignTemplateVersionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RestoreCampaignTemplateVersionMutation, RestoreCampaignTemplateVersionMutationVariables>(RestoreCampaignTemplateVersionDocument, options);
+      }
+export type RestoreCampaignTemplateVersionMutationHookResult = ReturnType<typeof useRestoreCampaignTemplateVersionMutation>;
+export const DeleteCampaignTemplateDocument = gql`
+    mutation DeleteCampaignTemplate($id: ID!) {
+  deleteCampaignTemplate(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCampaignTemplateMutation__
+ *
+ * To run a mutation, you first call `useDeleteCampaignTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCampaignTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCampaignTemplateMutation, { data, loading, error }] = useDeleteCampaignTemplateMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCampaignTemplateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCampaignTemplateMutation, DeleteCampaignTemplateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCampaignTemplateMutation, DeleteCampaignTemplateMutationVariables>(DeleteCampaignTemplateDocument, options);
+      }
+export type DeleteCampaignTemplateMutationHookResult = ReturnType<typeof useDeleteCampaignTemplateMutation>;
+export const CreatePreferenceCategoryDocument = gql`
+    mutation CreatePreferenceCategory($input: PreferenceCategoryInput!) {
+  createPreferenceCategory(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreatePreferenceCategoryMutation__
+ *
+ * To run a mutation, you first call `useCreatePreferenceCategoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePreferenceCategoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPreferenceCategoryMutation, { data, loading, error }] = useCreatePreferenceCategoryMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePreferenceCategoryMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreatePreferenceCategoryMutation, CreatePreferenceCategoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreatePreferenceCategoryMutation, CreatePreferenceCategoryMutationVariables>(CreatePreferenceCategoryDocument, options);
+      }
+export type CreatePreferenceCategoryMutationHookResult = ReturnType<typeof useCreatePreferenceCategoryMutation>;
+export const UpdatePreferenceCategoryDocument = gql`
+    mutation UpdatePreferenceCategory($id: ID!, $input: PreferenceCategoryInput!) {
+  updatePreferenceCategory(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdatePreferenceCategoryMutation__
+ *
+ * To run a mutation, you first call `useUpdatePreferenceCategoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePreferenceCategoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePreferenceCategoryMutation, { data, loading, error }] = useUpdatePreferenceCategoryMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePreferenceCategoryMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdatePreferenceCategoryMutation, UpdatePreferenceCategoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdatePreferenceCategoryMutation, UpdatePreferenceCategoryMutationVariables>(UpdatePreferenceCategoryDocument, options);
+      }
+export type UpdatePreferenceCategoryMutationHookResult = ReturnType<typeof useUpdatePreferenceCategoryMutation>;
+export const DeletePreferenceCategoryDocument = gql`
+    mutation DeletePreferenceCategory($id: ID!) {
+  deletePreferenceCategory(id: $id)
+}
+    `;
+
+/**
+ * __useDeletePreferenceCategoryMutation__
+ *
+ * To run a mutation, you first call `useDeletePreferenceCategoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePreferenceCategoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePreferenceCategoryMutation, { data, loading, error }] = useDeletePreferenceCategoryMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePreferenceCategoryMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeletePreferenceCategoryMutation, DeletePreferenceCategoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeletePreferenceCategoryMutation, DeletePreferenceCategoryMutationVariables>(DeletePreferenceCategoryDocument, options);
+      }
+export type DeletePreferenceCategoryMutationHookResult = ReturnType<typeof useDeletePreferenceCategoryMutation>;
+export const SaveMarketingFooterDocument = gql`
+    mutation SaveMarketingFooter($input: MarketingFooterInput!) {
+  saveMarketingFooter(input: $input) {
+    companyName
+  }
+}
+    `;
+
+/**
+ * __useSaveMarketingFooterMutation__
+ *
+ * To run a mutation, you first call `useSaveMarketingFooterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveMarketingFooterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveMarketingFooterMutation, { data, loading, error }] = useSaveMarketingFooterMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveMarketingFooterMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveMarketingFooterMutation, SaveMarketingFooterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveMarketingFooterMutation, SaveMarketingFooterMutationVariables>(SaveMarketingFooterDocument, options);
+      }
+export type SaveMarketingFooterMutationHookResult = ReturnType<typeof useSaveMarketingFooterMutation>;
+export const UpdateEmailPreferencesDocument = gql`
+    mutation UpdateEmailPreferences($token: String!, $optedOutCategoryIds: [String!]!, $unsubscribeAll: Boolean!) {
+  updateEmailPreferences(
+    token: $token
+    optedOutCategoryIds: $optedOutCategoryIds
+    unsubscribeAll: $unsubscribeAll
+  ) {
+    ...PublicEmailPreferencesFields
+  }
+}
+    ${PublicEmailPreferencesFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateEmailPreferencesMutation__
+ *
+ * To run a mutation, you first call `useUpdateEmailPreferencesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEmailPreferencesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEmailPreferencesMutation, { data, loading, error }] = useUpdateEmailPreferencesMutation({
+ *   variables: {
+ *      token: // value for 'token'
+ *      optedOutCategoryIds: // value for 'optedOutCategoryIds'
+ *      unsubscribeAll: // value for 'unsubscribeAll'
+ *   },
+ * });
+ */
+export function useUpdateEmailPreferencesMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateEmailPreferencesMutation, UpdateEmailPreferencesMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateEmailPreferencesMutation, UpdateEmailPreferencesMutationVariables>(UpdateEmailPreferencesDocument, options);
+      }
+export type UpdateEmailPreferencesMutationHookResult = ReturnType<typeof useUpdateEmailPreferencesMutation>;
+export const GetCampaignDocument = gql`
+    query GetCampaign($id: ID!) {
+  getCampaign(id: $id) {
+    ...CampaignFields
+  }
+}
+    ${CampaignFieldsFragmentDoc}`;
+
+/**
+ * __useGetCampaignQuery__
+ *
+ * To run a query within a React component, call `useGetCampaignQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCampaignQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCampaignQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCampaignQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetCampaignQuery, GetCampaignQueryVariables> & ({ variables: GetCampaignQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetCampaignQuery, GetCampaignQueryVariables>(GetCampaignDocument, options);
+      }
+export function useGetCampaignLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetCampaignQuery, GetCampaignQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetCampaignQuery, GetCampaignQueryVariables>(GetCampaignDocument, options);
+        }
+// @ts-ignore
+export function useGetCampaignSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetCampaignQuery, GetCampaignQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetCampaignQuery, GetCampaignQueryVariables>;
+// @ts-ignore
+export function useGetCampaignSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetCampaignQuery, GetCampaignQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetCampaignQuery | undefined, GetCampaignQueryVariables>;
+export function useGetCampaignSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetCampaignQuery, GetCampaignQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetCampaignQuery, GetCampaignQueryVariables>(GetCampaignDocument, options);
+        }
+export type GetCampaignQueryHookResult = ReturnType<typeof useGetCampaignQuery>;
+export type GetCampaignLazyQueryHookResult = ReturnType<typeof useGetCampaignLazyQuery>;
+export type GetCampaignSuspenseQueryHookResult = ReturnType<typeof useGetCampaignSuspenseQuery>;
 export const ListKbArticlesPagedDocument = gql`
     query ListKbArticlesPaged($input: TableQueryInput!) {
   listKbArticlesPaged(input: $input) {
@@ -69652,6 +71879,359 @@ export function useClientSupportTicketStatusSuspenseQuery(baseOptions?: ApolloRe
 export type ClientSupportTicketStatusQueryHookResult = ReturnType<typeof useClientSupportTicketStatusQuery>;
 export type ClientSupportTicketStatusLazyQueryHookResult = ReturnType<typeof useClientSupportTicketStatusLazyQuery>;
 export type ClientSupportTicketStatusSuspenseQueryHookResult = ReturnType<typeof useClientSupportTicketStatusSuspenseQuery>;
+export const ListMarketingSuppressionsPagedDocument = gql`
+    query ListMarketingSuppressionsPaged($input: TableQueryInput!) {
+  listMarketingSuppressionsPaged(input: $input) {
+    totalCount
+    rows {
+      ...MarketingSuppressionFields
+      linkedRecords {
+        ...SuppressionLinkFields
+      }
+    }
+  }
+}
+    ${MarketingSuppressionFieldsFragmentDoc}
+${SuppressionLinkFieldsFragmentDoc}`;
+
+/**
+ * __useListMarketingSuppressionsPagedQuery__
+ *
+ * To run a query within a React component, call `useListMarketingSuppressionsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListMarketingSuppressionsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListMarketingSuppressionsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListMarketingSuppressionsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables> & ({ variables: ListMarketingSuppressionsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>(ListMarketingSuppressionsPagedDocument, options);
+      }
+export function useListMarketingSuppressionsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>(ListMarketingSuppressionsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListMarketingSuppressionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>;
+// @ts-ignore
+export function useListMarketingSuppressionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListMarketingSuppressionsPagedQuery | undefined, ListMarketingSuppressionsPagedQueryVariables>;
+export function useListMarketingSuppressionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListMarketingSuppressionsPagedQuery, ListMarketingSuppressionsPagedQueryVariables>(ListMarketingSuppressionsPagedDocument, options);
+        }
+export type ListMarketingSuppressionsPagedQueryHookResult = ReturnType<typeof useListMarketingSuppressionsPagedQuery>;
+export type ListMarketingSuppressionsPagedLazyQueryHookResult = ReturnType<typeof useListMarketingSuppressionsPagedLazyQuery>;
+export type ListMarketingSuppressionsPagedSuspenseQueryHookResult = ReturnType<typeof useListMarketingSuppressionsPagedSuspenseQuery>;
+export const MarketingSuppressionSummaryDocument = gql`
+    query MarketingSuppressionSummary {
+  marketingSuppressionSummary {
+    total
+    archived
+    unsubscribed
+    hardBounced
+    addedManually
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useMarketingSuppressionSummaryQuery__
+ *
+ * To run a query within a React component, call `useMarketingSuppressionSummaryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMarketingSuppressionSummaryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMarketingSuppressionSummaryQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMarketingSuppressionSummaryQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>(MarketingSuppressionSummaryDocument, options);
+      }
+export function useMarketingSuppressionSummaryLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>(MarketingSuppressionSummaryDocument, options);
+        }
+// @ts-ignore
+export function useMarketingSuppressionSummarySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>;
+// @ts-ignore
+export function useMarketingSuppressionSummarySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingSuppressionSummaryQuery | undefined, MarketingSuppressionSummaryQueryVariables>;
+export function useMarketingSuppressionSummarySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MarketingSuppressionSummaryQuery, MarketingSuppressionSummaryQueryVariables>(MarketingSuppressionSummaryDocument, options);
+        }
+export type MarketingSuppressionSummaryQueryHookResult = ReturnType<typeof useMarketingSuppressionSummaryQuery>;
+export type MarketingSuppressionSummaryLazyQueryHookResult = ReturnType<typeof useMarketingSuppressionSummaryLazyQuery>;
+export type MarketingSuppressionSummarySuspenseQueryHookResult = ReturnType<typeof useMarketingSuppressionSummarySuspenseQuery>;
+export const MarketingSuppressionLookupDocument = gql`
+    query MarketingSuppressionLookup($email: String!) {
+  marketingSuppressionLookup(email: $email) {
+    email
+    existing {
+      ...MarketingSuppressionFields
+    }
+    linkedRecords {
+      ...SuppressionLinkFields
+    }
+  }
+}
+    ${MarketingSuppressionFieldsFragmentDoc}
+${SuppressionLinkFieldsFragmentDoc}`;
+
+/**
+ * __useMarketingSuppressionLookupQuery__
+ *
+ * To run a query within a React component, call `useMarketingSuppressionLookupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMarketingSuppressionLookupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMarketingSuppressionLookupQuery({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useMarketingSuppressionLookupQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables> & ({ variables: MarketingSuppressionLookupQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>(MarketingSuppressionLookupDocument, options);
+      }
+export function useMarketingSuppressionLookupLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>(MarketingSuppressionLookupDocument, options);
+        }
+// @ts-ignore
+export function useMarketingSuppressionLookupSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>;
+// @ts-ignore
+export function useMarketingSuppressionLookupSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingSuppressionLookupQuery | undefined, MarketingSuppressionLookupQueryVariables>;
+export function useMarketingSuppressionLookupSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MarketingSuppressionLookupQuery, MarketingSuppressionLookupQueryVariables>(MarketingSuppressionLookupDocument, options);
+        }
+export type MarketingSuppressionLookupQueryHookResult = ReturnType<typeof useMarketingSuppressionLookupQuery>;
+export type MarketingSuppressionLookupLazyQueryHookResult = ReturnType<typeof useMarketingSuppressionLookupLazyQuery>;
+export type MarketingSuppressionLookupSuspenseQueryHookResult = ReturnType<typeof useMarketingSuppressionLookupSuspenseQuery>;
+export const MarketingSuppressionHistoryDocument = gql`
+    query MarketingSuppressionHistory($email: String!) {
+  marketingSuppressionHistory(email: $email) {
+    id
+    action
+    actorName
+    summary
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useMarketingSuppressionHistoryQuery__
+ *
+ * To run a query within a React component, call `useMarketingSuppressionHistoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMarketingSuppressionHistoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMarketingSuppressionHistoryQuery({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useMarketingSuppressionHistoryQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables> & ({ variables: MarketingSuppressionHistoryQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>(MarketingSuppressionHistoryDocument, options);
+      }
+export function useMarketingSuppressionHistoryLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>(MarketingSuppressionHistoryDocument, options);
+        }
+// @ts-ignore
+export function useMarketingSuppressionHistorySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>;
+// @ts-ignore
+export function useMarketingSuppressionHistorySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MarketingSuppressionHistoryQuery | undefined, MarketingSuppressionHistoryQueryVariables>;
+export function useMarketingSuppressionHistorySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MarketingSuppressionHistoryQuery, MarketingSuppressionHistoryQueryVariables>(MarketingSuppressionHistoryDocument, options);
+        }
+export type MarketingSuppressionHistoryQueryHookResult = ReturnType<typeof useMarketingSuppressionHistoryQuery>;
+export type MarketingSuppressionHistoryLazyQueryHookResult = ReturnType<typeof useMarketingSuppressionHistoryLazyQuery>;
+export type MarketingSuppressionHistorySuspenseQueryHookResult = ReturnType<typeof useMarketingSuppressionHistorySuspenseQuery>;
+export const CreateMarketingSuppressionDocument = gql`
+    mutation CreateMarketingSuppression($input: MarketingSuppressionInput!) {
+  createMarketingSuppression(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateMarketingSuppressionMutation__
+ *
+ * To run a mutation, you first call `useCreateMarketingSuppressionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMarketingSuppressionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMarketingSuppressionMutation, { data, loading, error }] = useCreateMarketingSuppressionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateMarketingSuppressionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateMarketingSuppressionMutation, CreateMarketingSuppressionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateMarketingSuppressionMutation, CreateMarketingSuppressionMutationVariables>(CreateMarketingSuppressionDocument, options);
+      }
+export type CreateMarketingSuppressionMutationHookResult = ReturnType<typeof useCreateMarketingSuppressionMutation>;
+export const AddMarketingSuppressionsDocument = gql`
+    mutation AddMarketingSuppressions($input: MarketingSuppressionsInput!) {
+  addMarketingSuppressions(input: $input) {
+    added
+    alreadySuppressed
+    invalid
+  }
+}
+    `;
+
+/**
+ * __useAddMarketingSuppressionsMutation__
+ *
+ * To run a mutation, you first call `useAddMarketingSuppressionsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddMarketingSuppressionsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addMarketingSuppressionsMutation, { data, loading, error }] = useAddMarketingSuppressionsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddMarketingSuppressionsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AddMarketingSuppressionsMutation, AddMarketingSuppressionsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AddMarketingSuppressionsMutation, AddMarketingSuppressionsMutationVariables>(AddMarketingSuppressionsDocument, options);
+      }
+export type AddMarketingSuppressionsMutationHookResult = ReturnType<typeof useAddMarketingSuppressionsMutation>;
+export const UpdateMarketingSuppressionNoteDocument = gql`
+    mutation UpdateMarketingSuppressionNote($id: ID!, $note: String!) {
+  updateMarketingSuppressionNote(id: $id, note: $note) {
+    id
+    note
+  }
+}
+    `;
+
+/**
+ * __useUpdateMarketingSuppressionNoteMutation__
+ *
+ * To run a mutation, you first call `useUpdateMarketingSuppressionNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMarketingSuppressionNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMarketingSuppressionNoteMutation, { data, loading, error }] = useUpdateMarketingSuppressionNoteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export function useUpdateMarketingSuppressionNoteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateMarketingSuppressionNoteMutation, UpdateMarketingSuppressionNoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateMarketingSuppressionNoteMutation, UpdateMarketingSuppressionNoteMutationVariables>(UpdateMarketingSuppressionNoteDocument, options);
+      }
+export type UpdateMarketingSuppressionNoteMutationHookResult = ReturnType<typeof useUpdateMarketingSuppressionNoteMutation>;
+export const SetMarketingSuppressionArchivedDocument = gql`
+    mutation SetMarketingSuppressionArchived($id: ID!, $archived: Boolean!) {
+  setMarketingSuppressionArchived(id: $id, archived: $archived) {
+    id
+    archivedAt
+  }
+}
+    `;
+
+/**
+ * __useSetMarketingSuppressionArchivedMutation__
+ *
+ * To run a mutation, you first call `useSetMarketingSuppressionArchivedMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetMarketingSuppressionArchivedMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setMarketingSuppressionArchivedMutation, { data, loading, error }] = useSetMarketingSuppressionArchivedMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      archived: // value for 'archived'
+ *   },
+ * });
+ */
+export function useSetMarketingSuppressionArchivedMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetMarketingSuppressionArchivedMutation, SetMarketingSuppressionArchivedMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetMarketingSuppressionArchivedMutation, SetMarketingSuppressionArchivedMutationVariables>(SetMarketingSuppressionArchivedDocument, options);
+      }
+export type SetMarketingSuppressionArchivedMutationHookResult = ReturnType<typeof useSetMarketingSuppressionArchivedMutation>;
+export const RemoveMarketingSuppressionDocument = gql`
+    mutation RemoveMarketingSuppression($id: ID!, $justification: String!) {
+  removeMarketingSuppression(id: $id, justification: $justification)
+}
+    `;
+
+/**
+ * __useRemoveMarketingSuppressionMutation__
+ *
+ * To run a mutation, you first call `useRemoveMarketingSuppressionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveMarketingSuppressionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeMarketingSuppressionMutation, { data, loading, error }] = useRemoveMarketingSuppressionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      justification: // value for 'justification'
+ *   },
+ * });
+ */
+export function useRemoveMarketingSuppressionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RemoveMarketingSuppressionMutation, RemoveMarketingSuppressionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RemoveMarketingSuppressionMutation, RemoveMarketingSuppressionMutationVariables>(RemoveMarketingSuppressionDocument, options);
+      }
+export type RemoveMarketingSuppressionMutationHookResult = ReturnType<typeof useRemoveMarketingSuppressionMutation>;
 export const TableExportDocument = gql`
     query TableExport($list: String!, $input: TableQueryInput!, $columns: [TableExportColumnInput!]!, $format: TableFileFormat!, $fileName: String!) {
   tableExport(

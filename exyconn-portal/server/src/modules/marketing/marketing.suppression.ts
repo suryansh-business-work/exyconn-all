@@ -1,14 +1,19 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { MarketingSuppressionModel, type SuppressionReason } from './suppression.model';
+import {
+  MarketingSuppressionModel,
+  type SuppressionOrigin,
+  type SuppressionReason,
+} from './suppression.model';
 import { MarketingUnsubscribeTokenModel } from './unsubscribe-token.model';
-import { ContactModel } from '../crm/contact.model';
-import { badRequest } from '../../utils/errors';
 import { createLimiter } from '../../lib/rateLimiter';
-import { logger } from '../../utils/logger';
+import { recordSystemAudit } from '../audit';
+
+/** The audit log's module name for suppression rows — also what the CRUD resolvers log under. */
+export const SUPPRESSION_AUDIT_MODULE = 'MarketingSuppression';
 
 const HOUR_SEC = 60 * 60;
+const DUPLICATE_KEY = 11000;
 const MAX_UNSUBSCRIBES_PER_HOUR = 30;
-const INVALID_LINK = 'This unsubscribe link is not valid. Use the link from a recent email.';
 
 /** Contact statuses that mean the person must not be marketed to, and why. */
 const WITHDRAWN_CONSENT: Readonly<Record<string, SuppressionReason>> = {
@@ -44,23 +49,95 @@ export async function suppress(
   email: string,
   reason: SuppressionReason,
   source: string,
+  origin: SuppressionOrigin,
 ): Promise<void> {
-  await MarketingSuppressionModel.updateOne(
-    { email: normalize(email) },
-    { $setOnInsert: { email: normalize(email), reason, source } },
-    { upsert: true },
-  );
+  await suppressMany([email], reason, source, origin);
 }
 
-/** Every suppressed address out of the ones asked about, lower-cased. One query per send. */
-export async function suppressedAmong(emails: readonly string[]): Promise<Set<string>> {
+/** How many upserts are in flight at once when many addresses are suppressed together. */
+const UPSERT_BATCH = 25;
+
+/**
+ * Suppresses one address unless it already is, and says whether this call added it. An
+ * address already listed keeps its first reason and origin; two racing calls end in one row.
+ *
+ * Per-address `updateOne`, not `bulkWrite`: the tenant scope hooks queries, and a bulk write
+ * would insert rows outside the organization, invisible to every scoped read.
+ */
+async function suppressOne(
+  email: string,
+  fields: { reason: SuppressionReason; source: string; origin: SuppressionOrigin },
+): Promise<unknown> {
+  try {
+    const result = await MarketingSuppressionModel.updateOne(
+      { email },
+      { $setOnInsert: { email, ...fields, addedByName: 'System' } },
+      { upsert: true },
+    );
+    return result.upsertedId ?? null;
+  } catch (err) {
+    if (isDuplicateKeyOnly(err)) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+/**
+ * The same for many addresses — the CRM withdrawals a send finds, say. Each new row gets an
+ * append-only audit line; addresses already listed are left exactly as they were.
+ */
+export async function suppressMany(
+  emails: readonly string[],
+  reason: SuppressionReason,
+  source: string,
+  origin: SuppressionOrigin,
+): Promise<void> {
+  const unique = [...new Set(emails.map(normalize))];
+  for (let start = 0; start < unique.length; start += UPSERT_BATCH) {
+    const batch = unique.slice(start, start + UPSERT_BATCH);
+    const added = await Promise.all(
+      batch.map(async (email) => ({
+        email,
+        id: await suppressOne(email, { reason, source, origin }),
+      })),
+    );
+    await Promise.all(
+      added
+        .filter((row) => row.id !== null)
+        .map((row) =>
+          recordSystemAudit({
+            action: 'CREATE',
+            module: SUPPRESSION_AUDIT_MODULE,
+            entityId: row.id,
+            entityLabel: row.email,
+            summary: `Suppressed: ${reason} (${origin})`,
+          }),
+        ),
+    );
+  }
+}
+
+/** Whether a write failed only because the rows it wanted to insert already exist. */
+export function isDuplicateKeyOnly(err: unknown): boolean {
+  const error = err as { code?: number; writeErrors?: { code?: number }[] };
+  if (error.writeErrors?.length) {
+    return error.writeErrors.every((writeError) => writeError.code === DUPLICATE_KEY);
+  }
+  return error.code === DUPLICATE_KEY;
+}
+
+/** Every suppressed address out of the ones asked about, lower-cased, with why. One query. */
+export async function suppressionsAmong(
+  emails: readonly string[],
+): Promise<Map<string, SuppressionReason>> {
   if (emails.length === 0) {
-    return new Set();
+    return new Map();
   }
   const rows = await MarketingSuppressionModel.find({ email: { $in: emails.map(normalize) } })
-    .select('email')
-    .lean<{ email: string }[]>();
-  return new Set(rows.map((row) => row.email));
+    .select('email reason')
+    .lean<{ email: string; reason: SuppressionReason }[]>();
+  return new Map(rows.map((row) => [row.email, row.reason]));
 }
 
 /**
@@ -83,26 +160,4 @@ export async function issueUnsubscribeTokens(
     await MarketingUnsubscribeTokenModel.insertMany(rows);
   }
   return issued;
-}
-
-/**
- * Honours an unsubscribe link. Public and unauthenticated: the person clicking it is a
- * recipient, not a portal user, and making them sign in to leave would be the whole
- * problem. The token proves which address is asking.
- */
-export async function unsubscribeByToken(token: string, caller: string): Promise<boolean> {
-  if (!(await unsubscribeLimiter.allow(caller))) {
-    logger.warn(`Unsubscribe from ${caller} rate-limited`);
-    badRequest('Too many attempts. Try again shortly.');
-  }
-  const row = await MarketingUnsubscribeTokenModel.findOne({ tokenHash: hashToken(token) }).lean();
-  if (!row) {
-    badRequest(INVALID_LINK);
-  }
-  await suppress(row.email, 'UNSUBSCRIBED', `campaign:${row.campaignId}`);
-  // The CRM is where a salesperson looks before writing to somebody, so the answer has to
-  // be visible there too — not only inside the marketing module's own list.
-  await ContactModel.updateMany({ email: row.email }, { status: 'UNSUBSCRIBED' });
-  logger.info(`Unsubscribed ${row.email} from marketing`);
-  return true;
 }

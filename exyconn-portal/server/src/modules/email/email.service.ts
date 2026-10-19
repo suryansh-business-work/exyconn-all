@@ -64,7 +64,7 @@ async function brandVariables(): Promise<Record<string, string>> {
 }
 
 /** Every fragment, keyed for the renderer. Templates are short; this is one small read. */
-async function loadFragments(): Promise<Map<string, string>> {
+export async function loadFragments(): Promise<Map<string, string>> {
   const rows = await EmailFragmentModel.find().select('key mjml').lean();
   return new Map(rows.map((row) => [row.key, row.mjml]));
 }

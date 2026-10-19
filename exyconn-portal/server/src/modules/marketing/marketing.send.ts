@@ -1,72 +1,43 @@
+import { Types } from 'mongoose';
 import { CampaignSendModel } from './campaign-send.model';
-import { resolveAudienceMembers, type AudienceMember } from './marketing.audience';
-import { renderMergeFields, withUnsubscribeFooter, type MergeVars } from './marketing.merge';
+import { CampaignRevisionModel } from './campaign-revision.model';
+import { CampaignModel } from './marketing.model';
+import { MarketingPreferenceModel } from './preference.model';
 import {
+  loadAudienceShape,
+  resolveAudience,
+  type ResolvedRecipient,
+  type RecipientSourceRef,
+} from './audience.resolve';
+import type { ExclusionReason } from './audience.eligibility';
+import { contextsFor } from './campaign.context';
+import { deliverCopy, type CopyOutcome, type RunSettings } from './campaign.delivery';
+import { createSendingRevision, type RevisionActor } from './campaign.revision';
+import {
+  isDuplicateKeyOnly,
   issueUnsubscribeTokens,
-  suppress,
-  suppressedAmong,
-  withdrawnConsentReason,
+  suppressionsAmong,
+  suppressMany,
 } from './marketing.suppression';
-import { AudienceListModel } from './audience.model';
-import { instrument, newTrackingToken } from './marketing.tracking';
-import type { CampaignModel } from './marketing.model';
-import { emailer, rawHtml } from '../email';
-import { mailer } from '../../utils/mailer';
-import { badRequest, notFound } from '../../utils/errors';
+import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 
 /**
  * How many copies are in flight at once.
  *
- * A five-figure audience sent one at a time holds the request — or the scheduler tick —
- * open for hours; sent all at once it trips the SMTP provider's rate limit and the whole
- * blast fails. A small fixed width is the shape that finishes and stays inside the quota.
+ * A five-figure audience sent one at a time holds the scheduler tick open for hours; sent
+ * all at once it trips the SMTP provider's rate limit. A small fixed width finishes and
+ * stays inside the quota.
  */
 const SEND_CONCURRENCY = 5;
 
-/** The campaign fields a send reads. Kept structural so a lean row fits as well as a doc. */
-export interface SendableCampaign {
-  _id: unknown;
-  name: string;
-  subject: string;
-  body: string;
-  templateKey?: string;
-}
-
-/** One recipient's outcome, before it is written to the send log. */
-export interface SendOutcome {
-  to: string;
-  recipientName: string;
-  status: 'SENT' | 'FAILED' | 'SKIPPED';
-  error: string;
-  /**
-   * SHA-256 of the opaque token in this copy's tracking links. Empty for a skipped
-   * recipient — nothing was sent, so there is nothing that could ever be opened.
-   */
-  trackingTokenHash?: string;
-}
+const SYSTEM_ACTOR: RevisionActor = { id: 'system', name: 'Scheduler' };
 
 export interface SendCounts {
   sent: number;
   failed: number;
   skipped: number;
 }
-
-/** What one recipient's copy actually says, once their own values are merged in. */
-export interface RenderedCampaign {
-  subject: string;
-  body: string;
-  vars: MergeVars;
-}
-
-const countOf = (outcomes: readonly SendOutcome[], status: SendOutcome['status']): number =>
-  outcomes.filter((outcome) => outcome.status === status).length;
-
-export const countOutcomes = (outcomes: readonly SendOutcome[]): SendCounts => ({
-  sent: countOf(outcomes, 'SENT'),
-  failed: countOf(outcomes, 'FAILED'),
-  skipped: countOf(outcomes, 'SKIPPED'),
-});
 
 /** Splits a list into fixed-width batches. Pure, so the concurrency rule is testable. */
 export function chunk<T>(items: readonly T[], size: number): T[][] {
@@ -77,237 +48,328 @@ export function chunk<T>(items: readonly T[], size: number): T[][] {
   return batches;
 }
 
+/** How an excluded address reads in the delivery report. */
+export const EXCLUSION_TEXT: Readonly<Record<ExclusionReason, string>> = {
+  UNSUBSCRIBED: 'Unsubscribed',
+  SPAM_COMPLAINT: 'Marked a campaign as spam',
+  CATEGORY_OPT_OUT: 'Turned off this kind of email',
+  BOUNCED: 'Hard bounced',
+  BLOCKED: 'On the suppression list',
+  INVALID_EMAIL: 'Failed email verification',
+  LEFT_COMPANY: 'Contact left the company',
+  MANUALLY_EXCLUDED: 'Excluded from this audience',
+  EMAIL_STATUS_FILTER: 'Filtered out by email status',
+};
+
+/** The campaign document type the resolvers and the scheduler hand in. */
+export type CampaignDoc = InstanceType<typeof CampaignModel>;
+
+/** The run's recipients, as the send log holds them. */
+type QueuedRecipient = Pick<ResolvedRecipient, 'email' | 'sources'>;
+
 /**
- * This recipient's copy of the campaign.
- *
- * Exported because the send drawer previews it: what a marketer sees before pressing send
- * has to be produced by the code that will send, or the preview is a second implementation
- * that quietly disagrees with the first.
+ * Contacts who unsubscribed or bounced in the CRM go onto the suppression list, so every
+ * later send and every audience sees the withdrawal even if the contact row changes again.
  */
-export function renderForMember(
-  campaign: Pick<SendableCampaign, 'subject' | 'body'>,
-  member: Pick<AudienceMember, 'email' | 'name' | 'company'>,
-  unsubscribeUrl: string,
-  /** Where the tracking links point, and this copy's own token. Omitted = no tracking. */
-  tracking?: { origin: string; token: string },
-): RenderedCampaign {
-  const vars: MergeVars = {
-    name: member.name,
-    email: member.email,
-    company: member.company,
-    unsubscribeUrl,
-  };
-  const merged = renderMergeFields(campaign.body, vars);
-  const withFooter = withUnsubscribeFooter(merged, unsubscribeUrl);
-  return {
-    subject: renderMergeFields(campaign.subject, vars),
-    // The unsubscribe link is exempt: a legal obligation must not stop working because the
-    // tracker is down.
-    body: tracking
-      ? instrument(withFooter, tracking.origin, tracking.token, [unsubscribeUrl])
-      : withFooter,
-    vars,
-  };
+async function syncCrmWithdrawals(excluded: readonly ResolvedRecipient[], campaignId: string) {
+  const source = `campaign:${campaignId}`;
+  for (const reason of ['UNSUBSCRIBED', 'BOUNCED'] as const) {
+    const emails = excluded.filter((row) => row.exclusion === reason).map((row) => row.email);
+    await suppressMany(emails, reason, source, 'CRM');
+  }
 }
 
-/** Hands one rendered copy to the transport — the stored template, or the plain shell. */
-async function deliver(
-  campaign: SendableCampaign,
-  member: AudienceMember,
-  rendered: RenderedCampaign,
+/**
+ * Writes the run's whole recipient list before anything is sent: QUEUED for the deliverable,
+ * SKIPPED with the reason for the rest. These rows are the run's immutable record of who it
+ * resolved to and why — later CRM edits change the next run, never this one.
+ */
+async function queueRun(
+  ids: { runId: string; campaignId: string; audienceListId: string; revisionId: string },
+  recipients: readonly ResolvedRecipient[],
 ): Promise<void> {
-  if (campaign.templateKey) {
-    await emailer.send({
-      template: campaign.templateKey,
-      to: member.email,
-      // The campaign body is the email's own HTML, written in Marketing.
-      variables: { ...rendered.vars, subject: rendered.subject, body: rawHtml(rendered.body) },
-      triggeredBy: `campaign:${String(campaign._id)}`,
-    });
-    return;
-  }
-  await mailer.sendCustomEmail({
-    name: member.name,
-    email: member.email,
-    subject: rendered.subject,
-    message: rendered.body,
-  });
-}
-
-/** Emails one member and reports what happened, rather than throwing at the first failure. */
-async function sendOne(
-  campaign: SendableCampaign,
-  member: AudienceMember,
-  unsubscribeUrl: string,
-  origin: string,
-): Promise<SendOutcome> {
-  // One token per recipient per send, so an open can be attributed to a person — and only
-  // the hash is kept, so a copy of the log is not a set of working links.
-  const { token, tokenHash } = newTrackingToken();
-  const base = { to: member.email, recipientName: member.name, trackingTokenHash: tokenHash };
+  const rows = recipients.map((recipient) => ({
+    ...ids,
+    to: recipient.email,
+    recipientName: recipient.name,
+    sources: recipient.sources,
+    status: recipient.exclusion ? 'SKIPPED' : 'QUEUED',
+    error: recipient.exclusion ? EXCLUSION_TEXT[recipient.exclusion] : '',
+  }));
   try {
-    await deliver(
-      campaign,
-      member,
-      renderForMember(campaign, member, unsubscribeUrl, { origin, token }),
-    );
-    return { ...base, status: 'SENT', error: '' };
+    await CampaignSendModel.insertMany(rows, { ordered: false });
   } catch (err) {
-    logger.error({ err, email: member.email }, `Campaign "${campaign.name}" email failed`);
-    return { ...base, status: 'FAILED', error: err instanceof Error ? err.message : 'Send failed' };
+    if (!isDuplicateKeyOnly(err)) {
+      throw err;
+    }
   }
 }
 
-/** Members split by whether the law and their own choices let us write to them. */
-interface Consent {
-  deliverable: AudienceMember[];
-  skipped: SendOutcome[];
+/** Takes one queued row for sending. False when another sender already has it. */
+async function claim(runId: string, email: string): Promise<boolean> {
+  const result = await CampaignSendModel.updateOne(
+    { runId, to: email, status: 'QUEUED', claimedAt: null },
+    { claimedAt: new Date() },
+  );
+  return result.modifiedCount === 1;
 }
 
-const skippedOutcome = (member: AudienceMember, reason: string): SendOutcome => ({
-  to: member.email,
-  recipientName: member.name,
-  status: 'SKIPPED',
-  error: reason,
-});
+async function record(
+  runId: string,
+  outcome: Partial<CopyOutcome> & { to: string; status: string; error: string },
+) {
+  await CampaignSendModel.updateOne(
+    { runId, to: outcome.to },
+    {
+      status: outcome.status,
+      error: outcome.error,
+      trackingTokenHash: outcome.trackingTokenHash ?? '',
+      $inc: { attempts: outcome.attempts ?? 0 },
+      sentAt: new Date(),
+    },
+  );
+}
 
 /**
- * Removes everyone who must not be written to, and says why for each of them.
- *
- * A contact who has withdrawn consent in the CRM but is not yet on the suppression list is
- * added to it here — the CRM status is the signal, the suppression list is what every
- * future send actually checks, and leaving them out of sync is how somebody gets emailed
- * after asking not to be.
+ * Who in a batch may no longer be written to, read at the moment of sending: unsubscribed or
+ * blocked since the run was queued, or opted out of the campaign's category since then.
  */
-async function applyConsent(members: readonly AudienceMember[]): Promise<Consent> {
-  const suppressed = await suppressedAmong(members.map((member) => member.email));
-  const consent: Consent = { deliverable: [], skipped: [] };
-
-  for (const member of members) {
-    const withdrawn = member.kind === 'CONTACT' ? withdrawnConsentReason(member.status) : undefined;
-    if (suppressed.has(member.email)) {
-      consent.skipped.push(skippedOutcome(member, 'On the suppression list'));
-    } else if (withdrawn) {
-      await suppress(member.email, withdrawn, `crm-contact:${member.id}`);
-      consent.skipped.push(skippedOutcome(member, `Contact is ${member.status.toLowerCase()}`));
-    } else {
-      consent.deliverable.push(member);
-    }
+async function blockedNow(
+  emails: readonly string[],
+  categoryId: string,
+): Promise<Map<string, string>> {
+  const blocked = new Map<string, string>();
+  const [suppressed, optedOut] = await Promise.all([
+    suppressionsAmong(emails),
+    categoryId
+      ? MarketingPreferenceModel.find({
+          email: { $in: [...emails] },
+          optedOutCategoryIds: categoryId,
+        })
+          .select('email')
+          .lean()
+      : Promise.resolve([]),
+  ]);
+  for (const email of suppressed.keys()) {
+    blocked.set(email, 'Suppressed just before sending');
   }
-  return consent;
+  for (const row of optedOut) {
+    blocked.set(row.email, 'Turned off this kind of email just before sending');
+  }
+  return blocked;
 }
 
-/** Sends the deliverable members in fixed-width batches, keeping every outcome. */
-async function sendBatched(
-  campaign: SendableCampaign,
-  members: readonly AudienceMember[],
-  links: ReadonlyMap<string, string>,
+/** True once somebody pressed Cancel on the campaign. */
+async function cancelRequested(campaignId: string): Promise<boolean> {
+  const row = await CampaignModel.findById(campaignId).select('cancelRequestedAt').lean();
+  return Boolean(row?.cancelRequestedAt);
+}
+
+/** Everything still queued in a cancelled run is recorded as not sent. */
+async function cancelRemaining(runId: string): Promise<void> {
+  await CampaignSendModel.updateMany(
+    { runId, status: 'QUEUED', claimedAt: null },
+    { status: 'SKIPPED', error: 'Cancelled before sending', sentAt: new Date() },
+  );
+}
+
+/** One batch: blocked addresses skipped, the rest claimed and sent. */
+async function sendBatch(run: RunState, batch: readonly QueuedRecipient[]): Promise<void> {
+  const emails = batch.map((recipient) => recipient.email);
+  const [blocked, contexts] = await Promise.all([
+    blockedNow(emails, run.categoryId),
+    contextsFor(batch),
+  ]);
+  await Promise.allSettled(
+    batch.map(async (recipient) => {
+      const reason = blocked.get(recipient.email);
+      if (reason) {
+        await record(run.runId, { to: recipient.email, status: 'SKIPPED', error: reason });
+        return;
+      }
+      const context = contexts.get(recipient.email);
+      if (!context || !(await claim(run.runId, recipient.email))) {
+        return;
+      }
+      await record(run.runId, await deliverCopy(run.settings, context));
+    }),
+  );
+}
+
+interface RunState {
+  campaignId: string;
+  runId: string;
+  categoryId: string;
+  settings: RunSettings;
+}
+
+/** Sends a run's queued recipients in batches, stopping when the campaign is cancelled. */
+async function sendQueued(run: RunState, recipients: readonly QueuedRecipient[]): Promise<boolean> {
+  for (const batch of chunk(recipients, SEND_CONCURRENCY)) {
+    if (await cancelRequested(run.campaignId)) {
+      await cancelRemaining(run.runId);
+      return false;
+    }
+    await sendBatch(run, batch);
+  }
+  return true;
+}
+
+/** A run's outcome, counted from its own rows. */
+export async function runCounts(runId: string): Promise<SendCounts> {
+  const rows = await CampaignSendModel.aggregate<{ _id: string; count: number }>([
+    { $match: { runId } },
+    { $group: { _id: '$status', count: { $sum: 1 } } },
+  ]);
+  const countOf = (status: string) => rows.find((row) => row._id === status)?.count ?? 0;
+  return { sent: countOf('SENT'), failed: countOf('FAILED'), skipped: countOf('SKIPPED') };
+}
+
+/** The revision this send uses: the one frozen when it was queued, or one frozen now. */
+async function revisionFor(campaign: CampaignDoc) {
+  if (campaign.sendingRevisionId) {
+    const revision = await CampaignRevisionModel.findById(campaign.sendingRevisionId);
+    if (revision) {
+      return revision;
+    }
+  }
+  // Campaigns scheduled before revisions existed are frozen at the moment they go out.
+  const revision = await createSendingRevision(campaign, SYSTEM_ACTOR);
+  campaign.sendingRevisionId = String(revision._id);
+  return revision;
+}
+
+async function finishRun(
+  campaign: CampaignDoc,
+  runId: string,
+  completed: boolean,
+): Promise<SendCounts> {
+  const counts = await runCounts(runId);
+  campaign.lastSentAt = new Date();
+  campaign.recipientsCount = counts.sent;
+  campaign.sendState = completed ? 'SENT' : 'CANCELLED';
+  await campaign.save();
+  return counts;
+}
+
+async function runSettings(
+  revision: Awaited<ReturnType<typeof revisionFor>>,
+  emails: string[],
+  campaignId: string,
   origin: string,
-): Promise<SendOutcome[]> {
-  const outcomes: SendOutcome[] = [];
-  for (const batch of chunk(members, SEND_CONCURRENCY)) {
-    const settled = await Promise.allSettled(
-      batch.map((member) => sendOne(campaign, member, links.get(member.email) as string, origin)),
-    );
-    for (const [index, result] of settled.entries()) {
-      outcomes.push(
-        result.status === 'fulfilled'
-          ? result.value
-          : skippedOutcome(batch[index], 'The send never completed'),
-      );
-    }
-  }
-  return outcomes;
-}
-
-/** The audience a send names, with its membership already resolved. */
-export async function loadAudience(audienceListId: string) {
-  const audience = await AudienceListModel.findById(audienceListId).lean();
-  if (!audience) {
-    notFound('Audience list');
-  }
-  const members = await resolveAudienceMembers(audience);
-  return { audience, members };
+) {
+  return {
+    revision,
+    origin,
+    unsubscribeTokens: await issueUnsubscribeTokens(emails, campaignId),
+  };
 }
 
 export interface SendResult extends SendCounts {
-  outcomes: SendOutcome[];
+  runId: string;
 }
 
 /**
- * The real send: every member of the audience who may still be written to, each outcome
- * logged whether it worked, failed or was skipped.
+ * The real send. The audience is resolved now — a fixed snapshot re-checked, a dynamic one
+ * re-run, the campaign's preference category applied — every address is written to the run
+ * before any email goes, and each is claimed before it is sent, so a run never mails an
+ * address twice.
  */
-export async function sendToAudience(
-  campaign: SendableCampaign,
-  audienceListId: string,
-  origin: string,
-): Promise<SendResult> {
-  const { audience, members } = await loadAudience(audienceListId);
-  if (members.length === 0) {
+export async function runCampaignSend(campaign: CampaignDoc, origin: string): Promise<SendResult> {
+  const campaignId = String(campaign._id);
+  const audienceListId = campaign.scheduledAudienceListId;
+  const revision = await revisionFor(campaign);
+  const audience = await loadAudienceShape(audienceListId);
+  const resolution = await resolveAudience(audience, audienceListId, revision.preferenceCategoryId);
+  if (resolution.recipients.length === 0) {
+    campaign.sendState = 'FAILED';
+    await campaign.save();
     badRequest(`"${audience.name}" has nobody in it.`);
   }
+  campaign.sendState = 'SENDING';
+  await campaign.save();
 
-  const campaignId = String(campaign._id);
-  const { deliverable, skipped } = await applyConsent(members);
-  const links = await issueUnsubscribeTokens(
-    deliverable.map((member) => member.email),
+  const runId = new Types.ObjectId().toString();
+  const deliverable = resolution.recipients.filter((row) => row.exclusion === null);
+  await syncCrmWithdrawals(
+    resolution.recipients.filter((row) => row.exclusion !== null),
     campaignId,
   );
-  const unsubscribeUrls = new Map(
-    [...links].map(([email, token]) => [email, `${origin}/unsubscribe?t=${token}`]),
+  await queueRun(
+    { runId, campaignId, audienceListId, revisionId: String(revision._id) },
+    resolution.recipients,
   );
-
-  const outcomes = [
-    ...skipped,
-    ...(await sendBatched(campaign, deliverable, unsubscribeUrls, origin)),
-  ];
-  await CampaignSendModel.insertMany(
-    outcomes.map((outcome) => ({ ...outcome, campaignId, audienceListId })),
+  const settings = await runSettings(
+    revision,
+    deliverable.map((row) => row.email),
+    campaignId,
+    origin,
   );
-  return { ...countOutcomes(outcomes), outcomes };
+  const completed = await sendQueued(
+    { campaignId, runId, categoryId: revision.preferenceCategoryId, settings },
+    deliverable,
+  );
+  const counts = await finishRun(campaign, runId, completed);
+  logger.info(
+    `Campaign "${campaign.name}" run ${runId}: ${counts.sent} sent, ${counts.failed} failed`,
+  );
+  return { ...counts, runId };
 }
 
-/** A preview to one address. Nothing is logged or stamped: it is not a send of the campaign. */
-export async function sendPreview(
-  campaign: SendableCampaign,
-  testEmail: string,
-  origin: string,
-): Promise<void> {
-  const email = testEmail.trim().toLowerCase();
-  const [token] = [...(await issueUnsubscribeTokens([email], String(campaign._id))).values()];
-  const member: AudienceMember = {
-    id: 'test',
-    email,
-    name: email,
-    company: '',
-    status: 'ACTIVE',
-    kind: 'CLIENT',
-  };
-  const outcome = await sendOne(campaign, member, `${origin}/unsubscribe?t=${token}`, origin);
-  if (outcome.status !== 'SENT') {
-    badRequest(`Test email to ${email} failed: ${outcome.error}`);
-  }
+/** The latest run of a campaign, or null when it was never sent. */
+export async function latestRunId(campaignId: string): Promise<string | null> {
+  const row = await CampaignSendModel.findOne({ campaignId, runId: { $gt: '' } })
+    .sort({ createdAt: -1 })
+    .select('runId')
+    .lean();
+  return row?.runId ?? null;
 }
-
-/** The campaign document type the resolvers hand in, kept out of the send's own signature. */
-export type CampaignDoc = InstanceType<typeof CampaignModel>;
 
 /**
- * A send, plus the stamp that records it happened.
- *
- * The stamp is what the register, the overview tile and the scheduler's "already sent"
- * guard all read, so it belongs next to the send rather than in whichever caller
- * remembered to write it.
+ * Sends a run's failed copies again, with the same revision and the same run — so the
+ * per-address claim still guarantees nobody gets a second copy of what already arrived.
  */
-export async function runCampaignSend(
+export async function retryFailedCopies(
   campaign: CampaignDoc,
-  audienceListId: string,
   origin: string,
 ): Promise<SendResult> {
-  const result = await sendToAudience(campaign, audienceListId, origin);
-  campaign.lastSentAt = new Date();
-  campaign.recipientsCount = result.sent;
+  const campaignId = String(campaign._id);
+  const runId = await latestRunId(campaignId);
+  if (!runId) {
+    badRequest('This campaign has not been sent yet.');
+  }
+  const failed = await CampaignSendModel.find({ runId, status: 'FAILED' })
+    .select('to sources revisionId')
+    .lean();
+  if (failed.length === 0) {
+    badRequest('Nothing failed in the last send.');
+  }
+  await CampaignSendModel.updateMany(
+    { runId, status: 'FAILED' },
+    { status: 'QUEUED', claimedAt: null, error: '' },
+  );
+  const revision = await CampaignRevisionModel.findById(
+    failed[0].revisionId || campaign.sendingRevisionId,
+  );
+  if (!revision) {
+    badRequest('The content this send used is missing.');
+  }
+  campaign.sendState = 'SENDING';
+  campaign.cancelRequestedAt = null;
   await campaign.save();
-  return result;
+  const recipients = failed.map((row) => ({
+    email: row.to,
+    sources: row.sources as RecipientSourceRef[],
+  }));
+  const settings = await runSettings(
+    revision,
+    recipients.map((row) => row.email),
+    campaignId,
+    origin,
+  );
+  const completed = await sendQueued(
+    { campaignId, runId, categoryId: revision.preferenceCategoryId, settings },
+    recipients,
+  );
+  return { ...(await finishRun(campaign, runId, completed)), runId };
 }

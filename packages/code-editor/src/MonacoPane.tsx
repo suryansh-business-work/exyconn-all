@@ -13,6 +13,29 @@ type MonacoInstance = Parameters<OnMount>[0];
 /** Owner of the markers the HTML/MJML check writes, beside Monaco's own JSON and CSS ones. */
 const HTML_OWNER = 'exyconn-html';
 
+/** Owner of the markers a host hands in (a server-side compiler's). */
+const EXTERNAL_OWNER = 'exyconn-external';
+
+/** Writes the host's problems onto the model, at their lines. */
+function markExternal(editor: MonacoInstance, problems: readonly CodeProblem[]): void {
+  const model = editor.getModel();
+  if (!model) return;
+  const lines = model.getLineCount();
+  const markers = problems.map((problem) => {
+    const line = Math.min(Math.max(problem.line, 1), lines);
+    return {
+      startLineNumber: line,
+      startColumn: Math.max(problem.column, 1),
+      endLineNumber: line,
+      endColumn: model.getLineMaxColumn(line),
+      message: problem.message,
+      severity:
+        problem.severity === 'error' ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
+    };
+  });
+  monaco.editor.setModelMarkers(model, EXTERNAL_OWNER, markers);
+}
+
 const LANGUAGE_LABEL = { html: 'HTML', css: 'CSS', json: 'JSON' } as const;
 
 const toProblem = (marker: monaco.editor.IMarker): CodeProblem => ({
@@ -40,7 +63,7 @@ function markHtml(editor: MonacoInstance): void {
 /** Monaco itself, with the field's label, a Format button and the problems it finds. */
 export default function MonacoPane(props: Readonly<CodeEditorProps>) {
   const { value, onChange, onBlur, language, label, helperText, error } = props;
-  const { height = 240, readOnly = false } = props;
+  const { height = 240, readOnly = false, onReady, problems: external } = props;
   const t = useT();
   const theme = useTheme();
   const editorRef = useRef<MonacoInstance | null>(null);
@@ -52,10 +75,24 @@ export default function MonacoPane(props: Readonly<CodeEditorProps>) {
     if (language === 'html' && editorRef.current) markHtml(editorRef.current);
   }, [language, value]);
 
+  useEffect(() => {
+    if (editorRef.current) markExternal(editorRef.current, external ?? []);
+  }, [external]);
+
   const mount: OnMount = (editor) => {
     editorRef.current = editor;
     editor.onDidBlurEditorText(() => blurRef.current?.());
     if (language === 'html') markHtml(editor);
+    markExternal(editor, external ?? []);
+    onReady?.({
+      insertAtCursor: (text) => {
+        const selection = editor.getSelection();
+        if (!selection) return;
+        editor.executeEdits('insert', [{ range: selection, text, forceMoveMarkers: true }]);
+        editor.focus();
+      },
+      focus: () => editor.focus(),
+    });
   };
 
   const format = () => {

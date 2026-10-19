@@ -39,35 +39,6 @@ describe('the marketing resolver map', () => {
     expect(Object.keys(marketingResolvers.Mutation)).toEqual(
       expect.arrayContaining(['createCampaign', 'sendCampaign', 'unsubscribeFromMarketing']),
     );
-    expect(marketingResolvers.AudienceList).toBe(marketingCustomResolvers.AudienceList);
-  });
-});
-
-describe('audienceMembers', () => {
-  it('resolves who a saved audience reaches right now', async () => {
-    const client = await seedClient('Ada', 'Ada@Example.com');
-    const audience = await AudienceListModel.create({
-      name: 'Newsletter',
-      clientIds: [client._id.toHexString()],
-    });
-
-    const members = await Q.audienceMembers(null, { id: audience._id.toHexString() }, asMarketing);
-
-    expect(members).toEqual([
-      expect.objectContaining({ email: 'ada@example.com', name: 'Ada', kind: 'CLIENT' }),
-    ]);
-  });
-
-  it('refuses an audience that does not exist', async () => {
-    const id = new Types.ObjectId().toHexString();
-
-    await expect(Q.audienceMembers(null, { id }, asMarketing)).rejects.toThrow(
-      'Audience list not found',
-    );
-  });
-
-  it('is refused to somebody outside marketing', async () => {
-    await expect(Q.audienceMembers(null, { id: 'x' }, asCrm)).rejects.toThrow(/access/);
   });
 });
 
@@ -101,54 +72,6 @@ describe('campaignOptions', () => {
 
   it('is refused to somebody in neither marketing nor sales', async () => {
     await expect(Q.campaignOptions(null, {}, asEmployee)).rejects.toThrow(/access/);
-  });
-});
-
-describe('campaignPreview', () => {
-  const preview = (id: string, audienceListId: string, origin?: string) =>
-    Q.campaignPreview(null, { id, audienceListId }, { ...asMarketing, origin });
-
-  it('renders the first member’s copy with a placeholder unsubscribe link', async () => {
-    const campaign = await seedCampaign();
-    const client = await seedClient('Ada', 'ada@example.com');
-    const audience = await AudienceListModel.create({
-      name: 'Newsletter',
-      clientIds: [client._id.toHexString()],
-    });
-    const origin = 'https://spoofed.example';
-
-    const rendered = await preview(campaign._id.toHexString(), audience._id.toHexString(), origin);
-
-    expect(rendered).toEqual({
-      recipient: 'ada@example.com',
-      subject: 'Hello Ada',
-      body: `Dear Ada of Acme\n\nUnsubscribe: ${portalOrigin(origin)}/unsubscribe?t=preview`,
-    });
-  });
-
-  it('has nothing to show for an audience with nobody in it', async () => {
-    const campaign = await seedCampaign();
-    const audience = await AudienceListModel.create({ name: 'Empty' });
-
-    await expect(
-      preview(campaign._id.toHexString(), audience._id.toHexString()),
-    ).resolves.toBeNull();
-  });
-
-  it('refuses a campaign that does not exist', async () => {
-    const audience = await AudienceListModel.create({ name: 'Empty' });
-
-    await expect(
-      preview(new Types.ObjectId().toHexString(), audience._id.toHexString()),
-    ).rejects.toThrow('Campaign not found');
-  });
-
-  it('refuses an audience that does not exist', async () => {
-    const campaign = await seedCampaign();
-
-    await expect(
-      preview(campaign._id.toHexString(), new Types.ObjectId().toHexString()),
-    ).rejects.toThrow('Audience list not found');
   });
 });
 

@@ -750,28 +750,140 @@ export type AttendanceTrackerBrief = {
   sessions: Scalars['Int']['output'];
 };
 
-/** A saved set of people a campaign can be sent to: named clients, named contacts, a segment. */
+/** Where a matching company's addresses come from. */
+export enum AudienceCompanyEmailSource {
+  Both = 'BOTH',
+  CompanyEmails = 'COMPANY_EMAILS',
+  LinkedContacts = 'LINKED_CONTACTS'
+}
+
+export type AudienceCondition = {
+  __typename?: 'AudienceCondition';
+  field: Scalars['String']['output'];
+  operator: AudienceRuleOperator;
+  value: Scalars['String']['output'];
+};
+
+export type AudienceConditionInput = {
+  field: Scalars['String']['input'];
+  operator: AudienceRuleOperator;
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Every count of an audience, worked out on the server. */
+export type AudienceCounts = {
+  __typename?: 'AudienceCounts';
+  clients: Scalars['Int']['output'];
+  companies: Scalars['Int']['output'];
+  contacts: Scalars['Int']['output'];
+  duplicates: Scalars['Int']['output'];
+  /** Unique addresses a send will go to. */
+  eligible: Scalars['Int']['output'];
+  /** Left the company, excluded by hand, or filtered out by email status. */
+  excluded: Scalars['Int']['output'];
+  invalid: Scalars['Int']['output'];
+  /** Turned off the campaign's preference category; 0 without a campaign. */
+  optedOut: Scalars['Int']['output'];
+  /** Addresses picked from the records, before de-duplication. */
+  rawEmails: Scalars['Int']['output'];
+  recordsWithoutEmail: Scalars['Int']['output'];
+  /** Unsubscribed, bounced or blocked. */
+  suppressed: Scalars['Int']['output'];
+  uniqueEmails: Scalars['Int']['output'];
+};
+
+/** How many of a record's addresses are used. */
+export enum AudienceEmailSelection {
+  All = 'ALL',
+  Primary = 'PRIMARY',
+  SelectedTypes = 'SELECTED_TYPES'
+}
+
+/** Why an address will not be sent to. UNSUBSCRIBED, SPAM_COMPLAINT, BOUNCED and BLOCKED are never overridden. */
+export enum AudienceExclusionReason {
+  Blocked = 'BLOCKED',
+  Bounced = 'BOUNCED',
+  CategoryOptOut = 'CATEGORY_OPT_OUT',
+  EmailStatusFilter = 'EMAIL_STATUS_FILTER',
+  InvalidEmail = 'INVALID_EMAIL',
+  LeftCompany = 'LEFT_COMPANY',
+  ManuallyExcluded = 'MANUALLY_EXCLUDED',
+  SpamComplaint = 'SPAM_COMPLAINT',
+  Unsubscribed = 'UNSUBSCRIBED'
+}
+
+export type AudienceFilterCatalogue = {
+  __typename?: 'AudienceFilterCatalogue';
+  /** Every address label in use on contacts and companies, e.g. Work, Sales, Support. */
+  emailTypes: Array<Scalars['String']['output']>;
+  fields: Array<AudienceFilterField>;
+};
+
+export enum AudienceFilterEntity {
+  Company = 'COMPANY',
+  Contact = 'CONTACT',
+  Email = 'EMAIL'
+}
+
+/** One field an audience rule can test, with the operators it allows. */
+export type AudienceFilterField = {
+  __typename?: 'AudienceFilterField';
+  entity: AudienceFilterEntity;
+  key: Scalars['String']['output'];
+  kind: AudienceFilterKind;
+  label: Scalars['String']['output'];
+  operators: Array<AudienceRuleOperator>;
+  /** The fixed values of an ENUM or EMAIL_STATUS field; empty for the others. */
+  values: Array<Scalars['String']['output']>;
+};
+
+export enum AudienceFilterKind {
+  EmailStatus = 'EMAIL_STATUS',
+  Enum = 'ENUM',
+  LastContacted = 'LAST_CONTACTED',
+  Tags = 'TAGS',
+  Text = 'TEXT'
+}
+
+/** A saved set of campaign recipients: CRM rules, named records and how addresses are picked. */
 export type AudienceList = {
   __typename?: 'AudienceList';
+  allActiveClients: Scalars['Boolean']['output'];
   clientIds: Array<Scalars['String']['output']>;
+  companyEmailSource: AudienceCompanyEmailSource;
+  companyIds: Array<Scalars['String']['output']>;
+  conditions: Array<AudienceCondition>;
   contactIds: Array<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   description: Scalars['String']['output'];
-  dynamicSegment: AudienceSegment;
+  emailSelection: AudienceEmailSelection;
+  emailTypes: Array<Scalars['String']['output']>;
+  excludedEmails: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  /** The segment's parameter, e.g. the CompanyStatus for CONTACTS_BY_COMPANY_STATUS. */
-  segmentValue: Scalars['String']['output'];
+  recipientSource: AudienceRecipientSource;
+  ruleCombinator: AudienceRuleCombinator;
+  /** When a fixed audience was frozen; null for a dynamic one. */
+  snapshotAt?: Maybe<Scalars['DateTime']['output']>;
+  updateMode: AudienceUpdateMode;
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type AudienceListInput = {
+  allActiveClients?: InputMaybe<Scalars['Boolean']['input']>;
   clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  companyEmailSource: AudienceCompanyEmailSource;
+  companyIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  conditions?: InputMaybe<Array<AudienceConditionInput>>;
   contactIds?: InputMaybe<Array<Scalars['String']['input']>>;
   description?: InputMaybe<Scalars['String']['input']>;
-  dynamicSegment?: InputMaybe<AudienceSegment>;
+  emailSelection: AudienceEmailSelection;
+  emailTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludedEmails?: InputMaybe<Array<Scalars['String']['input']>>;
   name: Scalars['String']['input'];
-  segmentValue?: InputMaybe<Scalars['String']['input']>;
+  recipientSource: AudienceRecipientSource;
+  ruleCombinator: AudienceRuleCombinator;
+  updateMode: AudienceUpdateMode;
 };
 
 export type AudienceListPage = {
@@ -780,29 +892,90 @@ export type AudienceListPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-/** One resolved recipient of an audience, after de-duplication by address. */
-export type AudienceMember = {
-  __typename?: 'AudienceMember';
+/** One unique address in an audience and whether it will be sent to. */
+export type AudienceRecipient = {
+  __typename?: 'AudienceRecipient';
   company: Scalars['String']['output'];
   email: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  kind: AudienceMemberKind;
+  exclusion?: Maybe<AudienceExclusionReason>;
+  label: Scalars['String']['output'];
   name: Scalars['String']['output'];
-  status: Scalars['String']['output'];
+  sources: Array<AudienceRecipientOrigin>;
+  verification: Scalars['String']['output'];
 };
 
-/** Which register a resolved member came out of. */
-export enum AudienceMemberKind {
+/** A record behind an address. */
+export type AudienceRecipientOrigin = {
+  __typename?: 'AudienceRecipientOrigin';
+  id: Scalars['String']['output'];
+  kind: AudienceRecordKind;
+  name: Scalars['String']['output'];
+  via: AudienceRecordVia;
+};
+
+export type AudienceRecipientPage = {
+  __typename?: 'AudienceRecipientPage';
+  rows: Array<AudienceRecipient>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Which CRM registers the rules pick from. SELECTED_ONLY uses only the records named under Data sources. */
+export enum AudienceRecipientSource {
+  Both = 'BOTH',
+  Companies = 'COMPANIES',
+  Contacts = 'CONTACTS',
+  SelectedOnly = 'SELECTED_ONLY'
+}
+
+export enum AudienceRecordKind {
   Client = 'CLIENT',
+  Company = 'COMPANY',
   Contact = 'CONTACT'
 }
 
-/** A rule that picks audience members without anybody maintaining the list. */
-export enum AudienceSegment {
-  AllActiveClients = 'ALL_ACTIVE_CLIENTS',
-  AllActiveContacts = 'ALL_ACTIVE_CONTACTS',
-  ContactsByCompanyStatus = 'CONTACTS_BY_COMPANY_STATUS',
-  None = 'NONE'
+/** How a record got into the audience. */
+export enum AudienceRecordVia {
+  LinkedContact = 'LINKED_CONTACT',
+  Rules = 'RULES',
+  Selected = 'SELECTED'
+}
+
+/** Who an audience reaches right now. */
+export type AudienceResolution = {
+  __typename?: 'AudienceResolution';
+  counts: AudienceCounts;
+  /** One page of the recipients, searched by address, name or company. */
+  recipients: AudienceRecipientPage;
+  resolvedAt: Scalars['DateTime']['output'];
+};
+
+
+/** Who an audience reaches right now. */
+export type AudienceResolutionRecipientsArgs = {
+  input: TableQueryInput;
+};
+
+export enum AudienceRuleCombinator {
+  And = 'AND',
+  Or = 'OR'
+}
+
+export enum AudienceRuleOperator {
+  Contains = 'CONTAINS',
+  Equals = 'EQUALS',
+  IsEmpty = 'IS_EMPTY',
+  IsNotEmpty = 'IS_NOT_EMPTY',
+  Never = 'NEVER',
+  NotEquals = 'NOT_EQUALS',
+  OlderThanDays = 'OLDER_THAN_DAYS',
+  WithinDays = 'WITHIN_DAYS'
+}
+
+/** Whether membership is frozen at save (addresses, or records) or follows the CRM. */
+export enum AudienceUpdateMode {
+  Dynamic = 'DYNAMIC',
+  FixedRecords = 'FIXED_RECORDS',
+  FixedSnapshot = 'FIXED_SNAPSHOT'
 }
 
 export enum AuditAction {
@@ -1439,27 +1612,44 @@ export enum CallingBotTurnRole {
 
 export type Campaign = {
   __typename?: 'Campaign';
+  /** The visual editor's blocks. */
+  blocks: Scalars['JSON']['output'];
   body?: Maybe<Scalars['String']['output']>;
   budget: Scalars['Float']['output'];
+  campaignType: CampaignType;
   channel: CampaignChannel;
+  contentVersion: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
+  editorMode: EditorMode;
   endDate: Scalars['DateTime']['output'];
+  html: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lastSentAt?: Maybe<Scalars['DateTime']['output']>;
+  mjml: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  preferenceCategoryId: Scalars['String']['output'];
+  preheader: Scalars['String']['output'];
   /** Recipients reached by the last send. Null for campaigns never sent / created before email support. */
   recipientsCount?: Maybe<Scalars['Int']['output']>;
+  replyTo: Scalars['String']['output'];
   /** Stamped when the dispatcher claimed the campaign; what stops a second send. */
   scheduleDispatchedAt?: Maybe<Scalars['DateTime']['output']>;
   /** When the dispatcher should send this campaign unattended. */
   scheduledAt?: Maybe<Scalars['DateTime']['output']>;
   /** The audience a scheduled send goes to. */
   scheduledAudienceListId?: Maybe<Scalars['String']['output']>;
+  sendState: CampaignSendState;
+  senderEmail: Scalars['String']['output'];
+  senderName: Scalars['String']['output'];
+  sendingRevisionId: Scalars['String']['output'];
   startDate: Scalars['DateTime']['output'];
   status: CampaignStatus;
   subject?: Maybe<Scalars['String']['output']>;
   /** A stored email template to render through instead of the raw body. */
   templateKey?: Maybe<Scalars['String']['output']>;
+  text: Scalars['String']['output'];
+  trackClicks: Scalars['Boolean']['output'];
+  trackOpens: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -1469,6 +1659,52 @@ export enum CampaignChannel {
   Search = 'SEARCH',
   Social = 'SOCIAL'
 }
+
+/** What the latest send of a campaign did. bounced is null: no provider reports them here. */
+export type CampaignDeliveryStats = {
+  __typename?: 'CampaignDeliveryStats';
+  bounced?: Maybe<Scalars['Int']['output']>;
+  clickRate: Scalars['Int']['output'];
+  clicked: Scalars['Int']['output'];
+  eligible: Scalars['Int']['output'];
+  /** Opens are an estimate: privacy proxies and blocked images hide or invent them. */
+  estimatedOpens: Scalars['Int']['output'];
+  failed: Scalars['Int']['output'];
+  lastSentAt?: Maybe<Scalars['DateTime']['output']>;
+  preferenceChanges: Scalars['Int']['output'];
+  queued: Scalars['Int']['output'];
+  resolved: Scalars['Int']['output'];
+  runId: Scalars['String']['output'];
+  scheduledAt?: Maybe<Scalars['DateTime']['output']>;
+  sendState: CampaignSendState;
+  sent: Scalars['Int']['output'];
+  skipped: Scalars['Int']['output'];
+  unsubscribed: Scalars['Int']['output'];
+};
+
+/** A draft as the Email Studio saves it. Only the name is needed for a first save. */
+export type CampaignDraftInput = {
+  blocks?: InputMaybe<Scalars['JSON']['input']>;
+  budget?: InputMaybe<Scalars['Float']['input']>;
+  campaignType?: InputMaybe<CampaignType>;
+  channel?: InputMaybe<CampaignChannel>;
+  editorMode?: InputMaybe<EditorMode>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  mjml?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  preferenceCategoryId?: InputMaybe<Scalars['String']['input']>;
+  preheader?: InputMaybe<Scalars['String']['input']>;
+  replyTo?: InputMaybe<Scalars['String']['input']>;
+  /** The audience chosen in the Audience step. */
+  scheduledAudienceListId?: InputMaybe<Scalars['String']['input']>;
+  senderEmail?: InputMaybe<Scalars['String']['input']>;
+  senderName?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  status?: InputMaybe<CampaignStatus>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+  trackClicks?: InputMaybe<Scalars['Boolean']['input']>;
+  trackOpens?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 export type CampaignInput = {
   body?: InputMaybe<Scalars['String']['input']>;
@@ -1539,12 +1775,44 @@ export type CampaignPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-/** The first audience member's copy, rendered exactly as the send would render it. */
-export type CampaignPreview = {
-  __typename?: 'CampaignPreview';
-  body: Scalars['String']['output'];
-  recipient: Scalars['String']['output'];
+export type CampaignPreviewInput = {
+  campaignName: Scalars['String']['input'];
+  mjml: Scalars['String']['input'];
+  preheader: Scalars['String']['input'];
+  recordId?: InputMaybe<Scalars['String']['input']>;
+  recordKind?: InputMaybe<PreviewRecordKind>;
+  senderName: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+};
+
+/** The email as one recipient would get it, built by the pipeline the send uses. */
+export type CampaignPreviewResult = {
+  __typename?: 'CampaignPreviewResult';
+  html: Scalars['String']['output'];
+  issues: Array<MjmlIssue>;
+  missingVariables: Array<Scalars['String']['output']>;
+  preheader: Scalars['String']['output'];
+  recipient: PreviewRecipient;
   subject: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
+/** Everything checked before a real send; ERRORs block it. */
+export type CampaignQualityReport = {
+  __typename?: 'CampaignQualityReport';
+  canSend: Scalars['Boolean']['output'];
+  checks: Array<QualityCheck>;
+  /** The audience's counts for this campaign's category; null without an audience. */
+  counts?: Maybe<AudienceCounts>;
+};
+
+export type CampaignRevision = {
+  __typename?: 'CampaignRevision';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  subject: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 /** One recipient's copy of one campaign send, kept whether it worked or not. */
@@ -1560,18 +1828,19 @@ export type CampaignSend = {
   to: Scalars['String']['output'];
 };
 
-/** Outcome of a campaign email blast. */
-export type CampaignSendResult = {
-  __typename?: 'CampaignSendResult';
-  campaign: Campaign;
-  failed: Scalars['Int']['output'];
-  sent: Scalars['Int']['output'];
-  /** Recipients deliberately not written to — suppressed, or consent withdrawn. */
-  skipped: Scalars['Int']['output'];
-};
+/** Where the email delivery stands, separate from the campaign's marketing status. */
+export enum CampaignSendState {
+  Cancelled = 'CANCELLED',
+  Draft = 'DRAFT',
+  Failed = 'FAILED',
+  Queued = 'QUEUED',
+  Sending = 'SENDING',
+  Sent = 'SENT'
+}
 
 export enum CampaignSendStatus {
   Failed = 'FAILED',
+  Queued = 'QUEUED',
   Sent = 'SENT',
   Skipped = 'SKIPPED'
 }
@@ -1590,6 +1859,66 @@ export enum CampaignStatus {
   Paused = 'PAUSED',
   Planned = 'PLANNED'
 }
+
+/** What the studio needs to offer: verified senders, variables and categories. */
+export type CampaignStudioOptions = {
+  __typename?: 'CampaignStudioOptions';
+  categories: Array<PreferenceCategory>;
+  variables: Array<CampaignVariable>;
+  verifiedSenders: Array<Scalars['String']['output']>;
+};
+
+export type CampaignTemplate = {
+  __typename?: 'CampaignTemplate';
+  blocks: Scalars['JSON']['output'];
+  category: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  editorMode: EditorMode;
+  id: Scalars['ID']['output'];
+  mjml: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type CampaignTemplateInput = {
+  blocks?: InputMaybe<Scalars['JSON']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  editorMode: EditorMode;
+  mjml: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CampaignTemplateVersion = {
+  __typename?: 'CampaignTemplateVersion';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  note: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export enum CampaignType {
+  Announcement = 'ANNOUNCEMENT',
+  Event = 'EVENT',
+  FollowUp = 'FOLLOW_UP',
+  Newsletter = 'NEWSLETTER',
+  Other = 'OTHER',
+  Promotional = 'PROMOTIONAL'
+}
+
+/** One variable an email can use. */
+export type CampaignVariable = {
+  __typename?: 'CampaignVariable';
+  description: Scalars['String']['output'];
+  example: Scalars['String']['output'];
+  group: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
 
 /**
  * A reply the desk sends often, kept once instead of being retyped.
@@ -1671,6 +2000,12 @@ export type CaseStudyPage = {
   rows: Array<CaseStudy>;
   totalCount: Scalars['Int']['output'];
 };
+
+export enum CheckSeverity {
+  Error = 'ERROR',
+  Info = 'INFO',
+  Warning = 'WARNING'
+}
 
 export type Client = {
   __typename?: 'Client';
@@ -3532,6 +3867,21 @@ export type CrmViewInput = {
   sorts: Array<CrmSortInput>;
 };
 
+export type DashboardCampaign = {
+  __typename?: 'DashboardCampaign';
+  at?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  recipients?: Maybe<Scalars['Int']['output']>;
+  sendState?: Maybe<CampaignSendState>;
+};
+
+export type DashboardDay = {
+  __typename?: 'DashboardDay';
+  day: Scalars['String']['output'];
+  sent: Scalars['Int']['output'];
+};
+
 /** The MongoDB this server is connected to, reported by the database server. */
 export type DatabaseInfo = {
   __typename?: 'DatabaseInfo';
@@ -3833,6 +4183,11 @@ export type DraftCrmEmailInput = {
   object: CrmTimelineObject;
   threadId?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum EditorMode {
+  Code = 'CODE',
+  Visual = 'VISUAL'
+}
 
 export type EmailConfig = {
   __typename?: 'EmailConfig';
@@ -6594,27 +6949,110 @@ export type MarkAttendanceInput = {
   status: AttendanceStatus;
 };
 
-/** One address marketing must never write to again. */
+export type MarketingDashboard = {
+  __typename?: 'MarketingDashboard';
+  audiences: Scalars['Int']['output'];
+  campaigns: Scalars['Int']['output'];
+  clickRateLast30: Scalars['Int']['output'];
+  clickedLast30: Scalars['Int']['output'];
+  daily: Array<DashboardDay>;
+  drafts: Scalars['Int']['output'];
+  failedLast30: Scalars['Int']['output'];
+  recent: Array<DashboardCampaign>;
+  scheduled: Scalars['Int']['output'];
+  sending: Scalars['Int']['output'];
+  sentLast30: Scalars['Int']['output'];
+  suppressed: Scalars['Int']['output'];
+  unsubscribesLast30: Scalars['Int']['output'];
+  upcoming: Array<DashboardCampaign>;
+};
+
+export type MarketingFooter = {
+  __typename?: 'MarketingFooter';
+  companyName: Scalars['String']['output'];
+  contactLine: Scalars['String']['output'];
+  linkColor: Scalars['String']['output'];
+  postalAddress: Scalars['String']['output'];
+  privacyUrl: Scalars['String']['output'];
+  textColor: Scalars['String']['output'];
+  websiteUrl: Scalars['String']['output'];
+};
+
+export type MarketingFooterInput = {
+  companyName: Scalars['String']['input'];
+  contactLine?: InputMaybe<Scalars['String']['input']>;
+  linkColor?: InputMaybe<Scalars['String']['input']>;
+  postalAddress: Scalars['String']['input'];
+  privacyUrl?: InputMaybe<Scalars['String']['input']>;
+  textColor?: InputMaybe<Scalars['String']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** One address marketing must never write to again. Archived rows still block sends. */
 export type MarketingSuppression = {
   __typename?: 'MarketingSuppression';
+  addedByName: Scalars['String']['output'];
+  archivedAt?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** Read live from the CRM; only on the paged list and the lookup. */
+  linkedRecords?: Maybe<Array<SuppressionLink>>;
+  note: Scalars['String']['output'];
+  origin: SuppressionOrigin;
   reason: SuppressionReason;
+  scope: SuppressionScope;
+  /** Detail of where it came from — a campaign or contact id — or legacy free text. */
   source: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type MarketingSuppressionInput = {
+  /** Hide it from the list straight away. It is suppressed either way. */
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   email: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
   reason: SuppressionReason;
-  source?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** What adding an address would touch. */
+export type MarketingSuppressionLookup = {
+  __typename?: 'MarketingSuppressionLookup';
+  email: Scalars['String']['output'];
+  existing?: Maybe<MarketingSuppression>;
+  linkedRecords: Array<SuppressionLink>;
 };
 
 export type MarketingSuppressionPage = {
   __typename?: 'MarketingSuppressionPage';
   rows: Array<MarketingSuppression>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** The list's headline figures. Each address is counted once; archived rows count. */
+export type MarketingSuppressionSummary = {
+  __typename?: 'MarketingSuppressionSummary';
+  addedManually: Scalars['Int']['output'];
+  archived: Scalars['Int']['output'];
+  hardBounced: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+  unsubscribed: Scalars['Int']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type MarketingSuppressionsInput = {
+  emails: Array<Scalars['String']['input']>;
+  /** True when the addresses were read from an uploaded file (origin IMPORT). */
+  fromFile?: InputMaybe<Scalars['Boolean']['input']>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  reason: SuppressionReason;
+};
+
+export type MarketingSuppressionsResult = {
+  __typename?: 'MarketingSuppressionsResult';
+  added: Array<Scalars['String']['output']>;
+  alreadySuppressed: Array<Scalars['String']['output']>;
+  invalid: Array<Scalars['String']['output']>;
 };
 
 export type MeetingBooking = {
@@ -6856,6 +7294,12 @@ export enum MilestoneState {
   Planned = 'PLANNED'
 }
 
+export type MjmlIssue = {
+  __typename?: 'MjmlIssue';
+  line: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
 /** What one caller may do inside one module, folded down from every role they hold. */
 export type ModulePermission = {
   __typename?: 'ModulePermission';
@@ -6891,6 +7335,7 @@ export type Mutation = {
   addColdEmailVariant: ColdEmailDraft;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
+  addMarketingSuppressions: MarketingSuppressionsResult;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
   addMySupportReply: SupportReply;
   /** Adds somebody by hand (they agreed elsewhere); signing up again re-subscribes. */
@@ -6915,6 +7360,8 @@ export type Mutation = {
   assignSupportTicket: SupportTicket;
   /** Public: books a free start from a booking link. */
   bookMeeting: BookedMeeting;
+  /** Unschedules a queued send, or stops a running one before its next batch. */
+  cancelCampaignSend: Campaign;
   /** Withdraw a request that has not been carried out. */
   cancelItAccessRequest: ItAccessRequest;
   cancelMeetingBooking: MeetingBooking;
@@ -6956,6 +7403,7 @@ export type Mutation = {
   createApiKey: IssuedApiKey;
   createApplicant: Applicant;
   createAsset: Asset;
+  /** Saves the audience; a fixed one is frozen at the moment it is saved. */
   createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
@@ -7072,6 +7520,7 @@ export type Mutation = {
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
   createPosition: Position;
+  createPreferenceCategory: PreferenceCategory;
   createProblemReport: ProblemReport;
   createProduct: Product;
   createProject: Project;
@@ -7150,6 +7599,7 @@ export type Mutation = {
   deleteCallingBotConfig: Scalars['Boolean']['output'];
   deleteCallingBotScenario: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
+  deleteCampaignTemplate: Scalars['Boolean']['output'];
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
@@ -7217,8 +7667,6 @@ export type Mutation = {
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteManagementReview: Scalars['Boolean']['output'];
-  /** Deleting the row is how somebody is re-subscribed; there is no other way back. */
-  deleteMarketingSuppression: Scalars['Boolean']['output'];
   deleteMeetingType: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
@@ -7235,6 +7683,7 @@ export type Mutation = {
   deletePexelsConfig: Scalars['Boolean']['output'];
   deletePolicy: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
+  deletePreferenceCategory: Scalars['Boolean']['output'];
   deleteProblemReport: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
@@ -7288,6 +7737,7 @@ export type Mutation = {
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
+  duplicateCampaignTemplate: CampaignTemplate;
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
@@ -7361,6 +7811,8 @@ export type Mutation = {
   publishSocialMediaPostNow: SocialMediaPost;
   /** Refused with the issues listed when the draft has errors. */
   publishWhatsappWorkflow: WhatsappWorkflow;
+  /** Freezes the draft and queues it — now, or at scheduledAt. Refused while any check fails. */
+  queueCampaignSend: Campaign;
   /**
    * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
    * average cost, and re-reads the order's status from what has actually arrived.
@@ -7372,6 +7824,8 @@ export type Mutation = {
   recordStockMovement: StockMovement;
   /** At most 100 events per call; returns how many were newly stored. */
   recordWhatsappDemoEvents: Scalars['Int']['output'];
+  /** Lets campaigns reach the address again. Needs a reason; consent withdrawals need an administrator. */
+  removeMarketingSuppression: Scalars['Boolean']['output'];
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /**
@@ -7397,8 +7851,11 @@ export type Mutation = {
   resetPassword: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
   resetUserPassword: Scalars['String']['output'];
+  restoreCampaignTemplateVersion: CampaignTemplate;
   /** Copies a published version back into the draft (publish it to put it live). */
   restoreCmsPageRevision: CmsPage;
+  /** Sends the latest run's failed copies again; nobody gets a second copy. */
+  retryCampaignFailures: CampaignSendSummary;
   /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
   revealCallingBotSecret: Scalars['String']['output'];
   /** One saved credential of the config with this id, in full. Each reveal is audited. */
@@ -7451,6 +7908,9 @@ export type Mutation = {
   saveAiSpendLimit: AiSpendLimit;
   /** Saves an example's call flow (checked: voice steps only, no errors) and its script; null removes it. */
   saveCallingBotScenarioFlow: CallingBotScenario;
+  /** Creates (no id) or updates a draft. expectedVersion refuses a save over somebody else's. */
+  saveCampaignDraft: Campaign;
+  saveCampaignTemplate: CampaignTemplate;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
   /**
@@ -7463,6 +7923,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
+  saveMarketingFooter: MarketingFooter;
   /** Changing the booking page address stops the old one working. */
   saveMeetingSettings: MeetingSettings;
   saveMicrosoftMailConfig: MicrosoftMailConfig;
@@ -7479,12 +7940,8 @@ export type Mutation = {
    * exists. Returns a message safe to show the caller.
    */
   sendAdminCredentials: Scalars['String']['output'];
-  /**
-   * Emails the campaign's subject/body to every client in the audience list. With
-   * testEmail it goes to that one address only — a preview that needs no audience and
-   * leaves no send log or last-sent stamp behind.
-   */
-  sendCampaign: CampaignSendResult;
+  /** A [TEST] copy to a portal user's address: preview links, no tracking, not logged. */
+  sendCampaignTest: Scalars['Boolean']['output'];
   /** Sends one version from a CRM mailbox; it shows on the record's Emails tab and timeline. */
   sendColdEmailVariant: ColdEmailDraft;
   sendCrmEmail: CrmEmailMessage;
@@ -7539,6 +7996,7 @@ export type Mutation = {
   setGmailAccountEnabled: GmailAccount;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  setMarketingSuppressionArchived: MarketingSuppression;
   /** Turns a mailbox on or off for the CRM. */
   setMicrosoftMailAccountEnabled: MicrosoftMailAccount;
   /** Sets where one kind reaches this person. Returns the whole set, so a screen stays in step. */
@@ -7783,6 +8241,8 @@ export type Mutation = {
   updateDocPage: DocPage;
   updateEmailConfig: EmailConfig;
   updateEmailFragment: EmailFragment;
+  /** Public: saves a recipient's choices. Unsubscribing from all goes on the suppression list. */
+  updateEmailPreferences: PublicEmailPreferences;
   updateEmailTemplate: EmailTemplate;
   updateEmailVerifierConfig: EmailVerifierConfig;
   updateEmployeeDocument: EmployeeDocument;
@@ -7822,7 +8282,7 @@ export type Mutation = {
   updateLicence: Licence;
   updateLocation: Location;
   updateManagementReview: ManagementReview;
-  updateMarketingSuppression: MarketingSuppression;
+  updateMarketingSuppressionNote: MarketingSuppression;
   updateMeetingType: MeetingType;
   updateMilestone: Milestone;
   /**
@@ -7851,6 +8311,7 @@ export type Mutation = {
   updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
   updatePosition: Position;
+  updatePreferenceCategory: PreferenceCategory;
   /** A status change emails the reporter, when they left an address. */
   updateProblemReport: ProblemReport;
   updateProduct: Product;
@@ -7928,6 +8389,11 @@ export type MutationAddItIncidentUpdateArgs = {
   id: Scalars['ID']['input'];
   note: Scalars['String']['input'];
   status: ItIncidentStatus;
+};
+
+
+export type MutationAddMarketingSuppressionsArgs = {
+  input: MarketingSuppressionsInput;
 };
 
 
@@ -8012,6 +8478,11 @@ export type MutationBookMeetingArgs = {
   org: Scalars['String']['input'];
   page: Scalars['String']['input'];
   slug: Scalars['String']['input'];
+};
+
+
+export type MutationCancelCampaignSendArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -8618,6 +9089,11 @@ export type MutationCreatePositionArgs = {
 };
 
 
+export type MutationCreatePreferenceCategoryArgs = {
+  input: PreferenceCategoryInput;
+};
+
+
 export type MutationCreateProblemReportArgs = {
   input: ProblemReportInput;
 };
@@ -8935,6 +9411,11 @@ export type MutationDeleteCallingBotScenarioArgs = {
 
 
 export type MutationDeleteCampaignArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCampaignTemplateArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9265,11 +9746,6 @@ export type MutationDeleteManagementReviewArgs = {
 };
 
 
-export type MutationDeleteMarketingSuppressionArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
 export type MutationDeleteMeetingTypeArgs = {
   id: Scalars['ID']['input'];
 };
@@ -9341,6 +9817,11 @@ export type MutationDeletePolicyArgs = {
 
 
 export type MutationDeletePositionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePreferenceCategoryArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9575,6 +10056,11 @@ export type MutationDraftCrmEmailArgs = {
 };
 
 
+export type MutationDuplicateCampaignTemplateArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDuplicateCmsPageArgs = {
   id: Scalars['ID']['input'];
   path: Scalars['String']['input'];
@@ -9759,6 +10245,13 @@ export type MutationPublishWhatsappWorkflowArgs = {
 };
 
 
+export type MutationQueueCampaignSendArgs = {
+  audienceListId: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+
 export type MutationReceivePurchaseOrderArgs = {
   id: Scalars['ID']['input'];
   lines: Array<PurchaseReceiptLineInput>;
@@ -9777,6 +10270,12 @@ export type MutationRecordStockMovementArgs = {
 
 export type MutationRecordWhatsappDemoEventsArgs = {
   events: Array<WhatsappDemoEventInput>;
+};
+
+
+export type MutationRemoveMarketingSuppressionArgs = {
+  id: Scalars['ID']['input'];
+  justification: Scalars['String']['input'];
 };
 
 
@@ -9832,8 +10331,19 @@ export type MutationResetUserPasswordArgs = {
 };
 
 
+export type MutationRestoreCampaignTemplateVersionArgs = {
+  templateId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+
 export type MutationRestoreCmsPageRevisionArgs = {
   revisionId: Scalars['ID']['input'];
+};
+
+
+export type MutationRetryCampaignFailuresArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -9942,6 +10452,19 @@ export type MutationSaveCallingBotScenarioFlowArgs = {
 };
 
 
+export type MutationSaveCampaignDraftArgs = {
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: CampaignDraftInput;
+};
+
+
+export type MutationSaveCampaignTemplateArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: CampaignTemplateInput;
+};
+
+
 export type MutationSaveCmsFragmentDraftArgs = {
   draft: CmsDraftInput;
   id: Scalars['ID']['input'];
@@ -9967,6 +10490,11 @@ export type MutationSaveGmailConfigArgs = {
 
 export type MutationSaveGoogleSignInConfigArgs = {
   input: GoogleSignInConfigInput;
+};
+
+
+export type MutationSaveMarketingFooterArgs = {
+  input: MarketingFooterInput;
 };
 
 
@@ -10013,10 +10541,11 @@ export type MutationScrapeWebsiteArgs = {
 };
 
 
-export type MutationSendCampaignArgs = {
-  audienceListId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationSendCampaignTestArgs = {
   id: Scalars['ID']['input'];
-  testEmail?: InputMaybe<Scalars['String']['input']>;
+  recordId?: InputMaybe<Scalars['String']['input']>;
+  recordKind?: InputMaybe<PreviewRecordKind>;
+  to: Scalars['String']['input'];
 };
 
 
@@ -10174,6 +10703,12 @@ export type MutationSetGmailAccountEnabledArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetMarketingSuppressionArchivedArgs = {
+  archived: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -10845,6 +11380,13 @@ export type MutationUpdateEmailFragmentArgs = {
 };
 
 
+export type MutationUpdateEmailPreferencesArgs = {
+  optedOutCategoryIds: Array<Scalars['String']['input']>;
+  token: Scalars['String']['input'];
+  unsubscribeAll: Scalars['Boolean']['input'];
+};
+
+
 export type MutationUpdateEmailTemplateArgs = {
   id: Scalars['ID']['input'];
   input: EmailTemplateInput;
@@ -11078,9 +11620,9 @@ export type MutationUpdateManagementReviewArgs = {
 };
 
 
-export type MutationUpdateMarketingSuppressionArgs = {
+export type MutationUpdateMarketingSuppressionNoteArgs = {
   id: Scalars['ID']['input'];
-  input: MarketingSuppressionInput;
+  note: Scalars['String']['input'];
 };
 
 
@@ -11187,6 +11729,12 @@ export type MutationUpdatePolicyArgs = {
 export type MutationUpdatePositionArgs = {
   id: Scalars['ID']['input'];
   input: PositionInput;
+};
+
+
+export type MutationUpdatePreferenceCategoryArgs = {
+  id: Scalars['ID']['input'];
+  input: PreferenceCategoryInput;
 };
 
 
@@ -12451,6 +12999,52 @@ export type PositionInput = {
   name: Scalars['String']['input'];
 };
 
+/** A kind of marketing email recipients can turn off. */
+export type PreferenceCategory = {
+  __typename?: 'PreferenceCategory';
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PreferenceCategoryInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  sortOrder?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type PreferenceCategoryPage = {
+  __typename?: 'PreferenceCategoryPage';
+  rows: Array<PreferenceCategory>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type PreviewRecipient = {
+  __typename?: 'PreviewRecipient';
+  email: Scalars['String']['output'];
+  kind: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+export enum PreviewRecordKind {
+  Company = 'COMPANY',
+  Contact = 'CONTACT'
+}
+
+/** A record to preview as. */
+export type PreviewRecordOption = {
+  __typename?: 'PreviewRecordOption';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: PreviewRecordKind;
+  name: Scalars['String']['output'];
+};
+
 export enum ProblemCategory {
   Data = 'DATA',
   Login = 'LOGIN',
@@ -12879,6 +13473,15 @@ export type PublicBookingPage = {
   organizationSlug: Scalars['String']['output'];
 };
 
+/** The public preference page's view of one recipient. The address is masked. */
+export type PublicEmailPreferences = {
+  __typename?: 'PublicEmailPreferences';
+  categories: Array<PublicPreferenceCategory>;
+  email: Scalars['String']['output'];
+  preview: Scalars['Boolean']['output'];
+  unsubscribedAll: Scalars['Boolean']['output'];
+};
+
 /** What the public booking page shows before anything is booked. */
 export type PublicMeeting = {
   __typename?: 'PublicMeeting';
@@ -12907,6 +13510,15 @@ export type PublicPolicy = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   version: Scalars['Int']['output'];
+};
+
+/** A category on the public preference page. */
+export type PublicPreferenceCategory = {
+  __typename?: 'PublicPreferenceCategory';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  subscribed: Scalars['Boolean']['output'];
 };
 
 /** What a public ticket link shows. No comments, history, attachments or ids. */
@@ -13001,6 +13613,14 @@ export type PurchaseReceiptLineInput = {
   quantity: Scalars['Int']['input'];
 };
 
+export type QualityCheck = {
+  __typename?: 'QualityCheck';
+  code: Scalars['String']['output'];
+  line?: Maybe<Scalars['Int']['output']>;
+  message: Scalars['String']['output'];
+  severity: CheckSeverity;
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -13027,8 +13647,12 @@ export type Query = {
   assetAssignments: Array<AssetAssignment>;
   /** HR/ADMIN: a specific employee's attendance records. */
   attendanceByEmployee: Array<Attendance>;
-  /** Who an audience currently reaches: named members plus its segment, de-duplicated. */
-  audienceMembers: Array<AudienceMember>;
+  /** The fields audience rules can test, and the address labels in use. */
+  audienceFilterCatalogue: AudienceFilterCatalogue;
+  /** The values in use for a text or tag field, for the rule builder's suggestions. */
+  audienceFilterValues: Array<Scalars['String']['output']>;
+  /** What a saved audience reaches now, honouring its fixed snapshot — for a campaign's preference category when given. */
+  audienceResolution: AudienceResolution;
   /** TECH: every background loop, with what its last pass did. */
   backgroundJobs: Array<BackgroundJob>;
   branding: Branding;
@@ -13047,15 +13671,18 @@ export type Query = {
   callingBotScenarioOptions: Array<CallingBotScenarioOption>;
   /** Every example call, for Tech. */
   callingBotScenarios: Array<CallingBotScenario>;
+  campaignDeliveryStats: CampaignDeliveryStats;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
   /** Campaigns as pickable options, so a lead can be attributed to one. CRM may read these. */
   campaignOptions: Array<CampaignOption>;
-  /** The first member's copy, rendered by the same code the send uses. Null for an empty audience. */
-  campaignPreview?: Maybe<CampaignPreview>;
+  campaignQualityChecks: CampaignQualityReport;
+  campaignRevisions: Array<CampaignRevision>;
   /** Sent, failed and skipped counts for one campaign. */
   campaignSendSummary: CampaignSendSummary;
+  campaignStudioOptions: CampaignStudioOptions;
+  campaignTemplateVersions: Array<CampaignTemplateVersion>;
   campaignTopLinks: Array<CampaignLinkStat>;
   /**
    * Whether the caller may export this module. Asked once before an export starts
@@ -13156,6 +13783,8 @@ export type Query = {
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
+  /** Public: a recipient's choices, by the token in their email. */
+  emailPreferences: PublicEmailPreferences;
   emailVerificationBatches: Array<EmailVerificationBatch>;
   emailVerificationsPaged: EmailVerificationPage;
   emailVerifierConfigs: Array<EmailVerifierConfig>;
@@ -13230,6 +13859,7 @@ export type Query = {
   getPerformanceReview: PerformanceReview;
   getPolicy: Policy;
   getPosition: Position;
+  getPreferenceCategory: PreferenceCategory;
   getProblemReport: ProblemReport;
   getProduct: Product;
   getProject: Project;
@@ -13346,6 +13976,7 @@ export type Query = {
   listBugsStats: TableStats;
   /** Every recipient of a campaign's sends, newest first. */
   listCampaignSends: Array<CampaignSend>;
+  listCampaignTemplates: Array<CampaignTemplate>;
   listCampaigns: Array<Campaign>;
   listCampaignsPaged: CampaignPage;
   listCampaignsStats: TableStats;
@@ -13527,6 +14158,8 @@ export type Query = {
   listPoliciesStats: TableStats;
   /** HR/ADMIN: job positions / designations. */
   listPositions: Array<Position>;
+  listPreferenceCategories: Array<PreferenceCategory>;
+  listPreferenceCategoriesPaged: PreferenceCategoryPage;
   listProblemReports: Array<ProblemReport>;
   listProblemReportsPaged: ProblemReportPage;
   listProblemReportsStats: TableStats;
@@ -13632,6 +14265,12 @@ export type Query = {
   localeBundle: LocaleBundle;
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
+  marketingDashboard: MarketingDashboard;
+  marketingFooter: MarketingFooter;
+  /** Every recorded change to an address, newest first — kept after a removal too. */
+  marketingSuppressionHistory: Array<AuditLog>;
+  marketingSuppressionLookup: MarketingSuppressionLookup;
+  marketingSuppressionSummary: MarketingSuppressionSummary;
   me: User;
   /** The path of this company's booking page inside its CRM address: /book/<page>. */
   meetingBookingPagePath: Scalars['String']['output'];
@@ -13743,10 +14382,15 @@ export type Query = {
   platformAnalytics: PlatformAnalytics;
   /** Who has signed a policy, newest first. */
   policyAcknowledgements: Array<PolicyAcknowledgement>;
+  /** What an unsaved audience would reach, always resolved live. */
+  previewAudience: AudienceResolution;
+  previewCampaignContent: CampaignPreviewResult;
   /** Renders a stored template with the values given, through the very code that sends it. */
   previewEmailTemplate: EmailPreview;
   /** Read-only: which of these leads are already CRM companies, and what extra details each would add. */
   previewLeadImport: Array<LeadImportPreview>;
+  /** Contacts and companies matching a search, to preview the email as one of them. */
+  previewRecordOptions: Array<PreviewRecordOption>;
   /** HR/ADMIN: active employees whose probation ends inside the next N days, soonest first. */
   probationsEnding: Array<User>;
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
@@ -13907,6 +14551,7 @@ export type Query = {
   teamPerformanceReviews: Array<PerformanceReview>;
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
+  techEmailTemplateOptions: Array<TechEmailTemplateOption>;
   trackerAccessList: Array<TrackerAccess>;
   /**
    * Billing for tracked time over a range. Active time only — idle minutes are time at a
@@ -14025,7 +14670,13 @@ export type QueryAttendanceByEmployeeArgs = {
 };
 
 
-export type QueryAudienceMembersArgs = {
+export type QueryAudienceFilterValuesArgs = {
+  field: Scalars['String']['input'];
+};
+
+
+export type QueryAudienceResolutionArgs = {
+  categoryId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
 };
 
@@ -14046,19 +14697,34 @@ export type QueryCallingBotRecentCallsArgs = {
 };
 
 
+export type QueryCampaignDeliveryStatsArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
 export type QueryCampaignMetricsArgs = {
   campaignId: Scalars['ID']['input'];
 };
 
 
-export type QueryCampaignPreviewArgs = {
-  audienceListId: Scalars['ID']['input'];
+export type QueryCampaignQualityChecksArgs = {
+  audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCampaignRevisionsArgs = {
+  campaignId: Scalars['ID']['input'];
 };
 
 
 export type QueryCampaignSendSummaryArgs = {
   campaignId: Scalars['ID']['input'];
+};
+
+
+export type QueryCampaignTemplateVersionsArgs = {
+  templateId: Scalars['ID']['input'];
 };
 
 
@@ -14283,6 +14949,11 @@ export type QueryDockerContainerDetailArgs = {
 
 export type QueryEmailDashboardArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryEmailPreferencesArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -14603,6 +15274,11 @@ export type QueryGetPolicyArgs = {
 
 
 export type QueryGetPositionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPreferenceCategoryArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -15112,6 +15788,11 @@ export type QueryListPoliciesPagedArgs = {
 };
 
 
+export type QueryListPreferenceCategoriesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListProblemReportsPagedArgs = {
   input: TableQueryInput;
 };
@@ -15262,6 +15943,16 @@ export type QueryLocaleBundleArgs = {
 };
 
 
+export type QueryMarketingSuppressionHistoryArgs = {
+  email: Scalars['String']['input'];
+};
+
+
+export type QueryMarketingSuppressionLookupArgs = {
+  email: Scalars['String']['input'];
+};
+
+
 export type QueryMeetingBookingsArgs = {
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
@@ -15369,6 +16060,16 @@ export type QueryPolicyAcknowledgementsArgs = {
 };
 
 
+export type QueryPreviewAudienceArgs = {
+  input: AudienceListInput;
+};
+
+
+export type QueryPreviewCampaignContentArgs = {
+  input: CampaignPreviewInput;
+};
+
+
 export type QueryPreviewEmailTemplateArgs = {
   key: Scalars['String']['input'];
   variables?: InputMaybe<Array<EmailVariableInput>>;
@@ -15377,6 +16078,11 @@ export type QueryPreviewEmailTemplateArgs = {
 
 export type QueryPreviewLeadImportArgs = {
   leads: Array<LeadImportInput>;
+};
+
+
+export type QueryPreviewRecordOptionsArgs = {
+  search: Scalars['String']['input'];
 };
 
 
@@ -17419,11 +18125,39 @@ export type SupportTicketPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-/** Why an address is on the marketing suppression list. */
+/** A contact or company holding a suppressed address, with all of its addresses. */
+export type SuppressionLink = {
+  __typename?: 'SuppressionLink';
+  emails: Array<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  kind: AudienceRecordKind;
+  name: Scalars['String']['output'];
+};
+
+/** What wrote the row, set by the server from the action — never chosen. */
+export enum SuppressionOrigin {
+  Admin = 'ADMIN',
+  Api = 'API',
+  Campaign = 'CAMPAIGN',
+  Crm = 'CRM',
+  Import = 'IMPORT',
+  Subscriber = 'SUBSCRIBER',
+  System = 'SYSTEM'
+}
+
+/** Why an address is on the marketing suppression list. BOUNCED is a hard bounce. */
 export enum SuppressionReason {
   Bounced = 'BOUNCED',
+  DoNotContact = 'DO_NOT_CONTACT',
   Manual = 'MANUAL',
+  Other = 'OTHER',
+  SpamComplaint = 'SPAM_COMPLAINT',
   Unsubscribed = 'UNSUBSCRIBED'
+}
+
+/** What a suppression stops: all of the organization's marketing, never transactional mail. */
+export enum SuppressionScope {
+  OrganizationMarketing = 'ORGANIZATION_MARKETING'
 }
 
 export type SystemHealth = {
@@ -17880,6 +18614,14 @@ export type TeamPage = {
   __typename?: 'TeamPage';
   rows: Array<Team>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** A Tech > Email template offered as a starting point. */
+export type TechEmailTemplateOption = {
+  __typename?: 'TechEmailTemplateOption';
+  key: Scalars['String']['output'];
+  mjml: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
@@ -19925,12 +20667,29 @@ export type ResolversTypes = ResolversObject<{
   AttendanceProjectTime: ResolverTypeWrapper<AttendanceProjectTime>;
   AttendanceStatus: AttendanceStatus;
   AttendanceTrackerBrief: ResolverTypeWrapper<AttendanceTrackerBrief>;
+  AudienceCompanyEmailSource: AudienceCompanyEmailSource;
+  AudienceCondition: ResolverTypeWrapper<AudienceCondition>;
+  AudienceConditionInput: AudienceConditionInput;
+  AudienceCounts: ResolverTypeWrapper<AudienceCounts>;
+  AudienceEmailSelection: AudienceEmailSelection;
+  AudienceExclusionReason: AudienceExclusionReason;
+  AudienceFilterCatalogue: ResolverTypeWrapper<AudienceFilterCatalogue>;
+  AudienceFilterEntity: AudienceFilterEntity;
+  AudienceFilterField: ResolverTypeWrapper<AudienceFilterField>;
+  AudienceFilterKind: AudienceFilterKind;
   AudienceList: ResolverTypeWrapper<AudienceList>;
   AudienceListInput: AudienceListInput;
   AudienceListPage: ResolverTypeWrapper<AudienceListPage>;
-  AudienceMember: ResolverTypeWrapper<AudienceMember>;
-  AudienceMemberKind: AudienceMemberKind;
-  AudienceSegment: AudienceSegment;
+  AudienceRecipient: ResolverTypeWrapper<AudienceRecipient>;
+  AudienceRecipientOrigin: ResolverTypeWrapper<AudienceRecipientOrigin>;
+  AudienceRecipientPage: ResolverTypeWrapper<AudienceRecipientPage>;
+  AudienceRecipientSource: AudienceRecipientSource;
+  AudienceRecordKind: AudienceRecordKind;
+  AudienceRecordVia: AudienceRecordVia;
+  AudienceResolution: ResolverTypeWrapper<AudienceResolution>;
+  AudienceRuleCombinator: AudienceRuleCombinator;
+  AudienceRuleOperator: AudienceRuleOperator;
+  AudienceUpdateMode: AudienceUpdateMode;
   AuditAction: AuditAction;
   AuditKind: AuditKind;
   AuditLog: ResolverTypeWrapper<AuditLog>;
@@ -19980,24 +20739,36 @@ export type ResolversTypes = ResolversObject<{
   CallingBotTurnRole: CallingBotTurnRole;
   Campaign: ResolverTypeWrapper<Campaign>;
   CampaignChannel: CampaignChannel;
+  CampaignDeliveryStats: ResolverTypeWrapper<CampaignDeliveryStats>;
+  CampaignDraftInput: CampaignDraftInput;
   CampaignInput: CampaignInput;
   CampaignLeadCount: ResolverTypeWrapper<CampaignLeadCount>;
   CampaignLinkStat: ResolverTypeWrapper<CampaignLinkStat>;
   CampaignMetrics: ResolverTypeWrapper<CampaignMetrics>;
   CampaignOption: ResolverTypeWrapper<CampaignOption>;
   CampaignPage: ResolverTypeWrapper<CampaignPage>;
-  CampaignPreview: ResolverTypeWrapper<CampaignPreview>;
+  CampaignPreviewInput: CampaignPreviewInput;
+  CampaignPreviewResult: ResolverTypeWrapper<CampaignPreviewResult>;
+  CampaignQualityReport: ResolverTypeWrapper<CampaignQualityReport>;
+  CampaignRevision: ResolverTypeWrapper<CampaignRevision>;
   CampaignSend: ResolverTypeWrapper<CampaignSend>;
-  CampaignSendResult: ResolverTypeWrapper<CampaignSendResult>;
+  CampaignSendState: CampaignSendState;
   CampaignSendStatus: CampaignSendStatus;
   CampaignSendSummary: ResolverTypeWrapper<CampaignSendSummary>;
   CampaignStatus: CampaignStatus;
+  CampaignStudioOptions: ResolverTypeWrapper<CampaignStudioOptions>;
+  CampaignTemplate: ResolverTypeWrapper<CampaignTemplate>;
+  CampaignTemplateInput: CampaignTemplateInput;
+  CampaignTemplateVersion: ResolverTypeWrapper<CampaignTemplateVersion>;
+  CampaignType: CampaignType;
+  CampaignVariable: ResolverTypeWrapper<CampaignVariable>;
   CannedReply: ResolverTypeWrapper<CannedReply>;
   CannedReplyInput: CannedReplyInput;
   CannedReplyPage: ResolverTypeWrapper<CannedReplyPage>;
   CaseStudy: ResolverTypeWrapper<CaseStudy>;
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: ResolverTypeWrapper<CaseStudyPage>;
+  CheckSeverity: CheckSeverity;
   Client: ResolverTypeWrapper<Client>;
   ClientContact: ResolverTypeWrapper<ClientContact>;
   ClientContactInput: ClientContactInput;
@@ -20161,6 +20932,8 @@ export type ResolversTypes = ResolversObject<{
   CrmTimelineObject: CrmTimelineObject;
   CrmView: ResolverTypeWrapper<CrmView>;
   CrmViewInput: CrmViewInput;
+  DashboardCampaign: ResolverTypeWrapper<DashboardCampaign>;
+  DashboardDay: ResolverTypeWrapper<DashboardDay>;
   DatabaseInfo: ResolverTypeWrapper<DatabaseInfo>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Deal: ResolverTypeWrapper<Deal>;
@@ -20188,6 +20961,7 @@ export type ResolversTypes = ResolversObject<{
   DocumentKind: DocumentKind;
   DocumentStatus: DocumentStatus;
   DraftCrmEmailInput: DraftCrmEmailInput;
+  EditorMode: EditorMode;
   EmailConfig: ResolverTypeWrapper<EmailConfig>;
   EmailConfigInput: EmailConfigInput;
   EmailDashboard: ResolverTypeWrapper<EmailDashboard>;
@@ -20438,9 +21212,16 @@ export type ResolversTypes = ResolversObject<{
   ManagementReviewStatus: ManagementReviewStatus;
   ManagementStandard: ManagementStandard;
   MarkAttendanceInput: MarkAttendanceInput;
+  MarketingDashboard: ResolverTypeWrapper<MarketingDashboard>;
+  MarketingFooter: ResolverTypeWrapper<MarketingFooter>;
+  MarketingFooterInput: MarketingFooterInput;
   MarketingSuppression: ResolverTypeWrapper<MarketingSuppression>;
   MarketingSuppressionInput: MarketingSuppressionInput;
+  MarketingSuppressionLookup: ResolverTypeWrapper<MarketingSuppressionLookup>;
   MarketingSuppressionPage: ResolverTypeWrapper<MarketingSuppressionPage>;
+  MarketingSuppressionSummary: ResolverTypeWrapper<MarketingSuppressionSummary>;
+  MarketingSuppressionsInput: MarketingSuppressionsInput;
+  MarketingSuppressionsResult: ResolverTypeWrapper<MarketingSuppressionsResult>;
   MeetingBooking: ResolverTypeWrapper<MeetingBooking>;
   MeetingBookingPage: ResolverTypeWrapper<MeetingBookingPage>;
   MeetingBookingStatus: MeetingBookingStatus;
@@ -20464,6 +21245,7 @@ export type ResolversTypes = ResolversObject<{
   Milestone: ResolverTypeWrapper<Milestone>;
   MilestoneInput: MilestoneInput;
   MilestoneState: MilestoneState;
+  MjmlIssue: ResolverTypeWrapper<MjmlIssue>;
   ModulePermission: ResolverTypeWrapper<ModulePermission>;
   MovementReason: MovementReason;
   Mutation: ResolverTypeWrapper<{}>;
@@ -20551,6 +21333,12 @@ export type ResolversTypes = ResolversObject<{
   PolicyStatus: PolicyStatus;
   Position: ResolverTypeWrapper<Position>;
   PositionInput: PositionInput;
+  PreferenceCategory: ResolverTypeWrapper<PreferenceCategory>;
+  PreferenceCategoryInput: PreferenceCategoryInput;
+  PreferenceCategoryPage: ResolverTypeWrapper<PreferenceCategoryPage>;
+  PreviewRecipient: ResolverTypeWrapper<PreviewRecipient>;
+  PreviewRecordKind: PreviewRecordKind;
+  PreviewRecordOption: ResolverTypeWrapper<PreviewRecordOption>;
   ProblemCategory: ProblemCategory;
   ProblemReport: ResolverTypeWrapper<ProblemReport>;
   ProblemReportInput: ProblemReportInput;
@@ -20588,8 +21376,10 @@ export type ResolversTypes = ResolversObject<{
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
   PublicBookingPage: ResolverTypeWrapper<PublicBookingPage>;
+  PublicEmailPreferences: ResolverTypeWrapper<PublicEmailPreferences>;
   PublicMeeting: ResolverTypeWrapper<PublicMeeting>;
   PublicPolicy: ResolverTypeWrapper<PublicPolicy>;
+  PublicPreferenceCategory: ResolverTypeWrapper<PublicPreferenceCategory>;
   PublicTaskView: ResolverTypeWrapper<PublicTaskView>;
   PurchaseOrder: ResolverTypeWrapper<PurchaseOrder>;
   PurchaseOrderInput: PurchaseOrderInput;
@@ -20598,6 +21388,7 @@ export type ResolversTypes = ResolversObject<{
   PurchaseOrderPage: ResolverTypeWrapper<PurchaseOrderPage>;
   PurchaseOrderStatus: PurchaseOrderStatus;
   PurchaseReceiptLineInput: PurchaseReceiptLineInput;
+  QualityCheck: ResolverTypeWrapper<QualityCheck>;
   Query: ResolverTypeWrapper<{}>;
   RazorpayConfig: ResolverTypeWrapper<RazorpayConfig>;
   RazorpayConfigInput: RazorpayConfigInput;
@@ -20731,7 +21522,10 @@ export type ResolversTypes = ResolversObject<{
   SupportTicket: ResolverTypeWrapper<SupportTicket>;
   SupportTicketInput: SupportTicketInput;
   SupportTicketPage: ResolverTypeWrapper<SupportTicketPage>;
+  SuppressionLink: ResolverTypeWrapper<SuppressionLink>;
+  SuppressionOrigin: SuppressionOrigin;
   SuppressionReason: SuppressionReason;
+  SuppressionScope: SuppressionScope;
   SystemHealth: ResolverTypeWrapper<SystemHealth>;
   TableBulkAction: TableBulkAction;
   TableBulkFailure: ResolverTypeWrapper<TableBulkFailure>;
@@ -20775,6 +21569,7 @@ export type ResolversTypes = ResolversObject<{
   Team: ResolverTypeWrapper<Team>;
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
+  TechEmailTemplateOption: ResolverTypeWrapper<TechEmailTemplateOption>;
   TechSecret: TechSecret;
   TicketChannel: TicketChannel;
   Tool: ResolverTypeWrapper<Tool>;
@@ -20977,10 +21772,18 @@ export type ResolversParentTypes = ResolversObject<{
   AttendancePage: AttendancePage;
   AttendanceProjectTime: AttendanceProjectTime;
   AttendanceTrackerBrief: AttendanceTrackerBrief;
+  AudienceCondition: AudienceCondition;
+  AudienceConditionInput: AudienceConditionInput;
+  AudienceCounts: AudienceCounts;
+  AudienceFilterCatalogue: AudienceFilterCatalogue;
+  AudienceFilterField: AudienceFilterField;
   AudienceList: AudienceList;
   AudienceListInput: AudienceListInput;
   AudienceListPage: AudienceListPage;
-  AudienceMember: AudienceMember;
+  AudienceRecipient: AudienceRecipient;
+  AudienceRecipientOrigin: AudienceRecipientOrigin;
+  AudienceRecipientPage: AudienceRecipientPage;
+  AudienceResolution: AudienceResolution;
   AuditLog: AuditLog;
   AuditLogPage: AuditLogPage;
   AuthPayload: AuthPayload;
@@ -21017,16 +21820,25 @@ export type ResolversParentTypes = ResolversObject<{
   CallingBotScenarioOption: CallingBotScenarioOption;
   CallingBotTurn: CallingBotTurn;
   Campaign: Campaign;
+  CampaignDeliveryStats: CampaignDeliveryStats;
+  CampaignDraftInput: CampaignDraftInput;
   CampaignInput: CampaignInput;
   CampaignLeadCount: CampaignLeadCount;
   CampaignLinkStat: CampaignLinkStat;
   CampaignMetrics: CampaignMetrics;
   CampaignOption: CampaignOption;
   CampaignPage: CampaignPage;
-  CampaignPreview: CampaignPreview;
+  CampaignPreviewInput: CampaignPreviewInput;
+  CampaignPreviewResult: CampaignPreviewResult;
+  CampaignQualityReport: CampaignQualityReport;
+  CampaignRevision: CampaignRevision;
   CampaignSend: CampaignSend;
-  CampaignSendResult: CampaignSendResult;
   CampaignSendSummary: CampaignSendSummary;
+  CampaignStudioOptions: CampaignStudioOptions;
+  CampaignTemplate: CampaignTemplate;
+  CampaignTemplateInput: CampaignTemplateInput;
+  CampaignTemplateVersion: CampaignTemplateVersion;
+  CampaignVariable: CampaignVariable;
   CannedReply: CannedReply;
   CannedReplyInput: CannedReplyInput;
   CannedReplyPage: CannedReplyPage;
@@ -21166,6 +21978,8 @@ export type ResolversParentTypes = ResolversObject<{
   CrmTimelineItem: CrmTimelineItem;
   CrmView: CrmView;
   CrmViewInput: CrmViewInput;
+  DashboardCampaign: DashboardCampaign;
+  DashboardDay: DashboardDay;
   DatabaseInfo: DatabaseInfo;
   DateTime: Scalars['DateTime']['output'];
   Deal: Deal;
@@ -21388,9 +22202,16 @@ export type ResolversParentTypes = ResolversObject<{
   ManagementReviewInput: ManagementReviewInput;
   ManagementReviewPage: ManagementReviewPage;
   MarkAttendanceInput: MarkAttendanceInput;
+  MarketingDashboard: MarketingDashboard;
+  MarketingFooter: MarketingFooter;
+  MarketingFooterInput: MarketingFooterInput;
   MarketingSuppression: MarketingSuppression;
   MarketingSuppressionInput: MarketingSuppressionInput;
+  MarketingSuppressionLookup: MarketingSuppressionLookup;
   MarketingSuppressionPage: MarketingSuppressionPage;
+  MarketingSuppressionSummary: MarketingSuppressionSummary;
+  MarketingSuppressionsInput: MarketingSuppressionsInput;
+  MarketingSuppressionsResult: MarketingSuppressionsResult;
   MeetingBooking: MeetingBooking;
   MeetingBookingPage: MeetingBookingPage;
   MeetingSettings: MeetingSettings;
@@ -21411,6 +22232,7 @@ export type ResolversParentTypes = ResolversObject<{
   MicrosoftMailConfigInput: MicrosoftMailConfigInput;
   Milestone: Milestone;
   MilestoneInput: MilestoneInput;
+  MjmlIssue: MjmlIssue;
   ModulePermission: ModulePermission;
   Mutation: {};
   MyApprovalDelegations: MyApprovalDelegations;
@@ -21478,6 +22300,11 @@ export type ResolversParentTypes = ResolversObject<{
   PolicyPage: PolicyPage;
   Position: Position;
   PositionInput: PositionInput;
+  PreferenceCategory: PreferenceCategory;
+  PreferenceCategoryInput: PreferenceCategoryInput;
+  PreferenceCategoryPage: PreferenceCategoryPage;
+  PreviewRecipient: PreviewRecipient;
+  PreviewRecordOption: PreviewRecordOption;
   ProblemReport: ProblemReport;
   ProblemReportInput: ProblemReportInput;
   ProblemReportPage: ProblemReportPage;
@@ -21507,8 +22334,10 @@ export type ResolversParentTypes = ResolversObject<{
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
   PublicBookingPage: PublicBookingPage;
+  PublicEmailPreferences: PublicEmailPreferences;
   PublicMeeting: PublicMeeting;
   PublicPolicy: PublicPolicy;
+  PublicPreferenceCategory: PublicPreferenceCategory;
   PublicTaskView: PublicTaskView;
   PurchaseOrder: PurchaseOrder;
   PurchaseOrderInput: PurchaseOrderInput;
@@ -21516,6 +22345,7 @@ export type ResolversParentTypes = ResolversObject<{
   PurchaseOrderLineInput: PurchaseOrderLineInput;
   PurchaseOrderPage: PurchaseOrderPage;
   PurchaseReceiptLineInput: PurchaseReceiptLineInput;
+  QualityCheck: QualityCheck;
   Query: {};
   RazorpayConfig: RazorpayConfig;
   RazorpayConfigInput: RazorpayConfigInput;
@@ -21623,6 +22453,7 @@ export type ResolversParentTypes = ResolversObject<{
   SupportTicket: SupportTicket;
   SupportTicketInput: SupportTicketInput;
   SupportTicketPage: SupportTicketPage;
+  SuppressionLink: SuppressionLink;
   SystemHealth: SystemHealth;
   TableBulkFailure: TableBulkFailure;
   TableBulkInfo: TableBulkInfo;
@@ -21656,6 +22487,7 @@ export type ResolversParentTypes = ResolversObject<{
   Team: Team;
   TeamInput: TeamInput;
   TeamPage: TeamPage;
+  TechEmailTemplateOption: TechEmailTemplateOption;
   Tool: Tool;
   ToolCategory: ToolCategory;
   ToolCategoryInput: ToolCategoryInput;
@@ -22184,15 +23016,63 @@ export type AttendanceTrackerBriefResolvers<ContextType = GraphQLContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type AudienceConditionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceCondition'] = ResolversParentTypes['AudienceCondition']> = ResolversObject<{
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  operator?: Resolver<ResolversTypes['AudienceRuleOperator'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceCountsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceCounts'] = ResolversParentTypes['AudienceCounts']> = ResolversObject<{
+  clients?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  companies?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  contacts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  duplicates?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  eligible?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  excluded?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  invalid?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  optedOut?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rawEmails?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recordsWithoutEmail?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  suppressed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  uniqueEmails?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceFilterCatalogueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceFilterCatalogue'] = ResolversParentTypes['AudienceFilterCatalogue']> = ResolversObject<{
+  emailTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  fields?: Resolver<Array<ResolversTypes['AudienceFilterField']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceFilterFieldResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceFilterField'] = ResolversParentTypes['AudienceFilterField']> = ResolversObject<{
+  entity?: Resolver<ResolversTypes['AudienceFilterEntity'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['AudienceFilterKind'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  operators?: Resolver<Array<ResolversTypes['AudienceRuleOperator']>, ParentType, ContextType>;
+  values?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type AudienceListResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceList'] = ResolversParentTypes['AudienceList']> = ResolversObject<{
+  allActiveClients?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   clientIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  companyEmailSource?: Resolver<ResolversTypes['AudienceCompanyEmailSource'], ParentType, ContextType>;
+  companyIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  conditions?: Resolver<Array<ResolversTypes['AudienceCondition']>, ParentType, ContextType>;
   contactIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  dynamicSegment?: Resolver<ResolversTypes['AudienceSegment'], ParentType, ContextType>;
+  emailSelection?: Resolver<ResolversTypes['AudienceEmailSelection'], ParentType, ContextType>;
+  emailTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  excludedEmails?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  segmentValue?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recipientSource?: Resolver<ResolversTypes['AudienceRecipientSource'], ParentType, ContextType>;
+  ruleCombinator?: Resolver<ResolversTypes['AudienceRuleCombinator'], ParentType, ContextType>;
+  snapshotAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  updateMode?: Resolver<ResolversTypes['AudienceUpdateMode'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -22203,13 +23083,35 @@ export type AudienceListPageResolvers<ContextType = GraphQLContext, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AudienceMemberResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceMember'] = ResolversParentTypes['AudienceMember']> = ResolversObject<{
+export type AudienceRecipientResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceRecipient'] = ResolversParentTypes['AudienceRecipient']> = ResolversObject<{
   company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  kind?: Resolver<ResolversTypes['AudienceMemberKind'], ParentType, ContextType>;
+  exclusion?: Resolver<Maybe<ResolversTypes['AudienceExclusionReason']>, ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sources?: Resolver<Array<ResolversTypes['AudienceRecipientOrigin']>, ParentType, ContextType>;
+  verification?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceRecipientOriginResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceRecipientOrigin'] = ResolversParentTypes['AudienceRecipientOrigin']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['AudienceRecordKind'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  via?: Resolver<ResolversTypes['AudienceRecordVia'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceRecipientPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceRecipientPage'] = ResolversParentTypes['AudienceRecipientPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['AudienceRecipient']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceResolutionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceResolution'] = ResolversParentTypes['AudienceResolution']> = ResolversObject<{
+  counts?: Resolver<ResolversTypes['AudienceCounts'], ParentType, ContextType>;
+  recipients?: Resolver<ResolversTypes['AudienceRecipientPage'], ParentType, ContextType, RequireFields<AudienceResolutionRecipientsArgs, 'input'>>;
+  resolvedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -22519,23 +23421,59 @@ export type CallingBotTurnResolvers<ContextType = GraphQLContext, ParentType ext
 }>;
 
 export type CampaignResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Campaign'] = ResolversParentTypes['Campaign']> = ResolversObject<{
+  blocks?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   body?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   budget?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  campaignType?: Resolver<ResolversTypes['CampaignType'], ParentType, ContextType>;
   channel?: Resolver<ResolversTypes['CampaignChannel'], ParentType, ContextType>;
+  contentVersion?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  editorMode?: Resolver<ResolversTypes['EditorMode'], ParentType, ContextType>;
   endDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  html?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastSentAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preferenceCategoryId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preheader?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   recipientsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  replyTo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   scheduleDispatchedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   scheduledAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   scheduledAudienceListId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sendState?: Resolver<ResolversTypes['CampaignSendState'], ParentType, ContextType>;
+  senderEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  senderName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sendingRevisionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   startDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['CampaignStatus'], ParentType, ContextType>;
   subject?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   templateKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  trackClicks?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  trackOpens?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignDeliveryStatsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignDeliveryStats'] = ResolversParentTypes['CampaignDeliveryStats']> = ResolversObject<{
+  bounced?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  clickRate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  clicked?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  eligible?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  estimatedOpens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastSentAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  preferenceChanges?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  queued?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  resolved?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  runId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scheduledAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  sendState?: Resolver<ResolversTypes['CampaignSendState'], ParentType, ContextType>;
+  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unsubscribed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -22578,10 +23516,30 @@ export type CampaignPageResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CampaignPreviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignPreview'] = ResolversParentTypes['CampaignPreview']> = ResolversObject<{
-  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  recipient?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+export type CampaignPreviewResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignPreviewResult'] = ResolversParentTypes['CampaignPreviewResult']> = ResolversObject<{
+  html?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  issues?: Resolver<Array<ResolversTypes['MjmlIssue']>, ParentType, ContextType>;
+  missingVariables?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  preheader?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recipient?: Resolver<ResolversTypes['PreviewRecipient'], ParentType, ContextType>;
   subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignQualityReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignQualityReport'] = ResolversParentTypes['CampaignQualityReport']> = ResolversObject<{
+  canSend?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  checks?: Resolver<Array<ResolversTypes['QualityCheck']>, ParentType, ContextType>;
+  counts?: Resolver<Maybe<ResolversTypes['AudienceCounts']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignRevisionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignRevision'] = ResolversParentTypes['CampaignRevision']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -22597,18 +23555,49 @@ export type CampaignSendResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CampaignSendResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignSendResult'] = ResolversParentTypes['CampaignSendResult']> = ResolversObject<{
-  campaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType>;
+export type CampaignSendSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignSendSummary'] = ResolversParentTypes['CampaignSendSummary']> = ResolversObject<{
   failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CampaignSendSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignSendSummary'] = ResolversParentTypes['CampaignSendSummary']> = ResolversObject<{
-  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+export type CampaignStudioOptionsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignStudioOptions'] = ResolversParentTypes['CampaignStudioOptions']> = ResolversObject<{
+  categories?: Resolver<Array<ResolversTypes['PreferenceCategory']>, ParentType, ContextType>;
+  variables?: Resolver<Array<ResolversTypes['CampaignVariable']>, ParentType, ContextType>;
+  verifiedSenders?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignTemplateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignTemplate'] = ResolversParentTypes['CampaignTemplate']> = ResolversObject<{
+  blocks?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  editorMode?: Resolver<ResolversTypes['EditorMode'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignTemplateVersionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignTemplateVersion'] = ResolversParentTypes['CampaignTemplateVersion']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignVariableResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignVariable'] = ResolversParentTypes['CampaignVariable']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  example?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  group?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23658,6 +24647,21 @@ export type CrmViewResolvers<ContextType = GraphQLContext, ParentType extends Re
   search?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   shared?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   sorts?: Resolver<Array<ResolversTypes['CrmSort']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DashboardCampaignResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DashboardCampaign'] = ResolversParentTypes['DashboardCampaign']> = ResolversObject<{
+  at?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recipients?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  sendState?: Resolver<Maybe<ResolversTypes['CampaignSendState']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DashboardDayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DashboardDay'] = ResolversParentTypes['DashboardDay']> = ResolversObject<{
+  day?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -25377,19 +26381,78 @@ export type ManagementReviewPageResolvers<ContextType = GraphQLContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MarketingDashboardResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingDashboard'] = ResolversParentTypes['MarketingDashboard']> = ResolversObject<{
+  audiences?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  campaigns?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  clickRateLast30?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  clickedLast30?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  daily?: Resolver<Array<ResolversTypes['DashboardDay']>, ParentType, ContextType>;
+  drafts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  failedLast30?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recent?: Resolver<Array<ResolversTypes['DashboardCampaign']>, ParentType, ContextType>;
+  scheduled?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sending?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sentLast30?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  suppressed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unsubscribesLast30?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  upcoming?: Resolver<Array<ResolversTypes['DashboardCampaign']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MarketingFooterResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingFooter'] = ResolversParentTypes['MarketingFooter']> = ResolversObject<{
+  companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  contactLine?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  linkColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  postalAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  privacyUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  textColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  websiteUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MarketingSuppressionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingSuppression'] = ResolversParentTypes['MarketingSuppression']> = ResolversObject<{
+  addedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  archivedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  linkedRecords?: Resolver<Maybe<Array<ResolversTypes['SuppressionLink']>>, ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  origin?: Resolver<ResolversTypes['SuppressionOrigin'], ParentType, ContextType>;
   reason?: Resolver<ResolversTypes['SuppressionReason'], ParentType, ContextType>;
+  scope?: Resolver<ResolversTypes['SuppressionScope'], ParentType, ContextType>;
   source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MarketingSuppressionLookupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingSuppressionLookup'] = ResolversParentTypes['MarketingSuppressionLookup']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  existing?: Resolver<Maybe<ResolversTypes['MarketingSuppression']>, ParentType, ContextType>;
+  linkedRecords?: Resolver<Array<ResolversTypes['SuppressionLink']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type MarketingSuppressionPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingSuppressionPage'] = ResolversParentTypes['MarketingSuppressionPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['MarketingSuppression']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MarketingSuppressionSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingSuppressionSummary'] = ResolversParentTypes['MarketingSuppressionSummary']> = ResolversObject<{
+  addedManually?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  archived?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  hardBounced?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unsubscribed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MarketingSuppressionsResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingSuppressionsResult'] = ResolversParentTypes['MarketingSuppressionsResult']> = ResolversObject<{
+  added?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  alreadySuppressed?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  invalid?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -25547,6 +26610,12 @@ export type MilestoneResolvers<ContextType = GraphQLContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MjmlIssueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MjmlIssue'] = ResolversParentTypes['MjmlIssue']> = ResolversObject<{
+  line?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ModulePermissionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ModulePermission'] = ResolversParentTypes['ModulePermission']> = ResolversObject<{
   approve?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   create?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -25564,6 +26633,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   addClientContact?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationAddClientContactArgs, 'input'>>;
   addColdEmailVariant?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<MutationAddColdEmailVariantArgs, 'id'>>;
   addItIncidentUpdate?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationAddItIncidentUpdateArgs, 'id' | 'note' | 'status'>>;
+  addMarketingSuppressions?: Resolver<ResolversTypes['MarketingSuppressionsResult'], ParentType, ContextType, RequireFields<MutationAddMarketingSuppressionsArgs, 'input'>>;
   addMySupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddMySupportReplyArgs, 'body' | 'ticketId'>>;
   addNewsletterSubscriber?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddNewsletterSubscriberArgs, 'email' | 'siteId'>>;
   addStatusIncidentUpdate?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationAddStatusIncidentUpdateArgs, 'body' | 'id' | 'status'>>;
@@ -25577,6 +26647,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'org' | 'page' | 'slug'>>;
+  cancelCampaignSend?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCancelCampaignSendArgs, 'id'>>;
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
@@ -25694,6 +26765,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createPexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationCreatePexelsConfigArgs, 'input'>>;
   createPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationCreatePolicyArgs, 'input'>>;
   createPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationCreatePositionArgs, 'input'>>;
+  createPreferenceCategory?: Resolver<ResolversTypes['PreferenceCategory'], ParentType, ContextType, RequireFields<MutationCreatePreferenceCategoryArgs, 'input'>>;
   createProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationCreateProblemReportArgs, 'input'>>;
   createProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'input'>>;
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
@@ -25754,6 +26826,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCallingBotConfigArgs, 'id'>>;
   deleteCallingBotScenario?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCallingBotScenarioArgs, 'id'>>;
   deleteCampaign?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCampaignArgs, 'id'>>;
+  deleteCampaignTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCampaignTemplateArgs, 'id'>>;
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
@@ -25819,7 +26892,6 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLicence?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLicenceArgs, 'id'>>;
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteManagementReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteManagementReviewArgs, 'id'>>;
-  deleteMarketingSuppression?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMarketingSuppressionArgs, 'id'>>;
   deleteMeetingType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMeetingTypeArgs, 'id'>>;
   deleteMilestone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMilestoneArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
@@ -25835,6 +26907,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deletePexelsConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePexelsConfigArgs, 'id'>>;
   deletePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePolicyArgs, 'id'>>;
   deletePosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePositionArgs, 'id'>>;
+  deletePreferenceCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePreferenceCategoryArgs, 'id'>>;
   deleteProblemReport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProblemReportArgs, 'id'>>;
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
@@ -25882,6 +26955,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   disconnectMicrosoftMailAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectMicrosoftMailAccountArgs, 'id'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
   draftCrmEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationDraftCrmEmailArgs, 'input'>>;
+  duplicateCampaignTemplate?: Resolver<ResolversTypes['CampaignTemplate'], ParentType, ContextType, RequireFields<MutationDuplicateCampaignTemplateArgs, 'id'>>;
   duplicateCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationDuplicateCmsPageArgs, 'id' | 'path'>>;
   duplicateWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDuplicateWhatsappWorkflowArgs, 'id'>>;
   emailGccEstimate?: Resolver<ResolversTypes['GccEmailResult'], ParentType, ContextType, RequireFields<MutationEmailGccEstimateArgs, 'captcha' | 'input'>>;
@@ -25916,10 +26990,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   publishPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationPublishPolicyArgs, 'id'>>;
   publishSocialMediaPostNow?: Resolver<ResolversTypes['SocialMediaPost'], ParentType, ContextType, RequireFields<MutationPublishSocialMediaPostNowArgs, 'id'>>;
   publishWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationPublishWhatsappWorkflowArgs, 'id'>>;
+  queueCampaignSend?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationQueueCampaignSendArgs, 'audienceListId' | 'id'>>;
   receivePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationReceivePurchaseOrderArgs, 'id' | 'lines'>>;
   recordPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationRecordPaymentArgs, 'input'>>;
   recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
   recordWhatsappDemoEvents?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationRecordWhatsappDemoEventsArgs, 'events'>>;
+  removeMarketingSuppression?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveMarketingSuppressionArgs, 'id' | 'justification'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
@@ -25929,7 +27005,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
+  restoreCampaignTemplateVersion?: Resolver<ResolversTypes['CampaignTemplate'], ParentType, ContextType, RequireFields<MutationRestoreCampaignTemplateVersionArgs, 'templateId' | 'version'>>;
   restoreCmsPageRevision?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationRestoreCmsPageRevisionArgs, 'revisionId'>>;
+  retryCampaignFailures?: Resolver<ResolversTypes['CampaignSendSummary'], ParentType, ContextType, RequireFields<MutationRetryCampaignFailuresArgs, 'id'>>;
   revealCallingBotSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealCallingBotSecretArgs, 'id' | 'secret'>>;
   revealTechSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealTechSecretArgs, 'id' | 'secret'>>;
   revealWhatsappChannelSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealWhatsappChannelSecretArgs, 'secret'>>;
@@ -25950,11 +27028,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveAiModelPrice?: Resolver<ResolversTypes['AiModelPrice'], ParentType, ContextType, RequireFields<MutationSaveAiModelPriceArgs, 'input'>>;
   saveAiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType, RequireFields<MutationSaveAiSpendLimitArgs, 'input'>>;
   saveCallingBotScenarioFlow?: Resolver<ResolversTypes['CallingBotScenario'], ParentType, ContextType, RequireFields<MutationSaveCallingBotScenarioFlowArgs, 'id'>>;
+  saveCampaignDraft?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationSaveCampaignDraftArgs, 'input'>>;
+  saveCampaignTemplate?: Resolver<ResolversTypes['CampaignTemplate'], ParentType, ContextType, RequireFields<MutationSaveCampaignTemplateArgs, 'input'>>;
   saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
   saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveGmailConfig?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType, RequireFields<MutationSaveGmailConfigArgs, 'input'>>;
   saveGoogleSignInConfig?: Resolver<ResolversTypes['GoogleSignInConfig'], ParentType, ContextType, RequireFields<MutationSaveGoogleSignInConfigArgs, 'input'>>;
+  saveMarketingFooter?: Resolver<ResolversTypes['MarketingFooter'], ParentType, ContextType, RequireFields<MutationSaveMarketingFooterArgs, 'input'>>;
   saveMeetingSettings?: Resolver<ResolversTypes['MeetingSettings'], ParentType, ContextType, RequireFields<MutationSaveMeetingSettingsArgs, 'input'>>;
   saveMicrosoftMailConfig?: Resolver<ResolversTypes['MicrosoftMailConfig'], ParentType, ContextType, RequireFields<MutationSaveMicrosoftMailConfigArgs, 'input'>>;
   saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
@@ -25964,7 +27045,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationSaveWhatsappWorkflowDraftArgs, 'id' | 'input'>>;
   scrapeWebsite?: Resolver<ResolversTypes['WebScrape'], ParentType, ContextType, RequireFields<MutationScrapeWebsiteArgs, 'url'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
+  sendCampaignTest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendCampaignTestArgs, 'id' | 'to'>>;
   sendColdEmailVariant?: Resolver<ResolversTypes['ColdEmailDraft'], ParentType, ContextType, RequireFields<MutationSendColdEmailVariantArgs, 'input'>>;
   sendCrmEmail?: Resolver<ResolversTypes['CrmEmailMessage'], ParentType, ContextType, RequireFields<MutationSendCrmEmailArgs, 'input'>>;
   sendCrmSms?: Resolver<ResolversTypes['CrmSmsResult'], ParentType, ContextType, RequireFields<MutationSendCrmSmsArgs, 'input'>>;
@@ -25991,6 +27072,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
   setGmailAccountEnabled?: Resolver<ResolversTypes['GmailAccount'], ParentType, ContextType, RequireFields<MutationSetGmailAccountEnabledArgs, 'enabled' | 'id'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
+  setMarketingSuppressionArchived?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationSetMarketingSuppressionArchivedArgs, 'archived' | 'id'>>;
   setMicrosoftMailAccountEnabled?: Resolver<ResolversTypes['MicrosoftMailAccount'], ParentType, ContextType, RequireFields<MutationSetMicrosoftMailAccountEnabledArgs, 'enabled' | 'id'>>;
   setMyNotificationPreference?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType, RequireFields<MutationSetMyNotificationPreferenceArgs, 'input'>>;
   setMyTrackerPresence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType, RequireFields<MutationSetMyTrackerPresenceArgs, 'status'>>;
@@ -26113,6 +27195,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateDocPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<MutationUpdateDocPageArgs, 'id'>>;
   updateEmailConfig?: Resolver<ResolversTypes['EmailConfig'], ParentType, ContextType, RequireFields<MutationUpdateEmailConfigArgs, 'id' | 'input'>>;
   updateEmailFragment?: Resolver<ResolversTypes['EmailFragment'], ParentType, ContextType, RequireFields<MutationUpdateEmailFragmentArgs, 'id' | 'input'>>;
+  updateEmailPreferences?: Resolver<ResolversTypes['PublicEmailPreferences'], ParentType, ContextType, RequireFields<MutationUpdateEmailPreferencesArgs, 'optedOutCategoryIds' | 'token' | 'unsubscribeAll'>>;
   updateEmailTemplate?: Resolver<ResolversTypes['EmailTemplate'], ParentType, ContextType, RequireFields<MutationUpdateEmailTemplateArgs, 'id' | 'input'>>;
   updateEmailVerifierConfig?: Resolver<ResolversTypes['EmailVerifierConfig'], ParentType, ContextType, RequireFields<MutationUpdateEmailVerifierConfigArgs, 'id' | 'input'>>;
   updateEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<MutationUpdateEmployeeDocumentArgs, 'id' | 'input'>>;
@@ -26152,7 +27235,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<MutationUpdateLicenceArgs, 'id' | 'input'>>;
   updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
   updateManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationUpdateManagementReviewArgs, 'id' | 'input'>>;
-  updateMarketingSuppression?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationUpdateMarketingSuppressionArgs, 'id' | 'input'>>;
+  updateMarketingSuppressionNote?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationUpdateMarketingSuppressionNoteArgs, 'id' | 'note'>>;
   updateMeetingType?: Resolver<ResolversTypes['MeetingType'], ParentType, ContextType, RequireFields<MutationUpdateMeetingTypeArgs, 'id' | 'input'>>;
   updateMilestone?: Resolver<ResolversTypes['Milestone'], ParentType, ContextType, RequireFields<MutationUpdateMilestoneArgs, 'id' | 'input'>>;
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
@@ -26171,6 +27254,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updatePexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationUpdatePexelsConfigArgs, 'id' | 'input'>>;
   updatePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationUpdatePolicyArgs, 'id' | 'input'>>;
   updatePosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationUpdatePositionArgs, 'id' | 'input'>>;
+  updatePreferenceCategory?: Resolver<ResolversTypes['PreferenceCategory'], ParentType, ContextType, RequireFields<MutationUpdatePreferenceCategoryArgs, 'id' | 'input'>>;
   updateProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationUpdateProblemReportArgs, 'id' | 'input'>>;
   updateProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id' | 'input'>>;
   updateProfile?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'input'>>;
@@ -26719,6 +27803,38 @@ export type PositionResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PreferenceCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PreferenceCategory'] = ResolversParentTypes['PreferenceCategory']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PreferenceCategoryPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PreferenceCategoryPage'] = ResolversParentTypes['PreferenceCategoryPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['PreferenceCategory']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PreviewRecipientResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PreviewRecipient'] = ResolversParentTypes['PreviewRecipient']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PreviewRecordOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PreviewRecordOption'] = ResolversParentTypes['PreviewRecordOption']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['PreviewRecordKind'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ProblemReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProblemReport'] = ResolversParentTypes['ProblemReport']> = ResolversObject<{
   assignee?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['ProblemCategory'], ParentType, ContextType>;
@@ -26965,6 +28081,14 @@ export type PublicBookingPageResolvers<ContextType = GraphQLContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PublicEmailPreferencesResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicEmailPreferences'] = ResolversParentTypes['PublicEmailPreferences']> = ResolversObject<{
+  categories?: Resolver<Array<ResolversTypes['PublicPreferenceCategory']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  unsubscribedAll?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PublicMeetingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicMeeting'] = ResolversParentTypes['PublicMeeting']> = ResolversObject<{
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   durationMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -26988,6 +28112,14 @@ export type PublicPolicyResolvers<ContextType = GraphQLContext, ParentType exten
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PublicPreferenceCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicPreferenceCategory'] = ResolversParentTypes['PublicPreferenceCategory']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subscribed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -27042,6 +28174,14 @@ export type PurchaseOrderPageResolvers<ContextType = GraphQLContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type QualityCheckResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['QualityCheck'] = ResolversParentTypes['QualityCheck']> = ResolversObject<{
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  line?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  severity?: Resolver<ResolversTypes['CheckSeverity'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   activeAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
@@ -27053,7 +28193,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   appSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType>;
   assetAssignments?: Resolver<Array<ResolversTypes['AssetAssignment']>, ParentType, ContextType, RequireFields<QueryAssetAssignmentsArgs, 'assetId'>>;
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
-  audienceMembers?: Resolver<Array<ResolversTypes['AudienceMember']>, ParentType, ContextType, RequireFields<QueryAudienceMembersArgs, 'id'>>;
+  audienceFilterCatalogue?: Resolver<ResolversTypes['AudienceFilterCatalogue'], ParentType, ContextType>;
+  audienceFilterValues?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryAudienceFilterValuesArgs, 'field'>>;
+  audienceResolution?: Resolver<ResolversTypes['AudienceResolution'], ParentType, ContextType, RequireFields<QueryAudienceResolutionArgs, 'id'>>;
   backgroundJobs?: Resolver<Array<ResolversTypes['BackgroundJob']>, ParentType, ContextType>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   budgetVsActual?: Resolver<Array<ResolversTypes['BudgetVariance']>, ParentType, ContextType, RequireFields<QueryBudgetVsActualArgs, 'from' | 'to'>>;
@@ -27063,11 +28205,15 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   callingBotRecentCalls?: Resolver<Array<ResolversTypes['CallingBotCall']>, ParentType, ContextType, Partial<QueryCallingBotRecentCallsArgs>>;
   callingBotScenarioOptions?: Resolver<Array<ResolversTypes['CallingBotScenarioOption']>, ParentType, ContextType>;
   callingBotScenarios?: Resolver<Array<ResolversTypes['CallingBotScenario']>, ParentType, ContextType>;
+  campaignDeliveryStats?: Resolver<ResolversTypes['CampaignDeliveryStats'], ParentType, ContextType, RequireFields<QueryCampaignDeliveryStatsArgs, 'campaignId'>>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
   campaignMetrics?: Resolver<ResolversTypes['CampaignMetrics'], ParentType, ContextType, RequireFields<QueryCampaignMetricsArgs, 'campaignId'>>;
   campaignOptions?: Resolver<Array<ResolversTypes['CampaignOption']>, ParentType, ContextType>;
-  campaignPreview?: Resolver<Maybe<ResolversTypes['CampaignPreview']>, ParentType, ContextType, RequireFields<QueryCampaignPreviewArgs, 'audienceListId' | 'id'>>;
+  campaignQualityChecks?: Resolver<ResolversTypes['CampaignQualityReport'], ParentType, ContextType, RequireFields<QueryCampaignQualityChecksArgs, 'id'>>;
+  campaignRevisions?: Resolver<Array<ResolversTypes['CampaignRevision']>, ParentType, ContextType, RequireFields<QueryCampaignRevisionsArgs, 'campaignId'>>;
   campaignSendSummary?: Resolver<ResolversTypes['CampaignSendSummary'], ParentType, ContextType, RequireFields<QueryCampaignSendSummaryArgs, 'campaignId'>>;
+  campaignStudioOptions?: Resolver<ResolversTypes['CampaignStudioOptions'], ParentType, ContextType>;
+  campaignTemplateVersions?: Resolver<Array<ResolversTypes['CampaignTemplateVersion']>, ParentType, ContextType, RequireFields<QueryCampaignTemplateVersionsArgs, 'templateId'>>;
   campaignTopLinks?: Resolver<Array<ResolversTypes['CampaignLinkStat']>, ParentType, ContextType, RequireFields<QueryCampaignTopLinksArgs, 'campaignId'>>;
   canExport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCanExportArgs, 'module'>>;
   clientContacts?: Resolver<Array<ResolversTypes['ClientContact']>, ParentType, ContextType, RequireFields<QueryClientContactsArgs, 'clientId'>>;
@@ -27127,6 +28273,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   dockerContainers?: Resolver<Array<ResolversTypes['DockerContainer']>, ParentType, ContextType>;
   dockerStorage?: Resolver<ResolversTypes['DockerStorage'], ParentType, ContextType>;
   emailDashboard?: Resolver<ResolversTypes['EmailDashboard'], ParentType, ContextType, Partial<QueryEmailDashboardArgs>>;
+  emailPreferences?: Resolver<ResolversTypes['PublicEmailPreferences'], ParentType, ContextType, RequireFields<QueryEmailPreferencesArgs, 'token'>>;
   emailVerificationBatches?: Resolver<Array<ResolversTypes['EmailVerificationBatch']>, ParentType, ContextType>;
   emailVerificationsPaged?: Resolver<ResolversTypes['EmailVerificationPage'], ParentType, ContextType, RequireFields<QueryEmailVerificationsPagedArgs, 'input'>>;
   emailVerifierConfigs?: Resolver<Array<ResolversTypes['EmailVerifierConfig']>, ParentType, ContextType>;
@@ -27195,6 +28342,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<QueryGetPerformanceReviewArgs, 'id'>>;
   getPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<QueryGetPolicyArgs, 'id'>>;
   getPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<QueryGetPositionArgs, 'id'>>;
+  getPreferenceCategory?: Resolver<ResolversTypes['PreferenceCategory'], ParentType, ContextType, RequireFields<QueryGetPreferenceCategoryArgs, 'id'>>;
   getProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<QueryGetProblemReportArgs, 'id'>>;
   getProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
   getProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<QueryGetProjectArgs, 'id'>>;
@@ -27286,6 +28434,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listBugsPaged?: Resolver<ResolversTypes['BugPage'], ParentType, ContextType, RequireFields<QueryListBugsPagedArgs, 'input'>>;
   listBugsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listCampaignSends?: Resolver<Array<ResolversTypes['CampaignSend']>, ParentType, ContextType, RequireFields<QueryListCampaignSendsArgs, 'campaignId'>>;
+  listCampaignTemplates?: Resolver<Array<ResolversTypes['CampaignTemplate']>, ParentType, ContextType>;
   listCampaigns?: Resolver<Array<ResolversTypes['Campaign']>, ParentType, ContextType>;
   listCampaignsPaged?: Resolver<ResolversTypes['CampaignPage'], ParentType, ContextType, RequireFields<QueryListCampaignsPagedArgs, 'input'>>;
   listCampaignsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -27452,6 +28601,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPoliciesPaged?: Resolver<ResolversTypes['PolicyPage'], ParentType, ContextType, RequireFields<QueryListPoliciesPagedArgs, 'input'>>;
   listPoliciesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listPositions?: Resolver<Array<ResolversTypes['Position']>, ParentType, ContextType>;
+  listPreferenceCategories?: Resolver<Array<ResolversTypes['PreferenceCategory']>, ParentType, ContextType>;
+  listPreferenceCategoriesPaged?: Resolver<ResolversTypes['PreferenceCategoryPage'], ParentType, ContextType, RequireFields<QueryListPreferenceCategoriesPagedArgs, 'input'>>;
   listProblemReports?: Resolver<Array<ResolversTypes['ProblemReport']>, ParentType, ContextType>;
   listProblemReportsPaged?: Resolver<ResolversTypes['ProblemReportPage'], ParentType, ContextType, RequireFields<QueryListProblemReportsPagedArgs, 'input'>>;
   listProblemReportsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -27541,6 +28692,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listWebsiteSubmissionsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   localeBundle?: Resolver<ResolversTypes['LocaleBundle'], ParentType, ContextType, RequireFields<QueryLocaleBundleArgs, 'locale'>>;
   localeOptions?: Resolver<Array<ResolversTypes['LocaleOption']>, ParentType, ContextType>;
+  marketingDashboard?: Resolver<ResolversTypes['MarketingDashboard'], ParentType, ContextType>;
+  marketingFooter?: Resolver<ResolversTypes['MarketingFooter'], ParentType, ContextType>;
+  marketingSuppressionHistory?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryMarketingSuppressionHistoryArgs, 'email'>>;
+  marketingSuppressionLookup?: Resolver<ResolversTypes['MarketingSuppressionLookup'], ParentType, ContextType, RequireFields<QueryMarketingSuppressionLookupArgs, 'email'>>;
+  marketingSuppressionSummary?: Resolver<ResolversTypes['MarketingSuppressionSummary'], ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   meetingBookingPagePath?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   meetingBookings?: Resolver<ResolversTypes['MeetingBookingPage'], ParentType, ContextType, RequireFields<QueryMeetingBookingsArgs, 'page' | 'pageSize'>>;
@@ -27602,8 +28758,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
   platformAnalytics?: Resolver<ResolversTypes['PlatformAnalytics'], ParentType, ContextType>;
   policyAcknowledgements?: Resolver<Array<ResolversTypes['PolicyAcknowledgement']>, ParentType, ContextType, RequireFields<QueryPolicyAcknowledgementsArgs, 'policyId'>>;
+  previewAudience?: Resolver<ResolversTypes['AudienceResolution'], ParentType, ContextType, RequireFields<QueryPreviewAudienceArgs, 'input'>>;
+  previewCampaignContent?: Resolver<ResolversTypes['CampaignPreviewResult'], ParentType, ContextType, RequireFields<QueryPreviewCampaignContentArgs, 'input'>>;
   previewEmailTemplate?: Resolver<ResolversTypes['EmailPreview'], ParentType, ContextType, RequireFields<QueryPreviewEmailTemplateArgs, 'key'>>;
   previewLeadImport?: Resolver<Array<ResolversTypes['LeadImportPreview']>, ParentType, ContextType, RequireFields<QueryPreviewLeadImportArgs, 'leads'>>;
+  previewRecordOptions?: Resolver<Array<ResolversTypes['PreviewRecordOption']>, ParentType, ContextType, RequireFields<QueryPreviewRecordOptionsArgs, 'search'>>;
   probationsEnding?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryProbationsEndingArgs, 'days'>>;
   problemReportStatus?: Resolver<ResolversTypes['ProblemReportStatus'], ParentType, ContextType, RequireFields<QueryProblemReportStatusArgs, 'reference'>>;
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
@@ -27690,6 +28849,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   teamLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
   teamPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   teamRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
+  techEmailTemplateOptions?: Resolver<Array<ResolversTypes['TechEmailTemplateOption']>, ParentType, ContextType>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBilling?: Resolver<ResolversTypes['TrackerBilling'], ParentType, ContextType, RequireFields<QueryTrackerBillingArgs, 'from' | 'to'>>;
   trackerBillingByProject?: Resolver<Array<ResolversTypes['ProjectBillingRow']>, ParentType, ContextType, RequireFields<QueryTrackerBillingByProjectArgs, 'from' | 'to'>>;
@@ -28593,6 +29753,14 @@ export type SupportTicketPageResolvers<ContextType = GraphQLContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SuppressionLinkResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SuppressionLink'] = ResolversParentTypes['SuppressionLink']> = ResolversObject<{
+  emails?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['AudienceRecordKind'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SystemHealthResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SystemHealth'] = ResolversParentTypes['SystemHealth']> = ResolversObject<{
   backup?: Resolver<ResolversTypes['HealthBackup'], ParentType, ContextType>;
   counts?: Resolver<Array<ResolversTypes['HealthCount']>, ParentType, ContextType>;
@@ -28801,6 +29969,13 @@ export type TeamResolvers<ContextType = GraphQLContext, ParentType extends Resol
 export type TeamPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TeamPage'] = ResolversParentTypes['TeamPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TechEmailTemplateOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechEmailTemplateOption'] = ResolversParentTypes['TechEmailTemplateOption']> = ResolversObject<{
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -29879,9 +31054,16 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AttendancePage?: AttendancePageResolvers<ContextType>;
   AttendanceProjectTime?: AttendanceProjectTimeResolvers<ContextType>;
   AttendanceTrackerBrief?: AttendanceTrackerBriefResolvers<ContextType>;
+  AudienceCondition?: AudienceConditionResolvers<ContextType>;
+  AudienceCounts?: AudienceCountsResolvers<ContextType>;
+  AudienceFilterCatalogue?: AudienceFilterCatalogueResolvers<ContextType>;
+  AudienceFilterField?: AudienceFilterFieldResolvers<ContextType>;
   AudienceList?: AudienceListResolvers<ContextType>;
   AudienceListPage?: AudienceListPageResolvers<ContextType>;
-  AudienceMember?: AudienceMemberResolvers<ContextType>;
+  AudienceRecipient?: AudienceRecipientResolvers<ContextType>;
+  AudienceRecipientOrigin?: AudienceRecipientOriginResolvers<ContextType>;
+  AudienceRecipientPage?: AudienceRecipientPageResolvers<ContextType>;
+  AudienceResolution?: AudienceResolutionResolvers<ContextType>;
   AuditLog?: AuditLogResolvers<ContextType>;
   AuditLogPage?: AuditLogPageResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
@@ -29907,15 +31089,21 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CallingBotScenarioOption?: CallingBotScenarioOptionResolvers<ContextType>;
   CallingBotTurn?: CallingBotTurnResolvers<ContextType>;
   Campaign?: CampaignResolvers<ContextType>;
+  CampaignDeliveryStats?: CampaignDeliveryStatsResolvers<ContextType>;
   CampaignLeadCount?: CampaignLeadCountResolvers<ContextType>;
   CampaignLinkStat?: CampaignLinkStatResolvers<ContextType>;
   CampaignMetrics?: CampaignMetricsResolvers<ContextType>;
   CampaignOption?: CampaignOptionResolvers<ContextType>;
   CampaignPage?: CampaignPageResolvers<ContextType>;
-  CampaignPreview?: CampaignPreviewResolvers<ContextType>;
+  CampaignPreviewResult?: CampaignPreviewResultResolvers<ContextType>;
+  CampaignQualityReport?: CampaignQualityReportResolvers<ContextType>;
+  CampaignRevision?: CampaignRevisionResolvers<ContextType>;
   CampaignSend?: CampaignSendResolvers<ContextType>;
-  CampaignSendResult?: CampaignSendResultResolvers<ContextType>;
   CampaignSendSummary?: CampaignSendSummaryResolvers<ContextType>;
+  CampaignStudioOptions?: CampaignStudioOptionsResolvers<ContextType>;
+  CampaignTemplate?: CampaignTemplateResolvers<ContextType>;
+  CampaignTemplateVersion?: CampaignTemplateVersionResolvers<ContextType>;
+  CampaignVariable?: CampaignVariableResolvers<ContextType>;
   CannedReply?: CannedReplyResolvers<ContextType>;
   CannedReplyPage?: CannedReplyPageResolvers<ContextType>;
   CaseStudy?: CaseStudyResolvers<ContextType>;
@@ -30015,6 +31203,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CrmStageValue?: CrmStageValueResolvers<ContextType>;
   CrmTimelineItem?: CrmTimelineItemResolvers<ContextType>;
   CrmView?: CrmViewResolvers<ContextType>;
+  DashboardCampaign?: DashboardCampaignResolvers<ContextType>;
+  DashboardDay?: DashboardDayResolvers<ContextType>;
   DatabaseInfo?: DatabaseInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Deal?: DealResolvers<ContextType>;
@@ -30171,8 +31361,13 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ManagementReview?: ManagementReviewResolvers<ContextType>;
   ManagementReviewAction?: ManagementReviewActionResolvers<ContextType>;
   ManagementReviewPage?: ManagementReviewPageResolvers<ContextType>;
+  MarketingDashboard?: MarketingDashboardResolvers<ContextType>;
+  MarketingFooter?: MarketingFooterResolvers<ContextType>;
   MarketingSuppression?: MarketingSuppressionResolvers<ContextType>;
+  MarketingSuppressionLookup?: MarketingSuppressionLookupResolvers<ContextType>;
   MarketingSuppressionPage?: MarketingSuppressionPageResolvers<ContextType>;
+  MarketingSuppressionSummary?: MarketingSuppressionSummaryResolvers<ContextType>;
+  MarketingSuppressionsResult?: MarketingSuppressionsResultResolvers<ContextType>;
   MeetingBooking?: MeetingBookingResolvers<ContextType>;
   MeetingBookingPage?: MeetingBookingPageResolvers<ContextType>;
   MeetingSettings?: MeetingSettingsResolvers<ContextType>;
@@ -30188,6 +31383,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MicrosoftMailAccount?: MicrosoftMailAccountResolvers<ContextType>;
   MicrosoftMailConfig?: MicrosoftMailConfigResolvers<ContextType>;
   Milestone?: MilestoneResolvers<ContextType>;
+  MjmlIssue?: MjmlIssueResolvers<ContextType>;
   ModulePermission?: ModulePermissionResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   MyApprovalDelegations?: MyApprovalDelegationsResolvers<ContextType>;
@@ -30232,6 +31428,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PolicyAcknowledgement?: PolicyAcknowledgementResolvers<ContextType>;
   PolicyPage?: PolicyPageResolvers<ContextType>;
   Position?: PositionResolvers<ContextType>;
+  PreferenceCategory?: PreferenceCategoryResolvers<ContextType>;
+  PreferenceCategoryPage?: PreferenceCategoryPageResolvers<ContextType>;
+  PreviewRecipient?: PreviewRecipientResolvers<ContextType>;
+  PreviewRecordOption?: PreviewRecordOptionResolvers<ContextType>;
   ProblemReport?: ProblemReportResolvers<ContextType>;
   ProblemReportPage?: ProblemReportPageResolvers<ContextType>;
   ProblemReportReceipt?: ProblemReportReceiptResolvers<ContextType>;
@@ -30255,12 +31455,15 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   PublicBookingPage?: PublicBookingPageResolvers<ContextType>;
+  PublicEmailPreferences?: PublicEmailPreferencesResolvers<ContextType>;
   PublicMeeting?: PublicMeetingResolvers<ContextType>;
   PublicPolicy?: PublicPolicyResolvers<ContextType>;
+  PublicPreferenceCategory?: PublicPreferenceCategoryResolvers<ContextType>;
   PublicTaskView?: PublicTaskViewResolvers<ContextType>;
   PurchaseOrder?: PurchaseOrderResolvers<ContextType>;
   PurchaseOrderLine?: PurchaseOrderLineResolvers<ContextType>;
   PurchaseOrderPage?: PurchaseOrderPageResolvers<ContextType>;
+  QualityCheck?: QualityCheckResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   RazorpayConfig?: RazorpayConfigResolvers<ContextType>;
   Receivables?: ReceivablesResolvers<ContextType>;
@@ -30339,6 +31542,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SupportSlaSummary?: SupportSlaSummaryResolvers<ContextType>;
   SupportTicket?: SupportTicketResolvers<ContextType>;
   SupportTicketPage?: SupportTicketPageResolvers<ContextType>;
+  SuppressionLink?: SuppressionLinkResolvers<ContextType>;
   SystemHealth?: SystemHealthResolvers<ContextType>;
   TableBulkFailure?: TableBulkFailureResolvers<ContextType>;
   TableBulkInfo?: TableBulkInfoResolvers<ContextType>;
@@ -30361,6 +31565,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TdsSlab?: TdsSlabResolvers<ContextType>;
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
+  TechEmailTemplateOption?: TechEmailTemplateOptionResolvers<ContextType>;
   Tool?: ToolResolvers<ContextType>;
   ToolCategory?: ToolCategoryResolvers<ContextType>;
   ToolPage?: ToolPageResolvers<ContextType>;

@@ -32,6 +32,11 @@ import {
 import { migrateClientTaxIds } from './modules/clients';
 import { migrateLegacyGmailConnection } from './modules/gmail';
 import { backfillCrmOrigins } from './modules/crm/crm.origin.backfill';
+import {
+  backfillSuppressionOrigins,
+  migrateLegacyAudiences,
+  migrateLegacyCampaigns,
+} from './modules/marketing/marketing.migrate';
 import { backfillDealClosedAt } from './modules/crm/crm.deal-closed.backfill';
 import { startCrmReminderEmails } from './modules/crm/calendar/crm.reminder.email';
 import { ensureCmsDefaults } from './modules/cms';
@@ -104,6 +109,21 @@ async function bootstrap(): Promise<void> {
   await forEachOrganization(
     () => runOnce('crm-record-origins', backfillCrmOrigins),
     'backfillCrmOrigins',
+  );
+  // Audiences saved as names plus one segment rule become builder audiences, once.
+  await forEachOrganization(
+    () => runOnce('marketing-audience-builder', migrateLegacyAudiences),
+    'migrateLegacyAudiences',
+  );
+  // Suppression rows learn their origin and scope from the source they recorded, once.
+  await forEachOrganization(
+    () => runOnce('marketing-suppression-origins', backfillSuppressionOrigins),
+    'backfillSuppressionOrigins',
+  );
+  // Campaigns from before the Email Studio get its fields and their body as MJML, once.
+  await forEachOrganization(
+    () => runOnce('marketing-email-studio', migrateLegacyCampaigns),
+    'migrateLegacyCampaigns',
   );
   // Deals closed before close dates were kept take their last change as one, so "won this
   // quarter" on the CRM dashboard counts them.

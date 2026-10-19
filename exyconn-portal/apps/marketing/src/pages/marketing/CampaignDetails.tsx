@@ -1,23 +1,60 @@
-import { useT } from '@exyconn/i18n';
-import { Divider, Flex, Text } from '@exyconn/shell/components/ui';
+import { Link as RouterLink } from 'react-router-dom';
+import { useFormatters, useT } from '@exyconn/i18n';
+import {
+  Button,
+  Divider,
+  Flex,
+  List,
+  ListItem,
+  ListItemText,
+  Text,
+} from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useCampaignRevisionsQuery } from '@exyconn/shell/graphql/generated';
 import { CampaignAttribution } from './CampaignAttribution';
 import { CampaignEngagement } from './CampaignEngagement';
 import { CampaignDeliveryLog } from './CampaignDeliveryLog';
+import { CampaignDeliveryPanel } from './CampaignDeliveryPanel';
+import { studioPath } from './CampaignStudioPage';
 import type { CampaignRow } from './forms/campaign';
 
-/** Read-only summary of a campaign: its email content, and who each send reached. */
+/** Every frozen revision a send went out with, newest first. */
+function Revisions({ campaignId }: Readonly<{ campaignId: string }>) {
+  const t = useT();
+  const { formatDateTime } = useFormatters();
+  const { data } = useCampaignRevisionsQuery({ variables: { campaignId } });
+  const rows = data?.campaignRevisions ?? [];
+  if (rows.length === 0) {
+    return (
+      <Text size="sm" color="text.secondary">
+        {t('No sending revisions yet.')}
+      </Text>
+    );
+  }
+  return (
+    <List dense disablePadding>
+      {rows.map((row) => (
+        <ListItem key={row.id} disableGutters>
+          <ListItemText
+            primary={t('Revision {version} — {subject}', {
+              version: row.version,
+              subject: row.subject,
+            })}
+            secondary={t('{who} · {when}', {
+              who: row.createdByName || t('System'),
+              when: formatDateTime(row.createdAt),
+            })}
+          />
+        </ListItem>
+      ))}
+    </List>
+  );
+}
+
+/** A campaign at a glance: what it says, how its send went, and who it reached. */
 export function CampaignDetails({ campaign }: Readonly<{ campaign: CampaignRow }>) {
   const t = useT();
-  const { formatDate } = useSettings();
-  const lastSent = campaign.lastSentAt
-    ? t('{date} · {count} recipient(s)', {
-        date: formatDate(campaign.lastSentAt),
-        count: campaign.recipientsCount ?? 0,
-      })
-    : t('Not sent yet');
   return (
     <Flex direction="column" spacing={1.5}>
       <DetailRow label={t('Name')}>
@@ -25,51 +62,44 @@ export function CampaignDetails({ campaign }: Readonly<{ campaign: CampaignRow }
           {campaign.name}
         </Text>
       </DetailRow>
-      <DetailRow label={t('Channel')}>
-        <StatusChip value={campaign.channel} />
+      <DetailRow label={t('Type')}>
+        <StatusChip value={campaign.campaignType} />
       </DetailRow>
-      <DetailRow label={t('Status')}>
-        <StatusChip value={campaign.status} />
-      </DetailRow>
-      <DetailRow label={t('Budget')}>
-        <Text size="sm">₹{campaign.budget.toLocaleString()}</Text>
-      </DetailRow>
-      <DetailRow label={t('Schedule')}>
+      <DetailRow label={t('From')}>
         <Text size="sm">
-          {formatDate(campaign.startDate)} → {formatDate(campaign.endDate)}
+          {campaign.senderEmail ? `${campaign.senderName} <${campaign.senderEmail}>` : t('Not set')}
         </Text>
       </DetailRow>
-      <DetailRow label={t('Last sent')}>
-        <Text size="sm">{lastSent}</Text>
+      <DetailRow label={t('Subject')}>
+        <Text size="sm">{campaign.subject || t('— none —')}</Text>
       </DetailRow>
-
-      <DetailRow label={t('Scheduled')}>
-        <Text size="sm">
-          {campaign.scheduledAt ? formatDate(campaign.scheduledAt) : t('Not scheduled')}
-        </Text>
+      <DetailRow label={t('Preview text')}>
+        <Text size="sm">{campaign.preheader || t('— none —')}</Text>
       </DetailRow>
+      <Button
+        component={RouterLink}
+        to={studioPath(campaign.id)}
+        variant="outlined"
+        sx={{ alignSelf: 'flex-start' }}
+      >
+        {t('Open in the studio')}
+      </Button>
       <CampaignAttribution campaignId={campaign.id} />
-
       <Divider />
-      <Text size="label">{t('Email content')}</Text>
-      <Text size="caption" color="text.secondary">
-        {t('Subject')}
+      <Text size="sm" weight="bold">
+        {t('Delivery')}
       </Text>
-      <Text size="sm">{campaign.subject || t('— none —')}</Text>
-      <Text size="caption" color="text.secondary">
-        {t('Body')}
-      </Text>
-      <Text size="sm" sx={{ whiteSpace: 'pre-wrap' }}>
-        {campaign.body || t('— none —')}
-      </Text>
-
+      <CampaignDeliveryPanel campaignId={campaign.id} />
       <Divider />
-      <Divider sx={{ my: 1.5 }} />
+      <Text size="sm" weight="bold">
+        {t('Sending revisions')}
+      </Text>
+      <Revisions campaignId={campaign.id} />
+      <Divider />
       <Text size="sm" weight="bold">
         {t('Engagement')}
       </Text>
       <CampaignEngagement campaignId={campaign.id} />
-
       <CampaignDeliveryLog campaignId={campaign.id} />
     </Flex>
   );

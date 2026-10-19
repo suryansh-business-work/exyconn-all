@@ -266,26 +266,102 @@ export type AttendanceStatus =
   | 'PRESENT'
   | 'WFH';
 
-export type AudienceListInput = {
-  clientIds: InputMaybe<Array<Scalars['String']['input']>>;
-  contactIds: InputMaybe<Array<Scalars['String']['input']>>;
-  description: InputMaybe<Scalars['String']['input']>;
-  dynamicSegment: InputMaybe<AudienceSegment>;
-  name: Scalars['String']['input'];
-  segmentValue: InputMaybe<Scalars['String']['input']>;
+/** Where a matching company's addresses come from. */
+export type AudienceCompanyEmailSource =
+  | 'BOTH'
+  | 'COMPANY_EMAILS'
+  | 'LINKED_CONTACTS';
+
+export type AudienceConditionInput = {
+  field: Scalars['String']['input'];
+  operator: AudienceRuleOperator;
+  value: InputMaybe<Scalars['String']['input']>;
 };
 
-/** Which register a resolved member came out of. */
-export type AudienceMemberKind =
+/** How many of a record's addresses are used. */
+export type AudienceEmailSelection =
+  | 'ALL'
+  | 'PRIMARY'
+  | 'SELECTED_TYPES';
+
+/** Why an address will not be sent to. UNSUBSCRIBED, SPAM_COMPLAINT, BOUNCED and BLOCKED are never overridden. */
+export type AudienceExclusionReason =
+  | 'BLOCKED'
+  | 'BOUNCED'
+  | 'CATEGORY_OPT_OUT'
+  | 'EMAIL_STATUS_FILTER'
+  | 'INVALID_EMAIL'
+  | 'LEFT_COMPANY'
+  | 'MANUALLY_EXCLUDED'
+  | 'SPAM_COMPLAINT'
+  | 'UNSUBSCRIBED';
+
+export type AudienceFilterEntity =
+  | 'COMPANY'
+  | 'CONTACT'
+  | 'EMAIL';
+
+export type AudienceFilterKind =
+  | 'EMAIL_STATUS'
+  | 'ENUM'
+  | 'LAST_CONTACTED'
+  | 'TAGS'
+  | 'TEXT';
+
+export type AudienceListInput = {
+  allActiveClients: InputMaybe<Scalars['Boolean']['input']>;
+  clientIds: InputMaybe<Array<Scalars['String']['input']>>;
+  companyEmailSource: AudienceCompanyEmailSource;
+  companyIds: InputMaybe<Array<Scalars['String']['input']>>;
+  conditions: InputMaybe<Array<AudienceConditionInput>>;
+  contactIds: InputMaybe<Array<Scalars['String']['input']>>;
+  description: InputMaybe<Scalars['String']['input']>;
+  emailSelection: AudienceEmailSelection;
+  emailTypes: InputMaybe<Array<Scalars['String']['input']>>;
+  excludedEmails: InputMaybe<Array<Scalars['String']['input']>>;
+  name: Scalars['String']['input'];
+  recipientSource: AudienceRecipientSource;
+  ruleCombinator: AudienceRuleCombinator;
+  updateMode: AudienceUpdateMode;
+};
+
+/** Which CRM registers the rules pick from. SELECTED_ONLY uses only the records named under Data sources. */
+export type AudienceRecipientSource =
+  | 'BOTH'
+  | 'COMPANIES'
+  | 'CONTACTS'
+  | 'SELECTED_ONLY';
+
+export type AudienceRecordKind =
   | 'CLIENT'
+  | 'COMPANY'
   | 'CONTACT';
 
-/** A rule that picks audience members without anybody maintaining the list. */
-export type AudienceSegment =
-  | 'ALL_ACTIVE_CLIENTS'
-  | 'ALL_ACTIVE_CONTACTS'
-  | 'CONTACTS_BY_COMPANY_STATUS'
-  | 'NONE';
+/** How a record got into the audience. */
+export type AudienceRecordVia =
+  | 'LINKED_CONTACT'
+  | 'RULES'
+  | 'SELECTED';
+
+export type AudienceRuleCombinator =
+  | 'AND'
+  | 'OR';
+
+export type AudienceRuleOperator =
+  | 'CONTAINS'
+  | 'EQUALS'
+  | 'IS_EMPTY'
+  | 'IS_NOT_EMPTY'
+  | 'NEVER'
+  | 'NOT_EQUALS'
+  | 'OLDER_THAN_DAYS'
+  | 'WITHIN_DAYS';
+
+/** Whether membership is frozen at save (addresses, or records) or follows the CRM. */
+export type AudienceUpdateMode =
+  | 'DYNAMIC'
+  | 'FIXED_RECORDS'
+  | 'FIXED_SNAPSHOT';
 
 export type AuditAction =
   | 'ACCESS'
@@ -536,6 +612,30 @@ export type CampaignChannel =
   | 'SEARCH'
   | 'SOCIAL';
 
+/** A draft as the Email Studio saves it. Only the name is needed for a first save. */
+export type CampaignDraftInput = {
+  blocks: InputMaybe<Scalars['JSON']['input']>;
+  budget: InputMaybe<Scalars['Float']['input']>;
+  campaignType: InputMaybe<CampaignType>;
+  channel: InputMaybe<CampaignChannel>;
+  editorMode: InputMaybe<EditorMode>;
+  endDate: InputMaybe<Scalars['DateTime']['input']>;
+  mjml: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  preferenceCategoryId: InputMaybe<Scalars['String']['input']>;
+  preheader: InputMaybe<Scalars['String']['input']>;
+  replyTo: InputMaybe<Scalars['String']['input']>;
+  /** The audience chosen in the Audience step. */
+  scheduledAudienceListId: InputMaybe<Scalars['String']['input']>;
+  senderEmail: InputMaybe<Scalars['String']['input']>;
+  senderName: InputMaybe<Scalars['String']['input']>;
+  startDate: InputMaybe<Scalars['DateTime']['input']>;
+  status: InputMaybe<CampaignStatus>;
+  subject: InputMaybe<Scalars['String']['input']>;
+  trackClicks: InputMaybe<Scalars['Boolean']['input']>;
+  trackOpens: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type CampaignInput = {
   body: InputMaybe<Scalars['String']['input']>;
   budget: Scalars['Float']['input'];
@@ -550,8 +650,28 @@ export type CampaignInput = {
   templateKey: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CampaignPreviewInput = {
+  campaignName: Scalars['String']['input'];
+  mjml: Scalars['String']['input'];
+  preheader: Scalars['String']['input'];
+  recordId: InputMaybe<Scalars['String']['input']>;
+  recordKind: InputMaybe<PreviewRecordKind>;
+  senderName: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+};
+
+/** Where the email delivery stands, separate from the campaign's marketing status. */
+export type CampaignSendState =
+  | 'CANCELLED'
+  | 'DRAFT'
+  | 'FAILED'
+  | 'QUEUED'
+  | 'SENDING'
+  | 'SENT';
+
 export type CampaignSendStatus =
   | 'FAILED'
+  | 'QUEUED'
   | 'SENT'
   | 'SKIPPED';
 
@@ -560,6 +680,24 @@ export type CampaignStatus =
   | 'COMPLETED'
   | 'PAUSED'
   | 'PLANNED';
+
+export type CampaignTemplateInput = {
+  blocks: InputMaybe<Scalars['JSON']['input']>;
+  category: InputMaybe<Scalars['String']['input']>;
+  description: InputMaybe<Scalars['String']['input']>;
+  editorMode: EditorMode;
+  mjml: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  note: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CampaignType =
+  | 'ANNOUNCEMENT'
+  | 'EVENT'
+  | 'FOLLOW_UP'
+  | 'NEWSLETTER'
+  | 'OTHER'
+  | 'PROMOTIONAL';
 
 export type CannedReplyInput = {
   body: Scalars['String']['input'];
@@ -585,6 +723,11 @@ export type CaseStudyInput = {
   tags: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
 };
+
+export type CheckSeverity =
+  | 'ERROR'
+  | 'INFO'
+  | 'WARNING';
 
 export type ClientContactInput = {
   clientId: Scalars['ID']['input'];
@@ -1307,6 +1450,10 @@ export type DraftCrmEmailInput = {
   object: CrmTimelineObject;
   threadId: InputMaybe<Scalars['String']['input']>;
 };
+
+export type EditorMode =
+  | 'CODE'
+  | 'VISUAL';
 
 export type EmailConfigInput = {
   fromAddress: Scalars['String']['input'];
@@ -2310,10 +2457,30 @@ export type MarkAttendanceInput = {
   status: AttendanceStatus;
 };
 
+export type MarketingFooterInput = {
+  companyName: Scalars['String']['input'];
+  contactLine: InputMaybe<Scalars['String']['input']>;
+  linkColor: InputMaybe<Scalars['String']['input']>;
+  postalAddress: Scalars['String']['input'];
+  privacyUrl: InputMaybe<Scalars['String']['input']>;
+  textColor: InputMaybe<Scalars['String']['input']>;
+  websiteUrl: InputMaybe<Scalars['String']['input']>;
+};
+
 export type MarketingSuppressionInput = {
+  /** Hide it from the list straight away. It is suppressed either way. */
+  archived: InputMaybe<Scalars['Boolean']['input']>;
   email: Scalars['String']['input'];
+  note: InputMaybe<Scalars['String']['input']>;
   reason: SuppressionReason;
-  source: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MarketingSuppressionsInput = {
+  emails: Array<Scalars['String']['input']>;
+  /** True when the addresses were read from an uploaded file (origin IMPORT). */
+  fromFile: InputMaybe<Scalars['Boolean']['input']>;
+  note: InputMaybe<Scalars['String']['input']>;
+  reason: SuppressionReason;
 };
 
 export type MeetingBookingStatus =
@@ -2766,6 +2933,17 @@ export type PositionInput = {
   minSalary: Scalars['Float']['input'];
   name: Scalars['String']['input'];
 };
+
+export type PreferenceCategoryInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  sortOrder: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type PreviewRecordKind =
+  | 'COMPANY'
+  | 'CONTACT';
 
 export type ProblemCategory =
   | 'DATA'
@@ -3376,11 +3554,28 @@ export type SupportTicketInput = {
   subject: Scalars['String']['input'];
 };
 
-/** Why an address is on the marketing suppression list. */
+/** What wrote the row, set by the server from the action — never chosen. */
+export type SuppressionOrigin =
+  | 'ADMIN'
+  | 'API'
+  | 'CAMPAIGN'
+  | 'CRM'
+  | 'IMPORT'
+  | 'SUBSCRIBER'
+  | 'SYSTEM';
+
+/** Why an address is on the marketing suppression list. BOUNCED is a hard bounce. */
 export type SuppressionReason =
   | 'BOUNCED'
+  | 'DO_NOT_CONTACT'
   | 'MANUAL'
+  | 'OTHER'
+  | 'SPAM_COMPLAINT'
   | 'UNSUBSCRIBED';
+
+/** What a suppression stops: all of the organization's marketing, never transactional mail. */
+export type SuppressionScope =
+  | 'ORGANIZATION_MARKETING';
 
 /** What a grid may do with the rows a person selects. */
 export type TableBulkAction =

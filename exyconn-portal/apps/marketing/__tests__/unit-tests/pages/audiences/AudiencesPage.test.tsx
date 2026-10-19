@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AudienceSegment, ListAudienceListsPagedDocument } from '@exyconn/shell/graphql/generated';
+import {
+  AudienceUpdateMode,
+  ListAudienceListsPagedDocument,
+} from '@exyconn/shell/graphql/generated';
 import { AudiencesPage } from '../../../../src/pages/audiences';
 import { AUDIENCE_COLUMNS } from '../../../../src/pages/audiences/audiences-grid';
 import { renderWithProviders } from '../../test-utils';
@@ -48,7 +51,7 @@ const AUDIENCES = [
     id: 'a2',
     clientIds: ['c2'],
     contactIds: ['p1', 'p2'],
-    dynamicSegment: AudienceSegment.AllActiveClients,
+    updateMode: AudienceUpdateMode.FixedSnapshot,
   }),
 ];
 

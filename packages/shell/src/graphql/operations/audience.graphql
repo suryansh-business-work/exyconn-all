@@ -1,0 +1,144 @@
+fragment AudienceListFields on AudienceList {
+  id
+  name
+  description
+  recipientSource
+  companyEmailSource
+  emailSelection
+  emailTypes
+  updateMode
+  ruleCombinator
+  conditions {
+    field
+    operator
+    value
+  }
+  clientIds
+  contactIds
+  companyIds
+  allActiveClients
+  excludedEmails
+  snapshotAt
+  updatedAt
+}
+
+fragment AudienceCountsFields on AudienceCounts {
+  contacts
+  companies
+  clients
+  recordsWithoutEmail
+  rawEmails
+  duplicates
+  uniqueEmails
+  invalid
+  suppressed
+  optedOut
+  excluded
+  eligible
+}
+
+fragment AudienceRecipientFields on AudienceRecipient {
+  email
+  name
+  company
+  label
+  verification
+  exclusion
+  sources {
+    kind
+    id
+    name
+    via
+  }
+}
+
+query ListAudienceLists {
+  listAudienceLists {
+    ...AudienceListFields
+  }
+}
+
+query ListAudienceListsPaged($input: TableQueryInput!) {
+  listAudienceListsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AudienceListFields
+    }
+  }
+}
+
+query AudienceFilterCatalogue {
+  audienceFilterCatalogue {
+    emailTypes
+    fields {
+      key
+      label
+      entity
+      kind
+      operators
+      values
+    }
+  }
+}
+
+query AudienceFilterValues($field: String!) {
+  audienceFilterValues(field: $field)
+}
+
+query PreviewAudienceCounts($input: AudienceListInput!) {
+  previewAudience(input: $input) {
+    resolvedAt
+    counts {
+      ...AudienceCountsFields
+    }
+  }
+}
+
+query PreviewAudienceRecipients($input: AudienceListInput!, $page: TableQueryInput!) {
+  previewAudience(input: $input) {
+    resolvedAt
+    recipients(input: $page) {
+      totalCount
+      rows {
+        ...AudienceRecipientFields
+      }
+    }
+  }
+}
+
+query AudienceResolutionCounts($id: ID!, $categoryId: String) {
+  audienceResolution(id: $id, categoryId: $categoryId) {
+    resolvedAt
+    counts {
+      ...AudienceCountsFields
+    }
+  }
+}
+
+query AudienceResolutionRecipients($id: ID!, $page: TableQueryInput!) {
+  audienceResolution(id: $id) {
+    resolvedAt
+    recipients(input: $page) {
+      totalCount
+      rows {
+        ...AudienceRecipientFields
+      }
+    }
+  }
+}
+
+mutation CreateAudienceList($input: AudienceListInput!) {
+  createAudienceList(input: $input) {
+    id
+  }
+}
+
+mutation UpdateAudienceList($id: ID!, $input: AudienceListInput!) {
+  updateAudienceList(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteAudienceList($id: ID!) {
+  deleteAudienceList(id: $id)
+}

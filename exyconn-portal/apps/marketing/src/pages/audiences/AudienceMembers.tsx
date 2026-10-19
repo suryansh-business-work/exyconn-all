@@ -1,21 +1,8 @@
-import { useT } from '@exyconn/i18n';
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { Flex, Text } from '@exyconn/shell/components/ui';
-import {
-  useAudienceMembersQuery,
-  type AudienceMembersQuery,
-} from '@exyconn/shell/graphql/generated';
-
-type MemberRow = AudienceMembersQuery['audienceMembers'][number];
-
-const COLUMNS: Column<MemberRow>[] = [
-  { key: 'name', label: 'Name', render: (row) => row.name || row.email },
-  { key: 'email', label: 'Email' },
-  { key: 'company', label: 'Company', render: (row) => row.company || '—' },
-  { key: 'kind', label: 'From', render: (row) => <StatusChip value={row.kind} /> },
-  { key: 'status', label: 'Status', render: (row) => <StatusChip value={row.status} /> },
-];
+import { useFormatters, useT } from '@exyconn/i18n';
+import { Alert, Button, Flex, Text } from '@exyconn/shell/components/ui';
+import { useAudienceResolutionCountsQuery } from '@exyconn/shell/graphql/generated';
+import { AudienceCountsGrid } from './AudienceCountsGrid';
+import { AudienceRecipientsGrid } from './AudienceRecipientsGrid';
 
 interface AudienceMembersProps {
   audienceId: string;
@@ -23,32 +10,42 @@ interface AudienceMembersProps {
 }
 
 /**
- * Who an audience actually reaches right now.
- *
- * The grid can only show how many names were typed into the list; a segment adds people
- * nobody typed, and the same person in two sources is one recipient. This asks the server
- * the same question the send asks, so the count on screen is the count that will be mailed.
+ * Who a saved audience reaches right now — the same question the send asks, so the figure
+ * on screen is the one that will be mailed. A fixed audience shows its snapshot re-checked.
  */
 export function AudienceMembers({ audienceId, audienceName }: Readonly<AudienceMembersProps>) {
   const t = useT();
-  const { data, loading, refetch } = useAudienceMembersQuery({ variables: { id: audienceId } });
-  const members = data?.audienceMembers ?? [];
-
+  const { formatNumber, formatDateTime } = useFormatters();
+  const { data, loading, error, refetch } = useAudienceResolutionCountsQuery({
+    variables: { id: audienceId },
+    fetchPolicy: 'network-only',
+  });
+  const resolution = data?.audienceResolution;
   return (
-    <Flex direction="column" spacing={1}>
-      <Text size="sm" color="text.secondary">
-        {t('“{name}” reaches {count} recipient(s), de-duplicated by address.', {
-          name: audienceName,
-          count: members.length,
-        })}
+    <Flex direction="column" spacing={2}>
+      {error && (
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={() => refetch()}>
+              {t('Retry')}
+            </Button>
+          }
+        >
+          {error.message}
+        </Alert>
+      )}
+      <Text size="sm" color="text.secondary" role="status">
+        {resolution
+          ? t('“{name}” reaches {count} unique address(es). Last refreshed {time}.', {
+              name: audienceName,
+              count: formatNumber(resolution.counts.eligible),
+              time: formatDateTime(resolution.resolvedAt),
+            })
+          : t('Updating counts…')}
       </Text>
-      <DataTable
-        columns={COLUMNS}
-        rows={members}
-        emptyMessage="Nobody matches this audience yet."
-        loading={loading}
-        onRefresh={refetch}
-      />
+      <AudienceCountsGrid counts={resolution?.counts ?? null} stale={loading} />
+      <AudienceRecipientsGrid target={{ audienceId }} />
     </Flex>
   );
 }

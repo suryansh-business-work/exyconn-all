@@ -1,11 +1,11 @@
 import {
   issueUnsubscribeTokens,
   suppress,
-  suppressedAmong,
-  unsubscribeByToken,
+  suppressionsAmong,
   unsubscribeLimiter,
   withdrawnConsentReason,
 } from '../../../../src/modules/marketing/marketing.suppression';
+import { unsubscribeByToken } from '../../../../src/modules/marketing/marketing.public';
 import { marketingCustomResolvers } from '../../../../src/modules/marketing/marketing.resolvers';
 import { MarketingSuppressionModel } from '../../../../src/modules/marketing/suppression.model';
 import { MarketingUnsubscribeTokenModel } from '../../../../src/modules/marketing/unsubscribe-token.model';
@@ -30,20 +30,20 @@ describe('withdrawnConsentReason', () => {
   });
 });
 
-describe('suppress and suppressedAmong', () => {
+describe('suppress and suppressionsAmong', () => {
   it('stores the address normalised and finds it whatever case it is asked in', async () => {
-    await suppress('  Ada@Example.COM ', 'MANUAL', 'growth@exyconn.com');
+    await suppress('  Ada@Example.COM ', 'MANUAL', 'growth@exyconn.com', 'ADMIN');
 
     const row = await MarketingSuppressionModel.findOne().lean();
     expect(row).toMatchObject({ email: 'ada@example.com', reason: 'MANUAL' });
-    await expect(suppressedAmong(['ADA@example.com', 'bo@example.com'])).resolves.toEqual(
-      new Set(['ada@example.com']),
+    await expect(suppressionsAmong(['ADA@example.com', 'bo@example.com'])).resolves.toEqual(
+      new Map([['ada@example.com', 'MANUAL']]),
     );
   });
 
   it('keeps the first reason when an address is suppressed a second time', async () => {
-    await suppress('ada@example.com', 'BOUNCED', 'bounce');
-    await suppress('ada@example.com', 'UNSUBSCRIBED', 'campaign:c1');
+    await suppress('ada@example.com', 'BOUNCED', 'bounce', 'ADMIN');
+    await suppress('ada@example.com', 'UNSUBSCRIBED', 'campaign:c1', 'ADMIN');
 
     const rows = await MarketingSuppressionModel.find().lean();
     expect(rows).toHaveLength(1);
@@ -53,7 +53,7 @@ describe('suppress and suppressedAmong', () => {
   it('answers an empty question without asking the database', async () => {
     const find = jest.spyOn(MarketingSuppressionModel, 'find');
 
-    await expect(suppressedAmong([])).resolves.toEqual(new Set());
+    await expect(suppressionsAmong([])).resolves.toEqual(new Map());
     expect(find).not.toHaveBeenCalled();
   });
 });

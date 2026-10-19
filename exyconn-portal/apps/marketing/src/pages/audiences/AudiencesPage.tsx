@@ -4,7 +4,7 @@ import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import {
-  AudienceSegment,
+  AudienceUpdateMode,
   useListAudienceListsQuery,
   useListClientsQuery,
   useDeleteAudienceListMutation,
@@ -20,7 +20,7 @@ import {
   type AudiencesGridContext,
 } from './audiences-grid';
 
-/** Marketing → Audiences: the saved lists and segment rules a campaign is sent to. */
+/** Marketing → Audiences: the saved audiences a campaign is sent to. */
 export function AudiencesPage() {
   const t = useT();
   // Audiences are few and their sizes come from arrays, which no aggregation can sum —
@@ -41,16 +41,15 @@ export function AudiencesPage() {
   );
 
   const audiences = data?.listAudienceLists ?? [];
-  const reachable = new Set(audiences.flatMap((audience) => audience.clientIds));
-  const segmented = audiences.filter(
-    (audience) => audience.dynamicSegment !== AudienceSegment.None,
+  const dynamic = audiences.filter(
+    (audience) => audience.updateMode === AudienceUpdateMode.Dynamic,
   ).length;
-  const namedContacts = new Set(audiences.flatMap((audience) => audience.contactIds));
+  const withRules = audiences.filter((audience) => audience.conditions.length > 0).length;
   const statItems: StatItem[] = [
     { label: 'Audiences', value: String(audiences.length), accent: color.pink[400] },
-    { label: 'Clients named', value: String(reachable.size), accent: color.blue[400] },
-    { label: 'Contacts named', value: String(namedContacts.size), accent: color.violet[400] },
-    { label: 'With a segment rule', value: String(segmented), accent: color.orange[500] },
+    { label: 'Live dynamic', value: String(dynamic), accent: color.blue[400] },
+    { label: 'Fixed', value: String(audiences.length - dynamic), accent: color.violet[400] },
+    { label: 'With filter conditions', value: String(withRules), accent: color.orange[500] },
   ];
 
   const gridContext: AudiencesGridContext = {

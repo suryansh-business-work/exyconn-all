@@ -56,6 +56,9 @@ import {
 } from '../modules/support';
 import {
   marketingTypeDefs,
+  audienceTypeDefs,
+  suppressionTypeDefs,
+  campaignStudioTypeDefs,
   marketingResolvers,
   marketingMetricsTypeDefs,
   marketingMetricsResolvers,
@@ -277,6 +280,9 @@ export const typeDefs = [
   supportTypeDefs,
   supportLibraryTypeDefs,
   marketingTypeDefs,
+  audienceTypeDefs,
+  suppressionTypeDefs,
+  campaignStudioTypeDefs,
   marketingMetricsTypeDefs,
   legalTypeDefs,
   aiTypeDefs,

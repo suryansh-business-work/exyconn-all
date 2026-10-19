@@ -5,6 +5,7 @@ export { RhfMultiSelect } from './RhfMultiSelect';
 export { RhfChipsInput } from './RhfChipsInput';
 export { RhfFieldArrayError } from './RhfFieldArrayError';
 export { RhfSwitch } from './RhfSwitch';
+export { RhfRadioGroup, type RadioChoice } from './RhfRadioGroup';
 export { RhfDatePicker } from './RhfDatePicker';
 export { RhfDateTimePicker } from './RhfDateTimePicker';
 export { RhfTimePicker } from './RhfTimePicker';

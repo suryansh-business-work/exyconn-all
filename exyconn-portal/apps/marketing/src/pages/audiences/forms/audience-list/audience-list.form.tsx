@@ -1,58 +1,28 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { useT } from '@exyconn/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import {
-  RhfTextField,
-  RhfSelect,
-  RhfMultiSelect,
-  type SelectOption,
-} from '@exyconn/shell/components/form/rhf';
+import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
-  AudienceSegment,
-  useListClientsQuery,
-  useListContactsQuery,
+  useAudienceFilterCatalogueQuery,
   useCreateAudienceListMutation,
   useUpdateAudienceListMutation,
 } from '@exyconn/shell/graphql/generated';
-import { COMPANY_STATUS_OPTIONS } from './audience-list.types';
-import type { AudienceRow } from './audience-list.types';
-
-const schema = z
-  .object({
-    name: z.string().trim().min(1, 'Name is required'),
-    description: z.string().trim(),
-    clientIds: z.array(z.string()),
-    contactIds: z.array(z.string()),
-    dynamicSegment: z.enum(AudienceSegment),
-    segmentValue: z.string().trim(),
-  })
-  .refine(
-    (values) =>
-      values.dynamicSegment !== AudienceSegment.None ||
-      values.clientIds.length > 0 ||
-      values.contactIds.length > 0,
-    { path: ['contactIds'], message: 'Pick some people, or choose a segment rule' },
-  )
-  .refine(
-    (values) =>
-      values.dynamicSegment !== AudienceSegment.ContactsByCompanyStatus ||
-      values.segmentValue.length > 0,
-    { path: ['segmentValue'], message: 'Choose the account status to segment on' },
-  );
-type Values = z.infer<typeof schema>;
-
-const toInitial = (row: AudienceRow | null): Values => ({
-  name: row?.name ?? '',
-  description: row?.description ?? '',
-  clientIds: row?.clientIds ?? [],
-  contactIds: row?.contactIds ?? [],
-  dynamicSegment: row?.dynamicSegment ?? AudienceSegment.None,
-  segmentValue: row?.segmentValue ?? '',
-});
+import { BuilderSection } from './BuilderSection';
+import { AudienceSourceSection } from './AudienceSourceSection';
+import { AudienceEmailSection } from './AudienceEmailSection';
+import { AudienceModeSection } from './AudienceModeSection';
+import { AudienceRulesSection } from './AudienceRulesSection';
+import { AudienceDataSources } from './AudienceDataSources';
+import { AudienceLivePreview } from './AudienceLivePreview';
+import {
+  audienceSchema,
+  toFormValues,
+  toInput,
+  toPreviewInput,
+  type AudienceFormValues,
+  type AudienceRow,
+} from './audience-list.types';
 
 interface AudienceListFormProps {
   initial: AudienceRow | null;
@@ -60,66 +30,58 @@ interface AudienceListFormProps {
   onCancel: () => void;
 }
 
-/** React Hook Form + Zod form for the people a campaign can be sent to. */
+/**
+ * The Smart Audience Builder: which CRM registers, which of each record's addresses, whether
+ * it follows the CRM, the rules, and the records named by hand — with the server's live
+ * counts of who that reaches pinned to the bottom of the screen.
+ */
 export function AudienceListForm({ initial, onDone, onCancel }: Readonly<AudienceListFormProps>) {
-  const t = useT();
-  const { data: clientsData } = useListClientsQuery();
-  const { data: contactsData } = useListContactsQuery();
+  const { data: catalogue, loading: catalogueLoading } = useAudienceFilterCatalogueQuery();
   const [createAudienceList] = useCreateAudienceListMutation();
   const [updateAudienceList] = useUpdateAudienceListMutation();
-  const methods = useForm<Values>({
+  const methods = useForm<AudienceFormValues>({
     mode: 'onTouched',
-    resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    resolver: zodResolver(audienceSchema),
+    defaultValues: toFormValues(initial),
   });
-  const segment = useWatch({ control: methods.control, name: 'dynamicSegment' });
-
-  const clientOptions: SelectOption[] = (clientsData?.listClients ?? []).map((client) => ({
-    value: client.id,
-    label: `${client.name} · ${client.email}`,
-  }));
-  const contactOptions: SelectOption[] = (contactsData?.listContacts ?? []).map((contact) => ({
-    value: contact.id,
-    label: `${contact.name} · ${contact.email}`,
-  }));
+  const values = useWatch({ control: methods.control }) as AudienceFormValues;
 
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Audience',
     initial,
-    create: (values: Values) => createAudienceList({ variables: { input: values } }),
-    update: (row, values) => updateAudienceList({ variables: { id: row.id, input: values } }),
+    create: (form: AudienceFormValues) =>
+      createAudienceList({ variables: { input: toInput(form) } }),
+    update: (row, form) => updateAudienceList({ variables: { id: row.id, input: toInput(form) } }),
     onDone,
   });
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Audience name" helperText="e.g. Newsletter subscribers" />
-      <RhfTextField name="description" label="Description" multiline rows={2} />
-      <RhfMultiSelect
-        name="clientIds"
-        label="Clients"
-        options={clientOptions}
-        helperText={clientOptions.length ? undefined : 'No clients found — add clients first.'}
-      />
-      <RhfMultiSelect
-        name="contactIds"
-        label="CRM contacts"
-        options={contactOptions}
-        helperText={contactOptions.length ? undefined : 'No contacts found — add contacts first.'}
-      />
-      <RhfSelect
-        name="dynamicSegment"
-        label="Segment rule"
-        options={enumOptions(Object.values(AudienceSegment))}
-        helperText="Re-resolved on every send, so the list never goes stale."
-      />
-      {segment === AudienceSegment.ContactsByCompanyStatus && (
-        <RhfSelect
-          name="segmentValue"
-          label="Account status"
-          options={COMPANY_STATUS_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
+      <BuilderSection title="Audience">
+        <RhfTextField
+          name="name"
+          label="Audience name"
+          required
+          placeholder="e.g. Delhi café owners — October campaign"
+          helperText="Give your audience a unique, recognizable name."
         />
-      )}
+        <RhfTextField
+          name="description"
+          label="Description"
+          multiline
+          rows={2}
+          helperText="Who this audience contains and why, for your team."
+        />
+      </BuilderSection>
+      <AudienceSourceSection />
+      <AudienceEmailSection emailTypes={catalogue?.audienceFilterCatalogue.emailTypes ?? []} />
+      <AudienceModeSection snapshotAt={initial?.snapshotAt ?? null} />
+      <AudienceRulesSection
+        fields={catalogue?.audienceFilterCatalogue.fields ?? []}
+        loading={catalogueLoading}
+      />
+      <AudienceDataSources />
+      <AudienceLivePreview input={toPreviewInput(values)} />
     </EntityForm>
   );
 }
