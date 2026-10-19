@@ -1,8 +1,8 @@
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ROLES, roleList } from '@/auth/roles';
+import { ROLES, roleLabel } from '@/auth/roles';
 import {
   MyPendingApprovalCountDocument,
   MyUnreadNotificationCountDocument,
@@ -47,12 +47,25 @@ afterEach(() => {
 });
 
 describe('the topbar', () => {
-  it('shows who is signed in and in which roles', () => {
+  it('shows who is signed in, with the roles behind an info button', async () => {
     showTopbar();
 
     expect(screen.getByText('Asha Rao')).toBeInTheDocument();
-    expect(screen.getByText(roleList(asha.roles, (text) => text))).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Account menu' })).toHaveTextContent('A');
+    // The roles are not spelled out until asked for.
+    expect(screen.queryByText(roleLabel(ROLES.HR))).not.toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Your roles' }));
+
+    const tip = await screen.findByRole('tooltip');
+    const items = within(tip)
+      .getAllByRole('listitem')
+      .map((item) => item.textContent);
+    expect(items).toEqual(asha.roles.map(roleLabel));
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
   });
 
   it('shows the photo when the person has one', () => {

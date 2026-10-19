@@ -33,7 +33,7 @@ export function SetupStep({ options, campaign }: Readonly<SetupStepProps>) {
     ...options.categories.map((category) => ({ value: category.id, label: category.name })),
   ];
   return (
-    <Flex direction="column" spacing={2.5}>
+    <Flex direction="column" spacing={2}>
       <RhfTextField
         name="name"
         label="Internal campaign name"

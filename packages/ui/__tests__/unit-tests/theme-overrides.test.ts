@@ -77,6 +77,27 @@ describe.each(COLOR_MODES)('%s mode overrides', (mode) => {
     }
   });
 
+  it('deepens a clickable pastel chip on hover and focus, keeping its label readable', () => {
+    const chip = override(mode, 'MuiChip', 'root');
+    for (const color of ['primary', 'secondary', 'success', 'warning', 'error', 'info']) {
+      const style = chip({ ownerState: { color, variant: 'filled' }, theme: null });
+      const active = style['&.MuiChip-clickable:hover, &.MuiChip-clickable.Mui-focusVisible'] as
+        Record<string, string> | undefined;
+      expect(active).toBeDefined();
+      // A deeper tint than at rest, not MUI's solid main, which hid the label.
+      expect(active?.backgroundColor).not.toBe(style.backgroundColor);
+      expect(active?.backgroundColor).not.toBe(createAppTheme(mode).palette[color as 'info'].main);
+      expect(
+        contrastRatio(active?.color as string, active?.backgroundColor as string),
+      ).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+    // The neutral chip keeps MUI's own hover.
+    const neutral = chip({ ownerState: { color: 'default', variant: 'filled' }, theme: null });
+    expect(neutral).not.toHaveProperty(
+      '&.MuiChip-clickable:hover, &.MuiChip-clickable.Mui-focusVisible',
+    );
+  });
+
   it('frosts a modal backdrop and leaves an invisible one alone', () => {
     const backdrop = override(mode, 'MuiBackdrop', 'root');
     expect(backdrop({ ownerState: { invisible: true }, theme: null })).toEqual({});
