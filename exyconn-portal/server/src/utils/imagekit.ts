@@ -36,6 +36,21 @@ class ImageUploader {
     });
   }
 
+  /**
+   * Whether a URL is a file on the active ImageKit endpoint — the portal's own uploads. Used
+   * where the server would fetch the URL itself, so it can only ever fetch our own files.
+   */
+  async isOwnUrl(url: string): Promise<boolean> {
+    const config = await ImageConfigModel.findOne({ isActive: true }).select('urlEndpoint').lean();
+    if (!config?.urlEndpoint) {
+      return false;
+    }
+    const endpoint = config.urlEndpoint.endsWith('/')
+      ? config.urlEndpoint
+      : `${config.urlEndpoint}/`;
+    return url.startsWith(endpoint);
+  }
+
   /** Builds an ImageKit client from the single active Image config, or throws. */
   private async getClient(): Promise<ImageKit> {
     const config = await ImageConfigModel.findOne({ isActive: true }).lean();

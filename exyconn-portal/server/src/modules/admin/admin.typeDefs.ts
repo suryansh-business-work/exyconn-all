@@ -316,7 +316,14 @@ export const adminTypeDefs = gql`
 
   input SendMailInput {
     subject: String!
+    "The body as rich text (HTML). It is sanitised before it is sent."
     message: String!
+    "Copied in, visibly. Up to 20 addresses."
+    cc: [String!]
+    "Copied in, unseen by the others. Up to 20 addresses."
+    bcc: [String!]
+    "Files already uploaded to the portal's CDN, attached to the email. Up to 10."
+    attachments: [FileAttachmentInput!]
   }
 
   extend type Query {

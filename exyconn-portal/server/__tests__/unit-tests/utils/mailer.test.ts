@@ -134,6 +134,34 @@ describe('sending through the active configuration', () => {
     );
   });
 
+  it('sends a rich custom email with copies and attachments', async () => {
+    activeConfig(config);
+    const attachment = {
+      filename: 'a.pdf',
+      path: 'https://ik.imagekit.io/x/a.pdf',
+      contentType: 'application/pdf',
+    };
+    await mailer.sendCustomEmail({
+      name: 'Dana',
+      email: 'dana@acme.test',
+      subject: 'Quarterly review',
+      message: '',
+      html: '<p><strong>See you</strong> Monday</p>',
+      cc: ['lead@acme.test'],
+      bcc: ['hr@acme.test'],
+      attachments: [attachment],
+    });
+    expect(lastMjml()).toContain('<strong>See you</strong> Monday');
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'dana@acme.test',
+        cc: ['lead@acme.test'],
+        bcc: ['hr@acme.test'],
+        attachments: [attachment],
+      }),
+    );
+  });
+
   it('links the tracker download page in the access email', async () => {
     activeConfig(config);
     await mailer.sendTrackerAccessEmail({ name: 'Meera', email: 'meera@acme.test' });

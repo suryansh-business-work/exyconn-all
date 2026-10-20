@@ -10,6 +10,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import { CrudDialog } from '@/components/data/CrudDialog';
+import { ComposeWindow } from '@/components/compose';
 
 import { UserForm } from '../user-forms/user';
 import { CustomMailForm } from '../user-forms/custom-mail';
@@ -100,9 +101,19 @@ export function UserActions({ user, onChanged, editPath }: Readonly<UserActionsP
       <CrudDialog open={dialog === 'edit'} title="Edit user" onClose={close}>
         <UserForm initial={user} onCancel={close} onDone={done} />
       </CrudDialog>
-      <CrudDialog open={dialog === 'mail'} title={`Email ${user.name}`} onClose={close}>
-        <CustomMailForm userId={user.id} onCancel={close} onDone={close} />
-      </CrudDialog>
+      {/* A compose window rather than a dialog: the record stays readable while writing. */}
+      <ComposeWindow
+        open={dialog === 'mail'}
+        title={t('Email {name}', { name: user.name })}
+        onClose={close}
+      >
+        <CustomMailForm
+          userId={user.id}
+          recipient={{ name: user.name, email: user.email }}
+          onCancel={close}
+          onDone={close}
+        />
+      </ComposeWindow>
       <CrudDialog open={dialog === 'block'} title={`Block ${user.name}`} onClose={close}>
         <BlockUserForm userId={user.id} onCancel={close} onDone={done} />
       </CrudDialog>

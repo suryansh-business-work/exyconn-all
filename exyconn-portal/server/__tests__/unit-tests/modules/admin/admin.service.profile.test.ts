@@ -5,6 +5,7 @@ import { AppSettingsModel } from '../../../../src/modules/admin/settings.model';
 import { mailer } from '../../../../src/utils/mailer';
 import { verifyPassword } from '../../../../src/utils/password';
 import { ROLES } from '../../../../src/constants/roles';
+import { ImageConfigModel } from '../../../../src/modules/tech/image-config.model';
 
 /** Stubbed in __tests__/setup.ts so no SMTP is needed. */
 const credentials = mailer.sendCredentialsEmail as jest.Mock;
@@ -52,8 +53,90 @@ describe('sending a custom email', () => {
       name: 'Asha',
       email: 'asha@exyconn.com',
       subject: 'Welcome',
-      message: 'See you Monday',
+      message: '',
+      html: 'See you Monday',
+      cc: [],
+      bcc: [],
+      attachments: [],
     });
+  });
+
+  it('copies people in, each address cleaned and listed once', async () => {
+    const id = await stored();
+
+    await adminService.sendUserMail(id, {
+      subject: 'Welcome',
+      message: '<p>See you Monday</p>',
+      cc: [' Lead@Exyconn.com ', 'lead@exyconn.com'],
+      bcc: ['hr@exyconn.com'],
+    });
+
+    expect(customMail).toHaveBeenCalledWith(
+      expect.objectContaining({ cc: ['lead@exyconn.com'], bcc: ['hr@exyconn.com'] }),
+    );
+  });
+
+  it('refuses a copied address that is not one, and a list that is too long', async () => {
+    const id = await stored();
+    const many = Array.from({ length: 21 }, (_unused, i) => `p${i}@exyconn.com`);
+
+    await expect(
+      adminService.sendUserMail(id, { subject: 's', message: 'm', cc: ['nobody'] }),
+    ).rejects.toThrow('"nobody" in CC is not an email address.');
+    await expect(
+      adminService.sendUserMail(id, { subject: 's', message: 'm', bcc: many }),
+    ).rejects.toThrow('Copy at most 20 people in BCC.');
+    expect(customMail).not.toHaveBeenCalled();
+  });
+
+  it('attaches files from the portal’s own CDN only, at most ten', async () => {
+    const id = await stored();
+    await ImageConfigModel.create({
+      label: 'Main',
+      publicKey: 'public',
+      privateKey: process.env.TEST_IMAGEKIT_KEY ?? `key-${'x'.repeat(8)}`,
+      urlEndpoint: 'https://ik.imagekit.io/exyconn',
+      isActive: true,
+    });
+    const own = {
+      url: 'https://ik.imagekit.io/exyconn/user-mail/a.pdf',
+      name: 'a.pdf',
+      contentType: 'application/pdf',
+    };
+
+    await adminService.sendUserMail(id, { subject: 's', message: 'm', attachments: [own] });
+    expect(customMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: [{ filename: 'a.pdf', path: own.url, contentType: 'application/pdf' }],
+      }),
+    );
+
+    await expect(
+      adminService.sendUserMail(id, {
+        subject: 's',
+        message: 'm',
+        attachments: [{ url: 'http://169.254.169.254/latest', name: 'meta' }],
+      }),
+    ).rejects.toThrow('"meta" is not a file uploaded to the portal.');
+    await expect(
+      adminService.sendUserMail(id, {
+        subject: 's',
+        message: 'm',
+        attachments: Array.from({ length: 11 }, () => own),
+      }),
+    ).rejects.toThrow('Attach at most 10 files.');
+  });
+
+  it('attaches nothing while no image configuration is active', async () => {
+    const id = await stored();
+
+    await expect(
+      adminService.sendUserMail(id, {
+        subject: 's',
+        message: 'm',
+        attachments: [{ url: 'https://ik.imagekit.io/exyconn/a.png', name: 'a.png' }],
+      }),
+    ).rejects.toThrow('"a.png" is not a file uploaded to the portal.');
   });
 
   it('reports a user that does not exist', async () => {
