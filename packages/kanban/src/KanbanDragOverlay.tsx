@@ -5,7 +5,7 @@ import { Box, portalShadow } from '@exyconn/ui';
 
 /** The grip as it shows on the lifted card: a picture of the handle, not a control. */
 export const overlayGrip = (
-  <Box sx={{ display: 'flex', p: 0.625, color: 'action.active' }}>
+  <Box sx={{ display: 'flex', p: 0.5, color: 'action.active' }}>
     <DragIndicatorIcon fontSize="small" />
   </Box>
 );

@@ -69,7 +69,7 @@ export function BugForm({ initial, onDone, onCancel }: Readonly<BugFormProps>) {
       <Text size="sm" color="text.secondary">
         Report a bug with clear details so it can be fixed faster. Fields marked * are required.
       </Text>
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 8 }}>
           <RhfTextField
             name="title"
