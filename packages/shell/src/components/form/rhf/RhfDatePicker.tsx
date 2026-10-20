@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useI18n } from '@exyconn/i18n';
 import { useFieldCopy } from './useFieldCopy';
 import { DatePicker } from '@/components/ui';
 import { toDate } from '@/utils/date';
@@ -23,6 +24,8 @@ export function RhfDatePicker({
 }: Readonly<RhfDatePickerProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
+  // Typed and shown in the reader's own date format (their profile, else Admin › Settings).
+  const { dateFormat } = useI18n().settings;
   return (
     <Controller
       name={name}
@@ -31,6 +34,7 @@ export function RhfDatePicker({
         <DatePicker
           label={copy(label)}
           value={toDate(field.value)}
+          format={dateFormat}
           minDate={toDate(minDate) ?? undefined}
           // MUIX fires onChange for every section typed, so a half-entered date arrives
           // as an Invalid Date — toISOString() throws RangeError on one and took the

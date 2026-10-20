@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { format } from 'date-fns';
-import { useT } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import { Alert, Box, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
@@ -31,6 +30,7 @@ function usedByLabel(containers: number, t: Translate): string {
 /** The Storage tab: what the engine's disk is spent on, and every image on the host. */
 export function StoragePanel() {
   const t = useT();
+  const { formatDate } = useFormatters();
   const columns = useMemo<Column<ImageRow>[]>(
     () => [
       {
@@ -43,10 +43,10 @@ export function StoragePanel() {
         ),
       },
       { key: 'sizeBytes', label: 'Size', render: (row) => formatBytes(row.sizeBytes) },
-      { key: 'createdAt', label: 'Built', render: (row) => format(new Date(row.createdAt), 'PP') },
+      { key: 'createdAt', label: 'Built', render: (row) => formatDate(row.createdAt) },
       { key: 'containers', label: 'In use by', render: (row) => usedByLabel(row.containers, t) },
     ],
-    [t],
+    [t, formatDate],
   );
   const { data, loading, error, refetch } = useDockerStorageQuery({
     fetchPolicy: 'cache-and-network',

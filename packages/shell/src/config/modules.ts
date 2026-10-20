@@ -988,18 +988,18 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Configuration',
       },
       {
-        key: 'admin-app-settings',
-        label: 'App Settings',
-        path: '/admin/settings',
-        icon: TuneIcon,
-        group: 'Configuration',
-      },
-      {
         key: 'admin-localization',
         label: 'Localization',
         path: '/admin/localization',
         icon: TranslateIcon,
         group: 'Configuration',
+      },
+      {
+        key: 'admin-app-settings',
+        label: 'Settings',
+        path: '/admin/settings',
+        icon: TuneIcon,
+        group: 'System',
       },
       {
         key: 'admin-audit',

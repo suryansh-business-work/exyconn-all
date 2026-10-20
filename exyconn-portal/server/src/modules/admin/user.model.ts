@@ -130,6 +130,9 @@ const userSchema = new Schema(
      */
     timezone: { type: String, default: null },
     locale: { type: String, default: null },
+    /** The person's own date and time patterns (date-fns); null follows the workspace's. */
+    dateFormat: { type: String, default: null },
+    timeFormat: { type: String, default: null },
     /**
      * ISO 3166-1 alpha-2 country the person is employed in — which leave quotas and holidays
      * apply to them. Null follows the company's country. Set by HR only: it decides

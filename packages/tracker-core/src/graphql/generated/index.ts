@@ -4306,6 +4306,8 @@ export type UpdateProfileInput = {
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
   brief: InputMaybe<Scalars['String']['input']>;
+  /** This person's date pattern, from the offered list. Empty string follows the workspace's. */
+  dateFormat: InputMaybe<Scalars['String']['input']>;
   /** The language the portal is shown to this person in. Empty string follows the default. */
   locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
@@ -4313,6 +4315,8 @@ export type UpdateProfileInput = {
   phone: InputMaybe<Scalars['String']['input']>;
   /** Replaces every shared profile at once; an empty address clears that one. */
   socialLinks: InputMaybe<UserSocialLinksInput>;
+  /** This person's time pattern, from the offered list. Empty string follows the workspace's. */
+  timeFormat: InputMaybe<Scalars['String']['input']>;
   /**
    * The zone every date and time is shown to this person in. Empty string clears the
    * choice and follows the workspace default again.

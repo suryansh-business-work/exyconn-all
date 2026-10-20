@@ -77,6 +77,8 @@ query Me {
     avatarUrl
     timezone
     locale
+    dateFormat
+    timeFormat
     organizationId
     ...ProfileDetailsFields
   }

@@ -4,14 +4,16 @@ import { renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { MockLink } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
-import { I18nProvider } from '@exyconn/i18n';
+import { DATE_FORMATS, I18nProvider, TIME_FORMATS } from '@exyconn/i18n';
 import { LocaleOptionsDocument } from '@/graphql/generated';
 import {
   LocalePreferenceFields,
   WORKSPACE_DEFAULT_OPTION,
   localeLabel,
   useCountryOptions,
+  useDateFormatOptions,
   useLanguageOptions,
+  useTimeFormatOptions,
   useTimezoneOptions,
 } from '@/components/localization';
 import { renderWithProviders } from '../../test-utils';
@@ -66,6 +68,16 @@ describe('locale option hooks', () => {
         { value: 'hi', label: 'हिन्दी' },
       ]),
     );
+  });
+
+  it('offers every date and time pattern, written as today, with or without the default', () => {
+    const dates = renderHook(() => useDateFormatOptions()).result.current;
+    expect(dates[0]).toBe(WORKSPACE_DEFAULT_OPTION);
+    expect(dates.slice(1).map((option) => option.value)).toEqual([...DATE_FORMATS]);
+    expect(dates[1].label).toMatch(/^\d{4}-\d{2}-\d{2} {2}\(yyyy-MM-dd\)$/);
+
+    const times = renderHook(() => useTimeFormatOptions(false)).result.current;
+    expect(times.map((option) => option.value)).toEqual([...TIME_FORMATS]);
   });
 
   it('names every country in the reader language', () => {

@@ -75,6 +75,13 @@ function ServerDataGridImpl({
     return tableInfo ? applyTableInfo(translated, tableInfo) : translated;
   }, [columnDefs, t, tableInfo]);
   const gridRef = useRef<AgGridReact<unknown>>(null);
+  // ag-grid reads `context` once, so the grid keeps one object and refills it: a date format
+  // or language changed in Settings then redraws every cell already on screen.
+  const [liveContext] = useState<object>(() => ({ ...context }));
+  useEffect(() => {
+    Object.assign(liveContext, context);
+    gridRef.current?.api?.refreshCells({ force: true });
+  }, [context, liveContext]);
   const purge = useCallback(() => gridRef.current?.api?.purgeInfiniteCache(), []);
   // Re-reads every loaded block while its rows stay on screen: no skeletons, no jump to page 1.
   const refreshInPlace = useCallback(() => gridRef.current?.api?.refreshInfiniteCache(), []);
@@ -164,7 +171,7 @@ function ServerDataGridImpl({
           theme={gridTheme}
           columnDefs={headings}
           defaultColDef={defaultColDef}
-          context={context}
+          context={liveContext}
           rowModelType="infinite"
           cacheBlockSize={pageSize}
           infiniteInitialRowCount={pageSize}

@@ -13,6 +13,8 @@ const VALID = {
   },
   timezone: 'Asia/Kolkata',
   locale: 'en-IN',
+  dateFormat: 'yyyy-MM-dd',
+  timeFormat: 'HH:mm',
 };
 
 /** The first message the schema gives for one field, or undefined when it passes. */
@@ -35,6 +37,8 @@ describe('the profile schema', () => {
       socialLinks: { linkedin: '', github: '', twitter: '', website: '' },
       timezone: '',
       locale: '',
+      dateFormat: '',
+      timeFormat: '',
     };
 
     expect(profileSchema.safeParse(empty).success).toBe(true);
@@ -70,5 +74,13 @@ describe('the profile schema', () => {
       'Choose a timezone from the list',
     );
     expect(messageFor({ locale: 'not a locale!' }, 'locale')).toBe('Choose a language');
+  });
+
+  it('accepts only the offered date and time patterns', () => {
+    expect(messageFor({ dateFormat: 'yyyy/MM/dd' }, 'dateFormat')).toBe('Choose a date format');
+    expect(messageFor({ timeFormat: 'H:m' }, 'timeFormat')).toBe('Choose a time format');
+    expect(messageFor({ dateFormat: 'dd/MM/yyyy', timeFormat: 'hh:mm a' }, 'dateFormat')).toBe(
+      undefined,
+    );
   });
 });

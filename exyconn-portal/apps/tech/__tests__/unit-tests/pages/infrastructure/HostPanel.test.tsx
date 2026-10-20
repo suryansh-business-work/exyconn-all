@@ -1,6 +1,6 @@
+import { DEFAULT_FORMAT_SETTINGS, formatDateTime } from '@exyconn/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
-import { format } from 'date-fns';
 import { formatBytes } from '@exyconn/shell/utils/file';
 import { HostPanel } from '../../../../src/pages/infrastructure/HostPanel';
 import { renderWithProviders } from '../../test-utils';
@@ -92,11 +92,11 @@ describe('HostPanel', () => {
     expect(factFor('Architecture')).toHaveTextContent('linux/x86_64');
     expect(factFor('Memory')).toHaveTextContent(formatBytes(8 * 1024 * MB));
     expect(factFor('Host clock')).toHaveTextContent(
-      format(new Date('2026-10-07T10:00:00.000Z'), 'PPpp'),
+      formatDateTime(new Date('2026-10-07T10:00:00.000Z'), DEFAULT_FORMAT_SETTINGS),
     );
     expect(factFor('Platform')).toHaveTextContent('linux/x64');
     expect(factFor('Started')).toHaveTextContent(
-      format(new Date('2026-10-07T08:58:00.000Z'), 'PPpp'),
+      formatDateTime(new Date('2026-10-07T08:58:00.000Z'), DEFAULT_FORMAT_SETTINGS),
     );
     expect(factFor('Heap')).toHaveTextContent('100.0 MB / 150.0 MB');
     expect(factFor('Load average')).toHaveTextContent('0.50 1.25 2.00');

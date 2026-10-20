@@ -24,6 +24,8 @@ function meResult(user: AuthUser) {
         avatarUrl: null,
         timezone: null,
         locale: null,
+        dateFormat: null,
+        timeFormat: null,
         organizationId: user.organizationId ?? null,
         department: null,
         designation: null,

@@ -246,6 +246,16 @@ describe('workspace settings', () => {
     expect(await AppSettingsModel.countDocuments()).toBe(0);
   });
 
+  it('refuses a date or time pattern that is not on offer, saving nothing', async () => {
+    await expect(adminService.updateSettings({ dateFormat: 'yyyy' })).rejects.toThrow(
+      '"yyyy" is not one of the date formats on offer.',
+    );
+    await expect(adminService.updateSettings({ timeFormat: 'H' })).rejects.toThrow(
+      '"H" is not one of the time formats on offer.',
+    );
+    expect(await AppSettingsModel.countDocuments()).toBe(0);
+  });
+
   it('leaves untouched fields alone on a partial save', async () => {
     await adminService.updateSettings({ timeFormat: 'HH:mm' });
 

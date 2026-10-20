@@ -5,7 +5,14 @@ import { EnumColumnFilter } from '@/components/data/EnumColumnFilter';
 import type { TablePageResult } from '@/components/data/ServerDataGrid.impl';
 import { portalLogger } from '@/logging/portalLogger';
 import { agGrid, resetFakeGrid } from './fakeAgGrid';
-import { getRowsParams, listFetcher, loadPage, renderGrid, type Fetch } from './serverGridHarness';
+import {
+  getRowsParams,
+  gridTree,
+  listFetcher,
+  loadPage,
+  renderGrid,
+  type Fetch,
+} from './serverGridHarness';
 import { answer, failure } from '../../mockResult';
 
 vi.mock('ag-grid-react', async () => {
@@ -58,6 +65,21 @@ describe('ServerDataGridImpl setup', () => {
     const frame = screen.getByTestId('ag-grid').parentElement as HTMLElement;
     expect(getComputedStyle(frame).height).not.toBe('400px');
     vi.unstubAllGlobals();
+  });
+});
+
+describe('ServerDataGridImpl context', () => {
+  it('refills the one context ag-grid holds and redraws the cells when it changes', () => {
+    const fetchRows = vi.fn<Fetch>();
+    const { rerender } = renderGrid(fetchRows, { context: { dateFormat: 'dd MMM yyyy' } });
+    const held = agGrid.props.context;
+    expect(held).toEqual({ dateFormat: 'dd MMM yyyy' });
+
+    rerender(gridTree(fetchRows, { context: { dateFormat: 'yyyy-MM-dd' } }));
+
+    expect(agGrid.props.context).toBe(held);
+    expect(held).toEqual({ dateFormat: 'yyyy-MM-dd' });
+    expect(agGrid.refreshCells).toHaveBeenLastCalledWith({ force: true });
   });
 });
 

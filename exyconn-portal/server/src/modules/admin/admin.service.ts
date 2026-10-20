@@ -30,6 +30,7 @@ import type { WorkLocation, WorkingTime } from '../../constants/work';
 import { registerTable } from '../table-transfer/registry';
 import { isEmailAddress } from '../../utils/emailAddress';
 import { imageUploader } from '../../utils/imagekit';
+import { isDateFormat, isTimeFormat } from '../../utils/dateFormats';
 import type { AttachmentInput } from '../../lib/attachments';
 import { normalizeWorkDays } from './work-week';
 
@@ -734,6 +735,12 @@ class AdminService {
    */
   async updateSettings(input: UpdateSettingsInput) {
     const update: Record<string, unknown> = { ...input };
+    if (input.dateFormat !== undefined && !isDateFormat(input.dateFormat)) {
+      badRequest(`"${input.dateFormat}" is not one of the date formats on offer.`);
+    }
+    if (input.timeFormat !== undefined && !isTimeFormat(input.timeFormat)) {
+      badRequest(`"${input.timeFormat}" is not one of the time formats on offer.`);
+    }
     if (input.timezone !== undefined) {
       if (!isValidTimezone(input.timezone)) {
         badRequest(`"${input.timezone}" is not a timezone this system knows.`);

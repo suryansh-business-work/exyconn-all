@@ -6,7 +6,7 @@ import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useAppSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { AppSettingsForm } from './forms/app-settings';
 
-/** Admin → App Settings: the date format, time format and timezone every portal renders with. */
+/** Admin › System › Settings: the date format, time format and timezone every portal renders with. */
 export function AppSettingsPage() {
   const t = useT();
   const { data, loading } = useAppSettingsQuery();
@@ -25,8 +25,8 @@ export function AppSettingsPage() {
   return (
     <Box>
       <PageHeader
-        title="App Settings"
-        subtitle="Date, time and timezone formatting used across every app"
+        title="Settings"
+        subtitle="The default date, time and timezone every app uses. People can override them on their profile."
       />
       <Box sx={[readingPanel, { maxWidth: 640 }]}>{body}</Box>
     </Box>

@@ -19,7 +19,12 @@ type Settings = {
   timeFormat?: string;
   currency?: string;
 };
-type Me = { locale?: string | null; timezone?: string | null };
+type Me = {
+  locale?: string | null;
+  timezone?: string | null;
+  dateFormat?: string | null;
+  timeFormat?: string | null;
+};
 
 const KEY = 'exyconn.locale';
 const state: { settings?: Settings; loading: boolean; me?: Me } = { loading: false };
@@ -93,6 +98,22 @@ describe('useLocalePreference resolution', () => {
     const { result } = setup();
     expect(result.current.locale).toBe('hi');
     expect(result.current.timezone).toBe('Asia/Kolkata');
+  });
+
+  it("puts the person's own date and time patterns ahead of the workspace's", () => {
+    state.settings = { dateFormat: 'dd.MM.yyyy', timeFormat: 'HH:mm' };
+    state.me = { dateFormat: 'yyyy-MM-dd', timeFormat: 'hh:mm a' };
+    const { result } = setup();
+    expect(result.current.dateFormat).toBe('yyyy-MM-dd');
+    expect(result.current.timeFormat).toBe('hh:mm a');
+  });
+
+  it("follows the workspace's patterns when the person has not picked any", () => {
+    state.settings = { dateFormat: 'dd.MM.yyyy', timeFormat: 'HH:mm' };
+    state.me = { dateFormat: null, timeFormat: null };
+    const { result } = setup();
+    expect(result.current.dateFormat).toBe('dd.MM.yyyy');
+    expect(result.current.timeFormat).toBe('HH:mm');
   });
 
   it('uses a language chosen in this browser before signing in', () => {

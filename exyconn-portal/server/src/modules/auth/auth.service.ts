@@ -1,3 +1,4 @@
+import { isDateFormat, isTimeFormat } from '../../utils/dateFormats';
 import type { HydratedDocument } from 'mongoose';
 import { UserModel, type UserDocument } from '../admin/user.model';
 import {
@@ -35,6 +36,17 @@ export interface UpdateProfileInput extends ProfileDetailsInput {
   avatarUrl?: string;
   timezone?: string;
   locale?: string;
+  dateFormat?: string;
+  timeFormat?: string;
+}
+
+/** A chosen pattern, or null for "follow the workspace" when the choice is cleared. */
+function patternOrNull(value: string, offered: (pattern: string) => boolean, kind: string) {
+  const pattern = value.trim();
+  if (pattern !== '' && !offered(pattern)) {
+    badRequest(`"${pattern}" is not one of the ${kind} formats on offer.`);
+  }
+  return pattern === '' ? null : pattern;
 }
 
 /** Shows enough of an address to recognise it without publishing it in full. */
@@ -254,6 +266,12 @@ class AuthService {
         badRequest(`"${locale}" is not a language tag this system knows.`);
       }
       update.locale = locale === '' ? null : canonical;
+    }
+    if (input.dateFormat !== undefined) {
+      update.dateFormat = patternOrNull(input.dateFormat, isDateFormat, 'date');
+    }
+    if (input.timeFormat !== undefined) {
+      update.timeFormat = patternOrNull(input.timeFormat, isTimeFormat, 'time');
     }
     const user = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!user) notFound('User');

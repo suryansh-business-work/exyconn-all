@@ -3,7 +3,7 @@ import { render, type RenderOptions, type RenderResult } from '@testing-library/
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
 import { MemoryRouter } from 'react-router-dom';
-import { I18nProvider, type Messages } from '@exyconn/i18n';
+import { I18nProvider, type FormatSettings, type Messages } from '@exyconn/i18n';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
 import { ColorModeProvider } from '@/theme/ColorModeContext';
 import { NotificationProvider } from '@/components/feedback/NotificationProvider';
@@ -22,6 +22,8 @@ export interface ProviderOptions extends Omit<RenderOptions, 'wrapper'> {
   messages?: Messages;
   /** Locale for the I18nProvider (`ar` flips the theme to right-to-left). Defaults to `en`. */
   locale?: string;
+  /** The reader's formats, as `PortalI18nProvider` resolves them. Defaults to the built-ins. */
+  settings?: Partial<Omit<FormatSettings, 'locale'>>;
   /**
    * When set, the tree sits under the real AuthProvider signed in as this person (a session
    * token cookie plus the cached user, exactly what a page refresh rehydrates). `null` mounts
@@ -69,7 +71,15 @@ interface WrapperProps {
  */
 export function renderWithProviders(
   ui: ReactElement,
-  { mocks = [], route = '/', messages = {}, locale = 'en', user, ...options }: ProviderOptions = {},
+  {
+    mocks = [],
+    route = '/',
+    messages = {},
+    locale = 'en',
+    settings,
+    user,
+    ...options
+  }: ProviderOptions = {},
 ): RenderResult {
   if (user) seedSession(user);
   const withAuth = user !== undefined;
@@ -77,7 +87,7 @@ export function renderWithProviders(
     const routed = <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>;
     return (
       <MockedProvider mocks={mocks}>
-        <I18nProvider locale={locale} messages={messages}>
+        <I18nProvider locale={locale} messages={messages} settings={settings}>
           <ColorModeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <NotificationProvider>

@@ -37,7 +37,16 @@ export function renderGrid(
   extra: Record<string, unknown> = {},
   mocks: ReadonlyArray<MockLink.MockedResponse> = [],
 ) {
-  return render(
+  return render(gridTree(fetchRows, extra, mocks));
+}
+
+/** The grid under its providers, for `rerender` with new props. */
+export function gridTree(
+  fetchRows: GridFetcher<unknown>,
+  extra: Record<string, unknown> = {},
+  mocks: ReadonlyArray<MockLink.MockedResponse> = [],
+) {
+  return (
     <MockedProvider mocks={mocks}>
       <I18nProvider
         locale="en"
@@ -50,7 +59,7 @@ export function renderGrid(
           {...extra}
         />
       </I18nProvider>
-    </MockedProvider>,
+    </MockedProvider>
   );
 }
 

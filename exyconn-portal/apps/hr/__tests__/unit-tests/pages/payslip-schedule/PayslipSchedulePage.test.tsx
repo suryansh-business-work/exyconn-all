@@ -1,7 +1,7 @@
+import { DEFAULT_FORMAT_SETTINGS, formatDateTime } from '@exyconn/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { format } from 'date-fns';
 import { PayslipSchedulePage } from '../../../../src/pages/payslip-schedule';
 import { renderWithProviders } from '../../test-utils';
 import { payslipSchedule } from './payslip-schedule-fixture';
@@ -66,7 +66,9 @@ describe('PayslipSchedulePage', () => {
     renderWithProviders(<PayslipSchedulePage />);
 
     expect(screen.getByText(/^Form for /)).toHaveTextContent('"dayOfMonth":3');
-    expect(detail('Last run')).toBe(format(new Date('2026-10-03T04:00:00.000Z'), 'PPpp'));
+    expect(detail('Last run')).toBe(
+      formatDateTime(new Date('2026-10-03T04:00:00.000Z'), DEFAULT_FORMAT_SETTINGS),
+    );
     expect(detail('Sent for')).toBe('2026-09');
     expect(detail('Emailed')).toBe('41');
     expect(detail('Failed')).toBe('2');

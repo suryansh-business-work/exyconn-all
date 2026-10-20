@@ -24,6 +24,8 @@ function valuesOf(name: string, me: ProfileMe | undefined): ProfileFormValues {
     },
     timezone: me?.timezone ?? '',
     locale: me?.locale ?? '',
+    dateFormat: me?.dateFormat ?? '',
+    timeFormat: me?.timeFormat ?? '',
   };
 }
 

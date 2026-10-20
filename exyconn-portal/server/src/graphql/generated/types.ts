@@ -20785,6 +20785,8 @@ export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
   brief?: InputMaybe<Scalars['String']['input']>;
+  /** This person's date pattern, from the offered list. Empty string follows the workspace's. */
+  dateFormat?: InputMaybe<Scalars['String']['input']>;
   /** The language the portal is shown to this person in. Empty string follows the default. */
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -20792,6 +20794,8 @@ export type UpdateProfileInput = {
   phone?: InputMaybe<Scalars['String']['input']>;
   /** Replaces every shared profile at once; an empty address clears that one. */
   socialLinks?: InputMaybe<UserSocialLinksInput>;
+  /** This person's time pattern, from the offered list. Empty string follows the workspace's. */
+  timeFormat?: InputMaybe<Scalars['String']['input']>;
   /**
    * The zone every date and time is shown to this person in. Empty string clears the
    * choice and follows the workspace default again.
@@ -20872,6 +20876,8 @@ export type User = {
    */
   country?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** The person's own date pattern (date-fns); null follows the workspace's. */
+  dateFormat?: Maybe<Scalars['String']['output']>;
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
   designation?: Maybe<Scalars['String']['output']>;
@@ -20921,6 +20927,8 @@ export type User = {
   socialLinks?: Maybe<UserSocialLinks>;
   /** Team inside the department. Empty when not set. */
   teamName?: Maybe<Scalars['String']['output']>;
+  /** The person's own time pattern (date-fns); null follows the workspace's. */
+  timeFormat?: Maybe<Scalars['String']['output']>;
   /**
    * Where this person is and what language they read. Null means "whatever the workspace
    * default is", so moving the house timezone moves everybody who never expressed a
@@ -32439,6 +32447,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  dateFormat?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   dateOfBirth?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -32469,6 +32478,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   shiftCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   socialLinks?: Resolver<Maybe<ResolversTypes['UserSocialLinks']>, ParentType, ContextType>;
   teamName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  timeFormat?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   workDays?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;

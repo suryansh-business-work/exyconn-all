@@ -9,6 +9,8 @@ export const agGrid = {
   purge: vi.fn(),
   /** `refreshInfiniteCache`: re-reads the loaded blocks in place. */
   refresh: vi.fn(),
+  /** `refreshCells`: redraws the cells on screen (a format or language changed). */
+  refreshCells: vi.fn(),
   setFilterModel: vi.fn(),
   deselectAll: vi.fn(),
   setNodesSelected: vi.fn(),
@@ -67,6 +69,7 @@ export function FakeAgGrid(props: Readonly<FakeGridProps>) {
           api: {
             purgeInfiniteCache: agGrid.purge,
             refreshInfiniteCache: agGrid.refresh,
+            refreshCells: agGrid.refreshCells,
             setFilterModel: agGrid.setFilterModel,
             deselectAll: agGrid.deselectAll,
             setNodesSelected: agGrid.setNodesSelected,
@@ -103,6 +106,7 @@ export function resetFakeGrid(): void {
   agGrid.datasource = null;
   agGrid.purge.mockClear();
   agGrid.refresh.mockClear();
+  agGrid.refreshCells.mockClear();
   agGrid.setFilterModel.mockClear();
   agGrid.deselectAll.mockClear();
   agGrid.setNodesSelected.mockClear();

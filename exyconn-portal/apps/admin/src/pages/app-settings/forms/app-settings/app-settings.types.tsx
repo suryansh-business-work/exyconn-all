@@ -1,21 +1,15 @@
 import { z } from 'zod';
-import { canonicalLocale, isValidLocale, isValidTimezone } from '@exyconn/i18n';
+import {
+  canonicalLocale,
+  isDateFormat,
+  isTimeFormat,
+  isValidLocale,
+  isValidTimezone,
+} from '@exyconn/i18n';
 import type { AppSettingsQuery } from '@exyconn/shell/graphql/generated';
 
 /** The settings record as returned by the codegen'd `AppSettings` query. */
 export type AppSettingsRow = AppSettingsQuery['appSettings'];
-
-/** date-fns patterns the portals may render dates and times with. */
-export const DATE_FORMATS: readonly string[] = [
-  'dd MMM yyyy',
-  'dd/MM/yyyy',
-  'MM/dd/yyyy',
-  'yyyy-MM-dd',
-];
-export const TIME_FORMATS: readonly string[] = ['hh:mm a', 'HH:mm'];
-
-const DATE_FORMAT_SET = new Set(DATE_FORMATS);
-const TIME_FORMAT_SET = new Set(TIME_FORMATS);
 
 /**
  * Whether the runtime can resolve this zone.
@@ -30,11 +24,11 @@ export const appSettingsSchema = z.object({
   dateFormat: z
     .string()
     .min(1, 'Date format is required')
-    .refine((value) => DATE_FORMAT_SET.has(value), 'Choose a date format from the list'),
+    .refine(isDateFormat, 'Choose a date format from the list'),
   timeFormat: z
     .string()
     .min(1, 'Time format is required')
-    .refine((value) => TIME_FORMAT_SET.has(value), 'Choose a time format from the list'),
+    .refine(isTimeFormat, 'Choose a time format from the list'),
   timezone: z
     .string()
     .min(1, 'Timezone is required')

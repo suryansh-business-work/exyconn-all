@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { RhfTimePicker } from '@/components/form/rhf';
 import { renderWithProviders } from '../../../test-utils';
 import { FormHarness, formValues } from '../formHarness';
-import { appSettingsMock } from '../settingsMock';
 
 const input = (name: string) => document.querySelector<HTMLInputElement>(`input[name="${name}"]`);
 
@@ -80,12 +79,12 @@ describe('RhfTimePicker', () => {
     expect(formValues().start).toBe(5);
   });
 
-  it('follows a 24-hour time format set by the admin', async () => {
+  it("follows the reader's 24-hour time format", async () => {
     renderWithProviders(
       <FormHarness defaultValues={{ start: '21:05' }}>
         <RhfTimePicker name="start" label="Start" />
       </FormHarness>,
-      { mocks: [appSettingsMock('HH:mm')] },
+      { settings: { timeFormat: 'HH:mm' } },
     );
 
     await expect.poll(() => input('start')?.value).toBe('21:05');

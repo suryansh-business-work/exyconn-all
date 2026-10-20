@@ -1,7 +1,7 @@
+import { DEFAULT_FORMAT_SETTINGS, formatDateTime } from '@exyconn/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { format } from 'date-fns';
 import { ContainerDetailDialog } from '../../../../src/pages/infrastructure/ContainerDetailDialog';
 import { renderWithProviders } from '../../test-utils';
 import { containerDetail } from './infra.fixtures';
@@ -95,7 +95,7 @@ describe('ContainerDetailDialog', () => {
     expect(rowFor('Container ID')).toHaveTextContent('0123456789ab');
     expect(rowFor('Container ID')).not.toHaveTextContent('0123456789abc');
     expect(rowFor('Created')).toHaveTextContent(
-      format(new Date('2026-10-01T09:00:00.000Z'), 'PPpp'),
+      formatDateTime(new Date('2026-10-01T09:00:00.000Z'), DEFAULT_FORMAT_SETTINGS),
     );
     expect(rowFor('Uptime')).toHaveTextContent('1d 2h 3m');
     expect(rowFor('Restarts')).toHaveTextContent('2 (policy: unless-stopped)');
