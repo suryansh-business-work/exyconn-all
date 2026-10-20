@@ -88,10 +88,19 @@ describe('PayDialog', () => {
     offer({});
     renderDialog();
     expect(
-      screen.getByText(
-        'Online payment is not available for this invoice. Please pay by bank transfer.',
-      ),
+      screen.getByText(/Online payment is not set up for this invoice yet/),
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Contact us' })).toHaveAttribute('href', '/support');
+  });
+
+  it('says so when the ways to pay cannot be loaded', () => {
+    gql.useClientHubPaymentOptionsQuery.mockReturnValue({
+      data: undefined,
+      loading: false,
+      error: new Error('Gateway list down'),
+    });
+    renderDialog();
+    expect(screen.getByRole('alert')).toHaveTextContent('Gateway list down');
   });
 
   it.each([

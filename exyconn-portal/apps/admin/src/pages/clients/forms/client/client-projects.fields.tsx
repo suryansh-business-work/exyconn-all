@@ -50,7 +50,7 @@ export function ClientProjectsFields({
   }
 
   return (
-    <ClientSection title="Projects">
+    <ClientSection title="Projects" hint="Optional. What the client sees in their client hub.">
       <Controller
         name="projectIds"
         control={control}
@@ -58,6 +58,7 @@ export function ClientProjectsFields({
           <TextField
             select
             fullWidth
+            data-wide
             label={t('Projects')}
             name={field.name}
             value={field.value}
