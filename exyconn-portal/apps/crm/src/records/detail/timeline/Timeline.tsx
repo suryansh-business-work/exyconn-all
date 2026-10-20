@@ -1,11 +1,47 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Alert, Button, Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
+import {
+  Alert,
+  Button,
+  Chip,
+  Flex,
+  Stack,
+  Text,
+  Timeline as MuiTimeline,
+  timelineItemClasses,
+} from '@exyconn/shell/components/ui';
 import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useCrmTimelineQuery, type CrmTimelineObject } from '@exyconn/shell/graphql/generated';
 import { KIND_FILTERS } from './timeline.kinds';
-import { TimelineEntry } from './TimelineEntry';
+import { TimelineEntry, type TimelineRow } from './TimelineEntry';
+import { TimelineTable } from './TimelineTable';
+import { TimelineViewToggle, useTimelineView } from './TimelineViewToggle';
+
+/** Entries hang off the left rail: no opposite column taking half the width. */
+const RAIL_SX = {
+  p: 0,
+  m: 0,
+  [`& .${timelineItemClasses.root}:before`]: { flex: 0, p: 0 },
+};
+
+/** The entries on the rail, newest first, with the loading and empty states. */
+function TimelineList({ rows, loading }: Readonly<{ rows: TimelineRow[]; loading: boolean }>) {
+  const t = useT();
+  if (loading) {
+    return <ListSkeleton toolbar={false} rows={4} columns={3} label="Loading the activity" />;
+  }
+  if (rows.length === 0) {
+    return <Text color="text.secondary">{t('Nothing has happened with this record yet.')}</Text>;
+  }
+  return (
+    <MuiTimeline sx={RAIL_SX}>
+      {rows.map((row, index) => (
+        <TimelineEntry key={row.id} entry={row} last={index === rows.length - 1} />
+      ))}
+    </MuiTimeline>
+  );
+}
 
 interface TimelineProps {
   object: CrmTimelineObject;
@@ -19,6 +55,7 @@ interface TimelineProps {
 export function Timeline({ object, id, limit, filters = true }: Readonly<TimelineProps>) {
   const t = useT();
   const [filter, setFilter] = useState(KIND_FILTERS[0]);
+  const [view, setView] = useTimelineView();
   const { data, loading, error, refetch } = useCrmTimelineQuery({
     variables: { object, id, limit },
     fetchPolicy: 'cache-and-network',
@@ -41,40 +78,44 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
     );
   }
 
+  const loadingFirst = loading && !data;
+  const table = filters && view === 'table';
   return (
     <Stack spacing={2}>
       {filters && (
         <Flex
-          direction="row"
-          spacing={1}
-          flexWrap="wrap"
-          useFlexGap
-          role="group"
-          aria-label={t('Show')}
+          direction={{ xs: 'column', sm: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ sm: 'center' }}
+          gap={1}
         >
-          {KIND_FILTERS.map((option) => (
-            <Chip
-              key={option.id}
-              label={t(option.label)}
-              color={option === filter ? 'primary' : 'default'}
-              variant={option === filter ? 'filled' : 'outlined'}
-              aria-pressed={option === filter}
-              onClick={() => setFilter(option)}
-            />
-          ))}
+          <Flex
+            direction="row"
+            spacing={1}
+            flexWrap="wrap"
+            useFlexGap
+            role="group"
+            aria-label={t('Show')}
+          >
+            {KIND_FILTERS.map((option) => (
+              <Chip
+                key={option.id}
+                label={t(option.label)}
+                color={option === filter ? 'primary' : 'default'}
+                variant={option === filter ? 'filled' : 'outlined'}
+                aria-pressed={option === filter}
+                onClick={() => setFilter(option)}
+              />
+            ))}
+          </Flex>
+          <TimelineViewToggle view={view} onChange={setView} />
         </Flex>
       )}
-      {loading && !data && (
-        <ListSkeleton toolbar={false} rows={4} columns={3} label="Loading the activity" />
+      {table ? (
+        <TimelineTable rows={rows} loading={loadingFirst} onRefresh={() => refetch()} />
+      ) : (
+        <TimelineList rows={rows} loading={loadingFirst} />
       )}
-      {data && rows.length === 0 && (
-        <Text color="text.secondary">{t('Nothing has happened with this record yet.')}</Text>
-      )}
-      <Stack component="ol" spacing={2} sx={{ p: 0, m: 0 }}>
-        {rows.map((row) => (
-          <TimelineEntry key={row.id} entry={row} />
-        ))}
-      </Stack>
     </Stack>
   );
 }
