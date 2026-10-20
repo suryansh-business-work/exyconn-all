@@ -29,7 +29,7 @@ export function TrackerSettingsPage() {
             <Heading level={6} sx={{ mb: 0.5 }}>
               {t('Capture settings')}
             </Heading>
-            <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
+            <Text component="p" size="sm" color="text.secondary" sx={{ mb: 2 }}>
               {t('Applies to every enrolled desktop agent.')}
             </Text>
             {settings ? (

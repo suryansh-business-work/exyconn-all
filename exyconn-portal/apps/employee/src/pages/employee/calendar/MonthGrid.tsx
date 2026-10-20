@@ -5,9 +5,49 @@ import type { DayMarker } from './buildMonth';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
-/** A single day cell — dims out-of-month days and overlays holiday / leave markers. */
+/** What an off day shows: its words, its colour, and whether it is the employee's own leave. */
+interface OffMark {
+  text: string;
+  color: string;
+  isLeave: boolean;
+}
+
+/**
+ * One mark per day, in the order the server reads a day: a holiday, then the employee's week
+ * off, then their leave.
+ */
+function offMarkOf(day: DayMarker, t: (text: string) => string): OffMark | null {
+  if (day.holiday) return { text: day.holiday, color: 'secondary.main', isLeave: false };
+  if (day.weekOff) return { text: t('Week off'), color: 'text.secondary', isLeave: false };
+  if (day.onLeave) return { text: day.leaveType ?? t('Leave'), color: 'info.main', isLeave: true };
+  return null;
+}
+
+/** The mark in full on a wide screen: a chip for leave, coloured words otherwise. */
+function OffMarkLabel({ mark }: Readonly<{ mark: OffMark }>) {
+  if (mark.isLeave) {
+    return (
+      <Chip
+        size="small"
+        label={mark.text}
+        color="info"
+        sx={{ display: { xs: 'none', sm: 'flex' } }}
+      />
+    );
+  }
+  // Clipped rather than truncated on a phone: with 40px to work in, an ellipsis is the whole
+  // word. The dot below stands in for it there.
+  return (
+    <Text size="caption" color={mark.color} noWrap sx={{ display: { xs: 'none', sm: 'block' } }}>
+      {mark.text}
+    </Text>
+  );
+}
+
+/** A single day cell — dims out-of-month days and overlays its holiday, week off or leave. */
 function DayCell({ day }: Readonly<{ day: DayMarker }>) {
   const t = useT();
+  const mark = offMarkOf(day, t);
   return (
     <Box
       sx={{
@@ -28,46 +68,17 @@ function DayCell({ day }: Readonly<{ day: DayMarker }>) {
       <Text size="sm" weight={day.isToday ? 'bold' : 'regular'}>
         {format(day.date, 'd')}
       </Text>
-      {day.holiday && (
-        // Clipped rather than truncated on a phone: with 40px to work in, an ellipsis is the
-        // whole word. The month list underneath names the holiday in full.
-        <Text
-          size="caption"
-          color="secondary.main"
-          noWrap
-          sx={{ display: { xs: 'none', sm: 'block' } }}
-        >
-          {day.holiday}
-        </Text>
-      )}
-      {day.holiday && (
-        <Box
-          aria-label={day.holiday}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            width: 6,
-            height: 6,
-            borderRadius: 1,
-            bgcolor: 'secondary.main',
-          }}
-        />
-      )}
-      {day.onLeave && (
+      {mark && (
         <>
-          <Chip
-            size="small"
-            label={t('Leave')}
-            color="info"
-            sx={{ display: { xs: 'none', sm: 'flex' } }}
-          />
+          <OffMarkLabel mark={mark} />
           <Box
-            aria-label={t('On leave')}
+            aria-label={mark.text}
             sx={{
               display: { xs: 'block', sm: 'none' },
               width: 6,
               height: 6,
               borderRadius: 1,
-              bgcolor: 'info.main',
+              bgcolor: mark.color,
             }}
           />
         </>

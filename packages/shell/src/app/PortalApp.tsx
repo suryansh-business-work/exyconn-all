@@ -39,6 +39,9 @@ export const RESET_PASSWORD_PATH = '/reset-password';
  */
 export const UNSUBSCRIBE_PATH = '/unsubscribe';
 
+/** Where a campaign email's "Manage preferences" link lands. Public, like unsubscribe. */
+export const EMAIL_PREFERENCES_PATH = '/email-preferences';
+
 interface PortalAppProps {
   /** Login screen. Injected so the shell never has to depend on the login package. */
   loginElement: ReactNode;
@@ -96,6 +99,7 @@ export function PortalApp({
                       <Route path="/login" element={loginElement} />
                       <Route path={RESET_PASSWORD_PATH} element={loginElement} />
                       <Route path={UNSUBSCRIBE_PATH} element={loginElement} />
+                      <Route path={EMAIL_PREFERENCES_PATH} element={loginElement} />
                       {publicRoutes}
                       <Route
                         element={

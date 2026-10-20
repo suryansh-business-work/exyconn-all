@@ -2,18 +2,24 @@ import { UserModel } from '../admin/user.model';
 import { HolidayModel } from '../employee/holiday.model';
 import { LeaveRequestModel } from '../hr/hr.model';
 import { employeePlace, holidaysObservedIn } from '../hrmaster/leave-country';
-import { DEFAULT_WORK_HOURS_PER_DAY, WEEKEND_DAYS, workTargetMs } from '../../constants/work';
+import { DEFAULT_WORK_HOURS_PER_DAY, workTargetMs } from '../../constants/work';
+import { workDaysOf } from '../admin/work-week';
 import { badRequest } from '../../utils/errors';
 import { isValidTimezone, zonedDateKey } from './tracker.timezone';
 
-/** Why a day carries no expected hours. */
+/** Why a day carries no expected hours. WEEKEND is the employee's own week off. */
 export type TrackerOffReason = 'WEEKEND' | 'HOLIDAY' | 'LEAVE';
 
+/** Why a day is off and what to call it: the leave type's code, the holiday's name, or null. */
+export interface TrackerOffDay {
+  offReason: TrackerOffReason | null;
+  offLabel: string | null;
+}
+
 /** One calendar day of the range, with what the employee was contracted to work on it. */
-export interface TrackerExpectedDay {
+export interface TrackerExpectedDay extends TrackerOffDay {
   date: string;
   expectedMs: number;
-  offReason: TrackerOffReason | null;
   /** The holiday's name on a HOLIDAY day, for the downloadable report's remarks. */
   holidayName: string | null;
 }
@@ -50,43 +56,51 @@ async function holidayNames(userId: string, from: Date, to: Date, timezone: stri
   return new Map(rows.map((row) => [zonedDateKey(row.date, timezone), row.name]));
 }
 
-/** Days covered by the employee's approved leave in the range, as date keys in `timezone`. */
-async function leaveKeys(userId: string, from: Date, to: Date, timezone: string) {
+/** The leave type's code on each day of approved leave in the range, keyed in `timezone`. */
+async function leaveCodes(userId: string, from: Date, to: Date, timezone: string) {
   const rows = await LeaveRequestModel.find({
     employeeId: userId,
     status: 'APPROVED',
     fromDate: { $lt: new Date(to.getTime() + MS_PER_DAY) },
     toDate: { $gte: new Date(from.getTime() - MS_PER_DAY) },
   })
-    .select('fromDate toDate')
+    .select('type fromDate toDate')
     .lean();
-  return new Set(
+  return new Map(
     rows.flatMap((row) =>
-      keysBetween(zonedDateKey(row.fromDate, timezone), zonedDateKey(row.toDate, timezone)),
+      keysBetween(zonedDateKey(row.fromDate, timezone), zonedDateKey(row.toDate, timezone)).map(
+        (key): [string, string] => [key, row.type],
+      ),
     ),
   );
 }
 
-/** The day's reason for carrying no hours, or null on a working day. */
-function offReasonOf(
+/** The day's reason for carrying no hours and its label, or nulls on a working day. */
+function offDayOf(
   key: string,
   holidays: ReadonlyMap<string, string>,
-  leave: ReadonlySet<string>,
-): TrackerOffReason | null {
-  // Holidays and weekends first: leave spanning one costs no working day, so the month's
+  leave: ReadonlyMap<string, string>,
+  workDays: ReadonlySet<number>,
+): TrackerOffDay {
+  // Holidays and weeks off first: leave spanning one costs no working day, so the month's
   // leave total counts only the days the employee would otherwise have worked.
-  if (holidays.has(key)) {
-    return 'HOLIDAY';
+  const holiday = holidays.get(key);
+  if (holiday !== undefined) {
+    return { offReason: 'HOLIDAY', offLabel: holiday };
   }
-  if (WEEKEND_DAYS.has(new Date(`${key}T00:00:00Z`).getUTCDay())) {
-    return 'WEEKEND';
+  if (!workDays.has(new Date(`${key}T00:00:00Z`).getUTCDay())) {
+    return { offReason: 'WEEKEND', offLabel: null };
   }
-  return leave.has(key) ? 'LEAVE' : null;
+  const leaveType = leave.get(key);
+  if (leaveType !== undefined) {
+    return { offReason: 'LEAVE', offLabel: leaveType };
+  }
+  return { offReason: null, offLabel: null };
 }
 
 /**
  * What an employee was contracted to work on each day of a range: their working day
- * (`workHoursPerDay`) on Monday–Friday, nothing on weekends, the public holidays they
+ * (`workHoursPerDay`) on their work days, nothing on their week off, the public holidays they
  * observe, or approved leave. Days are keyed in `timezone`, as the tracker calendar is,
  * so a day's expected and worked figures always describe the same date.
  */
@@ -98,25 +112,36 @@ async function expected(userId: string, from: Date, to: Date, timezone: string) 
     badRequest(`${timezone} is not a timezone`);
   }
   const [user, holidays, leave] = await Promise.all([
-    UserModel.findById(userId).select('workHoursPerDay').lean(),
+    UserModel.findById(userId).select('workHoursPerDay workDays').lean(),
     holidayNames(userId, from, to, timezone),
-    leaveKeys(userId, from, to, timezone),
+    leaveCodes(userId, from, to, timezone),
   ]);
+  const workDays = new Set(await workDaysOf(user));
   const workHoursPerDay = user?.workHoursPerDay ?? DEFAULT_WORK_HOURS_PER_DAY;
   const targetMs = workTargetMs(workHoursPerDay);
   const days: TrackerExpectedDay[] = keysBetween(
     zonedDateKey(from, timezone),
     zonedDateKey(new Date(to.getTime() - 1), timezone),
   ).map((date) => {
-    const offReason = offReasonOf(date, holidays, leave);
+    const off = offDayOf(date, holidays, leave, workDays);
     return {
       date,
-      offReason,
-      expectedMs: offReason === null ? targetMs : 0,
-      holidayName: offReason === 'HOLIDAY' ? (holidays.get(date) ?? null) : null,
+      ...off,
+      expectedMs: off.offReason === null ? targetMs : 0,
+      holidayName: off.offReason === 'HOLIDAY' ? off.offLabel : null,
     };
   });
   return { workHoursPerDay, days };
 }
 
-export const trackerExpectedService = { expected };
+/**
+ * Whether the employee's CURRENT local day is off, by the same rules as the expected hours —
+ * so the tracker refuses exactly the days the calendar shows as off.
+ */
+async function offDayToday(userId: string, timezone: string): Promise<TrackerOffDay> {
+  const now = new Date();
+  const { days } = await expected(userId, now, new Date(now.getTime() + 1), timezone);
+  return { offReason: days[0].offReason, offLabel: days[0].offLabel };
+}
+
+export const trackerExpectedService = { expected, offDayToday };

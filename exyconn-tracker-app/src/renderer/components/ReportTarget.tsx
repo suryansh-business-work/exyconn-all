@@ -1,38 +1,12 @@
 import type { ReactElement } from 'react';
 import { Box, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
-import {
-  formatHoursMinutes,
-  formatSignedHoursMinutes,
-  type MonthTarget,
-} from '@exyconn/tracker-core';
+import { formatHoursMinutes, targetFigures, type MonthTarget } from '@exyconn/tracker-core';
 import Surface from './Surface';
 
 interface Props {
   target: MonthTarget;
   workHoursPerDay: number;
-}
-
-interface Figure {
-  id: string;
-  label: string;
-  value: string;
-  /** The deficit while behind: said in red as well as with its minus sign. */
-  alert?: boolean;
-}
-
-function figuresOf(target: MonthTarget, leave: string): Figure[] {
-  return [
-    { id: 'expected', label: 'Expected this month', value: formatHoursMinutes(target.expectedMs) },
-    { id: 'logged', label: 'Logged this month', value: formatHoursMinutes(target.workedMs) },
-    {
-      id: 'deficit',
-      label: 'Deficit so far',
-      value: formatSignedHoursMinutes(target.deficitMs),
-      alert: target.deficitMs < 0,
-    },
-    { id: 'leave', label: 'Leave this month', value: leave },
-  ];
 }
 
 /**
@@ -49,7 +23,7 @@ export default function ReportTarget({ target, workHoursPerDay }: Readonly<Props
   return (
     <Surface sx={{ p: 2 }}>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5 }}>
-        {figuresOf(target, leave).map((item) => (
+        {targetFigures(target, leave).map((item) => (
           <Box key={item.id}>
             <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
               {t(item.label)}
@@ -66,7 +40,7 @@ export default function ReportTarget({ target, workHoursPerDay }: Readonly<Props
       </Box>
       <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
         {t(
-          '{hours}h a day, Monday to Friday, less holidays and approved leave. Ringed red days fell short.',
+          '{hours}h a day on your work days, less holidays and approved leave. Ringed red days fell short.',
           { hours: workHoursPerDay },
         )}
       </Typography>

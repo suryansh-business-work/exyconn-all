@@ -4,7 +4,13 @@ import { render } from '@testing-library/react';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { App } from '../../src/App';
-import { MarketingOverviewPage, MarketingPage } from '../../src/pages/marketing';
+import {
+  CampaignStudioPage,
+  MarketingOverviewPage,
+  MarketingPage,
+} from '../../src/pages/marketing';
+import { TemplatesPage } from '../../src/pages/templates';
+import { PreferencesPage } from '../../src/pages/preferences';
 import { AudiencesPage } from '../../src/pages/audiences';
 import { SuppressionPage } from '../../src/pages/suppression';
 import { SocialPage } from '../../src/pages/social';
@@ -54,6 +60,9 @@ describe('App', () => {
     expect(declaredRoutes((portal.props as PortalProps).children)).toEqual([
       ['/marketing', MarketingOverviewPage],
       ['/marketing/campaigns', MarketingPage],
+      ['/marketing/campaigns/:campaignId', CampaignStudioPage],
+      ['/marketing/templates', TemplatesPage],
+      ['/marketing/preferences', PreferencesPage],
       ['/marketing/audiences', AudiencesPage],
       ['/marketing/suppression', SuppressionPage],
       ['/marketing/social/:tab?', SocialPage],

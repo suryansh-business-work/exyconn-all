@@ -105,6 +105,7 @@ export function TrackerPage() {
         <TrackerTargetSummary
           target={target.target}
           workHoursPerDay={target.workHoursPerDay}
+          workDays={target.workDays}
           loading={target.loading}
           error={target.error}
           downloading={report.downloading}
@@ -129,6 +130,7 @@ export function TrackerPage() {
         formatTime={formatTime}
         formatDateTime={formatDateTime}
         dayMarks={target.dayMarks}
+        dayLabels={target.dayLabels}
         empty={!employeeId}
       />
     </Box>

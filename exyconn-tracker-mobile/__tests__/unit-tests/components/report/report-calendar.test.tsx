@@ -18,6 +18,8 @@ function renderCalendar(loading: boolean) {
     <ReportCalendar
       days={[reportDay('2026-01-07', 7 * HOUR, HOUR), reportDay('2026-01-08', 0, 0)]}
       loading={loading}
+      marks={new Map()}
+      labels={new Map()}
       month={JANUARY}
       selected={SELECTED}
       maxDate={TODAY}
@@ -68,5 +70,52 @@ describe('ReportCalendar', () => {
     expect(
       screen.getByRole('button', { name: `Jump to date: ${formatDayLabel(SELECTED)}` }),
     ).toBeInTheDocument();
+  });
+
+  it('names each marked day with its mark and label, and keys the rings in a legend', () => {
+    renderWithProviders(
+      <ReportCalendar
+        days={[]}
+        loading={false}
+        marks={
+          new Map([
+            ['2026-01-05', 'SHORT'],
+            ['2026-01-06', 'LEAVE'],
+            ['2026-01-26', 'HOLIDAY'],
+            ['2026-01-10', 'WEEK_OFF'],
+          ] as const)
+        }
+        labels={
+          new Map([
+            ['2026-01-06', 'CL'],
+            ['2026-01-26', 'Republic Day'],
+          ])
+        }
+        month={JANUARY}
+        selected={new Date(2026, 0, 6)}
+        maxDate={TODAY}
+        onSelect={vi.fn()}
+        onMonthChange={vi.fn()}
+      />,
+    );
+
+    const name = (day: number) => formatDayLabel(new Date(2026, 0, day));
+    expect(screen.getByRole('button', { name: `${name(5)}, Short` })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: `${name(6)}, Leave, CL` })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(
+      screen.getByRole('button', { name: `${name(26)}, Holiday, Republic Day` }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: `${name(10)}, Week off` })).toBeInTheDocument();
+    // The off day's name stands in for the dot.
+    expect(screen.getByText('CL')).toBeInTheDocument();
+    expect(screen.getByText('Republic Day')).toBeInTheDocument();
+    // The legend, in its order: what needs attention first.
+    const legend = ['Short', 'Leave', 'Holiday', 'Week off'].map(
+      (word) => screen.getAllByText(word).length,
+    );
+    expect(legend).toEqual([1, 1, 1, 1]);
   });
 });

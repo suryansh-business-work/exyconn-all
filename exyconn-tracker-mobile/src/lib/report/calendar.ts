@@ -3,6 +3,7 @@ import {
   activityPercent,
   formatDayLabel,
   type ActivityLevel,
+  type DayMark,
   type ReportDay,
 } from '@exyconn/tracker-core';
 
@@ -28,6 +29,10 @@ export interface CalendarCell {
   today: boolean;
   /** After today: the employee cannot look into the future. */
   disabled: boolean;
+  /** Leave, a holiday, the week off, or a finished day short of the contract; else null. */
+  mark: DayMark | null;
+  /** The leave code (CL, EL) or the holiday's name, when the day has one; else null. */
+  label: string | null;
 }
 
 export interface CalendarWeek {
@@ -41,6 +46,10 @@ export interface GridOptions {
   selected: Date;
   /** Today — nothing after it can be picked. */
   maxDate: Date;
+  /** `yyyy-MM-dd` → the day's mark (tracker-core `dayMarksOf`). */
+  marks?: ReadonlyMap<string, DayMark>;
+  /** `yyyy-MM-dd` → the leave code or holiday name (`MonthTarget.offLabels`). */
+  labels?: ReadonlyMap<string, string>;
 }
 
 const DAYS_IN_WEEK = 7;
@@ -80,6 +89,8 @@ function cellOf(date: Date, month: number, options: GridOptions): CalendarCell {
     today: key === todayKey,
     // `yyyy-MM-dd` keys sort as the dates they name.
     disabled: key > todayKey,
+    mark: inMonth ? (options.marks?.get(key) ?? null) : null,
+    label: inMonth ? (options.labels?.get(key) ?? null) : null,
   };
 }
 

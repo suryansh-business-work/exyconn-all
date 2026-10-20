@@ -12,6 +12,7 @@ vi.mock('../../../../src/lib/report/calendar', async (importOriginal) => {
 });
 
 const FEB_3 = new Date(2026, 1, 3);
+const MARK_COLORS = { SHORT: 'red', LEAVE: 'blue', HOLIDAY: 'grey', WEEK_OFF: 'silver' };
 
 function cell(overrides: Partial<CalendarCell> = {}): CalendarCell {
   return {
@@ -24,6 +25,8 @@ function cell(overrides: Partial<CalendarCell> = {}): CalendarCell {
     selected: false,
     today: false,
     disabled: false,
+    mark: null,
+    label: null,
     ...overrides,
   };
 }
@@ -34,6 +37,7 @@ describe('CalendarDay', () => {
     renderWithProviders(
       <CalendarDay
         cell={cell({ today: true, tracked: true, level: 'high' })}
+        markColors={MARK_COLORS}
         onSelect={onSelect}
       />,
     );
@@ -49,7 +53,9 @@ describe('CalendarDay', () => {
   });
 
   it('marks the selected day for a screen reader, with nothing else to say', () => {
-    renderWithProviders(<CalendarDay cell={cell({ selected: true })} onSelect={vi.fn()} />);
+    renderWithProviders(
+      <CalendarDay cell={cell({ selected: true })} markColors={MARK_COLORS} onSelect={vi.fn()} />,
+    );
 
     expect(screen.getByRole('button', { name: formatDayLabel(FEB_3) })).toHaveAttribute(
       'aria-selected',
@@ -59,7 +65,9 @@ describe('CalendarDay', () => {
 
   it('cannot pick a day after today', () => {
     const onSelect = vi.fn();
-    renderWithProviders(<CalendarDay cell={cell({ disabled: true })} onSelect={onSelect} />);
+    renderWithProviders(
+      <CalendarDay cell={cell({ disabled: true })} markColors={MARK_COLORS} onSelect={onSelect} />,
+    );
 
     const day = screen.getByRole('button', { name: formatDayLabel(FEB_3) });
     expect(day).toHaveAttribute('aria-disabled', 'true');
@@ -68,7 +76,9 @@ describe('CalendarDay', () => {
   });
 
   it('leaves a neighbouring month’s day blank and untappable', () => {
-    renderWithProviders(<CalendarDay cell={cell({ inMonth: false })} onSelect={vi.fn()} />);
+    renderWithProviders(
+      <CalendarDay cell={cell({ inMonth: false })} markColors={MARK_COLORS} onSelect={vi.fn()} />,
+    );
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(screen.queryByText('3')).not.toBeInTheDocument();
@@ -85,6 +95,9 @@ describe('CalendarGrid', () => {
       <CalendarGrid
         month={JANUARY}
         tracked={new Map([['2026-01-05', 'medium']])}
+        marks={new Map()}
+        labels={new Map()}
+        markColors={MARK_COLORS}
         selected={TODAY}
         maxDate={TODAY}
         onSelect={onSelect}

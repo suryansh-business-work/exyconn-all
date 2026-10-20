@@ -17,6 +17,13 @@ import {
   TrackerWindowUsageModel,
 } from '../../../../src/modules/tracker/models';
 import { codeOf } from '../codeOf';
+import { officeFix } from '../../../fixtures/location';
+import { freezeClock, useTestOrganization, useWorkingEveryDay } from '../../../helpers';
+
+// Off days are covered by tracker.offday and tracker.expected.service; here every day is a
+// working day, in a company, so the suite does not depend on the day it runs.
+useTestOrganization();
+useWorkingEveryDay();
 
 const DEVICE_ID = 'device-sessions';
 const STARTED = new Date('2026-07-13T09:00:00.000Z');
@@ -32,7 +39,7 @@ async function readyToTrack() {
   const userId = user._id.toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: 'admin', consentedAt: new Date() });
   await TrackerDeviceModel.create({ userId, deviceId: DEVICE_ID, tokenHash: 'h', platform: 'ios' });
-  await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', 'In the office');
+  await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', 'In the office', officeFix);
   return userId;
 }
 
@@ -52,6 +59,21 @@ const interval = (overrides: Partial<IntervalInput> = {}): IntervalInput => ({
 });
 
 describe('starting a session', () => {
+  it('is refused on a day that became the employee’s week off after they marked in', async () => {
+    freezeClock('2026-01-07T10:00:00.000Z'); // a Wednesday
+    try {
+      const userId = await readyToTrack();
+      await UserModel.updateOne({ _id: userId }, { workDays: [1, 2, 4, 5] });
+
+      await expect(
+        trackerDeviceService.startSession(userId, DEVICE_ID, new Date()),
+      ).rejects.toThrow('Today is your week off — tracking is paused.');
+      expect(await TrackerSessionModel.countDocuments()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('books the chosen project and ticket', async () => {
     const userId = await readyToTrack();
     const project = await ProjectModel.create({ name: 'Apollo', status: 'ACTIVE' });

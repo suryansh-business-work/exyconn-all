@@ -23,7 +23,7 @@ const VIEW_ACTION: RowActionSpec = { key: 'view', label: 'view campaign', icon: 
 
 const SEND_ACTION: RowActionSpec = {
   key: 'send',
-  label: 'send campaign',
+  label: 'review and send',
   icon: SendIcon,
   color: 'primary',
 };
@@ -31,9 +31,10 @@ const SEND_ACTION: RowActionSpec = {
 /** Column model for the server-side Campaigns grid. Name hits the server filter. */
 export const CAMPAIGN_COLUMNS: ColDef<PagedCampaignRow>[] = [
   textColumn('name', 'Name'),
-  statusColumn('channel', 'Channel'),
-  valueColumn('budget', 'Budget', (row) => row.budget.toLocaleString()),
+  statusColumn('campaignType', 'Type'),
+  textColumn('subject', 'Subject', (row) => row.subject || '—'),
+  statusColumn('sendState', 'Delivery'),
   dateColumn('lastSentAt', 'Last sent', '—'),
-  statusColumn('status', 'Status'),
+  valueColumn('budget', 'Budget', (row) => row.budget.toLocaleString()),
   actionsColumn([VIEW_ACTION, SEND_ACTION, EDIT_ACTION, DELETE_ACTION], 150),
 ];

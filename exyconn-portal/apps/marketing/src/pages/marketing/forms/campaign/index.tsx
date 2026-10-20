@@ -1,2 +1,3 @@
 export { CampaignForm } from './campaign.form';
-export type { CampaignFormValues, CampaignRow } from './campaign.types';
+export { campaignSchema, toStudioValues, toDraftInput, STUDIO_STEPS } from './campaign.types';
+export type { CampaignRow, CampaignStudioValues, StudioStep } from './campaign.types';

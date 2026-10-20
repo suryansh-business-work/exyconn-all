@@ -33,7 +33,9 @@ async function choose(label: string, option: string) {
 /** Fills the fields a new employee cannot be saved without, then submits. */
 async function fillAndCreate() {
   fireEvent.change(await screen.findByLabelText('Name'), { target: { value: 'Kiran Rao' } });
-  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'kiran@acme.test' } });
+  fireEvent.change(screen.getByLabelText('Official email'), {
+    target: { value: 'kiran@acme.test' },
+  });
   await choose('Department', 'People');
   await choose('Designation', 'HR Partner');
   fireEvent.change(input('joinDate'), { target: { value: '04/15/2026' } });
@@ -65,6 +67,15 @@ describe('UserForm — creating an employee', () => {
       ).toBeInTheDocument();
       expect(screen.queryByLabelText('New password (optional)')).not.toBeInTheDocument();
       expect(screen.queryByLabelText('Loading compensation')).not.toBeInTheDocument();
+      // A new employee has no saved address to verify yet.
+      expect(screen.queryByRole('button', { name: 'Verify' })).not.toBeInTheDocument();
+      expect(
+        await screen.findByText(
+          'Leave empty to follow the company week (Mon, Tue, Wed, Thu, and Fri).',
+          {},
+          SLOW,
+        ),
+      ).toBeInTheDocument();
 
       await fillAndCreate();
 
@@ -86,6 +97,9 @@ describe('UserForm — creating an employee', () => {
           department: 'People',
           designation: 'HR Partner',
           managerId: null,
+          // Nothing typed or picked: no personal address, and the company's week.
+          personalEmail: null,
+          workDays: null,
         },
       });
       expect(user.calls[0].input).not.toHaveProperty('password');

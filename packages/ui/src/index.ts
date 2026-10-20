@@ -85,6 +85,7 @@ export {
   Stepper,
   Step,
   StepLabel,
+  StepButton,
   StepContent,
   FormControlLabel,
   FormHelperText,

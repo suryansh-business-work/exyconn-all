@@ -1,15 +1,6 @@
 import type { ReactNode } from 'react';
 import { useT } from '@exyconn/i18n';
-import {
-  Box,
-  Chip,
-  LinearProgress,
-  Stack,
-  Text,
-  Typography,
-  fontWeight,
-  numeric,
-} from '@exyconn/shell/components/ui';
+import { Box, Chip, FitFigure, LinearProgress, Stack, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { RATING_COLOR } from './sonar.types';
 
@@ -51,13 +42,7 @@ export function SonarMetricTile({ label, value, badge, note, percent }: Readonly
         </Text>
         {badge}
       </Stack>
-      <Typography
-        variant="h4"
-        component="p"
-        sx={{ fontWeight: fontWeight.regular, fontVariantNumeric: numeric.tabular, mt: 1 }}
-      >
-        {value}
-      </Typography>
+      <FitFigure value={value} weight="regular" sx={{ mt: 1 }} />
       {percent !== undefined && percent !== null && (
         <LinearProgress
           variant="determinate"

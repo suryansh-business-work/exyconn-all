@@ -116,7 +116,7 @@ export function AnalyticsTab() {
             </Grid>
           </Grid>
           <Box sx={densePanel}>
-            <Text weight="medium" sx={{ mb: 1 }}>
+            <Text component="p" weight="medium" sx={{ mb: 1 }}>
               {t('Top posts')}
             </Text>
             <DataTable

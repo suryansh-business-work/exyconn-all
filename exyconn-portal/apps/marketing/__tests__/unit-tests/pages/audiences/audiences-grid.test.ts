@@ -1,30 +1,42 @@
 import { describe, expect, it } from 'vitest';
+import { AudienceRuleOperator } from '@exyconn/shell/graphql/generated';
 import { AUDIENCE_COLUMNS } from '../../../../src/pages/audiences/audiences-grid';
 import { actionSpecs, columnIds, formatCell } from '../../grid-helpers';
 import { audienceRow } from '../../fixtures';
 
+const condition = (field: string) => ({
+  __typename: 'AudienceCondition' as const,
+  field,
+  operator: AudienceRuleOperator.IsNotEmpty,
+  value: '',
+});
+
 describe('AUDIENCE_COLUMNS', () => {
-  it('lists the audience register columns, with the actions last', () => {
+  it('lists the audience register columns, with the actions last and no recipient count', () => {
     expect(columnIds(AUDIENCE_COLUMNS)).toEqual([
       'name',
       'description',
-      'named',
-      'dynamicSegment',
+      'recipientSource',
+      'emailSelection',
+      'updateMode',
+      'rules',
       'actions',
     ]);
   });
 
-  it('counts everyone typed into the list, clients and contacts together', () => {
-    const row = audienceRow({ clientIds: ['c1', 'c2'], contactIds: ['p1'] });
-
-    expect(formatCell(AUDIENCE_COLUMNS, 'named', row)).toBe('3');
+  it('counts the filter conditions on each audience', () => {
+    expect(formatCell(AUDIENCE_COLUMNS, 'rules', audienceRow())).toBe('0');
     expect(
-      formatCell(AUDIENCE_COLUMNS, 'named', audienceRow({ clientIds: [], contactIds: [] })),
-    ).toBe('0');
+      formatCell(
+        AUDIENCE_COLUMNS,
+        'rules',
+        audienceRow({ conditions: [condition('company.industry'), condition('contact.title')] }),
+      ),
+    ).toBe('2');
   });
 
-  it('writes nothing in the named cell while the row is still loading', () => {
-    expect(formatCell(AUDIENCE_COLUMNS, 'named', undefined)).toBe('');
+  it('writes nothing in the conditions cell while the row is still loading', () => {
+    expect(formatCell(AUDIENCE_COLUMNS, 'rules', undefined)).toBe('');
   });
 
   it('offers members before the default edit and delete actions', () => {

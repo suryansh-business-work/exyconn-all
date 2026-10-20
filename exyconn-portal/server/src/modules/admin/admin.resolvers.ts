@@ -19,6 +19,8 @@ import { diffChanges, recordAudit } from '../audit';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
 import type { TokenPayload } from '../../utils/jwt';
+import { workWeekResolvers } from './work-week.resolvers';
+import { employeeEmailResolvers } from './employee-email';
 
 type LeanDoc = { _id: unknown };
 
@@ -55,7 +57,7 @@ async function manageableTarget(actor: AccountActor, id: string) {
   return target;
 }
 
-export const adminResolvers = {
+const accountResolvers = {
   Query: {
     listUsers: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await assertPermission(ctx, USER_MODULE, userReaders, 'VIEW');
@@ -228,5 +230,16 @@ export const adminResolvers = {
       });
       return settings;
     },
+  },
+};
+
+/** The account screens, the working week and address verification, as one resolver group. */
+export const adminResolvers = {
+  User: workWeekResolvers.User,
+  Query: { ...accountResolvers.Query, ...workWeekResolvers.Query },
+  Mutation: {
+    ...accountResolvers.Mutation,
+    ...workWeekResolvers.Mutation,
+    ...employeeEmailResolvers.Mutation,
   },
 };

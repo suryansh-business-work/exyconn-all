@@ -8,7 +8,7 @@ import {
 import { TrackerEngine, type EngineHooks } from '../../src/engine';
 import type { TrackerMeResponse } from '../../src/portal/client';
 import type { TrackerSettings } from '../../src/types';
-import { DEVICE, WORKDAY, loginResponse, me } from './controller-data';
+import { DEVICE, LOCATION, WORKDAY, loginResponse, me } from './controller-data';
 import { enginePlatform, type EnginePlatform } from './engine-fixture';
 
 export interface Prefs {
@@ -105,9 +105,13 @@ export function rig(token: string | null = null): Rig {
     sendMessage: vi.fn(),
     markMessagesRead: vi.fn(() => Promise.resolve(0)),
     setPresence: vi.fn((status, note) => Promise.resolve({ status, note, since: null })),
+    recordLocation: vi.fn(() => Promise.resolve(true)),
+    fetchMyLocations: vi.fn(() => Promise.resolve([])),
+    fetchMyEarnings: vi.fn(),
   };
   const deps: Deps = {
     portal,
+    location: { current: vi.fn(() => Promise.resolve(LOCATION)) },
     store: () => store,
     deviceInfo: () => DEVICE,
     notifier: { autoPaused: vi.fn(), autoStopped: vi.fn(), messages: vi.fn(), notice: vi.fn() },

@@ -13,6 +13,8 @@ import { isValidTimezone, resolveEffectiveTimezone, zonedDayStartUtc } from './t
 import { trackerWorkdayService } from './tracker.workday.service';
 import { trackerMessageService } from './tracker.message.service';
 import { presenceOf } from './tracker.presence.service';
+import { assertWorkingDay } from './tracker.offday';
+import { trackerLocationService, type LocationInput } from './tracker.location.service';
 import { policyAcknowledgementService } from '../legal/policy-acknowledgement.service';
 import { assertWorkspaceOpen } from '../auth/workspace-status';
 import { organizationOf, runForOrganizationOf } from '../../lib/tenant';
@@ -265,16 +267,18 @@ class TrackerDeviceService {
       defaultLocale: appSettings.defaultLocale,
     });
 
-    const [workday, projects, consentPolicy, notices, unreadMessages] = await Promise.all([
-      trackerWorkdayService.workday(userId, user, timezone),
-      trackerWorkdayService.projects(),
-      trackerWorkdayService.consentPolicy(userId, settings.consentPolicySlug),
-      // Carried on the keep-alive rather than polled separately: the app checks in once a
-      // minute anyway, and an announcement that needs its own timer is an announcement that
-      // stops arriving the first time that timer is forgotten.
-      trackerMessageService.pendingNotices(userId),
-      trackerMessageService.unreadCount(userId, 'TO_EMPLOYEE'),
-    ]);
+    const [workday, workProfile, projects, consentPolicy, notices, unreadMessages] =
+      await Promise.all([
+        trackerWorkdayService.workday(userId, user, timezone),
+        trackerWorkdayService.workProfileOf(user),
+        trackerWorkdayService.projects(),
+        trackerWorkdayService.consentPolicy(userId, settings.consentPolicySlug),
+        // Carried on the keep-alive rather than polled separately: the app checks in once a
+        // minute anyway, and an announcement that needs its own timer is an announcement that
+        // stops arriving the first time that timer is forgotten.
+        trackerMessageService.pendingNotices(userId),
+        trackerMessageService.unreadCount(userId, 'TO_EMPLOYEE'),
+      ]);
 
     return {
       user,
@@ -282,7 +286,7 @@ class TrackerDeviceService {
       settings,
       timezone,
       locale,
-      workProfile: trackerWorkdayService.workProfileOf(user),
+      workProfile,
       workday,
       projects,
       consentPolicy,
@@ -349,13 +353,22 @@ class TrackerDeviceService {
    * Marks the employee in for their current local day, from the desktop app.
    *
    * The same record HR's own self-service mutation writes — one day, one attendance row —
-   * so an employee who marked in from the portal this morning is not asked again here.
+   * so an employee who marked in from the portal this morning is not asked again here. Where
+   * they marked in is pinned alongside it, and an off day is refused before anything is written.
    */
-  async markAttendance(userId: string, timezone: string, status: string, note?: string | null) {
+  async markAttendance(
+    userId: string,
+    timezone: string,
+    status: string,
+    note: string | null | undefined,
+    location: LocationInput,
+  ) {
     const access = await TrackerAccessModel.findOne({ userId, isActive: true }).lean();
     if (!access) {
       forbidden('Your tracker access has been revoked.');
     }
+    await assertWorkingDay(userId, timezone);
+    await trackerLocationService.recordAttendance(userId, timezone, location);
     await trackerWorkdayService.markAttendance(
       userId,
       zonedDayStartUtc(new Date(), timezone),
@@ -418,6 +431,7 @@ class TrackerDeviceService {
     if (!attendance) {
       forbidden('Mark your attendance for today before tracking can start.');
     }
+    await assertWorkingDay(userId, timezone);
 
     const project = await trackerWorkdayService.bookableProject(projectId);
     // Resolved against the project the session actually books to, not the one the client
@@ -436,6 +450,15 @@ class TrackerDeviceService {
       taskTitle: task?.title ?? '',
     });
     return session.toObject();
+  }
+
+  /** The zone this employee's days are read in, on this device. */
+  async timezoneOf(userId: string, deviceId: string) {
+    const access = await TrackerAccessModel.findOne({ userId, isActive: true }).lean();
+    if (!access) {
+      forbidden('Your tracker access has been revoked.');
+    }
+    return this.timezoneFor(userId, deviceId, access.timezone);
   }
 
   /** The zone this employee's days are read in, for a caller that has their access row. */

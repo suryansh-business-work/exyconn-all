@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, Stack } from '@exyconn/shell/components/ui';
-import { MapSkeleton } from '../../../maps/MapSkeleton';
+import { MapSkeleton } from '@exyconn/shell/components/maps';
 import { DrawAreaControls } from './DrawAreaControls';
 import type { LeadMapProps } from './LeadMapBody';
 import { MapKeyMissing } from './MapNotices';

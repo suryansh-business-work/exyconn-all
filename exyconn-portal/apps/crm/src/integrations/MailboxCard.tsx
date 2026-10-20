@@ -76,7 +76,7 @@ export function MailboxCard<T extends Mailbox>({
           />
         </Flex>
       </Flex>
-      <Text size="sm" color="text.secondary" sx={{ mt: 1 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mt: 1 }}>
         {activity}
         {account.connectedByName
           ? ` · ${t('Connected by {name}', { name: account.connectedByName })}`

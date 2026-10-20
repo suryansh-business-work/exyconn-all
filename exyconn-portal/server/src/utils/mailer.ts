@@ -32,6 +32,18 @@ export interface CustomEmailPayload {
   message: string;
 }
 
+/** One personalised marketing copy, already rendered. */
+export interface MarketingEmailPayload {
+  to: string;
+  fromName: string;
+  replyTo?: string;
+  subject: string;
+  html: string;
+  text: string;
+  /** RFC 2369 / RFC 8058 unsubscribe headers. */
+  listUnsubscribeUrl: string;
+}
+
 export interface TrackerAccessEmailPayload {
   name: string;
   email: string;
@@ -92,6 +104,28 @@ class Mailer {
   async sendCustomEmail(payload: CustomEmailPayload): Promise<void> {
     const mjml = customTemplate(payload);
     await this.send(payload.email, payload.subject, mjml);
+  }
+
+  /**
+   * Sends a marketing copy from the verified address under the campaign's sender name, with
+   * one-click unsubscribe headers (RFC 8058) so mail clients can offer their own button.
+   * The name goes in nodemailer's structured `from`, so it can never inject a header.
+   */
+  async sendMarketingEmail(payload: MarketingEmailPayload): Promise<void> {
+    const { transporter, fromAddress } = await this.getTransport();
+    await transporter.sendMail({
+      from: { name: payload.fromName, address: fromAddress },
+      to: payload.to,
+      replyTo: payload.replyTo || undefined,
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+      headers: {
+        'List-Unsubscribe': `<${payload.listUnsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    });
+    logger.info(`Marketing email "${payload.subject}" sent to ${maskEmail(payload.to)}`);
   }
 
   /** Notifies an employee that they may now use the desktop tracker. */

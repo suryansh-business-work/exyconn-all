@@ -43,8 +43,12 @@ mutation TrackerAcceptConsent($signedName: String) {
   trackerAcceptConsent(signedName: $signedName)
 }
 
-mutation TrackerMarkAttendance($status: AttendanceStatus!, $note: String) {
-  trackerMarkAttendance(status: $status, note: $note) {
+mutation TrackerMarkAttendance(
+  $status: AttendanceStatus!
+  $note: String
+  $location: TrackerLocationInput!
+) {
+  trackerMarkAttendance(status: $status, note: $note, location: $location) {
     ...WorkdayFields
   }
 }

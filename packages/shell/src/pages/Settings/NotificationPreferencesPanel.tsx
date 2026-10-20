@@ -115,7 +115,7 @@ export function NotificationPreferencesPanel() {
       <Heading level={6} sx={{ mb: 0.5 }}>
         {t('Notifications')}
       </Heading>
-      <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1 }}>
         {t('The first switch is the bell in the portal. The second also sends you an email.')}
       </Text>
       {loading && preferences.length === 0 && <LinearProgress sx={{ mb: 1 }} />}

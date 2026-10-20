@@ -17,6 +17,8 @@ import {
 
 /** How much of a status hue a filled chip's pastel fill keeps, per mode. */
 const CHIP_TINT = { light: 0.14, dark: 0.2 } as const;
+/** The deeper tint a clickable pastel chip takes under the pointer or keyboard focus. */
+const CHIP_TINT_ACTIVE = { light: 0.24, dark: 0.32 } as const;
 
 type ChipHue = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
 type ChipColor = ChipHue | 'default';
@@ -25,10 +27,20 @@ type ChipColor = ChipHue | 'default';
  * A soft pastel chip: the hue thinned to a tint of the panel, and the hue itself as the ink —
  * moved, only if it must be, to 4.5:1 on that tint. "High" in mint, "Pending" in peach.
  */
-function pastelChip({ mode, t }: ThemeParts, theme: Theme, hue: ChipHue) {
+function pastelChip({ mode, t }: ThemeParts, theme: Theme, hue: ChipHue): CSSObject {
   const main = theme.palette[hue].main;
   const fill = blend(main, t.background.panel, CHIP_TINT[mode]);
-  return { backgroundColor: fill, color: ensureContrast(main, fill, AA_TEXT) };
+  const activeFill = blend(main, t.background.panel, CHIP_TINT_ACTIVE[mode]);
+  // MUI swaps a clickable filled chip to the solid `main` (dark navy for primary) on hover and
+  // focus while our ink stays `main` too, so the label vanished. Deepen the pastel instead.
+  return {
+    backgroundColor: fill,
+    color: ensureContrast(main, fill, AA_TEXT),
+    '&.MuiChip-clickable:hover, &.MuiChip-clickable.Mui-focusVisible': {
+      backgroundColor: activeFill,
+      color: ensureContrast(main, activeFill, AA_TEXT),
+    },
+  };
 }
 
 /** A chip's colours: neutral on the muted surface, a hue as a pastel, outlined left to MUI. */

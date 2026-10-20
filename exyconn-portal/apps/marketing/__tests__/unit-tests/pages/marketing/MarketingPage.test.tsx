@@ -5,6 +5,7 @@ import { ListCampaignsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { MarketingPage } from '../../../../src/pages/marketing';
 import { CAMPAIGN_COLUMNS } from '../../../../src/pages/marketing/campaigns-grid';
 import { renderWithProviders } from '../../test-utils';
+import { UrlProbe } from '../../form-stub';
 import { campaignRow, pending, tableStats } from '../../fixtures';
 import { dashboardProps, paged } from '../../crud-dashboard-stub';
 import { confirmRowDelete, runRowAction, statLines } from '../../crud-page-helpers';
@@ -28,9 +29,6 @@ vi.mock('@exyconn/crud', async (importOriginal) => {
 
 vi.mock('../../../../src/pages/marketing/forms/campaign', async () => ({
   CampaignForm: (await import('../../form-stub')).FormStub,
-}));
-vi.mock('../../../../src/pages/marketing/forms/send-campaign', async () => ({
-  SendCampaignForm: (await import('../../form-stub')).FormStub,
 }));
 vi.mock('../../../../src/pages/marketing/CampaignDetails', () => ({
   CampaignDetails: ({ campaign }: Readonly<{ campaign: { name: string } }>) => (
@@ -84,7 +82,12 @@ describe('MarketingPage', () => {
     expect(paged.select?.({ listCampaignsPaged: page } as never)).toBe(page);
     expect(dashboardProps().columnDefs).toBe(CAMPAIGN_COLUMNS);
     expect(typeof dashboardProps().context.formatDate).toBe('function');
-    expect(dashboardProps()).toMatchObject({ title: 'Marketing', entityLabel: 'campaign' });
+    expect(dashboardProps()).toMatchObject({
+      title: 'Campaigns',
+      subtitle: 'Email campaigns, from draft to delivery',
+      entityLabel: 'campaign',
+      exportFileName: 'campaigns',
+    });
   });
 
   it('opens the details drawer for a campaign and closes it', async () => {
@@ -102,41 +105,52 @@ describe('MarketingPage', () => {
     );
   });
 
-  it('opens the send drawer and closes it on cancel without reloading', async () => {
-    renderWithProviders(<MarketingPage />);
+  it('sends from the review step of the campaign studio', async () => {
+    renderWithProviders(
+      <>
+        <MarketingPage />
+        <UrlProbe />
+      </>,
+      { route: '/marketing/campaigns' },
+    );
 
-    act(() => {
-      dashboardProps().context.actions.send(campaignRow({ id: 'campaign-4' }));
-    });
-    expect(await screen.findByText(/"id":"campaign-4"/)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Send campaign' })).toBeInTheDocument();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Cancel form' }));
-    await waitFor(() => expect(screen.queryByText(/"id":"campaign-4"/)).not.toBeInTheDocument());
+    await runRowAction('send', campaignRow({ id: 'campaign-4' }));
+    expect(screen.getByLabelText('current url')).toHaveTextContent(
+      '/marketing/campaigns/campaign-4?step=review',
+    );
     expect(gql.refetch).not.toHaveBeenCalled();
   });
 
-  it('reloads the stats and closes the drawer once a send is done', async () => {
-    renderWithProviders(<MarketingPage />);
+  it('edits a row in the campaign studio', async () => {
+    renderWithProviders(
+      <>
+        <MarketingPage />
+        <UrlProbe />
+      </>,
+      { route: '/marketing/campaigns' },
+    );
 
-    act(() => {
-      dashboardProps().context.actions.send(campaignRow({ id: 'campaign-4' }));
-    });
-    await userEvent.click(await screen.findByRole('button', { name: 'Finish form' }));
-
-    await waitFor(() => expect(screen.queryByText(/"id":"campaign-4"/)).not.toBeInTheDocument());
-    expect(gql.refetch).toHaveBeenCalledTimes(1);
+    await runRowAction('edit', campaignRow({ id: 'campaign-5' }));
+    expect(screen.getByLabelText('current url')).toHaveTextContent(
+      /^\/marketing\/campaigns\/campaign-5$/,
+    );
   });
 
-  it('opens a blank campaign form and edits a row from the grid', async () => {
-    renderWithProviders(<MarketingPage />);
+  it('creates a campaign by opening a new studio page', async () => {
+    renderWithProviders(
+      <>
+        <MarketingPage />
+        <UrlProbe />
+      </>,
+      { route: '/marketing/campaigns' },
+    );
 
     await userEvent.click(screen.getByRole('button', { name: 'Open new form' }));
-    expect(screen.getByText('Blank form')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Cancel form' }));
-
-    await runRowAction('edit', campaignRow({ name: 'Year end' }));
-    expect(screen.getByText(/"name":"Year end"/)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByLabelText('current url')).toHaveTextContent(
+        /^\/marketing\/campaigns\/new/,
+      ),
+    );
   });
 
   it('deletes a campaign after confirming, by its id', async () => {

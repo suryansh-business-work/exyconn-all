@@ -8,6 +8,8 @@ import { GLOBAL_PROJECT, TRACKER_WORKDAY } from './tracker.constants';
 import { zonedDateKey, zonedDayStartUtc } from './tracker.timezone';
 import { TrackerIntervalModel } from './models';
 import { trackerManualService } from './tracker.manual.service';
+import { trackerExpectedService } from './tracker.expected.service';
+import { workDaysOf } from '../admin/work-week';
 
 /** Mongo throws on a malformed id rather than returning nothing, so check before querying. */
 const isObjectId = (value: string): boolean => /^[a-f\d]{24}$/i.test(value);
@@ -19,6 +21,7 @@ export interface WorkProfileSource {
   workLocation?: string | null;
   workHoursPerDay?: number | null;
   workLocationNote?: string | null;
+  workDays?: number[] | null;
 }
 
 /**
@@ -48,9 +51,9 @@ export function workProfile(user: WorkProfileSource) {
  * an employee id from a caller.
  */
 class TrackerWorkdayService {
-  /** The employee's contracted arrangement, with the house defaults filled in. */
-  workProfileOf(user: WorkProfileSource) {
-    return workProfile(user);
+  /** The employee's contracted arrangement and working week, with the house defaults filled in. */
+  async workProfileOf(user: WorkProfileSource) {
+    return { ...workProfile(user), workDays: await workDaysOf(user) };
   }
 
   /**
@@ -120,10 +123,11 @@ class TrackerWorkdayService {
   async workday(userId: string, user: WorkProfileSource, timezone: string) {
     const now = new Date();
     const dateKey = zonedDateKey(now, timezone);
-    const [activeMs, manualMs, attendance] = await Promise.all([
+    const [activeMs, manualMs, attendance, offDay] = await Promise.all([
       this.activeMsOn(userId, timezone, dateKey),
       this.manualMsOn(userId, timezone, dateKey),
       this.attendanceOn(userId, zonedDayStartUtc(now, timezone)),
+      trackerExpectedService.offDayToday(userId, timezone),
     ]);
 
     return {
@@ -134,6 +138,8 @@ class TrackerWorkdayService {
       attendanceStatus: attendance?.status ?? null,
       attendanceNote: attendance?.note ?? null,
       attendanceMarked: attendance !== null,
+      offReason: offDay.offReason,
+      offLabel: offDay.offLabel,
     };
   }
 

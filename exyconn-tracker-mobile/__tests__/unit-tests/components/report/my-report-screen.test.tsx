@@ -57,6 +57,7 @@ const reload = { report: vi.fn(), day: vi.fn(), insights: vi.fn() };
 function report(overrides: Partial<ReportQuery> = {}): ReportQuery {
   return {
     days: [reportDay('2026-02-03', 6 * HOUR, 2 * HOUR)],
+    contract: null,
     totals: { activeMs: 6 * HOUR, idleMs: 2 * HOUR, activityPercent: 75 },
     loading: false,
     refreshing: false,
@@ -160,6 +161,51 @@ describe('MyReportScreen', () => {
     fireEvent.click(screen.getByText('Show January'));
     expect(screen.getByTestId('month')).toHaveTextContent('January 2026, can go forward');
     expect(screen.getByTestId('download')).toHaveTextContent('2026-01 January 2026');
+  });
+
+  it('rings the calendar and sums the month against the contract once it arrives', () => {
+    hooks.report.mockReturnValue(
+      report({
+        contract: {
+          workHoursPerDay: 8,
+          days: [
+            { date: '2026-02-02', expectedMs: 8 * HOUR, offReason: null, offLabel: null },
+            { date: '2026-02-03', expectedMs: 8 * HOUR, offReason: null, offLabel: null },
+            { date: '2026-02-04', expectedMs: 0, offReason: 'LEAVE', offLabel: 'CL' },
+            { date: '2026-02-07', expectedMs: 0, offReason: 'WEEKEND', offLabel: null },
+          ],
+        },
+      }),
+    );
+    renderWithProviders(<MyReportScreen timezone={ZONE} />);
+    openTab('Calendar');
+    // The 2nd had nothing tracked and the 3rd fell 2h short of its 8h — both are finished.
+    expect(JSON.parse(screen.getByTestId('calendar-marks').textContent ?? '')).toEqual({
+      '2026-02-02': 'SHORT',
+      '2026-02-03': 'SHORT',
+      '2026-02-04': 'LEAVE',
+      '2026-02-07': 'WEEK_OFF',
+    });
+    expect(JSON.parse(screen.getByTestId('calendar-labels').textContent ?? '')).toEqual({
+      '2026-02-04': 'CL',
+    });
+
+    openTab('Days');
+    expect(screen.getByText('Expected this month')).toBeInTheDocument();
+    expect(screen.getByText('16h 0m')).toBeInTheDocument();
+    expect(screen.getByText('6h 0m')).toBeInTheDocument();
+    expect(screen.getByText('-10h 0m')).toBeInTheDocument();
+    expect(screen.getByText('1 days (-8h 0m)')).toBeInTheDocument();
+  });
+
+  it('leaves the calendar unringed and the target out until the contract arrives', () => {
+    renderWithProviders(<MyReportScreen timezone={ZONE} />);
+    openTab('Calendar');
+    expect(screen.getByTestId('calendar-marks')).toHaveTextContent('{}');
+    expect(screen.getByTestId('calendar-labels')).toHaveTextContent('{}');
+
+    openTab('Days');
+    expect(screen.queryByText('Expected this month')).toBeNull();
   });
 
   it('reloads the month, the day and the period on pull-to-refresh', () => {

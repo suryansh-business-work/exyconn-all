@@ -44,5 +44,5 @@ export function AttendanceGate({ workday }: Readonly<Props>) {
         : t('Marked in today as {status} — {note}.', { status, note });
     return <Caption>{line}</Caption>;
   }
-  return <AttendanceForm />;
+  return <AttendanceForm workday={workday} />;
 }

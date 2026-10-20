@@ -52,10 +52,31 @@ export const adminTypeDefs = gql`
     website: String
   }
 
+  "Which of an employee's two addresses a verification code is for."
+  enum EmployeeEmailKind {
+    "The work address the person signs in with (User.email)."
+    OFFICIAL
+    "The personal address HR keeps on file (User.personalEmail)."
+    PERSONAL
+  }
+
+  "The workspace's working week."
+  type WorkWeek {
+    "Days of the week people work unless HR set their own: 0 is Sunday, 6 is Saturday."
+    defaultWorkDays: [Int!]!
+  }
+
   type User {
     id: ID!
     name: String!
+    "The official (work) address the person signs in with."
     email: String!
+    "When the official address was proven by a code sent to it. Cleared when it changes."
+    emailVerifiedAt: DateTime
+    "A personal address HR keeps on file. Never used to sign in."
+    personalEmail: String
+    "When the personal address was proven by a code sent to it. Cleared when it changes."
+    personalEmailVerifiedAt: DateTime
     roles: [Role!]!
     avatarUrl: String
     isActive: Boolean!
@@ -120,6 +141,10 @@ export const adminTypeDefs = gql`
     fall back to the house default of 8.
     """
     workHoursPerDay: Int
+    "The days this person works (0 is Sunday). Null when they follow the workspace's week."
+    workDays: [Int!]
+    "The days this person works: their own week, else the workspace's."
+    effectiveWorkDays: [Int!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -215,6 +240,10 @@ export const adminTypeDefs = gql`
     workLocation: WorkLocation
     workLocationNote: String
     workHoursPerDay: Int
+    "Days of the week they work, 0 is Sunday. Null follows the workspace's week."
+    workDays: [Int!]
+    "A personal address to keep on file; null or empty clears it."
+    personalEmail: String
     "IANA zone name, or null to follow the workspace default."
     timezone: String
     "BCP-47 tag, or null to follow the workspace default."
@@ -258,6 +287,10 @@ export const adminTypeDefs = gql`
     workLocation: WorkLocation
     workLocationNote: String
     workHoursPerDay: Int
+    "Days of the week they work, 0 is Sunday. Null follows the workspace's week."
+    workDays: [Int!]
+    "A personal address to keep on file; null or empty clears it."
+    personalEmail: String
     "IANA zone name, or null to follow the workspace default."
     timezone: String
     "BCP-47 tag, or null to follow the workspace default."
@@ -302,6 +335,8 @@ export const adminTypeDefs = gql`
     "HR/ADMIN: every active user with their managerId, for the org chart."
     orgChart: [OrgNode!]!
     appSettings: AppSettings!
+    "The workspace's working week. Readable by any signed-in person."
+    workWeek: WorkWeek!
   }
 
   extend type Mutation {
@@ -315,5 +350,11 @@ export const adminTypeDefs = gql`
     resetUserPassword(id: ID!): String!
     sendUserMail(id: ID!, input: SendMailInput!): Boolean!
     updateSettings(input: UpdateSettingsInput!): AppSettings!
+    "HR/ADMIN: sets the days people work unless HR gave them their own week. At least one day."
+    setDefaultWorkDays(days: [Int!]!): WorkWeek!
+    "HR/ADMIN: emails a six-digit code to one of an employee's addresses to prove it is theirs."
+    requestEmployeeEmailCode(employeeId: ID!, kind: EmployeeEmailKind!): Boolean!
+    "HR/ADMIN: checks the code the employee read out and marks that address verified."
+    verifyEmployeeEmailCode(employeeId: ID!, kind: EmployeeEmailKind!, code: String!): User!
   }
 `;

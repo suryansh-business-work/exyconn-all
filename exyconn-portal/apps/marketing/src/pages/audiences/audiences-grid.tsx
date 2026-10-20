@@ -28,15 +28,15 @@ const MEMBERS_ACTION: RowActionSpec = {
 /**
  * Column model for the server-side audience grid.
  *
- * "Named" is deliberately not called a recipient count: with a segment rule the real
- * number is only knowable by resolving it, which the Members drawer does.
+ * No recipient count here: the real number is only knowable by resolving the audience,
+ * which the Members view does with the same code the send uses.
  */
 export const AUDIENCE_COLUMNS: ColDef<PagedAudienceRow>[] = [
   textColumn('name', 'Audience'),
   textColumn('description', 'Description'),
-  derivedColumn<PagedAudienceRow>('named', 'Named', (row) =>
-    String(row.clientIds.length + row.contactIds.length),
-  ),
-  statusColumn('dynamicSegment', 'Segment'),
+  statusColumn('recipientSource', 'Source'),
+  statusColumn('emailSelection', 'Addresses'),
+  statusColumn('updateMode', 'Updates'),
+  derivedColumn<PagedAudienceRow>('rules', 'Conditions', (row) => String(row.conditions.length)),
   actionsColumn([MEMBERS_ACTION, EDIT_ACTION, DELETE_ACTION], 130),
 ];

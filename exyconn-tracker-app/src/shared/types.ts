@@ -7,6 +7,7 @@
  * preferences of this install, and the capture round-trip only a renderer can finish.
  */
 import type {
+  TrackerLocationInput,
   TrackerState as CoreTrackerState,
   ProgressStyle,
   ThemeMode,
@@ -42,6 +43,9 @@ export type {
   TrackerMessage,
   TrackerMessageDirection,
   TrackerMessageKind,
+  TrackerEarnings,
+  TrackerLocationInput,
+  TrackerLocationPin,
   TrackerProject,
   TrackerSettings,
   TrackerStatus,
@@ -133,6 +137,7 @@ export const IPC = {
   reportLogs: 'tracker:report-logs',
   logout: 'tracker:logout',
   acceptConsent: 'tracker:accept-consent',
+  /** Sends the mark with the exact fix `getLocation` returned and the employee confirmed. */
   markAttendance: 'tracker:mark-attendance',
   setProject: 'tracker:set-project',
   setTask: 'tracker:set-task',
@@ -151,6 +156,10 @@ export const IPC = {
   saveHoursReport: 'tracker:save-hours-report',
   getDay: 'tracker:get-day',
   getTotals: 'tracker:get-totals',
+  /** Reads where this computer is now, for the attendance confirmation's map. */
+  getLocation: 'tracker:get-location',
+  getLocations: 'tracker:get-locations',
+  getEarnings: 'tracker:get-earnings',
   setTimezone: 'tracker:set-timezone',
   /** The app's own words in the employee's language, and the ones it could not translate. */
   getTranslations: 'tracker:get-translations',
@@ -182,6 +191,8 @@ export const IPC = {
   closeWindow: 'tracker:close-window',
   /** The renderer's answer to a capture request (see `captureRequested`). */
   captureResult: 'tracker:capture-result',
+  /** The renderer's answer to a location request (see `locationRequested`). */
+  locationResult: 'tracker:location-result',
   // main → renderer
   stateChanged: 'tracker:state-changed',
   /** Whether the window this renderer runs in is maximized, for the window controls. */
@@ -191,6 +202,11 @@ export const IPC = {
    * canvas. Answered on `captureResult` with the same request id.
    */
   captureRequested: 'tracker:capture-requested',
+  /**
+   * Main needs a location fix: the OS location service is reached through Chromium's
+   * geolocation, which exists in a renderer only. Answered on `locationResult` by request id.
+   */
+  locationRequested: 'tracker:location-requested',
   /** Fired on every capture so a renderer can play the shutter sound (audio needs a window). */
   screenshotCaptured: 'tracker:screenshot-captured',
   /**
@@ -232,5 +248,17 @@ export interface CaptureRequest {
 export interface CaptureResult {
   id: string;
   image: string | null;
+  error: string | null;
+}
+
+/** Main asks the main window's renderer for a location fix. */
+export interface LocationRequest {
+  id: string;
+}
+
+/** The renderer's answer: a fix, or why none could be read (never a coordinate). */
+export interface LocationResult {
+  id: string;
+  location: TrackerLocationInput | null;
   error: string | null;
 }

@@ -3,6 +3,7 @@ import { TrackerController, TrackerEngine } from '@exyconn/tracker-core';
 import { TrackerNative } from '../native/tracker-native';
 import { announceCapture, composeWithWebcam } from './capture';
 import { deviceInfo, loadDeviceInfo } from './device-info';
+import { gpsLocation } from './location';
 import { configureNotifications, mobileNotifier, notifyCaptureStopped } from './notifier';
 import { mobilePermissions, refreshPermissionSnapshot } from './permissions';
 import { CAPTURE_DECLINED, createEngineDeps, portal } from './platform';
@@ -49,6 +50,7 @@ export const tracker = new TrackerController<MobilePermissions, MobilePreference
   deviceInfo,
   notifier: mobileNotifier,
   permissions: mobilePermissions,
+  location: gpsLocation,
   createEngine: (settings, hooks) =>
     new TrackerEngine(
       settings,

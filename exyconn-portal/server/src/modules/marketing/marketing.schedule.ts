@@ -58,11 +58,7 @@ async function claimDue(now: Date): Promise<CampaignDoc | null> {
 /** Sends one claimed campaign, keeping a failure out of the tick that follows it. */
 async function dispatch(campaign: CampaignDoc): Promise<void> {
   try {
-    const result = await runCampaignSend(
-      campaign,
-      campaign.scheduledAudienceListId,
-      portalOrigin(),
-    );
+    const result = await runCampaignSend(campaign, portalOrigin());
     logger.info(
       `Scheduled campaign "${campaign.name}" sent to ${result.sent} recipient(s), ` +
         `${result.failed} failed, ${result.skipped} skipped`,
@@ -71,6 +67,10 @@ async function dispatch(campaign: CampaignDoc): Promise<void> {
     // The claim stands: a campaign whose send blew up must not be retried in a loop, and
     // the delivery log already holds whatever did go out.
     logger.error(error, `Scheduled campaign "${campaign.name}" failed`);
+    await CampaignModel.updateOne(
+      { _id: campaign._id, sendState: { $in: ['QUEUED', 'SENDING'] } },
+      { sendState: 'FAILED' },
+    );
   }
 }
 
@@ -86,6 +86,17 @@ export async function dispatchScheduledCampaigns(): Promise<number> {
     dispatched += 1;
   }
   return dispatched;
+}
+
+/**
+ * Starts the dispatcher now, inside the caller's company, for a campaign queued to go
+ * immediately — rather than leaving it for the next minute's tick. Fire-and-forget: the
+ * dispatcher's own claim keeps a concurrent tick from sending it twice.
+ */
+export function dispatchNow(): void {
+  dispatchScheduledCampaigns().catch((error: unknown) =>
+    logger.error(error, 'Immediate campaign dispatch failed'),
+  );
 }
 
 /** Starts the once-a-minute check that sends campaigns on the schedule marketing set. */

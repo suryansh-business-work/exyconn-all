@@ -48,7 +48,9 @@ export function AnnouncementsPage() {
             <Text size="caption" color="text.secondary">
               {formatDate(row.publishedAt)}
             </Text>
-            <Text sx={{ mt: 1, whiteSpace: 'pre-line' }}>{row.body}</Text>
+            <Text component="p" sx={{ mt: 1, whiteSpace: 'pre-line' }}>
+              {row.body}
+            </Text>
           </Box>
         ))}
       </Flex>

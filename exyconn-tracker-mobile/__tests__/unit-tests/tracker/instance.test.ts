@@ -22,7 +22,10 @@ const native = vi.hoisted(() => ({
   addListener: vi.fn(),
 }));
 
-vi.mock('@exyconn/tracker-core', () => ({
+// The real module, with the controller and engine replaced: the logger behind instance.ts
+// builds the portal client from it on import.
+vi.mock('@exyconn/tracker-core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@exyconn/tracker-core')>()),
   TrackerController: function TrackerController(deps: unknown) {
     h.deps = deps as ControllerDepsSeen;
     return h.controller;
@@ -39,6 +42,7 @@ vi.mock('../../../src/tracker/capture', () => ({
 vi.mock('../../../src/tracker/device-info', () => ({
   deviceInfo: vi.fn(),
   loadDeviceInfo: vi.fn(),
+  loadedDeviceInfo: vi.fn(() => null),
 }));
 vi.mock('../../../src/tracker/notifier', () => ({
   configureNotifications: vi.fn(),

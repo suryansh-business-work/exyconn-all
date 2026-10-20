@@ -4,6 +4,8 @@ import { lookup } from 'node:dns/promises';
 import { CampaignModel } from '../../src/modules/marketing/marketing.model';
 import { CampaignSendModel } from '../../src/modules/marketing/campaign-send.model';
 import { marketingTrackingRouter } from '../../src/modules/marketing/marketing.tracking.routes';
+import { Types } from 'mongoose';
+import { runForOrganization } from '../../src/lib/tenant';
 import {
   TRACKING_PATH,
   hashTrackingToken,
@@ -92,20 +94,23 @@ describe('click link signing (open redirect)', () => {
     });
 
     it('still follows an unsigned link from an email sent before signing, when the campaign holds it', async () => {
-      const campaign = await CampaignModel.create({
-        name: 'Old',
-        channel: 'EMAIL',
-        budget: 0,
-        startDate: new Date('2026-01-01'),
-        endDate: new Date('2026-01-31'),
-        body: '<a href="https://example.com/offer">Offer</a>',
-      });
-      await CampaignSendModel.create({
-        campaignId: campaign._id.toHexString(),
-        audienceListId: 'list',
-        to: 'a@example.com',
-        status: 'SENT',
-        trackingTokenHash: hashTrackingToken('legacy'),
+      // Sent by a company: the token is resolved to it before the campaign body is read.
+      await runForOrganization(new Types.ObjectId().toHexString(), async () => {
+        const campaign = await CampaignModel.create({
+          name: 'Old',
+          channel: 'EMAIL',
+          budget: 0,
+          startDate: new Date('2026-01-01'),
+          endDate: new Date('2026-01-31'),
+          body: '<a href="https://example.com/offer">Offer</a>',
+        });
+        await CampaignSendModel.create({
+          campaignId: campaign._id.toHexString(),
+          audienceListId: 'list',
+          to: 'a@example.com',
+          status: 'SENT',
+          trackingTokenHash: hashTrackingToken('legacy'),
+        });
       });
 
       const kept = await request(app).get('/m/c/legacy').query({ u: 'https://example.com/offer' });

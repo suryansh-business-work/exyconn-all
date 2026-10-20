@@ -1,7 +1,12 @@
+import { format } from 'date-fns';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { theme } from '@exyconn/shell/config/theme';
-import { MyHolidaysDocument, MyLeaveRequestsDocument } from '@exyconn/shell/graphql/generated';
+import {
+  MyHolidaysDocument,
+  MyLeaveRequestsDocument,
+  MyWorkProfileDocument,
+} from '@exyconn/shell/graphql/generated';
 import { AttendanceCalendar } from './AttendanceCalendar';
 
 const now = new Date();
@@ -9,7 +14,29 @@ const day = (d: number) => new Date(now.getFullYear(), now.getMonth(), d);
 const utcDay = (d: number) =>
   new Date(Date.UTC(now.getFullYear(), now.getMonth(), d)).toISOString();
 
+/** Every weekday but the 20th's, so the 20th (and nothing else the spec marks) is a week off. */
+const workDays = [0, 1, 2, 3, 4, 5, 6].filter((weekday) => weekday !== day(20).getDay());
+
 const MOCKS = [
+  {
+    request: { query: MyWorkProfileDocument },
+    result: {
+      data: {
+        me: {
+          __typename: 'User',
+          id: 'e1',
+          address: null,
+          brief: null,
+          workingTime: null,
+          workingTimeNote: null,
+          workLocation: null,
+          workLocationNote: null,
+          workHoursPerDay: 8,
+          effectiveWorkDays: workDays,
+        },
+      },
+    },
+  },
   {
     request: { query: MyLeaveRequestsDocument },
     result: {
@@ -68,7 +95,12 @@ describe('AttendanceCalendar', () => {
     mount();
     cy.get('[aria-label*="Attendance marked"]').should('have.length', 1);
     cy.get('[aria-label*="Leave requested"]').should('have.length', 1);
-    cy.get('[aria-label*="Public holiday"]').should('contain.text', '12');
+    cy.get('[aria-label*="Public holiday"]').should('contain.text', 'Founders Day');
+    cy.get('[aria-label*=", CL"]').should('contain.text', 'CL');
+    cy.get(`[aria-label="${format(day(20), 'd MMMM')}, Week off"]`).should(
+      'contain.text',
+      'Week off',
+    );
   });
 
   it('explains every colour', () => {
@@ -79,6 +111,7 @@ describe('AttendanceCalendar', () => {
       'Leave requested',
       'Leave rejected',
       'Public holiday',
+      'Week off',
     ]) {
       cy.contains('li', label).should('be.visible');
     }

@@ -1,6 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { formatMonthLabel, type PeriodLength } from '@exyconn/tracker-core';
+import {
+  dayMarksOf,
+  formatMonthLabel,
+  monthTarget,
+  todayKeyIn,
+  type DayMark,
+  type PeriodLength,
+} from '@exyconn/tracker-core';
 import { useMyDay } from '../../hooks/useMyDay';
 import { useMyReport } from '../../hooks/useMyReport';
 import { usePeriodInsights } from '../../hooks/usePeriodInsights';
@@ -16,6 +23,7 @@ import { ReportDownloadButton } from './ReportDownloadButton';
 import { ReportMonthChart } from './ReportMonthChart';
 import { ReportOverview } from './overview/ReportOverview';
 import { ReportTable } from './ReportTable';
+import { ReportTarget } from './ReportTarget';
 import { ReportTotals } from './ReportTotals';
 import { SegmentedControl, type SegmentOption } from '../ui/SegmentedControl';
 import { SkeletonBlock } from './SkeletonBlock';
@@ -27,6 +35,9 @@ const TABS: readonly SegmentOption<TabId>[] = [
   { value: 'calendar', label: 'Calendar' },
   { value: 'days', label: 'Days' },
 ];
+
+const NO_MARKS: ReadonlyMap<string, DayMark> = new Map();
+const NO_LABELS: ReadonlyMap<string, string> = new Map();
 
 /** Totals and both month charts, while the month is on its way — never a month of zeros. */
 function MonthSkeleton() {
@@ -58,6 +69,12 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
   const [selected, setSelected] = useState<Date>(today);
 
   const report = useMyReport(month, timezone);
+  const { contract, days } = report;
+  const target = useMemo(
+    () => (contract === null ? null : monthTarget(contract, days, todayKeyIn(timezone))),
+    [contract, days, timezone],
+  );
+  const marks = useMemo(() => (target === null ? NO_MARKS : dayMarksOf(target)), [target]);
   const day = useMyDay(selected, timezone);
   const insights = usePeriodInsights(length, timezone);
   const monthLabel = formatMonthLabel(month);
@@ -100,6 +117,8 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
           <ReportCalendar
             days={report.days}
             loading={report.loading}
+            marks={marks}
+            labels={target?.offLabels ?? NO_LABELS}
             month={month}
             selected={selected}
             maxDate={today}
@@ -127,6 +146,9 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
             <MonthSkeleton />
           ) : (
             <>
+              {target === null || contract === null ? null : (
+                <ReportTarget target={target} workHoursPerDay={contract.workHoursPerDay} />
+              )}
               <ReportTotals totals={report.totals} />
               <ReportMonthChart days={report.days} monthLabel={monthLabel} />
               {/* Hours first, then how solid they were: the second chart only means

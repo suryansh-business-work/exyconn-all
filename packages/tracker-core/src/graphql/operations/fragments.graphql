@@ -47,6 +47,8 @@ fragment WorkdayFields on TrackerWorkday {
   attendanceStatus
   attendanceNote
   attendanceMarked
+  offReason
+  offLabel
 }
 
 fragment PresenceFields on TrackerPresenceState {
@@ -107,6 +109,7 @@ fragment TrackerMeFields on TrackerMe {
     workLocationNote
     workHoursPerDay
     targetMs
+    workDays
   }
   workday {
     ...WorkdayFields

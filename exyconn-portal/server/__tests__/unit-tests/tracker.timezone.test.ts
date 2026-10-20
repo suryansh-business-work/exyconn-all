@@ -11,15 +11,22 @@ import {
   supportedTimezones,
 } from '../../src/modules/tracker/tracker.timezone';
 import { TrackerAccessModel, TrackerDeviceModel } from '../../src/modules/tracker/models';
+import { useWorkingEveryDay } from '../helpers';
 
 jest.mock('../../src/utils/mailer', () => ({
   mailer: { sendTrackerAccessEmail: jest.fn().mockResolvedValue(undefined) },
 }));
 
+// Off days are covered by tracker.offday and tracker.expected.service; here every day is a
+// working day, so the suite does not depend on the day it runs. The employee's country is
+// set, so their holiday calendar is read without a company in scope.
+useWorkingEveryDay();
+
 const DEVICE_ID = 'device-tz';
 
 async function grantedEmployee(deviceTimezone = '') {
   const user = await UserModel.create({
+    country: 'IN',
     name: 'Emp',
     email: 'tz@exyconn.com',
     // Nothing in this suite signs in — the services are called directly with the userId a

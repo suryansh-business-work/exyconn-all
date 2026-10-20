@@ -40,6 +40,9 @@ const companySchema = new Schema(
   { timestamps: true },
 );
 
+/** Finding the company behind an address — suppression links, audience expansion. */
+companySchema.index({ 'emails.address': 1 });
+
 export type CompanyDocument = InferSchemaType<typeof companySchema>;
 export const CompanyModel: Model<CompanyDocument> = model<CompanyDocument>(
   'Company',

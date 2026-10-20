@@ -13,7 +13,6 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  fontWeight,
   GLASS_BLUR,
   SOLID_SURFACES,
   tokensFor,
@@ -33,7 +32,7 @@ import { AllAppsButton } from './AllAppsButton';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
-import { roleList } from '@/auth/roles';
+import { TopbarUser } from './TopbarUser';
 
 /** The topbar's actions: round card-coloured buttons with a hairline, set apart from the glass. */
 const roundActions = (t: Theme) => ({
@@ -90,8 +89,10 @@ export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
       color="inherit"
       elevation={0}
       sx={(t) => ({
-        width: { md: `calc(100% - ${drawerWidth}px)` },
-        ml: { md: `${drawerWidth}px` },
+        // Full width, under the docked drawer: the band runs behind the transparent sidebar
+        // too, so the page frame's rounded corner sits below one straight edge instead of
+        // meeting the square end of a bar that stops at the sidebar.
+        width: '100%',
         // Frosted glass over the canvas, dense enough that a page scrolling beneath it never
         // costs its text contrast (contrast.test.ts composites it over body ink). Solid where a
         // person has asked for less transparency or more contrast.
@@ -105,7 +106,16 @@ export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
         pr: 'env(safe-area-inset-right)',
       })}
     >
-      <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT }, px: PAGE_GUTTER }}>
+      <Toolbar
+        sx={(t) => ({
+          minHeight: { xs: TOPBAR_HEIGHT },
+          px: PAGE_GUTTER,
+          ml: { md: `${drawerWidth}px` },
+          transition: t.transitions.create('margin-left', {
+            duration: t.transitions.duration.shorter,
+          }),
+        })}
+      >
         <IconButton
           edge="start"
           onClick={onMenuClick}
@@ -124,27 +134,7 @@ export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
             meaning on a touch keyboard, and the hamburger beside it opens the same modules. */}
         {user && <OrganizationSwitcher />}
         {user && !onPhone && <TopbarSearch onOpen={() => palette.setOpen(true)} />}
-        <Box sx={{ textAlign: 'right', mx: 1.5, display: { xs: 'none', sm: 'block' } }}>
-          <Typography
-            variant="caption"
-            sx={{
-              fontWeight: fontWeight.bold,
-              display: 'block',
-              lineHeight: 1.3,
-            }}
-          >
-            {user?.name}
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-              display: 'block',
-            }}
-          >
-            {user ? roleList(user.roles, t) : null}
-          </Typography>
-        </Box>
+        {user && <TopbarUser name={user.name} roles={user.roles} />}
         <Box sx={roundActions}>
           {user && <AllAppsButton />}
           <ApprovalsBell />

@@ -21,6 +21,7 @@ const PROFILE: WorkProfile = {
   workLocationNote: 'Client site on Fridays',
   workHoursPerDay: 7.5,
   targetMs: 7.5 * 3_600_000,
+  workDays: [1, 2, 3, 4, 5],
 };
 
 describe('SettingsCard', () => {

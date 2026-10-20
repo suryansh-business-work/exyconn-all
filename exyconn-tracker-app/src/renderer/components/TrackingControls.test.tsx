@@ -18,7 +18,10 @@ afterEach(cleanup);
 
 describe('TrackingControls', () => {
   it('spins on the pressed button and holds the others until the command answers', async () => {
-    await mount(<TrackingControls status="tracking" attendanceMarked />, trackerState('tracking'));
+    await mount(
+      <TrackingControls status="tracking" attendanceMarked workday={null} />,
+      trackerState('tracking'),
+    );
     const pause = deferred();
     overrideTracker({ pause: () => pause.promise });
 
@@ -33,7 +36,10 @@ describe('TrackingControls', () => {
   });
 
   it('shows the controller’s own reason when a command is refused', async () => {
-    await mount(<TrackingControls status="idle" attendanceMarked />, trackerState('idle'));
+    await mount(
+      <TrackingControls status="idle" attendanceMarked workday={null} />,
+      trackerState('idle'),
+    );
     overrideTracker({
       start: () =>
         Promise.reject(
@@ -47,8 +53,29 @@ describe('TrackingControls', () => {
     expect(buttonNamed('Start').disabled).toBe(false);
   });
 
+  it('words a Start refused on an off day the way the off-day banner does', async () => {
+    const state = trackerState('idle');
+    const holiday = { ...state.workday!, offReason: 'HOLIDAY' as const, offLabel: 'Diwali' };
+    await mount(<TrackingControls status="idle" attendanceMarked workday={holiday} />, state);
+    overrideTracker({
+      start: () =>
+        Promise.reject(
+          new Error(
+            "Error invoking remote method 'tracker:start': Error: Today is an off day — tracking is paused.",
+          ),
+        ),
+    });
+
+    await press(buttonNamed('Start'));
+    await finish(() => undefined);
+    expect(errorText()).toBe('Today is a holiday (Diwali) — tracking is paused.');
+  });
+
   it('runs resume and stop from a paused session', async () => {
-    await mount(<TrackingControls status="paused" attendanceMarked />, trackerState('paused'));
+    await mount(
+      <TrackingControls status="paused" attendanceMarked workday={null} />,
+      trackerState('paused'),
+    );
     const calls: string[] = [];
     overrideTracker({
       resume: () => Promise.resolve(calls.push('resume')),

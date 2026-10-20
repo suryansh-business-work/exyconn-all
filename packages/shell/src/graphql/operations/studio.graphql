@@ -1,0 +1,308 @@
+fragment QualityCheckFields on QualityCheck {
+  code
+  severity
+  message
+  line
+}
+
+fragment CampaignTemplateFields on CampaignTemplate {
+  id
+  name
+  category
+  description
+  editorMode
+  blocks
+  mjml
+  version
+  updatedByName
+  updatedAt
+}
+
+fragment PreferenceCategoryFields on PreferenceCategory {
+  id
+  name
+  description
+  isActive
+  sortOrder
+}
+
+fragment PublicEmailPreferencesFields on PublicEmailPreferences {
+  email
+  preview
+  unsubscribedAll
+  categories {
+    id
+    name
+    description
+    subscribed
+  }
+}
+
+query CampaignStudioOptions {
+  campaignStudioOptions {
+    verifiedSenders
+    variables {
+      key
+      group
+      label
+      description
+      example
+    }
+    categories {
+      ...PreferenceCategoryFields
+    }
+  }
+}
+
+query PreviewCampaignContent($input: CampaignPreviewInput!) {
+  previewCampaignContent(input: $input) {
+    subject
+    preheader
+    html
+    text
+    missingVariables
+    issues {
+      line
+      message
+    }
+    recipient {
+      kind
+      name
+      email
+    }
+  }
+}
+
+query CampaignQualityChecks($id: ID!, $audienceListId: ID) {
+  campaignQualityChecks(id: $id, audienceListId: $audienceListId) {
+    canSend
+    checks {
+      ...QualityCheckFields
+    }
+    counts {
+      ...AudienceCountsFields
+    }
+  }
+}
+
+query PreviewRecordOptions($search: String!) {
+  previewRecordOptions(search: $search) {
+    kind
+    id
+    name
+    email
+  }
+}
+
+query CampaignRevisions($campaignId: ID!) {
+  campaignRevisions(campaignId: $campaignId) {
+    id
+    version
+    subject
+    createdByName
+    createdAt
+  }
+}
+
+query CampaignDeliveryStats($campaignId: ID!) {
+  campaignDeliveryStats(campaignId: $campaignId) {
+    runId
+    sendState
+    scheduledAt
+    lastSentAt
+    resolved
+    eligible
+    queued
+    sent
+    failed
+    skipped
+    bounced
+    unsubscribed
+    preferenceChanges
+    clicked
+    estimatedOpens
+    clickRate
+  }
+}
+
+query MarketingDashboard {
+  marketingDashboard {
+    campaigns
+    drafts
+    scheduled
+    sending
+    sentLast30
+    failedLast30
+    clickedLast30
+    clickRateLast30
+    unsubscribesLast30
+    suppressed
+    audiences
+    upcoming {
+      id
+      name
+      at
+    }
+    recent {
+      id
+      name
+      at
+      recipients
+      sendState
+    }
+    daily {
+      day
+      sent
+    }
+  }
+}
+
+query ListCampaignTemplates {
+  listCampaignTemplates {
+    ...CampaignTemplateFields
+  }
+}
+
+query CampaignTemplateVersions($templateId: ID!) {
+  campaignTemplateVersions(templateId: $templateId) {
+    id
+    version
+    note
+    createdByName
+    createdAt
+  }
+}
+
+query TechEmailTemplateOptions {
+  techEmailTemplateOptions {
+    key
+    name
+    mjml
+  }
+}
+
+query ListPreferenceCategoriesPaged($input: TableQueryInput!) {
+  listPreferenceCategoriesPaged(input: $input) {
+    totalCount
+    rows {
+      ...PreferenceCategoryFields
+    }
+  }
+}
+
+query MarketingFooter {
+  marketingFooter {
+    companyName
+    contactLine
+    postalAddress
+    privacyUrl
+    websiteUrl
+    textColor
+    linkColor
+  }
+}
+
+query EmailPreferences($token: String!) {
+  emailPreferences(token: $token) {
+    ...PublicEmailPreferencesFields
+  }
+}
+
+mutation SaveCampaignDraft($id: ID, $input: CampaignDraftInput!, $expectedVersion: Int) {
+  saveCampaignDraft(id: $id, input: $input, expectedVersion: $expectedVersion) {
+    ...CampaignFields
+  }
+}
+
+mutation QueueCampaignSend($id: ID!, $audienceListId: ID!, $scheduledAt: DateTime) {
+  queueCampaignSend(id: $id, audienceListId: $audienceListId, scheduledAt: $scheduledAt) {
+    ...CampaignFields
+  }
+}
+
+mutation CancelCampaignSend($id: ID!) {
+  cancelCampaignSend(id: $id) {
+    ...CampaignFields
+  }
+}
+
+mutation RetryCampaignFailures($id: ID!) {
+  retryCampaignFailures(id: $id) {
+    sent
+    failed
+    skipped
+  }
+}
+
+mutation SendCampaignTest(
+  $id: ID!
+  $to: String!
+  $recordKind: PreviewRecordKind
+  $recordId: String
+) {
+  sendCampaignTest(id: $id, to: $to, recordKind: $recordKind, recordId: $recordId)
+}
+
+mutation SaveCampaignTemplate($id: ID, $input: CampaignTemplateInput!) {
+  saveCampaignTemplate(id: $id, input: $input) {
+    ...CampaignTemplateFields
+  }
+}
+
+mutation DuplicateCampaignTemplate($id: ID!) {
+  duplicateCampaignTemplate(id: $id) {
+    id
+  }
+}
+
+mutation RestoreCampaignTemplateVersion($templateId: ID!, $version: Int!) {
+  restoreCampaignTemplateVersion(templateId: $templateId, version: $version) {
+    ...CampaignTemplateFields
+  }
+}
+
+mutation DeleteCampaignTemplate($id: ID!) {
+  deleteCampaignTemplate(id: $id)
+}
+
+mutation CreatePreferenceCategory($input: PreferenceCategoryInput!) {
+  createPreferenceCategory(input: $input) {
+    id
+  }
+}
+
+mutation UpdatePreferenceCategory($id: ID!, $input: PreferenceCategoryInput!) {
+  updatePreferenceCategory(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeletePreferenceCategory($id: ID!) {
+  deletePreferenceCategory(id: $id)
+}
+
+mutation SaveMarketingFooter($input: MarketingFooterInput!) {
+  saveMarketingFooter(input: $input) {
+    companyName
+  }
+}
+
+mutation UpdateEmailPreferences(
+  $token: String!
+  $optedOutCategoryIds: [String!]!
+  $unsubscribeAll: Boolean!
+) {
+  updateEmailPreferences(
+    token: $token
+    optedOutCategoryIds: $optedOutCategoryIds
+    unsubscribeAll: $unsubscribeAll
+  ) {
+    ...PublicEmailPreferencesFields
+  }
+}
+
+query GetCampaign($id: ID!) {
+  getCampaign(id: $id) {
+    ...CampaignFields
+  }
+}

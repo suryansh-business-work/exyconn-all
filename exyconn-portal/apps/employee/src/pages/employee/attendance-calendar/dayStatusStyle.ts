@@ -22,6 +22,16 @@ export const DAY_STATUS_STYLE: Readonly<Record<Exclude<DayStatus, 'NONE'>, DaySt
     explanation: 'Your attendance for the day was recorded as absent.',
     tone: 'text.disabled',
   },
+  HOLIDAY: {
+    label: 'Public holiday',
+    explanation: 'A holiday observed where you work. Nothing to mark.',
+    tone: 'info.main',
+  },
+  WEEK_OFF: {
+    label: 'Week off',
+    explanation: 'A day outside your working week. Nothing to mark.',
+    tone: 'text.secondary',
+  },
   LEAVE_APPROVED: {
     label: 'Leave approved',
     explanation: 'Leave HR or your manager approved.',
@@ -36,11 +46,6 @@ export const DAY_STATUS_STYLE: Readonly<Record<Exclude<DayStatus, 'NONE'>, DaySt
     label: 'Leave rejected',
     explanation: 'Your leave request was turned down — mark attendance if you worked.',
     tone: 'error.main',
-  },
-  HOLIDAY: {
-    label: 'Public holiday',
-    explanation: 'A holiday observed where you work. Nothing to mark.',
-    tone: 'info.main',
   },
 };
 

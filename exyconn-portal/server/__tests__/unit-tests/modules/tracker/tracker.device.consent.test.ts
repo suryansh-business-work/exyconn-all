@@ -5,8 +5,22 @@ import { PolicyAcknowledgementModel } from '../../../../src/modules/legal/policy
 import { policyAcknowledgementService } from '../../../../src/modules/legal/policy-acknowledgement.service';
 import { trackerDeviceService } from '../../../../src/modules/tracker/tracker.device.service';
 import { updateTrackerSettings } from '../../../../src/modules/tracker/tracker.settings.service';
-import { TrackerAccessModel, TrackerDeviceModel } from '../../../../src/modules/tracker/models';
+import {
+  TrackerAccessModel,
+  TrackerDeviceModel,
+  TrackerLocationModel,
+} from '../../../../src/modules/tracker/models';
+import { AttendanceModel } from '../../../../src/modules/hr/attendance.model';
+import { LeaveRequestModel } from '../../../../src/modules/hr/hr.model';
+import { saveDefaultWorkDays } from '../../../../src/modules/admin/work-week';
 import { codeOf } from '../codeOf';
+import { officeFix } from '../../../fixtures/location';
+import { freezeClock, useTestOrganization, useWorkingEveryDay } from '../../../helpers';
+
+// Off days are covered by tracker.offday and tracker.expected.service; here every day is a
+// working day, in a company, so the suite does not depend on the day it runs.
+useTestOrganization();
+useWorkingEveryDay();
 
 const DEVICE_ID = 'device-consent';
 const SLUG = 'tracking-disclosure';
@@ -45,6 +59,7 @@ async function disclosurePolicy() {
 
 afterEach(() => {
   jest.restoreAllMocks();
+  jest.useRealTimers();
 });
 
 describe('accepting the disclosure', () => {
@@ -134,7 +149,13 @@ describe('marking attendance from the app', () => {
   it('answers with the day it marked, in the employee’s zone', async () => {
     const userId = await grantedEmployee();
 
-    const workday = await trackerDeviceService.markAttendance(userId, 'UTC', 'WFH', 'From home');
+    const workday = await trackerDeviceService.markAttendance(
+      userId,
+      'UTC',
+      'WFH',
+      'From home',
+      officeFix,
+    );
 
     expect(workday).toMatchObject({
       attendanceMarked: true,
@@ -148,7 +169,7 @@ describe('marking attendance from the app', () => {
     await TrackerAccessModel.updateOne({ userId }, { isActive: false });
 
     await expect(
-      codeOf(trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT')),
+      codeOf(trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix)),
     ).resolves.toBe('FORBIDDEN');
   });
 
@@ -156,8 +177,79 @@ describe('marking attendance from the app', () => {
     const userId = await grantedEmployee();
     await UserModel.deleteOne({ _id: userId });
 
-    await expect(trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT')).rejects.toThrow(
-      'Account no longer exists',
-    );
+    await expect(
+      trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix),
+    ).rejects.toThrow('Account no longer exists');
+  });
+
+  it('pins where attendance was marked', async () => {
+    const userId = await grantedEmployee();
+
+    await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix);
+
+    await expect(TrackerLocationModel.find().lean()).resolves.toEqual([
+      expect.objectContaining({ userId, kind: 'ATTENDANCE', lat: officeFix.lat, source: 'GPS' }),
+    ]);
+  });
+
+  it('refuses an invalid location before marking anything', async () => {
+    const userId = await grantedEmployee();
+
+    await expect(
+      codeOf(
+        trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, {
+          ...officeFix,
+          lat: 120,
+        }),
+      ),
+    ).resolves.toBe('BAD_USER_INPUT');
+    expect(await AttendanceModel.countDocuments()).toBe(0);
+  });
+
+  // A Wednesday, so the off days below are the only reason a day is off.
+  const WEDNESDAY = '2026-01-07T10:00:00.000Z';
+
+  it('refuses the employee’s week off, writing neither a pin nor attendance', async () => {
+    const userId = await grantedEmployee();
+    await UserModel.updateOne({ _id: userId }, { workDays: [1, 2, 4, 5] });
+    freezeClock(WEDNESDAY);
+
+    await expect(
+      trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix),
+    ).rejects.toThrow('Today is your week off — tracking is paused.');
+    expect(await TrackerLocationModel.countDocuments()).toBe(0);
+    expect(await AttendanceModel.countDocuments()).toBe(0);
+  });
+
+  it('refuses a day of approved leave, naming the leave type', async () => {
+    const userId = await grantedEmployee();
+    const midnight = new Date('2026-01-07T00:00:00.000Z');
+    freezeClock(WEDNESDAY);
+    await LeaveRequestModel.create({
+      employeeId: userId,
+      type: 'CL',
+      fromDate: midnight,
+      toDate: midnight,
+      reason: 'Errand',
+      status: 'APPROVED',
+    });
+
+    await expect(
+      codeOf(trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix)),
+    ).resolves.toBe('FORBIDDEN');
+    await expect(
+      trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix),
+    ).rejects.toThrow("You're on approved leave (CL) today");
+  });
+
+  it('shows the off day on the workday the app reads', async () => {
+    const userId = await grantedEmployee();
+    await saveDefaultWorkDays([6]);
+    freezeClock(WEDNESDAY);
+
+    const me = await trackerDeviceService.me(userId, DEVICE_ID);
+
+    expect(me.workday).toMatchObject({ offReason: 'WEEKEND', offLabel: null });
+    expect(me.workProfile.workDays).toEqual([6]);
   });
 });

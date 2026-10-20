@@ -6,6 +6,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { WorkArrangementFacts } from '@/components/work';
 import { presenceStatus, userInitials, userStatus, type UserDetail } from './user-details.types';
 import { readingPanel } from '@/components/glass/glass';
+import { EmployeeContactFacts } from './EmployeeContactFacts';
 
 /** Read-only summary card: identity, presence, contact, work facts, roles and audit timestamps. */
 export function UserProfileCard({ user }: Readonly<{ user: UserDetail }>) {
@@ -53,6 +54,10 @@ export function UserProfileCard({ user }: Readonly<{ user: UserDetail }>) {
         </DetailFact>
         <DetailFact label="Last active">{lastActive}</DetailFact>
       </DetailFactGrid>
+
+      <Divider sx={{ my: 2 }} />
+
+      <EmployeeContactFacts user={user} />
 
       <Divider sx={{ my: 2 }} />
 

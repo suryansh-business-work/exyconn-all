@@ -102,12 +102,13 @@ export const googleMapsResolvers = {
       return withIds(await googleMapsConfigs.list());
     },
     /**
-     * The browser key goes to signed-in CRM users only, because the Maps JavaScript API must run
+     * The browser key goes to signed-in CRM and HR users only, because the Maps JavaScript API must run
      * in their browser with it. That makes it public to them by design: it is protected by its
      * HTTP-referrer and API restrictions in Google Cloud, never by being hidden.
      */
     googleMapsClientConfig: (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      crmDesk(ctx);
+      // HR reads it too, to show where employees marked attendance (ADMIN passes every guard).
+      assertRole(ctx, [ROLES.CRM, ROLES.HR]);
       return googleMapsConfigs.client();
     },
     searchLeadPlaces: async (

@@ -119,7 +119,12 @@ export function CalendarPage() {
           </Box>
         )}
         {data && data.crmCalendar.length === 0 && (
-          <Text size="sm" color="text.secondary" sx={{ mt: 1.5, textAlign: 'center' }}>
+          <Text
+            component="p"
+            size="sm"
+            color="text.secondary"
+            sx={{ mt: 1.5, textAlign: 'center' }}
+          >
             {t('Nothing scheduled in this period. Add a reminder from a contact or company page.')}
           </Text>
         )}

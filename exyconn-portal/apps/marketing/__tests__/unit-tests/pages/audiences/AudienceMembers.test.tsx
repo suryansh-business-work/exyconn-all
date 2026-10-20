@@ -1,92 +1,97 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AudienceMemberKind } from '@exyconn/shell/graphql/generated';
+import { useFormatters } from '@exyconn/i18n';
 import { AudienceMembers } from '../../../../src/pages/audiences/AudienceMembers';
-import { renderWithProviders } from '../../test-utils';
-import { answered, pending } from '../../fixtures';
+import { renderHookWithProviders, renderWithProviders } from '../../test-utils';
+import { pending } from '../../fixtures';
+import { audienceCounts } from './audience.fixtures';
 
-const gql = vi.hoisted(() => ({ members: vi.fn(), refetch: vi.fn() }));
+const gql = vi.hoisted(() => ({ resolution: vi.fn(), refetch: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
-  useAudienceMembersQuery: (options: unknown) => gql.members(options),
+  useAudienceResolutionCountsQuery: (options: unknown) => gql.resolution(options),
 }));
 
-const MEMBERS = [
-  {
-    id: 'm1',
-    email: 'asha@acme.io',
-    name: 'Asha Rao',
-    company: 'Acme',
-    status: 'ACTIVE',
-    kind: AudienceMemberKind.Client,
-  },
-  {
-    id: 'm2',
-    email: 'ravi@globex.com',
-    name: '',
-    company: '',
-    status: 'UNSUBSCRIBED',
-    kind: AudienceMemberKind.Contact,
-  },
-];
+vi.mock('../../../../src/pages/audiences/AudienceRecipientsGrid', () => ({
+  AudienceRecipientsGrid: ({ target }: Readonly<{ target: unknown }>) => (
+    <p>{`Recipients of ${JSON.stringify(target)}`}</p>
+  ),
+}));
+
+const RESOLVED_AT = '2026-10-20T09:00:00.000Z';
+
+function resolved() {
+  return {
+    data: { audienceResolution: { resolvedAt: RESOLVED_AT, counts: audienceCounts() } },
+    loading: false,
+    error: undefined,
+    refetch: gql.refetch,
+  };
+}
+
+const renderMembers = () =>
+  renderWithProviders(<AudienceMembers audienceId="audience-1" audienceName="Newsletter" />);
 
 describe('AudienceMembers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     gql.refetch.mockResolvedValue({});
-    gql.members.mockReturnValue({
-      ...answered({ audienceMembers: MEMBERS }),
-      refetch: gql.refetch,
+    gql.resolution.mockReturnValue(resolved());
+  });
+
+  it('resolves the saved audience afresh each time it opens', () => {
+    renderMembers();
+
+    expect(gql.resolution).toHaveBeenCalledWith({
+      variables: { id: 'audience-1' },
+      fetchPolicy: 'network-only',
     });
   });
 
-  it('asks the server who this audience reaches, by its id', () => {
-    renderWithProviders(<AudienceMembers audienceId="audience-4" audienceName="VIPs" />);
+  it('says how many unique addresses the audience reaches and when it was checked', () => {
+    const { result } = renderHookWithProviders(() => useFormatters());
+    renderMembers();
 
-    expect(gql.members).toHaveBeenCalledWith({ variables: { id: 'audience-4' } });
-    expect(
-      screen.getByText('“VIPs” reaches 2 recipient(s), de-duplicated by address.'),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      `“Newsletter” reaches 1,430 unique address(es). Last refreshed ${result.current.formatDateTime(RESOLVED_AT)}.`,
+    );
+    expect(screen.getByText('Final eligible recipients').previousSibling).toHaveTextContent(
+      '1,430',
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('lists each recipient, falling back to the address and a dash when details are missing', () => {
-    renderWithProviders(<AudienceMembers audienceId="audience-4" audienceName="VIPs" />);
-    const [, first, second] = screen.getAllByRole('row');
+  it('lists the recipients of the saved audience, not a draft', () => {
+    renderMembers();
 
-    expect(within(first).getByText('Asha Rao')).toBeInTheDocument();
-    expect(within(first).getByText('Acme')).toBeInTheDocument();
-    expect(within(first).getByText('CLIENT')).toBeInTheDocument();
-    expect(within(first).getByText('ACTIVE')).toBeInTheDocument();
-    expect(within(second).getAllByText('ravi@globex.com')).toHaveLength(2);
-    expect(within(second).getByText('—')).toBeInTheDocument();
-    expect(within(second).getByText('CONTACT')).toBeInTheDocument();
+    expect(screen.getByText('Recipients of {"audienceId":"audience-1"}')).toBeInTheDocument();
   });
 
-  it('re-asks the server when the table is refreshed', async () => {
-    renderWithProviders(<AudienceMembers audienceId="audience-4" audienceName="VIPs" />);
+  it('says the counts are updating until the server answers', () => {
+    gql.resolution.mockReturnValue(pending());
+    renderMembers();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Updating counts…');
+    expect(document.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(document.querySelectorAll('.MuiSkeleton-root')).toHaveLength(11);
+  });
+
+  it('shows the error with a retry that asks again', async () => {
+    gql.resolution.mockReturnValue({
+      data: undefined,
+      loading: false,
+      error: new Error('Resolution failed'),
+      refetch: gql.refetch,
+    });
+    renderMembers();
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Resolution failed');
+    expect(screen.getByRole('status')).toHaveTextContent('Updating counts…');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(gql.refetch).toHaveBeenCalledTimes(1);
-  });
-
-  it('says nobody matches while the audience resolves to no one', () => {
-    gql.members.mockReturnValue(answered({ audienceMembers: [] }));
-    renderWithProviders(<AudienceMembers audienceId="audience-4" audienceName="VIPs" />);
-
-    expect(screen.getByText('Nobody matches this audience yet.')).toBeInTheDocument();
-    expect(
-      screen.getByText('“VIPs” reaches 0 recipient(s), de-duplicated by address.'),
-    ).toBeInTheDocument();
-  });
-
-  it('counts zero and shows loading rows before the answer arrives', () => {
-    gql.members.mockReturnValue(pending());
-    renderWithProviders(<AudienceMembers audienceId="audience-4" audienceName="VIPs" />);
-
-    expect(screen.getByText(/reaches 0 recipient/)).toBeInTheDocument();
-    expect(screen.queryByText('Nobody matches this audience yet.')).not.toBeInTheDocument();
   });
 });

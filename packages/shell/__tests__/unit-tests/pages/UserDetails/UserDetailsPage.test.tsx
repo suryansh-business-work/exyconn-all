@@ -38,6 +38,16 @@ vi.mock('@/pages/UserDetails/EmployeeAttendancePanel', () => ({
 vi.mock('@/pages/UserDetails/EmployeeLeaveBalancePanel', () => ({
   EmployeeLeaveBalancePanel: () => <p>balances</p>,
 }));
+vi.mock('@/pages/UserDetails/EmployeeEarningsPanel', () => ({
+  EmployeeEarningsPanel: ({ employeeId }: Readonly<{ employeeId: string }>) => (
+    <p>{`earnings ${employeeId}`}</p>
+  ),
+}));
+vi.mock('@/pages/UserDetails/employee-locations', () => ({
+  EmployeeLocationsPanel: ({ employeeId }: Readonly<{ employeeId: string }>) => (
+    <p>{`locations ${employeeId}`}</p>
+  ),
+}));
 
 function renderAt(route: string, result: ReturnType<typeof queryResult>) {
   vi.mocked(useGetUserQuery).mockReturnValue(result);
@@ -69,7 +79,14 @@ describe('UserDetailsPage', () => {
       fetchPolicy: 'cache-and-network',
     });
     expect(screen.getByRole('heading', { name: 'Employee details' })).toBeInTheDocument();
-    for (const panel of ['profile', 'leave emp-1', 'attendance', 'balances']) {
+    for (const panel of [
+      'profile',
+      'leave emp-1',
+      'attendance',
+      'balances',
+      'earnings emp-1',
+      'locations emp-1',
+    ]) {
       expect(screen.getByText(panel)).toBeInTheDocument();
     }
     expect(screen.getByRole('button', { name: 'actions in place' })).toBeInTheDocument();

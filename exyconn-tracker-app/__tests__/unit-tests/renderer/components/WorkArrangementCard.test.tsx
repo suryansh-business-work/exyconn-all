@@ -14,6 +14,7 @@ const PROFILE: WorkProfile = {
   workLocationNote: '',
   workHoursPerDay: 6,
   targetMs: 21_600_000,
+  workDays: [1, 2, 3, 4, 5],
 };
 
 describe('WorkArrangementCard', () => {

@@ -7,10 +7,12 @@ import { ScreenLayout } from '../ui/ScreenLayout';
 import { Surface } from '../ui/Surface';
 import { CapabilityNotice } from './CapabilityNotice';
 import { DayProgress } from './DayProgress';
+import { EarningsCard } from './EarningsCard';
 import { SectionHeading } from './SectionHeading';
 import { StatGrid } from './StatGrid';
 import { SyncBar } from './SyncBar';
 import { TodayActivity } from './TodayActivity';
+import { TodayLocations } from './TodayLocations';
 import { TotalsPanel } from './TotalsPanel';
 import { TrackerCard } from './TrackerCard';
 
@@ -30,7 +32,7 @@ interface Props {
  */
 export function DashboardScreen({ state }: Readonly<Props>) {
   const t = useT();
-  const { stats, settings, timezone, workday, workProfile, preferences } = state;
+  const { status, stats, settings, timezone, workday, workProfile, preferences } = state;
 
   return (
     <ScreenLayout>
@@ -47,6 +49,14 @@ export function DashboardScreen({ state }: Readonly<Props>) {
       <TrackerCard state={state} />
 
       <TodayActivity timezone={timezone} lastSyncAt={stats.lastSyncAt} />
+
+      <TodayLocations
+        timezone={timezone}
+        attendanceMarked={workday?.attendanceMarked ?? false}
+        tracking={status === 'tracking'}
+      />
+
+      <EarningsCard timezone={timezone} lastSyncAt={stats.lastSyncAt} />
 
       <SyncBar stats={stats} settings={settings} timezone={timezone} />
 

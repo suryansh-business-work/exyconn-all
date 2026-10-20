@@ -14,6 +14,7 @@ const PROFILE: WorkProfile = {
   workLocationNote: '',
   workHoursPerDay: 8,
   targetMs: 8 * 3_600_000,
+  workDays: [1, 2, 3, 4, 5],
 };
 
 describe('humanize', () => {

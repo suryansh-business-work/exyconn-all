@@ -85,4 +85,14 @@ describe('Login', () => {
     expect(screen.getByRole('heading', { name: 'Unsubscribe' })).toBeInTheDocument();
     expect(screen.queryByText('portal home')).toBeNull();
   });
+
+  it('answers a preference-centre link even for a signed-in user', () => {
+    renderWithProviders(<Login />, {
+      route: '/email-preferences',
+      user: makeUser(),
+      routes: landing,
+    });
+    expect(screen.getByRole('heading', { name: 'Manage email preferences' })).toBeInTheDocument();
+    expect(screen.queryByText('portal home')).toBeNull();
+  });
 });

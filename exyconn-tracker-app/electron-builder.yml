@@ -84,6 +84,9 @@ mac:
     # Only ever used when the workspace has switched webcam capture on, and only while
     # tracking is running. macOS shows this sentence in its own permission prompt.
     NSCameraUsageDescription: Exyconn Tracker takes a photo with each work screenshot, if your workspace has enabled it.
+    # Core Location prompts with these: the attendance pin, and where you move while tracking.
+    NSLocationUsageDescription: Exyconn Tracker records where you mark attendance from and where you work while tracking.
+    NSLocationWhenInUseUsageDescription: Exyconn Tracker records where you mark attendance from and where you work while tracking.
 
 # The disk image opens on the app beside an Applications link, over a background that says
 # what to do; background@2x.png beside it is picked up for Retina screens.

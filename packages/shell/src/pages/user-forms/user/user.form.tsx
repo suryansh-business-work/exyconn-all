@@ -22,6 +22,8 @@ import {
   useSaveEmployeeSalaryMutation,
 } from '@/graphql/generated';
 import { EmploymentFields, ProfileFields, WorkArrangementFields } from './user.fields';
+import { EmailFields } from './user.email-fields';
+import { WorkDaysField } from './user.work-days-field';
 import { CompensationFields, toSalaryInput, type EmployeeSalary } from '@/components/pay';
 import { toFormValues, toUserInput, userSchema, type UserValues } from './user.schema';
 import type { UserRow } from './user.types';
@@ -134,7 +136,7 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="name" label="Name" />
-      <RhfTextField name="email" label="Email" type="email" />
+      <EmailFields employee={initial} />
       {isEdit && <RhfTextField name="password" label="New password (optional)" type="password" />}
       <RhfMultiSelect
         name="roles"
@@ -157,6 +159,7 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
       <RhfDatePicker name="dateOfBirth" label="Date of birth (optional)" />
       <RhfDatePicker name="probationEndDate" label="Probation ends (optional)" />
       <WorkArrangementFields />
+      <WorkDaysField />
       <CompensationFields />
       <RhfSelect name="isActive" label="Account access" options={ACTIVE_OPTIONS} />
     </EntityForm>

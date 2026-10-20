@@ -1,11 +1,11 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { Box, Chip, Skeleton, Stack, Typography, fontWeight } from '@/components/ui';
+import { Box, Chip, FitFigure, Skeleton, Stack, Typography, fontWeight } from '@/components/ui';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { panel } from '../glass/glass';
-import { color, numeric, Sparkline } from '@exyconn/ui';
+import { color, Sparkline } from '@exyconn/ui';
 import { IconBubble } from './IconBubble';
 
 export interface StatItem {
@@ -61,13 +61,11 @@ export function StatCard({
       </Stack>
       {/* Sized like a heading, but not one: four numbers as <h6> straight after the page's
           <h1> skipped every level between and made the outline read as a list of figures. */}
-      <Typography
-        variant="h4"
-        component="p"
-        sx={{ fontWeight: fontWeight.light, fontVariantNumeric: numeric.tabular, mt: 2 }}
-      >
-        {loading ? <Skeleton width="40%" /> : value}
-      </Typography>
+      <FitFigure
+        value={value}
+        placeholder={loading ? <Skeleton width="40%" /> : undefined}
+        sx={{ mt: 2 }}
+      />
       <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: fontWeight.medium }}>
         {t(label, labelValues)}
       </Typography>

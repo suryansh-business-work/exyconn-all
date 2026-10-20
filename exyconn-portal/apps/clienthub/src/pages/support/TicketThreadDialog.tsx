@@ -35,7 +35,9 @@ export function TicketThreadDialog({ ticket, onClose }: Readonly<TicketThreadDia
             <Text size="caption" color="text.secondary">
               {t('You wrote, {when}', { when: formatDateTime(ticket.createdAt) })}
             </Text>
-            <Text sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>{ticket.description}</Text>
+            <Text component="p" sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>
+              {ticket.description}
+            </Text>
           </Paper>
           {replies.map((reply) => (
             <Paper key={reply.id} variant="outlined" sx={{ p: 2 }}>
@@ -45,7 +47,9 @@ export function TicketThreadDialog({ ticket, onClose }: Readonly<TicketThreadDia
                   when: formatDateTime(reply.createdAt),
                 })}
               </Text>
-              <Text sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>{reply.body}</Text>
+              <Text component="p" sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>
+                {reply.body}
+              </Text>
             </Paper>
           ))}
           <Divider />

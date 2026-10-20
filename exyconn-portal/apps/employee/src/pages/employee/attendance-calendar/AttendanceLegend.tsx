@@ -38,7 +38,7 @@ export function AttendanceLegend() {
       </Box>
       <Text component="p" size="caption" color="text.secondary">
         {t(
-          'A day shows one colour. What you marked comes first, then leave, then a holiday — so attendance marked on a holiday shows green. Today has a dark outline.',
+          'A day shows one colour. What you marked comes first, then a holiday, then your week off, then leave — so attendance marked on a holiday shows green. Today has a dark outline.',
         )}
       </Text>
     </Box>

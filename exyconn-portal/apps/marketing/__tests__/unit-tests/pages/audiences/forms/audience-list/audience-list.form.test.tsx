@@ -1,56 +1,102 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
-import { AudienceSegment, CompanyStatus } from '@exyconn/shell/graphql/generated';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {
+  AudienceEmailSelection,
+  AudienceRecipientSource,
+  AudienceRuleOperator,
+  AudienceUpdateMode,
+  type AudienceListInput,
+} from '@exyconn/shell/graphql/generated';
 import {
   AudienceListForm,
-  COMPANY_STATUS_OPTIONS,
-  type AudienceRow,
+  toFormValues,
+  toInput,
 } from '../../../../../../src/pages/audiences/forms/audience-list';
 import { renderWithProviders } from '../../../../test-utils';
-import { audienceRow } from '../../../../fixtures';
-import { chooseMany, chooseOption, fill, optionsOf, press } from '../../../../form-helpers';
+import { answered, audienceRow, pending } from '../../../../fixtures';
+import { fill, optionsOf, press } from '../../../../form-helpers';
+import { FILTER_FIELDS, audienceCounts } from '../../audience.fixtures';
 
 const gql = vi.hoisted(() => ({
+  catalogue: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
-  clients: vi.fn(),
-  contacts: vi.fn(),
+  preview: vi.fn(),
 }));
+
+vi.mock('@apollo/client/react', async (importOriginal) => {
+  const client = { query: gql.preview };
+  return {
+    ...(await importOriginal<typeof import('@apollo/client/react')>()),
+    useApolloClient: () => client,
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
+  useAudienceFilterCatalogueQuery: () => gql.catalogue(),
   useCreateAudienceListMutation: () => [gql.create],
   useUpdateAudienceListMutation: () => [gql.update],
-  useListClientsQuery: () => gql.clients(),
-  useListContactsQuery: () => gql.contacts(),
+  useAudienceFilterValuesQuery: () => answered({ audienceFilterValues: [] }),
+  useListClientsQuery: () => answered({ listClients: [] }),
+  useListContactsQuery: () => answered({ listContacts: [] }),
+  useListCompaniesQuery: () => answered({ listCompanies: [] }),
 }));
 
-const CLIENTS = [{ id: 'client-1', name: 'Acme Ltd', email: 'ops@acme.io' }];
-const CONTACTS = [{ id: 'contact-1', name: 'Asha Rao', email: 'asha@acme.io' }];
+const CATALOGUE = answered({
+  audienceFilterCatalogue: { emailTypes: ['Sales', 'Support'], fields: FILTER_FIELDS },
+});
 
-function renderForm(initial: AudienceRow | null = null) {
+function renderForm(initial = null as ReturnType<typeof audienceRow> | null) {
   const onDone = vi.fn();
   const onCancel = vi.fn();
   renderWithProviders(<AudienceListForm initial={initial} onDone={onDone} onCancel={onCancel} />);
   return { onDone, onCancel };
 }
 
+/** The name field carries a required mark after its label. */
+const fillName = (value: string) =>
+  fireEvent.change(screen.getByRole('textbox', { name: /^Audience name/ }), { target: { value } });
+
+/** The settings the live counts were last asked for. */
+const lastPreviewInput = (): AudienceListInput =>
+  gql.preview.mock.calls[gql.preview.mock.calls.length - 1][0].variables.input;
+
 describe('AudienceListForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    gql.create.mockResolvedValue({ data: { createAudienceList: { id: 'audience-9' } } });
-    gql.update.mockResolvedValue({ data: { updateAudienceList: { id: 'audience-1' } } });
-    gql.clients.mockReturnValue({ data: { listClients: CLIENTS } });
-    gql.contacts.mockReturnValue({ data: { listContacts: CONTACTS } });
+    gql.catalogue.mockReturnValue(CATALOGUE);
+    gql.create.mockResolvedValue({ data: { createAudienceList: audienceRow() } });
+    gql.update.mockResolvedValue({ data: { updateAudienceList: audienceRow() } });
+    gql.preview.mockResolvedValue({
+      data: {
+        previewAudience: { resolvedAt: '2026-10-20T09:00:00.000Z', counts: audienceCounts() },
+      },
+    });
   });
 
-  it('offers the CRM company statuses as segment values', () => {
-    expect(COMPANY_STATUS_OPTIONS.map((option) => option.value)).toEqual(
-      Object.values(CompanyStatus),
-    );
+  it('lays the builder out as named sections, starting from the recommended settings', () => {
+    renderForm();
+
+    for (const section of [
+      'Audience',
+      'Recipient source',
+      'Email address selection',
+      'Audience update mode',
+      'Advanced filters',
+      'Data sources',
+      'Live audience preview',
+    ]) {
+      expect(screen.getByRole('region', { name: section })).toBeInTheDocument();
+    }
+    expect(screen.getByRole('button', { name: 'Both' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('radio', { name: /Preferred \/ primary email/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /Live dynamic audience/ })).toBeChecked();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
   });
 
-  it('requires a name', async () => {
+  it('requires a name before anything is saved', async () => {
     renderForm();
 
     await press('Create');
@@ -59,116 +105,117 @@ describe('AudienceListForm', () => {
     expect(gql.create).not.toHaveBeenCalled();
   });
 
-  it('asks for people when no segment rule picks them', async () => {
-    renderForm();
-    fill('Audience name', 'Partners');
-
-    await press('Create');
-
-    expect(
-      await screen.findByText('Pick some people, or choose a segment rule'),
-    ).toBeInTheDocument();
-    expect(gql.create).not.toHaveBeenCalled();
-  });
-
-  it('labels clients and contacts by name and address', async () => {
-    renderForm();
-
-    expect(await optionsOf('Clients')).toEqual(['Acme Ltd · ops@acme.io']);
-    expect(await optionsOf('CRM contacts')).toEqual(['Asha Rao · asha@acme.io']);
-  });
-
-  it('creates an audience from the chosen clients', async () => {
+  it('creates the audience with the recommended settings and says so', async () => {
     const { onDone } = renderForm();
-    fill('Audience name', '  Partners  ');
-    await chooseMany('Clients', ['Acme Ltd · ops@acme.io']);
+    fillName('  Delhi cafés  ');
+    fill('Description', 'Café owners in Delhi');
 
     await press('Create');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
-        input: {
-          name: 'Partners',
-          description: '',
-          clientIds: ['client-1'],
-          contactIds: [],
-          dynamicSegment: AudienceSegment.None,
-          segmentValue: '',
-        },
+        input: toInput({
+          ...toFormValues(null),
+          name: 'Delhi cafés',
+          description: 'Café owners in Delhi',
+        }),
       },
     });
     expect(await screen.findByText('Audience created')).toBeInTheDocument();
   });
 
-  it('asks which account status a company-status segment uses, then saves it', async () => {
-    const { onDone } = renderForm();
-    fill('Audience name', 'Customers');
-    expect(screen.queryByRole('combobox', { name: /^Account status/ })).not.toBeInTheDocument();
-    await chooseOption('Segment rule', 'Contacts By Company Status');
+  it('shows the live counts of the settings in the form', async () => {
+    renderForm();
+    fillName('Cafés');
 
-    await press('Create');
-    expect(await screen.findByText('Choose the account status to segment on')).toBeInTheDocument();
-
-    await chooseOption('Account status', 'Customer');
-    await press('Create');
-
-    await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
-    expect(gql.create.mock.calls[0][0].variables.input).toMatchObject({
-      dynamicSegment: AudienceSegment.ContactsByCompanyStatus,
-      segmentValue: CompanyStatus.Customer,
-      clientIds: [],
-      contactIds: [],
-    });
+    await waitFor(() => expect(lastPreviewInput().name).toBe('Cafés'));
+    // The tile and the pinned summary both show the final figure.
+    expect(await screen.findAllByText('1,430')).toHaveLength(2);
   });
 
-  it('says where to add people while there are no clients or contacts', () => {
-    gql.clients.mockReturnValue({ data: undefined });
-    gql.contacts.mockReturnValue({ data: undefined });
+  it('leaves a condition out of the live counts until it is complete', async () => {
+    renderForm();
+    await userEvent.click(screen.getByRole('button', { name: 'Add condition' }));
+    fillName('With a blank rule');
+
+    await waitFor(() => expect(lastPreviewInput().name).toBe('With a blank rule'));
+    expect(lastPreviewInput().conditions).toEqual([]);
+  });
+
+  it('offers the CRM’s email types once selected types are chosen', async () => {
     renderForm();
 
-    expect(screen.getByText('No clients found — add clients first.')).toBeInTheDocument();
-    expect(screen.getByText('No contacts found — add contacts first.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('radio', { name: /Selected email types/ }));
+
+    expect(await optionsOf('Email types')).toEqual(['Sales', 'Support']);
   });
 
-  it('updates an existing audience by id, keeping its values', async () => {
-    const { onDone } = renderForm(audienceRow({ id: 'audience-1' }));
+  it('waits for the field catalogue before a condition can be added', () => {
+    gql.catalogue.mockReturnValue(pending());
+    renderForm();
 
-    expect(screen.getByLabelText('Audience name')).toHaveValue('Newsletter');
+    expect(screen.getByRole('button', { name: 'Add condition' })).toBeDisabled();
+  });
+
+  it('edits a saved audience in place', async () => {
+    const row = audienceRow({
+      id: 'audience-9',
+      recipientSource: AudienceRecipientSource.Contacts,
+      emailSelection: AudienceEmailSelection.All,
+      updateMode: AudienceUpdateMode.FixedSnapshot,
+      snapshotAt: '2026-10-01T08:30:00.000Z',
+      conditions: [
+        { field: 'contact.city', operator: AudienceRuleOperator.Equals, value: 'Delhi' },
+      ],
+    });
+    const { onDone } = renderForm(row);
+
+    expect(screen.getByLabelText(/Audience name/)).toHaveValue('Newsletter');
+    expect(screen.getByRole('group', { name: 'Condition 1' })).toBeInTheDocument();
+    expect(screen.getByText(/^Frozen on /)).toBeInTheDocument();
+    fillName('Newsletter — Delhi');
+
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.update).toHaveBeenCalledWith({
       variables: {
-        id: 'audience-1',
-        input: {
-          name: 'Newsletter',
-          description: 'Monthly readers',
-          clientIds: ['client-1'],
-          contactIds: ['contact-1', 'contact-2'],
-          dynamicSegment: AudienceSegment.None,
-          segmentValue: '',
-        },
+        id: 'audience-9',
+        input: expect.objectContaining({
+          name: 'Newsletter — Delhi',
+          recipientSource: AudienceRecipientSource.Contacts,
+          emailSelection: AudienceEmailSelection.All,
+          updateMode: AudienceUpdateMode.FixedSnapshot,
+          conditions: [
+            { field: 'contact.city', operator: AudienceRuleOperator.Equals, value: 'Delhi' },
+          ],
+        }),
       },
     });
+    expect(gql.create).not.toHaveBeenCalled();
     expect(await screen.findByText('Audience updated')).toBeInTheDocument();
   });
 
-  it('keeps the form open and reports a failed save', async () => {
-    gql.update.mockRejectedValueOnce(new Error('Name already used'));
-    const { onDone } = renderForm(audienceRow());
+  it('keeps the form open and shows why when the save fails', async () => {
+    gql.create.mockRejectedValue(new Error('An audience with this name already exists'));
+    const { onDone } = renderForm();
+    fillName('Newsletter');
 
-    await press('Update');
+    await press('Create');
 
-    expect(await screen.findByText('Name already used')).toBeInTheDocument();
+    expect(
+      await screen.findByText('An audience with this name already exists'),
+    ).toBeInTheDocument();
     expect(onDone).not.toHaveBeenCalled();
   });
 
-  it('hands cancel back to the page', async () => {
+  it('cancels without saving', async () => {
     const { onCancel } = renderForm();
 
     await press('Cancel');
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(gql.create).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -11,8 +12,8 @@ import {
   ListCampaignsPagedDocument,
   type ListCampaignsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
-import { CampaignForm, type CampaignRow } from './forms/campaign';
-import { SendCampaignForm } from './forms/send-campaign';
+import type { CampaignRow } from './forms/campaign';
+import { studioPath } from './CampaignStudioPage';
 import { CampaignDetails } from './CampaignDetails';
 import { color } from '@exyconn/shell/components/ui';
 import {
@@ -32,7 +33,7 @@ export function MarketingPage() {
   } = useListCampaignsStatsQuery();
   const [deleteCampaign] = useDeleteCampaignMutation();
   const [detailsTarget, setDetailsTarget] = useState<CampaignRow | null>(null);
-  const [sendTarget, setSendTarget] = useState<CampaignRow | null>(null);
+  const navigate = useNavigate();
   const { formatDate } = useSettings();
   const crud = useCrudResource<CampaignRow, PagedCampaignRow>({
     label: 'Campaign',
@@ -66,55 +67,38 @@ export function MarketingPage() {
   const gridContext: CampaignsGridContext = {
     actions: {
       view: setDetailsTarget,
-      send: setSendTarget,
-      edit: crud.openEdit,
+      send: (row) => navigate(studioPath(row.id, 'review')),
+      edit: (row) => navigate(studioPath(row.id)),
       delete: crud.remove,
     },
     formatDate,
   };
 
   const closeDetails = () => setDetailsTarget(null);
-  const closeSend = () => setSendTarget(null);
 
   return (
     <CrudDashboard
       exportFileName="campaigns"
-      title="Marketing"
-      subtitle="Campaigns"
+      title="Campaigns"
+      subtitle="Email campaigns, from draft to delivery"
       entityLabel="campaign"
       stats={statItems}
       statsLoading={!statsData && statsLoading}
       crud={crud}
-      renderForm={(initial) => (
-        <CampaignForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
-      )}
+      // Creating opens the Email Campaign Studio on its own page.
+      renderForm={(initial) => <Navigate to={studioPath(initial?.id ?? null)} replace />}
       columnDefs={CAMPAIGN_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search campaigns…"
       extraDialogs={
-        <>
-          <CrudDialog
-            open={Boolean(detailsTarget)}
-            title={t('Campaign details')}
-            onClose={closeDetails}
-          >
-            {detailsTarget && <CampaignDetails campaign={detailsTarget} />}
-          </CrudDialog>
-
-          <CrudDialog open={Boolean(sendTarget)} title={t('Send campaign')} onClose={closeSend}>
-            {sendTarget && (
-              <SendCampaignForm
-                campaign={sendTarget}
-                onCancel={closeSend}
-                onDone={() => {
-                  crud.reload();
-                  closeSend();
-                }}
-              />
-            )}
-          </CrudDialog>
-        </>
+        <CrudDialog
+          open={Boolean(detailsTarget)}
+          title={t('Campaign details')}
+          onClose={closeDetails}
+        >
+          {detailsTarget && <CampaignDetails campaign={detailsTarget} />}
+        </CrudDialog>
       }
     />
   );

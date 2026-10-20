@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { IntervalPayload } from '../../../src/types';
 import { clientWith, device, nextToken, rawSettings, respond, sent } from './portal-fixture';
+import { LOCATION } from '../controller-data';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -88,8 +89,10 @@ describe('portal client — the working day', () => {
   it('marks attendance and returns the workday', async () => {
     const workday = { date: '2026-03-02', status: 'PRESENT', note: null };
     respond(200, { data: { trackerMarkAttendance: workday } });
-    await expect(clientWith(nextToken()).markAttendance('PRESENT', null)).resolves.toEqual(workday);
-    expect(sent().variables).toEqual({ status: 'PRESENT', note: null });
+    await expect(
+      clientWith(nextToken()).markAttendance('PRESENT', null, LOCATION),
+    ).resolves.toEqual(workday);
+    expect(sent().variables).toEqual({ status: 'PRESENT', note: null, location: LOCATION });
   });
 
   it('starts a session and answers its id', async () => {

@@ -22,6 +22,11 @@ const identitySchema = z
   .object({
     name: z.string().trim().min(1, 'Name is required'),
     email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
+    // Optional, so empty is allowed; anything typed must be an address.
+    personalEmail: z
+      .string()
+      .trim()
+      .refine((v) => v === '' || EMAIL.test(v), 'Enter a valid email'),
     password: z.string().refine((v) => !v || v.length >= 6, 'Minimum 6 characters'),
     roles: z.array(z.enum(Role)).min(1, 'Select at least one role'),
     isActive: z.enum(['true', 'false']),
@@ -55,6 +60,8 @@ const identitySchema = z
     country: z.string().refine((v) => v === '' || isValidCountry(v), 'Choose a country'),
     region: z.string().trim().max(100, 'Keep the state or region under 100 characters'),
     city: z.string().trim().max(100, 'Keep the city under 100 characters'),
+    // Empty follows the company's week — see toUserInput.
+    workDays: z.array(z.number().int().min(0).max(6)),
     workHoursPerDay: z
       .string()
       .min(1, 'Working hours are required')
@@ -96,6 +103,7 @@ export function toFormValues(
     ...toCompensationValues(salary, currency, row?.joinDate),
     name: row?.name ?? '',
     email: row?.email ?? '',
+    personalEmail: row?.personalEmail ?? '',
     password: '',
     roles: row?.roles ?? [Role.Employee],
     isActive: row?.isActive === false ? 'false' : 'true',
@@ -119,6 +127,7 @@ export function toFormValues(
     workLocation: row?.workLocation ?? WorkLocation.Office,
     workLocationNote: row?.workLocationNote ?? '',
     workHoursPerDay: String(row?.workHoursPerDay ?? DEFAULT_WORK_HOURS),
+    workDays: row?.workDays ?? [],
     timezone: row?.timezone ?? '',
     locale: row?.locale ?? '',
     country: row?.country ?? '',
@@ -158,6 +167,9 @@ export function toUserInput(v: UserValues): Omit<CreateUserInput, 'name' | 'emai
     workLocation: v.workLocation,
     workLocationNote: v.workLocation === NEEDS_NOTE ? v.workLocationNote : '',
     workHoursPerDay: Number(v.workHoursPerDay),
+    // No days picked is null, so the person follows the company's week when HR changes it.
+    workDays: v.workDays.length ? v.workDays : null,
+    personalEmail: v.personalEmail || null,
     // Empty is stored as null so the person follows the workspace default and keeps
     // following it when an admin moves that default — a copied value would not.
     timezone: v.timezone || null,

@@ -23,6 +23,23 @@ describe('UserForm', () => {
     cy.contains('Email is required').should('be.visible');
   });
 
+  it('rejects a personal email that is not an address, and allows it empty', () => {
+    mount();
+    cy.get('input[name="personalEmail"]').type('not-an-address');
+    cy.contains('button', 'Create').click();
+    cy.get('input[name="personalEmail"]').should('have.attr', 'aria-invalid', 'true');
+    cy.get('input[name="personalEmail"]').clear();
+    cy.contains('button', 'Create').click();
+    cy.get('input[name="personalEmail"]').should('have.attr', 'aria-invalid', 'false');
+  });
+
+  it('toggles the work days, which start empty to follow the company week', () => {
+    mount();
+    cy.contains('Leave empty to follow the company week').should('be.visible');
+    cy.contains('[role="button"]', 'Monday').should('have.attr', 'aria-pressed', 'false').click();
+    cy.contains('[role="button"]', 'Monday').should('have.attr', 'aria-pressed', 'true');
+  });
+
   it('hides the password field on create (temp password is emailed)', () => {
     mount();
     cy.get('input[name="password"]').should('not.exist');

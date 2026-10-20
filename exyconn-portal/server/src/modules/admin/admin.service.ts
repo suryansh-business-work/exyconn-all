@@ -28,6 +28,8 @@ import { isValidCountry } from '../../utils/iso';
 import { canonicalLocale, isValidLocale } from '../i18n/locale.constants';
 import type { WorkLocation, WorkingTime } from '../../constants/work';
 import { registerTable } from '../table-transfer/registry';
+import { isEmailAddress } from '../../utils/emailAddress';
+import { normalizeWorkDays } from './work-week';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
 const USER_TABLE_CONFIG: TableConfig = {
@@ -248,6 +250,10 @@ export interface HrFields {
   region?: string | null;
   /** The city they work in. Null (or empty) is none. */
   city?: string | null;
+  /** Days of the week they work (0 = Sunday). Null follows the workspace's week. */
+  workDays?: number[] | null;
+  /** A personal address HR keeps on file. Null (or empty) clears it. */
+  personalEmail?: string | null;
 }
 
 /**
@@ -280,6 +286,41 @@ function localeFields(input: HrFields) {
     region: region === '' ? null : region,
     city: city === '' ? null : city,
   };
+}
+
+/** A personal address as it goes onto the record: lower-cased and checked; null when empty. */
+function personalEmailOf(value: string | null | undefined): string | null {
+  const email = value?.trim().toLowerCase() ?? '';
+  if (email === '') {
+    return null;
+  }
+  if (!isEmailAddress(email)) {
+    badRequest(`"${email}" is not an email address.`);
+  }
+  return email;
+}
+
+/**
+ * The address fields of an update, with each verification stamp cleared when its address
+ * actually changes: a code proved the OLD address, not the one being saved now.
+ */
+async function contactFields(id: string, input: UpdateUserInput): Promise<Record<string, unknown>> {
+  if (input.email === undefined && input.personalEmail === undefined) {
+    return {};
+  }
+  const current = await UserModel.findById(id).select('email personalEmail').lean();
+  const fields: Record<string, unknown> = {};
+  if (input.email !== undefined && input.email.trim().toLowerCase() !== current?.email) {
+    fields.emailVerifiedAt = null;
+  }
+  if (input.personalEmail !== undefined) {
+    const personalEmail = personalEmailOf(input.personalEmail);
+    fields.personalEmail = personalEmail;
+    if (personalEmail !== (current?.personalEmail ?? null)) {
+      fields.personalEmailVerifiedAt = null;
+    }
+  }
+  return fields;
 }
 
 /**
@@ -336,6 +377,8 @@ async function hrFields(input: HrFields) {
     workLocation: input.workLocation,
     workLocationNote: input.workLocationNote,
     workHoursPerDay: input.workHoursPerDay,
+    workDays: input.workDays ? normalizeWorkDays(input.workDays) : undefined,
+    personalEmail: personalEmailOf(input.personalEmail),
     ...localeFields(input),
   };
 }
@@ -514,8 +557,16 @@ class AdminService {
       ...input,
       ...localeFields(input),
       ...(await placementFields(input)),
+      ...(await contactFields(id, input)),
     };
     delete update.password;
+    // Null hands the person back to the workspace's week, which is the field being absent.
+    if (input.workDays === null) {
+      delete update.workDays;
+      update.$unset = { workDays: 1 };
+    } else if (input.workDays !== undefined) {
+      update.workDays = normalizeWorkDays(input.workDays);
+    }
     if (input.password) {
       const current = await UserModel.findById(id).select('email').lean();
       assertPasswordPolicy(input.password, input.email ?? current?.email ?? '');

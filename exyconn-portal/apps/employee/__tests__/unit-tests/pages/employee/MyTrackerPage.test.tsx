@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { skipToken, useQuery } from '@apollo/client/react';
@@ -6,6 +6,7 @@ import {
   MyTrackerDayDocument,
   useMyTrackerAccessQuery,
   useMyTrackerCalendarQuery,
+  useMyTrackerExpectedQuery,
   useTrackerProjectOptionsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { renderWithProviders } from '../../test-utils';
@@ -21,6 +22,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   useMyTrackerAccessQuery: vi.fn(),
   useMyTrackerCalendarQuery: vi.fn(),
+  useMyTrackerExpectedQuery: vi.fn(),
   useTrackerProjectOptionsQuery: vi.fn(),
 }));
 vi.mock('@exyconn/shell/components/work', async () => {
@@ -56,6 +58,7 @@ function mockQueries({ withData }: Readonly<{ withData: boolean }>) {
       data: withData ? { trackerProjectOptions: [{ id: 'p0', name: 'General' }] } : undefined,
     }),
   );
+  vi.mocked(useMyTrackerExpectedQuery).mockReturnValue(queryResult({ data: undefined }));
   vi.mocked(useQuery).mockReturnValue(
     queryResult({ data: withData ? { myTrackerDay: { date: '2026-03-10' } } : undefined }),
   );
@@ -138,5 +141,50 @@ describe('MyTrackerPage', () => {
     await user.click(screen.getByRole('button', { name: 'Stub previous' }));
     await user.click(screen.getByRole('button', { name: 'Stub previous' }));
     expect(screen.getByText(/^month February 2026/)).toBeInTheDocument();
+  });
+
+  describe('day marks', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('asks for its own month contract and marks week off, short days, leave and holidays', () => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(2026, 2, 20, 10, 0));
+      mockQueries({ withData: true });
+      vi.mocked(useMyTrackerExpectedQuery).mockReturnValue(
+        queryResult({
+          data: {
+            myTrackerExpected: {
+              workHoursPerDay: 8,
+              days: [
+                { date: '2026-03-01', expectedMs: 0, offReason: 'WEEKEND', offLabel: null },
+                { date: '2026-03-02', expectedMs: 28_800_000, offReason: null, offLabel: null },
+                { date: '2026-03-03', expectedMs: 0, offReason: 'LEAVE', offLabel: 'EL' },
+                { date: '2026-03-04', expectedMs: 0, offReason: 'HOLIDAY', offLabel: 'Holi' },
+              ],
+            },
+          },
+        }),
+      );
+      renderWithProviders(<MyTrackerPage />, { route: '/me/tracker?month=2026-03' });
+
+      expect(useMyTrackerExpectedQuery).toHaveBeenLastCalledWith({
+        variables: { ...MARCH, timezone: 'Asia/Kolkata' },
+      });
+      expect(
+        screen.getByText(
+          'marks: 2026-03-01 WEEK_OFF, 2026-03-02 SHORT, 2026-03-03 LEAVE, 2026-03-04 HOLIDAY',
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByText('labels: 2026-03-03 EL, 2026-03-04 Holi')).toBeInTheDocument();
+    });
+
+    it('marks nothing until the contract has loaded', () => {
+      mockQueries({ withData: true });
+      renderWithProviders(<MyTrackerPage />, { route: '/me/tracker?month=2026-03' });
+      expect(screen.getByText('marks: none')).toBeInTheDocument();
+      expect(screen.getByText('labels: none')).toBeInTheDocument();
+    });
   });
 });

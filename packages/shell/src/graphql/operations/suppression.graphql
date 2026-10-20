@@ -1,0 +1,96 @@
+fragment SuppressionLinkFields on SuppressionLink {
+  kind
+  id
+  name
+  emails
+}
+
+fragment MarketingSuppressionFields on MarketingSuppression {
+  id
+  email
+  reason
+  source
+  origin
+  scope
+  note
+  addedByName
+  archivedAt
+  createdAt
+}
+
+query ListMarketingSuppressionsPaged($input: TableQueryInput!) {
+  listMarketingSuppressionsPaged(input: $input) {
+    totalCount
+    rows {
+      ...MarketingSuppressionFields
+      linkedRecords {
+        ...SuppressionLinkFields
+      }
+    }
+  }
+}
+
+query MarketingSuppressionSummary {
+  marketingSuppressionSummary {
+    total
+    archived
+    unsubscribed
+    hardBounced
+    addedManually
+    updatedAt
+  }
+}
+
+query MarketingSuppressionLookup($email: String!) {
+  marketingSuppressionLookup(email: $email) {
+    email
+    existing {
+      ...MarketingSuppressionFields
+    }
+    linkedRecords {
+      ...SuppressionLinkFields
+    }
+  }
+}
+
+query MarketingSuppressionHistory($email: String!) {
+  marketingSuppressionHistory(email: $email) {
+    id
+    action
+    actorName
+    summary
+    createdAt
+  }
+}
+
+mutation CreateMarketingSuppression($input: MarketingSuppressionInput!) {
+  createMarketingSuppression(input: $input) {
+    id
+  }
+}
+
+mutation AddMarketingSuppressions($input: MarketingSuppressionsInput!) {
+  addMarketingSuppressions(input: $input) {
+    added
+    alreadySuppressed
+    invalid
+  }
+}
+
+mutation UpdateMarketingSuppressionNote($id: ID!, $note: String!) {
+  updateMarketingSuppressionNote(id: $id, note: $note) {
+    id
+    note
+  }
+}
+
+mutation SetMarketingSuppressionArchived($id: ID!, $archived: Boolean!) {
+  setMarketingSuppressionArchived(id: $id, archived: $archived) {
+    id
+    archivedAt
+  }
+}
+
+mutation RemoveMarketingSuppression($id: ID!, $justification: String!) {
+  removeMarketingSuppression(id: $id, justification: $justification)
+}

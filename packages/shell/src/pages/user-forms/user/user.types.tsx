@@ -10,7 +10,10 @@ export type UserRow = ListUsersQuery['listUsers'][number];
 
 export interface UserFormValues {
   name: string;
+  /** The official (work) address they sign in with. */
   email: string;
+  /** A personal address HR keeps on file; '' when none. */
+  personalEmail: string;
   password: string;
   roles: Role[];
   isActive: 'true' | 'false';
@@ -42,6 +45,8 @@ export interface UserFormValues {
   workLocationNote: string;
   /** Kept as a string because the number input's empty state is '' , not 0. */
   workHoursPerDay: string;
+  /** Days they work, 0 (Sunday) to 6 (Saturday); empty follows the company's week. */
+  workDays: number[];
   /** IANA zone name; '' follows the workspace default. */
   timezone: string;
   /** BCP-47 tag; '' follows the workspace default. */

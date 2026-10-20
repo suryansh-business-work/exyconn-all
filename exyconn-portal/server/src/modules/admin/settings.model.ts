@@ -1,5 +1,6 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { FALLBACK_LOCALE } from '../i18n/locale.constants';
+import { DEFAULT_WORK_DAYS } from '../../constants/work';
 
 /**
  * Single document holding the portal-wide localization defaults every screen reads:
@@ -38,6 +39,11 @@ const settingsSchema = new Schema(
      * collection that grows for ever with nobody having decided that it should.
      */
     auditRetentionDays: { type: Number, required: true, default: 0, min: 0 },
+    /**
+     * The workspace's working week, as days (0 = Sunday … 6 = Saturday). An employee without a
+     * week of their own works these; every other day is their week off.
+     */
+    defaultWorkDays: { type: [Number], default: () => [...DEFAULT_WORK_DAYS] },
   },
   { timestamps: true },
 );

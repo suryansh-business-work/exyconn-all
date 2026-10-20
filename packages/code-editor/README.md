@@ -26,3 +26,12 @@ import { CodeEditor } from '@exyconn/code-editor';
 ```
 
 The problems list is advisory and does not block a save. A field that must be valid (such as JSON-LD or component settings) still needs its Zod rule.
+
+## Inserting text and showing outside problems
+
+- `onReady(api)` is called once Monaco is mounted. `api.insertAtCursor(text)` replaces the
+  selection with `text` as one undoable edit (the Email Studio inserts `{{contact.firstName}}`
+  this way); `api.focus()` focuses the editor.
+- `problems` takes findings from outside the editor — the server's MJML compiler, for
+  instance — and shows them in the gutter and the problems list with the editor's own.
+  Find/replace (Ctrl/Cmd+F, Ctrl/Cmd+H), undo/redo and Format are Monaco's built-ins.

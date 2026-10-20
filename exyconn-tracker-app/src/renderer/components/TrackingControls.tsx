@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
 import { Alert, Button, Stack, TRACKER_RADIUS } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
+import { trackerErrorText } from '@exyconn/tracker-core';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
 import PauseRounded from '@mui/icons-material/PauseRounded';
 import ReplayRounded from '@mui/icons-material/ReplayRounded';
 import StopRounded from '@mui/icons-material/StopRounded';
-import type { TrackerStatus } from '@shared/types';
+import type { TrackerStatus, Workday } from '@shared/types';
 import usePendingAction from '../hooks/usePendingAction';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
 import { run } from '../run';
@@ -28,6 +29,8 @@ interface Props {
    * than one that plainly cannot be pressed yet.
    */
   attendanceMarked: boolean;
+  /** Today, so a Start refused for an off day is worded as the off-day banner words it. */
+  workday: Workday | null;
 }
 
 /**
@@ -38,9 +41,11 @@ interface Props {
 export default function TrackingControls({
   status,
   attendanceMarked,
+  workday,
 }: Readonly<Props>): ReactElement {
   const t = useT();
-  const { pending, error, perform } = usePendingAction<ControlAction>();
+  const { pending, error: failure, perform } = usePendingAction<ControlAction>();
+  const error = failure === null ? null : trackerErrorText(failure, workday, t);
   useAnnounce(error, 'assertive');
   const isIdle = status === 'idle';
   const isTracking = status === 'tracking';

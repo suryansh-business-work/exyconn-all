@@ -64,7 +64,16 @@ interface TrackerViewStubProps {
   dayLoading: boolean;
   dayLabel: string;
   timezone: string;
+  dayMarks?: ReadonlyMap<string, string>;
+  dayLabels?: ReadonlyMap<string, string>;
 }
+
+/** A day map as `date kind` pairs, in date order, so a test can read it in one line. */
+const listDays = (days: ReadonlyMap<string, string> | undefined) =>
+  [...(days ?? [])]
+    .toSorted(([a], [b]) => a.localeCompare(b))
+    .map(([date, value]) => `${date} ${value}`)
+    .join(', ') || 'none';
 
 /** Shows what MyTrackerPage hands the shell's TrackerView, and drives its callbacks. */
 export function TrackerViewStub(props: Readonly<TrackerViewStubProps>) {
@@ -82,6 +91,8 @@ export function TrackerViewStub(props: Readonly<TrackerViewStubProps>) {
     <section aria-label="Tracker view">
       <p>{facts.join(' | ')}</p>
       <p>{`${props.days.length} day cells`}</p>
+      <p>{`marks: ${listDays(props.dayMarks)}`}</p>
+      <p>{`labels: ${listDays(props.dayLabels)}`}</p>
       <button type="button" onClick={props.onPrev}>
         Stub previous
       </button>

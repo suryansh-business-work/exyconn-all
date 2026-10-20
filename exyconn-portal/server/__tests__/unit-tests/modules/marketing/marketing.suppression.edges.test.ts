@@ -1,15 +1,17 @@
 import {
   issueUnsubscribeTokens,
   suppress,
-  suppressedAmong,
-  unsubscribeByToken,
+  suppressionsAmong,
   unsubscribeLimiter,
   withdrawnConsentReason,
 } from '../../../../src/modules/marketing/marketing.suppression';
+import { unsubscribeByToken } from '../../../../src/modules/marketing/marketing.public';
 import { marketingCustomResolvers } from '../../../../src/modules/marketing/marketing.resolvers';
 import { MarketingSuppressionModel } from '../../../../src/modules/marketing/suppression.model';
 import { MarketingUnsubscribeTokenModel } from '../../../../src/modules/marketing/unsubscribe-token.model';
 import { logger } from '../../../../src/utils/logger';
+import { runForOrganization } from '../../../../src/lib/tenant';
+import { Types } from 'mongoose';
 
 beforeEach(async () => {
   await unsubscribeLimiter.reset();
@@ -30,20 +32,20 @@ describe('withdrawnConsentReason', () => {
   });
 });
 
-describe('suppress and suppressedAmong', () => {
+describe('suppress and suppressionsAmong', () => {
   it('stores the address normalised and finds it whatever case it is asked in', async () => {
-    await suppress('  Ada@Example.COM ', 'MANUAL', 'growth@exyconn.com');
+    await suppress('  Ada@Example.COM ', 'MANUAL', 'growth@exyconn.com', 'ADMIN');
 
     const row = await MarketingSuppressionModel.findOne().lean();
     expect(row).toMatchObject({ email: 'ada@example.com', reason: 'MANUAL' });
-    await expect(suppressedAmong(['ADA@example.com', 'bo@example.com'])).resolves.toEqual(
-      new Set(['ada@example.com']),
+    await expect(suppressionsAmong(['ADA@example.com', 'bo@example.com'])).resolves.toEqual(
+      new Map([['ada@example.com', 'MANUAL']]),
     );
   });
 
   it('keeps the first reason when an address is suppressed a second time', async () => {
-    await suppress('ada@example.com', 'BOUNCED', 'bounce');
-    await suppress('ada@example.com', 'UNSUBSCRIBED', 'campaign:c1');
+    await suppress('ada@example.com', 'BOUNCED', 'bounce', 'ADMIN');
+    await suppress('ada@example.com', 'UNSUBSCRIBED', 'campaign:c1', 'ADMIN');
 
     const rows = await MarketingSuppressionModel.find().lean();
     expect(rows).toHaveLength(1);
@@ -53,7 +55,7 @@ describe('suppress and suppressedAmong', () => {
   it('answers an empty question without asking the database', async () => {
     const find = jest.spyOn(MarketingSuppressionModel, 'find');
 
-    await expect(suppressedAmong([])).resolves.toEqual(new Set());
+    await expect(suppressionsAmong([])).resolves.toEqual(new Map());
     expect(find).not.toHaveBeenCalled();
   });
 });
@@ -82,12 +84,19 @@ describe('issueUnsubscribeTokens', () => {
 
 describe('unsubscribing', () => {
   it('honours a freshly issued token and records which campaign prompted it', async () => {
-    const issued = await issueUnsubscribeTokens(['ada@x.com'], 'c9');
+    // Issued by a company's send: the public link is resolved to that company first.
+    const organizationId = new Types.ObjectId().toHexString();
+    const issued = await runForOrganization(organizationId, () =>
+      issueUnsubscribeTokens(['ada@x.com'], 'c9'),
+    );
 
     await expect(unsubscribeByToken(issued.get('ada@x.com') ?? '', 'caller-1')).resolves.toBe(true);
 
     const row = await MarketingSuppressionModel.findOne({ email: 'ada@x.com' }).lean();
     expect(row).toMatchObject({ reason: 'UNSUBSCRIBED', source: 'campaign:c9' });
+    // Filed under the company that sent the email.
+    const stored = await MarketingSuppressionModel.collection.findOne({ email: 'ada@x.com' });
+    expect(String(stored?.organizationId)).toBe(organizationId);
   });
 
   it('stops a caller that is over the hourly limit before looking at the token', async () => {
@@ -96,7 +105,8 @@ describe('unsubscribing', () => {
 
     await expect(unsubscribeByToken('anything', 'caller-2')).rejects.toThrow(/Too many attempts/);
     expect(lookup).not.toHaveBeenCalled();
-    expect(logger.warn).toHaveBeenCalledWith('Unsubscribe from caller-2 rate-limited');
+    // The caller (an IP address) is personal data and stays out of the log.
+    expect(logger.warn).toHaveBeenCalledWith('Unsubscribe rate-limited');
   });
 
   it('rate-limits a caller with no known address under one shared key', async () => {

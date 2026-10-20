@@ -14,7 +14,14 @@ export const EMPLOYMENT_STATUSES = ['ACTIVE', 'ON_LEAVE', 'TERMINATED'] as const
 const userSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
+    /** The official (work) address the person signs in with. */
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    /** When the official address was proven by a code sent to it; cleared when it changes. */
+    emailVerifiedAt: { type: Date, default: null },
+    /** A personal address HR keeps on file. Optional; never used to sign in. */
+    personalEmail: { type: String, lowercase: true, trim: true, default: null },
+    /** When the personal address was proven by a code sent to it; cleared when it changes. */
+    personalEmailVerifiedAt: { type: Date, default: null },
     passwordHash: { type: String, required: true },
     roles: {
       type: [String],
@@ -150,6 +157,11 @@ const userSchema = new Schema(
       min: WORK_HOURS_MIN,
       max: WORK_HOURS_MAX,
     },
+    /**
+     * The days of the week this person works (0 = Sunday … 6 = Saturday). Absent means they
+     * follow the workspace's week (settings `defaultWorkDays`); `work-week.ts` resolves it.
+     */
+    workDays: { type: [Number], default: undefined },
     /**
      * When the account was deleted. Deleting keeps the record, so the leave, attendance and
      * pay rows that name this person still show who they were; null is a live account.

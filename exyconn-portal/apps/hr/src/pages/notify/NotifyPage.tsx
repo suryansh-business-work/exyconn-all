@@ -36,13 +36,13 @@ export function NotifyPage() {
         >
           <Box sx={panel}>
             <Heading level={6}>{t('How it lands')}</Heading>
-            <Text size="sm" color="text.secondary" sx={{ mt: 1 }}>
+            <Text component="p" size="sm" color="text.secondary" sx={{ mt: 1 }}>
               {t(
                 'Recipients see it in their notification centre and the bell count on every portal. Deactivated accounts are never included. Announcements published from the Announcements page already notify everyone automatically — use this for anything else: reminders, deadlines, events, HR notices.',
               )}
             </Text>
             {lastSent !== null && (
-              <Text size="sm" sx={{ mt: 2 }}>
+              <Text component="p" size="sm" sx={{ mt: 2 }}>
                 {lastSent === 1
                   ? t('Last send reached 1 person.')
                   : t('Last send reached {count} people.', { count: lastSent })}

@@ -22,6 +22,10 @@ const marketingUnsubscribeTokenSchema = new Schema(
   { timestamps: true },
 );
 
+// Public links arrive with no company in scope: the token is found platform-wide first, and the
+// per-company unique index above cannot serve a lookup by the hash alone; this one leads with it.
+marketingUnsubscribeTokenSchema.index({ tokenHash: 1, campaignId: 1 });
+
 export type MarketingUnsubscribeTokenDocument = InferSchemaType<
   typeof marketingUnsubscribeTokenSchema
 >;

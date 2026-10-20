@@ -108,11 +108,11 @@ describe('installNavigationGuards', () => {
     const { on } = guardedContents();
 
     for (const name of ['will-navigate', 'will-redirect']) {
-      const foreign = { preventDefault: vi.fn() };
+      const foreign = { preventDefault: vi.fn(), url: 'https://evil.example/', isMainFrame: true };
       on.get(name)?.(foreign, 'https://evil.example/');
       expect(foreign.preventDefault).toHaveBeenCalled();
 
-      const own = { preventDefault: vi.fn() };
+      const own = { preventDefault: vi.fn(), url: `${DEV}/index.html`, isMainFrame: true };
       on.get(name)?.(own, `${DEV}/index.html`);
       expect(own.preventDefault).not.toHaveBeenCalled();
     }

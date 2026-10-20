@@ -14,7 +14,11 @@ import {
 } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { useMyHolidaysQuery, useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  useMyHolidaysQuery,
+  useMyLeaveRequestsQuery,
+  useMyWorkProfileQuery,
+} from '@exyconn/shell/graphql/generated';
 import { buildMonthDays } from './buildMonth';
 import { MonthGrid } from './MonthGrid';
 
@@ -25,12 +29,19 @@ export function CalendarPage() {
 
   const holidaysQuery = useMyHolidaysQuery({ fetchPolicy: 'cache-and-network' });
   const leavesQuery = useMyLeaveRequestsQuery({ fetchPolicy: 'cache-and-network' });
+  const profileQuery = useMyWorkProfileQuery({ fetchPolicy: 'cache-and-network' });
 
   const holidays = holidaysQuery.data?.myHolidays ?? [];
   const leaves = leavesQuery.data?.myLeaveRequests ?? [];
-  const loading = holidaysQuery.loading || leavesQuery.loading;
+  const loading = holidaysQuery.loading || leavesQuery.loading || profileQuery.loading;
 
-  const days = buildMonthDays(month, holidays, leaves, new Date());
+  const days = buildMonthDays(
+    month,
+    holidays,
+    leaves,
+    new Date(),
+    profileQuery.data?.me.effectiveWorkDays,
+  );
 
   return (
     <Box>
@@ -56,11 +67,24 @@ export function CalendarPage() {
         <MonthGrid days={days} />
       </Box>
 
-      <Flex direction="row" spacing={2} alignItems="center" sx={{ mt: 1 }}>
+      <Flex
+        direction="row"
+        spacing={2}
+        alignItems="center"
+        flexWrap="wrap"
+        useFlexGap
+        sx={{ mt: 1 }}
+      >
         <Flex direction="row" spacing={1} alignItems="center">
           <Box sx={{ width: 12, height: 12, borderRadius: 0.5, bgcolor: 'secondary.main' }} />
           <Text size="caption" color="text.secondary">
             {t('Holiday')}
+          </Text>
+        </Flex>
+        <Flex direction="row" spacing={1} alignItems="center">
+          <Box sx={{ width: 12, height: 12, borderRadius: 0.5, bgcolor: 'text.secondary' }} />
+          <Text size="caption" color="text.secondary">
+            {t('Week off')}
           </Text>
         </Flex>
         <Flex direction="row" spacing={1} alignItems="center">

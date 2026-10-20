@@ -118,7 +118,7 @@ export function TwoFactorPanel() {
           />
         )}
       </Flex>
-      <Text size="sm" color="text.secondary" sx={{ mb: 1.5 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1.5 }}>
         {t('Ask for a code from your phone as well as your password when you sign in.')}
       </Text>
       {error && (

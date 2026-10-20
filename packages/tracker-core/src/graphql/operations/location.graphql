@@ -1,0 +1,28 @@
+# Where the employee was while working, and what their tracked time pays. Every operation here
+# is scoped to the device token's own user.
+
+mutation TrackerRecordLocation($location: TrackerLocationInput!) {
+  trackerRecordLocation(location: $location)
+}
+
+query MyTrackerLocations($date: String!) {
+  myTrackerLocations(date: $date) {
+    id
+    lat
+    lng
+    accuracyM
+    source
+    kind
+    capturedAt
+  }
+}
+
+query MyTrackerEarnings($from: String!, $to: String!) {
+  myTrackerEarnings(from: $from, to: $to) {
+    payType
+    rate
+    currency
+    trackedMs
+    amount
+  }
+}

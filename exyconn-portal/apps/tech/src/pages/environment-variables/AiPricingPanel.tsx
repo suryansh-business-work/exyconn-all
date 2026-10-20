@@ -68,7 +68,7 @@ export function AiPricingPanel() {
         actionLabel="New model price"
         onAction={crud.openCreate}
       />
-      <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ mb: 2 }}>
         {t(
           'Seeded with OpenAI’s published prices on first boot and never overwritten again, so a correction made here survives every restart. A model with no active price costs a run nothing rather than an invented amount.',
         )}

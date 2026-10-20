@@ -418,14 +418,27 @@ mutation SendTrackerNotice($input: TrackerNoticeInput!) {
   sendTrackerNotice(input: $input)
 }
 
+# A month's contract: the hours each day was worth and why a day was off.
+fragment TrackerExpectedFields on TrackerExpected {
+  workHoursPerDay
+  days {
+    date
+    expectedMs
+    offReason
+    offLabel
+  }
+}
+
 query TrackerExpected($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
   trackerExpected(userId: $userId, from: $from, to: $to, timezone: $timezone) {
-    workHoursPerDay
-    days {
-      date
-      expectedMs
-      offReason
-    }
+    ...TrackerExpectedFields
+  }
+}
+
+# The signed-in employee's own month against their contract (My Tracker's day marks).
+query MyTrackerExpected($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerExpected(from: $from, to: $to, timezone: $timezone) {
+    ...TrackerExpectedFields
   }
 }
 
@@ -434,5 +447,29 @@ query TrackerExpectedReport($userId: ID!, $from: DateTime!, $to: DateTime!, $tim
     fileName
     mimeType
     contentBase64
+  }
+}
+
+# HR/ADMIN: every location pin an employee's tracker took on one day, in time order.
+query EmployeeLocations($employeeId: ID!, $date: String!) {
+  employeeLocations(employeeId: $employeeId, date: $date) {
+    id
+    lat
+    lng
+    accuracyM
+    source
+    kind
+    capturedAt
+  }
+}
+
+# HR/ADMIN: what an employee's tracked time over a range pays at their hourly rate.
+query EmployeeEarnings($employeeId: ID!, $from: String!, $to: String!) {
+  employeeEarnings(employeeId: $employeeId, from: $from, to: $to) {
+    payType
+    rate
+    currency
+    trackedMs
+    amount
   }
 }

@@ -14,6 +14,7 @@ vi.mock('../../../src/main/portal-client', () => ({
 vi.mock('../../../src/main/notifier', () => h.mocks);
 vi.mock('../../../src/main/screenshots-window', () => h.mocks);
 vi.mock('../../../src/main/capture-bridge', () => h.mocks);
+vi.mock('../../../src/main/location-bridge', () => h.mocks);
 vi.mock('../../../src/main/window-chrome', () => h.mocks);
 vi.mock('../../../src/main/window-material', () => h.mocks);
 vi.mock('../../../src/main/close-guard', () => h.mocks);
@@ -28,6 +29,13 @@ const { controller, electron, invoke, launch, mainWindow, mocks, updater } = h;
 const SECRET = ['pass', String(Date.now())].join('-');
 const FROM = '2026-09-01T00:00:00.000Z';
 const TO = '2026-10-01T00:00:00.000Z';
+const FIX = {
+  lat: 12.97,
+  lng: 77.59,
+  accuracyM: 25,
+  source: 'SYSTEM',
+  capturedAt: FROM,
+};
 
 beforeEach(async () => {
   await launch();
@@ -41,7 +49,7 @@ describe('controller commands over IPC', () => {
   it.each([
     [IPC.login, ['asha@example.com', SECRET, true], 'login'],
     [IPC.acceptConsent, ['Asha Rao'], 'acceptConsent'],
-    [IPC.markAttendance, ['PRESENT', null], 'markAttendance'],
+    [IPC.markAttendance, ['PRESENT', null, FIX], 'markAttendance'],
     [IPC.setProject, ['p1'], 'setProject'],
     [IPC.setTask, ['t1'], 'setTask'],
     [IPC.start, [], 'start'],
@@ -51,6 +59,9 @@ describe('controller commands over IPC', () => {
     [IPC.getReport, [FROM, TO], 'getReport'],
     [IPC.getDay, [FROM, TO], 'getDay'],
     [IPC.getTotals, [], 'getTotals'],
+    [IPC.getLocation, [], 'readLocation'],
+    [IPC.getLocations, ['2026-09-14'], 'getLocations'],
+    [IPC.getEarnings, [FROM, TO], 'getEarnings'],
     [IPC.setTimezone, ['Asia/Kolkata'], 'setTimezone'],
     [IPC.getTranslations, ['fr'], 'getTranslations'],
     [IPC.translateMissing, ['fr', ['Hello']], 'translateMissing'],

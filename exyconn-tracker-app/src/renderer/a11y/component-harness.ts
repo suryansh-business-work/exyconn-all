@@ -44,9 +44,12 @@ export function unmountAll(): void {
   document.body.innerHTML = '';
 }
 
-/** The first button whose text or label contains `name`. */
+/**
+ * The first button whose text or label contains `name` — a real <button>, or anything with
+ * role="button" (MUI's ListItemButton is a div), since both are buttons to assistive tech.
+ */
 export function button(name: string): HTMLButtonElement {
-  const match = [...document.querySelectorAll<HTMLButtonElement>('button')].find(
+  const match = [...document.querySelectorAll<HTMLButtonElement>('button, [role="button"]')].find(
     (node) =>
       node.textContent.includes(name) || (node.getAttribute('aria-label') ?? '').includes(name),
   );

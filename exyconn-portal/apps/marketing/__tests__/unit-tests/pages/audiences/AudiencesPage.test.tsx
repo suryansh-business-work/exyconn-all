@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AudienceSegment, ListAudienceListsPagedDocument } from '@exyconn/shell/graphql/generated';
+import {
+  AudienceRuleOperator,
+  AudienceUpdateMode,
+  ListAudienceListsPagedDocument,
+} from '@exyconn/shell/graphql/generated';
 import { AudiencesPage } from '../../../../src/pages/audiences';
 import { AUDIENCE_COLUMNS } from '../../../../src/pages/audiences/audiences-grid';
 import { renderWithProviders } from '../../test-utils';
@@ -46,10 +50,17 @@ const AUDIENCES = [
   audienceRow({ id: 'a1', clientIds: ['c1', 'c2'], contactIds: ['p1'] }),
   audienceRow({
     id: 'a2',
-    clientIds: ['c2'],
-    contactIds: ['p1', 'p2'],
-    dynamicSegment: AudienceSegment.AllActiveClients,
+    updateMode: AudienceUpdateMode.FixedSnapshot,
+    conditions: [
+      {
+        __typename: 'AudienceCondition',
+        field: 'company.industry',
+        operator: AudienceRuleOperator.Equals,
+        value: 'Retail',
+      },
+    ],
   }),
+  audienceRow({ id: 'a3', updateMode: AudienceUpdateMode.FixedRecords }),
 ];
 
 function loaded(clients: number) {
@@ -70,14 +81,14 @@ describe('AudiencesPage', () => {
     loaded(3);
   });
 
-  it('counts the audiences and the distinct people they name', () => {
+  it('counts the audiences by how they update and which carry filter conditions', () => {
     renderWithProviders(<AudiencesPage />);
 
     expect(statLines()).toEqual([
-      'Audiences: 2',
-      'Clients named: 2',
-      'Contacts named: 2',
-      'With a segment rule: 1',
+      'Audiences: 3',
+      'Live dynamic: 1',
+      'Fixed: 2',
+      'With filter conditions: 1',
     ]);
     expect(dashboardProps().statsLoading).toBe(false);
   });
@@ -104,9 +115,9 @@ describe('AudiencesPage', () => {
     expect(dashboardProps().subtitleValues).toEqual({ count: 0 });
     expect(statLines()).toEqual([
       'Audiences: 0',
-      'Clients named: 0',
-      'Contacts named: 0',
-      'With a segment rule: 0',
+      'Live dynamic: 0',
+      'Fixed: 0',
+      'With filter conditions: 0',
     ]);
   });
 

@@ -1,96 +1,84 @@
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { useFormatters } from '@exyconn/i18n';
 import {
   ModuleOverview,
   type OverviewBreakdown,
 } from '@exyconn/shell/components/dashboard/ModuleOverview';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
-import { formatMoney } from '@exyconn/shell/utils/money';
-import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { Alert } from '@exyconn/shell/components/ui';
+import { color } from '@exyconn/shell/components/ui';
 import {
   useCampaignLeadCountsQuery,
-  useListCampaignsQuery,
-  useListCampaignsStatsQuery,
+  useMarketingDashboardQuery,
 } from '@exyconn/shell/graphql/generated';
-import type { CampaignRow } from './forms/campaign';
-import { color } from '@exyconn/shell/components/ui';
-import { cellText } from '@exyconn/shell/utils/cellText';
+import { DashboardActivity } from './DashboardActivity';
 
-/** How many of the newest campaigns the overview lists before sending you to the register. */
-const RECENT_CAMPAIGNS = 8;
-
-/** Marketing → Overview: what is running, what it costs, and who it reached. */
+/** Marketing → Overview: what is in flight, what went out this month, and what it did. */
 export function MarketingOverviewPage() {
-  const { data: statsData, loading: statsDataLoading } = useListCampaignsStatsQuery();
-  const { data: campaignsData, loading, refetch } = useListCampaignsQuery();
-  const { data: leadsData, loading: leadsLoading } = useCampaignLeadCountsQuery();
-  const { formatDate } = useSettings();
+  const { formatNumber } = useFormatters();
+  const { data, loading, error } = useMarketingDashboardQuery({ fetchPolicy: 'cache-and-network' });
+  const { data: leadsData } = useCampaignLeadCountsQuery();
+  const dashboard = data?.marketingDashboard;
+  const leads = (leadsData?.campaignLeadCounts ?? []).reduce((sum, row) => sum + row.leads, 0);
+  const n = (value?: number) => formatNumber(value ?? 0);
 
-  const stats = statsData?.listCampaignsStats;
-  const campaigns = campaignsData?.listCampaigns ?? [];
-  const reached = campaigns.reduce((sum, c) => sum + (c.recipientsCount ?? 0), 0);
-  const leadCounts = leadsData?.campaignLeadCounts ?? [];
-  const leadsGenerated = leadCounts.reduce((sum, row) => sum + row.leads, 0);
-  const leadsFor = new Map(leadCounts.map((row) => [row.campaignId, row.leads]));
-
-  const statsLoading =
-    (!statsData && statsDataLoading) || (!campaignsData && loading) || (!leadsData && leadsLoading);
   const statItems: StatItem[] = [
-    { label: 'Campaigns', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'Campaigns', value: n(dashboard?.campaigns), accent: color.blue[400] },
+    { label: 'Scheduled', value: n(dashboard?.scheduled), accent: color.violet[400] },
+    { label: 'Sent (30 days)', value: n(dashboard?.sentLast30), accent: color.green[500] },
     {
-      label: 'Sent',
-      value: String(campaigns.filter((c) => c.lastSentAt).length),
-      accent: color.green[500],
-    },
-    { label: 'Recipients reached', value: String(reached), accent: color.violet[400] },
-    { label: 'Leads generated', value: String(leadsGenerated), accent: color.pink[400] },
-    { label: 'Budget', value: formatMoney(statSum(stats, 'budget')), accent: color.amber[500] },
-  ];
-
-  const breakdowns: OverviewBreakdown[] = [
-    {
-      title: 'By status',
-      buckets: stats?.counts.find((c) => c.field === 'status')?.buckets ?? [],
-      accent: color.blue[400],
+      label: 'Click rate (30 days)',
+      value: `${n(dashboard?.clickRateLast30)}%`,
+      accent: color.orange[500],
     },
     {
-      title: 'By channel',
-      buckets: stats?.counts.find((c) => c.field === 'channel')?.buckets ?? [],
-      accent: color.violet[400],
+      label: 'Unsubscribes (30 days)',
+      value: n(dashboard?.unsubscribesLast30),
+      accent: color.red[500],
     },
+    { label: 'Leads generated', value: n(leads), accent: color.pink[400] },
   ];
-
-  const columns: Column<CampaignRow>[] = [
-    { key: 'name', label: 'Campaign' },
-    { key: 'channel', label: 'Channel' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'startDate', label: 'Starts', render: (r) => formatDate(r.startDate) },
-    { key: 'recipientsCount', label: 'Recipients' },
-    { key: 'leads', label: 'Leads', render: (r) => cellText(leadsFor.get(r.id) ?? 0) },
-  ];
+  const breakdowns: OverviewBreakdown[] = dashboard
+    ? [
+        {
+          title: 'Campaigns by delivery',
+          buckets: [
+            { value: 'DRAFT', count: dashboard.drafts },
+            { value: 'QUEUED', count: dashboard.scheduled },
+            { value: 'SENDING', count: dashboard.sending },
+          ],
+          accent: color.blue[400],
+        },
+        {
+          title: 'Reach',
+          buckets: [
+            { value: 'AUDIENCES', count: dashboard.audiences },
+            { value: 'SUPPRESSED', count: dashboard.suppressed },
+            { value: 'FAILED (30 DAYS)', count: dashboard.failedLast30 },
+          ],
+          accent: color.violet[400],
+        },
+      ]
+    : [];
 
   return (
     <ModuleOverview
       title="Marketing"
-      subtitle="Campaigns and audiences at a glance"
+      subtitle="Campaigns, audiences and results at a glance"
       stats={statItems}
-      statsLoading={statsLoading}
+      statsLoading={!data && loading}
       breakdowns={breakdowns}
       links={[
+        { label: 'New campaign', to: '/marketing/campaigns/new' },
         { label: 'Open campaigns', to: '/marketing/campaigns' },
         { label: 'Open audiences', to: '/marketing/audiences' },
+        { label: 'Open templates', to: '/marketing/templates' },
+        { label: 'Email preferences', to: '/marketing/preferences' },
         { label: 'Open suppression list', to: '/marketing/suppression' },
       ]}
-      recentTitle="Newest campaigns"
+      recentTitle="Activity"
     >
-      <DataTable
-        columns={columns}
-        rows={campaigns.slice(0, RECENT_CAMPAIGNS)}
-        emptyMessage="No campaigns yet."
-        loading={loading}
-        onRefresh={refetch}
-      />
+      {error && <Alert severity="error">{error.message}</Alert>}
+      {dashboard && <DashboardActivity dashboard={dashboard} />}
     </ModuleOverview>
   );
 }

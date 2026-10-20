@@ -1,7 +1,9 @@
 import { Separator, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
+import { offDayMessage } from '@exyconn/tracker-core';
 import { PresenceForm } from '../../forms/presence';
 import type { MobileTrackerState } from '../../tracker/types';
+import { Notice } from '../ui/Notice';
 import { Surface } from '../ui/Surface';
 import { Body, Caption } from '../ui/Typography';
 import { AttendanceGate } from './AttendanceGate';
@@ -18,12 +20,15 @@ interface Props {
 /**
  * Who is signed in and what the tracker is doing, then everything that decides the next
  * session, in the order it has to happen: attendance, the schedule's hours, the booking, what
- * the employee is doing, and finally the buttons.
+ * the employee is doing, and finally the buttons. On an off day (week off, holiday, leave)
+ * the attendance gate and the buttons give way to one sentence saying why tracking is paused.
  */
 export function TrackerCard({ state }: Readonly<Props>) {
   const t = useT();
   const { status, settings, user, timezone, workday } = state;
   const tracking = status === 'tracking' || status === 'paused';
+  // Once, here: the gate and the controls both hang off it.
+  const offDay = workday === null ? null : offDayMessage(workday, t);
 
   return (
     <Surface padding="$4" gap="$4">
@@ -37,7 +42,13 @@ export function TrackerCard({ state }: Readonly<Props>) {
         <StatusChip status={status} />
       </XStack>
 
-      <AttendanceGate workday={workday} />
+      {offDay === null ? (
+        <AttendanceGate workday={workday} />
+      ) : (
+        <Notice severity="info" icon="calendar-remove-outline">
+          {offDay}
+        </Notice>
+      )}
       {/* Above the controls: the hour their time stops counting is worth knowing BEFORE they
           press start, not after the schedule has already stopped them. */}
       <AutoStopNotice settings={settings} timezone={timezone} status={status} />
@@ -59,7 +70,13 @@ export function TrackerCard({ state }: Readonly<Props>) {
           status somebody else reads rather than something that acts. */}
       <PresenceForm presence={state.presence} timezone={timezone} />
       <Separator borderColor="$hairline" />
-      <TrackingControls status={status} attendanceMarked={workday?.attendanceMarked ?? false} />
+      {offDay === null ? (
+        <TrackingControls
+          status={status}
+          attendanceMarked={workday?.attendanceMarked ?? false}
+          workday={workday}
+        />
+      ) : null}
     </Surface>
   );
 }

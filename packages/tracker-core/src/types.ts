@@ -115,7 +115,12 @@ export interface WorkProfile {
   workHoursPerDay: number;
   /** The contracted day in milliseconds — the same unit as every tracked total. */
   targetMs: number;
+  /** The days of the week they work (0 = Sunday): their own week, else the workspace's. */
+  workDays: number[];
 }
+
+/** Why a day is off: the employee's week off (WEEKEND), a public holiday, or approved leave. */
+export type OffReason = 'WEEKEND' | 'HOLIDAY' | 'LEAVE';
 
 /** The employee's current local day: the target, the progress, and the attendance gate. */
 export interface Workday {
@@ -128,6 +133,10 @@ export interface Workday {
   attendanceNote: string | null;
   /** Tracking cannot start until this is true. */
   attendanceMarked: boolean;
+  /** Why today is off; null on a working day. Tracking is refused while it is set. */
+  offReason: OffReason | null;
+  /** The leave type's code (CL, EL) on leave, the holiday's name on a holiday, else null. */
+  offLabel: string | null;
 }
 
 /** One project the employee may book time against. */
@@ -459,4 +468,39 @@ export interface ScreenshotPayload {
   image: string;
   displayId: string;
   blurred: boolean;
+}
+
+/** Where a location fix came from: a phone's GPS or a computer's location service. */
+export type LocationSource = 'GPS' | 'SYSTEM';
+
+/** One location fix, as each platform's `LocationProvider` reports it to the portal. */
+export interface TrackerLocationInput {
+  lat: number;
+  lng: number;
+  /** How far off the fix may be, in metres. */
+  accuracyM: number;
+  source: LocationSource;
+  /** ISO-8601. */
+  capturedAt: string;
+}
+
+/** One pin on the employee's day: where they marked attendance, or where they moved to. */
+export interface TrackerLocationPin extends TrackerLocationInput {
+  id: string;
+  kind: 'ATTENDANCE' | 'MOVE';
+}
+
+/** How an employee is paid. Mirrors the portal's PayType. */
+export type PayType = 'FIXED' | 'HOURLY' | 'STIPEND' | 'OTHER';
+
+/** The employee's tracked time over a range, priced at their pay rate. */
+export interface TrackerEarnings {
+  payType: PayType;
+  /** Per hour when payType is HOURLY. Zero when HR has set none. */
+  rate: number;
+  currency: string;
+  /** Measured active time plus approved off-computer time. */
+  trackedMs: number;
+  /** Null unless payType is HOURLY — other pay is not paid by the hour. */
+  amount: number | null;
 }

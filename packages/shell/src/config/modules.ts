@@ -77,6 +77,7 @@ import TableRowsIcon from '@mui/icons-material/TableRows';
 import LanguageIcon from '@mui/icons-material/Language';
 import ArticleIcon from '@mui/icons-material/Article';
 import BlockIcon from '@mui/icons-material/Block';
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import HandymanIcon from '@mui/icons-material/Handyman';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -845,6 +846,18 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Audiences',
         path: '/marketing/audiences',
         icon: GroupsIcon,
+      },
+      {
+        key: 'marketing-templates',
+        label: 'Templates',
+        path: '/marketing/templates',
+        icon: DashboardCustomizeIcon,
+      },
+      {
+        key: 'marketing-preferences',
+        label: 'Email preferences',
+        path: '/marketing/preferences',
+        icon: TuneIcon,
       },
       {
         key: 'marketing-suppression',

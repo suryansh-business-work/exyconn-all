@@ -16,6 +16,7 @@ const base: AutoStartInput = {
   status: 'idle',
   attendanceMarked: true,
   overridden: false,
+  offDay: false,
 };
 
 describe('isWithinWindow', () => {

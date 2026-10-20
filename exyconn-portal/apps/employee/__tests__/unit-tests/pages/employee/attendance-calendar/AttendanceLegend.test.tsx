@@ -19,14 +19,23 @@ describe('AttendanceLegend', () => {
     expect(items.map((item) => item.querySelector('span')?.textContent)).toEqual([
       'Attendance marked',
       'Absent',
+      'Public holiday',
+      'Week off',
       'Leave approved',
       'Leave requested',
       'Leave rejected',
-      'Public holiday',
     ]);
     expect(
-      within(items[4]).getByText(
+      within(items[3]).getByText('A day outside your working week. Nothing to mark.'),
+    ).toBeInTheDocument();
+    expect(
+      within(items[6]).getByText(
         'Your leave request was turned down — mark attendance if you worked.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(legend).getByText(
+        /What you marked comes first, then a holiday, then your week off, then leave/,
       ),
     ).toBeInTheDocument();
     expect(within(legend).getByText(/Today has a dark outline\./)).toBeInTheDocument();
@@ -34,14 +43,15 @@ describe('AttendanceLegend', () => {
 });
 
 describe('dayStatusStyle', () => {
-  it('orders the legend by precedence: what you marked, then leave, then holidays', () => {
+  it('orders the legend by precedence: what you marked, a holiday, the week off, then leave', () => {
     expect(LEGEND_ORDER).toEqual([
       'PRESENT',
       'ABSENT',
+      'HOLIDAY',
+      'WEEK_OFF',
       'LEAVE_APPROVED',
       'LEAVE_PENDING',
       'LEAVE_REJECTED',
-      'HOLIDAY',
     ]);
   });
 
@@ -49,5 +59,6 @@ describe('dayStatusStyle', () => {
     expect(DAY_STATUS_STYLE.PRESENT.tone).toBe('success.main');
     expect(DAY_STATUS_STYLE.LEAVE_REJECTED.tone).toBe('error.main');
     expect(DAY_STATUS_STYLE.HOLIDAY.tone).toBe('info.main');
+    expect(DAY_STATUS_STYLE.WEEK_OFF.tone).toBe('text.secondary');
   });
 });

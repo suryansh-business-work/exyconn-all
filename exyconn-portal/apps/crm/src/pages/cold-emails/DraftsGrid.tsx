@@ -69,7 +69,7 @@ export function DraftsGrid() {
         <EmptyState
           icon={<ForwardToInboxIcon />}
           title="No cold emails yet"
-          description="Draft one from a contact or company page with Draft a cold email."
+          description="Use Draft a cold email above to pick a contact or company and let the AI write the first one."
         />
       )}
       <Box sx={{ display: empty ? 'none' : 'block' }}>

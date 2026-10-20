@@ -97,7 +97,7 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
 
   return (
     <Box>
-      <Text size="sm" color="text.secondary" sx={{ px: 2, pb: 1 }}>
+      <Text component="p" size="sm" color="text.secondary" sx={{ px: 2, pb: 1 }}>
         {t(
           'A module appears only for roles that can already open it; ADMIN always has everything. “Default” means the role can do everything there — untick an action to restrict it, or tick a column heading to change that action in every module.',
         )}

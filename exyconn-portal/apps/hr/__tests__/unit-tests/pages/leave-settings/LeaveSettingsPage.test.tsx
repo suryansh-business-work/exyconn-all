@@ -1,11 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { LEAVE_SETTINGS_PATH, LeaveSettingsPage } from '../../../../src/pages/leave-settings';
 import { renderWithProviders } from '../../test-utils';
 import { UrlProbe } from '../../harness/url-probe';
 
 vi.mock('../../../../src/pages/leave-policies', () => ({
   LeavePoliciesPage: () => <p>Leave types register</p>,
+}));
+vi.mock('../../../../src/pages/leave-settings/WorkWeekTab', () => ({
+  WorkWeekTab: () => <p>Company work week</p>,
 }));
 
 function renderAt(route: string) {
@@ -42,5 +46,19 @@ describe('LeaveSettingsPage', () => {
     expect(screen.getByLabelText('current url')).toHaveTextContent(
       '/hr/leave-settings/leave-types',
     );
+  });
+
+  it('offers the work week as its own tab, opened by its slug', () => {
+    renderAt(`${LEAVE_SETTINGS_PATH}/work-week`);
+    expect(screen.getByRole('tab', { name: 'Work week' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Company work week');
+    expect(screen.queryByText('Leave types register')).toBeNull();
+  });
+
+  it('moves to the work week tab, keeping it in the URL', async () => {
+    renderAt(`${LEAVE_SETTINGS_PATH}/leave-types`);
+    await userEvent.click(screen.getByRole('tab', { name: 'Work week' }));
+    expect(await screen.findByText('Company work week')).toBeInTheDocument();
+    expect(screen.getByLabelText('current url')).toHaveTextContent('/hr/leave-settings/work-week');
   });
 });

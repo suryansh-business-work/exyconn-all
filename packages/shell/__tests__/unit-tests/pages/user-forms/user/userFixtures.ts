@@ -38,6 +38,10 @@ export function makeUserRow(patch: Partial<UserRow> = {}): UserRow {
     country: 'IN',
     region: 'Maharashtra',
     city: 'Pune',
+    emailVerifiedAt: null,
+    personalEmail: null,
+    personalEmailVerifiedAt: null,
+    workDays: null,
     ...patch,
   };
 }

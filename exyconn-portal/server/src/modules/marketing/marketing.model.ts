@@ -3,6 +3,26 @@ import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 export const CAMPAIGN_CHANNELS = ['EMAIL', 'SOCIAL', 'SEARCH', 'DISPLAY'] as const;
 export const CAMPAIGN_STATUSES = ['PLANNED', 'ACTIVE', 'PAUSED', 'COMPLETED'] as const;
 
+/** What kind of email this is — shown in reports and used to suggest a preference category. */
+export const CAMPAIGN_TYPES = [
+  'PROMOTIONAL',
+  'NEWSLETTER',
+  'ANNOUNCEMENT',
+  'EVENT',
+  'FOLLOW_UP',
+  'OTHER',
+] as const;
+
+/** How the email body was last edited. VISUAL keeps `blocks` as the source of the MJML. */
+export const EDITOR_MODES = ['VISUAL', 'CODE'] as const;
+
+/**
+ * Where the email delivery stands, separate from the campaign's marketing `status`.
+ * QUEUED and SENDING are owned by the dispatcher; CANCELLED stops what was not yet sent.
+ */
+export const SEND_STATES = ['DRAFT', 'QUEUED', 'SENDING', 'SENT', 'CANCELLED', 'FAILED'] as const;
+export type SendState = (typeof SEND_STATES)[number];
+
 const campaignSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -32,6 +52,35 @@ const campaignSchema = new Schema(
      * That claim is what stops a second tick — or a second process — sending it twice.
      */
     scheduleDispatchedAt: { type: Date, default: null },
+
+    // ── Email Studio ──────────────────────────────────────────────────────────────────────
+    campaignType: { type: String, enum: CAMPAIGN_TYPES, required: true, default: 'OTHER' },
+    /** The preference category recipients can opt out of; empty = general marketing. */
+    preferenceCategoryId: { type: String, default: '', trim: true },
+    senderName: { type: String, default: '', trim: true },
+    /** Must be a verified sender (the active SMTP configuration's from address). */
+    senderEmail: { type: String, default: '', trim: true, lowercase: true },
+    replyTo: { type: String, default: '', trim: true, lowercase: true },
+    /** The inbox preview line shown after the subject. */
+    preheader: { type: String, default: '', trim: true },
+    editorMode: { type: String, enum: EDITOR_MODES, required: true, default: 'VISUAL' },
+    /** The visual editor's blocks, kept so the design can be reopened. */
+    blocks: { type: Schema.Types.Mixed, default: [] },
+    /** The draft's MJML source — what the visual editor generates or the code editor holds. */
+    mjml: { type: String, default: '' },
+    /** The draft compiled, kept for review and the details view. */
+    html: { type: String, default: '' },
+    /** The plain-text alternative of the draft. */
+    text: { type: String, default: '' },
+    /** Bumped on every content save, so autosave conflicts and revisions can be told apart. */
+    contentVersion: { type: Number, required: true, default: 0 },
+    trackOpens: { type: Boolean, required: true, default: true },
+    trackClicks: { type: Boolean, required: true, default: true },
+    sendState: { type: String, enum: SEND_STATES, required: true, default: 'DRAFT' },
+    /** The immutable revision a queued or scheduled send will use. */
+    sendingRevisionId: { type: String, default: '', trim: true },
+    /** Set by Cancel; the sender stops before its next batch. */
+    cancelRequestedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

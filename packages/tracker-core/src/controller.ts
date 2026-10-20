@@ -5,6 +5,8 @@ import { TrackerAuthError } from './portal/portal-error';
 import { describeSyncFailure } from './portal/sync-message';
 import type { ExpectedRange, HoursReportFile } from './expected-hours';
 import { isAwayPresence } from './presence';
+import { LocationPoller, readLocation, type LocationProvider } from './location';
+import { TrackerOffDayError } from './off-day';
 import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from './schedule';
 import { deviceTimezone, effectiveTimezone } from './timezone';
 import { deviceLocale, effectiveLocale } from './locale';
@@ -25,6 +27,9 @@ import type {
   TrackerMessage,
   TrackerMessageKind,
   TrackerProject,
+  TrackerEarnings,
+  TrackerLocationInput,
+  TrackerLocationPin,
   TrackerSettings,
   TrackerStatus,
   TrackerTask,
@@ -146,6 +151,9 @@ export interface ControllerDeps<Permissions, Preferences, PermissionKind> {
     | 'translateMissing'
     | 'acceptConsent'
     | 'markAttendance'
+    | 'recordLocation'
+    | 'fetchMyLocations'
+    | 'fetchMyEarnings'
     | 'fetchTasks'
     | 'fetchManualEntries'
     | 'createManualEntry'
@@ -157,6 +165,8 @@ export interface ControllerDeps<Permissions, Preferences, PermissionKind> {
   >;
   store: () => TrackerStore<Preferences>;
   deviceInfo: () => DeviceInfo;
+  /** Reads where the device is, for the attendance pin and the moves while tracking. */
+  location: LocationProvider;
   notifier: TrackerNotifier;
   permissions: TrackerPermissions<Permissions, PermissionKind>;
   /** Builds the platform's tracking engine for a signed-in employee. */
@@ -231,9 +241,14 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
    * finish early. Cleared as soon as the window ends, so tomorrow starts on schedule again.
    */
   private autoOverride = false;
+  /** The five-minute location check; runs only while tracking. */
+  private readonly locations: LocationPoller;
 
   constructor(private readonly deps: ControllerDeps<Permissions, Preferences, PermissionKind>) {
     this.permissions = deps.permissions.get(false);
+    this.locations = new LocationPoller(deps.location, (location) =>
+      deps.portal.recordLocation(location),
+    );
   }
 
   getState(): TrackerState<Permissions, Preferences> {
@@ -487,13 +502,47 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
    *
    * The portal decides which day that is (from the zone it resolved for them) and upserts the
    * same record HR's own page writes — so somebody who marked in from the portal this morning
-   * is already marked in here.
+   * is already marked in here. Where they are is pinned with it: `location` is the fix the
+   * employee was shown and confirmed (from `readLocation`), sent as it is — never read again,
+   * so the saved pin is the one they saw. An off day is refused before anything is sent.
    */
-  async markAttendance(status: AttendanceStatus, note: string | null): Promise<Workday> {
-    const workday = await this.deps.portal.markAttendance(status, note);
+  async markAttendance(
+    status: AttendanceStatus,
+    note: string | null,
+    location: TrackerLocationInput,
+  ): Promise<Workday> {
+    this.assertWorkingDay();
+    const workday = await this.deps.portal.markAttendance(status, note, location);
+    this.locations.remember(location);
     this.adoptWorkday(workday);
     this.emit();
     return workday;
+  }
+
+  /**
+   * Where the device is now, for the employee to confirm before `markAttendance` sends it.
+   * Rejects with `TrackerLocationError` when no fix can be read (location access off).
+   */
+  readLocation(): Promise<TrackerLocationInput> {
+    return readLocation(this.deps.location);
+  }
+
+  /** Refuses on the employee's week off, a holiday or approved leave, as the portal does. */
+  private assertWorkingDay(): void {
+    if (this.workday?.offReason) {
+      throw new TrackerOffDayError(this.workday);
+    }
+  }
+
+  /**
+   * A session still open when the day turns into an off day (the heartbeat after midnight
+   * says so) is stopped, the same as the portal would refuse to start it.
+   */
+  private async stopOnOffDay(): Promise<void> {
+    const running = this.status === 'tracking' || this.status === 'paused';
+    if (running && this.workday?.offReason) {
+      await this.stopTracking();
+    }
   }
 
   /**
@@ -536,6 +585,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
       if (this.applyPortalState(await this.deps.portal.heartbeat(this.deps.deviceInfo()))) {
         this.emit();
       }
+      await this.stopOnOffDay();
       await this.runSchedule();
     } catch (error) {
       if (error instanceof TrackerAuthError) {
@@ -625,6 +675,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
     this.consentPolicy = null;
     this.presence = { status: 'WORKING', note: '', since: null };
     this.unreadMessages = 0;
+    this.locations.reset();
     this.engine = null;
     this.status = 'signed-out';
     this.stats = idleStats();
@@ -648,18 +699,21 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
     if (!this.workday?.attendanceMarked) {
       throw new Error('Mark your attendance for today before tracking can start.');
     }
+    this.assertWorkingDay();
     // Starting by hand inside the window clears an earlier early-finish: the employee has
     // said they are working again, and the schedule should stop holding yesterday's answer.
     this.autoOverride = false;
     this.engine.setDayBase(this.workday.activeMs);
     await this.engine.start(this.selectedProjectId(), this.selectedTaskId());
     this.status = 'tracking';
+    this.locations.start();
     this.emit();
   }
 
   pause(): void {
     this.autoOverride = true;
     this.engine?.pause();
+    this.locations.stop();
     this.status = 'paused';
     this.emit();
   }
@@ -668,6 +722,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
     this.autoOverride = false;
     this.engine?.resume();
     this.status = 'tracking';
+    this.locations.start();
     this.emit();
   }
 
@@ -690,6 +745,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
 
   /** Stops without recording an override — used by sign-out and by the schedule itself. */
   private async stopTracking(): Promise<void> {
+    this.locations.stop();
     await this.engine?.stop();
     if (this.user) {
       this.status = 'idle';
@@ -720,6 +776,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
       hour,
       status: this.status,
       attendanceMarked: Boolean(this.workday?.attendanceMarked),
+      offDay: Boolean(this.workday?.offReason),
       overridden: this.autoOverride,
     });
 
@@ -755,6 +812,16 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
   /** The employee's own month as an XLSX, keyed in the same zone as `getReport`. */
   getExpectedReport(from: string, to: string): Promise<HoursReportFile> {
     return this.deps.portal.fetchMyExpectedReport(from, to, this.timezone);
+  }
+
+  /** The employee's own tracked time over an ISO range, priced at their pay rate. */
+  getEarnings(from: string, to: string): Promise<TrackerEarnings> {
+    return this.deps.portal.fetchMyEarnings(from, to);
+  }
+
+  /** The employee's own location pins on one local day (`YYYY-MM-DD`), oldest first. */
+  getLocations(date: string): Promise<TrackerLocationPin[]> {
+    return this.deps.portal.fetchMyLocations(date);
   }
 
   /** One day of the employee's own work — totals plus that day's screenshots. */

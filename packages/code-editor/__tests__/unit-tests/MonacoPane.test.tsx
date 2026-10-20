@@ -11,15 +11,27 @@ const fake = vi.hoisted(() => ({
   hasModel: true,
   blur: undefined as undefined | (() => void),
   action: null as null | { run: () => Promise<void> },
+  selection: null as null | { line: number },
   setModelMarkers: vi.fn(),
+  executeEdits: vi.fn(),
+  focus: vi.fn(),
 }));
 
+const model = {
+  getValue: () => fake.text,
+  getLineCount: () => fake.text.split('\n').length,
+  getLineMaxColumn: (line: number) => (fake.text.split('\n')[line - 1] ?? '').length + 1,
+};
+
 const editor = {
-  getModel: () => (fake.hasModel ? { getValue: () => fake.text } : null),
+  getModel: () => (fake.hasModel ? model : null),
   onDidBlurEditorText: (listener: () => void) => {
     fake.blur = listener;
   },
   getAction: (id: string) => (id === 'editor.action.formatDocument' ? fake.action : null),
+  getSelection: () => fake.selection,
+  executeEdits: fake.executeEdits,
+  focus: fake.focus,
 };
 
 vi.mock('../../src/monaco-setup', () => ({
@@ -57,13 +69,23 @@ function renderPane(props: Partial<CodeEditorProps> = {}, mode: 'light' | 'dark'
   const onChange = vi.fn();
   const view = render(
     <ThemeProvider theme={createTheme({ palette: { mode } })}>
-      <MonacoPane label="Template" value={fake.text} onChange={onChange} language="html" {...props} />
+      <MonacoPane
+        label="Template"
+        value={fake.text}
+        onChange={onChange}
+        language="html"
+        {...props}
+      />
     </ThemeProvider>,
   );
   return { onChange, view };
 }
 
-const lastMarkers = () => fake.setModelMarkers.mock.lastCall?.[2] as unknown[];
+/** The markers last written by one owner: the tag check, or the host's problems. */
+const lastMarkers = (owner = 'exyconn-html') =>
+  fake.setModelMarkers.mock.calls.findLast((call) => call[1] === owner)?.[2] as unknown[];
+const ownerCalls = (owner: string) =>
+  fake.setModelMarkers.mock.calls.filter((call) => call[1] === owner);
 const option = (key: string) => (fake.props.options as Record<string, unknown>)[key];
 
 describe('MonacoPane', () => {
@@ -73,7 +95,10 @@ describe('MonacoPane', () => {
     fake.hasModel = true;
     fake.blur = undefined;
     fake.action = null;
+    fake.selection = null;
     fake.setModelMarkers.mockReset();
+    fake.executeEdits.mockReset();
+    fake.focus.mockReset();
   });
 
   it('configures Monaco for the field and labels it by language', () => {
@@ -116,7 +141,9 @@ describe('MonacoPane', () => {
   it('leaves CSS and JSON to Monaco and writes no tag markers', () => {
     renderPane({ language: 'css' });
     expect(screen.getByText('CSS')).toBeInTheDocument();
-    expect(fake.setModelMarkers).not.toHaveBeenCalled();
+    expect(ownerCalls('exyconn-html')).toEqual([]);
+    // The host's problems are still cleared on mount, so none linger from an earlier value.
+    expect(lastMarkers('exyconn-external')).toEqual([]);
   });
 
   it('writes no markers while the editor has no model, or before it mounts', () => {
@@ -127,6 +154,70 @@ describe('MonacoPane', () => {
     fake.hasModel = true;
     renderPane();
     expect(fake.setModelMarkers).not.toHaveBeenCalled();
+  });
+
+  it("writes the host's problems at their lines, clamped into the document", () => {
+    fake.text = 'one\ntwo\nthree';
+    const { onChange, view } = renderPane({
+      language: 'css',
+      problems: [
+        { line: 2, column: 3, message: 'Unknown tag', severity: 'error' },
+        { line: 0, column: 0, message: 'Before the start', severity: 'warning' },
+        { line: 99, column: 2, message: 'Past the end', severity: 'warning' },
+      ],
+    });
+    expect(lastMarkers('exyconn-external')).toEqual([
+      {
+        startLineNumber: 2,
+        startColumn: 3,
+        endLineNumber: 2,
+        endColumn: 4,
+        message: 'Unknown tag',
+        severity: 8,
+      },
+      {
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: 1,
+        endColumn: 4,
+        message: 'Before the start',
+        severity: 4,
+      },
+      {
+        startLineNumber: 3,
+        startColumn: 2,
+        endLineNumber: 3,
+        endColumn: 6,
+        message: 'Past the end',
+        severity: 4,
+      },
+    ]);
+    view.rerender(
+      <ThemeProvider theme={createTheme()}>
+        <MonacoPane label="Template" value={fake.text} onChange={onChange} language="css" />
+      </ThemeProvider>,
+    );
+    expect(lastMarkers('exyconn-external')).toEqual([]);
+  });
+
+  it('hands the host an API that inserts at the cursor and focuses the editor', () => {
+    const onReady = vi.fn();
+    renderPane({ onReady });
+    expect(onReady).toHaveBeenCalledTimes(1);
+    const api = onReady.mock.calls[0][0] as {
+      insertAtCursor: (t: string) => void;
+      focus: () => void;
+    };
+    api.insertAtCursor('{{name}}');
+    expect(fake.executeEdits).not.toHaveBeenCalled();
+    fake.selection = { line: 1 };
+    api.insertAtCursor('{{name}}');
+    expect(fake.executeEdits).toHaveBeenCalledWith('insert', [
+      { range: { line: 1 }, text: '{{name}}', forceMoveMarkers: true },
+    ]);
+    expect(fake.focus).toHaveBeenCalledTimes(1);
+    api.focus();
+    expect(fake.focus).toHaveBeenCalledTimes(2);
   });
 
   it('passes edits on, an emptied editor as an empty string', () => {

@@ -57,7 +57,7 @@ export function KnowledgeSyncPanel({ onSynced }: Readonly<{ onSynced: () => void
               'Website entries are read from exyconn.com (pages, blog posts and case studies) and replaced on every sync. Custom entries are the team\'s own "Custom Content window": anything you add here, which a sync never touches.',
             )}
           </Text>
-          <Text size="sm" weight="medium" sx={{ mt: 1 }} role="status">
+          <Text component="p" size="sm" weight="medium" sx={{ mt: 1 }} role="status">
             {lastSync}
           </Text>
         </Box>

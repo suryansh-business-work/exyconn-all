@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { MapSkeleton } from '../../../maps/MapSkeleton';
-import { useMapsScript } from '../../../maps/mapsScript';
+import { MapKeyRejected, MapLoadFailed, MapSkeleton } from '@exyconn/shell/components/maps';
+import { useMapsScript } from '@exyconn/shell/components/maps/mapsScript';
 import type { LatLng } from '../../../maps/mapLinks';
 import type { LeadPlace } from '../leadTypes';
 import type { SearchArea } from '../useSearchArea';
 import { DrawArea } from './DrawArea';
-import { MapKeyRejected, MapLoadFailed } from './MapNotices';
 
 /** The whole world, until a search gives the map something to frame. */
 const WORLD_CENTRE: LatLng = { lat: 20, lng: 0 };
