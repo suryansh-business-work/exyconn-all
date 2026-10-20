@@ -14,6 +14,7 @@ export const JOB_KEYS = {
   payrollDispatch: 'payrollDispatch',
   trackerRetention: 'trackerRetention',
   trackerDigest: 'trackerDigest',
+  trackerEmployeeReports: 'trackerEmployeeReports',
   recurringInvoices: 'recurringInvoices',
   overdueInvoices: 'overdueInvoices',
   webhookDelivery: 'webhookDelivery',

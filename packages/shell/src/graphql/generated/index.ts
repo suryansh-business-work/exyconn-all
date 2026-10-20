@@ -14486,6 +14486,8 @@ export type Query = {
   myTrackerExpected: TrackerExpected;
   /** The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
   myTrackerExpectedReport: TableFile;
+  /** The caller's own hours as a PDF: every day's status, active, off-computer, idle and worked time, the totals and earnings. */
+  myTrackerHoursReportPdf: TableFile;
   /** The caller's own location pins on one local day (YYYY-MM-DD), oldest first. */
   myTrackerLocations: Array<TrackerLocation>;
   /** The caller's own off-computer entries in a range, any status. */
@@ -14712,6 +14714,8 @@ export type Query = {
   trackerExpected: TrackerExpected;
   /** One employee's month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
   trackerExpectedReport: TableFile;
+  /** One employee's hours as a PDF: every day's status, active, off-computer, idle and worked time, the totals and earnings. */
+  trackerHoursReportPdf: TableFile;
   /**
    * The latest tracker installers. Any signed-in employee (or tracker device) may read it —
    * the files themselves live on a public GitHub release. With a platform (android, ios,
@@ -16168,6 +16172,13 @@ export type QueryMyTrackerExpectedReportArgs = {
 };
 
 
+export type QueryMyTrackerHoursReportPdfArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryMyTrackerLocationsArgs = {
   date: Scalars['String']['input'];
 };
@@ -16686,6 +16697,14 @@ export type QueryTrackerExpectedArgs = {
 
 
 export type QueryTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerHoursReportPdfArgs = {
   from: Scalars['DateTime']['input'];
   timezone: Scalars['String']['input'];
   to: Scalars['DateTime']['input'];
@@ -19512,6 +19531,14 @@ export type TrackerSettings = {
   defaultTimezone: Scalars['String']['output'];
   /** Local hour (0-23) the digests go out at, read in the workspace's own timezone. */
   digestHour: Scalars['Int']['output'];
+  /** Each employee gets their own day by email in the evening. */
+  employeeDailyReportEnabled: Scalars['Boolean']['output'];
+  /** Each employee gets their month by email on its last day, with the PDF report. */
+  employeeMonthlyReportEnabled: Scalars['Boolean']['output'];
+  /** Local hour (0-23) the employee reports go out at, in each employee's own timezone. */
+  employeeReportHour: Scalars['Int']['output'];
+  /** Each employee gets their week by email on Sunday, with the PDF report. */
+  employeeWeeklyReportEnabled: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   /**
    * Minutes of unbroken idle time after which the desktop app pauses tracking by itself.
@@ -19555,6 +19582,10 @@ export type TrackerSettingsInput = {
   dailyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   digestHour?: InputMaybe<Scalars['Int']['input']>;
+  employeeDailyReportEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  employeeMonthlyReportEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  employeeReportHour?: InputMaybe<Scalars['Int']['input']>;
+  employeeWeeklyReportEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   idleAutoPauseMinutes?: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
@@ -28468,7 +28499,7 @@ export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: st
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
 
-export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string };
+export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, employeeDailyReportEnabled: boolean, employeeWeeklyReportEnabled: boolean, employeeMonthlyReportEnabled: boolean, employeeReportHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string };
 
 export type TrackerDayBucketFieldsFragment = { __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, manualMs: number, keyCount: number, mouseCount: number, sessions: number };
 
@@ -28489,7 +28520,7 @@ export type TrackerDevicesQuery = { __typename?: 'Query', trackerDevices: Array<
 export type TrackerSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
+export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, employeeDailyReportEnabled: boolean, employeeWeeklyReportEnabled: boolean, employeeMonthlyReportEnabled: boolean, employeeReportHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerCalendarQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -28558,7 +28589,7 @@ export type UpdateTrackerSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
+export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, employeeDailyReportEnabled: boolean, employeeWeeklyReportEnabled: boolean, employeeMonthlyReportEnabled: boolean, employeeReportHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerLatestReleaseQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -28737,6 +28768,25 @@ export type TrackerExpectedReportQueryVariables = Exact<{
 
 
 export type TrackerExpectedReportQuery = { __typename?: 'Query', trackerExpectedReport: { __typename?: 'TableFile', fileName: string, mimeType: string, contentBase64: string } };
+
+export type TrackerHoursReportPdfQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type TrackerHoursReportPdfQuery = { __typename?: 'Query', trackerHoursReportPdf: { __typename?: 'TableFile', fileName: string, mimeType: string, contentBase64: string } };
+
+export type MyTrackerHoursReportPdfQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+}>;
+
+
+export type MyTrackerHoursReportPdfQuery = { __typename?: 'Query', myTrackerHoursReportPdf: { __typename?: 'TableFile', fileName: string, mimeType: string, contentBase64: string } };
 
 export type EmployeeLocationsQueryVariables = Exact<{
   employeeId: Scalars['ID']['input'];
@@ -32071,6 +32121,10 @@ export const TrackerSettingsFieldsFragmentDoc = gql`
   dailyDigestEnabled
   weeklyDigestEnabled
   digestHour
+  employeeDailyReportEnabled
+  employeeWeeklyReportEnabled
+  employeeMonthlyReportEnabled
+  employeeReportHour
   captureSoundEnabled
   webcamEnabled
   webcamCorner
@@ -76368,6 +76422,108 @@ export function useTrackerExpectedReportSuspenseQuery(baseOptions?: ApolloReactH
 export type TrackerExpectedReportQueryHookResult = ReturnType<typeof useTrackerExpectedReportQuery>;
 export type TrackerExpectedReportLazyQueryHookResult = ReturnType<typeof useTrackerExpectedReportLazyQuery>;
 export type TrackerExpectedReportSuspenseQueryHookResult = ReturnType<typeof useTrackerExpectedReportSuspenseQuery>;
+export const TrackerHoursReportPdfDocument = gql`
+    query TrackerHoursReportPdf($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerHoursReportPdf(
+    userId: $userId
+    from: $from
+    to: $to
+    timezone: $timezone
+  ) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+    `;
+
+/**
+ * __useTrackerHoursReportPdfQuery__
+ *
+ * To run a query within a React component, call `useTrackerHoursReportPdfQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerHoursReportPdfQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerHoursReportPdfQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      timezone: // value for 'timezone'
+ *   },
+ * });
+ */
+export function useTrackerHoursReportPdfQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables> & ({ variables: TrackerHoursReportPdfQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>(TrackerHoursReportPdfDocument, options);
+      }
+export function useTrackerHoursReportPdfLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>(TrackerHoursReportPdfDocument, options);
+        }
+// @ts-ignore
+export function useTrackerHoursReportPdfSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>;
+// @ts-ignore
+export function useTrackerHoursReportPdfSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerHoursReportPdfQuery | undefined, TrackerHoursReportPdfQueryVariables>;
+export function useTrackerHoursReportPdfSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TrackerHoursReportPdfQuery, TrackerHoursReportPdfQueryVariables>(TrackerHoursReportPdfDocument, options);
+        }
+export type TrackerHoursReportPdfQueryHookResult = ReturnType<typeof useTrackerHoursReportPdfQuery>;
+export type TrackerHoursReportPdfLazyQueryHookResult = ReturnType<typeof useTrackerHoursReportPdfLazyQuery>;
+export type TrackerHoursReportPdfSuspenseQueryHookResult = ReturnType<typeof useTrackerHoursReportPdfSuspenseQuery>;
+export const MyTrackerHoursReportPdfDocument = gql`
+    query MyTrackerHoursReportPdf($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerHoursReportPdf(from: $from, to: $to, timezone: $timezone) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+    `;
+
+/**
+ * __useMyTrackerHoursReportPdfQuery__
+ *
+ * To run a query within a React component, call `useMyTrackerHoursReportPdfQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyTrackerHoursReportPdfQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyTrackerHoursReportPdfQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      timezone: // value for 'timezone'
+ *   },
+ * });
+ */
+export function useMyTrackerHoursReportPdfQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables> & ({ variables: MyTrackerHoursReportPdfQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>(MyTrackerHoursReportPdfDocument, options);
+      }
+export function useMyTrackerHoursReportPdfLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>(MyTrackerHoursReportPdfDocument, options);
+        }
+// @ts-ignore
+export function useMyTrackerHoursReportPdfSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>;
+// @ts-ignore
+export function useMyTrackerHoursReportPdfSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyTrackerHoursReportPdfQuery | undefined, MyTrackerHoursReportPdfQueryVariables>;
+export function useMyTrackerHoursReportPdfSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyTrackerHoursReportPdfQuery, MyTrackerHoursReportPdfQueryVariables>(MyTrackerHoursReportPdfDocument, options);
+        }
+export type MyTrackerHoursReportPdfQueryHookResult = ReturnType<typeof useMyTrackerHoursReportPdfQuery>;
+export type MyTrackerHoursReportPdfLazyQueryHookResult = ReturnType<typeof useMyTrackerHoursReportPdfLazyQuery>;
+export type MyTrackerHoursReportPdfSuspenseQueryHookResult = ReturnType<typeof useMyTrackerHoursReportPdfSuspenseQuery>;
 export const EmployeeLocationsDocument = gql`
     query EmployeeLocations($employeeId: ID!, $date: String!) {
   employeeLocations(employeeId: $employeeId, date: $date) {

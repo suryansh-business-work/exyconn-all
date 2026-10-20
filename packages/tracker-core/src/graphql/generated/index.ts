@@ -4017,6 +4017,10 @@ export type TrackerSettingsInput = {
   dailyDigestEnabled: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone: InputMaybe<Scalars['String']['input']>;
   digestHour: InputMaybe<Scalars['Int']['input']>;
+  employeeDailyReportEnabled: InputMaybe<Scalars['Boolean']['input']>;
+  employeeMonthlyReportEnabled: InputMaybe<Scalars['Boolean']['input']>;
+  employeeReportHour: InputMaybe<Scalars['Int']['input']>;
+  employeeWeeklyReportEnabled: InputMaybe<Scalars['Boolean']['input']>;
   idleAutoPauseMinutes: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes: InputMaybe<Scalars['Int']['input']>;

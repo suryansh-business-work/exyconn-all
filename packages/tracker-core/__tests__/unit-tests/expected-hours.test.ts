@@ -177,3 +177,86 @@ describe('targetFigures', () => {
     });
   });
 });
+
+describe('day statuses', () => {
+  const worked = [
+    // A full day of tracked work: completed.
+    { date: '2026-02-02', activeMs: DAY, idleMs: HOUR },
+    // Short on tracked time, made up with approved off-computer work: still completed.
+    { date: '2026-02-04', activeMs: 5 * HOUR, idleMs: 30 * 60_000, manualMs: 3 * HOUR },
+    // Below the day even with off-computer work, and over: short wins over off-computer.
+    { date: '2026-02-06', activeMs: HOUR, manualMs: HOUR },
+    // Work on a week off: it stays a week off, its time kept apart.
+    { date: '2026-02-07', activeMs: 2 * HOUR, idleMs: 10 * 60_000 },
+  ];
+  const target = monthTarget(CONTRACT, worked, '2026-02-09');
+  const marks = dayMarksOf(target);
+
+  it('marks a day completed once worked time — measured or off-computer — meets its hours', () => {
+    expect([...target.completedDates]).toEqual(['2026-02-02', '2026-02-04']);
+    expect(marks.get('2026-02-02')).toBe('COMPLETED');
+    expect(marks.get('2026-02-04')).toBe('COMPLETED');
+  });
+
+  it('keeps a finished day short when it fell below, off-computer work or not', () => {
+    expect(marks.get('2026-02-06')).toBe('SHORT');
+  });
+
+  it('keeps leave, holidays and week offs as they are, even with work on them', () => {
+    expect(marks.get('2026-02-03')).toBe('LEAVE');
+    expect(marks.get('2026-02-05')).toBe('HOLIDAY');
+    expect(marks.get('2026-02-07')).toBe('WEEK_OFF');
+    expect(marks.get('2026-02-08')).toBe('WEEK_OFF');
+  });
+
+  it('marks off-computer work on a day not otherwise marked, such as today', () => {
+    const today = monthTarget(
+      CONTRACT,
+      [{ date: '2026-02-06', activeMs: HOUR, manualMs: HOUR }],
+      '2026-02-06',
+    );
+    expect(dayMarksOf(today).get('2026-02-06')).toBe('OFF_COMPUTER');
+  });
+
+  it('keeps idle time out of worked time, and week-off work apart', () => {
+    expect(target.activeMs).toBe(DAY + 5 * HOUR + HOUR + 2 * HOUR);
+    expect(target.offComputerMs).toBe(4 * HOUR);
+    expect(target.workedMs).toBe(target.activeMs + target.offComputerMs);
+    expect(target.idleMs).toBe(HOUR + 30 * 60_000 + 10 * 60_000);
+    expect(target.weekOffWorkedMs).toBe(2 * HOUR);
+  });
+
+  it('measures the deficit against elapsed days only', () => {
+    const midweek = monthTarget(
+      CONTRACT,
+      [{ date: '2026-02-02', activeMs: 6 * HOUR }],
+      '2026-02-04',
+    );
+    // Only Mon 2 Feb is over: 8h owed, 6h done; Wed 4 and Fri 6 are not counted yet.
+    expect(midweek.expectedSoFarMs).toBe(DAY);
+    expect(midweek.deficitMs).toBe(-2 * HOUR);
+  });
+});
+
+describe('day mark words', () => {
+  it('names every status once, in the legend order every surface uses', async () => {
+    const { MARK_ORDER, MARK_WORDS, MARK_MEANINGS } = await import('../../src/day-marks');
+    expect(MARK_ORDER).toEqual([
+      'COMPLETED',
+      'SHORT',
+      'LEAVE',
+      'HOLIDAY',
+      'WEEK_OFF',
+      'OFF_COMPUTER',
+    ]);
+    expect(MARK_ORDER.map((mark) => MARK_WORDS[mark])).toEqual([
+      'Completed',
+      'Short',
+      'Leave',
+      'Holiday',
+      'Week off',
+      'Off Computer Work',
+    ]);
+    expect(MARK_ORDER.every((mark) => MARK_MEANINGS[mark].length > 0)).toBe(true);
+  });
+});

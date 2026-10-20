@@ -86,7 +86,7 @@ async function screenshotsByDay(userId: string, from: Date, to: Date, timezone: 
 }
 
 /** Every day's measured figures, merged from the calendar buckets and the screenshot counts. */
-async function figuresByDay(userId: string, from: Date, to: Date, timezone: string) {
+export async function figuresByDay(userId: string, from: Date, to: Date, timezone: string) {
   const [buckets, shots] = await Promise.all([
     trackerAdminService.calendar(userId, from, to, timezone),
     screenshotsByDay(userId, from, to, timezone),

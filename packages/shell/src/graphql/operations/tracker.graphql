@@ -51,6 +51,10 @@ fragment TrackerSettingsFields on TrackerSettings {
   dailyDigestEnabled
   weeklyDigestEnabled
   digestHour
+  employeeDailyReportEnabled
+  employeeWeeklyReportEnabled
+  employeeMonthlyReportEnabled
+  employeeReportHour
   captureSoundEnabled
   webcamEnabled
   webcamCorner
@@ -444,6 +448,24 @@ query MyTrackerExpected($from: DateTime!, $to: DateTime!, $timezone: String!) {
 
 query TrackerExpectedReport($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
   trackerExpectedReport(userId: $userId, from: $from, to: $to, timezone: $timezone) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+
+# HR/ADMIN: one employee's hours as a PDF — statuses, active, off-computer, idle, totals, earnings.
+query TrackerHoursReportPdf($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerHoursReportPdf(userId: $userId, from: $from, to: $to, timezone: $timezone) {
+    fileName
+    mimeType
+    contentBase64
+  }
+}
+
+# The caller's own hours as a PDF.
+query MyTrackerHoursReportPdf($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerHoursReportPdf(from: $from, to: $to, timezone: $timezone) {
     fileName
     mimeType
     contentBase64

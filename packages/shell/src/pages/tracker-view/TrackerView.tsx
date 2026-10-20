@@ -3,6 +3,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, Flex, Grid, Heading, IconButton, Text, CircularProgress } from '@/components/ui';
 import { panel, readingPanel } from '@/components/glass/glass';
 import { TrackerCalendar } from './TrackerCalendar';
+import { TrackerCalendarLegend } from './TrackerCalendarLegend';
 import { TrackerMonthChart } from './TrackerMonthChart';
 import { TrackerDayPanel } from './TrackerDayPanel';
 import type { TrackerDayCell } from './buildTrackerMonth';
@@ -31,7 +32,7 @@ interface TrackerViewProps {
   formatTime: DateTimeFormatter;
   formatDateTime: DateTimeFormatter;
   empty?: boolean;
-  /** Leave, holidays and finished days short of the contracted hours (drawn in red). */
+  /** Each day's status: completed, short, leave, holiday, week off or off-computer work. */
   dayMarks?: ReadonlyMap<string, TrackerDayMark>;
   /** Each named off day's label: the leave code (EL, CL) or the holiday's name. */
   dayLabels?: ReadonlyMap<string, string>;
@@ -87,7 +88,8 @@ export function TrackerView({
             md: 7,
           }}
         >
-          <Box sx={panel}>
+          <Box sx={[panel, { display: 'flex', flexDirection: 'column', gap: 1.5 }]}>
+            <TrackerCalendarLegend />
             <TrackerCalendar
               days={days}
               selectedDate={selectedDate}
@@ -115,6 +117,8 @@ export function TrackerView({
               timezone={timezone}
               formatTime={formatTime}
               formatDateTime={formatDateTime}
+              status={selectedDate ? dayMarks?.get(selectedDate) : undefined}
+              offComputerMs={buckets.find((bucket) => bucket.date === selectedDate)?.manualMs ?? 0}
             />
           </Box>
         </Grid>

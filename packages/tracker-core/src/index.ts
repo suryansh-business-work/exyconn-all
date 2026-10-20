@@ -16,6 +16,7 @@ export * from './capture-policy';
 export * from './controller';
 export * from './engine';
 export * from './expected-hours';
+export * from './day-marks';
 export * from './foreground-usage';
 export * from './insights';
 export * from './location';

@@ -117,6 +117,32 @@ const TEMPLATES = [
         </mj-text>`),
   },
   {
+    key: 'tracker-hours-report',
+    name: 'Tracker hours report — to the employee (daily / weekly / monthly)',
+    description:
+      "An employee's own tracked hours for the day, week or month: expected, logged, active, off-computer and idle time, the deficit and what the hours earn. Sent by the employee report schedule in the evening; the week and month carry the PDF report. {{rows}} is a finished table body.",
+    subject: 'Your hours {{periodLabel}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your hours {{periodLabel}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}}, here is how {{periodLabel}} went.</mj-text>
+        <mj-table font-size="14px" color="#0b0a12">
+          <tr><td style="padding:4px 0;color:#64748b;">Expected</td><td style="padding:4px 0;text-align:right;"><strong>{{expected}}</strong></td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Logged (active + off computer)</td><td style="padding:4px 0;text-align:right;"><strong>{{logged}}</strong></td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Active</td><td style="padding:4px 0;text-align:right;">{{active}}</td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Off Computer Work</td><td style="padding:4px 0;text-align:right;">{{offComputer}}</td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Idle (not counted)</td><td style="padding:4px 0;text-align:right;">{{idle}}</td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Deficit so far</td><td style="padding:4px 0;text-align:right;"><strong>{{deficit}}</strong></td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Earnings</td><td style="padding:4px 0;text-align:right;">{{earnings}}</td></tr>
+        </mj-table>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-table font-size="13px" color="#0b0a12">
+          {{rows}}
+        </mj-table>
+        <mj-text font-size="13px" color="#94a3b8">
+          Idle time is the tracker running with no keyboard, mouse or system activity; it is never counted as worked time.
+          Open My Tracker in the portal for the full calendar.
+        </mj-text>`),
+  },
+  {
     key: 'policy-acknowledged',
     name: 'Policy signed — confirmation',
     description:

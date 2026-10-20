@@ -35,6 +35,7 @@ jest.mock('../../src/modules/payroll', () => ({
 }));
 jest.mock('../../src/modules/onboarding', () => ({ ensureOnboardingDefaults: jest.fn() }));
 jest.mock('../../src/modules/tracker', () => ({
+  startEmployeeReports: jest.fn(),
   startTrackerDigest: jest.fn(),
   startTrackerRetention: jest.fn(),
 }));
@@ -116,6 +117,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/payroll', 'startPayrollDispatch'],
   ['../../src/modules/tracker', 'startTrackerRetention'],
   ['../../src/modules/tracker', 'startTrackerDigest'],
+  ['../../src/modules/tracker', 'startEmployeeReports'],
   ['../../src/modules/marketing', 'startCampaignSchedule'],
   ['../../src/modules/social-accounts', 'startSocialSchedule'],
   ['../../src/modules/finance', 'startRecurringInvoiceSchedule'],

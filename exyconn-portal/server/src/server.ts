@@ -14,7 +14,7 @@ import { ensureEmailDefaults } from './modules/email';
 import { ensureSupportSlaPolicies, startInboundMail } from './modules/support';
 import { ensureTaxSlabs, startPayrollDispatch } from './modules/payroll';
 import { ensureOnboardingDefaults } from './modules/onboarding';
-import { startTrackerDigest, startTrackerRetention } from './modules/tracker';
+import { startEmployeeReports, startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startCampaignSchedule } from './modules/marketing';
 import { startOverdueSweep, startRecurringInvoiceSchedule } from './modules/finance';
 import { startSocialSchedule } from './modules/social-accounts';
@@ -155,6 +155,7 @@ async function bootstrap(): Promise<void> {
   // The daily/weekly tracker summary is a scheduled email like the payslips above, so it
   // needs the loop running whether or not anyone opens the portal.
   startTrackerDigest();
+  startEmployeeReports();
   // A campaign scheduled for Tuesday morning has to go out on Tuesday morning, whether or
   // not anyone is signed into the Marketing portal when it does.
   startCampaignSchedule();

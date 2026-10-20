@@ -3,7 +3,8 @@ import { formatDuration, activityPercent } from './tracker.format';
 import { TrackerDayCharts } from './TrackerDayCharts';
 import { TrackerDayProjects } from './TrackerDayProjects';
 import { TrackerScreenshotGallery } from './TrackerScreenshotGallery';
-import type { DateTimeFormatter, TrackerDayData } from './tracker.types';
+import type { DateTimeFormatter, TrackerDayData, TrackerDayMark } from './tracker.types';
+import { TrackerStatusChip } from './TrackerStatusChip';
 import { PanelSkeleton } from '@/components/feedback/skeletons';
 
 const EMPTY_TOTALS = { activeMs: 0, idleMs: 0, keyCount: 0, mouseCount: 0 };
@@ -42,6 +43,10 @@ interface TrackerDayPanelProps {
   timezone: string;
   formatTime: DateTimeFormatter;
   formatDateTime: DateTimeFormatter;
+  /** The day's status on the calendar, when it has one. */
+  status?: TrackerDayMark;
+  /** Approved off-computer work on the day, counted in its worked time. */
+  offComputerMs?: number;
 }
 
 /** Presentational day breakdown: totals, key/mouse counts, apps and screenshots. */
@@ -53,6 +58,8 @@ export function TrackerDayPanel({
   timezone,
   formatTime,
   formatDateTime,
+  status,
+  offComputerMs = 0,
 }: Readonly<TrackerDayPanelProps>) {
   if (!selected) return <PanelMessage text="Select a day to see the breakdown." />;
   if (loading) {
@@ -72,12 +79,13 @@ export function TrackerDayPanel({
 
   return (
     <Box>
-      <Heading level={6} sx={{ mb: 1 }}>
-        {dayLabel}
-      </Heading>
+      <Flex direction="row" alignItems="center" gap={1} flexWrap="wrap" useFlexGap sx={{ mb: 1 }}>
+        <Heading level={6}>{dayLabel}</Heading>
+        {status && <TrackerStatusChip status={status} />}
+      </Flex>
       <Grid container spacing={1.5}>
         <Grid size={{ xs: 6, sm: 4 }}>
-          <Metric label="Worked" value={formatDuration(totals.activeMs)} />
+          <Metric label="Active time" value={formatDuration(totals.activeMs)} />
         </Grid>
         <Grid size={{ xs: 6, sm: 4 }}>
           <Metric label="Idle" value={formatDuration(totals.idleMs)} />
@@ -85,6 +93,11 @@ export function TrackerDayPanel({
         <Grid size={{ xs: 6, sm: 4 }}>
           <Metric label="Activity" value={`${activityPercent(totals.activeMs, totals.idleMs)}%`} />
         </Grid>
+        {offComputerMs > 0 && (
+          <Grid size={{ xs: 6, sm: 4 }}>
+            <Metric label="Off Computer Work" value={formatDuration(offComputerMs)} />
+          </Grid>
+        )}
         <Grid size={6}>
           <Metric label="Keystrokes" value={totals.keyCount.toLocaleString()} />
         </Grid>

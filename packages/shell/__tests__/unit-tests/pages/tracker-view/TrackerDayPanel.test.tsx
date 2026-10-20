@@ -47,7 +47,7 @@ describe('TrackerDayPanel', () => {
     expect(screen.getByText('No activity for this day.')).toBeInTheDocument();
   });
 
-  it("totals the day's sessions into worked, idle, activity and input counts", () => {
+  it("totals the day's sessions into active, idle, activity and input counts", () => {
     renderPanel({
       day: makeDay({
         sessions: [
@@ -59,7 +59,7 @@ describe('TrackerDayPanel', () => {
     });
 
     expect(screen.getByRole('heading', { name: 'Tuesday, 3 February' })).toBeInTheDocument();
-    expect(metric('Worked')).toBe('4h 0m');
+    expect(metric('Active time')).toBe('4h 0m');
     expect(metric('Idle')).toBe('1h 0m');
     expect(metric('Activity')).toBe('80%');
     expect(metric('Keystrokes')).toBe((1200).toLocaleString());
@@ -70,11 +70,33 @@ describe('TrackerDayPanel', () => {
     expect(screen.getByText('1 screenshot')).toBeInTheDocument();
   });
 
+  it("shows the day's status beside its heading, and no chip without one", () => {
+    const { unmount } = renderPanel({ day: makeDay(), status: 'SHORT' });
+    const heading = screen.getByRole('heading', { name: 'Tuesday, 3 February' });
+    expect(heading.parentElement).toHaveTextContent('Short');
+    unmount();
+
+    renderPanel({ day: makeDay() });
+    expect(
+      screen.getByRole('heading', { name: 'Tuesday, 3 February' }).parentElement,
+    ).toHaveTextContent(/^Tuesday, 3 February$/);
+  });
+
+  it('adds the approved off-computer work as its own metric only when there is some', () => {
+    const { unmount } = renderPanel({ day: makeDay(), offComputerMs: 90 * 60_000 });
+    expect(metric('Off Computer Work')).toBe('1h 30m');
+    unmount();
+
+    renderPanel({ day: makeDay(), offComputerMs: 0 });
+    expect(screen.queryByText('Off Computer Work')).not.toBeInTheDocument();
+  });
+
   it('reads zeros for a day with no sessions', () => {
     renderPanel({ day: makeDay() });
 
-    expect(metric('Worked')).toBe('0m');
+    expect(metric('Active time')).toBe('0m');
     expect(metric('Activity')).toBe('0%');
+    expect(screen.queryByText('Off Computer Work')).not.toBeInTheDocument();
     expect(screen.getByText('No screenshots captured.')).toBeInTheDocument();
   });
 });

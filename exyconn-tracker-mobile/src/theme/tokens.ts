@@ -10,6 +10,7 @@ export {
 // one file both apps read, so the phone and the laptop draw the same colours.
 export {
   trackerActivity,
+  trackerDayStatus,
   trackerProgressGradient,
   trackerSelected,
   trackerTabBar,

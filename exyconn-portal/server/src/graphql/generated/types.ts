@@ -14485,6 +14485,8 @@ export type Query = {
   myTrackerExpected: TrackerExpected;
   /** The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
   myTrackerExpectedReport: TableFile;
+  /** The caller's own hours as a PDF: every day's status, active, off-computer, idle and worked time, the totals and earnings. */
+  myTrackerHoursReportPdf: TableFile;
   /** The caller's own location pins on one local day (YYYY-MM-DD), oldest first. */
   myTrackerLocations: Array<TrackerLocation>;
   /** The caller's own off-computer entries in a range, any status. */
@@ -14711,6 +14713,8 @@ export type Query = {
   trackerExpected: TrackerExpected;
   /** One employee's month as an XLSX: date, expected hrs, logged hrs, deficit and remarks. */
   trackerExpectedReport: TableFile;
+  /** One employee's hours as a PDF: every day's status, active, off-computer, idle and worked time, the totals and earnings. */
+  trackerHoursReportPdf: TableFile;
   /**
    * The latest tracker installers. Any signed-in employee (or tracker device) may read it —
    * the files themselves live on a public GitHub release. With a platform (android, ios,
@@ -16167,6 +16171,13 @@ export type QueryMyTrackerExpectedReportArgs = {
 };
 
 
+export type QueryMyTrackerHoursReportPdfArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryMyTrackerLocationsArgs = {
   date: Scalars['String']['input'];
 };
@@ -16685,6 +16696,14 @@ export type QueryTrackerExpectedArgs = {
 
 
 export type QueryTrackerExpectedReportArgs = {
+  from: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerHoursReportPdfArgs = {
   from: Scalars['DateTime']['input'];
   timezone: Scalars['String']['input'];
   to: Scalars['DateTime']['input'];
@@ -19511,6 +19530,14 @@ export type TrackerSettings = {
   defaultTimezone: Scalars['String']['output'];
   /** Local hour (0-23) the digests go out at, read in the workspace's own timezone. */
   digestHour: Scalars['Int']['output'];
+  /** Each employee gets their own day by email in the evening. */
+  employeeDailyReportEnabled: Scalars['Boolean']['output'];
+  /** Each employee gets their month by email on its last day, with the PDF report. */
+  employeeMonthlyReportEnabled: Scalars['Boolean']['output'];
+  /** Local hour (0-23) the employee reports go out at, in each employee's own timezone. */
+  employeeReportHour: Scalars['Int']['output'];
+  /** Each employee gets their week by email on Sunday, with the PDF report. */
+  employeeWeeklyReportEnabled: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   /**
    * Minutes of unbroken idle time after which the desktop app pauses tracking by itself.
@@ -19554,6 +19581,10 @@ export type TrackerSettingsInput = {
   dailyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   digestHour?: InputMaybe<Scalars['Int']['input']>;
+  employeeDailyReportEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  employeeMonthlyReportEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  employeeReportHour?: InputMaybe<Scalars['Int']['input']>;
+  employeeWeeklyReportEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   idleAutoPauseMinutes?: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
@@ -29041,6 +29072,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerEarnings?: Resolver<ResolversTypes['TrackerEarnings'], ParentType, ContextType, RequireFields<QueryMyTrackerEarningsArgs, 'from' | 'to'>>;
   myTrackerExpected?: Resolver<ResolversTypes['TrackerExpected'], ParentType, ContextType, RequireFields<QueryMyTrackerExpectedArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerExpectedReport?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryMyTrackerExpectedReportArgs, 'from' | 'timezone' | 'to'>>;
+  myTrackerHoursReportPdf?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryMyTrackerHoursReportPdfArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerLocations?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryMyTrackerLocationsArgs, 'date'>>;
   myTrackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryMyTrackerManualEntriesArgs, 'from' | 'to'>>;
   myTrackerMessages?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType, Partial<QueryMyTrackerMessagesArgs>>;
@@ -29161,6 +29193,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerDevices?: Resolver<Array<ResolversTypes['TrackerDevice']>, ParentType, ContextType, Partial<QueryTrackerDevicesArgs>>;
   trackerExpected?: Resolver<ResolversTypes['TrackerExpected'], ParentType, ContextType, RequireFields<QueryTrackerExpectedArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerExpectedReport?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryTrackerExpectedReportArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
+  trackerHoursReportPdf?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryTrackerHoursReportPdfArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerLatestRelease?: Resolver<Maybe<ResolversTypes['TrackerRelease']>, ParentType, ContextType, Partial<QueryTrackerLatestReleaseArgs>>;
   trackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryTrackerManualEntriesArgs, 'from' | 'to' | 'userId'>>;
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
@@ -30665,6 +30698,10 @@ export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   dailyDigestEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   defaultTimezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   digestHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  employeeDailyReportEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  employeeMonthlyReportEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  employeeReportHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  employeeWeeklyReportEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   idleAutoPauseMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   idleThresholdSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

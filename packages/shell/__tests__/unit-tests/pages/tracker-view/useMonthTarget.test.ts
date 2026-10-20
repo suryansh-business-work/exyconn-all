@@ -66,7 +66,7 @@ describe('useMonthTarget', () => {
     });
   });
 
-  it('marks short finished days, leave, holidays and the week off, with their names', () => {
+  it('marks completed and short finished days, leave, holidays and the week off, with their names', () => {
     const buckets = [bucket('2026-06-01', 8 * HOUR), bucket('2026-06-04', 5 * HOUR, 1 * HOUR)];
     const { result } = renderHook(() => useMonthTarget(CONTRACT, buckets, 'Asia/Kolkata'));
     const { target, dayMarks, dayLabels, workDays, workHoursPerDay } = result.current;
@@ -77,6 +77,7 @@ describe('useMonthTarget', () => {
     expect(target?.workedMs).toBe(14 * HOUR);
     expect(target?.deficitMs).toBe(-2 * HOUR);
     expect(Object.fromEntries(dayMarks ?? [])).toEqual({
+      '2026-06-01': 'COMPLETED',
       '2026-06-02': 'HOLIDAY',
       '2026-06-03': 'LEAVE',
       '2026-06-04': 'SHORT',

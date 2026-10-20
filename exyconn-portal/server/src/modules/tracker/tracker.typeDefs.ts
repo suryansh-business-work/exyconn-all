@@ -48,6 +48,14 @@ export const trackerTypeDefs = gql`
     weeklyDigestEnabled: Boolean!
     "Local hour (0-23) the digests go out at, read in the workspace's own timezone."
     digestHour: Int!
+    "Each employee gets their own day by email in the evening."
+    employeeDailyReportEnabled: Boolean!
+    "Each employee gets their week by email on Sunday, with the PDF report."
+    employeeWeeklyReportEnabled: Boolean!
+    "Each employee gets their month by email on its last day, with the PDF report."
+    employeeMonthlyReportEnabled: Boolean!
+    "Local hour (0-23) the employee reports go out at, in each employee's own timezone."
+    employeeReportHour: Int!
     """
     Play the camera shutter and let the capture notification make a sound on the employee's
     own machine. On by default — capturing a screen in silence is what makes monitoring feel
@@ -93,6 +101,10 @@ export const trackerTypeDefs = gql`
     dailyDigestEnabled: Boolean
     weeklyDigestEnabled: Boolean
     digestHour: Int
+    employeeDailyReportEnabled: Boolean
+    employeeWeeklyReportEnabled: Boolean
+    employeeMonthlyReportEnabled: Boolean
+    employeeReportHour: Int
     captureSoundEnabled: Boolean
     webcamEnabled: Boolean
     webcamCorner: String
@@ -762,6 +774,13 @@ export const trackerTypeDefs = gql`
       to: DateTime!
       timezone: String!
     ): TrackerExpected!
+    "One employee's hours as a PDF: every day's status, active, off-computer, idle and worked time, the totals and earnings."
+    trackerHoursReportPdf(
+      userId: ID!
+      from: DateTime!
+      to: DateTime!
+      timezone: String!
+    ): TableFile!
     "One employee's month as an XLSX: date, expected hrs, logged hrs, deficit and remarks."
     trackerExpectedReport(
       userId: ID!
@@ -837,6 +856,8 @@ export const trackerTypeDefs = gql`
     myTrackerExpected(from: DateTime!, to: DateTime!, timezone: String!): TrackerExpected!
     "The caller's own month as an XLSX: date, expected hrs, logged hrs, deficit and remarks."
     myTrackerExpectedReport(from: DateTime!, to: DateTime!, timezone: String!): TableFile!
+    "The caller's own hours as a PDF: every day's status, active, off-computer, idle and worked time, the totals and earnings."
+    myTrackerHoursReportPdf(from: DateTime!, to: DateTime!, timezone: String!): TableFile!
     "Every IANA zone the server resolves, sorted - the phone zone picker has no runtime list."
     trackerTimezones: [String!]!
     "The caller's own location pins on one local day (YYYY-MM-DD), oldest first."

@@ -12,7 +12,14 @@ vi.mock('../../../../src/lib/report/calendar', async (importOriginal) => {
 });
 
 const FEB_3 = new Date(2026, 1, 3);
-const MARK_COLORS = { SHORT: 'red', LEAVE: 'blue', HOLIDAY: 'grey', WEEK_OFF: 'silver' };
+const MARK_COLORS = {
+  COMPLETED: 'green',
+  SHORT: 'red',
+  LEAVE: 'blue',
+  HOLIDAY: 'purple',
+  WEEK_OFF: 'silver',
+  OFF_COMPUTER: 'amber',
+};
 
 function cell(overrides: Partial<CalendarCell> = {}): CalendarCell {
   return {

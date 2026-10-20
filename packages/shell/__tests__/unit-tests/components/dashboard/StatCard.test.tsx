@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { I18nProvider } from '@exyconn/i18n';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -79,6 +80,35 @@ describe('StatCard', () => {
     expect(screen.queryByText('0')).not.toBeInTheDocument();
     expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
     expect(screen.queryByTestId('sparkline')).not.toBeInTheDocument();
+  });
+});
+
+describe('StatCard info', () => {
+  it('explains the figure behind an (i) button named after its label', async () => {
+    renderIn(<StatCard label="Idle this month" value="2h 0m" info="Time with no input." />);
+
+    const about = screen.getByRole('button', { name: 'About Idle this month' });
+    await userEvent.hover(about);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Time with no input.');
+    expect(about).toHaveAccessibleDescription('Time with no input.');
+  });
+
+  it('translates the button name and the explanation', async () => {
+    renderIn(<StatCard label="Leave" value="1" info="Approved leave." />, {
+      Leave: 'Permiso',
+      'About {label}': 'Acerca de {label}',
+      'Approved leave.': 'Permiso aprobado.',
+    });
+
+    await userEvent.hover(screen.getByRole('button', { name: 'Acerca de Permiso' }));
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Permiso aprobado.');
+  });
+
+  it('has no (i) button without an explanation', () => {
+    renderIn(<StatCard label="Revenue" value="₹10" />);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });
 
