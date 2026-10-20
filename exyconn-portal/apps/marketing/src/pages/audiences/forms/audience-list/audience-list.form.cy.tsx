@@ -1,52 +1,71 @@
 import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { ConfirmProvider } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { theme } from '@exyconn/shell/config/theme';
 import { AudienceListForm } from './audience-list.form';
-
-/** Opens a MUI Select and picks an option — the listbox is a portal, not the label. */
-const choose = (name: string, option: string) => {
-  cy.get(`input[name="${name}"]`).parent().find('[role="combobox"]').click();
-  cy.get('ul[role="listbox"]').contains('li', option).click();
-};
 
 const mount = () =>
   cy.mount(
     <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
-          <AudienceListForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
+          <ConfirmProvider>
+            <AudienceListForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
+          </ConfirmProvider>
         </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
   );
 
 describe('AudienceListForm', () => {
-  it('requires a name and somebody to send to', () => {
+  it('requires a name', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Name is required').should('be.visible');
-    cy.contains('Pick some people, or choose a segment rule').should('be.visible');
   });
 
-  it('says when there are no clients or contacts to pick from', () => {
+  it('starts from the recommended set-up: both registers, one preferred address, kept live', () => {
     mount();
-    cy.contains('No clients found — add clients first.').should('be.visible');
-    cy.contains('No contacts found — add contacts first.').should('be.visible');
+    cy.contains('button', 'Both').should('have.attr', 'aria-pressed', 'true');
+    cy.get('input[name="emailSelection"][value="PRIMARY"]').should('be.checked');
+    cy.get('input[name="updateMode"][value="DYNAMIC"]').should('be.checked');
   });
 
-  it('asks for the account status only once that segment rule is chosen', () => {
+  it('asks where company addresses come from only when companies are a source', () => {
     mount();
-    cy.fieldLabel('Account status').should('not.exist');
-    choose('dynamicSegment', 'Contacts By Company Status');
-    cy.fieldLabel('Account status').should('be.visible');
+    cy.contains('Company email sources').should('be.visible');
+    cy.contains('button', 'Contacts').click();
+    cy.contains('Company email sources').should('not.exist');
   });
 
-  it('accepts a segment rule instead of naming anybody', () => {
+  it('warns that using every address can reach one person several times', () => {
     mount();
-    choose('dynamicSegment', 'All Active Contacts');
+    cy.get('input[name="emailSelection"][value="ALL"]').check({ force: true });
+    cy.contains('in several of their inboxes').should('be.visible');
+  });
+
+  it('needs picked records when only picked records are used', () => {
+    mount();
+    cy.get('input[name="name"]').type('VIPs');
+    cy.contains('button', 'Picked records only').click();
     cy.contains('button', 'Create').click();
-    cy.contains('Pick some people, or choose a segment rule').should('not.exist');
+    cy.contains('Pick some records, or choose Contacts, Companies or Both').should('be.visible');
+  });
+
+  it('explains that a fixed snapshot is frozen when saved', () => {
+    mount();
+    cy.get('input[name="updateMode"][value="FIXED_SNAPSHOT"]').check({ force: true });
+    cy.contains('Saving freezes the audience exactly as the counts below show it.').should(
+      'be.visible',
+    );
+  });
+
+  it('keeps the final eligible count in view and offers a retry when it cannot be counted', () => {
+    mount();
+    cy.contains('Final eligible recipients').should('be.visible');
+    // No server answers in this harness, so the counts fail and the panel says so.
+    cy.contains('button', 'Retry').should('be.visible');
   });
 
   it('calls onCancel', () => {
