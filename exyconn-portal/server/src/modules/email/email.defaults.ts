@@ -526,6 +526,25 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
           This is an indicative planning estimate, not a quotation. Questions? Visit {{websiteUrl}}.
         </mj-text>`),
   },
+  {
+    key: 'meeting-assistant-summary',
+    name: 'Meeting Assistant — meeting summary',
+    description:
+      'Sent by the Meeting Assistant after a Google Meet call once its AI notes are ready (or approved). {{discussionPoints}}, {{decisions}} and {{actionItems}} are finished HTML lists built from the notes; {{meetingUrl}} opens the meeting in the portal.',
+    subject: 'Meeting notes: {{meetingTitle}} ({{meetingDate}})',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">{{meetingTitle}}</mj-text>
+        <mj-text font-size="13px" color="#64748b">{{meetingDate}} · {{duration}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Summary</strong><br />{{executiveSummary}}</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Key discussion points</strong>{{discussionPoints}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Decisions</strong>{{decisions}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Action items</strong>{{actionItems}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{meetingUrl}}" padding="24px 0 8px">Open the meeting</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          These notes were written by AI from the meeting transcript. Owners and deadlines marked
+          "to confirm" were not stated clearly — check them before relying on them.
+        </mj-text>`),
+  },
 ];
 
 /**

@@ -11,7 +11,8 @@ import type { TokenPayload } from '../utils/jwt';
  * when a resolver is called with a context built some other way.
  */
 function assertNotDevice(ctx: GraphQLContext, user: TokenPayload): void {
-  if (ctx.deviceId || user.deviceId) {
+  // The Meeting Assistant extension's token is just as narrow: it never opens a portal module.
+  if (ctx.deviceId || user.deviceId || user.esid) {
     forbidden('Sign in to the portal to do this.');
   }
 }

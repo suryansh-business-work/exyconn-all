@@ -20,6 +20,7 @@ import { startOverdueSweep, startRecurringInvoiceSchedule } from './modules/fina
 import { startSocialSchedule } from './modules/social-accounts';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
+import { startMeetingAssistantWorker } from './modules/meeting-assistant';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
@@ -186,6 +187,7 @@ async function bootstrap(): Promise<void> {
   // AI jobs are queued rather than run inside the request that asked for them, so
   // something has to drain the queue whether or not anyone has the AI module open.
   startAiWorker();
+  startMeetingAssistantWorker();
   // Due dates are the one thing in the portal nobody is watching: a contract expires, a
   // corrective action falls overdue, a follow-up is missed, and the record simply sits
   // there. The sweep asks every module what has come due and tells the people who own it.

@@ -175,6 +175,27 @@ export const env = Object.freeze({
    * claiming a backup that never ran.
    */
   backupStatusFile: process.env.BACKUP_STATUS_FILE ?? '',
+  /** The Meeting Assistant Chrome extension (docs/portal/meeting-assistant). */
+  meetAssistant: {
+    /**
+     * Chrome extension ids allowed to sign in (comma-separated): the internal build's fixed id
+     * and the Chrome Web Store item's id. A sign-in redirect to any other id is refused.
+     */
+    extensionIds: (process.env.MEET_ASSISTANT_EXTENSION_IDS ?? '')
+      .split(',')
+      .map((id) => id.trim())
+      .filter(Boolean),
+    /** The employee portal, where every employee opens "My meetings" and connects the extension. */
+    portalUrl: (process.env.MEET_ASSISTANT_PORTAL_URL ?? 'https://employee.exyconn.com').replace(
+      /\/$/,
+      '',
+    ),
+    /**
+     * Body limit of one audio upload: a ~25 s chunk of 16 kHz PCM WAV is ~800 KB, sent as
+     * base64 (4/3 larger) in JSON. The decoded WAV is capped at 8 MB separately.
+     */
+    audioBodyLimit: process.env.MEET_ASSISTANT_AUDIO_LIMIT ?? '12mb',
+  },
   /** Download page for the desktop tracker, used as the CTA in the access-granted email. */
   trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://employee.exyconn.com/me/tracker',
   /**

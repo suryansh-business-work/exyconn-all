@@ -101,6 +101,11 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'Translation',
   // Sign-in artefacts, looked up before an organization is known.
   'PasswordResetToken',
+  // The Meeting Assistant Chrome extension: Exyconn ships one build for every company (each
+  // picks its channel), and a Google Meet connection in progress is read by the OAuth callback
+  // before any company is known.
+  'MaExtensionRelease',
+  'MaGoogleOAuthState',
 ]);
 
 /**

@@ -40,6 +40,12 @@ import {
 } from './modules/clienthub/payments/webhook.wallets';
 import { SLACK_EVENTS_PATH, slackEventsRouter } from './modules/website-chat';
 import { tableBulkJobSchemaPlugin } from './modules/table-transfer';
+import {
+  GOOGLE_MEET_CALLBACK_PATH,
+  MA_REST_PATH,
+  googleMeetConnectRouter,
+  meetAssistantRouter,
+} from './modules/meeting-assistant';
 
 /**
  * Builds the Express app with the Apollo GraphQL middleware mounted at /graphql.
@@ -107,6 +113,11 @@ export async function createApp(): Promise<Express> {
   app.use(PAYONEER_NOTIFY_PATH, payoneerNotifyRouter());
   // Agents' replies in website chat Slack threads; each delivery is signed (no session).
   app.use(SLACK_EVENTS_PATH, slackEventsRouter());
+  // The Meeting Assistant Chrome extension: its OAuth token endpoint, audio uploads (an
+  // extension Bearer token, checked per request) and signed, expiring downloads.
+  app.use(MA_REST_PATH, meetAssistantRouter());
+  // Where Google sends the browser back when someone connects Google Meet (no session).
+  app.use(GOOGLE_MEET_CALLBACK_PATH, googleMeetConnectRouter());
   app.use(
     '/graphql',
     // The default 100kb body limit is far too small for the tracker: a compressed

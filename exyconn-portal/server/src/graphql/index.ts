@@ -68,6 +68,7 @@ import { searchTypeDefs, searchResolvers } from '../modules/search';
 // Imported for its side effect: every module's records become findable from the search box.
 import '../modules/search/providers';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
+import { meetingAssistantTypeDefs, meetingAssistantResolvers } from '../modules/meeting-assistant';
 import {
   crmEntitiesTypeDefs,
   crmProfileTypeDefs,
@@ -286,6 +287,7 @@ export const typeDefs = [
   marketingMetricsTypeDefs,
   legalTypeDefs,
   aiTypeDefs,
+  ...meetingAssistantTypeDefs,
   crmTypeDefs,
   productsTypeDefs,
   projectsTypeDefs,
@@ -394,6 +396,7 @@ export const resolvers = mergeResolvers([
   marketingMetricsResolvers,
   legalResolvers,
   aiResolvers,
+  meetingAssistantResolvers,
   productsResolvers,
   projectsResolvers,
   boardResolvers,

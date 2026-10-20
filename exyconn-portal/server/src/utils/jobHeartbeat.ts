@@ -28,6 +28,8 @@ export const JOB_KEYS = {
   emailVerification: 'emailVerification',
   crmReminders: 'crmReminders',
   tableBulkJobs: 'tableBulkJobs',
+  meetingAssistant: 'meetingAssistant',
+  meetingAssistantRetention: 'meetingAssistantRetention',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

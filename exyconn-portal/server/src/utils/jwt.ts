@@ -26,6 +26,11 @@ export interface TokenPayload {
    * revoked through their device row instead, and on tokens issued before sessions existed.
    */
   sid?: string;
+  /**
+   * Set only on Meeting Assistant extension tokens: the extension session row the token was
+   * issued for. Such a token lives fifteen minutes and only reaches the extension's operations.
+   */
+  esid?: string;
 }
 
 const ALGORITHM = 'HS256';
@@ -33,6 +38,10 @@ const ISSUER = 'exyconn-portal';
 /** Who a token is for: a portal session, or a tracker device. Neither is accepted as the other. */
 const PORTAL_AUDIENCE = 'portal';
 const DEVICE_AUDIENCE = 'tracker-device';
+/** The Meeting Assistant Chrome extension: short-lived, renewed through its session row. */
+const EXTENSION_AUDIENCE = 'meet-extension';
+/** Short enough that a token lifted from the extension is worthless soon after. */
+export const EXTENSION_TOKEN_TTL_SECONDS = 15 * 60;
 /** A password accepted, a second factor still owed. Never accepted as a session. */
 const MFA_AUDIENCE = 'portal-mfa';
 /**
@@ -102,6 +111,29 @@ export function signDeviceToken(payload: TokenPayload & { deviceId: string }): s
 }
 
 /**
+ * Signs the access token of one signed-in Meeting Assistant extension. It carries the
+ * session row's id (`esid`), and buildContext re-checks that row on every request, so
+ * revoking the session cuts the extension off at once, not fifteen minutes later.
+ */
+export function signExtensionToken(payload: TokenPayload & { esid: string }): string {
+  return jwt.sign(payload, env.jwtSecret, {
+    algorithm: ALGORITHM,
+    expiresIn: EXTENSION_TOKEN_TTL_SECONDS,
+    issuer: ISSUER,
+    audience: EXTENSION_AUDIENCE,
+    jwtid: randomUUID(),
+  });
+}
+
+/** The audience a token claims to be for, read from its unverified claims. */
+function audienceOf(claims: jwt.JwtPayload): string {
+  if (typeof claims.esid === 'string') {
+    return EXTENSION_AUDIENCE;
+  }
+  return typeof claims.deviceId === 'string' ? DEVICE_AUDIENCE : PORTAL_AUDIENCE;
+}
+
+/**
  * How a token is verified. The algorithm is always pinned, so a token can never pick its own
  * (`none`, or an asymmetric one keyed with the secret).
  *
@@ -118,8 +150,7 @@ function verifyOptionsFor(token: string): jwt.VerifyOptions {
   if (!claims?.iss && !claims?.aud) {
     return pinned;
   }
-  const audience = typeof claims.deviceId === 'string' ? DEVICE_AUDIENCE : PORTAL_AUDIENCE;
-  return { ...pinned, issuer: ISSUER, audience };
+  return { ...pinned, issuer: ISSUER, audience: audienceOf(claims) };
 }
 
 /** Verifies and decodes a JWT, returning null when invalid. */

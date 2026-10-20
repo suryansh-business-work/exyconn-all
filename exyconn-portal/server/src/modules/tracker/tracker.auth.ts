@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { Kind, parse, type DocumentNode } from 'graphql';
+import { onlyRootFields } from '../../utils/graphqlRootFields';
 import type { GraphQLContext } from '../../middleware/auth';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { TrackerAccessModel, TrackerDeviceModel } from './models';
@@ -54,37 +54,13 @@ const TRACKER_DEVICE_FIELDS: ReadonlySet<string> = new Set([
   'withdrawTrackerManualEntry',
 ]);
 
-/** The document a request carries, or null when it has none that parses. */
-function parseDocument(query: unknown): DocumentNode | null {
-  if (typeof query !== 'string') {
-    return null;
-  }
-  try {
-    return parse(query);
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Whether a GraphQL request may run on a device token: every operation in it selects only
  * tracker root fields, named directly (a fragment at the root could hide any field). A request
  * with no readable document — a batch, a persisted-query hash — is refused.
  */
 export function deviceMayRun(query: unknown): boolean {
-  const document = parseDocument(query);
-  if (!document) {
-    return false;
-  }
-  return document.definitions.every((definition) => {
-    if (definition.kind !== Kind.OPERATION_DEFINITION) {
-      return true;
-    }
-    return definition.selectionSet.selections.every(
-      (selection) =>
-        selection.kind === Kind.FIELD && TRACKER_DEVICE_FIELDS.has(selection.name.value),
-    );
-  });
+  return onlyRootFields(query, TRACKER_DEVICE_FIELDS);
 }
 
 /**

@@ -31,6 +31,10 @@ const SEED_PRICES: Array<{ model: string } & ModelPrice> = [
   { model: 'gpt-4.1-nano', inputPer1kUsd: 0.0001, outputPer1kUsd: 0.0004 },
   { model: 'o3-mini', inputPer1kUsd: 0.0011, outputPer1kUsd: 0.0044 },
   { model: 'gpt-3.5-turbo', inputPer1kUsd: 0.0005, outputPer1kUsd: 0.0015 },
+  // Speech to text (Meeting Assistant): input is priced at the audio-token rate, which is
+  // what nearly all of a transcription's input is.
+  { model: 'gpt-4o-transcribe', inputPer1kUsd: 0.006, outputPer1kUsd: 0.01 },
+  { model: 'gpt-4o-transcribe-diarize', inputPer1kUsd: 0.006, outputPer1kUsd: 0.01 },
 ];
 
 /**
