@@ -22,8 +22,11 @@ vi.mock('../../../../../src/pages/projects/ticket/TicketDialog', async () => ({
 vi.mock('../../../../../src/pages/projects/board/useBoardDnd', () => ({
   useBoardDnd: () => ({
     sensors: [],
+    layout: {},
     activeTask: drag.activeTask,
+    targetColumn: undefined,
     onDragStart: vi.fn(),
+    onDragOver: vi.fn(),
     onDragEnd: vi.fn(),
     onDragCancel: vi.fn(),
     moveColumn: vi.fn(),

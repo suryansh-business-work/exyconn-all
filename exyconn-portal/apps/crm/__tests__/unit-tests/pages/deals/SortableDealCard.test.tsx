@@ -41,7 +41,7 @@ describe('SortableDealCard', () => {
   it('shows the card and its grip when it is not being carried', () => {
     renderCard(false);
 
-    expect(screen.queryByTestId('deal-drop-placeholder')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('kanban-drop-placeholder')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Acme rollout/ })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Drag Acme rollout' })).toBeVisible();
   });
@@ -49,7 +49,7 @@ describe('SortableDealCard', () => {
   it('turns its slot into an outlined, empty placeholder of the same size while carried', () => {
     renderCard(true);
 
-    const placeholder = screen.getByTestId('deal-drop-placeholder');
+    const placeholder = screen.getByTestId('kanban-drop-placeholder');
     const content = placeholder.firstElementChild as HTMLElement;
     expect(getComputedStyle(placeholder).outline).toMatch(/^2px dashed /);
     // The card stays in the slot to hold its height, but nobody sees or hears it there.

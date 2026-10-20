@@ -1,15 +1,8 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useT } from '@exyconn/i18n';
-import {
-  Box,
-  Stack,
-  Typography,
-  borderWidth,
-  readableAccent,
-  transition,
-  type Theme,
-} from '@exyconn/shell/components/ui';
+import { dropTargetRing } from '@exyconn/kanban';
+import { Box, Stack, Typography, readableAccent, transition } from '@exyconn/shell/components/ui';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import type { DealStage } from '@exyconn/shell/graphql/generated';
@@ -25,12 +18,6 @@ interface DealColumnProps {
   highlighted?: boolean;
   onOpen: (deal: DealRow) => void;
 }
-
-/** The ring a column wears while it is the drop target — the stage's own accent. */
-const targetRing = (accent: string) => (theme: Theme) => ({
-  boxShadow: `inset 0 0 0 ${borderWidth.thick}px ${readableAccent(accent, theme)}`,
-  bgcolor: 'action.hover',
-});
 
 /**
  * One pipeline stage: a drop target for a card carried from any column, and a sorted list
@@ -54,7 +41,7 @@ export function DealColumn({
       sx={[
         panel,
         { minWidth: 240, flex: '1 0 240px', transition: transition.surface },
-        highlighted && targetRing(accent),
+        highlighted && dropTargetRing(accent),
       ]}
     >
       <Stack

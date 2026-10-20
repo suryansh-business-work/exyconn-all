@@ -29,6 +29,7 @@ COPY packages/gcc-cost/package.json packages/gcc-cost/
 COPY packages/csv/package.json packages/csv/
 COPY packages/demo-visitor/package.json packages/demo-visitor/
 COPY packages/i18n/package.json packages/i18n/
+COPY packages/kanban/package.json packages/kanban/
 COPY packages/live-editor/package.json packages/live-editor/
 COPY packages/logger/package.json packages/logger/
 COPY packages/shell/package.json packages/shell/

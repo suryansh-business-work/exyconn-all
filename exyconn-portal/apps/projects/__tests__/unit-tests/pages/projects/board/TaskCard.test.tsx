@@ -3,16 +3,16 @@ import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TaskPriority, TaskType } from '@exyconn/shell/graphql/generated';
 import type { TaskFieldsFragment } from '@exyconn/shell/graphql/generated';
-import { TaskCard } from '../../../../../src/pages/projects/board';
 import { renderWithProviders } from '../../../test-utils';
 import { taskRow } from '../../../fixtures';
+import { ColumnTaskList } from '../../../../../src/pages/projects/board/ColumnTaskList';
 import { DndWrapper } from './dnd-wrapper';
 
 const renderCard = (task: TaskFieldsFragment) => {
   const onOpen = vi.fn();
   renderWithProviders(
     <DndWrapper ids={[task.id]}>
-      <TaskCard task={task} onOpen={onOpen} />
+      <ColumnTaskList columnId={task.columnId} tasks={[task]} onOpenTask={onOpen} />
     </DndWrapper>,
   );
   return { onOpen };

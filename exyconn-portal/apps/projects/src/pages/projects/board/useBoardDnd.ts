@@ -1,14 +1,7 @@
-import { useCallback, useState } from 'react';
-import {
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type DragStartEvent,
-} from '@dnd-kit/core';
-import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { useCallback, useMemo } from 'react';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
+import { arrangeBoard, useKanbanDnd, useKanbanSensors, type DropTarget } from '@exyconn/kanban';
 import type { ProjectBoardApi } from './useProjectBoard';
 import type { TaskView } from './types';
 
@@ -30,19 +23,11 @@ function applyTaskMove(tasks: TaskView[], taskId: string, toColumnId: string, to
   return [...others, ...target];
 }
 
-/** Wires dnd-kit sensors and commit logic for the board: horizontal column
- *  reordering and task move/reorder across columns. */
+/** Wires the board's drag: horizontal column reordering here, and the shared kanban drag
+ *  (live drop preview, placeholder, overlay) for tickets across columns. */
 export function useBoardDnd(api: ProjectBoardApi) {
   const { columns, tasks, setColumns, setTasks, persistColumnOrder, persistTaskMove } = api;
-  const [activeTask, setActiveTask] = useState<TaskView | null>(null);
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    // A finger has to hold before it drags: the board scrolls sideways under it, and a
-    // pointer sensor alone reads the first flick of that scroll as picking a card up.
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
-    // Space or Enter on a grip picks it up, the arrow keys carry it, Space or Enter drops it.
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
+  const sensors = useKanbanSensors();
 
   /** Moves a column to a position — the drag's commit, and the header's left/right buttons. */
   const moveColumn = useCallback(
@@ -74,59 +59,45 @@ export function useBoardDnd(api: ProjectBoardApi) {
     [tasks, moveTask],
   );
 
-  const onDragStart = useCallback(
-    (e: DragStartEvent) => {
-      if (e.active.data.current?.type === 'task') {
-        setActiveTask(tasks.find((t) => t.id === e.active.id) ?? null);
-      }
-    },
-    [tasks],
+  const settled = useMemo(
+    () =>
+      arrangeBoard(
+        tasks.map((task) => ({ id: task.id, column: task.columnId })),
+        columns.map((column) => column.id),
+      ),
+    [tasks, columns],
   );
+  const cards = useKanbanDnd({
+    layout: settled,
+    onDrop: (id: string, target: DropTarget) => moveTask(id, target.column, target.index),
+  });
 
-  const onDragEnd = useCallback(
-    (e: DragEndEvent) => {
-      setActiveTask(null);
-      const { active, over } = e;
-      if (!over) return;
-      const overType = over.data.current?.type;
-
-      if (active.data.current?.type === 'column') {
-        const overColumnId =
-          overType === 'column' ? String(over.id) : columnIdOf(tasks, String(over.id));
-        if (!overColumnId || overColumnId === active.id) return;
-        moveColumn(
-          String(active.id),
-          columns.findIndex((c) => c.id === overColumnId),
-        );
-        return;
-      }
-
-      // Task drag — resolve the destination column and index from the drop target.
-      const taskId = String(active.id);
-      let toColumnId: string | undefined;
-      let toIndex: number;
-      if (overType === 'task') {
-        toColumnId = columnIdOf(tasks, String(over.id));
-        const colTasks = tasks.filter((t) => t.columnId === toColumnId);
-        toIndex = colTasks.findIndex((t) => t.id === over.id);
-      } else {
-        toColumnId = String(over.id); // dropped on a column container
-        toIndex = tasks.filter((t) => t.columnId === toColumnId).length;
-      }
-      if (!toColumnId) return;
-      moveTask(taskId, toColumnId, toIndex);
-    },
-    [columns, tasks, moveColumn, moveTask],
-  );
-
-  const onDragCancel = useCallback(() => setActiveTask(null), []);
+  /** A column drag commits here; a ticket drag is the shared kanban's. */
+  const onDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (active.data.current?.type !== 'column') {
+      cards.onDragEnd(e);
+      return;
+    }
+    if (!over) return;
+    const overColumnId =
+      over.data.current?.type === 'column' ? String(over.id) : columnIdOf(tasks, String(over.id));
+    if (!overColumnId || overColumnId === active.id) return;
+    moveColumn(
+      String(active.id),
+      columns.findIndex((c) => c.id === overColumnId),
+    );
+  };
 
   return {
     sensors,
-    activeTask,
-    onDragStart,
+    layout: cards.layout,
+    activeTask: tasks.find((task) => task.id === cards.activeId) ?? null,
+    targetColumn: cards.targetColumn,
+    onDragStart: cards.onDragStart,
+    onDragOver: cards.onDragOver,
     onDragEnd,
-    onDragCancel,
+    onDragCancel: cards.onDragCancel,
     moveColumn,
     moveTaskToColumn,
   };
