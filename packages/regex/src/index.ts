@@ -324,3 +324,17 @@ export function isValidTaxId(code: string, value: string): boolean {
  * lowercase letters, digits and `_`, at most 40 characters (`renewal_date`, `tier`).
  */
 export const CRM_PROPERTY_KEY = /^[a-z][a-z\d_]{0,39}$/;
+
+/**
+ * A Google Meet call's path, e.g. `/abc-defg-hij` (optionally followed by `/`, `?` or `#`).
+ * Match it against `URL.pathname`; group 1 is the meeting code. The lobby and landing pages
+ * (`/`, `/landing`, `/new`) do not match.
+ */
+export const GOOGLE_MEET_CODE = /^\/([a-z]{3}-[a-z]{4}-[a-z]{3})(?:$|[/?#])/;
+
+/**
+ * Where Chrome hands an extension's sign-in back: `https://<32-letter extension id>.chromiumapp.org/…`.
+ * Chrome writes extension ids with the letters a–p only. A consent screen redirects the browser
+ * here (with `error=access_denied` on Cancel) only when the address matches.
+ */
+export const CHROME_EXTENSION_REDIRECT = /^https:\/\/[a-p]{32}\.chromiumapp\.org\//;

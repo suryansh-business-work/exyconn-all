@@ -1,0 +1,156 @@
+# The Meeting Assistant extension's operations. An extension token may call only the
+# allow-listed root fields (see the server's meeting-assistant extension guard), so every
+# operation here selects only those, and only the fields the extension renders.
+
+query MaExtensionContext {
+  maExtensionContext {
+    userId
+    name
+    email
+    organizationName
+    enabled
+    remindersEnabled
+    reminderIntervalMinutes
+    maxRemindersPerMeeting
+    participantTracking
+    liveTranscript
+    maxMeetingMinutes
+    portalUrl
+  }
+}
+
+mutation MaStartSession($input: MaStartSessionInput!) {
+  maStartSession(input: $input) {
+    id
+    startedAt
+    status
+    consentRecordedAt
+  }
+}
+
+mutation MaRecordConsent($meetingId: ID!) {
+  maRecordConsent(meetingId: $meetingId) {
+    id
+    consentRecordedAt
+  }
+}
+
+mutation MaHeartbeat($meetingId: ID!, $input: MaHeartbeatInput!) {
+  maHeartbeat(meetingId: $meetingId, input: $input) {
+    id
+    status
+  }
+}
+
+mutation MaRecordParticipantEvents($meetingId: ID!, $events: [MaParticipantEventInput!]!) {
+  maRecordParticipantEvents(meetingId: $meetingId, events: $events)
+}
+
+mutation MaFinalizeSession($meetingId: ID!, $endedAt: DateTime!) {
+  maFinalizeSession(meetingId: $meetingId, endedAt: $endedAt) {
+    id
+    status
+  }
+}
+
+query MaFollowUp($meetingId: ID!) {
+  maFollowUp(meetingId: $meetingId) {
+    previousMeeting {
+      id
+      title
+      startedAt
+    }
+    pendingActions {
+      id
+      title
+    }
+    overdueActions {
+      id
+    }
+    unresolvedBlockers
+    carriedTopics
+  }
+}
+
+query MaTranscript($meetingId: ID!, $afterMs: Int, $limit: Int) {
+  maTranscript(meetingId: $meetingId, afterMs: $afterMs, limit: $limit) {
+    id
+    startMs
+    endMs
+    text
+    speakerLabel
+    speakerName
+  }
+}
+
+query MaParticipants($meetingId: ID!) {
+  maParticipants(meetingId: $meetingId) {
+    id
+    displayName
+    status
+    rejoinCount
+  }
+}
+
+query MaNotes($meetingId: ID!) {
+  maMeeting(id: $meetingId) {
+    id
+    summaryStatus
+  }
+  maNotes(meetingId: $meetingId) {
+    id
+    generatedAt
+    content {
+      overview
+      discussionPoints
+      followUps
+    }
+  }
+  maDecisions(meetingId: $meetingId) {
+    id
+    text
+  }
+}
+
+query MaActionItems($meetingId: ID!, $input: TableQueryInput!) {
+  maActionItemsPaged(input: $input, meetingId: $meetingId) {
+    rows {
+      id
+      title
+      status
+      assignedTo
+      dueDate
+      overdue
+    }
+    totalCount
+  }
+}
+
+mutation MaSetActionStatus($id: ID!, $status: MaActionStatus!) {
+  maSetActionStatus(id: $id, status: $status) {
+    id
+    status
+  }
+}
+
+query MaLatestRelease {
+  maLatestRelease {
+    version
+    storeUrl
+  }
+}
+
+# Tech > Logs. Public on the portal; the extension's token, when present, names the user.
+mutation ReportClientLogs($input: AppLogBatchInput!) {
+  reportClientLogs(input: $input)
+}
+
+query LocaleBundle($locale: String!) {
+  localeBundle(locale: $locale) {
+    locale
+    translations {
+      source
+      text
+    }
+  }
+}

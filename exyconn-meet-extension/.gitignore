@@ -1,0 +1,6 @@
+dist/
+artifacts/
+coverage/
+cypress/a11y/
+*.pem
+cypress/screenshots/
