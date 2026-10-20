@@ -117,6 +117,8 @@ export const gmailTypeDefs = gql`
 
   extend type Mutation {
     saveGmailConfig(input: GmailConfigInput!): GmailConfig!
+    "Copies the saved Google sign-in client into Gmail and turns Gmail on (TECH)."
+    useGoogleSignInClientForGmail: GmailConfig!
     "Google's consent page to connect one more mailbox (or renew one); comes back to returnTo."
     startGmailConnect(returnTo: String!): String!
     "Turns an account on or off for the CRM."

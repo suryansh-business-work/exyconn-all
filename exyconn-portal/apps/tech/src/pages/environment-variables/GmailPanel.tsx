@@ -7,6 +7,7 @@ import { useGmailConfigQuery } from '@exyconn/shell/graphql/generated';
 import { GmailConfigForm } from './forms/gmail-config';
 import { GmailConnection } from './GmailConnection';
 import { RedirectUriInfo } from './RedirectUriInfo';
+import { UseGoogleClientButton } from './UseGoogleClientButton';
 
 /** What the Google client needs besides the redirect URI. */
 const GOOGLE_INSTRUCTIONS =
@@ -49,6 +50,7 @@ export function GmailPanel() {
         {t('Google OAuth app')}
       </Typography>
       <GmailConnection config={config} />
+      <UseGoogleClientButton />
       <RedirectUriInfo uri={config.redirectUri} instructions={GOOGLE_INSTRUCTIONS} />
       <GmailConfigForm key={config.updatedAt ?? 'new'} initial={config} />
     </Box>

@@ -3096,6 +3096,8 @@ export type ContractSignature = {
   id: Scalars['ID']['output'];
   requestedByName: Scalars['String']['output'];
   revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The signature they drew, or typed and rendered, as a PNG data URL. Empty on older rows. */
+  signatureImage: Scalars['String']['output'];
   signedAt?: Maybe<Scalars['DateTime']['output']>;
   signedIp: Scalars['String']['output'];
   /** The name the signer typed — their mark, in their own words. */
@@ -7787,6 +7789,11 @@ export type Mutation = {
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
   importTableRows: TableImportResult;
   /**
+   * Invites people into a company with the portals they may open; each gets the welcome email
+   * with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
+   */
+  inviteOrganizationMembers: Array<User>;
+  /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
    * and never the caller. Admin's setUserActive remains the general way to deactivate anyone.
    */
@@ -8076,12 +8083,13 @@ export type Mutation = {
   shareTask: Scalars['Int']['output'];
   /**
    * LEGAL: sign our own side. The signer is the account making the request, not a name typed
-   * into a field, and the document's hash is recorded with it.
+   * into a field; their drawn signature and the document's hash are recorded with it.
    */
   signContract: Contract;
   /**
    * Unauthenticated — the counterparty signs with the link they were sent. Records the name
-   * they typed, where they answered from, and the hash of the document they were shown.
+   * they typed, the signature they drew, where they answered from, and the hash of the
+   * document they were shown.
    */
   signContractWithToken: ContractSignedReceipt;
   /** AI: post ideas on a topic, in the voice of the best posts. */
@@ -8390,6 +8398,8 @@ export type Mutation = {
   uploadCrmMedia: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
+  /** Copies the saved Google sign-in client into Gmail and turns Gmail on (TECH). */
+  useGoogleSignInClientForGmail: GmailConfig;
   /** Public: exchanges the emailed code for a client hub pass. */
   verifyClientHubCode: ClientHubSignIn;
   /** Checks one address now and keeps the result. */
@@ -10170,6 +10180,12 @@ export type MutationImportTableRowsArgs = {
 };
 
 
+export type MutationInviteOrganizationMembersArgs = {
+  members: Array<OrganizationMemberInput>;
+  organizationId: Scalars['ID']['input'];
+};
+
+
 export type MutationItDisableLeaverAccountArgs = {
   employeeId: Scalars['ID']['input'];
 };
@@ -10885,10 +10901,12 @@ export type MutationShareTaskArgs = {
 
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
+  signatureImage: Scalars['String']['input'];
 };
 
 
 export type MutationSignContractWithTokenArgs = {
+  signatureImage: Scalars['String']['input'];
   signedName: Scalars['String']['input'];
   token: Scalars['String']['input'];
 };
@@ -12463,15 +12481,23 @@ export type OrgNode = {
 /** One company using the portal. Every other record belongs to exactly one of these. */
 export type Organization = {
   __typename?: 'Organization';
+  addressLine1: Scalars['String']['output'];
+  addressLine2: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  /** A headcount band such as 11-50, or empty. */
+  companySize: Scalars['String']['output'];
   contactEmail: Scalars['String']['output'];
   /** ISO 3166-1 alpha-2 country code, or empty when not stated. */
   country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   /** ISO 4217 currency code — the money this company keeps its books in. */
   currency: Scalars['String']['output'];
+  /** A short note about the company, or empty. */
+  description: Scalars['String']['output'];
   /** The month its financial year opens: 1 is January, 4 is April. */
   fiscalYearStartMonth: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  industry: Scalars['String']['output'];
   /** Whether this is the company that operates the platform itself. Read-only; set at boot. */
   isPlatformOperator: Scalars['Boolean']['output'];
   legalName: Scalars['String']['output'];
@@ -12480,13 +12506,22 @@ export type Organization = {
   /** Its logo (an https URL), or empty when none was uploaded. */
   logoUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  postalCode: Scalars['String']['output'];
+  region: Scalars['String']['output'];
+  /** Company registration number (CIN, Companies House number, EIN...), or empty. */
+  registrationNumber: Scalars['String']['output'];
   /** URL-safe handle, unique across the platform. */
   slug: Scalars['String']['output'];
   status: OrganizationStatus;
+  /** Tax registration (GSTIN, VAT number...), or empty. */
+  taxId: Scalars['String']['output'];
   taxSystem: TaxSystem;
   /** IANA timezone the company works by. */
   timezone: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  /** Its website, or empty. */
+  website: Scalars['String']['output'];
 };
 
 /** The person a company is handed over to — its first administrator. */
@@ -12496,17 +12531,37 @@ export type OrganizationAdminInput = {
 };
 
 export type OrganizationInput = {
+  addressLine1?: InputMaybe<Scalars['String']['input']>;
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  companySize?: InputMaybe<Scalars['String']['input']>;
   contactEmail?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
   currency: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  industry?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  postalCode?: InputMaybe<Scalars['String']['input']>;
+  region?: InputMaybe<Scalars['String']['input']>;
+  registrationNumber?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
+  taxId?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Somebody invited into a company, with the portals (roles) they may open. */
+export type OrganizationMemberInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  /** One role per portal they may open. SUPER_ADMIN is never granted this way. */
+  roles: Array<Role>;
 };
 
 export enum OrganizationStatus {
@@ -12515,16 +12570,28 @@ export enum OrganizationStatus {
 }
 
 export type OrganizationUpdateInput = {
+  addressLine1?: InputMaybe<Scalars['String']['input']>;
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  companySize?: InputMaybe<Scalars['String']['input']>;
   contactEmail?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  industry?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  postalCode?: InputMaybe<Scalars['String']['input']>;
+  region?: InputMaybe<Scalars['String']['input']>;
+  registrationNumber?: InputMaybe<Scalars['String']['input']>;
+  taxId?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** An uploaded file read for import: its header row and data rows, blank rows kept in place. */
@@ -14440,6 +14507,8 @@ export type Query = {
   orgChart: Array<OrgNode>;
   /** One organization (SUPER_ADMIN). */
   organization: Organization;
+  /** Everything done to one organization, newest first: created, edited, suspended, people invited (SUPER_ADMIN). */
+  organizationHistory: Array<AuditLog>;
   /** Every organization on the platform (SUPER_ADMIN). */
   organizations: Array<Organization>;
   /** Every active employee and whether the month can be run for them, with the figures it would store. */
@@ -16140,6 +16209,11 @@ export type QueryOrganizationArgs = {
 };
 
 
+export type QueryOrganizationHistoryArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryPayrollRunPlanArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -17151,6 +17225,13 @@ export type SendCrmSmsInput = {
 };
 
 export type SendMailInput = {
+  /** Files already uploaded to the portal's CDN, attached to the email. Up to 10. */
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
+  /** Copied in, unseen by the others. Up to 20 addresses. */
+  bcc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Copied in, visibly. Up to 20 addresses. */
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The body as rich text (HTML). It is sanitised before it is sent. */
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
 };
@@ -21470,6 +21551,7 @@ export type ResolversTypes = ResolversObject<{
   Organization: ResolverTypeWrapper<Organization>;
   OrganizationAdminInput: OrganizationAdminInput;
   OrganizationInput: OrganizationInput;
+  OrganizationMemberInput: OrganizationMemberInput;
   OrganizationStatus: OrganizationStatus;
   OrganizationUpdateInput: OrganizationUpdateInput;
   ParsedTableFile: ResolverTypeWrapper<ParsedTableFile>;
@@ -22454,6 +22536,7 @@ export type ResolversParentTypes = ResolversObject<{
   Organization: Organization;
   OrganizationAdminInput: OrganizationAdminInput;
   OrganizationInput: OrganizationInput;
+  OrganizationMemberInput: OrganizationMemberInput;
   OrganizationUpdateInput: OrganizationUpdateInput;
   ParsedTableFile: ParsedTableFile;
   Payment: Payment;
@@ -24464,6 +24547,7 @@ export type ContractSignatureResolvers<ContextType = GraphQLContext, ParentType 
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   requestedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signatureImage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   signedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   signedIp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   signedName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -27163,6 +27247,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   importLeadsToCrm?: Resolver<ResolversTypes['LeadImportResult'], ParentType, ContextType, RequireFields<MutationImportLeadsToCrmArgs, 'leads'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
   importTableRows?: Resolver<ResolversTypes['TableImportResult'], ParentType, ContextType, RequireFields<MutationImportTableRowsArgs, 'firstRowNumber' | 'list' | 'mode' | 'rows'>>;
+  inviteOrganizationMembers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationInviteOrganizationMembersArgs, 'members' | 'organizationId'>>;
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
   itRevokeAllAccess?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItRevokeAllAccessArgs, 'employeeId'>>;
@@ -27289,8 +27374,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setWhatsappDemoVisitorBlocked?: Resolver<ResolversTypes['WhatsappDemoVisitor'], ParentType, ContextType, RequireFields<MutationSetWhatsappDemoVisitorBlockedArgs, 'blocked' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
   shareTask?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationShareTaskArgs, 'id' | 'recipientIds'>>;
-  signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id'>>;
-  signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signedName' | 'token'>>;
+  signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signatureImage'>>;
+  signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signatureImage' | 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
   startCallingBotCall?: Resolver<ResolversTypes['CallingBotCallStart'], ParentType, ContextType, RequireFields<MutationStartCallingBotCallArgs, 'input'>>;
@@ -27492,6 +27577,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   uploadCrmMedia?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadCrmMediaArgs, 'file' | 'fileName'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
+  useGoogleSignInClientForGmail?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType>;
   verifyClientHubCode?: Resolver<ResolversTypes['ClientHubSignIn'], ParentType, ContextType, RequireFields<MutationVerifyClientHubCodeArgs, 'code' | 'email'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerification'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email'>>;
   verifyEmployeeEmailCode?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationVerifyEmployeeEmailCodeArgs, 'code' | 'employeeId' | 'kind'>>;
@@ -27707,22 +27793,34 @@ export type OrgNodeResolvers<ContextType = GraphQLContext, ParentType extends Re
 }>;
 
 export type OrganizationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Organization'] = ResolversParentTypes['Organization']> = ResolversObject<{
+  addressLine1?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  addressLine2?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  companySize?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   contactEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fiscalYearStartMonth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isPlatformOperator?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   legalName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  postalCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  region?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  registrationNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['OrganizationStatus'], ParentType, ContextType>;
+  taxId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   taxSystem?: Resolver<ResolversTypes['TaxSystem'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -28954,6 +29052,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   openAppLogsFixPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType, Partial<QueryOpenAppLogsFixPromptArgs>>;
   orgChart?: Resolver<Array<ResolversTypes['OrgNode']>, ParentType, ContextType>;
   organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<QueryOrganizationArgs, 'id'>>;
+  organizationHistory?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryOrganizationHistoryArgs, 'id'>>;
   organizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
   payrollRunPlan?: Resolver<ResolversTypes['PayrollRunPlan'], ParentType, ContextType, RequireFields<QueryPayrollRunPlanArgs, 'month' | 'year'>>;
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;

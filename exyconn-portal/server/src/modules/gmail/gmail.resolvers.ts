@@ -11,6 +11,7 @@ import {
   readGmailConfig,
   saveGmailConfig,
   startGmailConnect,
+  useGoogleSignInClientForGmail,
   testGmail,
   type GmailConfigInput,
 } from './gmail.connect';
@@ -106,6 +107,18 @@ export const gmailResolvers = {
         entityId: 'gmail',
         entityLabel: 'Gmail',
         summary: `Saved the Gmail client (${input.enabled ? 'on' : 'off'})`,
+      });
+      return presentGmailConfig(saved);
+    },
+    useGoogleSignInClientForGmail: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await techStaff(ctx, 'EDIT');
+      const saved = await useGoogleSignInClientForGmail(await actorNameOf(ctx));
+      await recordAudit(ctx, {
+        action: 'UPDATE',
+        module: TECH_MODULE,
+        entityId: 'gmail',
+        entityLabel: 'Gmail',
+        summary: 'Pointed Gmail at the Google sign-in client and turned it on',
       });
       return presentGmailConfig(saved);
     },

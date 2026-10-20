@@ -1,3 +1,4 @@
+import { readGoogleConfig } from '../auth/google/google-sign-in.config';
 import { env } from '../../config/env';
 import { runAsPlatform } from '../../lib/tenant';
 import { badRequest, notFound } from '../../utils/errors';
@@ -69,6 +70,37 @@ export async function saveGmailConfig(input: GmailConfigInput, actorName: string
           enabled: input.enabled,
           updatedByName: actorName,
           ...(clientSecret === '' ? {} : { clientSecret }),
+        },
+      },
+      { new: true },
+    ).lean<GmailConfigDocument>(),
+  );
+  if (!saved) notFound('Gmail config');
+  return saved;
+}
+
+/**
+ * Points Gmail at the Google client already saved for Google sign-in, and turns it on. One
+ * Google OAuth client can serve both: it needs the Gmail redirect URI added and the Gmail API
+ * enabled on its project, which the Tech screen says alongside the button.
+ */
+export async function useGoogleSignInClientForGmail(actorName: string) {
+  const google = await readGoogleConfig();
+  if (!google.clientId || !google.clientSecret) {
+    badRequest(
+      'Save the Google sign-in client first (Tech > Environment Variables > Google sign-in).',
+    );
+  }
+  await readGmailConfig();
+  const saved = await runAsPlatform(() =>
+    GmailConfigModel.findOneAndUpdate(
+      { key: KEY },
+      {
+        $set: {
+          clientId: google.clientId,
+          clientSecret: google.clientSecret,
+          enabled: true,
+          updatedByName: actorName,
         },
       },
       { new: true },

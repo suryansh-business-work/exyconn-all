@@ -2728,17 +2728,37 @@ export type OrganizationAdminInput = {
 };
 
 export type OrganizationInput = {
+  addressLine1: InputMaybe<Scalars['String']['input']>;
+  addressLine2: InputMaybe<Scalars['String']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
+  companySize: InputMaybe<Scalars['String']['input']>;
   contactEmail: InputMaybe<Scalars['String']['input']>;
   country: InputMaybe<Scalars['String']['input']>;
   currency: Scalars['String']['input'];
+  description: InputMaybe<Scalars['String']['input']>;
   fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
+  industry: InputMaybe<Scalars['String']['input']>;
   legalName: InputMaybe<Scalars['String']['input']>;
   locale: InputMaybe<Scalars['String']['input']>;
   logoUrl: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  phone: InputMaybe<Scalars['String']['input']>;
+  postalCode: InputMaybe<Scalars['String']['input']>;
+  region: InputMaybe<Scalars['String']['input']>;
+  registrationNumber: InputMaybe<Scalars['String']['input']>;
   slug: InputMaybe<Scalars['String']['input']>;
+  taxId: InputMaybe<Scalars['String']['input']>;
   taxSystem: InputMaybe<TaxSystem>;
   timezone: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Somebody invited into a company, with the portals (roles) they may open. */
+export type OrganizationMemberInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  /** One role per portal they may open. SUPER_ADMIN is never granted this way. */
+  roles: Array<Role>;
 };
 
 export type OrganizationStatus =
@@ -2746,16 +2766,28 @@ export type OrganizationStatus =
   | 'SUSPENDED';
 
 export type OrganizationUpdateInput = {
+  addressLine1: InputMaybe<Scalars['String']['input']>;
+  addressLine2: InputMaybe<Scalars['String']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
+  companySize: InputMaybe<Scalars['String']['input']>;
   contactEmail: InputMaybe<Scalars['String']['input']>;
   country: InputMaybe<Scalars['String']['input']>;
   currency: InputMaybe<Scalars['String']['input']>;
+  description: InputMaybe<Scalars['String']['input']>;
   fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
+  industry: InputMaybe<Scalars['String']['input']>;
   legalName: InputMaybe<Scalars['String']['input']>;
   locale: InputMaybe<Scalars['String']['input']>;
   logoUrl: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
+  phone: InputMaybe<Scalars['String']['input']>;
+  postalCode: InputMaybe<Scalars['String']['input']>;
+  region: InputMaybe<Scalars['String']['input']>;
+  registrationNumber: InputMaybe<Scalars['String']['input']>;
+  taxId: InputMaybe<Scalars['String']['input']>;
   taxSystem: InputMaybe<TaxSystem>;
   timezone: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
@@ -3277,6 +3309,13 @@ export type SendCrmSmsInput = {
 };
 
 export type SendMailInput = {
+  /** Files already uploaded to the portal's CDN, attached to the email. Up to 10. */
+  attachments: InputMaybe<Array<FileAttachmentInput>>;
+  /** Copied in, unseen by the others. Up to 20 addresses. */
+  bcc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Copied in, visibly. Up to 20 addresses. */
+  cc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The body as rich text (HTML). It is sanitised before it is sent. */
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
 };

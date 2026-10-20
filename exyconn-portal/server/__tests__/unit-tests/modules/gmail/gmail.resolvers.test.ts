@@ -15,6 +15,8 @@ import {
   sendFromAnyMailbox,
 } from '../../../../src/modules/crm-integrations/crm-integrations.email';
 import { gmailResolvers } from '../../../../src/modules/gmail/gmail.resolvers';
+import { GoogleSignInConfigModel } from '../../../../src/modules/auth/google/google-sign-in.models';
+import { GmailConfigModel } from '../../../../src/modules/gmail/gmail.models';
 import { crmEmailThreads } from '../../../../src/modules/gmail/gmail.sync';
 import { GMAIL_AUDIT_MODULE } from '../../../../src/modules/gmail/gmail.audit';
 import {
@@ -118,6 +120,41 @@ describe('the Tech Gmail client', () => {
       'Saved the Gmail client (on)',
       'Saved the Gmail client (off)',
     ]);
+  });
+
+  it('refuses to borrow the Google sign-in client before one is saved', async () => {
+    await expect(
+      asOperator(async () => Mutation.useGoogleSignInClientForGmail(null, {}, ctx)),
+    ).rejects.toThrow('Save the Google sign-in client first');
+  });
+
+  it('points Gmail at the Google sign-in client, turns it on and audits it', async () => {
+    const secret = process.env.TEST_GOOGLE_SECRET ?? `secret-${'x'.repeat(8)}`;
+    await runAsPlatform(() =>
+      GoogleSignInConfigModel.create({
+        key: 'default',
+        clientId: 'signin.apps.googleusercontent.com',
+        clientSecret: secret,
+        enabled: true,
+      }),
+    );
+
+    const saved = (await asOperator(async () =>
+      Mutation.useGoogleSignInClientForGmail(null, {}, ctx),
+    )) as Record<string, unknown>;
+
+    expect(assertPlatformStaff).toHaveBeenLastCalledWith(ctx, 'TechConfig', [ROLES.TECH], 'EDIT');
+    expect(saved).toMatchObject({
+      clientId: 'signin.apps.googleusercontent.com',
+      hasClientSecret: true,
+      enabled: true,
+    });
+    const stored = await runAsPlatform(() => GmailConfigModel.findOne({ key: 'default' }).lean());
+    expect(stored?.clientSecret).toBe(secret);
+    const audits = await auditRows('TechConfig');
+    expect(audits.at(-1)?.summary).toBe(
+      'Pointed Gmail at the Google sign-in client and turned it on',
+    );
   });
 
   it('tests the connected accounts as Tech staff', async () => {
