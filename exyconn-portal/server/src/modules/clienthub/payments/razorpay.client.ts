@@ -51,6 +51,35 @@ export async function createRazorpayLink(keys: RazorpayKeys, request: CheckoutRe
   return { externalId: link.id, url: link.short_url };
 }
 
+/** A payment link as Razorpay holds it now: whether it is paid, and by which payment. */
+export interface RazorpayLinkState {
+  paid: boolean;
+  paymentId: string;
+  method: string;
+}
+
+interface RazorpayLink {
+  status?: string;
+  payments?: Array<{ payment_id?: string; method?: string; status?: string }> | null;
+}
+
+/**
+ * Reads a payment link back from Razorpay. A link reaches `paid` only once its whole amount is
+ * in (partial payments are off), so `paid` means the invoice balance it was opened for arrived.
+ */
+export async function fetchRazorpayLink(
+  keys: RazorpayKeys,
+  linkId: string,
+): Promise<RazorpayLinkState> {
+  const link = await call<RazorpayLink>(keys, `/payment_links/${encodeURIComponent(linkId)}`);
+  const payment = link.payments?.find((row) => row.status === 'captured');
+  return {
+    paid: link.status === 'paid',
+    paymentId: payment?.payment_id ?? '',
+    method: payment?.method ?? '',
+  };
+}
+
 /** Whether the keys work: listing one payment needs valid credentials and nothing else. */
 export async function testRazorpayKeys(keys: RazorpayKeys): Promise<void> {
   await call(keys, '/payments?count=1');

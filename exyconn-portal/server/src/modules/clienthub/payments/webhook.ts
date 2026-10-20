@@ -5,7 +5,7 @@ import { applyPayment } from '../../finance/finance.billing';
 import { PaymentAttemptModel, type PaymentGateway } from './attempt.model';
 import { activeRazorpay, activeStripe } from './gateway.service';
 import { validStripeSignature } from './stripe.client';
-import { validRazorpaySignature } from './razorpay.client';
+import { fetchRazorpayLink, validRazorpaySignature } from './razorpay.client';
 
 export { STRIPE_WEBHOOK_PATH, RAZORPAY_WEBHOOK_PATH } from './webhook.paths';
 const BODY_LIMIT = '1mb';
@@ -136,6 +136,27 @@ const RAZORPAY_METHODS: Record<string, Settlement['method']> = {
   upi: 'UPI',
   netbanking: 'BANK_TRANSFER',
 };
+
+/**
+ * Settles a Razorpay link the payer has just come back from, by asking Razorpay itself — so
+ * the invoice is marked paid the moment they return, even when the webhook is late, missing
+ * or not registered. Settling is exactly-once, so the webhook arriving too is harmless.
+ */
+export async function settleRazorpayLink(linkId: string): Promise<void> {
+  const keys = await activeRazorpay();
+  if (!keys) {
+    return;
+  }
+  const link = await fetchRazorpayLink(keys, linkId);
+  if (link.paid) {
+    await settle({
+      gateway: 'RAZORPAY',
+      externalId: linkId,
+      gatewayPaymentId: link.paymentId,
+      method: RAZORPAY_METHODS[link.method] ?? 'OTHER',
+    });
+  }
+}
 
 async function receiveRazorpay(raw: Buffer, signature: string | undefined): Promise<number> {
   const keys = await activeRazorpay();

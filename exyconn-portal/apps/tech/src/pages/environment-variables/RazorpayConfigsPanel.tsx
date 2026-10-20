@@ -14,6 +14,14 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { RazorpayConfigForm, type RazorpayConfigRow } from './forms/razorpay-config';
 import { maskedSecret } from './secret';
+import { WebhookInfo } from './WebhookInfo';
+
+/** The payment link events the webhook settles or closes attempts on (see webhook.ts). */
+const RAZORPAY_EVENTS = [
+  'payment_link.paid',
+  'payment_link.expired',
+  'payment_link.cancelled',
+] as const;
 
 const COLUMNS: Column<RazorpayConfigRow>[] = [
   { key: 'label', label: 'Label' },
@@ -92,6 +100,12 @@ export function RazorpayConfigsPanel() {
         subtitle="UPI, card and netbanking payments for invoices in the client hub"
         actionLabel="New Razorpay account"
         onAction={crud.openCreate}
+      />
+      <WebhookInfo
+        title="Webhook to register"
+        path="/webhooks/razorpay"
+        description="In the Razorpay Dashboard, add this URL as a webhook with the same secret saved here, subscribed to the events below. It confirms payments clients make from the client hub."
+        events={RAZORPAY_EVENTS}
       />
       <DataTable
         bulkEntity="RazorpayConfig"
