@@ -90,8 +90,8 @@ mutation RevokeContractSignature($id: ID!) {
 }
 
 # Our own side. The signer is the account making the request, so there is nothing to type.
-mutation SignContract($id: ID!) {
-  signContract(id: $id) {
+mutation SignContract($id: ID!, $signatureImage: String!) {
+  signContract(id: $id, signatureImage: $signatureImage) {
     id
     signedBy
     signedAt
@@ -109,6 +109,7 @@ query ContractSignatures($contractId: ID!) {
     revokedAt
     signedAt
     signedName
+    signatureImage
     signedIp
     signedUserAgent
     documentSha256
@@ -130,8 +131,8 @@ query ContractToSign($token: String!) {
   }
 }
 
-mutation SignContractWithToken($token: String!, $signedName: String!) {
-  signContractWithToken(token: $token, signedName: $signedName) {
+mutation SignContractWithToken($token: String!, $signedName: String!, $signatureImage: String!) {
+  signContractWithToken(token: $token, signedName: $signedName, signatureImage: $signatureImage) {
     signedAt
     documentSha256
   }

@@ -39,9 +39,11 @@ describe('RequestSignatureForm', () => {
     expect(
       screen.getByText('Asking for a signature on “Master services agreement”.'),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Who is signing')).toHaveValue('Acme Inc');
-    expect(screen.getByLabelText('Their email')).toHaveValue('');
-    expect(screen.getByText('The link is theirs alone and works for 30 days')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Who is signing/)).toHaveValue('Acme Inc');
+    expect(screen.getByLabelText(/^Their email/)).toHaveValue('');
+    expect(
+      screen.getByText('The signing link is sent here. It is theirs alone and works for 30 days.'),
+    ).toBeInTheDocument();
     expect(screen.queryByText(NOTHING_TO_SIGN)).not.toBeInTheDocument();
   });
 
@@ -52,9 +54,9 @@ describe('RequestSignatureForm', () => {
 
   it('validates the signer, the address and the length of the message', async () => {
     renderForm();
-    fill('Who is signing', 'A');
-    fill('Their email', 'not-an-email');
-    fill('Message (optional)', 'x'.repeat(1001));
+    fill(/^Who is signing/, 'A');
+    fill(/^Their email/, 'not-an-email');
+    fill('Message', 'x'.repeat(1001));
     await send();
 
     expect(await screen.findByText('Who are you asking?')).toBeInTheDocument();
@@ -63,9 +65,19 @@ describe('RequestSignatureForm', () => {
     expect(gql.request).not.toHaveBeenCalled();
   });
 
+  it('refuses a signer name over 120 characters', async () => {
+    renderForm();
+    fill(/^Who is signing/, 'a'.repeat(121));
+    fill(/^Their email/, 'legal@acme.example');
+    await send();
+
+    expect(await screen.findByText('Keep the name under 120 characters')).toBeInTheDocument();
+    expect(gql.request).not.toHaveBeenCalled();
+  });
+
   it('sends the link without a message when none was written', async () => {
     renderForm();
-    fill('Their email', ' legal@acme.example ');
+    fill(/^Their email/, ' legal@acme.example ');
     await send();
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -82,9 +94,9 @@ describe('RequestSignatureForm', () => {
 
   it('sends the message and the signer that were typed', async () => {
     renderForm();
-    fill('Who is signing', 'Dana Cruz');
-    fill('Their email', 'dana@acme.example');
-    fill('Message (optional)', 'Please sign by Friday.');
+    fill(/^Who is signing/, 'Dana Cruz');
+    fill(/^Their email/, 'dana@acme.example');
+    fill('Message', 'Please sign by Friday.');
     await send();
 
     await waitFor(() => expect(gql.request).toHaveBeenCalledTimes(1));
@@ -97,7 +109,7 @@ describe('RequestSignatureForm', () => {
   it('keeps the form open and says why when the request fails', async () => {
     gql.request.mockRejectedValue(new Error('This contract has no document'));
     renderForm();
-    fill('Their email', 'legal@acme.example');
+    fill(/^Their email/, 'legal@acme.example');
     await send();
 
     expect(await screen.findByText('This contract has no document')).toBeInTheDocument();
@@ -107,7 +119,7 @@ describe('RequestSignatureForm', () => {
   it('falls back to a plain message when the failure carries none', async () => {
     gql.request.mockRejectedValue('offline');
     renderForm();
-    fill('Their email', 'legal@acme.example');
+    fill(/^Their email/, 'legal@acme.example');
     await send();
 
     expect(await screen.findByText('The request could not be sent')).toBeInTheDocument();

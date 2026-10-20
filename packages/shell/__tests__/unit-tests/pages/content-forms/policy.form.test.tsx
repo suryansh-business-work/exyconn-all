@@ -72,7 +72,8 @@ function renderForm(initial: PolicyRow | null, categories?: readonly PolicyCateg
   return onDone;
 }
 
-async function enter(label: string, value: string) {
+/** Required fields' names end in " *", so those are matched with a pattern like /^Title/. */
+async function enter(label: string | RegExp, value: string) {
   await userEvent.click(screen.getByRole('textbox', { name: label }));
   await userEvent.paste(value);
 }
@@ -89,14 +90,14 @@ beforeEach(() => {
 describe('PolicyForm', () => {
   it('starts a new policy as General, internal and for all staff', () => {
     renderForm(null);
-    expect(screen.getByRole('combobox', { name: 'Category' })).toHaveTextContent('General');
-    expect(screen.getByRole('combobox', { name: 'Audience' })).toHaveTextContent('All Staff');
-    expect(screen.getByRole('combobox', { name: 'Classification' })).toHaveTextContent('Internal');
+    expect(screen.getByRole('combobox', { name: /^Category/ })).toHaveTextContent('General');
+    expect(screen.getByRole('combobox', { name: /^Audience/ })).toHaveTextContent('All Staff');
+    expect(screen.getByRole('combobox', { name: /^Classification/ })).toHaveTextContent('Internal');
   });
 
   it("starts as the screen's first kind when General is not offered", () => {
     renderForm(null, [PolicyCategory.It, PolicyCategory.Security]);
-    expect(screen.getByRole('combobox', { name: 'Category' })).toHaveTextContent('It');
+    expect(screen.getByRole('combobox', { name: /^Category/ })).toHaveTextContent('It');
   });
 
   it('needs a title, slug, body and effective date', async () => {
@@ -110,9 +111,34 @@ describe('PolicyForm', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
+  it('marks what is required and explains each field', () => {
+    renderForm(null);
+    expect(screen.getByRole('textbox', { name: /^Title/ })).toBeRequired();
+    expect(screen.getByRole('textbox', { name: /^Slug/ })).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Owner' })).not.toBeRequired();
+    expect(document.querySelector('input[name="effectiveDate"]')).toBeRequired();
+    expect(document.querySelector('input[name="nextReviewOn"]')).not.toBeRequired();
+    expect(screen.getByText('The name staff see in their policy list.')).toBeInTheDocument();
+    expect(screen.getByText('The day the policy takes effect.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Optional. When it must be read again and confirmed still right.'),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps the title under 200 characters and the summary under 500', async () => {
+    renderForm(null);
+    await enter(/^Title/, 't'.repeat(201));
+    await enter('Summary', 's'.repeat(501));
+    await save('Create');
+
+    expect(await screen.findByText('Keep the title under 200 characters')).toBeInTheDocument();
+    expect(screen.getByText('Keep the summary under 500 characters')).toBeInTheDocument();
+    expect(create).not.toHaveBeenCalled();
+  });
+
   it('keeps the slug URL-safe', async () => {
     renderForm(null);
-    await enter('Slug', 'Acceptable Use');
+    await enter(/^Slug/, 'Acceptable Use');
     await save('Create');
     expect(
       await screen.findByText('Lower-case letters, numbers and hyphens only'),
@@ -121,9 +147,9 @@ describe('PolicyForm', () => {
 
   it('creates a draft policy from what was entered', async () => {
     const onDone = renderForm(null);
-    await enter('Title', 'Leave policy');
-    await enter('Slug', 'leave-policy');
-    await enter('Policy', '<p>Twelve days.</p>');
+    await enter(/^Title/, 'Leave policy');
+    await enter(/^Slug/, 'leave-policy');
+    await enter(/^Policy/, '<p>Twelve days.</p>');
     fireEvent.change(document.querySelector('input[name="effectiveDate"]') as HTMLInputElement, {
       target: { value: '04/15/2026' },
     });

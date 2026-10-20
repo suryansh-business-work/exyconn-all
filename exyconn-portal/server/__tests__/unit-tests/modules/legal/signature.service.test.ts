@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import {
+  assertSignatureImage,
   contractSignatures,
   contractToSign,
   requestContractSignature,
@@ -24,7 +25,8 @@ import { emailer } from '../../../../src/modules/email';
 import { safeFetch } from '../../../../src/utils/safeFetch';
 
 const mailed = emailer.send as jest.Mock;
-const FROM = { ip: '198.51.100.7', userAgent: 'Mozilla/5.0' };
+const SIGNATURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==';
+const FROM = { ip: '198.51.100.7', userAgent: 'Mozilla/5.0', signatureImage: SIGNATURE };
 const LONG_AGENT = 'A'.repeat(260);
 const missingId = () => new Types.ObjectId().toHexString();
 
@@ -61,6 +63,29 @@ useTestOrganization();
 describe('signingUrl', () => {
   it('points at the status site and escapes the token', () => {
     expect(signingUrl('a/b c')).toBe(`${env.projectShareBaseUrl}/sign/a%2Fb%20c`);
+  });
+});
+
+describe('assertSignatureImage', () => {
+  it('accepts a PNG data URL', () => {
+    expect(() => assertSignatureImage(SIGNATURE)).not.toThrow();
+  });
+
+  it.each([
+    ['an empty value', ''],
+    ['another image type', 'data:image/jpeg;base64,/9j/4AAQSkZJRg=='],
+    ['a link instead of data', 'https://cdn.example.com/signature.png'],
+    ['garbage after the prefix', 'data:image/png;base64,<script>alert(1)</script>'],
+  ])('refuses %s', (_case, image) => {
+    expect(() => assertSignatureImage(image)).toThrow('Draw or type your signature to sign.');
+  });
+
+  it('refuses a PNG past the size limit, and takes one right at it', () => {
+    const prefix = 'data:image/png;base64,';
+    const atLimit = prefix + 'A'.repeat(400_000 - prefix.length);
+
+    expect(() => assertSignatureImage(atLimit)).not.toThrow();
+    expect(() => assertSignatureImage(`${atLimit}A`)).toThrow('Draw or type your signature');
   });
 });
 
@@ -126,6 +151,7 @@ describe('signContractWithToken', () => {
       signedName: 'Lena Vogt',
       ip: FROM.ip,
       userAgent: LONG_AGENT,
+      signatureImage: SIGNATURE,
     });
 
     const evidence = await ContractSignatureModel.findOne().lean();
@@ -155,9 +181,29 @@ describe('contractSignatures and revokeContractSignature', () => {
       requestedByName: 'dev@exyconn.com',
       revokedAt: null,
       signedAt: null,
+      signatureImage: '',
       documentSha256: '',
     });
     expect(typeof rows[0].id).toBe('string');
+  });
+
+  it('returns the drawn signature once signed, and an empty one for rows that predate it', async () => {
+    const row = await contract();
+    const { token } = await ask(row._id.toHexString());
+    await signContractWithToken({ token, signedName: 'Lena Vogt', ...FROM });
+    await ask(row._id.toHexString());
+    // A row written before the field existed has no signatureImage at all.
+    await ContractSignatureModel.collection.updateOne(
+      { signedAt: null },
+      { $unset: { signatureImage: '' } },
+    );
+
+    const rows = await contractSignatures(row._id.toHexString());
+
+    expect(rows.map((r) => r.signatureImage).sort((a, b) => a.localeCompare(b))).toEqual([
+      '',
+      SIGNATURE,
+    ]);
   });
 
   it('is NOT_FOUND when withdrawing a request that does not exist', async () => {

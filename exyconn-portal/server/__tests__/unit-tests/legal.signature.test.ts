@@ -40,7 +40,14 @@ const documentResponse = (bytes = DOCUMENT, ok = true) => ({
   arrayBuffer: () => Promise.resolve(new Uint8Array(bytes).buffer),
 });
 
-const FROM = { ip: '198.51.100.7', userAgent: 'Mozilla/5.0 (Macintosh) Chrome/141' };
+/** A drawn signature, as the pad sends it: a PNG data URL. */
+const SIGNATURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==';
+/** Where the signer answered from, and the mark they made. */
+const FROM = {
+  ip: '198.51.100.7',
+  userAgent: 'Mozilla/5.0 (Macintosh) Chrome/141',
+  signatureImage: SIGNATURE,
+};
 
 const contract = (overrides: Record<string, unknown> = {}) =>
   ContractModel.create({
@@ -149,6 +156,7 @@ describe('signing', () => {
     const evidence = await ContractSignatureModel.findOne().lean();
     expect(evidence).toMatchObject({
       signedName: 'Sam Khan',
+      signatureImage: SIGNATURE,
       signedIp: FROM.ip,
       signedUserAgent: FROM.userAgent,
       documentSha256: DOCUMENT_SHA,
@@ -186,6 +194,20 @@ describe('signing', () => {
     );
   });
 
+  it('refuses a signature that is not a drawn PNG, and records nothing', async () => {
+    const row = await contract();
+    const { token } = await ask(row._id.toHexString());
+
+    await expect(
+      signContractWithToken({ token, signedName: 'Sam Khan', ...FROM, signatureImage: '' }),
+    ).rejects.toThrow('Draw or type your signature');
+    expect(await ContractSignatureModel.findOne().lean()).toMatchObject({
+      signedAt: null,
+      signatureImage: '',
+    });
+    expect(await ContractModel.findById(row._id).lean()).toMatchObject({ status: 'DRAFT' });
+  });
+
   it('refuses rather than recording an empty hash when the document cannot be read', async () => {
     const row = await contract();
     const { token } = await ask(row._id.toHexString());
@@ -209,6 +231,7 @@ describe('signing', () => {
     const [evidence] = await contractSignatures(row._id.toHexString());
     expect(evidence).toMatchObject({
       signedName: 'dev@exyconn.com',
+      signatureImage: SIGNATURE,
       signedIp: FROM.ip,
       documentSha256: DOCUMENT_SHA,
     });

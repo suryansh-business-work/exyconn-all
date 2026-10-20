@@ -20,12 +20,21 @@ import {
   useUpdateContractMutation,
 } from '@exyconn/shell/graphql/generated';
 import { BodyGate } from '../BodyGate';
+import { ContractDocumentField } from './ContractDocumentField';
 import { legalBody } from '../body.schema';
 import type { ContractFormValues, ContractRow } from './contract.types';
 
 const schema = z.object({
-  title: z.string().trim().min(1, 'Title is required'),
-  party: z.string().trim().min(1, 'Party is required'),
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Title is required')
+    .max(200, 'Keep the title under 200 characters'),
+  party: z
+    .string()
+    .trim()
+    .min(1, 'Counterparty is required')
+    .max(200, 'Keep the counterparty under 200 characters'),
   type: z.enum(ContractType),
   effectiveDate: z.string().min(1, 'Effective date is required'),
   expiryDate: z.string().min(1, 'Expiry date is required'),
@@ -80,15 +89,45 @@ function ContractFields({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Title" />
-      <RhfTextField name="party" label="Counterparty" />
-      <RhfSelect name="type" label="Type" options={enumOptions(Object.values(ContractType))} />
-      <RhfDatePicker name="effectiveDate" label="Effective date" />
-      <RhfDatePicker name="expiryDate" label="Expiry date" />
+      <RhfTextField
+        name="title"
+        label="Title"
+        required
+        placeholder="e.g. Master Services Agreement — Acme Ltd"
+        helperText="How the contract is listed in the register and on the signing page."
+      />
+      <RhfTextField
+        name="party"
+        label="Counterparty"
+        required
+        placeholder="e.g. Acme Ltd"
+        helperText="The other side of the agreement: a company or a person."
+      />
+      <RhfSelect
+        name="type"
+        label="Type"
+        required
+        options={enumOptions(Object.values(ContractType))}
+        helperText="Used for filtering and renewal reminders."
+      />
+      <RhfDatePicker
+        name="effectiveDate"
+        label="Effective date"
+        required
+        helperText="The day the contract starts to apply."
+      />
+      <RhfDatePicker
+        name="expiryDate"
+        label="Expiry date"
+        required
+        helperText="Legal is reminded before this date so it can be renewed or ended."
+      />
       <RhfSelect
         name="status"
         label="Status"
+        required
         options={enumOptions(Object.values(ContractStatus))}
+        helperText="Draft while negotiating; it turns Active once signed."
       />
       <RhfRichText
         name="content"
@@ -100,11 +139,7 @@ function ContractFields({
       <Flex justifyContent="flex-end">
         <RichTextDownload title={title} html={body} />
       </Flex>
-      <RhfTextField
-        name="documentUrl"
-        label="Document URL"
-        helperText="The PDF a counterparty reads before signing. Its bytes are hashed at the moment they sign."
-      />
+      <ContractDocumentField signed={Boolean(initial?.signedAt)} />
     </EntityForm>
   );
 }

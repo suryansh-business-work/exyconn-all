@@ -28,6 +28,8 @@ const contractSignatureSchema = new Schema(
     signedAt: { type: Date, default: null },
     /** What the signer typed as their name — their mark, in their own words. */
     signedName: { type: String, default: '', trim: true },
+    /** The signature they drew (or typed and rendered), as a PNG data URL. */
+    signatureImage: { type: String, default: '' },
     /** Where they answered from, and what with. Part of the evidence, not analytics. */
     signedIp: { type: String, default: '', trim: true },
     signedUserAgent: { type: String, default: '', trim: true },

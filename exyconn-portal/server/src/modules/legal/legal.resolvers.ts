@@ -58,11 +58,16 @@ export const legalCustomResolvers = {
      * actually did it — the old mutation took the name as an argument, which meant the
      * signature said whatever the person at the keyboard wanted it to say.
      */
-    signContract: (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+    signContract: (
+      _p: unknown,
+      { id, signatureImage }: { id: string; signatureImage: string },
+      ctx: GraphQLContext,
+    ) => {
       const user = guard(ctx);
       return signContractInternally({
         contractId: id,
         signerEmail: user.email,
+        signatureImage,
         ip: ctx.ip ?? 'unknown',
         userAgent: ctx.userAgent ?? '',
       });
@@ -73,12 +78,17 @@ export const legalCustomResolvers = {
      */
     signContractWithToken: (
       _p: unknown,
-      { token, signedName }: { token: string; signedName: string },
+      {
+        token,
+        signedName,
+        signatureImage,
+      }: { token: string; signedName: string; signatureImage: string },
       ctx: GraphQLContext,
     ) =>
       signContractWithToken({
         token,
         signedName,
+        signatureImage,
         ip: ctx.ip ?? 'unknown',
         userAgent: ctx.userAgent ?? '',
       }),

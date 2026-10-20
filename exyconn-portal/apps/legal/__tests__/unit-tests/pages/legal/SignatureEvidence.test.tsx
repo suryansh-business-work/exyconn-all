@@ -33,6 +33,7 @@ const SIGNED = signature({
   signerName: 'Asha Rao',
   signedAt: '2026-10-03T09:00:00.000Z',
   signedName: 'Asha Rao',
+  signatureImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==',
   signedIp: SIGNER_IP,
   documentSha256: 'ab12cd34',
 });
@@ -102,7 +103,18 @@ describe('SignatureEvidence', () => {
       screen.getByText(`Signed as “Asha Rao” on at 2026-10-03T09:00:00.000Z, from ${SIGNER_IP}`),
     ).toBeInTheDocument();
     expect(screen.getByText('Document fingerprint ab12cd34')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Signature of Asha Rao' })).toHaveAttribute(
+      'src',
+      SIGNED.signatureImage,
+    );
     expect(screen.queryByRole('button', { name: 'Withdraw' })).not.toBeInTheDocument();
+  });
+
+  it('shows no signature picture for a row signed before signatures were drawn', () => {
+    answer([{ ...SIGNED, signatureImage: '' }]);
+    renderEvidence();
+    expect(screen.getByText('Signed')).toBeInTheDocument();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
   it('says the address is unknown when the signer’s was not recorded', () => {

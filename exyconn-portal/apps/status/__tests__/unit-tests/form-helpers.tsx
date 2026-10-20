@@ -3,8 +3,11 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCurrentUrl } from './test-utils';
 
-/** Puts a whole value into the field with this label, as a paste would. */
-export function fill(label: string, value: string, scope: HTMLElement = document.body) {
+/**
+ * Puts a whole value into the field with this label, as a paste would. A required field's
+ * label ends in " *", so match those with a pattern such as /^Your full name/.
+ */
+export function fill(label: string | RegExp, value: string, scope: HTMLElement = document.body) {
   fireEvent.change(within(scope).getByLabelText(label), { target: { value } });
 }
 

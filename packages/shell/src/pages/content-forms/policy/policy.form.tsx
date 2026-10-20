@@ -22,14 +22,18 @@ import {
 import type { PolicyRow } from './policy.types';
 
 const schema = z.object({
-  title: z.string().trim().min(1, 'Title is required'),
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Title is required')
+    .max(200, 'Keep the title under 200 characters'),
   /** A public URL segment for PUBLIC policies, so it has to be URL-safe. */
   slug: z
     .string()
     .trim()
     .min(1, 'Slug is required')
     .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
-  summary: z.string().trim(),
+  summary: z.string().trim().max(500, 'Keep the summary under 500 characters'),
   body: z.string().trim().min(1, 'The policy cannot be empty'),
   audience: z.enum(PolicyAudience),
   category: z.enum(PolicyCategory),
@@ -101,35 +105,72 @@ export function PolicyForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Title" />
+      <RhfTextField
+        name="title"
+        label="Title"
+        required
+        placeholder="e.g. Acceptable Use Policy"
+        helperText="The name staff see in their policy list."
+      />
       <RhfTextField
         name="slug"
         label="Slug"
-        helperText="A public policy is served to the website at this segment."
+        required
+        placeholder="acceptable-use"
+        helperText="Lower-case letters, numbers and hyphens. A public policy is served to the website at this segment."
       />
       <RhfSelect
         name="audience"
         label="Audience"
+        required
         options={enumOptions(Object.values(PolicyAudience))}
+        helperText="Who can open it: all staff, a department, or the public website."
       />
       <RhfSelect
         name="category"
         label="Category"
+        required
         options={enumOptions([...categories])}
         helperText="Which team maintains it. IT keeps the IT and security policies."
       />
-      <RhfTextField name="summary" label="Summary" multiline rows={2} />
-      <RhfRichText name="body" label="Policy" />
-      <RhfDatePicker name="effectiveDate" label="Effective from" />
-      <RhfTextField name="owner" label="Owner" />
+      <RhfTextField
+        name="summary"
+        label="Summary"
+        multiline
+        rows={2}
+        helperText="Optional. One or two sentences shown above the policy and in lists."
+      />
+      <RhfRichText
+        name="body"
+        label="Policy"
+        required
+        helperText="The full wording. Headings and lists carry through to downloads."
+      />
+      <RhfDatePicker
+        name="effectiveDate"
+        label="Effective from"
+        required
+        helperText="The day the policy takes effect."
+      />
+      <RhfTextField
+        name="owner"
+        label="Owner"
+        placeholder="e.g. Head of People"
+        helperText="Optional. Who answers questions about it and keeps it current."
+      />
       <RhfSelect
         name="classification"
         label="Classification"
+        required
         options={enumOptions(Object.values(PolicyClassification))}
         helperText="How far this document may travel. Who may open it comes from the audience."
       />
       {/* When somebody has to read this again and confirm it is still right. */}
-      <RhfDatePicker name="nextReviewOn" label="Next review" />
+      <RhfDatePicker
+        name="nextReviewOn"
+        label="Next review"
+        helperText="Optional. When it must be read again and confirmed still right."
+      />
       <RhfSwitch name="requiresAcknowledgement" label="Staff must read and sign this" />
     </EntityForm>
   );

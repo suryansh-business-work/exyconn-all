@@ -26,6 +26,7 @@ const employee: GraphQLContext = {
 const anonymous: GraphQLContext = { user: null };
 
 const DOCUMENT = Buffer.from('%PDF-1.7 signed bytes');
+const SIGNATURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==';
 
 const contract = (overrides: Record<string, unknown> = {}) =>
   ContractModel.create({
@@ -71,9 +72,11 @@ describe('the signature resolvers', () => {
     expect(await settle(() => Mutation.revokeContractSignature(null, { id: 'x' }, employee))).toBe(
       'FORBIDDEN',
     );
-    expect(await settle(() => Mutation.signContract(null, { id: 'x' }, employee))).toBe(
-      'FORBIDDEN',
-    );
+    expect(
+      await settle(() =>
+        Mutation.signContract(null, { id: 'x', signatureImage: SIGNATURE }, employee),
+      ),
+    ).toBe('FORBIDDEN');
   });
 
   it('names the asking account as the requester, not an argument', async () => {
@@ -102,13 +105,17 @@ describe('the signature resolvers', () => {
 
     const signed = await legalCustomResolvers.Mutation.signContract(
       null,
-      { id: row._id.toHexString() },
+      { id: row._id.toHexString(), signatureImage: SIGNATURE },
       legal(),
     );
 
     expect(signed).toMatchObject({ signedBy: 'dev@exyconn.com', status: 'ACTIVE' });
     const evidence = await ContractSignatureModel.findOne().lean();
-    expect(evidence).toMatchObject({ signedIp: 'unknown', signedUserAgent: '' });
+    expect(evidence).toMatchObject({
+      signedIp: 'unknown',
+      signedUserAgent: '',
+      signatureImage: SIGNATURE,
+    });
   });
 
   it('takes our side’s address and agent from the request when it has them', async () => {
@@ -116,7 +123,7 @@ describe('the signature resolvers', () => {
 
     await legalCustomResolvers.Mutation.signContract(
       null,
-      { id: row._id.toHexString() },
+      { id: row._id.toHexString(), signatureImage: SIGNATURE },
       legal({ ip: '203.0.113.4', userAgent: 'Firefox/140' }),
     );
 
@@ -129,11 +136,15 @@ describe('the signature resolvers', () => {
 
     await legalCustomResolvers.Mutation.signContractWithToken(
       null,
-      { token, signedName: 'Ola Berg' },
+      { token, signedName: 'Ola Berg', signatureImage: SIGNATURE },
       anonymous,
     );
     const first = await ContractSignatureModel.findOne({ signedName: 'Ola Berg' }).lean();
-    expect(first).toMatchObject({ signedIp: 'unknown', signedUserAgent: '' });
+    expect(first).toMatchObject({
+      signedIp: 'unknown',
+      signedUserAgent: '',
+      signatureImage: SIGNATURE,
+    });
   });
 
   it('keeps the counterparty’s real address when the request has one', async () => {
@@ -141,7 +152,7 @@ describe('the signature resolvers', () => {
 
     await legalCustomResolvers.Mutation.signContractWithToken(
       null,
-      { token, signedName: 'Ola Berg' },
+      { token, signedName: 'Ola Berg', signatureImage: SIGNATURE },
       { user: null, ip: '198.51.100.20', userAgent: 'Safari/18' },
     );
 

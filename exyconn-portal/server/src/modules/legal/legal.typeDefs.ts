@@ -47,6 +47,8 @@ export const legalTypeDefs = gql`
     signedAt: DateTime
     "The name the signer typed — their mark, in their own words."
     signedName: String!
+    "The signature they drew, or typed and rendered, as a PNG data URL. Empty on older rows."
+    signatureImage: String!
     signedIp: String!
     signedUserAgent: String!
     "SHA-256 of the document's bytes as they were when it was signed."
@@ -170,14 +172,19 @@ export const legalTypeDefs = gql`
     revokeContractSignature(id: ID!): Boolean!
     """
     LEGAL: sign our own side. The signer is the account making the request, not a name typed
-    into a field, and the document's hash is recorded with it.
+    into a field; their drawn signature and the document's hash are recorded with it.
     """
-    signContract(id: ID!): Contract!
+    signContract(id: ID!, signatureImage: String!): Contract!
     """
     Unauthenticated — the counterparty signs with the link they were sent. Records the name
-    they typed, where they answered from, and the hash of the document they were shown.
+    they typed, the signature they drew, where they answered from, and the hash of the
+    document they were shown.
     """
-    signContractWithToken(token: String!, signedName: String!): ContractSignedReceipt!
+    signContractWithToken(
+      token: String!
+      signedName: String!
+      signatureImage: String!
+    ): ContractSignedReceipt!
 
     createLegalDocument(input: LegalDocumentInput!): LegalDocument!
     updateLegalDocument(id: ID!, input: LegalDocumentInput!): LegalDocument!

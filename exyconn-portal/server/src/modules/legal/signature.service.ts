@@ -147,8 +147,20 @@ async function hashDocument(url: string): Promise<string> {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
+/** A drawn signature is a small PNG; anything else, or anything huge, is refused. */
+const SIGNATURE_IMAGE = /^data:image\/png;base64,[A-Za-z\d+/]+={0,2}$/;
+const MAX_SIGNATURE_IMAGE_LENGTH = 400_000;
+
+/** Refuses a signature that is not a PNG data URL of a sensible size. */
+export function assertSignatureImage(image: string): void {
+  if (image.length > MAX_SIGNATURE_IMAGE_LENGTH || !SIGNATURE_IMAGE.test(image)) {
+    badRequest('Draw or type your signature to sign.');
+  }
+}
+
 /**
- * Records a signature: the name typed, where from, and the hash of the document signed.
+ * Records a signature: the name typed, the signature drawn, where from, and the hash of the
+ * document signed.
  *
  * Written once. A request that has been used is finished — re-signing would leave two
  * answers about one agreement and no way to say which stood.
@@ -156,6 +168,7 @@ async function hashDocument(url: string): Promise<string> {
 export async function signContractWithToken(input: {
   token: string;
   signedName: string;
+  signatureImage: string;
   ip: string;
   userAgent: string;
 }) {
@@ -170,6 +183,7 @@ export async function signContractWithToken(input: {
   if (typed.length < 2) {
     badRequest('Type your full name to sign.');
   }
+  assertSignatureImage(input.signatureImage);
 
   const contract = await runAsPlatform(() => ContractModel.findById(request.contractId));
   if (!contract) {
@@ -180,6 +194,7 @@ export async function signContractWithToken(input: {
   request.set({
     signedAt: new Date(),
     signedName: typed,
+    signatureImage: input.signatureImage,
     signedIp: input.ip,
     signedUserAgent: input.userAgent.slice(0, 200),
     documentSha256,
@@ -207,9 +222,11 @@ export async function signContractWithToken(input: {
 export async function signContractInternally(input: {
   contractId: string;
   signerEmail: string;
+  signatureImage: string;
   ip: string;
   userAgent: string;
 }) {
+  assertSignatureImage(input.signatureImage);
   const contract = await ContractModel.findById(input.contractId);
   if (!contract) {
     notFound('Contract');
@@ -233,6 +250,7 @@ export async function signContractInternally(input: {
     expiresAt: signedAt,
     signedAt,
     signedName: input.signerEmail,
+    signatureImage: input.signatureImage,
     signedIp: input.ip,
     signedUserAgent: input.userAgent.slice(0, 200),
     documentSha256,
@@ -258,6 +276,7 @@ export async function contractSignatures(contractId: string) {
     revokedAt: row.revokedAt,
     signedAt: row.signedAt,
     signedName: row.signedName,
+    signatureImage: row.signatureImage ?? '',
     signedIp: row.signedIp,
     signedUserAgent: row.signedUserAgent,
     documentSha256: row.documentSha256,

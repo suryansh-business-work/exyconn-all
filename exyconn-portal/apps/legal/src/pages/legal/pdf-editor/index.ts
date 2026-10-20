@@ -1,0 +1,1 @@
+export { PdfEditorDialog } from './PdfEditorDialog';
