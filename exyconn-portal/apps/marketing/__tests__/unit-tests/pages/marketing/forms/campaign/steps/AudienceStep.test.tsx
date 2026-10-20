@@ -55,7 +55,7 @@ describe('AudienceStep', () => {
       data: {
         listAudienceLists: [
           audienceRow({ id: 'a1', name: 'Cafés', updateMode: AudienceUpdateMode.Dynamic }),
-          audienceRow({ id: 'a2', name: 'VIPs', updateMode: AudienceUpdateMode.Fixed }),
+          audienceRow({ id: 'a2', name: 'VIPs', updateMode: AudienceUpdateMode.FixedSnapshot }),
         ],
       },
       loading: false,
