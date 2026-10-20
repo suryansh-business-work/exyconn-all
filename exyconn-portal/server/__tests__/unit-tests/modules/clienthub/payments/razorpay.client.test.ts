@@ -1,5 +1,6 @@
 import {
   createRazorpayLink,
+  fetchRazorpayLink,
   testRazorpayKeys,
   validRazorpaySignature,
 } from '../../../../../src/modules/clienthub/payments/razorpay.client';
@@ -82,6 +83,52 @@ describe('testRazorpayKeys', () => {
     expect(url).toBe('https://api.razorpay.com/v1/payments?count=1');
     expect(init).toMatchObject({ method: 'GET', body: undefined });
     expect(init.headers).toEqual({ Authorization: basicAuth });
+  });
+});
+
+describe('fetchRazorpayLink', () => {
+  it('reads a paid link back with the captured payment and its method', async () => {
+    respond(
+      200,
+      JSON.stringify({
+        status: 'paid',
+        payments: [
+          { payment_id: 'pay_failed', method: 'card', status: 'failed' },
+          { payment_id: 'pay_1', method: 'upi', status: 'captured' },
+        ],
+      }),
+    );
+
+    await expect(fetchRazorpayLink(keys, 'plink_1')).resolves.toEqual({
+      paid: true,
+      paymentId: 'pay_1',
+      method: 'upi',
+    });
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('https://api.razorpay.com/v1/payment_links/plink_1');
+    expect(init).toMatchObject({ method: 'GET', body: undefined });
+    expect(init.headers).toEqual({ Authorization: basicAuth });
+  });
+
+  it.each([
+    ['still open', { status: 'created', payments: null }],
+    ['with no payments listed', { status: 'partially_paid' }],
+  ])('reports a link %s as not paid', async (_label, body) => {
+    respond(200, JSON.stringify(body));
+
+    await expect(fetchRazorpayLink(keys, 'plink_1')).resolves.toEqual({
+      paid: false,
+      paymentId: '',
+      method: '',
+    });
+  });
+
+  it('reports Razorpay’s refusal', async () => {
+    respond(404, JSON.stringify({ error: { description: 'The id provided does not exist' } }));
+
+    await expect(fetchRazorpayLink(keys, 'plink_x')).rejects.toThrow(
+      'Razorpay: The id provided does not exist',
+    );
   });
 });
 

@@ -14,6 +14,7 @@ import { createPaypalOrder } from './paypal.client';
 import { createPayoneerList } from './payoneer.client';
 import { PAYONEER_NOTIFY_PATH } from './webhook.paths';
 import { settlePaypalOrder } from './webhook.wallets';
+import { settleRazorpayLink } from './webhook';
 import { ClientModel } from '../../clients/clients.model';
 import { companyProfile } from '../../../lib/company';
 
@@ -141,16 +142,30 @@ function openCheckout(gateway: PaymentGateway, request: CheckoutRequest, clientI
 }
 
 /**
+ * Gateways whose checkout is settled by asking the gateway when the payer comes back: PayPal
+ * (the approved order is captured) and Razorpay (the link is read back). The webhook does the
+ * same later; settling twice is harmless.
+ */
+const SETTLE_ON_RETURN: Partial<Record<PaymentGateway, (externalId: string) => Promise<void>>> = {
+  PAYPAL: settlePaypalOrder,
+  RAZORPAY: settleRazorpayLink,
+};
+
+/**
  * One of the contact's own attempts — the return page polls it until it is settled. A PayPal
- * order the payer has just approved is captured here, so the money moves the moment they come
- * back rather than whenever PayPal's webhook arrives (capturing twice is harmless).
+ * order or Razorpay link the payer has just paid is settled here, so the invoice is marked
+ * paid the moment they come back rather than whenever the gateway's webhook arrives.
  */
 export async function ownAttempt(contact: ClientHubContact, id: string) {
   const attempt = await PaymentAttemptModel.findOne({ _id: id, clientId: contact.clientId }).lean();
   if (!attempt) notFound('Payment');
-  if (attempt.gateway === 'PAYPAL' && attempt.status === 'PENDING' && attempt.externalId) {
-    await settlePaypalOrder(attempt.externalId).catch((error: unknown) =>
-      logger.warn({ err: error }, 'PayPal capture on return failed; the webhook will retry'),
+  const settleOnReturn = SETTLE_ON_RETURN[attempt.gateway];
+  if (settleOnReturn && attempt.status === 'PENDING' && attempt.externalId) {
+    await settleOnReturn(attempt.externalId).catch((error: unknown) =>
+      logger.warn(
+        { err: error, gateway: attempt.gateway },
+        'Settling the payment on return failed; the webhook will retry',
+      ),
     );
     const settled = await PaymentAttemptModel.findById(id).lean();
     return withId(settled ?? attempt);

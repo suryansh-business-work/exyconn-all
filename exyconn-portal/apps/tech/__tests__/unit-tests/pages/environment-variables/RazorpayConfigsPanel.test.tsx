@@ -1,5 +1,8 @@
-import { vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { screen } from '@testing-library/react';
+import { env } from '@exyconn/shell/config/env';
 import { RazorpayConfigsPanel } from '../../../../src/pages/environment-variables/RazorpayConfigsPanel';
+import { renderWithProviders } from '../../test-utils';
 import { describeConfigPanel } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
@@ -67,4 +70,17 @@ describeConfigPanel({
     mutation: gql.test,
     success: ['Razorpay accepted the keys on "{label}"', 'success', { label: 'India' }],
   },
+});
+
+describe('RazorpayConfigsPanel webhook', () => {
+  it('shows the webhook to register and the payment link events to subscribe it to', () => {
+    gql.list.mockReturnValue({ data: { listRazorpayConfigs: [] }, loading: false });
+    renderWithProviders(<RazorpayConfigsPanel />);
+    expect(screen.getByText('Webhook to register')).toBeInTheDocument();
+    const url = new URL('/webhooks/razorpay', env.graphqlUrl).toString();
+    expect(screen.getByText(url)).toBeInTheDocument();
+    expect(
+      screen.getByText('Events: payment_link.paid, payment_link.expired, payment_link.cancelled'),
+    ).toBeInTheDocument();
+  });
 });

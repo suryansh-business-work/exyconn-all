@@ -4,7 +4,9 @@ import {
   type PaymentGateway,
 } from '../../../../../src/modules/clienthub/payments/attempt.model';
 import { capturePaypalOrder } from '../../../../../src/modules/clienthub/payments/paypal.client';
+import { fetchRazorpayLink } from '../../../../../src/modules/clienthub/payments/razorpay.client';
 import { InvoiceModel } from '../../../../../src/modules/finance/finance.model';
+import { PaymentModel } from '../../../../../src/modules/finance/payment.model';
 import { logger } from '../../../../../src/utils/logger';
 import type { ClientHubContact } from '../../../../../src/modules/clienthub/clienthub.auth';
 import { useTestOrganization } from '../../../../helpers';
@@ -14,9 +16,14 @@ jest.mock('../../../../../src/modules/clienthub/payments/paypal.client', () => (
   ...jest.requireActual('../../../../../src/modules/clienthub/payments/paypal.client'),
   capturePaypalOrder: jest.fn(),
 }));
+jest.mock('../../../../../src/modules/clienthub/payments/razorpay.client', () => ({
+  ...jest.requireActual('../../../../../src/modules/clienthub/payments/razorpay.client'),
+  fetchRazorpayLink: jest.fn(),
+}));
 
 const organizationId = useTestOrganization();
 const capture = jest.mocked(capturePaypalOrder);
+const readLink = jest.mocked(fetchRazorpayLink);
 
 let contact: ClientHubContact;
 let invoiceId: string;
@@ -103,7 +110,7 @@ describe('ownAttempt', () => {
     expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({ status: 'PENDING' });
     expect(warned).toHaveBeenCalledWith(
       expect.anything(),
-      'PayPal capture on return failed; the webhook will retry',
+      'Settling the payment on return failed; the webhook will retry',
     );
   });
 
@@ -129,6 +136,63 @@ describe('ownAttempt', () => {
     expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({
       id: row._id.toHexString(),
       status: 'PENDING',
+    });
+  });
+
+  describe('Razorpay', () => {
+    it('reads a paid link back on return and records the balance on the invoice', async () => {
+      await configureGateways(['RAZORPAY']);
+      const row = await attempt('RAZORPAY', { externalId: 'plink_1' });
+      readLink.mockResolvedValue({ paid: true, paymentId: 'pay_1', method: 'upi' });
+
+      const settled = await ownAttempt(contact, row._id.toHexString());
+
+      expect(readLink).toHaveBeenCalledWith(
+        expect.objectContaining({ keyId: 'rzp_id' }),
+        'plink_1',
+      );
+      expect(settled).toMatchObject({ status: 'PAID', gatewayPaymentId: 'pay_1' });
+      expect(await InvoiceModel.findById(invoiceId).lean()).toMatchObject({
+        amountPaid: 100,
+        status: 'PAID',
+      });
+      expect(await PaymentModel.findOne({ invoiceId }).lean()).toMatchObject({
+        amount: 74.5,
+        method: 'UPI',
+        reference: 'pay_1',
+      });
+    });
+
+    it('leaves the attempt pending while the link is unpaid', async () => {
+      await configureGateways(['RAZORPAY']);
+      const row = await attempt('RAZORPAY', { externalId: 'plink_1' });
+      readLink.mockResolvedValue({ paid: false, paymentId: '', method: '' });
+
+      expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({
+        status: 'PENDING',
+      });
+      expect(await InvoiceModel.findById(invoiceId).lean()).toMatchObject({ amountPaid: 25.5 });
+    });
+
+    it('leaves it to the webhook when Razorpay is not configured', async () => {
+      const row = await attempt('RAZORPAY', { externalId: 'plink_1' });
+
+      expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({
+        status: 'PENDING',
+      });
+      expect(readLink).not.toHaveBeenCalled();
+    });
+
+    it('records the payment once however often the return page polls', async () => {
+      await configureGateways(['RAZORPAY']);
+      const row = await attempt('RAZORPAY', { externalId: 'plink_1' });
+      readLink.mockResolvedValue({ paid: true, paymentId: 'pay_1', method: 'card' });
+
+      await ownAttempt(contact, row._id.toHexString());
+      await ownAttempt(contact, row._id.toHexString());
+
+      expect(readLink).toHaveBeenCalledTimes(1);
+      expect(await PaymentModel.countDocuments({ invoiceId })).toBe(1);
     });
   });
 });
