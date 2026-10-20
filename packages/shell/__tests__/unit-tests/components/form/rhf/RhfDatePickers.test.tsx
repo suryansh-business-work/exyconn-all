@@ -26,6 +26,18 @@ describe('RhfDatePicker', () => {
     expect(screen.getByText('The first working day')).toBeInTheDocument();
   });
 
+  it('marks the field required only when asked', () => {
+    renderWithProviders(
+      <FormHarness defaultValues={{ day: '', other: '' }}>
+        <RhfDatePicker name="day" label="Day" required />
+        <RhfDatePicker name="other" label="Other day" />
+      </FormHarness>,
+    );
+
+    expect(input('day')).toBeRequired();
+    expect(input('other')).not.toBeRequired();
+  });
+
   it('stores a completed date as an ISO string', () => {
     renderWithProviders(
       <FormHarness defaultValues={{ day: '' }}>

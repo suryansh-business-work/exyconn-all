@@ -56,6 +56,7 @@ export function signature(overrides: Partial<Signature> = {}): Signature {
     revokedAt: null,
     signedAt: null,
     signedName: '',
+    signatureImage: '',
     signedIp: '',
     signedUserAgent: '',
     documentSha256: '',

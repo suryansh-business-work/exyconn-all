@@ -1,7 +1,7 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
-import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { theme } from '@exyconn/shell/config/theme';
+import { ThemeProvider } from '@/components/ui/styles';
+import { NotificationProvider } from '@/components/feedback/NotificationProvider';
+import { theme } from '@/config/theme';
 import { OrganizationForm } from './organization.form';
 
 const mount = () =>
@@ -16,12 +16,26 @@ const mount = () =>
   );
 
 describe('OrganizationForm', () => {
-  it('asks for the company name and the standards its portal runs in', () => {
+  it('asks only for the company name and its currency; the country is optional', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Company name is required').should('be.visible');
-    cy.contains('Pick the country the company operates in').should('be.visible');
     cy.contains('Currency is required').should('be.visible');
+    cy.contains('Pick a country from the list').should('not.exist');
+  });
+
+  it('refuses a website that is not a full link', () => {
+    mount();
+    cy.get('input[name="website"]').type('acme.example');
+    cy.contains('button', 'Create').click();
+    cy.contains('Enter a full link starting with https://').should('be.visible');
+  });
+
+  it('asks for the name of each person to invite', () => {
+    mount();
+    cy.contains('button', 'Add a person').click();
+    cy.contains('button', 'Create').click();
+    cy.contains('Enter their name').should('be.visible');
   });
 
   it('refuses a handle that is not URL-safe', () => {

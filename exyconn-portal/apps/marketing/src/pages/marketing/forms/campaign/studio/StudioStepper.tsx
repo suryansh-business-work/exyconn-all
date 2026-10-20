@@ -21,7 +21,7 @@ export function StudioStepper({ step, reachable, onSelect }: Readonly<StudioStep
       activeStep={active}
       alternativeLabel={!compact}
       aria-label={t('Campaign steps')}
-      sx={{ overflowX: 'auto', py: 1 }}
+      sx={{ py: 1, '& .MuiStepLabel-label': { overflowWrap: 'anywhere' } }}
     >
       {STUDIO_STEPS.map((entry, index) => (
         <Step key={entry.slug} completed={index < active}>

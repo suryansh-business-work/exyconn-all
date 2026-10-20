@@ -32,7 +32,8 @@
       "@exyconn/crud": ["../crud/src/index.ts"],
       "@exyconn/crud/*": ["../crud/src/*"],
       "@exyconn/tabber": ["../tabber/src/index.ts"],
-      "@exyconn/tabber/*": ["../tabber/src/*"]
+      "@exyconn/tabber/*": ["../tabber/src/*"],
+      "@exyconn/kanban": ["../kanban/src/index.ts"]
     },
     "types": ["vitest/globals", "@testing-library/jest-dom/vitest"]
   }

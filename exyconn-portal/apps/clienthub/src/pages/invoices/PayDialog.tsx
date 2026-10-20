@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button, Stack, Text } from '@exyconn/shell/components/ui';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -14,6 +15,7 @@ import {
   type ClientHubPaymentOptionsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { money } from '../money';
+import { PATHS } from '../../paths';
 
 export interface PayableInvoice {
   id: string;
@@ -73,7 +75,11 @@ const GATEWAY_CHOICES: readonly GatewayChoice[] = [
  */
 export function PayDialog({ invoice, onClose }: Readonly<PayDialogProps>) {
   const t = useT();
-  const { data, loading } = useClientHubPaymentOptionsQuery({ skip: !invoice });
+  const {
+    data,
+    loading,
+    error: optionsError,
+  } = useClientHubPaymentOptionsQuery({ skip: !invoice });
   const [pay] = useClientHubPayInvoiceMutation();
   const [busy, setBusy] = useState<PaymentGateway | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -104,9 +110,26 @@ export function PayDialog({ invoice, onClose }: Readonly<PayDialogProps>) {
             {t('Amount due: {amount}', { amount: money(invoice.balance, invoice.currency) })}
           </Text>
           {error && <Alert severity="error">{error}</Alert>}
+          {optionsError && (
+            <Alert severity="error">
+              {errorMessage(
+                optionsError,
+                t('The ways to pay could not be loaded. Try again shortly.'),
+              )}
+            </Alert>
+          )}
           {noneAvailable && (
-            <Alert severity="info">
-              {t('Online payment is not available for this invoice. Please pay by bank transfer.')}
+            <Alert
+              severity="info"
+              action={
+                <Button component={RouterLink} to={PATHS.support} color="inherit" size="small">
+                  {t('Contact us')}
+                </Button>
+              }
+            >
+              {t(
+                'Online payment is not set up for this invoice yet. Pay by bank transfer using the details on the invoice PDF, or contact us and we will send you a payment link.',
+              )}
             </Alert>
           )}
           {available.map((choice) => (

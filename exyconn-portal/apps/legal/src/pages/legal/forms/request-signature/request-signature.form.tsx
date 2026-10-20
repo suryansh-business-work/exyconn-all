@@ -12,7 +12,11 @@ import { useRequestContractSignatureMutation } from '@exyconn/shell/graphql/gene
 import type { RequestSignatureTarget } from './request-signature.types';
 
 const schema = z.object({
-  signerName: z.string().trim().min(2, 'Who are you asking?'),
+  signerName: z
+    .string()
+    .trim()
+    .min(2, 'Who are you asking?')
+    .max(120, 'Keep the name under 120 characters'),
   signerEmail: z.string().trim().regex(EMAIL, 'Enter a valid email'),
   message: z.string().trim().max(1000, 'Keep the message under 1000 characters'),
 });
@@ -79,13 +83,27 @@ export function RequestSignatureForm({
           {t('Attach the document to this contract first — there is nothing to sign yet.')}
         </Alert>
       )}
-      <RhfTextField name="signerName" label="Who is signing" />
+      <RhfTextField
+        name="signerName"
+        label="Who is signing"
+        required
+        helperText="Their full name, as it should appear on the signature record."
+      />
       <RhfTextField
         name="signerEmail"
         label="Their email"
-        helperText="The link is theirs alone and works for 30 days"
+        required
+        type="email"
+        placeholder="name@company.com"
+        helperText="The signing link is sent here. It is theirs alone and works for 30 days."
       />
-      <RhfTextField name="message" label="Message (optional)" multiline minRows={3} />
+      <RhfTextField
+        name="message"
+        label="Message"
+        multiline
+        minRows={3}
+        helperText="Optional. A note shown in the email, e.g. what to check before signing."
+      />
     </EntityForm>
   );
 }

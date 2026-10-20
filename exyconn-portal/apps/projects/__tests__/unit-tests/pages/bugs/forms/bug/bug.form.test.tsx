@@ -14,6 +14,10 @@ import {
   press,
 } from '../../../../helpers/form-helpers';
 
+vi.mock('@exyconn/shell/components/form/rhf/RhfRichText', async () => ({
+  RhfRichText: (await import('../../../../helpers/rich-text.stub')).RhfRichTextStub,
+}));
+
 const gql = vi.hoisted(() => ({
   create: vi.fn(),
   update: vi.fn(),
@@ -48,25 +52,40 @@ describe('BugForm', () => {
     });
   });
 
-  it('asks for a title, a description, an assignee and a due date', async () => {
+  it('asks only for a title, a project and a description', async () => {
     renderForm();
 
     await press('Create');
 
     expect(await screen.findByText('Title is required')).toBeInTheDocument();
+    expect(screen.getByText('Project is required')).toBeInTheDocument();
     expect(screen.getByText('Description is required')).toBeInTheDocument();
-    expect(screen.getByText('Assignee is required')).toBeInTheDocument();
-    expect(screen.getByText('Due date is required')).toBeInTheDocument();
+    expect(screen.queryByText(/Assignee is required|Due date is required/)).not.toBeInTheDocument();
     expect(gql.create).not.toHaveBeenCalled();
   });
 
-  it('wants more than a word or two of description', async () => {
+  it('wants more than a word or two of description, and reads past empty tags', async () => {
     renderForm();
-    fill('Description', 'Bad');
+    fill('Description', '<p>Bad</p>');
 
     await press('Create');
 
-    expect(await screen.findByText('Add a little more detail')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Add a little more detail (at least 10 characters)'),
+    ).toBeInTheDocument();
+
+    fill('Description', '<p> </p>');
+    expect(await screen.findByText('Description is required')).toBeInTheDocument();
+  });
+
+  it('takes only full https links', async () => {
+    renderForm();
+    fill('Public link', 'example.com');
+    fill('Private link', 'https://staging.example.com/login');
+
+    await press('Create');
+
+    expect(await screen.findAllByText('Enter a full link starting with https://')).toHaveLength(1);
   });
 
   it('offers the projects by key and name, and people by name and email', async () => {
@@ -86,10 +105,43 @@ describe('BugForm', () => {
     expect(await screen.findByText('No options')).toBeInTheDocument();
   });
 
-  it('creates an open, medium bug on no project unless told otherwise', async () => {
+  it('creates an open, medium bug, unassigned and undated unless told otherwise', async () => {
     renderForm();
-    fill('Title', '  Crash on save  ');
-    fill('Description', 'The app closes when saving');
+    fill(/^Title/, '  Crash on save  ');
+    fill('Description', '<p>The app closes when saving</p>');
+    fill('Steps to reproduce', '<p></p>');
+    await pickOption(/^Project/, 'WEB · Website');
+
+    await press('Create');
+
+    await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
+    expect(gql.create).toHaveBeenCalledWith({
+      variables: {
+        input: {
+          title: 'Crash on save',
+          description: '<p>The app closes when saving</p>',
+          stepsToReproduce: '',
+          publicLink: '',
+          privateLink: '',
+          attachments: [],
+          severity: BugSeverity.Medium,
+          status: BugStatus.Open,
+          projectId: 'proj-1',
+          assigneeId: null,
+          dueDate: null,
+        },
+      },
+    });
+    expect(await screen.findByText('Bug created')).toBeInTheDocument();
+  });
+
+  it('saves who fixes it, by when, the steps and the links when they are given', async () => {
+    renderForm();
+    fill(/^Title/, 'Crash on save');
+    fill('Description', '<p>The app closes when saving</p>');
+    fill('Steps to reproduce', '<ol><li>Open a doc</li><li>Save</li></ol>');
+    fill('Public link', 'https://app.example.com/docs');
+    await pickOption(/^Project/, 'WEB · Website');
     await userEvent.type(screen.getByRole('combobox', { name: /^Assignee/ }), 'Pri');
     await userEvent.click(await screen.findByRole('option', { name: 'Priya (priya@acme.io)' }));
     pickDate('dueDate', '10/20/2026');
@@ -99,24 +151,32 @@ describe('BugForm', () => {
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
-        input: {
-          title: 'Crash on save',
-          description: 'The app closes when saving',
-          severity: BugSeverity.Medium,
-          status: BugStatus.Open,
-          projectId: null,
+        input: expect.objectContaining({
+          stepsToReproduce: '<ol><li>Open a doc</li><li>Save</li></ol>',
+          publicLink: 'https://app.example.com/docs',
           assigneeId: 'emp-1',
           dueDate: localIso(2026, 9, 20),
-        },
+        }),
       },
     });
-    expect(await screen.findByText('Bug created')).toBeInTheDocument();
   });
 
-  it('updates an existing bug by id, keeping its project', async () => {
-    renderForm(bugRow({ id: 'bug-3' }));
+  it('updates an existing bug by id, keeping its project and files', async () => {
+    const file = {
+      __typename: 'FileAttachment' as const,
+      url: 'https://cdn/a.png',
+      name: 'a.png',
+      contentType: 'image/png',
+    };
+    renderForm(
+      bugRow({
+        id: 'bug-3',
+        description: '<p>The app closes when saving</p>',
+        attachments: [file],
+      }),
+    );
 
-    expect(screen.getByLabelText('Title')).toHaveValue('Crash on save');
+    expect(screen.getByRole('textbox', { name: /^Title/ })).toHaveValue('Crash on save');
     await pickOption(/^Severity/, 'Critical');
     await pickOption(/^Status/, 'In Progress');
     await press('Update');
@@ -129,6 +189,7 @@ describe('BugForm', () => {
           projectId: 'proj-1',
           severity: BugSeverity.Critical,
           status: BugStatus.InProgress,
+          attachments: [{ url: 'https://cdn/a.png', name: 'a.png', contentType: 'image/png' }],
           dueDate: '2026-10-20T00:00:00.000Z',
         }),
       },
@@ -138,7 +199,7 @@ describe('BugForm', () => {
 
   it('keeps the form open and reports a failed save', async () => {
     gql.update.mockRejectedValueOnce('conflict');
-    renderForm(bugRow());
+    renderForm(bugRow({ description: '<p>The app closes when saving</p>' }));
 
     await press('Update');
 

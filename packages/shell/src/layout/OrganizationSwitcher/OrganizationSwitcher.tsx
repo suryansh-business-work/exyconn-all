@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { useT } from '@exyconn/i18n';
 import {
   Avatar,
   Box,
   Button,
+  Divider,
   ListItemIcon,
   ListItemText,
   Menu,
@@ -19,6 +21,8 @@ import {
   useOrganizationsQuery,
 } from '@/graphql/generated';
 import { organizationLocation } from '@/config/organizationPath';
+import { AddOrganizationDrawer } from './AddOrganizationDrawer';
+import { portalLogger } from '@/logging/portalLogger';
 
 const LOGO_SIZE = 28;
 
@@ -38,8 +42,8 @@ function OrganizationLogo({ name, logoUrl }: Readonly<{ name: string; logoUrl: s
 }
 
 /**
- * Picks the company a platform administrator works in. Shown only to a SUPER_ADMIN, and only
- * when there is more than one open company to choose from.
+ * Picks the company a platform administrator works in, and adds new ones. Shown only to a
+ * SUPER_ADMIN.
  *
  * Choosing one loads the same page under that company's address (`/organization/:slug/...`):
  * a full load, so nothing of the previous company survives in the cache.
@@ -48,14 +52,17 @@ export function OrganizationSwitcher() {
   const t = useT();
   const { user } = useAuth();
   const platformAdmin = user?.roles.includes(ROLES.SUPER_ADMIN) ?? false;
-  const { data } = useOrganizationsQuery({ skip: !platformAdmin });
+  const { data, refetch } = useOrganizationsQuery({ skip: !platformAdmin });
   const { data: current } = useMyOrganizationQuery({ skip: !platformAdmin });
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const choices = (data?.organizations ?? []).filter(
     (organization) => organization.status === OrganizationStatus.Active,
   );
-  if (choices.length < 2) {
+  // Only a platform administrator picks or adds companies; for them the menu is there even
+  // with one company, because it is also where the next one is added.
+  if (!platformAdmin) {
     return null;
   }
   const active = current?.myOrganization ?? null;
@@ -98,7 +105,32 @@ export function OrganizationSwitcher() {
             <ListItemText primary={organization.name} secondary={organization.slug} />
           </MenuItem>
         ))}
+        {choices.length > 0 && <Divider />}
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            setAdding(true);
+          }}
+        >
+          <ListItemIcon>
+            <AddBusinessIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={t('Add organization')}
+            secondary={t('Create a company and invite its people')}
+          />
+        </MenuItem>
       </Menu>
+      <AddOrganizationDrawer
+        open={adding}
+        onClose={() => setAdding(false)}
+        onCreated={() => {
+          setAdding(false);
+          refetch().catch((error: unknown) =>
+            portalLogger.error('Reloading organizations failed', error),
+          );
+        }}
+      />
     </>
   );
 }

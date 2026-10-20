@@ -23,6 +23,12 @@ mutation SaveGmailConfig($input: GmailConfigInput!) {
   }
 }
 
+mutation UseGoogleSignInClientForGmail {
+  useGoogleSignInClientForGmail {
+    ...GmailConfigFields
+  }
+}
+
 mutation StartGmailConnect($returnTo: String!) {
   startGmailConnect(returnTo: $returnTo)
 }

@@ -16,6 +16,18 @@ fragment OrganizationFields on Organization {
   taxSystem
   contactEmail
   logoUrl
+  website
+  phone
+  industry
+  companySize
+  registrationNumber
+  taxId
+  addressLine1
+  addressLine2
+  city
+  region
+  postalCode
+  description
   createdAt
   updatedAt
 }
@@ -56,5 +68,25 @@ mutation AssignOrganizationAdmin($organizationId: ID!, $input: OrganizationAdmin
     name
     email
     roles
+  }
+}
+
+mutation InviteOrganizationMembers($organizationId: ID!, $members: [OrganizationMemberInput!]!) {
+  inviteOrganizationMembers(organizationId: $organizationId, members: $members) {
+    id
+    email
+    roles
+  }
+}
+
+query OrganizationHistory($id: ID!) {
+  organizationHistory(id: $id) {
+    id
+    actorName
+    actorEmail
+    action
+    summary
+    changes
+    createdAt
   }
 }

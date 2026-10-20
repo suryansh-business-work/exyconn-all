@@ -37,8 +37,11 @@ export async function projectNameFor(projectId: string | null | undefined): Prom
   return project.name;
 }
 
-/** The assignee's name for their id. A bug always has an assignee, so the id must resolve. */
-export async function assigneeNameFor(assigneeId: string): Promise<string> {
+/** The assignee's name for their id; an unassigned bug has none. A given id must resolve. */
+export async function assigneeNameFor(assigneeId: string | null | undefined): Promise<string> {
+  if (!assigneeId) {
+    return '';
+  }
   const user = isValidObjectId(assigneeId)
     ? await UserModel.findById(assigneeId).select('name').lean()
     : null;
@@ -46,6 +49,11 @@ export async function assigneeNameFor(assigneeId: string): Promise<string> {
     badRequest('That assignee does not exist.');
   }
   return user.name;
+}
+
+/** The ticket's description: the bug's, with its steps to reproduce under a heading. */
+export function ticketDescription(description: string, steps: string | null | undefined): string {
+  return steps ? `${description}<h3>Steps to reproduce</h3>${steps}` : description;
 }
 
 /**
@@ -79,7 +87,7 @@ export async function promoteBugToTask(id: string, actor: Actor) {
     String(column._id),
     {
       title: bug.title,
-      description: bug.description,
+      description: ticketDescription(bug.description, bug.stepsToReproduce),
       type: 'BUG',
       priority: PRIORITY_OF_SEVERITY[bug.severity],
       assigneeId: bug.assigneeId || null,

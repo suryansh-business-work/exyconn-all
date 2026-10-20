@@ -9,8 +9,7 @@ import {
   type CrudGridContext,
   type RowActionSpec,
 } from '@exyconn/crud';
-import { Flex } from '@exyconn/shell/components/ui';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { StatusChipList } from '@exyconn/shell/components/data/StatusChipList';
 import { userStatus } from '@exyconn/shell/pages/UserDetails/user-details.types';
 import type { ListUsersPagedQuery } from '@exyconn/shell/graphql/generated';
 
@@ -25,15 +24,9 @@ const RESET_ACTION: RowActionSpec = {
   icon: LockResetIcon,
 };
 
+/** A user's roles on one line: the first few, then "+N" with the rest in a tooltip. */
 function RolesCell(params: Readonly<ICellRendererParams<PagedUserRow>>) {
-  const roles = params.data?.roles ?? [];
-  return (
-    <Flex direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-      {roles.map((role) => (
-        <StatusChip key={role} value={role} />
-      ))}
-    </Flex>
-  );
+  return <StatusChipList values={params.data?.roles ?? []} />;
 }
 
 /** Column model for the server-side Users grid. Only name/email hit the server. */

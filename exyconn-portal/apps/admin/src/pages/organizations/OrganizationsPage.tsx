@@ -12,8 +12,10 @@ import {
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import BlockIcon from '@mui/icons-material/Block';
 import RestoreIcon from '@mui/icons-material/Restore';
+import HistoryIcon from '@mui/icons-material/History';
 import { OrganizationForm, type OrganizationRow } from './forms/organization';
 import { OrganizationAdminForm } from './forms/organization-admin';
+import { OrganizationHistory } from './OrganizationHistory';
 
 /** Whether the company may sign in at all — a column cell, so it can translate its own word. */
 function OrganizationStatusChip({ status }: Readonly<{ status: OrganizationStatus }>) {
@@ -68,6 +70,7 @@ export function OrganizationsPage() {
   const [editing, setEditing] = useState<OrganizationRow | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [appointing, setAppointing] = useState<OrganizationRow | null>(null);
+  const [history, setHistory] = useState<OrganizationRow | null>(null);
 
   const rows = data?.organizations ?? [];
 
@@ -98,6 +101,12 @@ export function OrganizationsPage() {
   };
 
   const actions: RowAction<OrganizationRow>[] = [
+    {
+      icon: <HistoryIcon fontSize="small" />,
+      tooltip: 'History',
+      ariaLabel: 'History',
+      onClick: (row) => setHistory(row),
+    },
     {
       icon: <PersonAddAlt1Icon fontSize="small" />,
       tooltip: 'Appoint administrator',
@@ -159,6 +168,13 @@ export function OrganizationsPage() {
             onCancel={close}
           />
         ) : null}
+      </CrudDialog>
+      <CrudDialog
+        open={history !== null}
+        title={history ? t('History of {name}', { name: history.name }) : t('History')}
+        onClose={() => setHistory(null)}
+      >
+        {history ? <OrganizationHistory organizationId={history.id} /> : null}
       </CrudDialog>
     </Stack>
   );

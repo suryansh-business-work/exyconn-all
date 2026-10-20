@@ -20,10 +20,17 @@ import { legalBody } from '../body.schema';
 import type { LegalDocumentRow } from './document.types';
 
 const schema = z.object({
-  title: z.string().trim().min(1, 'Title is required'),
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Title is required')
+    .max(200, 'Keep the title under 200 characters'),
   category: z.enum(DocumentCategory),
   owner: z.string().trim().max(120, 'Keep the owner under 120 characters'),
-  fileUrl: z.union([z.literal(''), z.string().trim().regex(HTTP_URL, 'Enter a valid URL')]),
+  fileUrl: z.union([
+    z.literal(''),
+    z.string().trim().regex(HTTP_URL, 'Enter a full link starting with https://'),
+  ]),
   status: z.enum(DocumentStatus),
   content: legalBody,
 });
@@ -78,18 +85,38 @@ function DocumentFields({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Document title" />
+      <RhfTextField
+        name="title"
+        label="Document title"
+        required
+        placeholder="e.g. Data Processing Agreement 2026"
+        helperText="The name people will search the register for."
+      />
       <RhfSelect
         name="category"
         label="Category"
+        required
         options={enumOptions(Object.values(DocumentCategory))}
+        helperText="Groups the document in the register and its reports."
       />
-      <RhfTextField name="owner" label="Owner (optional)" />
-      <RhfTextField name="fileUrl" label="File link (optional)" />
+      <RhfTextField
+        name="owner"
+        label="Owner"
+        placeholder="e.g. Head of Legal"
+        helperText="Optional. The person or team that keeps this document current."
+      />
+      <RhfTextField
+        name="fileUrl"
+        label="File link"
+        placeholder="https://"
+        helperText="Optional. A full https link to the signed or source file, if it lives elsewhere."
+      />
       <RhfSelect
         name="status"
         label="Status"
+        required
         options={enumOptions(Object.values(DocumentStatus))}
+        helperText="Draft while it is being written; Active once it is in force."
       />
       <RhfRichText
         name="content"

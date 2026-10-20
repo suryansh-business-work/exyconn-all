@@ -13,6 +13,8 @@ export interface RichTextEditorProps {
   onBlur?: () => void;
   uploadImage: UploadImage;
   label: string;
+  /** Marks the label with the red required star. */
+  required?: boolean;
   helperText?: string;
   /** Validation message; also switches the frame to the error colour. */
   error?: string;

@@ -49,6 +49,23 @@ const organizationSchema = new Schema(
     contactEmail: { type: String, default: '', lowercase: true, trim: true },
     /** Its logo, hosted on ImageKit; shown where a platform administrator picks a company. */
     logoUrl: { type: String, default: '', trim: true },
+    // Who the company is, for the record. All optional: a company can be set up with a name
+    // and a currency and filled in later.
+    website: { type: String, default: '', trim: true },
+    phone: { type: String, default: '', trim: true },
+    industry: { type: String, default: '', trim: true },
+    /** A band such as "11-50", as the person setting it up chose it. */
+    companySize: { type: String, default: '', trim: true },
+    /** Its company registration number (CIN, Companies House number, EIN…). */
+    registrationNumber: { type: String, default: '', trim: true },
+    /** Its tax registration (GSTIN, VAT number…). */
+    taxId: { type: String, default: '', trim: true },
+    addressLine1: { type: String, default: '', trim: true },
+    addressLine2: { type: String, default: '', trim: true },
+    city: { type: String, default: '', trim: true },
+    region: { type: String, default: '', trim: true },
+    postalCode: { type: String, default: '', trim: true },
+    description: { type: String, default: '', trim: true },
     /**
      * The one company that operates the platform itself (Exyconn's own staff). Only its people
      * may manage what every company shares — see lib/platformAccess. Set at boot, never via the API.

@@ -14,7 +14,8 @@ jest.mock('../../../../src/utils/safeFetch', () => ({
 
 import { safeFetch } from '../../../../src/utils/safeFetch';
 
-const FROM = { ip: '198.51.100.7', userAgent: 'Mozilla/5.0' };
+const SIGNATURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==';
+const FROM = { ip: '198.51.100.7', userAgent: 'Mozilla/5.0', signatureImage: SIGNATURE };
 const LONG_AGENT = 'A'.repeat(260);
 const missingId = () => new Types.ObjectId().toHexString();
 
@@ -75,6 +76,7 @@ describe('signContractInternally', () => {
       signerEmail: 'dev@exyconn.com',
       ip: FROM.ip,
       userAgent: LONG_AGENT,
+      signatureImage: SIGNATURE,
     });
 
     expect(signed).toMatchObject({
@@ -84,7 +86,25 @@ describe('signContractInternally', () => {
     });
     const evidence = await ContractSignatureModel.findOne().lean();
     expect(evidence?.signedUserAgent).toHaveLength(200);
+    expect(evidence?.signatureImage).toBe(SIGNATURE);
     expect(evidence?.expiresAt.getTime()).toBe(evidence?.signedAt?.getTime());
+  });
+
+  it('refuses a missing signature before looking anything up', async () => {
+    const row = await contract();
+
+    expect(
+      await codeOf(
+        signContractInternally({
+          contractId: row._id.toHexString(),
+          signerEmail: 'dev@exyconn.com',
+          ...FROM,
+          signatureImage: '',
+        }),
+      ),
+    ).toBe('BAD_USER_INPUT');
+    expect(safeFetch).not.toHaveBeenCalled();
+    expect(await ContractSignatureModel.countDocuments()).toBe(0);
   });
 
   it('refuses rather than signing when the document cannot be read', async () => {

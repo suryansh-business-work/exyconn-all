@@ -29,6 +29,8 @@ import { canonicalLocale, isValidLocale } from '../i18n/locale.constants';
 import type { WorkLocation, WorkingTime } from '../../constants/work';
 import { registerTable } from '../table-transfer/registry';
 import { isEmailAddress } from '../../utils/emailAddress';
+import { imageUploader } from '../../utils/imagekit';
+import type { AttachmentInput } from '../../lib/attachments';
 import { normalizeWorkDays } from './work-week';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
@@ -206,6 +208,26 @@ function tryEmail(action: string, send: () => Promise<void>): void {
 export interface SendMailInput {
   subject: string;
   message: string;
+  cc?: string[] | null;
+  bcc?: string[] | null;
+  attachments?: AttachmentInput[] | null;
+}
+
+/** A custom email copies in at most this many people per list, and carries this many files. */
+const MAX_COPIED = 20;
+const MAX_MAIL_ATTACHMENTS = 10;
+
+/** Every copied address must be a real one; a list over the cap is refused. */
+function copiedAddresses(list: string[] | null | undefined, label: string): string[] {
+  const addresses = [...new Set((list ?? []).map((address) => address.trim().toLowerCase()))];
+  if (addresses.length > MAX_COPIED) {
+    badRequest(`Copy at most ${MAX_COPIED} people in ${label}.`);
+  }
+  const invalid = addresses.find((address) => !isEmailAddress(address));
+  if (invalid !== undefined) {
+    badRequest(`"${invalid}" in ${label} is not an email address.`);
+  }
+  return addresses;
 }
 
 export type EmploymentStatus = 'ACTIVE' | 'ON_LEAVE' | 'TERMINATED';
@@ -637,11 +659,30 @@ class AdminService {
   async sendUserMail(id: string, input: SendMailInput) {
     const user = await UserModel.findById(id).lean();
     if (!user) notFound('User');
+    const attachments = input.attachments ?? [];
+    if (attachments.length > MAX_MAIL_ATTACHMENTS) {
+      badRequest(`Attach at most ${MAX_MAIL_ATTACHMENTS} files.`);
+    }
+    // The mail server fetches each file to attach it, so only the portal's own CDN is allowed:
+    // anything else would let a form make the server fetch an address of its choosing.
+    for (const file of attachments) {
+      if (!(await imageUploader.isOwnUrl(file.url))) {
+        badRequest(`"${file.name}" is not a file uploaded to the portal.`);
+      }
+    }
     await mailer.sendCustomEmail({
       name: user.name,
       email: user.email,
       subject: input.subject,
-      message: input.message,
+      message: '',
+      html: input.message,
+      cc: copiedAddresses(input.cc, 'CC'),
+      bcc: copiedAddresses(input.bcc, 'BCC'),
+      attachments: attachments.map((file) => ({
+        filename: file.name,
+        path: file.url,
+        contentType: file.contentType ?? undefined,
+      })),
     });
     return true;
   }

@@ -73,18 +73,18 @@ describe('DocumentForm', () => {
 
   it('refuses a file link that is not a web address, and an owner over 120 characters', async () => {
     renderForm();
-    fill('Document title', 'DPA');
-    fill('File link (optional)', 'shared drive');
-    fill('Owner (optional)', 'a'.repeat(121));
+    fill(/^Document title/, 'DPA');
+    fill('File link', 'shared drive');
+    fill('Owner', 'a'.repeat(121));
     await click('Create');
-    expect(await screen.findByText('Enter a valid URL')).toBeInTheDocument();
+    expect(await screen.findByText('Enter a full link starting with https://')).toBeInTheDocument();
     expect(screen.getByText('Keep the owner under 120 characters')).toBeInTheDocument();
     expect(gql.create).not.toHaveBeenCalled();
   });
 
   it('saves a blank owner and file link as nothing rather than as empty text', async () => {
     renderForm();
-    fill('Document title', '  Data processing addendum ');
+    fill(/^Document title/, '  Data processing addendum ');
     await click('Create');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -105,10 +105,10 @@ describe('DocumentForm', () => {
 
   it('keeps the owner, link, category and text that were entered', async () => {
     renderForm();
-    fill('Document title', 'DPA');
+    fill(/^Document title/, 'DPA');
     await pickOption(/^Category/, 'Compliance');
-    fill('Owner (optional)', 'Legal team');
-    fill('File link (optional)', 'https://cdn.example.com/dpa.pdf');
+    fill('Owner', 'Legal team');
+    fill('File link', 'https://cdn.example.com/dpa.pdf');
     fill('Document', '<p>Clauses</p>');
     await click('Create');
 
@@ -132,9 +132,9 @@ describe('DocumentForm', () => {
       skip: false,
       fetchPolicy: 'network-only',
     });
-    expect(screen.getByLabelText('Document title')).toHaveValue('Data processing addendum');
-    expect(screen.getByLabelText('Owner (optional)')).toHaveValue('');
-    expect(screen.getByLabelText('File link (optional)')).toHaveValue('');
+    expect(screen.getByLabelText(/^Document title/)).toHaveValue('Data processing addendum');
+    expect(screen.getByLabelText('Owner')).toHaveValue('');
+    expect(screen.getByLabelText('File link')).toHaveValue('');
     expect(screen.getByTestId('download')).toHaveTextContent('<p>Clauses</p>');
     expect(screen.getByTestId('download')).toHaveAttribute(
       'data-title',
@@ -163,7 +163,7 @@ describe('DocumentForm', () => {
     gql.body.mockReturnValue(bodyArrived(null));
     renderForm(documentRow());
     expect(screen.getByLabelText('Document')).toHaveValue('');
-    expect(screen.getByLabelText('Owner (optional)')).toHaveValue('Legal team');
+    expect(screen.getByLabelText('Owner')).toHaveValue('Legal team');
   });
 
   it('holds the fields back while the text loads', () => {
@@ -173,7 +173,7 @@ describe('DocumentForm', () => {
       'aria-busy',
       'true',
     );
-    expect(screen.queryByLabelText('Document title')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Document title/)).not.toBeInTheDocument();
   });
 
   it('keeps the form open and says why when the save fails', async () => {

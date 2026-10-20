@@ -9,10 +9,18 @@ interface RhfDatePickerProps {
   /** The earliest date that can be picked, as an ISO string; days before it are disabled. */
   minDate?: string;
   helperText?: string;
+  /** Marks the label with the required star; Zod still owns the rule. */
+  required?: boolean;
 }
 
 /** React Hook Form-bound MUIX date picker. Stores the value as an ISO string. */
-export function RhfDatePicker({ name, label, minDate, helperText }: Readonly<RhfDatePickerProps>) {
+export function RhfDatePicker({
+  name,
+  label,
+  minDate,
+  helperText,
+  required,
+}: Readonly<RhfDatePickerProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
   return (
@@ -36,6 +44,7 @@ export function RhfDatePicker({ name, label, minDate, helperText }: Readonly<Rhf
               // in tests and by label-less assistive queries.
               name,
               fullWidth: true,
+              required,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),
               helperText: copy(fieldState.error?.message ?? helperText),

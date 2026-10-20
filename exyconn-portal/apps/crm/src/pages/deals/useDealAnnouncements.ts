@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import type { Active, Announcements, Over, ScreenReaderInstructions } from '@dnd-kit/core';
 import { useT } from '@exyconn/i18n';
-import { dropPosition, type BoardLayout } from './deals.board';
+import { dropPosition, type BoardLayout } from '@exyconn/kanban';
+import type { DealStage } from '@exyconn/shell/graphql/generated';
 import { stageLabel } from './deals.constants';
 import type { DealRow } from './forms/deal';
 
@@ -22,7 +23,7 @@ function targetText(board: BoardNames, t: Translate, active: Active, over: Over 
   }
   return t('{title}: {stage}, position {position} of {count}.', {
     title: titleOf(board, active),
-    stage: t(stageLabel(target.stage)),
+    stage: t(stageLabel(target.column as DealStage)),
     position: target.position,
     count: target.count,
   });
@@ -35,7 +36,7 @@ function endText(board: BoardNames, t: Translate, active: Active, over: Over | n
   }
   return t('{title} dropped in {stage}, position {position} of {count}.', {
     title: titleOf(board, active),
-    stage: t(stageLabel(target.stage)),
+    stage: t(stageLabel(target.column as DealStage)),
     position: target.position,
     count: target.count,
   });

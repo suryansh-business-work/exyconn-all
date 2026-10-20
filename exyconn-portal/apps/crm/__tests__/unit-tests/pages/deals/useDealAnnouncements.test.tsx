@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Active, Over } from '@dnd-kit/core';
 import { DealStage } from '@exyconn/shell/graphql/generated';
 import { useDealAnnouncements } from '../../../../src/pages/deals/useDealAnnouncements';
-import type { BoardLayout } from '../../../../src/pages/deals/deals.board';
+import type { BoardLayout } from '@exyconn/kanban';
 import { renderHookWithProviders } from '../../test-utils';
 import { dealRow } from '../../fixtures';
 

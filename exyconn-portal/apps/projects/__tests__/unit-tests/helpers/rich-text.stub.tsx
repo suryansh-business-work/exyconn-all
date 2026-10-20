@@ -11,13 +11,16 @@ interface RichTextStubProps {
  */
 export function RhfRichTextStub({ name, label }: Readonly<RichTextStubProps>) {
   const { control } = useFormContext();
-  const { field } = useController({ name, control });
+  const { field, fieldState } = useController({ name, control });
   return (
-    <textarea
-      aria-label={label}
-      value={field.value ?? ''}
-      onChange={(event) => field.onChange(event.target.value)}
-      onBlur={field.onBlur}
-    />
+    <>
+      <textarea
+        aria-label={label}
+        value={field.value ?? ''}
+        onChange={(event) => field.onChange(event.target.value)}
+        onBlur={field.onBlur}
+      />
+      {fieldState.error?.message && <span>{fieldState.error.message}</span>}
+    </>
   );
 }

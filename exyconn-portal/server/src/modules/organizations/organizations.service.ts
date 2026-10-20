@@ -28,12 +28,43 @@ export interface OrganizationInput {
   taxSystem?: TaxSystem;
   contactEmail?: string;
   logoUrl?: string;
+  website?: string;
+  phone?: string;
+  industry?: string;
+  companySize?: string;
+  registrationNumber?: string;
+  taxId?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  region?: string;
+  postalCode?: string;
+  description?: string;
 }
 
 export interface OrganizationAdminInput {
   name: string;
   email: string;
 }
+
+export interface OrganizationMemberInput extends OrganizationAdminInput {
+  roles: Role[];
+}
+
+/** Free-text details are kept short: a record, not a document store. */
+const DETAIL_LIMITS: Record<string, number> = {
+  phone: 40,
+  industry: 120,
+  companySize: 40,
+  registrationNumber: 60,
+  taxId: 60,
+  addressLine1: 200,
+  addressLine2: 200,
+  city: 120,
+  region: 120,
+  postalCode: 20,
+  description: 2000,
+};
 
 /** "Acme Manufacturing Ltd" -> "acme-manufacturing-ltd". */
 function slugify(value: string): string {
@@ -64,6 +95,15 @@ function validate(input: Partial<OrganizationInput>): void {
   }
   if (input.logoUrl !== undefined && input.logoUrl !== '' && !isWebAddress(input.logoUrl)) {
     badRequest('The logo must be a web address (http or https).');
+  }
+  if (input.website !== undefined && input.website !== '' && !isWebAddress(input.website)) {
+    badRequest('The website must be a web address (http or https).');
+  }
+  for (const [field, limit] of Object.entries(DETAIL_LIMITS)) {
+    const value = (input as Record<string, unknown>)[field];
+    if (typeof value === 'string' && value.length > limit) {
+      badRequest(`Keep the ${field} under ${limit} characters.`);
+    }
   }
 }
 
@@ -132,9 +172,35 @@ class OrganizationService {
    * company, which then administers it without the platform's help. An existing account
    * already in that company is promoted instead of duplicated.
    */
-  async assignAdmin(organizationId: string, input: OrganizationAdminInput) {
+  assignAdmin(organizationId: string, input: OrganizationAdminInput) {
+    return this.addMember(organizationId, { ...input, roles: [ROLES.ADMIN] });
+  }
+
+  /** Invites several people at once; one address listed twice is invited once. */
+  async inviteMembers(organizationId: string, members: OrganizationMemberInput[]) {
+    if (members.length === 0) badRequest('Add at least one person to invite.');
+    const seen = new Set<string>();
+    const added = [];
+    for (const member of members) {
+      const email = member.email.toLowerCase().trim();
+      if (!seen.has(email)) {
+        seen.add(email);
+        added.push(await this.addMember(organizationId, { ...member, email }));
+      }
+    }
+    return added;
+  }
+
+  /**
+   * Puts somebody into a company with the given roles — one per portal they may open. An
+   * account already in that company gains the roles; one in another company, or a platform
+   * administrator, is refused.
+   */
+  async addMember(organizationId: string, input: OrganizationMemberInput) {
     // Refuses up front if there is no such company.
     await this.get(organizationId);
+    const roles = [...new Set(input.roles)].filter((role) => role !== ROLES.SUPER_ADMIN);
+    if (roles.length === 0) badRequest('Pick at least one portal for each person.');
     const email = input.email.toLowerCase().trim();
     const existing = await runAsPlatform(() => UserModel.findOne({ email }));
 
@@ -148,7 +214,7 @@ class OrganizationService {
       if (belongsTo === null && existing.roles.includes(ROLES.SUPER_ADMIN)) {
         badRequest('That email belongs to a platform administrator, who cannot join a company.');
       }
-      existing.roles = [...new Set([...existing.roles, ROLES.ADMIN])] as Role[];
+      existing.roles = [...new Set([...existing.roles, ...roles])] as Role[];
       setOrganizationOf(existing, organizationId);
       existing.isActive = true;
       existing.isBlocked = false;
@@ -158,7 +224,7 @@ class OrganizationService {
 
     // The same path Admin > Users takes — one way to create a person, inside their company.
     const created = await runForOrganization(organizationId, () =>
-      adminService.createUser({ name: input.name, email, roles: [ROLES.ADMIN] }),
+      adminService.createUser({ name: input.name, email, roles }),
     );
     return created.user.toObject();
   }

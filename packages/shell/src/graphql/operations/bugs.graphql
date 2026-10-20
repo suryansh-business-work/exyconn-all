@@ -3,6 +3,14 @@ query ListBugs {
     id
     title
     description
+    stepsToReproduce
+    publicLink
+    privateLink
+    attachments {
+      url
+      name
+      contentType
+    }
     severity
     status
     projectId
@@ -22,6 +30,14 @@ query ListBugsPaged($input: TableQueryInput!) {
       id
       title
       description
+      stepsToReproduce
+      publicLink
+      privateLink
+      attachments {
+        url
+        name
+        contentType
+      }
       severity
       status
       projectId

@@ -67,20 +67,28 @@ export function ClientTaxFields() {
     : 'Choose the type first, then type the number';
 
   return (
-    <ClientSection title="Tax & billing">
-      <RhfSelect name="taxIdType" label="Tax number type" options={typeOptions} />
+    <ClientSection
+      title="Tax & billing"
+      hint="Optional. Add a tax number to show it on invoices and apply the right tax."
+    >
+      <RhfSelect
+        name="taxIdType"
+        label="Tax number type"
+        options={typeOptions}
+        helperText="The kinds of number the client's country issues."
+      />
       <RhfTextField name="taxId" label="Tax number" helperText={taxIdHint} />
       {country === GST_COUNTRY && (
         <RhfSelect
           name="stateCode"
           label="GST state"
           options={stateOptions}
-          helperText="The default place of supply on their invoices"
+          helperText="The default place of supply on their invoices."
         />
       )}
       <RhfCurrencyField
         label="Invoicing currency"
-        helperText="Leave empty to invoice in the company's currency"
+        helperText="Leave empty to invoice in the company's currency."
         defaultToCompany={false}
       />
     </ClientSection>

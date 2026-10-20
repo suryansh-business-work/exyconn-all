@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { dropTargetRing } from '@exyconn/kanban';
 import {
   CARD_RADIUS,
   Box,
@@ -15,7 +16,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import { useT } from '@exyconn/i18n';
-import { TaskCard } from './TaskCard';
+import { ColumnTaskList } from './ColumnTaskList';
 import { AddItemInput } from './AddItemInput';
 import { ColumnMoveButtons } from './ColumnMoveButtons';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -27,6 +28,8 @@ interface BoardColumnCardProps {
   index: number;
   columnCount: number;
   tasks: TaskView[];
+  /** The column a carried ticket would land in: it lights up so the target is never a guess. */
+  highlighted?: boolean;
   onMoveColumn: (id: string, toIndex: number) => void;
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
@@ -41,6 +44,7 @@ export function BoardColumnCard({
   index,
   columnCount,
   tasks,
+  highlighted = false,
   onMoveColumn,
   onRename,
   onDelete,
@@ -81,19 +85,23 @@ export function BoardColumnCard({
   return (
     <Box
       ref={setNodeRef}
-      sx={{
-        width: 280,
-        flexShrink: 0,
-        p: 1.5,
-        borderRadius: `${CARD_RADIUS}px`,
-        bgcolor: 'action.hover',
-        opacity: isDragging ? 0.5 : 1,
-        transform: CSS.Transform.toString(transform),
-        transition,
-        display: 'flex',
-        flexDirection: 'column',
-        maxHeight: '100%',
-      }}
+      data-drop-target={highlighted || undefined}
+      sx={[
+        {
+          width: 280,
+          flexShrink: 0,
+          p: 1.5,
+          borderRadius: `${CARD_RADIUS}px`,
+          bgcolor: 'action.hover',
+          opacity: isDragging ? 0.5 : 1,
+          transform: CSS.Transform.toString(transform),
+          transition,
+          display: 'flex',
+          flexDirection: 'column',
+          maxHeight: '100%',
+        },
+        highlighted && dropTargetRing(),
+      ]}
     >
       <Flex direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
         <IconButton
@@ -164,17 +172,7 @@ export function BoardColumnCard({
         </IconButton>
       </Flex>
 
-      <Flex
-        direction="column"
-        spacing={1}
-        sx={{ overflowY: 'auto', flex: 1, minHeight: 8, pr: 0.5 }}
-      >
-        <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-          {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} onOpen={onOpenTask} />
-          ))}
-        </SortableContext>
-      </Flex>
+      <ColumnTaskList columnId={column.id} tasks={tasks} onOpenTask={onOpenTask} />
 
       <Box sx={{ mt: 1 }}>
         <AddItemInput

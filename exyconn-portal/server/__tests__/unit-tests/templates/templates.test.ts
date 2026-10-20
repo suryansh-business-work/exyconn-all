@@ -90,6 +90,20 @@ describe('customTemplate', () => {
     expect(mjml).toContain('Hi &lt;b&gt;Dana&lt;/b&gt;,');
     expect(mjml).toContain('A &amp; B &lt;i&gt;');
   });
+
+  it('keeps a rich-text body’s formatting but strips anything that could run', () => {
+    const mjml = customTemplate({
+      name: 'Dana',
+      subject: 'Update',
+      message: '',
+      html: '<p><strong>Bold</strong> and <a href="https://exyconn.com">a link</a></p><script>alert(1)</script><img src="x" onerror="alert(2)">',
+    });
+
+    expect(mjml).toContain('<strong>Bold</strong>');
+    expect(mjml).toContain('href="https://exyconn.com"');
+    expect(mjml).not.toContain('<script>');
+    expect(mjml).not.toContain('onerror');
+  });
 });
 
 describe('formSubmissionTemplate', () => {

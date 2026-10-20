@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';
+import { DndContext, closestCorners } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { KanbanDragOverlay, overlayGrip } from '@exyconn/kanban';
 import { Box, Flex } from '@exyconn/shell/components/ui';
 import { useProjectBoard } from './useProjectBoard';
 import { useBoardDnd } from './useBoardDnd';
@@ -27,8 +28,11 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
   const board = useProjectBoard(projectId);
   const {
     sensors,
+    layout,
     activeTask,
+    targetColumn,
     onDragStart,
+    onDragOver,
     onDragEnd,
     onDragCancel,
     moveColumn,
@@ -39,8 +43,10 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
 
   // Filtering here rather than in the hook keeps drag-and-drop working on the whole board:
   // the move persists against every ticket's real order, not against the visible subset.
-  const visible = tasksForSprint(board.tasks, sprintFilter);
-  const tasksOf = (columnId: string) => visible.filter((t) => t.columnId === columnId);
+  // The layout is the drag's preview while a ticket is carried, so its slot moves with it.
+  const visible = new Map(tasksForSprint(board.tasks, sprintFilter).map((task) => [task.id, task]));
+  const tasksOf = (columnId: string) =>
+    (layout[columnId] ?? []).flatMap((id) => visible.get(id) ?? []);
   const openTicket = board.tasks.find((task) => task.id === openId) ?? null;
 
   if (board.loading && board.columns.length === 0) {
@@ -53,6 +59,7 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={onDragStart}
+        onDragOver={onDragOver}
         onDragEnd={onDragEnd}
         onDragCancel={onDragCancel}
         accessibility={accessibility}
@@ -74,6 +81,7 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
                 columnCount={board.columns.length}
                 onMoveColumn={moveColumn}
                 tasks={tasksOf(column.id)}
+                highlighted={targetColumn === column.id}
                 onRename={board.editColumn}
                 onToggleDone={board.toggleColumnDone}
                 onDelete={board.removeColumn}
@@ -88,9 +96,11 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
           </Box>
         </Flex>
 
-        <DragOverlay>
-          {activeTask ? <TaskCard task={activeTask} onOpen={() => undefined} /> : null}
-        </DragOverlay>
+        <KanbanDragOverlay>
+          {activeTask ? (
+            <TaskCard task={activeTask} grip={overlayGrip} onOpen={() => undefined} />
+          ) : null}
+        </KanbanDragOverlay>
       </DndContext>
 
       <TicketDialog

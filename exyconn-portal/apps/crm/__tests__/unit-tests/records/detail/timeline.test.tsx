@@ -113,6 +113,49 @@ describe('Timeline', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(3);
   });
 
+  it('switches between the timeline and a table', async () => {
+    gql.timeline.mockReturnValue(answered(ROWS));
+    renderWithProviders(<Timeline object={CrmTimelineObject.Contact} id="c" />);
+    const views = screen.getByRole('group', { name: 'Activity view' });
+    await userEvent.click(within(views).getByRole('button', { name: 'Timeline' }));
+    expect(within(views).getByRole('button', { name: 'Timeline' })).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(within(views).getByRole('button', { name: 'Table' }));
+    expect(within(views).getByRole('button', { name: 'Table' })).toHaveAttribute('aria-pressed', 'true');
+    const table = screen.getByRole('table');
+    expect(within(table).getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
+      'Type',
+      'Activity',
+      'Status',
+      'Details',
+      'When',
+      'By',
+    ]);
+    expect(within(table).getByRole('link', { name: 'Re: Pricing' })).toHaveAttribute('href', 'https://mail/1');
+    expect(within(table).getByText('Wants a demo')).toBeInTheDocument();
+    expect(within(table).getByText('Priya')).toBeInTheDocument();
+    await userEvent.click(within(views).getByRole('button', { name: 'Timeline' }));
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(3);
+  });
+
+  it('opens the table from the URL and refreshes it', async () => {
+    gql.timeline.mockReturnValue(answered(ROWS));
+    renderWithProviders(<Timeline object={CrmTimelineObject.Contact} id="c" />, { route: '/?view=table' });
+    expect(screen.getAllByRole('row')).toHaveLength(4);
+    await userEvent.click(screen.getByRole('button', { name: /refresh/i }));
+    expect(gql.refetch).toHaveBeenCalled();
+  });
+
+  it('keeps the overview on the timeline whatever the URL says', () => {
+    gql.timeline.mockReturnValue(answered(ROWS));
+    renderWithProviders(<Timeline object={CrmTimelineObject.Contact} id="c" filters={false} />, {
+      route: '/?view=table',
+    });
+    expect(screen.queryByRole('group', { name: 'Activity view' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(3);
+  });
+
   it('shows the files an entry carries', () => {
     gql.timeline.mockReturnValue(
       answered([row({ attachments: [{ __typename: 'FileAttachment', url: 'https://cdn/a.pdf', name: 'a.pdf', contentType: 'application/pdf' }] })]),

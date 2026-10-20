@@ -8,10 +8,18 @@ interface RhfSelectProps {
   label: string;
   options: SelectOption[];
   helperText?: string;
+  /** Marks the label with the required star; Zod still owns the rule. */
+  required?: boolean;
 }
 
 /** React Hook Form-bound MUI select with inline validation feedback. */
-export function RhfSelect({ name, label, options, helperText }: Readonly<RhfSelectProps>) {
+export function RhfSelect({
+  name,
+  label,
+  options,
+  helperText,
+  required,
+}: Readonly<RhfSelectProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
   return (
@@ -25,6 +33,7 @@ export function RhfSelect({ name, label, options, helperText }: Readonly<RhfSele
           select
           fullWidth
           label={copy(label)}
+          required={required}
           error={Boolean(fieldState.error)}
           helperText={copy(fieldState.error?.message ?? helperText)}
         >

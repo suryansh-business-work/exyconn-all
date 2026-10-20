@@ -19,13 +19,40 @@ vi.mock('@/graphql/generated', async (importOriginal) => {
   };
 });
 
-const SUBJECT = 'Laptop return';
-const MESSAGE = 'Please return the laptop by Friday.';
+/** The editor itself is tested in @exyconn/rich-text; here it is a textarea holding HTML. */
+vi.mock('@exyconn/rich-text', () => ({
+  RichTextEditor: (
+    props: Readonly<{
+      label: string;
+      value: string;
+      error?: string;
+      onChange: (html: string) => void;
+      onBlur?: () => void;
+    }>,
+  ) => (
+    <label>
+      {props.label}
+      <textarea
+        value={props.value}
+        onChange={(event) => props.onChange(event.target.value)}
+        onBlur={props.onBlur}
+      />
+      {props.error && <span>{props.error}</span>}
+    </label>
+  ),
+}));
 
-function mailMock(error?: Error): MockLink.MockedResponse {
+const SUBJECT = 'Laptop return';
+const MESSAGE = '<p>Please return the laptop by Friday.</p>';
+const RECIPIENT = { name: 'Meera Nair', email: 'meera@example.com' };
+
+function mailMock(input: Record<string, unknown> = {}, error?: Error): MockLink.MockedResponse {
   const request = {
     query: SendUserMailDocument,
-    variables: { id: 'user-3', input: { subject: SUBJECT, message: MESSAGE } },
+    variables: {
+      id: 'user-3',
+      input: { cc: [], bcc: [], subject: SUBJECT, message: MESSAGE, attachments: [], ...input },
+    },
   };
   return error ? { request, error } : { request, result: { data: { sendUserMail: true } } };
 }
@@ -33,19 +60,41 @@ function mailMock(error?: Error): MockLink.MockedResponse {
 function renderForm(mocks: MockLink.MockedResponse[] = []) {
   const onDone = vi.fn();
   const onCancel = vi.fn();
-  renderWithProviders(<CustomMailForm userId="user-3" onDone={onDone} onCancel={onCancel} />, {
-    mocks,
-  });
+  renderWithProviders(
+    <CustomMailForm userId="user-3" recipient={RECIPIENT} onDone={onDone} onCancel={onCancel} />,
+    { mocks },
+  );
   return { onDone, onCancel };
 }
 
+const messageBox = () => screen.getByRole('textbox', { name: /^Message/ });
+
 async function fillAndSend(subject = SUBJECT, message = MESSAGE) {
-  fireEvent.change(screen.getByLabelText('Subject'), { target: { value: subject } });
-  fireEvent.change(screen.getByLabelText('Message'), { target: { value: message } });
+  fireEvent.change(screen.getByRole('textbox', { name: /^Subject/ }), {
+    target: { value: subject },
+  });
+  fireEvent.change(messageBox(), { target: { value: message } });
   await userEvent.click(screen.getByRole('button', { name: 'Send' }));
 }
 
+/** Types each address into a chips field and presses Enter after it. */
+async function typeAddresses(label: string, addresses: string[]) {
+  const field = screen.getByRole('combobox', { name: label });
+  for (const address of addresses) {
+    await userEvent.type(field, `${address}{Enter}`);
+  }
+}
+
 describe('CustomMailForm', () => {
+  it('addresses the person on the To line, with Cc and Bcc out of the way', () => {
+    renderForm();
+
+    expect(screen.getByText('Meera Nair <meera@example.com>')).toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: 'Cc' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: 'Bcc' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Attach file' })).toBeInTheDocument();
+  });
+
   it(
     'requires a subject and a message',
     async () => {
@@ -60,14 +109,16 @@ describe('CustomMailForm', () => {
   );
 
   it(
-    'rejects a subject under 3 and a message under 10 characters',
+    'rejects a subject under 3 and a message under 10 characters, reading past empty tags',
     async () => {
       const { onDone } = renderForm();
 
-      await fillAndSend('Hi', 'Too short');
+      await fillAndSend('Hi', '<p>Too short</p>');
 
       expect(await screen.findByText('Minimum 3 characters', {}, SLOW)).toBeInTheDocument();
       expect(screen.getByText('Minimum 10 characters')).toBeInTheDocument();
+      fireEvent.change(messageBox(), { target: { value: '<p> </p>' } });
+      expect(await screen.findByText('Message is required', {}, SLOW)).toBeInTheDocument();
       expect(onDone).not.toHaveBeenCalled();
     },
     FORM_TIMEOUT,
@@ -87,9 +138,45 @@ describe('CustomMailForm', () => {
   );
 
   it(
+    'copies people in on Cc and Bcc once they are opened',
+    async () => {
+      const { onDone } = renderForm([
+        mailMock({ cc: ['lead@example.com'], bcc: ['hr@example.com'] }),
+      ]);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cc' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Bcc' }));
+      await typeAddresses('Cc', ['lead@example.com']);
+      await typeAddresses('Bcc', ['hr@example.com']);
+      await fillAndSend();
+
+      expect(await screen.findByText('Email sent', {}, SLOW)).toBeInTheDocument();
+      expect(onDone).toHaveBeenCalledTimes(1);
+    },
+    FORM_TIMEOUT,
+  );
+
+  it(
+    'refuses a copied address that is not an email',
+    async () => {
+      const { onDone } = renderForm();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cc' }));
+      await typeAddresses('Cc', ['not-an-address']);
+      await fillAndSend();
+
+      expect(
+        await screen.findByText('Every address must be a valid email', {}, SLOW),
+      ).toBeInTheDocument();
+      expect(onDone).not.toHaveBeenCalled();
+    },
+    FORM_TIMEOUT,
+  );
+
+  it(
     "shows the server's error when sending fails",
     async () => {
-      const { onDone } = renderForm([mailMock(new Error('SMTP is not configured'))]);
+      const { onDone } = renderForm([mailMock({}, new Error('SMTP is not configured'))]);
 
       await fillAndSend();
 

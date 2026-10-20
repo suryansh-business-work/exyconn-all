@@ -7,13 +7,19 @@ import { renderWithProviders } from '../../../../test-utils';
 import { fill, localIso, pickDate, pickOption } from '../../../../form.helpers';
 import { contractRow } from '../../legal.fixtures';
 
-const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn(), body: vi.fn() }));
+const gql = vi.hoisted(() => ({
+  create: vi.fn(),
+  update: vi.fn(),
+  body: vi.fn(),
+  upload: vi.fn(),
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useCreateContractMutation: () => [gql.create],
   useUpdateContractMutation: () => [gql.update],
   useGetContractBodyQuery: gql.body,
+  useUploadImageMutation: () => [gql.upload],
 }));
 vi.mock('@exyconn/shell/components/form/rhf/RhfRichText', async () => ({
   RhfRichText: (await import('../../../../rich-text.stub')).RhfRichTextStub,
@@ -42,6 +48,9 @@ describe('ContractForm', () => {
     gql.create.mockReset().mockResolvedValue({ data: {} });
     gql.update.mockReset().mockResolvedValue({ data: {} });
     gql.body.mockReset().mockReturnValue({ data: undefined, loading: false, error: undefined });
+    gql.upload.mockReset().mockResolvedValue({
+      data: { uploadImage: 'https://cdn.example.com/msa.pdf' },
+    });
     onDone.mockReset();
     onCancel.mockReset();
   });
@@ -64,21 +73,38 @@ describe('ContractForm', () => {
     renderForm();
     await click('Create');
     expect(await screen.findByText('Title is required')).toBeInTheDocument();
-    expect(screen.getByText('Party is required')).toBeInTheDocument();
+    expect(screen.getByText('Counterparty is required')).toBeInTheDocument();
     expect(screen.getByText('Effective date is required')).toBeInTheDocument();
     expect(screen.getByText('Expiry date is required')).toBeInTheDocument();
     expect(gql.create).not.toHaveBeenCalled();
   });
 
+  it('marks the required fields and refuses a title or counterparty over 200 characters', async () => {
+    renderForm();
+    expect(screen.getByLabelText(/^Title/)).toBeRequired();
+    expect(screen.getByLabelText(/^Counterparty/)).toBeRequired();
+    fill(/^Title/, 't'.repeat(201));
+    fill(/^Counterparty/, 'p'.repeat(201));
+    await click('Create');
+
+    expect(await screen.findByText('Keep the title under 200 characters')).toBeInTheDocument();
+    expect(screen.getByText('Keep the counterparty under 200 characters')).toBeInTheDocument();
+    expect(gql.create).not.toHaveBeenCalled();
+  });
+
   it('creates the contract with what was entered, trimmed', async () => {
     renderForm();
-    fill('Title', '  Master services  ');
-    fill('Counterparty', 'Acme Inc');
+    fill(/^Title/, '  Master services  ');
+    fill(/^Counterparty/, 'Acme Inc');
     await pickOption(/^Type/, 'Msa');
     pickDate('effectiveDate', '01/15/2026');
     pickDate('expiryDate', '01/14/2027');
     fill('Contract text', '<p>Terms</p>');
-    fill('Document URL', ' https://cdn.example.com/msa.pdf ');
+    await userEvent.upload(
+      screen.getByLabelText('Upload the contract PDF'),
+      new File(['%PDF-1.7'], 'msa.pdf', { type: 'application/pdf' }),
+    );
+    expect(await screen.findByRole('link', { name: 'msa.pdf' })).toBeInTheDocument();
     await click('Create');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -109,7 +135,7 @@ describe('ContractForm', () => {
       skip: false,
       fetchPolicy: 'network-only',
     });
-    expect(screen.getByLabelText('Title')).toHaveValue('Master services agreement');
+    expect(screen.getByLabelText(/^Title/)).toHaveValue('Master services agreement');
     expect(screen.getByLabelText('Contract text')).toHaveValue('<p>Body</p>');
     expect(screen.getByTestId('download')).toHaveTextContent('<p>Body</p>');
     expect(screen.getByTestId('download')).toHaveAttribute('data-title', row.title);
@@ -137,7 +163,7 @@ describe('ContractForm', () => {
   it('downloads under the title as it is being typed', () => {
     gql.body.mockReturnValue(bodyArrived('<p>Body</p>'));
     renderForm(contractRow());
-    fill('Title', 'Renamed agreement');
+    fill(/^Title/, 'Renamed agreement');
     fill('Contract text', '<p>New body</p>');
     expect(screen.getByTestId('download')).toHaveAttribute('data-title', 'Renamed agreement');
     expect(screen.getByTestId('download')).toHaveTextContent('<p>New body</p>');
@@ -156,7 +182,7 @@ describe('ContractForm', () => {
       'aria-busy',
       'true',
     );
-    expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Title/)).not.toBeInTheDocument();
   });
 
   it('says so, rather than offering an empty form, when the text cannot be loaded', () => {
@@ -165,7 +191,7 @@ describe('ContractForm', () => {
     expect(
       screen.getByText('The document text could not be loaded. Close this and try again.'),
     ).toBeInTheDocument();
-    expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Title/)).not.toBeInTheDocument();
   });
 
   it('keeps the form open and says why when the save fails', async () => {

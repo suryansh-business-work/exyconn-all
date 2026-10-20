@@ -33,13 +33,16 @@ import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
 import { TopbarUser } from './TopbarUser';
+import { currentPortalName } from '@/config/modules';
+import { env } from '@/config/env';
 
 /** The topbar's actions: round card-coloured buttons with a hairline, set apart from the glass. */
 const roundActions = (t: Theme) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-  mr: 1,
+  // Tighter on a phone, so the round buttons and the avatar still fit a 360px screen.
+  gap: { xs: 0.5, sm: 1 },
+  mr: { xs: 0.5, sm: 1 },
   '& .MuiIconButton-root': {
     bgcolor: 'background.paper',
     border: `${borderWidth.hairline}px solid ${t.palette.divider}`,
@@ -124,19 +127,22 @@ export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="subtitle2" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>
-          Exyconn Track
+        <Typography
+          variant="subtitle2"
+          noWrap
+          sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}
+        >
+          {t(currentPortalName(env.portalApp))}
         </Typography>
         {/* Below md the title is hidden, so this takes its place and keeps the actions on the
             trailing edge instead of bunched up beside the menu button. */}
         <Box aria-hidden sx={{ flexGrow: 1, display: { xs: 'block', md: 'none' } }} />
-        {/* Left out on a phone rather than squeezed: the palette's own shortcut has no
-            meaning on a touch keyboard, and the hamburger beside it opens the same modules. */}
         {user && <OrganizationSwitcher />}
-        {user && !onPhone && <TopbarSearch onOpen={() => palette.setOpen(true)} />}
         {user && <TopbarUser name={user.name} roles={user.roles} />}
         <Box sx={roundActions}>
-          {user && <AllAppsButton />}
+          {user && <TopbarSearch onOpen={() => palette.setOpen(true)} />}
+          {/* On a phone the sidebar's "Other Portals" does the same, so the bar keeps its room. */}
+          {user && !onPhone && <AllAppsButton />}
           <ApprovalsBell />
           <NotificationBell />
           <IconButton onClick={toggle} aria-label={t('Toggle colour mode')}>

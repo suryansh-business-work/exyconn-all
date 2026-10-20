@@ -117,7 +117,9 @@ describe('sendUserMail', () => {
 
     await expect(M.sendUserMail(null, { id, input }, asAdmin)).resolves.toBe(true);
 
-    expect(customMail).toHaveBeenCalledWith(expect.objectContaining(input));
+    expect(customMail).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: 'Hello', html: 'Welcome aboard' }),
+    );
   });
 
   it('is refused to HR', async () => {

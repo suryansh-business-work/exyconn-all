@@ -1,3 +1,4 @@
+import { currentPortalName } from '@/config/modules';
 import { describe, it, expect } from 'vitest';
 import {
   MAX_NAV_DEPTH,
@@ -161,5 +162,13 @@ describe('navTrail', () => {
   it('is empty when no page has the path', () => {
     expect(navTrail(moduleNavTree(hr), undefined)).toEqual([]);
     expect(navTrail(moduleNavTree(hr), '/nowhere')).toEqual([]);
+  });
+});
+
+describe('currentPortalName', () => {
+  it('names the portal an app serves, and the launcher as Portal Home', () => {
+    expect(currentPortalName('legal')).toBe('Legal');
+    expect(currentPortalName('hr')).toBe('HR');
+    expect(currentPortalName('hub')).toBe('Portal Home');
   });
 });

@@ -116,6 +116,7 @@ describe('AttachmentPicker', () => {
     const onChange = renderPicker([]);
 
     fireEvent.change(screen.getByTestId('attachment-input'), { target: { files: [] } });
+    fireEvent.change(screen.getByTestId('attachment-input'), { target: { files: null } });
 
     expect(onChange).not.toHaveBeenCalled();
   });
@@ -159,6 +160,94 @@ describe('AttachmentPicker', () => {
     pick(pdfFile());
 
     expect(await screen.findByText('Upload failed')).toBeInTheDocument();
+  });
+
+  it('lights up while files are dragged over it, and calms down when they leave', () => {
+    renderPicker([]);
+    const zone = screen.getByTestId('attachment-dropzone');
+
+    fireEvent.dragOver(zone, { dataTransfer: { files: [] } });
+    expect(zone).toHaveAttribute('data-drag-over', 'true');
+    fireEvent.dragLeave(zone);
+    expect(zone).not.toHaveAttribute('data-drag-over');
+  });
+
+  it('uploads every file dropped on it, in one change', async () => {
+    const pngVars = {
+      file: dataUrlOf('image/png', 'png'),
+      fileName: 'shot.png',
+      folder: 'support',
+    };
+    const pdfVars = {
+      file: dataUrlOf('application/pdf', '%PDF'),
+      fileName: 'report.pdf',
+      folder: 'support',
+    };
+    const onChange = renderPicker(
+      [],
+      [uploadMock(pngVars, { url: 'https://cdn/shot.png' }), uploadMock(pdfVars, { url: CDN })],
+    );
+    const png = new File(['png'], 'shot.png', { type: 'image/png' });
+
+    fireEvent.drop(screen.getByTestId('attachment-dropzone'), {
+      dataTransfer: { files: [png, pdfFile()] },
+    });
+
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith([
+        { url: 'https://cdn/shot.png', name: 'shot.png', contentType: 'image/png' },
+        { url: CDN, name: 'report.pdf', contentType: 'application/pdf' },
+      ]),
+    );
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the files that made it when a later one fails', async () => {
+    const pdfVars = {
+      file: dataUrlOf('application/pdf', '%PDF'),
+      fileName: 'report.pdf',
+      folder: 'support',
+    };
+    const onChange = renderPicker(
+      [],
+      [uploadMock(pdfVars, { url: CDN }), uploadMock(pdfVars, { error: new Error('CDN down') })],
+    );
+
+    fireEvent.drop(screen.getByTestId('attachment-dropzone'), {
+      dataTransfer: { files: [pdfFile(), pdfFile()] },
+    });
+
+    expect(await screen.findByText('CDN down')).toBeInTheDocument();
+    expect(onChange).toHaveBeenCalledWith([
+      { url: CDN, name: 'report.pdf', contentType: 'application/pdf' },
+    ]);
+  });
+
+  it('refuses a dropped file that is not an image or a PDF', async () => {
+    const onChange = renderPicker([]);
+    const zip = new File(['zip'], 'logs.zip', { type: 'application/zip' });
+
+    fireEvent.drop(screen.getByTestId('attachment-dropzone'), { dataTransfer: { files: [zip] } });
+
+    expect(
+      await screen.findByText('Only images and PDF files can be attached'),
+    ).toBeInTheDocument();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('ignores a drop with no files, and one while an upload is running', async () => {
+    vi.spyOn(fileUtils, 'fileToDataUrl').mockReturnValue(new Promise(() => undefined));
+    const onChange = renderPicker([]);
+    const zone = screen.getByTestId('attachment-dropzone');
+
+    fireEvent.drop(zone, { dataTransfer: { files: [] } });
+    expect(screen.getByRole('button', { name: 'Attach file' })).toBeEnabled();
+
+    pick(pdfFile());
+    expect(await screen.findByRole('button', { name: 'Uploading…' })).toBeDisabled();
+    fireEvent.drop(zone, { dataTransfer: { files: [pdfFile()] } });
+    expect(fileUtils.fileToDataUrl).toHaveBeenCalledTimes(1);
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it('removes an attached file', async () => {

@@ -1,4 +1,1 @@
-export interface CustomMailFormValues {
-  subject: string;
-  message: string;
-}
+export type { CustomMailValues as CustomMailFormValues } from './custom-mail.schema';

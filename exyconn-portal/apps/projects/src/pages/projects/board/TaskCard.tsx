@@ -1,17 +1,6 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import type { ReactNode } from 'react';
 import { useT } from '@exyconn/i18n';
-import {
-  Avatar,
-  Box,
-  Chip,
-  Flex,
-  IconButton,
-  Text,
-  fontSize,
-  fontWeight,
-} from '@exyconn/shell/components/ui';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import { Avatar, Box, Chip, Flex, Text, fontSize, fontWeight } from '@exyconn/shell/components/ui';
 import { TICKET_PRIORITIES, TICKET_TYPES, initialsOf } from '../ticket/ticket-meta';
 import { TicketFacetIcon } from '../ticket/TicketFacetIcon';
 import { openTicketInNewTab, wantsNewTab } from '../ticket/ticket-links';
@@ -43,25 +32,21 @@ function cardLabel(task: TaskView, t: Translate) {
 
 interface TaskCardProps {
   task: TaskView;
+  /** The drag handle, from the board's sortable slot (or its picture, on the lifted copy). */
+  grip: ReactNode;
   onOpen: (id: string) => void;
 }
 
 /**
- * A draggable ticket card. It reads the way a board card has to: the handle, the summary,
+ * A ticket card. It reads the way a board card has to: the handle, the summary,
  * then one line of the things you scan a board for — key, type, priority, points, assignee.
  * The card body opens the ticket; only the grip drags it, so a click never starts a drag.
  * Ctrl/⌘-click or a middle click opens the ticket's own page in a new tab instead.
  */
-export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
+export function TaskCard({ task, grip, onOpen }: Readonly<TaskCardProps>) {
   const t = useT();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: task.id,
-    data: { type: 'task', columnId: task.columnId },
-  });
-
   return (
     <Box
-      ref={setNodeRef}
       sx={{
         p: 1.5,
         borderRadius: 1,
@@ -71,21 +56,10 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
         boxShadow: 1,
         // The hover lift is the one cue on a board that a card opens, not just drags.
         '&:hover': { boxShadow: 2 },
-        opacity: isDragging ? 0.4 : 1,
-        transform: CSS.Transform.toString(transform),
-        transition,
       }}
     >
       <Flex direction="row" alignItems="flex-start" spacing={0.5}>
-        <IconButton
-          size="small"
-          aria-label={t('Drag {key}', { key: task.key })}
-          sx={{ cursor: 'grab', mt: -0.5 }}
-          {...attributes}
-          {...listeners}
-        >
-          <DragIndicatorIcon fontSize="small" />
-        </IconButton>
+        <Box sx={{ mt: -0.5 }}>{grip}</Box>
 
         <Box
           role="button"

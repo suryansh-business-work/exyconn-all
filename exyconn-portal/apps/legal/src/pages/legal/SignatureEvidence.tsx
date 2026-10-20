@@ -66,6 +66,24 @@ function SignatureRow({ signature, formatDateTime, onWithdraw }: Readonly<Signat
               ip: signature.signedIp || t('an unknown address'),
             })}
           </Text>
+          {signature.signatureImage && (
+            <Box
+              component="img"
+              src={signature.signatureImage}
+              alt={t('Signature of {name}', { name: signature.signedName })}
+              sx={{
+                display: 'block',
+                maxWidth: 240,
+                maxHeight: 80,
+                my: 0.5,
+                p: 0.5,
+                bgcolor: 'common.white',
+                border: 1,
+                borderColor: 'divider',
+                borderRadius: 1,
+              }}
+            />
+          )}
           {/* The hash is the evidence: if the file behind the contract is ever replaced, it
               will no longer match, and this record says which version was agreed to. */}
           <Text size="caption" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
@@ -84,8 +102,8 @@ function SignatureRow({ signature, formatDateTime, onWithdraw }: Readonly<Signat
 /**
  * Every signature request on one contract, and what came back.
  *
- * This is the record an argument is settled from: who was asked, what they typed, when, from
- * where, and the fingerprint of the document they were shown.
+ * This is the record an argument is settled from: who was asked, what they typed and drew,
+ * when, from where, and the fingerprint of the document they were shown.
  */
 export function SignatureEvidence({ contractId }: Readonly<SignatureEvidenceProps>) {
   const t = useT();

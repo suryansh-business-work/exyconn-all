@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
-import { BoardColumnCard, TaskCard } from '../../../../../src/pages/projects/board';
+import { BoardColumnCard } from '../../../../../src/pages/projects/board';
+import { ColumnTaskList } from '../../../../../src/pages/projects/board/ColumnTaskList';
 import { renderWithProviders } from '../../../test-utils';
 import { taskRow } from '../../../fixtures';
 import { DndWrapper } from './dnd-wrapper';
@@ -25,15 +26,16 @@ const ancestorOpacities = (el: HTMLElement): string[] => {
 };
 
 describe('a card that is being dragged', () => {
-  it('fades the ticket card while it is lifted', () => {
+  it('leaves an outlined, empty placeholder where the lifted ticket will land', () => {
     renderWithProviders(
       <DndWrapper ids={['task-1']}>
-        <TaskCard task={taskRow()} onOpen={vi.fn()} />
+        <ColumnTaskList columnId="col-1" tasks={[taskRow()]} onOpenTask={vi.fn()} />
       </DndWrapper>,
     );
 
-    const card = screen.getByRole('button', { name: /^EXY-1: Login fails/ });
-    expect(ancestorOpacities(card)).toContain('0.4');
+    const placeholder = screen.getByTestId('kanban-drop-placeholder');
+    expect(getComputedStyle(placeholder).outline).toMatch(/^2px dashed /);
+    expect(placeholder.firstElementChild).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('fades the column while it is lifted', () => {

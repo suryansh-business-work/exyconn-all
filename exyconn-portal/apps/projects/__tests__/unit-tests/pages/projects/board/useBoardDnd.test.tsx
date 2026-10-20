@@ -32,7 +32,11 @@ const api = {
 const setup = () => renderHookWithProviders(() => useBoardDnd(api as unknown as ProjectBoardApi));
 
 /** A drag participant: its id and the type the board tagged it with. */
-const node = (id: string, type?: 'column' | 'task') => ({ id, data: { current: { type } } });
+const node = (id: string, type?: 'column' | 'task') => ({
+  id,
+  data: { current: { type } },
+  rect: { current: { translated: null }, top: 0, height: 40 },
+});
 const end = (active: ReturnType<typeof node>, over: ReturnType<typeof node> | null) =>
   ({ active, over }) as unknown as DragEndEvent;
 const start = (active: ReturnType<typeof node>) => ({ active }) as unknown as DragStartEvent;
@@ -108,6 +112,7 @@ describe('useBoardDnd', () => {
 
     act(() => result.current.onDragStart(start(node('t3', 'task'))));
     expect(result.current.activeTask?.id).toBe('t3');
+    expect(result.current.targetColumn).toBe('doing');
 
     act(() => result.current.onDragCancel());
     expect(result.current.activeTask).toBeNull();
@@ -122,6 +127,15 @@ describe('useBoardDnd', () => {
     act(() => result.current.onDragEnd(end(node('t1', 'task'), null)));
     expect(result.current.activeTask).toBeNull();
     expect(api.persistTaskMove).not.toHaveBeenCalled();
+  });
+
+  it('leaves the columns alone when a column is dropped on nothing', () => {
+    const { result } = setup();
+
+    act(() => result.current.onDragEnd(end(node('done', 'column'), null)));
+
+    expect(api.setColumns).not.toHaveBeenCalled();
+    expect(api.persistColumnOrder).not.toHaveBeenCalled();
   });
 
   it('drops a column on another column, or on a ticket in it, at that column’s place', () => {
@@ -148,6 +162,7 @@ describe('useBoardDnd', () => {
   it('drops a ticket at the place of the ticket it lands on', () => {
     const { result } = setup();
 
+    act(() => result.current.onDragStart(start(node('t3', 'task'))));
     act(() => result.current.onDragEnd(end(node('t3', 'task'), node('t2', 'task'))));
 
     expect(api.persistTaskMove).toHaveBeenCalledWith('t3', 'todo', 1);
@@ -161,6 +176,7 @@ describe('useBoardDnd', () => {
   it('drops a ticket on an empty stretch of a column at its end', () => {
     const { result } = setup();
 
+    act(() => result.current.onDragStart(start(node('t1', 'task'))));
     act(() => result.current.onDragEnd(end(node('t1', 'task'), node('done', 'column'))));
 
     expect(api.persistTaskMove).toHaveBeenCalledWith('t1', 'done', 0);
@@ -169,6 +185,7 @@ describe('useBoardDnd', () => {
   it('ignores a ticket dropped on a ticket the board does not know', () => {
     const { result } = setup();
 
+    act(() => result.current.onDragStart(start(node('t1', 'task'))));
     act(() => result.current.onDragEnd(end(node('t1', 'task'), node('ghost', 'task'))));
 
     expect(api.persistTaskMove).not.toHaveBeenCalled();

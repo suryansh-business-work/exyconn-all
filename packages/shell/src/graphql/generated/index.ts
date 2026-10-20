@@ -1348,15 +1348,23 @@ export type Bug = {
   /** Empty for bugs filed before the assignee was a user; assigneeName still shows the name. */
   assigneeId: Scalars['String']['output'];
   assigneeName: Scalars['String']['output'];
+  attachments: Array<FileAttachment>;
   createdAt: Scalars['DateTime']['output'];
+  /** Rich text (HTML). */
   description: Scalars['String']['output'];
-  dueDate: Scalars['DateTime']['output'];
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
+  /** A link for the team only: staging, an internal doc, another ticket. */
+  privateLink: Scalars['String']['output'];
   /** The project the bug was found in. Null for bugs filed before bugs had a project. */
   projectId?: Maybe<Scalars['String']['output']>;
   projectName: Scalars['String']['output'];
+  /** A link anyone may see: the live page, a design, a demo. */
+  publicLink: Scalars['String']['output'];
   severity: BugSeverity;
   status: BugStatus;
+  /** Rich text (HTML): the steps that make the bug happen again. */
+  stepsToReproduce: Scalars['String']['output'];
   /** The board ticket this bug became, once promoted. */
   taskId?: Maybe<Scalars['String']['output']>;
   taskKey: Scalars['String']['output'];
@@ -1365,12 +1373,17 @@ export type Bug = {
 };
 
 export type BugInput = {
-  assigneeId: Scalars['String']['input'];
+  /** Empty or null leaves the bug unassigned. */
+  assigneeId?: InputMaybe<Scalars['String']['input']>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   description: Scalars['String']['input'];
-  dueDate: Scalars['DateTime']['input'];
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  privateLink?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
+  publicLink?: InputMaybe<Scalars['String']['input']>;
   severity: BugSeverity;
   status: BugStatus;
+  stepsToReproduce?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
 
@@ -3084,6 +3097,8 @@ export type ContractSignature = {
   id: Scalars['ID']['output'];
   requestedByName: Scalars['String']['output'];
   revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The signature they drew, or typed and rendered, as a PNG data URL. Empty on older rows. */
+  signatureImage: Scalars['String']['output'];
   signedAt?: Maybe<Scalars['DateTime']['output']>;
   signedIp: Scalars['String']['output'];
   /** The name the signer typed — their mark, in their own words. */
@@ -7775,6 +7790,11 @@ export type Mutation = {
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
   importTableRows: TableImportResult;
   /**
+   * Invites people into a company with the portals they may open; each gets the welcome email
+   * with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
+   */
+  inviteOrganizationMembers: Array<User>;
+  /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
    * and never the caller. Admin's setUserActive remains the general way to deactivate anyone.
    */
@@ -8064,12 +8084,13 @@ export type Mutation = {
   shareTask: Scalars['Int']['output'];
   /**
    * LEGAL: sign our own side. The signer is the account making the request, not a name typed
-   * into a field, and the document's hash is recorded with it.
+   * into a field; their drawn signature and the document's hash are recorded with it.
    */
   signContract: Contract;
   /**
    * Unauthenticated — the counterparty signs with the link they were sent. Records the name
-   * they typed, where they answered from, and the hash of the document they were shown.
+   * they typed, the signature they drew, where they answered from, and the hash of the
+   * document they were shown.
    */
   signContractWithToken: ContractSignedReceipt;
   /** AI: post ideas on a topic, in the voice of the best posts. */
@@ -8378,6 +8399,8 @@ export type Mutation = {
   uploadCrmMedia: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
+  /** Copies the saved Google sign-in client into Gmail and turns Gmail on (TECH). */
+  useGoogleSignInClientForGmail: GmailConfig;
   /** Public: exchanges the emailed code for a client hub pass. */
   verifyClientHubCode: ClientHubSignIn;
   /** Checks one address now and keeps the result. */
@@ -10158,6 +10181,12 @@ export type MutationImportTableRowsArgs = {
 };
 
 
+export type MutationInviteOrganizationMembersArgs = {
+  members: Array<OrganizationMemberInput>;
+  organizationId: Scalars['ID']['input'];
+};
+
+
 export type MutationItDisableLeaverAccountArgs = {
   employeeId: Scalars['ID']['input'];
 };
@@ -10873,10 +10902,12 @@ export type MutationShareTaskArgs = {
 
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
+  signatureImage: Scalars['String']['input'];
 };
 
 
 export type MutationSignContractWithTokenArgs = {
+  signatureImage: Scalars['String']['input'];
   signedName: Scalars['String']['input'];
   token: Scalars['String']['input'];
 };
@@ -12451,15 +12482,23 @@ export type OrgNode = {
 /** One company using the portal. Every other record belongs to exactly one of these. */
 export type Organization = {
   __typename?: 'Organization';
+  addressLine1: Scalars['String']['output'];
+  addressLine2: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  /** A headcount band such as 11-50, or empty. */
+  companySize: Scalars['String']['output'];
   contactEmail: Scalars['String']['output'];
   /** ISO 3166-1 alpha-2 country code, or empty when not stated. */
   country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   /** ISO 4217 currency code — the money this company keeps its books in. */
   currency: Scalars['String']['output'];
+  /** A short note about the company, or empty. */
+  description: Scalars['String']['output'];
   /** The month its financial year opens: 1 is January, 4 is April. */
   fiscalYearStartMonth: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  industry: Scalars['String']['output'];
   /** Whether this is the company that operates the platform itself. Read-only; set at boot. */
   isPlatformOperator: Scalars['Boolean']['output'];
   legalName: Scalars['String']['output'];
@@ -12468,13 +12507,22 @@ export type Organization = {
   /** Its logo (an https URL), or empty when none was uploaded. */
   logoUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  postalCode: Scalars['String']['output'];
+  region: Scalars['String']['output'];
+  /** Company registration number (CIN, Companies House number, EIN...), or empty. */
+  registrationNumber: Scalars['String']['output'];
   /** URL-safe handle, unique across the platform. */
   slug: Scalars['String']['output'];
   status: OrganizationStatus;
+  /** Tax registration (GSTIN, VAT number...), or empty. */
+  taxId: Scalars['String']['output'];
   taxSystem: TaxSystem;
   /** IANA timezone the company works by. */
   timezone: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  /** Its website, or empty. */
+  website: Scalars['String']['output'];
 };
 
 /** The person a company is handed over to — its first administrator. */
@@ -12484,17 +12532,37 @@ export type OrganizationAdminInput = {
 };
 
 export type OrganizationInput = {
+  addressLine1?: InputMaybe<Scalars['String']['input']>;
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  companySize?: InputMaybe<Scalars['String']['input']>;
   contactEmail?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
   currency: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  industry?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  postalCode?: InputMaybe<Scalars['String']['input']>;
+  region?: InputMaybe<Scalars['String']['input']>;
+  registrationNumber?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
+  taxId?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Somebody invited into a company, with the portals (roles) they may open. */
+export type OrganizationMemberInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  /** One role per portal they may open. SUPER_ADMIN is never granted this way. */
+  roles: Array<Role>;
 };
 
 export enum OrganizationStatus {
@@ -12503,16 +12571,28 @@ export enum OrganizationStatus {
 }
 
 export type OrganizationUpdateInput = {
+  addressLine1?: InputMaybe<Scalars['String']['input']>;
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  companySize?: InputMaybe<Scalars['String']['input']>;
   contactEmail?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  industry?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  postalCode?: InputMaybe<Scalars['String']['input']>;
+  region?: InputMaybe<Scalars['String']['input']>;
+  registrationNumber?: InputMaybe<Scalars['String']['input']>;
+  taxId?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** An uploaded file read for import: its header row and data rows, blank rows kept in place. */
@@ -14428,6 +14508,8 @@ export type Query = {
   orgChart: Array<OrgNode>;
   /** One organization (SUPER_ADMIN). */
   organization: Organization;
+  /** Everything done to one organization, newest first: created, edited, suspended, people invited (SUPER_ADMIN). */
+  organizationHistory: Array<AuditLog>;
   /** Every organization on the platform (SUPER_ADMIN). */
   organizations: Array<Organization>;
   /** Every active employee and whether the month can be run for them, with the figures it would store. */
@@ -16128,6 +16210,11 @@ export type QueryOrganizationArgs = {
 };
 
 
+export type QueryOrganizationHistoryArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryPayrollRunPlanArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -17139,6 +17226,13 @@ export type SendCrmSmsInput = {
 };
 
 export type SendMailInput = {
+  /** Files already uploaded to the portal's CDN, attached to the email. Up to 10. */
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
+  /** Copied in, unseen by the others. Up to 20 addresses. */
+  bcc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Copied in, visibly. Up to 20 addresses. */
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The body as rich text (HTML). It is sanitised before it is sent. */
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
 };
@@ -21561,14 +21655,14 @@ export type ImportMediaFromUrlMutation = { __typename?: 'Mutation', importMediaF
 export type ListBugsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListBugsQuery = { __typename?: 'Query', listBugs: Array<{ __typename?: 'Bug', id: string, title: string, description: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate: string }> };
+export type ListBugsQuery = { __typename?: 'Query', listBugs: Array<{ __typename?: 'Bug', id: string, title: string, description: string, stepsToReproduce: string, publicLink: string, privateLink: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate?: string | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> };
 
 export type ListBugsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListBugsPagedQuery = { __typename?: 'Query', listBugsPaged: { __typename?: 'BugPage', totalCount: number, rows: Array<{ __typename?: 'Bug', id: string, title: string, description: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate: string }> } };
+export type ListBugsPagedQuery = { __typename?: 'Query', listBugsPaged: { __typename?: 'BugPage', totalCount: number, rows: Array<{ __typename?: 'Bug', id: string, title: string, description: string, stepsToReproduce: string, publicLink: string, privateLink: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate?: string | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> } };
 
 export type ListBugsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24007,6 +24101,11 @@ export type SaveGmailConfigMutationVariables = Exact<{
 
 export type SaveGmailConfigMutation = { __typename?: 'Mutation', saveGmailConfig: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null } };
 
+export type UseGoogleSignInClientForGmailMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UseGoogleSignInClientForGmailMutation = { __typename?: 'Mutation', useGoogleSignInClientForGmail: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null } };
+
 export type StartGmailConnectMutationVariables = Exact<{
   returnTo: Scalars['String']['input'];
 }>;
@@ -25094,6 +25193,7 @@ export type RevokeContractSignatureMutation = { __typename?: 'Mutation', revokeC
 
 export type SignContractMutationVariables = Exact<{
   id: Scalars['ID']['input'];
+  signatureImage: Scalars['String']['input'];
 }>;
 
 
@@ -25104,7 +25204,7 @@ export type ContractSignaturesQueryVariables = Exact<{
 }>;
 
 
-export type ContractSignaturesQuery = { __typename?: 'Query', contractSignatures: Array<{ __typename?: 'ContractSignature', id: string, signerName: string, signerEmail: string, requestedByName: string, expiresAt: string, revokedAt?: string | null, signedAt?: string | null, signedName: string, signedIp: string, signedUserAgent: string, documentSha256: string, createdAt: string }> };
+export type ContractSignaturesQuery = { __typename?: 'Query', contractSignatures: Array<{ __typename?: 'ContractSignature', id: string, signerName: string, signerEmail: string, requestedByName: string, expiresAt: string, revokedAt?: string | null, signedAt?: string | null, signedName: string, signatureImage: string, signedIp: string, signedUserAgent: string, documentSha256: string, createdAt: string }> };
 
 export type ContractToSignQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -25116,6 +25216,7 @@ export type ContractToSignQuery = { __typename?: 'Query', contractToSign?: { __t
 export type SignContractWithTokenMutationVariables = Exact<{
   token: Scalars['String']['input'];
   signedName: Scalars['String']['input'];
+  signatureImage: Scalars['String']['input'];
 }>;
 
 
@@ -25690,24 +25791,24 @@ export type DeleteOnboardingChecklistMutationVariables = Exact<{
 
 export type DeleteOnboardingChecklistMutation = { __typename?: 'Mutation', deleteOnboardingChecklist: boolean };
 
-export type OrganizationFieldsFragment = { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string };
+export type OrganizationFieldsFragment = { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, website: string, phone: string, industry: string, companySize: string, registrationNumber: string, taxId: string, addressLine1: string, addressLine2: string, city: string, region: string, postalCode: string, description: string, createdAt: string, updatedAt: string };
 
 export type OrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OrganizationsQuery = { __typename?: 'Query', organizations: Array<{ __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string }> };
+export type OrganizationsQuery = { __typename?: 'Query', organizations: Array<{ __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, website: string, phone: string, industry: string, companySize: string, registrationNumber: string, taxId: string, addressLine1: string, addressLine2: string, city: string, region: string, postalCode: string, description: string, createdAt: string, updatedAt: string }> };
 
 export type MyOrganizationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyOrganizationQuery = { __typename?: 'Query', myOrganization?: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } | null };
+export type MyOrganizationQuery = { __typename?: 'Query', myOrganization?: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, website: string, phone: string, industry: string, companySize: string, registrationNumber: string, taxId: string, addressLine1: string, addressLine2: string, city: string, region: string, postalCode: string, description: string, createdAt: string, updatedAt: string } | null };
 
 export type CreateOrganizationMutationVariables = Exact<{
   input: OrganizationInput;
 }>;
 
 
-export type CreateOrganizationMutation = { __typename?: 'Mutation', createOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } };
+export type CreateOrganizationMutation = { __typename?: 'Mutation', createOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, website: string, phone: string, industry: string, companySize: string, registrationNumber: string, taxId: string, addressLine1: string, addressLine2: string, city: string, region: string, postalCode: string, description: string, createdAt: string, updatedAt: string } };
 
 export type UpdateOrganizationMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -25715,7 +25816,7 @@ export type UpdateOrganizationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateOrganizationMutation = { __typename?: 'Mutation', updateOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } };
+export type UpdateOrganizationMutation = { __typename?: 'Mutation', updateOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, website: string, phone: string, industry: string, companySize: string, registrationNumber: string, taxId: string, addressLine1: string, addressLine2: string, city: string, region: string, postalCode: string, description: string, createdAt: string, updatedAt: string } };
 
 export type SetOrganizationStatusMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -25723,7 +25824,7 @@ export type SetOrganizationStatusMutationVariables = Exact<{
 }>;
 
 
-export type SetOrganizationStatusMutation = { __typename?: 'Mutation', setOrganizationStatus: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } };
+export type SetOrganizationStatusMutation = { __typename?: 'Mutation', setOrganizationStatus: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, website: string, phone: string, industry: string, companySize: string, registrationNumber: string, taxId: string, addressLine1: string, addressLine2: string, city: string, region: string, postalCode: string, description: string, createdAt: string, updatedAt: string } };
 
 export type AssignOrganizationAdminMutationVariables = Exact<{
   organizationId: Scalars['ID']['input'];
@@ -25732,6 +25833,21 @@ export type AssignOrganizationAdminMutationVariables = Exact<{
 
 
 export type AssignOrganizationAdminMutation = { __typename?: 'Mutation', assignOrganizationAdmin: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role> } };
+
+export type InviteOrganizationMembersMutationVariables = Exact<{
+  organizationId: Scalars['ID']['input'];
+  members: Array<OrganizationMemberInput> | OrganizationMemberInput;
+}>;
+
+
+export type InviteOrganizationMembersMutation = { __typename?: 'Mutation', inviteOrganizationMembers: Array<{ __typename?: 'User', id: string, email: string, roles: Array<Role> }> };
+
+export type OrganizationHistoryQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type OrganizationHistoryQuery = { __typename?: 'Query', organizationHistory: Array<{ __typename?: 'AuditLog', id: string, actorName: string, actorEmail: string, action: AuditAction, summary: string, changes: string, createdAt: string }> };
 
 export type ListLocationsPagedQueryVariables = Exact<{
   input: TableQueryInput;
@@ -31194,6 +31310,18 @@ export const OrganizationFieldsFragmentDoc = gql`
   taxSystem
   contactEmail
   logoUrl
+  website
+  phone
+  industry
+  companySize
+  registrationNumber
+  taxId
+  addressLine1
+  addressLine2
+  city
+  region
+  postalCode
+  description
   createdAt
   updatedAt
 }
@@ -37416,6 +37544,14 @@ export const ListBugsDocument = gql`
     id
     title
     description
+    stepsToReproduce
+    publicLink
+    privateLink
+    attachments {
+      url
+      name
+      contentType
+    }
     severity
     status
     projectId
@@ -37472,6 +37608,14 @@ export const ListBugsPagedDocument = gql`
       id
       title
       description
+      stepsToReproduce
+      publicLink
+      privateLink
+      attachments {
+        url
+        name
+        contentType
+      }
       severity
       status
       projectId
@@ -50925,6 +51069,35 @@ export function useSaveGmailConfigMutation(baseOptions?: ApolloReactHooks.Mutati
         return ApolloReactHooks.useMutation<SaveGmailConfigMutation, SaveGmailConfigMutationVariables>(SaveGmailConfigDocument, options);
       }
 export type SaveGmailConfigMutationHookResult = ReturnType<typeof useSaveGmailConfigMutation>;
+export const UseGoogleSignInClientForGmailDocument = gql`
+    mutation UseGoogleSignInClientForGmail {
+  useGoogleSignInClientForGmail {
+    ...GmailConfigFields
+  }
+}
+    ${GmailConfigFieldsFragmentDoc}`;
+
+/**
+ * __useUseGoogleSignInClientForGmailMutation__
+ *
+ * To run a mutation, you first call `useUseGoogleSignInClientForGmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUseGoogleSignInClientForGmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [useGoogleSignInClientForGmailMutation, { data, loading, error }] = useUseGoogleSignInClientForGmailMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUseGoogleSignInClientForGmailMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UseGoogleSignInClientForGmailMutation, UseGoogleSignInClientForGmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UseGoogleSignInClientForGmailMutation, UseGoogleSignInClientForGmailMutationVariables>(UseGoogleSignInClientForGmailDocument, options);
+      }
+export type UseGoogleSignInClientForGmailMutationHookResult = ReturnType<typeof useUseGoogleSignInClientForGmailMutation>;
 export const StartGmailConnectDocument = gql`
     mutation StartGmailConnect($returnTo: String!) {
   startGmailConnect(returnTo: $returnTo)
@@ -57154,8 +57327,8 @@ export function useRevokeContractSignatureMutation(baseOptions?: ApolloReactHook
       }
 export type RevokeContractSignatureMutationHookResult = ReturnType<typeof useRevokeContractSignatureMutation>;
 export const SignContractDocument = gql`
-    mutation SignContract($id: ID!) {
-  signContract(id: $id) {
+    mutation SignContract($id: ID!, $signatureImage: String!) {
+  signContract(id: $id, signatureImage: $signatureImage) {
     id
     signedBy
     signedAt
@@ -57178,6 +57351,7 @@ export const SignContractDocument = gql`
  * const [signContractMutation, { data, loading, error }] = useSignContractMutation({
  *   variables: {
  *      id: // value for 'id'
+ *      signatureImage: // value for 'signatureImage'
  *   },
  * });
  */
@@ -57197,6 +57371,7 @@ export const ContractSignaturesDocument = gql`
     revokedAt
     signedAt
     signedName
+    signatureImage
     signedIp
     signedUserAgent
     documentSha256
@@ -57293,8 +57468,12 @@ export type ContractToSignQueryHookResult = ReturnType<typeof useContractToSignQ
 export type ContractToSignLazyQueryHookResult = ReturnType<typeof useContractToSignLazyQuery>;
 export type ContractToSignSuspenseQueryHookResult = ReturnType<typeof useContractToSignSuspenseQuery>;
 export const SignContractWithTokenDocument = gql`
-    mutation SignContractWithToken($token: String!, $signedName: String!) {
-  signContractWithToken(token: $token, signedName: $signedName) {
+    mutation SignContractWithToken($token: String!, $signedName: String!, $signatureImage: String!) {
+  signContractWithToken(
+    token: $token
+    signedName: $signedName
+    signatureImage: $signatureImage
+  ) {
     signedAt
     documentSha256
   }
@@ -57316,6 +57495,7 @@ export const SignContractWithTokenDocument = gql`
  *   variables: {
  *      token: // value for 'token'
  *      signedName: // value for 'signedName'
+ *      signatureImage: // value for 'signatureImage'
  *   },
  * });
  */
@@ -60611,6 +60791,89 @@ export function useAssignOrganizationAdminMutation(baseOptions?: ApolloReactHook
         return ApolloReactHooks.useMutation<AssignOrganizationAdminMutation, AssignOrganizationAdminMutationVariables>(AssignOrganizationAdminDocument, options);
       }
 export type AssignOrganizationAdminMutationHookResult = ReturnType<typeof useAssignOrganizationAdminMutation>;
+export const InviteOrganizationMembersDocument = gql`
+    mutation InviteOrganizationMembers($organizationId: ID!, $members: [OrganizationMemberInput!]!) {
+  inviteOrganizationMembers(organizationId: $organizationId, members: $members) {
+    id
+    email
+    roles
+  }
+}
+    `;
+
+/**
+ * __useInviteOrganizationMembersMutation__
+ *
+ * To run a mutation, you first call `useInviteOrganizationMembersMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useInviteOrganizationMembersMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [inviteOrganizationMembersMutation, { data, loading, error }] = useInviteOrganizationMembersMutation({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      members: // value for 'members'
+ *   },
+ * });
+ */
+export function useInviteOrganizationMembersMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<InviteOrganizationMembersMutation, InviteOrganizationMembersMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<InviteOrganizationMembersMutation, InviteOrganizationMembersMutationVariables>(InviteOrganizationMembersDocument, options);
+      }
+export type InviteOrganizationMembersMutationHookResult = ReturnType<typeof useInviteOrganizationMembersMutation>;
+export const OrganizationHistoryDocument = gql`
+    query OrganizationHistory($id: ID!) {
+  organizationHistory(id: $id) {
+    id
+    actorName
+    actorEmail
+    action
+    summary
+    changes
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useOrganizationHistoryQuery__
+ *
+ * To run a query within a React component, call `useOrganizationHistoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOrganizationHistoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOrganizationHistoryQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useOrganizationHistoryQuery(baseOptions: ApolloReactHooks.QueryHookOptions<OrganizationHistoryQuery, OrganizationHistoryQueryVariables> & ({ variables: OrganizationHistoryQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>(OrganizationHistoryDocument, options);
+      }
+export function useOrganizationHistoryLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>(OrganizationHistoryDocument, options);
+        }
+// @ts-ignore
+export function useOrganizationHistorySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>;
+// @ts-ignore
+export function useOrganizationHistorySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrganizationHistoryQuery | undefined, OrganizationHistoryQueryVariables>;
+export function useOrganizationHistorySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<OrganizationHistoryQuery, OrganizationHistoryQueryVariables>(OrganizationHistoryDocument, options);
+        }
+export type OrganizationHistoryQueryHookResult = ReturnType<typeof useOrganizationHistoryQuery>;
+export type OrganizationHistoryLazyQueryHookResult = ReturnType<typeof useOrganizationHistoryLazyQuery>;
+export type OrganizationHistorySuspenseQueryHookResult = ReturnType<typeof useOrganizationHistorySuspenseQuery>;
 export const ListLocationsPagedDocument = gql`
     query ListLocationsPaged($input: TableQueryInput!) {
   listLocationsPaged(input: $input) {

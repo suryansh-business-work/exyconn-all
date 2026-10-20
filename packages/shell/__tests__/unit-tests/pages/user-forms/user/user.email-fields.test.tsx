@@ -95,6 +95,15 @@ describe('EmailFields', () => {
     expect(formValues().email).toBe('MEERA@acme.test');
   });
 
+  it('treats a field the form has no value for yet as empty, so it asks for a save', () => {
+    renderWithProviders(
+      <FormHarness defaultValues={{}}>
+        <EmailFields employee={makeUserRow()} />
+      </FormHarness>,
+    );
+    expect(within(rowOf('Official email')).getByText('Save to verify')).toBeInTheDocument();
+  });
+
   it('shows no verification for an empty personal address', () => {
     renderFields(makeUserRow());
     expect(within(rowOf('Personal email (optional)')).queryByRole('button')).toBeNull();

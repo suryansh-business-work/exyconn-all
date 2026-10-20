@@ -164,10 +164,10 @@ describe('UserActions — dialogs', () => {
     expect(screen.getByText('edit page')).toBeInTheDocument();
   });
 
-  it('writes a custom email in a dialog without reloading the user', async () => {
+  it('writes a custom email in a compose window without reloading the user', async () => {
     const onChanged = renderActions();
     await click('Send custom email');
-    expect(screen.getByRole('heading', { name: 'Email Meera Nair' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Email Meera Nair' })).toBeInTheDocument();
     await click('mail done');
     expect(onChanged).not.toHaveBeenCalled();
   });
@@ -184,6 +184,6 @@ describe('UserActions — dialogs', () => {
     renderActions();
     await click('Send custom email');
     await click('Close');
-    await expect.poll(() => screen.queryByRole('heading', { name: 'Email Meera Nair' })).toBeNull();
+    await expect.poll(() => screen.queryByRole('dialog', { name: 'Email Meera Nair' })).toBeNull();
   });
 });

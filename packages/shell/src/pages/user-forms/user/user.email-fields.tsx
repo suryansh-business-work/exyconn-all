@@ -66,9 +66,8 @@ function VerifyStatus({
       size="small"
       variant="outlined"
       loading={loading}
-      onClick={() => {
-        onVerify().catch((error: unknown) => portalLogger.error('Verify email failed', error));
-      }}
+      // onVerify reports its own failures.
+      onClick={onVerify}
     >
       {t('Verify')}
     </Button>

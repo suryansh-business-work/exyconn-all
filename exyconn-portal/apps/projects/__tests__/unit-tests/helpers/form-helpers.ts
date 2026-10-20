@@ -12,7 +12,7 @@ export function inputNamed(name: string): HTMLInputElement {
 }
 
 /** Types a whole value into the field with this label, as a paste would. */
-export function fill(label: string, value: string) {
+export function fill(label: string | RegExp, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 }
 

@@ -1,9 +1,18 @@
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button, Flex, Text } from '@exyconn/shell/components/ui';
+import { RhfSignaturePad } from '@exyconn/shell/components/signature';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useSignContractMutation } from '@exyconn/shell/graphql/generated';
 import type { SignContractTarget } from './sign-contract.types';
+
+const schema = z.object({
+  signatureImage: z.string().min(1, 'Draw or type your signature'),
+});
+type Values = z.infer<typeof schema>;
 
 interface SignContractFormProps {
   contract: SignContractTarget;
@@ -14,19 +23,24 @@ interface SignContractFormProps {
 /**
  * Signs our own side of a contract.
  *
- * There is nothing to fill in, and that is the change: this used to ask for a name and write
- * whatever was typed, so the signature said whoever the person at the keyboard wanted it to
- * say. The signer is now the account making the request, recorded with the time, the address
- * it came from and the hash of the document as it stood.
+ * The signer is the account making the request — never a name typed into a field — recorded
+ * with their drawn signature, the time, the address it came from and the hash of the
+ * document as it stood.
  */
 export function SignContractForm({ contract, onDone, onCancel }: Readonly<SignContractFormProps>) {
   const t = useT();
   const notify = useNotify();
-  const [sign, { loading }] = useSignContractMutation();
+  const [sign] = useSignContractMutation();
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: { signatureImage: '' },
+  });
+  const hasDocument = Boolean(contract.documentUrl);
 
-  const onSign = async () => {
+  const onSubmit = async (values: Values) => {
     try {
-      await sign({ variables: { id: contract.id } });
+      await sign({ variables: { id: contract.id, signatureImage: values.signatureImage } });
       notify('“{title}” signed', 'success', { title: contract.title });
       onDone();
     } catch (err) {
@@ -35,35 +49,45 @@ export function SignContractForm({ contract, onDone, onCancel }: Readonly<SignCo
   };
 
   return (
-    <Flex direction="column" spacing={1.5}>
-      <Text size="sm" color="text.secondary">
-        {t('Signing “{title}” with {party}, as yourself.', {
-          title: contract.title,
-          party: contract.party,
-        })}
-      </Text>
-      {contract.documentUrl ? (
-        <Alert severity="info">
-          {t('The document will be read and hashed now, so the signature is of this version.')}
-        </Alert>
-      ) : (
-        <Alert severity="warning">
-          {t('Attach the document to this contract first — there is nothing to sign yet.')}
-        </Alert>
-      )}
-      <Flex direction="row" spacing={1}>
-        <Button
-          variant="contained"
-          onClick={onSign}
-          loading={loading}
-          disabled={!contract.documentUrl}
-        >
-          {t('Sign')}
-        </Button>
-        <Button variant="text" onClick={onCancel}>
-          {t('Cancel')}
-        </Button>
-      </Flex>
-    </Flex>
+    <FormProvider {...methods}>
+      <form noValidate onSubmit={methods.handleSubmit(onSubmit)}>
+        <Flex direction="column" spacing={1.5}>
+          <Text size="sm" color="text.secondary">
+            {t('Signing “{title}” with {party}, as yourself.', {
+              title: contract.title,
+              party: contract.party,
+            })}
+          </Text>
+          {hasDocument ? (
+            <Alert severity="info">
+              {t('The document will be read and hashed now, so the signature is of this version.')}
+            </Alert>
+          ) : (
+            <Alert severity="warning">
+              {t('Attach the document to this contract first — there is nothing to sign yet.')}
+            </Alert>
+          )}
+          <RhfSignaturePad
+            name="signatureImage"
+            label="Your signature"
+            required
+            helperText="Draw it with a mouse, finger or stylus, or switch to Type to use your name."
+          />
+          <Flex direction="row" spacing={1}>
+            <Button
+              type="submit"
+              variant="contained"
+              loading={methods.formState.isSubmitting}
+              disabled={!hasDocument}
+            >
+              {t('Sign')}
+            </Button>
+            <Button variant="text" onClick={onCancel}>
+              {t('Cancel')}
+            </Button>
+          </Flex>
+        </Flex>
+      </form>
+    </FormProvider>
   );
 }

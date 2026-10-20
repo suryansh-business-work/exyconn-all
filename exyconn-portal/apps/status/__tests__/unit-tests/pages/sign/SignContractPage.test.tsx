@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { MockLink } from '@apollo/client/testing';
@@ -6,6 +6,10 @@ import { SignContractPage } from '../../../../src/pages/sign';
 import { renderWithProviders } from '../../test-utils';
 import { CurrentUrl, currentUrl } from '../../form-helpers';
 import { DOCUMENT_HASH, TOKEN, contract, contractLookup, signed } from './contract.fixtures';
+
+vi.mock('@exyconn/shell/components/signature', async () => ({
+  RhfSignaturePad: (await import('../../signature.stub')).RhfSignaturePadStub,
+}));
 
 const AGREE = 'I have read this contract and agree to be bound by it';
 
@@ -38,12 +42,13 @@ describe('SignContractPage', () => {
       'href',
       'https://files.example.com/msa-2026.pdf',
     );
-    expect(screen.getByLabelText('Your full name')).toHaveValue('Ada Lovelace');
+    expect(screen.getByLabelText(/^Your full name/)).toHaveValue('Ada Lovelace');
   });
 
   it('records the signature and hands back the document fingerprint', async () => {
     renderSign([contractLookup(contract()), signed('Ada Lovelace')]);
-    await userEvent.click(await screen.findByLabelText(AGREE));
+    await userEvent.click(await screen.findByRole('button', { name: 'Draw a signature' }));
+    await userEvent.click(screen.getByLabelText(AGREE));
     await userEvent.click(screen.getByRole('button', { name: 'Sign' }));
 
     expect(await screen.findByText('Signed')).toBeInTheDocument();

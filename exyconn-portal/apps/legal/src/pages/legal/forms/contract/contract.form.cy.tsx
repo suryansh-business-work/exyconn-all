@@ -20,7 +20,7 @@ describe('ContractForm', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Title is required').should('be.visible');
-    cy.contains('Party is required').should('be.visible');
+    cy.contains('Counterparty is required').should('be.visible');
   });
 
   it('calls onCancel', () => {

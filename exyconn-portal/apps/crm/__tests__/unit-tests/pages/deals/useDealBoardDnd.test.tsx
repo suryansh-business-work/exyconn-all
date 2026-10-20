@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, waitFor } from '@testing-library/react';
 import type { Active, DragEndEvent, DragOverEvent, DragStartEvent, Over } from '@dnd-kit/core';
 import { DealStage } from '@exyconn/shell/graphql/generated';
-import { isBelow, useDealBoardDnd } from '../../../../src/pages/deals/useDealBoardDnd';
+import { useDealBoardDnd } from '../../../../src/pages/deals/useDealBoardDnd';
 import { renderHookWithProviders } from '../../test-utils';
 import { dealRow } from '../../fixtures';
 
@@ -32,14 +32,6 @@ const setup = (onMove = vi.fn().mockResolvedValue(undefined)) => {
   };
   return { ...hook, run, onMove };
 };
-
-describe('isBelow', () => {
-  it('is true once the dragged card has passed the middle of the one it is over', () => {
-    expect(isBelow(active('a', 30), over('b', 0))).toBe(true);
-    expect(isBelow(active('a', 10), over('b', 0))).toBe(false);
-    expect(isBelow(active('a'), over('b', 0))).toBe(false);
-  });
-});
 
 describe('useDealBoardDnd', () => {
   beforeEach(() => vi.clearAllMocks());

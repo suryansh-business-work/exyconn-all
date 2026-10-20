@@ -5,6 +5,7 @@ import {
   SignContractWithTokenDocument,
 } from '@exyconn/shell/graphql/generated';
 import type { ContractForSigning } from '../../../../src/pages/sign/forms/sign-contract';
+import { DRAWN_SIGNATURE } from '../../signature.stub';
 
 export const TOKEN = 'sign-token-1';
 export const DOCUMENT_HASH = 'a3f1c2'.repeat(10);
@@ -29,12 +30,18 @@ export const contractLookup = (value: ContractForSigning | null): MockLink.Mocke
 
 /** A mutation answer that carries no data and no error. */
 export const signedWithoutData = (signedName: string): MockLink.MockedResponse => ({
-  request: { query: SignContractWithTokenDocument, variables: { token: TOKEN, signedName } },
+  request: {
+    query: SignContractWithTokenDocument,
+    variables: { token: TOKEN, signedName, signatureImage: DRAWN_SIGNATURE },
+  },
   result: { data: null },
 });
 
 export const signed = (signedName: string, error?: Error): MockLink.MockedResponse => ({
-  request: { query: SignContractWithTokenDocument, variables: { token: TOKEN, signedName } },
+  request: {
+    query: SignContractWithTokenDocument,
+    variables: { token: TOKEN, signedName, signatureImage: DRAWN_SIGNATURE },
+  },
   ...(error
     ? { error }
     : {

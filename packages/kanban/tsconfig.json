@@ -1,0 +1,5 @@
+{
+  "extends": "@exyconn/config/tsconfig.app.json",
+  "include": ["src", "__tests__"],
+  "exclude": ["**/*.cy.ts", "**/*.cy.tsx"]
+}

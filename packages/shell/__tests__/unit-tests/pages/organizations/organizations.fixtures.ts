@@ -1,0 +1,35 @@
+import { OrganizationStatus, TaxSystem } from '@/graphql/generated';
+import type { OrganizationRow } from '@/pages/organizations/forms/organization';
+
+/** A company as the Organizations query returns it. */
+export const organization = (overrides: Partial<OrganizationRow> = {}): OrganizationRow => ({
+  __typename: 'Organization',
+  id: 'org-1',
+  name: 'Acme',
+  slug: 'acme',
+  legalName: 'Acme Holdings Ltd',
+  status: OrganizationStatus.Active,
+  country: 'NO',
+  currency: 'NOK',
+  locale: 'nb',
+  timezone: 'Europe/Oslo',
+  fiscalYearStartMonth: 4,
+  taxSystem: TaxSystem.None,
+  contactEmail: 'ops@acme.example',
+  logoUrl: 'https://cdn.example.com/acme.png',
+  website: 'https://acme.example',
+  phone: '+47 22 00 00 00',
+  industry: 'Manufacturing',
+  companySize: '51-200',
+  registrationNumber: 'NO-123',
+  taxId: 'VAT-9',
+  addressLine1: '1 Dock Road',
+  addressLine2: 'Suite 4',
+  city: 'Oslo',
+  region: 'Oslo',
+  postalCode: '0150',
+  description: 'Makes things.',
+  createdAt: '2026-09-01T00:00:00.000Z',
+  updatedAt: '2026-09-01T00:00:00.000Z',
+  ...overrides,
+});

@@ -25,7 +25,11 @@ const CONTRACT: ContractForSigning = {
 const signed: MockLink.MockedResponse = {
   request: {
     query: SignContractWithTokenDocument,
-    variables: { token: TOKEN, signedName: CONTRACT.signerName },
+    // The signature is drawn in the browser, so any PNG data URL matches.
+    variables: (vars: Record<string, unknown>) =>
+      vars.token === TOKEN &&
+      vars.signedName === CONTRACT.signerName &&
+      String(vars.signatureImage).startsWith('data:image/png;base64,'),
   },
   result: {
     data: {
@@ -41,7 +45,11 @@ const signed: MockLink.MockedResponse = {
 const renamed: MockLink.MockedResponse = {
   request: {
     query: SignContractWithTokenDocument,
-    variables: { token: TOKEN, signedName: 'Samira Khan' },
+    // The signature is drawn in the browser, so any PNG data URL matches.
+    variables: (vars: Record<string, unknown>) =>
+      vars.token === TOKEN &&
+      vars.signedName === 'Samira Khan' &&
+      String(vars.signatureImage).startsWith('data:image/png;base64,'),
   },
   result: {
     data: {
@@ -57,9 +65,19 @@ const renamed: MockLink.MockedResponse = {
 const refused: MockLink.MockedResponse = {
   request: {
     query: SignContractWithTokenDocument,
-    variables: { token: TOKEN, signedName: 'Expired Link' },
+    // The signature is drawn in the browser, so any PNG data URL matches.
+    variables: (vars: Record<string, unknown>) =>
+      vars.token === TOKEN &&
+      vars.signedName === 'Expired Link' &&
+      String(vars.signatureImage).startsWith('data:image/png;base64,'),
   },
   error: new Error('This signing link has expired'),
+};
+
+/** Signs on the pad by typing a name (Type mode), as a keyboard user would. */
+const drawSignature = (name: string) => {
+  cy.contains('button', 'Type').click();
+  cy.contains('label', 'Type your name as your signature').parent().find('input').type(name);
 };
 
 const mount = () =>
@@ -112,7 +130,8 @@ describe('SignContractForm', () => {
   it('hands back the fingerprint of what was signed', () => {
     mount();
     agree();
-    cy.contains('button', 'Sign').click();
+    drawSignature('Sam Khan');
+    cy.contains('button', /^Sign$/).click();
     cy.get('@signed').should('have.been.calledWith', SHA);
   });
 
@@ -120,7 +139,8 @@ describe('SignContractForm', () => {
     mount();
     agree();
     cy.get('input[name="signedName"]').clear().type('Samira Khan');
-    cy.contains('button', 'Sign').click();
+    drawSignature('Samira Khan');
+    cy.contains('button', /^Sign$/).click();
     cy.get('@signed').should('have.been.calledWith', SHA);
   });
 
@@ -128,7 +148,8 @@ describe('SignContractForm', () => {
     mount();
     agree();
     cy.get('input[name="signedName"]').clear().type('Expired Link');
-    cy.contains('button', 'Sign').click();
+    drawSignature('Expired Link');
+    cy.contains('button', /^Sign$/).click();
     cy.contains('This signing link has expired').should('be.visible');
     cy.get('@signed').should('not.have.been.called');
   });

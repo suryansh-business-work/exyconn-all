@@ -25,11 +25,32 @@ export interface CredentialsEmailPayload {
   password: string;
 }
 
+/** A file attached by URL; the mail transport fetches it when it sends. */
+export interface MailAttachment {
+  filename: string;
+  path: string;
+  contentType?: string;
+}
+
 export interface CustomEmailPayload {
   name: string;
   email: string;
   subject: string;
+  /** Plain text; blank lines start paragraphs. */
   message: string;
+  /** A rich-text body (HTML) instead of `message`; sanitised by the template. */
+  html?: string;
+  cc?: string[];
+  bcc?: string[];
+  attachments?: MailAttachment[];
+}
+
+/** Who else gets a copy, and what rides along. */
+interface SendExtras {
+  replyTo?: string;
+  cc?: string[];
+  bcc?: string[];
+  attachments?: MailAttachment[];
 }
 
 /** One personalised marketing copy, already rendered. */
@@ -81,13 +102,18 @@ class Mailer {
   }
 
   /** Compiles MJML and delivers a single message through the active transport. */
-  private async send(to: string, subject: string, mjml: string, replyTo?: string): Promise<void> {
+  private async send(
+    to: string,
+    subject: string,
+    mjml: string,
+    extras: SendExtras = {},
+  ): Promise<void> {
     const { transporter, fromAddress } = await this.getTransport();
     const { html, errors } = await mjml2html(mjml);
     if (errors.length) {
       logger.error({ errors }, `MJML compilation produced errors for "${subject}"`);
     }
-    await transporter.sendMail({ from: fromAddress, to, subject, html, replyTo });
+    await transporter.sendMail({ from: fromAddress, to, subject, html, ...extras });
     logger.info(`Email "${subject}" sent to ${maskEmail(to)}`);
   }
 
@@ -103,7 +129,11 @@ class Mailer {
 
   async sendCustomEmail(payload: CustomEmailPayload): Promise<void> {
     const mjml = customTemplate(payload);
-    await this.send(payload.email, payload.subject, mjml);
+    await this.send(payload.email, payload.subject, mjml, {
+      cc: payload.cc,
+      bcc: payload.bcc,
+      attachments: payload.attachments,
+    });
   }
 
   /**
@@ -153,7 +183,7 @@ class Mailer {
       submissionData: payload.submissionData,
     });
     const subject = `Website form: ${payload.formType}`;
-    await this.send(fromAddress, subject, mjml, payload.replyTo);
+    await this.send(fromAddress, subject, mjml, { replyTo: payload.replyTo });
   }
 
   /**

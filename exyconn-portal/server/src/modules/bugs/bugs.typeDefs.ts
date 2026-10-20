@@ -17,7 +17,15 @@ export const bugsTypeDefs = gql`
   type Bug {
     id: ID!
     title: String!
+    "Rich text (HTML)."
     description: String!
+    "Rich text (HTML): the steps that make the bug happen again."
+    stepsToReproduce: String!
+    "A link anyone may see: the live page, a design, a demo."
+    publicLink: String!
+    "A link for the team only: staging, an internal doc, another ticket."
+    privateLink: String!
+    attachments: [FileAttachment!]!
     severity: BugSeverity!
     status: BugStatus!
     "The project the bug was found in. Null for bugs filed before bugs had a project."
@@ -29,7 +37,7 @@ export const bugsTypeDefs = gql`
     "The board ticket this bug became, once promoted."
     taskId: String
     taskKey: String!
-    dueDate: DateTime!
+    dueDate: DateTime
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -37,11 +45,16 @@ export const bugsTypeDefs = gql`
   input BugInput {
     title: String!
     description: String!
+    stepsToReproduce: String
+    publicLink: String
+    privateLink: String
+    attachments: [FileAttachmentInput!]
     severity: BugSeverity!
     status: BugStatus!
     projectId: String
-    assigneeId: String!
-    dueDate: DateTime!
+    "Empty or null leaves the bug unassigned."
+    assigneeId: String
+    dueDate: DateTime
   }
 
   type BugPage {

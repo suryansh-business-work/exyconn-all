@@ -10,8 +10,11 @@ export function inputNamed(name: string): HTMLInputElement {
   return input;
 }
 
-/** Types a whole value into the field with this label, as a paste would. */
-export function fill(label: string, value: string) {
+/**
+ * Types a whole value into the field with this label, as a paste would. A required field's
+ * label ends in " *", so match those with a pattern such as /^Title/.
+ */
+export function fill(label: string | RegExp, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 }
 

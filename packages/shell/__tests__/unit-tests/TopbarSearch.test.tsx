@@ -18,9 +18,13 @@ describe('the topbar search button', () => {
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
-  it('shows the shortcut, so people stop reaching for the mouse', () => {
+  it('is a named icon whose tooltip shows the shortcut, so people stop reaching for the mouse', async () => {
+    const user = userEvent.setup();
     render(<TopbarSearch onOpen={vi.fn()} />);
 
-    expect(screen.getByRole('button').textContent).toMatch(/⌘K|Ctrl K/);
+    const button = screen.getByRole('button', { name: 'Search' });
+    expect(button).toHaveAttribute('aria-keyshortcuts', 'Control+K Meta+K');
+    await user.hover(button);
+    expect((await screen.findByRole('tooltip')).textContent).toMatch(/⌘K|Ctrl K/);
   });
 });

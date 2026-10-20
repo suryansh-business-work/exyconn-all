@@ -105,6 +105,13 @@ export type {
 export { default as Accordion } from '@mui/material/Accordion';
 export { default as AccordionSummary } from '@mui/material/AccordionSummary';
 export { default as AccordionDetails } from '@mui/material/AccordionDetails';
+// The timeline, from MUI Lab. Added for the CRM contact and company activity feed.
+export { default as Timeline } from '@mui/lab/Timeline';
+export { default as TimelineItem, timelineItemClasses } from '@mui/lab/TimelineItem';
+export { default as TimelineSeparator } from '@mui/lab/TimelineSeparator';
+export { default as TimelineConnector } from '@mui/lab/TimelineConnector';
+export { default as TimelineContent } from '@mui/lab/TimelineContent';
+export { default as TimelineDot } from '@mui/lab/TimelineDot';
 
 // MUIX date & time pickers — also importable from '@exyconn/ui/pickers'.
 export * from './pickers';
