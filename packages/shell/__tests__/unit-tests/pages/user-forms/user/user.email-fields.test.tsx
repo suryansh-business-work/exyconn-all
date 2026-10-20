@@ -91,7 +91,8 @@ describe('EmailFields', () => {
       target: { value: ' MEERA@acme.test ' },
     });
     expect(within(rowOf('Official email')).getByRole('button', { name: 'Verify' })).toBeVisible();
-    expect(formValues().email).toBe(' MEERA@acme.test ');
+    // An email input drops surrounding spaces itself; the case change is what reaches the form.
+    expect(formValues().email).toBe('MEERA@acme.test');
   });
 
   it('shows no verification for an empty personal address', () => {

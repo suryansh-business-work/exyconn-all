@@ -23,7 +23,15 @@ describe('gpsLocation', () => {
 
   it('counts a fix with no accuracy as exact rather than dropping it', async () => {
     vi.mocked(Location.getCurrentPositionAsync).mockResolvedValueOnce({
-      coords: { latitude: 1, longitude: 2, accuracy: null },
+      coords: {
+        latitude: 1,
+        longitude: 2,
+        accuracy: null,
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      },
       timestamp: Date.UTC(2026, 0, 1),
     });
     await expect(gpsLocation.current()).resolves.toMatchObject({ accuracyM: 0 });
@@ -32,7 +40,9 @@ describe('gpsLocation', () => {
   it('refuses with the one explainable error when access is denied, logging only the status', async () => {
     vi.mocked(Location.requestForegroundPermissionsAsync).mockResolvedValueOnce({
       granted: false,
-      status: 'denied',
+      status: 'denied' as Location.PermissionStatus,
+      canAskAgain: true,
+      expires: 'never',
     });
 
     const read = gpsLocation.current();
