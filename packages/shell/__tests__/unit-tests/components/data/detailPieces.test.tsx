@@ -5,6 +5,7 @@ import type { ReactElement } from 'react';
 import { I18nProvider } from '@exyconn/i18n';
 import { BoolChip } from '@/components/data/BoolChip';
 import { StatusChip } from '@/components/data/StatusChip';
+import { StatusChipList } from '@/components/data/StatusChipList';
 import { DetailFact, DetailFactGrid } from '@/components/data/DetailFact';
 import { DetailRow } from '@/components/data/DetailRow';
 import { CrudDialog } from '@/components/data/CrudDialog';
@@ -34,6 +35,24 @@ describe('BoolChip', () => {
     );
     expect(chipOf('Sí')).toHaveClass('MuiChip-colorSuccess');
     expect(chipOf('No')).toHaveClass('MuiChip-colorDefault');
+  });
+});
+
+describe('StatusChipList', () => {
+  it('shows every chip when they fit under the limit', () => {
+    renderIn(<StatusChipList values={['ADMIN', 'HR']} />);
+    expect(screen.getByText('ADMIN')).toBeInTheDocument();
+    expect(screen.getByText('HR')).toBeInTheDocument();
+    expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
+  });
+
+  it('folds the rest into one "+N" chip that names them', async () => {
+    renderIn(<StatusChipList values={['ADMIN', 'HR', 'IT', 'SUPER_ADMIN', 'TECH']} max={2} />);
+    expect(screen.queryByText('IT')).not.toBeInTheDocument();
+    const more = screen.getByRole('img', { name: '3 more: IT, SUPER ADMIN, TECH' });
+    expect(more).toHaveTextContent('+3');
+    await userEvent.hover(more);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('IT, SUPER ADMIN, TECH');
   });
 });
 
