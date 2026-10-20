@@ -24,6 +24,7 @@ import {
   CheckCircle,
 } from '@mui/icons-material';
 import { ExtractionResult } from '../types';
+import { copyText } from '../../../shared/utils/clipboard';
 
 interface ResultsSummaryProps {
   result: ExtractionResult;
@@ -41,13 +42,13 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
   const [copiedItem, setCopiedItem] = React.useState<string | null>(null);
 
   const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopiedItem(id);
     setTimeout(() => setCopiedItem(null), 2000);
   };
 
   const handleCopyAll = (items: string[], type: string) => {
-    navigator.clipboard.writeText(items.join('\n'));
+    copyText(items.join('\n'));
     setCopiedItem(`all-${type}`);
     setTimeout(() => setCopiedItem(null), 2000);
   };

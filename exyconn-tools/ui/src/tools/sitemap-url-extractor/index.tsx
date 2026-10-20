@@ -8,6 +8,7 @@ import { ExtractResult } from './types';
 import ExtractForm from './ExtractForm';
 import ExtractSummary from './ExtractSummary';
 import UrlResultsTable from './UrlResultsTable';
+import { copyText } from '../../shared/utils/clipboard';
 
 const SitemapUrlExtractor: React.FC = () => {
   const [sitemapUrl, setSitemapUrl] = useState('');
@@ -43,7 +44,7 @@ const SitemapUrlExtractor: React.FC = () => {
 
   const handleCopyAll = () => {
     const urls = filteredUrls.map((u) => u.loc).join('\n');
-    navigator.clipboard.writeText(urls);
+    copyText(urls);
     setCopied(true);
   };
 

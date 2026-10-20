@@ -141,7 +141,10 @@ beforeEach(() => {
   generate.mockReset();
   localStorage.clear();
   localStorage.setItem('openai_api_key', 'sk-test-0123456789');
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    configurable: true,
+  });
 });
 
 afterEach(() => {

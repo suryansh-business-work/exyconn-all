@@ -16,6 +16,7 @@ import Grid from '@mui/material/Grid';
 import { Language, ContentCopy, Download } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { copyText } from '../../shared/utils/clipboard';
 
 const WebpageToMarkdown: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -58,7 +59,7 @@ const WebpageToMarkdown: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(markdown);
+    copyText(markdown);
     setCopied(true);
   };
 

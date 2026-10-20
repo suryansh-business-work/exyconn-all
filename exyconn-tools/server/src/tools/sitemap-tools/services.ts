@@ -263,16 +263,17 @@ export const extractSitemapUrls = async (
       .filter(Boolean);
 
     if (followIndex) {
-      // Fetch all child sitemaps
-      for (const childUrl of childSitemaps.slice(0, 10)) {
-        // Limit to 10
-        try {
-          const childResult = await extractSitemapUrls(childUrl, false);
-          urls.push(...childResult.urls);
-        } catch {
-          // Skip failed child sitemaps
-        }
-      }
+      // Fetch the child sitemaps (limit 10) together; results keep the index's order
+      const childUrlLists = await Promise.all(
+        childSitemaps.slice(0, 10).map((childUrl) =>
+          extractSitemapUrls(childUrl, false).then(
+            (childResult) => childResult.urls,
+            // Skip failed child sitemaps
+            (): SitemapUrl[] => [],
+          ),
+        ),
+      );
+      urls.push(...childUrlLists.flat());
     }
 
     return {

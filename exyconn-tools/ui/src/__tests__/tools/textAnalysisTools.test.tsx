@@ -18,7 +18,10 @@ import { sentJson, sentJsonOf } from '../helpers/requests';
 const TEXT = 'This is a sample paragraph with enough characters to analyse.';
 
 beforeEach(() => {
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    configurable: true,
+  });
 });
 
 afterEach(() => {

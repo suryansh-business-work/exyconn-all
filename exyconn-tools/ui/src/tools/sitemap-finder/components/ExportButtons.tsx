@@ -3,6 +3,7 @@ import { Box, Button, Paper, Typography, Menu, MenuItem, ListItemIcon, ListItemT
 import { Download, Code, TableChart, Description, ContentCopy, CheckCircle } from '@mui/icons-material';
 import { SitemapResult } from '../types';
 import { useCopiedFlag } from '../../../shared/hooks/useCopiedFlag';
+import { copyText } from '../../../shared/utils/clipboard';
 
 interface ExportButtonsProps {
   result: SitemapResult;
@@ -86,7 +87,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ result }) => {
 
   const copyAllUrls = () => {
     const urls = result.sitemapsFound.map((s) => s.url).join('\n');
-    navigator.clipboard.writeText(urls);
+    copyText(urls);
     flashCopied();
     handleClose();
   };

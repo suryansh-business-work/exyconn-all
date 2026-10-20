@@ -18,6 +18,7 @@ import Grid from '@mui/material/Grid';
 import { TableChart, ContentCopy, Download } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { copyText } from '../../shared/utils/clipboard';
 
 const CsvToMarkdown: React.FC = () => {
   const [content, setContent] = useState('');
@@ -50,7 +51,7 @@ const CsvToMarkdown: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(markdown);
+    copyText(markdown);
     setCopied(true);
   };
 

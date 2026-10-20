@@ -21,6 +21,7 @@ import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import Delete from '@mui/icons-material/Delete';
 import { PDFDocument } from 'pdf-lib';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
+import { forEachInSequence } from '../../shared/utils/sequence';
 
 type PageSize = 'a4' | 'letter' | 'fit';
 interface ImageItem {
@@ -85,7 +86,8 @@ export default function JpgToPdf() {
     setProcessing(true);
     try {
       const doc = await PDFDocument.create();
-      for (const img of images) {
+      // In sequence: pages are added in the order the user arranged the images.
+      await forEachInSequence(images, async (img) => {
         const bytes = new Uint8Array(await img.file.arrayBuffer());
         let embedded;
         if (img.file.type === 'image/png') {
@@ -114,7 +116,7 @@ export default function JpgToPdf() {
         }
         const page = doc.addPage([pw, ph]);
         page.drawImage(embedded, { x: dx, y: dy, width: dw, height: dh });
-      }
+      });
       setResult(await doc.save());
     } catch {
       setError('Failed to convert images to PDF.');

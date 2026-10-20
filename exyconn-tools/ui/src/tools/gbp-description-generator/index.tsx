@@ -19,6 +19,7 @@ import { LocationOn, CheckCircle, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
+import { copyText } from '../../shared/utils/clipboard';
 
 interface GBPDescription {
   variant: number;
@@ -76,7 +77,7 @@ const GBPDescriptionGenerator: React.FC = () => {
   };
 
   const handleCopy = (text: string, idx: number) => {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopiedIdx(idx);
     setTimeout(() => setCopiedIdx(null), 1500);
   };

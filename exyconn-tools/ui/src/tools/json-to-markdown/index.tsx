@@ -6,6 +6,7 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import JsonInputPanel from './JsonInputPanel';
 import MarkdownOutput from './MarkdownOutput';
+import { copyText } from '../../shared/utils/clipboard';
 
 const JsonToMarkdown: React.FC = () => {
   const [content, setContent] = useState('');
@@ -40,7 +41,7 @@ const JsonToMarkdown: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(markdown);
+    copyText(markdown);
     setCopied(true);
   };
 

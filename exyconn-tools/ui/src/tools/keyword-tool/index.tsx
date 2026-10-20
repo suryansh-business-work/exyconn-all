@@ -23,6 +23,7 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
+import { copyText } from '../../shared/utils/clipboard';
 
 interface KeywordSuggestion {
   keyword: string;
@@ -62,7 +63,7 @@ const KeywordTool: React.FC = () => {
 
   const handleCopy = () => {
     const text = results.map((r) => r.keyword).join('\n');
-    navigator.clipboard.writeText(text);
+    copyText(text);
     flashCopied();
   };
 

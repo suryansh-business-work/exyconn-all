@@ -14,6 +14,7 @@ import { Close, Key, CheckCircle, ExpandMore } from '@mui/icons-material';
 import { secretsConfig, secretCategories, SecretField } from './secretsConfig';
 import SecretFieldItem from './SecretFieldItem';
 import { readSecret, writeSecret } from '../../services/secrets';
+import { copyText } from '../../utils/clipboard';
 
 interface SecretsDrawerProps {
   open: boolean;
@@ -77,7 +78,7 @@ const SecretsDrawer: React.FC<Readonly<SecretsDrawerProps>> = ({ open, onClose, 
   };
 
   const handleCopy = (key: string) => {
-    navigator.clipboard.writeText(values[key] || '');
+    copyText(values[key] || '');
     setCopied(key);
     setTimeout(() => setCopied(null), 1500);
   };

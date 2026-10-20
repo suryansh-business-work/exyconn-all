@@ -382,7 +382,7 @@ describe('useColorExtraction', () => {
     const pixels = distinct.flatMap(([r, g, b], index) => repeat([r, g, b, 255], 11 + (index % 3)));
     withFrame(frame(pixels));
     const { result } = renderHook(() => useColorExtraction('data:many'));
-    await waitFor(() => expect(result.current.extractedColors.length).toBe(8));
+    await waitFor(() => expect(result.current.extractedColors).toHaveLength(8));
     result.current.extractedColors.forEach((hex) => expect(hex).toMatch(/^#[0-9a-f]{6}$/));
   });
 

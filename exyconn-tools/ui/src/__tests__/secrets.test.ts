@@ -62,7 +62,7 @@ describe('secrets service', () => {
 
   it('ignores a write to a key that is not configured', () => {
     writeSecret('not_a_real_key', 'value');
-    expect(localStorage.length).toBe(0);
+    expect(localStorage).toHaveLength(0);
     expect(readSecret('not_a_real_key')).toBe('');
   });
 

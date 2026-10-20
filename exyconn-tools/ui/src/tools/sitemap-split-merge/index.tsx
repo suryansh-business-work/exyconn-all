@@ -8,6 +8,7 @@ import { SplitResult } from './types';
 import SplitForm from './SplitForm';
 import SplitSummary from './SplitSummary';
 import SplitResultsPanel from './SplitResultsPanel';
+import { copyText } from '../../shared/utils/clipboard';
 
 const SitemapSplitMerge: React.FC = () => {
   const [sitemapUrl, setSitemapUrl] = useState('');
@@ -53,7 +54,7 @@ const SitemapSplitMerge: React.FC = () => {
   };
 
   const copyContent = (content: string) => {
-    navigator.clipboard.writeText(content);
+    copyText(content);
     setCopied(true);
   };
 

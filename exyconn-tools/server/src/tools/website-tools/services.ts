@@ -108,6 +108,33 @@ const fetchPage = async (
   }
 };
 
+interface QueuedPage {
+  url: string;
+  depth: number;
+}
+
+type FetchedPage = NonNullable<Awaited<ReturnType<typeof fetchPage>>>;
+
+/**
+ * Breadth-first crawl, recursive and one page at a time: each page can queue more links,
+ * and `isFull` is checked against what earlier pages added.
+ */
+const crawlQueue = async (
+  toVisit: QueuedPage[],
+  visited: Set<string>,
+  isFull: () => boolean,
+  onPage: (current: QueuedPage, pageData: FetchedPage) => void,
+): Promise<void> => {
+  if (toVisit.length === 0 || isFull()) return;
+  const current = toVisit.shift();
+  if (current && !visited.has(current.url)) {
+    visited.add(current.url);
+    const pageData = await fetchPage(current.url);
+    if (pageData) onPage(current, pageData);
+  }
+  return crawlQueue(toVisit, visited, isFull, onPage);
+};
+
 export const extractUrls = async (
   url: string,
   maxUrls: number = 500,
@@ -148,69 +175,68 @@ export const scanPages = async (
 ): Promise<PageInfo[]> => {
   const baseUrl = new URL(url).origin;
   const visited = new Set<string>();
-  const toVisit: { url: string; depth: number }[] = [{ url, depth: 0 }];
+  const toVisit: QueuedPage[] = [{ url, depth: 0 }];
   const pages: PageInfo[] = [];
 
-  while (toVisit.length > 0 && pages.length < maxPages) {
-    const current = toVisit.shift();
-    if (!current || visited.has(current.url)) continue;
+  await crawlQueue(
+    toVisit,
+    visited,
+    () => pages.length >= maxPages,
+    (current, pageData) => {
+      const $ = cheerio.load(pageData.html);
 
-    visited.add(current.url);
-    const pageData = await fetchPage(current.url);
-    if (!pageData) continue;
+      // Remove scripts and styles for word count
+      $("script, style, noscript").remove();
 
-    const $ = cheerio.load(pageData.html);
+      const headings = {
+        h1: $("h1")
+          .map((_, el) => $(el).text().trim())
+          .get()
+          .slice(0, 5),
+        h2: $("h2")
+          .map((_, el) => $(el).text().trim())
+          .get()
+          .slice(0, 10),
+        h3: $("h3")
+          .map((_, el) => $(el).text().trim())
+          .get()
+          .slice(0, 10),
+      };
 
-    // Remove scripts and styles for word count
-    $("script, style, noscript").remove();
+      const pageInfo: PageInfo = {
+        url: current.url,
+        title: $("title").text().trim() || "[No Title]",
+        description:
+          $('meta[name="description"]').attr("content")?.trim() || "",
+        depth: current.depth,
+        statusCode: pageData.statusCode,
+        wordCount: $("body").text().replace(/\s+/g, " ").trim().split(/\s+/)
+          .length,
+        headings,
+        images: $("img").length,
+        links: $("a[href]").length,
+      };
 
-    const headings = {
-      h1: $("h1")
-        .map((_, el) => $(el).text().trim())
-        .get()
-        .slice(0, 5),
-      h2: $("h2")
-        .map((_, el) => $(el).text().trim())
-        .get()
-        .slice(0, 10),
-      h3: $("h3")
-        .map((_, el) => $(el).text().trim())
-        .get()
-        .slice(0, 10),
-    };
+      pages.push(pageInfo);
 
-    const pageInfo: PageInfo = {
-      url: current.url,
-      title: $("title").text().trim() || "[No Title]",
-      description: $('meta[name="description"]').attr("content")?.trim() || "",
-      depth: current.depth,
-      statusCode: pageData.statusCode,
-      wordCount: $("body").text().replace(/\s+/g, " ").trim().split(/\s+/)
-        .length,
-      headings,
-      images: $("img").length,
-      links: $("a[href]").length,
-    };
-
-    pages.push(pageInfo);
-
-    // Find more internal links to scan (only if depth < 2)
-    if (current.depth < 2) {
-      $("a[href]").each((_, el) => {
-        const href = $(el).attr("href");
-        if (!href) return;
-        const normalizedUrl = normalizeUrl(href, current.url);
-        if (
-          normalizedUrl &&
-          isInternalUrl(normalizedUrl, baseUrl) &&
-          !visited.has(normalizedUrl) &&
-          !isResourceUrl(normalizedUrl)
-        ) {
-          toVisit.push({ url: normalizedUrl, depth: current.depth + 1 });
-        }
-      });
-    }
-  }
+      // Find more internal links to scan (only if depth < 2)
+      if (current.depth < 2) {
+        $("a[href]").each((_, el) => {
+          const href = $(el).attr("href");
+          if (!href) return;
+          const normalizedUrl = normalizeUrl(href, current.url);
+          if (
+            normalizedUrl &&
+            isInternalUrl(normalizedUrl, baseUrl) &&
+            !visited.has(normalizedUrl) &&
+            !isResourceUrl(normalizedUrl)
+          ) {
+            toVisit.push({ url: normalizedUrl, depth: current.depth + 1 });
+          }
+        });
+      }
+    },
+  );
 
   return pages;
 };
@@ -221,50 +247,49 @@ export const analyzeStructure = async (
 ): Promise<SiteStructure> => {
   const baseUrl = new URL(url).origin;
   const visited = new Set<string>();
-  const toVisit: { url: string; depth: number }[] = [{ url, depth: 0 }];
+  const toVisit: QueuedPage[] = [{ url, depth: 0 }];
   const pages: StructurePage[] = [];
   const linkMap: { [key: string]: string[] } = {};
   const incomingLinks: { [key: string]: number } = {};
 
-  while (toVisit.length > 0 && pages.length < maxPages) {
-    const current = toVisit.shift();
-    if (!current || visited.has(current.url)) continue;
+  await crawlQueue(
+    toVisit,
+    visited,
+    () => pages.length >= maxPages,
+    (current, pageData) => {
+      const $ = cheerio.load(pageData.html);
+      const title = $("title").text().trim() || "[No Title]";
+      const outgoingUrls: string[] = [];
 
-    visited.add(current.url);
-    const pageData = await fetchPage(current.url);
-    if (!pageData) continue;
-
-    const $ = cheerio.load(pageData.html);
-    const title = $("title").text().trim() || "[No Title]";
-    const outgoingUrls: string[] = [];
-
-    $("a[href]").each((_, el) => {
-      const href = $(el).attr("href");
-      if (!href) return;
-      const normalizedUrl = normalizeUrl(href, current.url);
-      if (
-        normalizedUrl &&
-        isInternalUrl(normalizedUrl, baseUrl) &&
-        !isResourceUrl(normalizedUrl)
-      ) {
-        outgoingUrls.push(normalizedUrl);
-        incomingLinks[normalizedUrl] = (incomingLinks[normalizedUrl] || 0) + 1;
-        if (!visited.has(normalizedUrl) && current.depth < 2) {
-          toVisit.push({ url: normalizedUrl, depth: current.depth + 1 });
+      $("a[href]").each((_, el) => {
+        const href = $(el).attr("href");
+        if (!href) return;
+        const normalizedUrl = normalizeUrl(href, current.url);
+        if (
+          normalizedUrl &&
+          isInternalUrl(normalizedUrl, baseUrl) &&
+          !isResourceUrl(normalizedUrl)
+        ) {
+          outgoingUrls.push(normalizedUrl);
+          incomingLinks[normalizedUrl] =
+            (incomingLinks[normalizedUrl] || 0) + 1;
+          if (!visited.has(normalizedUrl) && current.depth < 2) {
+            toVisit.push({ url: normalizedUrl, depth: current.depth + 1 });
+          }
         }
-      }
-    });
+      });
 
-    linkMap[current.url] = [...new Set(outgoingUrls)];
+      linkMap[current.url] = [...new Set(outgoingUrls)];
 
-    pages.push({
-      url: current.url,
-      title,
-      incomingLinks: 0, // Will be updated after crawl
-      outgoingLinks: outgoingUrls.length,
-      depth: current.depth,
-    });
-  }
+      pages.push({
+        url: current.url,
+        title,
+        incomingLinks: 0, // Will be updated after crawl
+        outgoingLinks: outgoingUrls.length,
+        depth: current.depth,
+      });
+    },
+  );
 
   // Update incoming links count
   pages.forEach((page) => {

@@ -11,27 +11,24 @@ import TableChart from '@mui/icons-material/TableChart';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import RestartAlt from '@mui/icons-material/RestartAlt';
 import * as pdfjsLib from 'pdfjs-dist';
-import { Workbook } from 'exceljs';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
 import ExtractionResults from './ExtractionResults';
-import { downloadBlob, extractRows, toPreviewRows, TOOL_COLOR, TOOL_COLOR_DARK, type PreviewRow } from './utils';
+import {
+  buildWorkbookBuffer,
+  downloadBlob,
+  extractRows,
+  toPreviewRows,
+  TOOL_COLOR,
+  TOOL_COLOR_DARK,
+  type PreviewRow,
+} from './utils';
+import { forEachInSequence, pageNumbers } from '../../shared/utils/sequence';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
 const PREVIEW_ROW_LIMIT = 8;
 const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-
-const buildWorkbookBuffer = async (pages: string[][][]): Promise<ArrayBuffer> => {
-  const workbook = new Workbook();
-  pages.forEach((rows, index) => {
-    const sheet = workbook.addWorksheet(`Page ${index + 1}`);
-    for (const row of rows) {
-      sheet.addRow(row);
-    }
-  });
-  return workbook.xlsx.writeBuffer();
-};
 
 export default function PdfToExcel() {
   const [file, setFile] = useState<File | null>(null);
@@ -73,12 +70,13 @@ export default function PdfToExcel() {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const result: string[][][] = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
+      // In sequence: progress names the page being read and rows stay in page order.
+      await forEachInSequence(pageNumbers(pdf.numPages), async (i) => {
         setProgress({ current: i, total: pdf.numPages });
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         result.push(extractRows(content.items));
-      }
+      });
       setPages(result);
       setPreview(toPreviewRows(result[0] ?? [], PREVIEW_ROW_LIMIT));
     } catch {

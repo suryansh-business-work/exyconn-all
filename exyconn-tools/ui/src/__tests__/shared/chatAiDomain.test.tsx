@@ -8,11 +8,11 @@ import { OpenAIProvider } from '../../shared/context/OpenAIContext';
 import { OpenAIRequestError } from '../../shared/services/openai';
 import { readSecret, writeSecret } from '../../shared/services/secrets';
 
-const writeText = vi.fn();
+const writeText = vi.fn().mockResolvedValue(undefined);
 
 beforeEach(() => {
   localStorage.clear();
-  writeText.mockReset();
+  writeText.mockReset().mockResolvedValue(undefined);
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
 });
 

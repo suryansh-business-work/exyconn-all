@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import type { SvgIconComponent } from '@mui/icons-material';
 import ToolLayout from '../ToolLayout/ToolLayout';
 import MarkdownOutput from '../MarkdownOutput';
+import { copyText } from '../../utils/clipboard';
 
 export interface TextToMarkdownProps {
   toolName: string;
@@ -61,7 +62,7 @@ const TextToMarkdown: React.FC<Readonly<TextToMarkdownProps>> = ({
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(markdown);
+    copyText(markdown);
     setCopied(true);
   };
 

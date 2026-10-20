@@ -5,6 +5,7 @@ import { ListAlt } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import SitemapEntryList from './SitemapEntryList';
 import GeneratedXmlOutput from './GeneratedXmlOutput';
+import { copyText } from '../../shared/utils/clipboard';
 
 interface SitemapEntry {
   id: string;
@@ -57,7 +58,7 @@ ${sitemapEntries}
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generatedXml);
+    copyText(generatedXml);
     setCopied(true);
   };
 

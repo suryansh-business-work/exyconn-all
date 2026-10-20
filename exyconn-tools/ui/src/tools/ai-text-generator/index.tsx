@@ -17,6 +17,7 @@ import { AutoAwesome, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
+import { copyText } from '../../shared/utils/clipboard';
 
 const AITextGenerator: React.FC = () => {
   const [topic, setTopic] = useState('');
@@ -84,7 +85,7 @@ const AITextGenerator: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(result);
+    copyText(result);
     flashCopied();
   };
 

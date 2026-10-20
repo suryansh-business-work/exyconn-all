@@ -16,6 +16,7 @@ import { Document, Packer, PageBreak, Paragraph, TextRun } from 'docx';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
 import { extractParagraphs } from './utils';
+import { forEachInSequence, pageNumbers } from '../../shared/utils/sequence';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
@@ -79,12 +80,13 @@ export default function PdfToWord() {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const pages: string[][] = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
+      // In sequence: progress names the page being read and paragraphs stay in page order.
+      await forEachInSequence(pageNumbers(pdf.numPages), async (i) => {
         setProgress({ current: i, total: pdf.numPages });
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         pages.push(extractParagraphs(content.items));
-      }
+      });
       const blob = await Packer.toBlob(buildDocx(pages));
       downloadBlob(blob, `${file.name.replace(/\.pdf$/i, '')}.docx`);
       setDone(true);

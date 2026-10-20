@@ -17,6 +17,8 @@ import Tesseract from 'tesseract.js';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
 import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
+import { copyText as copyToClipboard } from '../../shared/utils/clipboard';
+import { forEachInSequence, pageNumbers } from '../../shared/utils/sequence';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
@@ -61,7 +63,8 @@ export default function OcrPdf() {
       const arrayBuffer = await file!.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       let fullText = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
+      // In sequence: one page canvas and one OCR run at a time, with the text kept in page order.
+      await forEachInSequence(pageNumbers(pdf.numPages), async (i) => {
         setProgress({ current: i, total: pdf.numPages });
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale: 2 });
@@ -74,7 +77,7 @@ export default function OcrPdf() {
           data: { text },
         } = await Tesseract.recognize(canvas, language);
         fullText += `--- Page ${i} ---\n${text}\n\n`;
-      }
+      });
       setExtractedText(fullText);
     } catch {
       setExtractedText('Error: Failed to process PDF.');
@@ -84,7 +87,7 @@ export default function OcrPdf() {
   }, [file, language]);
 
   const copyText = useCallback(() => {
-    navigator.clipboard.writeText(extractedText);
+    copyToClipboard(extractedText);
     flashCopied();
   }, [extractedText, flashCopied]);
 

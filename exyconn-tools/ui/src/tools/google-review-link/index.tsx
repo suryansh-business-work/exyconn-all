@@ -26,6 +26,7 @@ import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyA
 import { APIs } from '../../shared/config/apis';
 import { readSecret } from '../../shared/services/secrets';
 import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
+import { copyText } from '../../shared/utils/clipboard';
 
 const PLACES_KEY = 'google_places_api_key';
 
@@ -87,7 +88,7 @@ const GoogleReviewLink: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generatedLink);
+    copyText(generatedLink);
     flashCopied();
   };
 

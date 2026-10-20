@@ -3,6 +3,7 @@ import { Box, Paper, Typography, IconButton, Tooltip, Chip, Stack } from '@mui/m
 import { ContentCopy, CheckCircle, AutoAwesome, Token } from '@mui/icons-material';
 import { TokenUsage } from '../../services/openai';
 import { useCopiedFlag } from '../../hooks/useCopiedFlag';
+import { copyText } from '../../utils/clipboard';
 
 interface AIResultDisplayProps {
   result: string;
@@ -14,7 +15,7 @@ const AIResultDisplay: React.FC<AIResultDisplayProps> = ({ result, title = 'Gene
   const { copied, flashCopied } = useCopiedFlag();
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(result);
+    copyText(result);
     flashCopied();
   };
 

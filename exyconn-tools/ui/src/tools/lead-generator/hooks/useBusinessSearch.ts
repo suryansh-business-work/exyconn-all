@@ -133,6 +133,20 @@ const searchTerm = (ctx: SearchContext, term: string): Promise<void> =>
     });
   });
 
+/**
+ * Recursive, one term at a time: Places is rate-limited (hence the pause between terms), and the
+ * search stops as soon as enough businesses are in.
+ */
+const searchTerms = async (ctx: SearchContext, terms: string[]): Promise<void> => {
+  const [term, ...rest] = terms;
+  if (term === undefined) return;
+  await searchTerm(ctx, term);
+
+  if (ctx.allResults.length >= ctx.maxResults) return;
+  await new Promise((r) => setTimeout(r, 200));
+  return searchTerms(ctx, rest);
+};
+
 export const useBusinessSearch = (): UseBusinessSearchResult => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -179,12 +193,7 @@ export const useBusinessSearch = (): UseBusinessSearchResult => {
           onUpdate: setBusinesses,
         };
 
-        for (const term of resolveSearchTerms(searchQuery, selectedTypes)) {
-          await searchTerm(ctx, term);
-
-          if (allResults.length >= maxResults) break;
-          await new Promise((r) => setTimeout(r, 200));
-        }
+        await searchTerms(ctx, resolveSearchTerms(searchQuery, selectedTypes));
 
         await new Promise((r) => setTimeout(r, 1000));
 

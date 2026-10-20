@@ -25,6 +25,7 @@ import {
   downloadBlob,
   outputFileName,
 } from './utils';
+import { forEachInSequence } from '../../shared/utils/sequence';
 
 const COLOR = '#8b5cf6';
 
@@ -70,21 +71,22 @@ export default function ConvertFromJpg() {
   const convertAll = async () => {
     setProcessing(true);
     const next = [...items];
-    for (let i = 0; i < next.length; i++) {
+    // In sequence: progress and each row update one file at a time, and only one image is decoded at once.
+    await forEachInSequence(next, async (item, i) => {
       setProgress(i + 1);
       try {
-        const blob = await convertFromJpg(next[i].file, format, quality / 100);
-        next[i] = { id: next[i].id, file: next[i].file, status: 'done', blob };
+        const blob = await convertFromJpg(item.file, format, quality / 100);
+        next[i] = { id: item.id, file: item.file, status: 'done', blob };
       } catch (err) {
         next[i] = {
-          id: next[i].id,
-          file: next[i].file,
+          id: item.id,
+          file: item.file,
           status: 'error',
           error: err instanceof Error ? err.message : 'Conversion failed.',
         };
       }
       setItems([...next]);
-    }
+    });
     setProcessing(false);
   };
 
@@ -93,12 +95,13 @@ export default function ConvertFromJpg() {
   };
 
   const downloadAll = async () => {
-    for (const item of items) {
+    // In sequence with a pause: browsers block a burst of downloads started at once.
+    await forEachInSequence(items, async (item) => {
       if (item.status === 'done') {
         downloadBlob(item.blob, outputFileName(item.file.name, format));
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
-    }
+    });
   };
 
   const doneCount = items.filter((i) => i.status === 'done').length;

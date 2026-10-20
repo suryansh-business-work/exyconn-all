@@ -643,7 +643,7 @@ describe('DomainResultDisplay', () => {
 
   it('copies the result as JSON and confirms it, then goes back to the copy label', async () => {
     vi.useFakeTimers();
-    const writeText = vi.fn();
+    const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
     renderTool(() => (
       <DomainResultDisplay title="Result" data={{ a: 1 }}>

@@ -23,6 +23,7 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
+import { copyText } from '../../shared/utils/clipboard';
 
 interface RelatedSite {
   domain: string;
@@ -72,7 +73,7 @@ const CompetitorFinder: React.FC = () => {
 
   const handleCopy = (sites: RelatedSite[]) => {
     const text = sites.map((r) => r.domain).join('\n');
-    navigator.clipboard.writeText(text);
+    copyText(text);
     flashCopied();
   };
 

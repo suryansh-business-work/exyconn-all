@@ -6,6 +6,7 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import UrlInputPanel from './UrlInputPanel';
 import MarkdownOutput from './MarkdownOutput';
+import { copyText } from '../../shared/utils/clipboard';
 
 const NotionToMarkdown: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -48,7 +49,7 @@ const NotionToMarkdown: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(markdown);
+    copyText(markdown);
     setCopied(true);
   };
 

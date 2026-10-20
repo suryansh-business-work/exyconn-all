@@ -6,6 +6,7 @@ import { sendSignatureTestEmail } from '../../../../shared/services/api';
 import CopyButtons from './CopyButtons';
 import SecondaryActions from './SecondaryActions';
 import TestEmailDialog from './TestEmailDialog';
+import { copyText } from '../../../../shared/utils/clipboard';
 
 interface SignatureActionsProps {
   values: SignatureFormValues;
@@ -104,7 +105,7 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
       const body = encodeURIComponent(
         `Hi,\n\nThis is a test email to preview my new email signature.\n\nBest regards,\n\n---\n[Note: Open in your email client to see the formatted signature. The HTML version has been copied to your clipboard.]\n`
       );
-      navigator.clipboard.writeText(signatureHTML);
+      copyText(signatureHTML);
       globalThis.location.href = `mailto:${testEmail}?subject=${subject}&body=${body}`;
       setTestEmailDialog(false);
       setSnackbar({

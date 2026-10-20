@@ -20,6 +20,7 @@ import { APIs } from '../../shared/config/apis';
 import { FrequencyResponse, FrequencyStats } from './types';
 import DistributionChart from './DistributionChart';
 import RecommendationsSection from './RecommendationsSection';
+import { copyText } from '../../shared/utils/clipboard';
 
 const getChangefreqColor = (freq: string): string => {
   const colors: Record<string, string> = {
@@ -81,7 +82,7 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
   };
 
   const handleCopy = (analysis: FrequencyStats) => {
-    navigator.clipboard.writeText(JSON.stringify(analysis, null, 2));
+    copyText(JSON.stringify(analysis, null, 2));
     setCopied(true);
   };
 

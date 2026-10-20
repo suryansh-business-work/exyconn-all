@@ -221,13 +221,15 @@ export async function extractContacts(
   const allPhones = new Set<string>();
   const allSocialLinks: Record<string, string> = {};
 
-  while (urlsToVisit.length > 0 && visitedUrls.size < maxPages) {
+  // Recursive, one page at a time: each page can queue more links, and the pause keeps the crawl polite.
+  const crawlNext = async (): Promise<void> => {
+    if (urlsToVisit.length === 0 || visitedUrls.size >= maxPages) return;
     const currentUrl = urlsToVisit.shift()!;
 
     visitedUrls.add(currentUrl);
 
     const html = await fetchPage(currentUrl);
-    if (!html) continue;
+    if (!html) return crawlNext();
 
     const $ = cheerio.load(html);
     const title = $("title").text().trim() || currentUrl;
@@ -250,7 +252,9 @@ export async function extractContacts(
 
     // Small delay to be polite
     await new Promise((r) => setTimeout(r, 500));
-  }
+    return crawlNext();
+  };
+  await crawlNext();
 
   return {
     baseUrl: url,

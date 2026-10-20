@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import * as services from "./services";
 import { clientErrorMessage } from "../../shared/errors";
 
-export const convertCsvToMarkdown = async (req: Request, res: Response) => {
+export const convertCsvToMarkdown = (req: Request, res: Response) => {
   try {
     const { content, hasHeader = true } = req.body;
     const markdown = services.csvToMarkdown(content, hasHeader);
@@ -14,7 +14,7 @@ export const convertCsvToMarkdown = async (req: Request, res: Response) => {
   }
 };
 
-export const convertJsonToMarkdown = async (req: Request, res: Response) => {
+export const convertJsonToMarkdown = (req: Request, res: Response) => {
   try {
     const { content } = req.body;
     const markdown = services.jsonToMarkdown(content);
@@ -26,7 +26,7 @@ export const convertJsonToMarkdown = async (req: Request, res: Response) => {
   }
 };
 
-export const convertHtmlToMarkdown = async (req: Request, res: Response) => {
+export const convertHtmlToMarkdown = (req: Request, res: Response) => {
   try {
     const { content } = req.body;
     const markdown = services.htmlToMarkdown(content);
@@ -66,7 +66,7 @@ export const convertDocxToMarkdown = async (req: Request, res: Response) => {
   }
 };
 
-export const convertRtfToMarkdown = async (req: Request, res: Response) => {
+export const convertRtfToMarkdown = (req: Request, res: Response) => {
   try {
     const { content } = req.body;
     const markdown = services.rtfToMarkdown(content);
@@ -78,7 +78,7 @@ export const convertRtfToMarkdown = async (req: Request, res: Response) => {
   }
 };
 
-export const convertXmlToMarkdown = async (req: Request, res: Response) => {
+export const convertXmlToMarkdown = (req: Request, res: Response) => {
   try {
     const { content } = req.body;
     const markdown = services.xmlToMarkdown(content);
@@ -90,7 +90,7 @@ export const convertXmlToMarkdown = async (req: Request, res: Response) => {
   }
 };
 
-export const convertTextToMarkdown = async (req: Request, res: Response) => {
+export const convertTextToMarkdown = (req: Request, res: Response) => {
   try {
     const { content, options } = req.body;
     const markdown = services.textToMarkdown(content, options);

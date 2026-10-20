@@ -29,7 +29,7 @@ let anchorClick: ReturnType<typeof vi.spyOn>;
 let downloaded: string[];
 
 beforeEach(() => {
-  clipboardWrite = vi.fn();
+  clipboardWrite = vi.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, 'clipboard', { value: { writeText: clipboardWrite }, configurable: true });
   downloaded = [];
   const create = document.createElement.bind(document);
@@ -338,11 +338,11 @@ const URL_CASES: UrlCase[] = [
   },
 ];
 
-describe.each(URL_CASES)('$name', ({ Tool, url, empty, invalid, untitled, titled }) => {
-  const urlBox = () => screen.getByRole('textbox');
-  const convertButton = () =>
-    screen.getAllByRole('button').find((b) => /convert|fetch/i.test(b.textContent ?? '')) as HTMLElement;
+const urlBox = () => screen.getByRole('textbox');
+const convertButton = () =>
+  screen.getAllByRole('button').find((b) => /convert|fetch/i.test(b.textContent ?? '')) as HTMLElement;
 
+describe.each(URL_CASES)('$name', ({ Tool, url, empty, untitled, titled }) => {
   it('converts a page, names the download after its title, and falls back to a default name', async () => {
     const fetchMock = stubFetch(converted({ title: titled[0] }), converted());
     renderTool(Tool);
@@ -411,18 +411,6 @@ describe.each(URL_CASES)('$name', ({ Tool, url, empty, invalid, untitled, titled
     await waitFor(() => expect(screen.queryByText('Copied to clipboard!')).not.toBeInTheDocument());
   });
 
-  it('refuses a link that is not for this service', async () => {
-    if (!invalid) return;
-    const fetchMock = stubFetch();
-    renderTool(Tool);
-
-    fireEvent.change(urlBox(), { target: { value: invalid[0] } });
-    fireEvent.click(convertButton());
-
-    expect(await findAlert(invalid[1])).toBeInTheDocument();
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
   it('shows the loading state and an empty answer', async () => {
     let finish: (value: unknown) => void = () => undefined;
     vi.stubGlobal(
@@ -442,6 +430,22 @@ describe.each(URL_CASES)('$name', ({ Tool, url, empty, invalid, untitled, titled
     expect(await screen.findByRole('button', { name: /Fetching|Converting/ })).toBeDisabled();
     await act(async () => finish(jsonReply({ success: true })));
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Copy' })).not.toBeInTheDocument());
+  });
+});
+
+/** Only the tools that check which service a link belongs to (the webpage tool takes any link). */
+const LINK_CHECK_CASES = URL_CASES.flatMap(({ name, Tool, invalid }) => (invalid ? [{ name, Tool, invalid }] : []));
+
+describe.each(LINK_CHECK_CASES)('$name link check', ({ Tool, invalid }) => {
+  it('refuses a link that is not for this service', async () => {
+    const fetchMock = stubFetch();
+    renderTool(Tool);
+
+    fireEvent.change(urlBox(), { target: { value: invalid[0] } });
+    fireEvent.click(convertButton());
+
+    expect(await findAlert(invalid[1])).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 

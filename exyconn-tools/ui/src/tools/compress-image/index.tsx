@@ -28,6 +28,7 @@ import {
   downloadBlob,
   outputFileName,
 } from './utils';
+import { forEachInSequence } from '../../shared/utils/sequence';
 
 const COLOR = '#10b981';
 
@@ -76,21 +77,22 @@ export default function CompressImage() {
     setProcessing(true);
     const maxDim = limitDimension ? maxDimension : undefined;
     const next = [...items];
-    for (let i = 0; i < next.length; i++) {
+    // In sequence: progress and each row update one file at a time, and only one image is decoded at once.
+    await forEachInSequence(next, async (item, i) => {
       setProgress(i + 1);
       try {
-        const out = await compressImage(next[i].file, { quality: quality / 100, format, maxDimension: maxDim });
-        next[i] = { id: next[i].id, file: next[i].file, status: 'done', blob: out.blob };
+        const out = await compressImage(item.file, { quality: quality / 100, format, maxDimension: maxDim });
+        next[i] = { id: item.id, file: item.file, status: 'done', blob: out.blob };
       } catch (err) {
         next[i] = {
-          id: next[i].id,
-          file: next[i].file,
+          id: item.id,
+          file: item.file,
           status: 'error',
           error: err instanceof Error ? err.message : 'Compression failed.',
         };
       }
       setItems([...next]);
-    }
+    });
     setProcessing(false);
   };
 
@@ -99,12 +101,13 @@ export default function CompressImage() {
   };
 
   const downloadAll = async () => {
-    for (const item of items) {
+    // In sequence with a pause: browsers block a burst of downloads started at once.
+    await forEachInSequence(items, async (item) => {
       if (item.status === 'done') {
         downloadBlob(item.blob, outputFileName(item.file.name, format));
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
-    }
+    });
   };
 
   const doneCount = items.filter((i) => i.status === 'done').length;

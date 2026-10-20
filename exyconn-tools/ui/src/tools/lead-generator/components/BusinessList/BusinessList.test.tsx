@@ -25,7 +25,10 @@ const BARE: Business = {
 const LOW: Business = { ...BARE, placeId: 'p3', name: 'Low Rated', rating: 3.1, totalRatings: 4 };
 
 beforeEach(() => {
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    configurable: true,
+  });
 });
 
 afterEach(() => {
