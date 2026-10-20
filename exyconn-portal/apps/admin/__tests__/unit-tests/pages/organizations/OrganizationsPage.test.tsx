@@ -10,12 +10,14 @@ const hooks = vi.hoisted(() => ({
   list: { data: undefined as unknown, loading: false },
   refetch: vi.fn(),
   setStatus: vi.fn(),
+  history: vi.fn(),
 }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<object>()),
   useOrganizationsQuery: () => ({ ...hooks.list, refetch: hooks.refetch }),
   useSetOrganizationStatusMutation: () => [hooks.setStatus],
+  useOrganizationHistoryQuery: hooks.history,
 }));
 
 const ACME = organization();
@@ -32,6 +34,7 @@ beforeEach(() => {
   hooks.list = { data: { organizations: [ACME, BETA] }, loading: false };
   hooks.refetch.mockResolvedValue({});
   hooks.setStatus.mockResolvedValue({});
+  hooks.history.mockReturnValue({ data: { organizationHistory: [] }, loading: false });
 });
 afterEach(() => {
   vi.resetAllMocks();
@@ -167,5 +170,21 @@ describe('OrganizationsPage', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('heading', { level: 2 })).toBeNull());
     expect(hooks.refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the chosen company’s history, and closes it without reloading the list', async () => {
+    const user = mount();
+    await user.click(within(rowOf('Acme')).getByRole('button', { name: 'History' }));
+    expect(await drawerHeading('History of Acme')).toBeInTheDocument();
+    expect(hooks.history).toHaveBeenCalledWith(
+      expect.objectContaining({ variables: { id: 'org-1' } }),
+    );
+    expect(
+      screen.getByText('Nothing has been recorded for this organization yet.'),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.queryByRole('heading', { level: 2 })).toBeNull());
+    expect(hooks.refetch).not.toHaveBeenCalled();
   });
 });

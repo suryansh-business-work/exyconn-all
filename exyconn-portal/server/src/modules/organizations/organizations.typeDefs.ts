@@ -38,6 +38,23 @@ export const organizationsTypeDefs = gql`
     contactEmail: String!
     "Its logo (an https URL), or empty when none was uploaded."
     logoUrl: String!
+    "Its website, or empty."
+    website: String!
+    phone: String!
+    industry: String!
+    "A headcount band such as 11-50, or empty."
+    companySize: String!
+    "Company registration number (CIN, Companies House number, EIN...), or empty."
+    registrationNumber: String!
+    "Tax registration (GSTIN, VAT number...), or empty."
+    taxId: String!
+    addressLine1: String!
+    addressLine2: String!
+    city: String!
+    region: String!
+    postalCode: String!
+    "A short note about the company, or empty."
+    description: String!
     "Whether this is the company that operates the platform itself. Read-only; set at boot."
     isPlatformOperator: Boolean!
     createdAt: DateTime!
@@ -56,6 +73,18 @@ export const organizationsTypeDefs = gql`
     taxSystem: TaxSystem
     contactEmail: String
     logoUrl: String
+    website: String
+    phone: String
+    industry: String
+    companySize: String
+    registrationNumber: String
+    taxId: String
+    addressLine1: String
+    addressLine2: String
+    city: String
+    region: String
+    postalCode: String
+    description: String
   }
 
   input OrganizationUpdateInput {
@@ -69,6 +98,26 @@ export const organizationsTypeDefs = gql`
     taxSystem: TaxSystem
     contactEmail: String
     logoUrl: String
+    website: String
+    phone: String
+    industry: String
+    companySize: String
+    registrationNumber: String
+    taxId: String
+    addressLine1: String
+    addressLine2: String
+    city: String
+    region: String
+    postalCode: String
+    description: String
+  }
+
+  "Somebody invited into a company, with the portals (roles) they may open."
+  input OrganizationMemberInput {
+    name: String!
+    email: String!
+    "One role per portal they may open. SUPER_ADMIN is never granted this way."
+    roles: [Role!]!
   }
 
   "The person a company is handed over to — its first administrator."
@@ -87,6 +136,8 @@ export const organizationsTypeDefs = gql`
     organizations: [Organization!]!
     "One organization (SUPER_ADMIN)."
     organization(id: ID!): Organization!
+    "Everything done to one organization, newest first: created, edited, suspended, people invited (SUPER_ADMIN)."
+    organizationHistory(id: ID!): [AuditLog!]!
     "The company this request works in: the person's own, or for a SUPER_ADMIN the one the portal's address names. Null for a platform administrator with no company."
     myOrganization: Organization
   }
@@ -97,6 +148,11 @@ export const organizationsTypeDefs = gql`
     updateOrganization(id: ID!, input: OrganizationUpdateInput!): Organization!
     "Suspending keeps every record and stops every sign-in in that company."
     setOrganizationStatus(id: ID!, status: OrganizationStatus!): Organization!
+    """
+    Invites people into a company with the portals they may open; each gets the welcome email
+    with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
+    """
+    inviteOrganizationMembers(organizationId: ID!, members: [OrganizationMemberInput!]!): [User!]!
     "Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN)."
     assignOrganizationAdmin(organizationId: ID!, input: OrganizationAdminInput!): User!
   }
