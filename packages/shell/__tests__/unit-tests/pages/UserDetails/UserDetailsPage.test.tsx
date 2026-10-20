@@ -43,6 +43,11 @@ vi.mock('@/pages/UserDetails/EmployeeEarningsPanel', () => ({
     <p>{`earnings ${employeeId}`}</p>
   ),
 }));
+vi.mock('@/pages/UserDetails/EmployeeActivityPanel', () => ({
+  EmployeeActivityPanel: ({ employeeId }: Readonly<{ employeeId: string }>) => (
+    <p>{`activity ${employeeId}`}</p>
+  ),
+}));
 vi.mock('@/pages/UserDetails/employee-locations', () => ({
   EmployeeLocationsPanel: ({ employeeId }: Readonly<{ employeeId: string }>) => (
     <p>{`locations ${employeeId}`}</p>
@@ -86,6 +91,7 @@ describe('UserDetailsPage', () => {
       'balances',
       'earnings emp-1',
       'locations emp-1',
+      'activity emp-1',
     ]) {
       expect(screen.getByText(panel)).toBeInTheDocument();
     }

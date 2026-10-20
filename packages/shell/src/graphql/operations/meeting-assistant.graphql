@@ -1,0 +1,566 @@
+# Meeting Assistant (Google Meet AI notes) — consumed by @exyconn/meetings-ui.
+# CRM meeting bookings live in meetings.graphql; nothing here shares a name with them.
+
+fragment MaMeetingRow on MaMeeting {
+  id
+  meetingCode
+  title
+  ownerId
+  ownerName
+  language
+  startedAt
+  endedAt
+  durationSeconds
+  status
+  participantCount
+  transcriptionState
+  summaryStatus
+  emailStatus
+  actionItemCount
+  openActionCount
+}
+
+fragment MaMeetingDetail on MaMeeting {
+  ...MaMeetingRow
+  url
+  organizerName
+  timezone
+  detectedLanguages
+  captureState
+  consentRecordedAt
+  segmentCount
+  officialImportStatus
+  summaryError
+  transcriptionFailures
+  costUsd
+  recordingSeconds
+  previousMeetingId
+  speakerMappings {
+    label
+    name
+    userId
+    confirmedByName
+    confirmedAt
+  }
+}
+
+fragment MaEvidenceFields on MaEvidence {
+  segmentId
+  quote
+  startMs
+  speakerLabel
+}
+
+fragment MaActionItemRow on MaActionItem {
+  id
+  meetingId
+  meetingTitle
+  title
+  description
+  assignedTo
+  assignedUserId
+  dueDate
+  dueText
+  priority
+  status
+  sourceTimestampMs
+  aiGenerated
+  needsConfirmation
+  overdue
+  completedAt
+  createdByName
+  evidence {
+    ...MaEvidenceFields
+  }
+  comments {
+    id
+    byName
+    text
+    createdAt
+  }
+  history {
+    at
+    byName
+    field
+    from
+    to
+  }
+  createdAt
+}
+
+fragment MaNotesContentFields on MaNotesContent {
+  overview
+  executiveSummary
+  agenda
+  discussionPoints
+  risks
+  blockers
+  openQuestions
+  followUps
+  nextTopics
+}
+
+fragment MaReleaseFields on MaRelease {
+  id
+  version
+  channel
+  buildNumber
+  commitSha
+  builtAt
+  artifactName
+  artifactSize
+  sha256
+  releaseNotes
+  minChromeVersion
+  status
+  storeItemId
+  storeUrl
+  buildRunUrl
+  publisherName
+  downloadCount
+  downloadable
+  statusHistory {
+    status
+    at
+    byName
+    note
+  }
+}
+
+query MaDashboard($filter: MaDashboardFilter) {
+  maDashboard(filter: $filter) {
+    totalMeetings
+    meetingsThisMonth
+    totalDurationSeconds
+    notesGenerated
+    pendingActions
+    completedActions
+    overdueActions
+    transcriptionFailures
+    byDay {
+      value
+      count
+    }
+  }
+}
+
+query MaMeetingsPaged($input: TableQueryInput!, $scope: MaScope) {
+  maMeetingsPaged(input: $input, scope: $scope) {
+    totalCount
+    rows {
+      ...MaMeetingRow
+    }
+  }
+}
+
+query MaMeeting($id: ID!) {
+  maMeeting(id: $id) {
+    ...MaMeetingDetail
+  }
+}
+
+mutation MaUpdateMeeting($id: ID!, $input: MaUpdateMeetingInput!) {
+  maUpdateMeeting(id: $id, input: $input) {
+    ...MaMeetingDetail
+  }
+}
+
+mutation MaDeleteMeeting($id: ID!) {
+  maDeleteMeeting(id: $id)
+}
+
+query MaTranscript($meetingId: ID!, $source: MaTranscriptSource, $afterMs: Int, $limit: Int) {
+  maTranscript(meetingId: $meetingId, source: $source, afterMs: $afterMs, limit: $limit) {
+    id
+    source
+    startMs
+    endMs
+    text
+    speakerLabel
+    speakerName
+    speakerConfirmed
+  }
+}
+
+mutation MaConfirmSpeaker($meetingId: ID!, $input: MaSpeakerInput!) {
+  maConfirmSpeaker(meetingId: $meetingId, input: $input) {
+    ...MaMeetingDetail
+  }
+}
+
+mutation MaImportOfficialTranscript($meetingId: ID!) {
+  maImportOfficialTranscript(meetingId: $meetingId) {
+    ...MaMeetingDetail
+  }
+}
+
+query MaTranscriptSearch($input: TableQueryInput!, $scope: MaScope) {
+  maTranscriptSearch(input: $input, scope: $scope) {
+    totalCount
+    rows {
+      id
+      meetingId
+      meetingTitle
+      meetingStartedAt
+      startMs
+      text
+      speakerLabel
+      source
+    }
+  }
+}
+
+fragment MaParticipantRow on MaParticipant {
+  id
+  meetingId
+  displayName
+  email
+  status
+  source
+  confidence
+  sessions {
+    joinedAt
+    leftAt
+  }
+  rejoinCount
+  totalSeconds
+  meetingTitle
+  meetingStartedAt
+}
+
+query MaParticipants($meetingId: ID!) {
+  maParticipants(meetingId: $meetingId) {
+    ...MaParticipantRow
+  }
+}
+
+query MaParticipantsPaged($input: TableQueryInput!, $scope: MaScope) {
+  maParticipantsPaged(input: $input, scope: $scope) {
+    totalCount
+    rows {
+      ...MaParticipantRow
+    }
+  }
+}
+
+query MaNotes($meetingId: ID!) {
+  maNotes(meetingId: $meetingId) {
+    id
+    version
+    style
+    model
+    generatedAt
+    edited
+    original {
+      ...MaNotesContentFields
+    }
+    content {
+      ...MaNotesContentFields
+    }
+    revisions {
+      version
+      byName
+      at
+    }
+    costUsd
+  }
+}
+
+mutation MaUpdateNotes($meetingId: ID!, $content: MaNotesContentInput!, $expectedVersion: Int!) {
+  maUpdateNotes(meetingId: $meetingId, content: $content, expectedVersion: $expectedVersion) {
+    id
+    version
+    edited
+    content {
+      ...MaNotesContentFields
+    }
+  }
+}
+
+mutation MaRegenerateNotes($meetingId: ID!, $style: MaSummaryStyle!) {
+  maRegenerateNotes(meetingId: $meetingId, style: $style) {
+    id
+    summaryStatus
+    summaryError
+  }
+}
+
+query MaDecisions($meetingId: ID!) {
+  maDecisions(meetingId: $meetingId) {
+    id
+    text
+    confidence
+    evidence {
+      ...MaEvidenceFields
+    }
+  }
+}
+
+query MaActionItemsPaged($input: TableQueryInput!, $scope: MaScope, $meetingId: ID) {
+  maActionItemsPaged(input: $input, scope: $scope, meetingId: $meetingId) {
+    totalCount
+    rows {
+      ...MaActionItemRow
+    }
+  }
+}
+
+query MaActionStats($scope: MaScope, $meetingId: ID) {
+  maActionStats(scope: $scope, meetingId: $meetingId) {
+    total
+    pending
+    inProgress
+    blocked
+    completed
+    cancelled
+    overdue
+    needsConfirmation
+  }
+}
+
+mutation MaCreateActionItem($meetingId: ID!, $input: MaActionItemInput!) {
+  maCreateActionItem(meetingId: $meetingId, input: $input) {
+    ...MaActionItemRow
+  }
+}
+
+mutation MaUpdateActionItem($id: ID!, $input: MaActionItemInput!) {
+  maUpdateActionItem(id: $id, input: $input) {
+    ...MaActionItemRow
+  }
+}
+
+mutation MaSetActionStatus($id: ID!, $status: MaActionStatus!) {
+  maSetActionStatus(id: $id, status: $status) {
+    id
+    status
+    completedAt
+    overdue
+  }
+}
+
+mutation MaBulkUpdateActionItems($input: MaBulkActionInput!) {
+  maBulkUpdateActionItems(input: $input)
+}
+
+mutation MaDeleteActionItem($id: ID!) {
+  maDeleteActionItem(id: $id)
+}
+
+mutation MaAddActionComment($id: ID!, $text: String!) {
+  maAddActionComment(id: $id, text: $text) {
+    ...MaActionItemRow
+  }
+}
+
+query MaFollowUp($meetingId: ID!) {
+  maFollowUp(meetingId: $meetingId) {
+    previousMeeting {
+      id
+      title
+      startedAt
+    }
+    previousSummary
+    pendingActions {
+      id
+      title
+      assignedTo
+      dueDate
+    }
+    completedActions {
+      id
+      title
+      assignedTo
+      dueDate
+    }
+    overdueActions {
+      id
+      title
+      assignedTo
+      dueDate
+    }
+    unresolvedBlockers
+  }
+}
+
+query MaEmailDeliveries($meetingId: ID!) {
+  maEmailDeliveries(meetingId: $meetingId) {
+    id
+    notesVersion
+    recipient
+    status
+    attempts
+    error
+    sentAt
+    triggeredByName
+    createdAt
+  }
+}
+
+query MaEmailPreview($meetingId: ID!) {
+  maEmailPreview(meetingId: $meetingId) {
+    subject
+    html
+    recipients
+  }
+}
+
+mutation MaSendSummaryEmail($meetingId: ID!) {
+  maSendSummaryEmail(meetingId: $meetingId) {
+    id
+    emailStatus
+  }
+}
+
+mutation MaRetryEmailDelivery($id: ID!) {
+  maRetryEmailDelivery(id: $id) {
+    id
+    status
+    attempts
+    error
+    sentAt
+  }
+}
+
+fragment MaSettingsFields on MaSettings {
+  enabled
+  saveRecordings
+  audioRetentionDays
+  allowedUserIds
+  remindersEnabled
+  reminderIntervalMinutes
+  maxRemindersPerMeeting
+  preferredLanguage
+  summaryStyle
+  transcriptRetentionDays
+  autoGenerateSummary
+  autoEmail
+  emailRequiresApproval
+  defaultRecipients
+  emailParticipants
+  emailAllowedDomains
+  analysisModel
+  transcriptionModel
+  diarization
+  monthlyBudgetUsd
+  maxMeetingMinutes
+  participantTracking
+  liveTranscript
+  releaseChannel
+  monthSpendUsd
+  updatedByName
+  updatedAt
+}
+
+query MaSettings {
+  maSettings {
+    ...MaSettingsFields
+  }
+}
+
+mutation MaUpdateSettings($input: MaSettingsInput!) {
+  maUpdateSettings(input: $input) {
+    ...MaSettingsFields
+  }
+}
+
+mutation MaAuthorizeExtension($input: MaAuthorizeExtensionInput!) {
+  maAuthorizeExtension(input: $input)
+}
+
+query MaMyExtensionSessions {
+  maMyExtensionSessions {
+    id
+    deviceLabel
+    extensionVersion
+    createdAt
+    lastSeenAt
+    expiresAt
+    revokedAt
+    current
+  }
+}
+
+mutation MaRevokeExtensionSession($id: ID!) {
+  maRevokeExtensionSession(id: $id)
+}
+
+query MaGoogleConnection {
+  maGoogleConnection {
+    configured
+    connected
+    email
+    connectedAt
+    lastError
+  }
+}
+
+mutation MaStartGoogleConnect($returnTo: String!) {
+  maStartGoogleConnect(returnTo: $returnTo)
+}
+
+mutation MaDisconnectGoogle {
+  maDisconnectGoogle
+}
+
+query MaReleases {
+  maReleases {
+    ...MaReleaseFields
+  }
+}
+
+query MaLatestRelease {
+  maLatestRelease {
+    ...MaReleaseFields
+  }
+}
+
+mutation MaSetReleaseStatus($id: ID!, $input: MaReleaseStatusInput!) {
+  maSetReleaseStatus(id: $id, input: $input) {
+    ...MaReleaseFields
+  }
+}
+
+mutation MaReleaseDownloadLink($id: ID!) {
+  maReleaseDownloadLink(id: $id) {
+    url
+    expiresAt
+    fileName
+    sha256
+  }
+}
+
+query MaRecording($meetingId: ID!) {
+  maRecording(meetingId: $meetingId) {
+    stream
+    chunkCount
+    seconds
+    sizeBytes
+  }
+}
+
+mutation MaRecordingDownloadLink($meetingId: ID!, $stream: String!) {
+  maRecordingDownloadLink(meetingId: $meetingId, stream: $stream) {
+    url
+    expiresAt
+    fileName
+    sha256
+  }
+}
+
+query MaEventsPaged($input: TableQueryInput!, $scope: MaScope, $meetingId: ID) {
+  maEventsPaged(input: $input, scope: $scope, meetingId: $meetingId) {
+    totalCount
+    rows {
+      id
+      meetingId
+      meetingTitle
+      actorName
+      type
+      level
+      message
+      details
+      createdAt
+    }
+  }
+}

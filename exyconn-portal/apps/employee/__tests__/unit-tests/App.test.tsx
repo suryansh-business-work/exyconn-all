@@ -7,6 +7,7 @@ import { NotificationsPage } from '@exyconn/shell/pages/Notifications';
 import { ApprovalsPage } from '@exyconn/shell/pages/Approvals';
 import { App } from '../../src/App';
 import * as pages from '../../src/pages/employee';
+import * as meetings from '@exyconn/meetings-ui';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -72,6 +73,13 @@ describe('App', () => {
       '/me/onboarding',
       '/me/documents',
       '/me/exit',
+      '/me/meetings',
+      '/me/meetings/meetings',
+      '/me/meetings/meetings/:id/:tab?',
+      '/me/meetings/actions',
+      '/me/meetings/extension',
+      '/me/meetings/logs',
+      '/me/meetings/connect-extension',
     ]);
   });
 
@@ -100,5 +108,22 @@ describe('App', () => {
     expect(elementAt('/me/onboarding')).toBe(pages.MyOnboardingPage);
     expect(elementAt('/me/documents')).toBe(pages.DocumentsPage);
     expect(elementAt('/me/exit')).toBe(pages.MyExitPage);
+  });
+
+  it("mounts the Meeting Assistant on the viewer's own meetings under /me/meetings", () => {
+    render(<App />);
+    const props = (path: string) => routes().find((route) => route.path === path)?.element.props;
+    const own = { scope: 'MINE', basePath: '/me/meetings' };
+    expect(elementAt('/me/meetings')).toBe(meetings.MeetingDashboardPage);
+    expect(props('/me/meetings')).toEqual(own);
+    expect(elementAt('/me/meetings/meetings')).toBe(meetings.MeetingsListPage);
+    expect(elementAt('/me/meetings/meetings/:id/:tab?')).toBe(meetings.MeetingDetailPage);
+    expect(props('/me/meetings/meetings/:id/:tab?')).toEqual(own);
+    expect(elementAt('/me/meetings/actions')).toBe(meetings.ActionChecklistPage);
+    expect(elementAt('/me/meetings/extension')).toBe(meetings.ExtensionPage);
+    expect(elementAt('/me/meetings/logs')).toBe(meetings.LogsPage);
+    expect(props('/me/meetings/logs')).toEqual(own);
+    expect(elementAt('/me/meetings/connect-extension')).toBe(meetings.ConnectExtensionPage);
+    expect(props('/me/meetings/connect-extension')).toEqual({ homePath: '/me/meetings' });
   });
 });

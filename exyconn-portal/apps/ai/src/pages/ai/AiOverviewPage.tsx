@@ -115,6 +115,7 @@ export function AiOverviewPage() {
       links={[
         { label: 'Open jobs', to: '/ai/jobs' },
         { label: 'Open prompt library', to: '/ai/prompts' },
+        { label: 'Open Meeting Assistant', to: '/ai/meeting-assistant' },
       ]}
       recentTitle={failed.length > 0 ? 'Failed jobs' : 'Newest jobs'}
     >

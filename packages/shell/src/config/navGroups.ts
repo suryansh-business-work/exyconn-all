@@ -34,6 +34,8 @@ import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TuneIcon from '@mui/icons-material/Tune';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
+import VideoCallIcon from '@mui/icons-material/VideoCall';
+import VoiceChatIcon from '@mui/icons-material/VoiceChat';
 
 /**
  * The icon each sidebar section wears. The collapsed rail shows one icon per section
@@ -55,6 +57,8 @@ export const NAV_GROUP_ICONS = {
   'Hiring & onboarding': PersonAddIcon,
   Inbox: InboxIcon,
   Leave: BeachAccessIcon,
+  'Meeting Assistant': VoiceChatIcon,
+  'My meetings': VideoCallIcon,
   'My record': FolderSharedIcon,
   Operations: EngineeringIcon,
   'Pay & money': AccountBalanceWalletIcon,

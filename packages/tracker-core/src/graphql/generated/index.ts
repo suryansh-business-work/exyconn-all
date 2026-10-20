@@ -2435,6 +2435,249 @@ export type LoginPageInput = {
   tagline: Scalars['String']['input'];
 };
 
+export type MaActionItemInput = {
+  assignedTo: InputMaybe<Scalars['String']['input']>;
+  assignedUserId: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  dueDate: InputMaybe<Scalars['DateTime']['input']>;
+  priority: MaPriority;
+  status: MaActionStatus;
+  title: Scalars['String']['input'];
+};
+
+export type MaActionStatus =
+  | 'BLOCKED'
+  | 'CANCELLED'
+  | 'COMPLETED'
+  | 'IN_PROGRESS'
+  | 'PENDING';
+
+export type MaAuthorizeExtensionInput = {
+  codeChallenge: Scalars['String']['input'];
+  codeChallengeMethod: Scalars['String']['input'];
+  extensionId: Scalars['String']['input'];
+  redirectUri: Scalars['String']['input'];
+  state: Scalars['String']['input'];
+};
+
+export type MaBulkActionInput = {
+  ids: Array<Scalars['ID']['input']>;
+  priority: InputMaybe<MaPriority>;
+  status: InputMaybe<MaActionStatus>;
+};
+
+export type MaCaptureState =
+  | 'ERROR'
+  | 'IDLE'
+  | 'PAUSED'
+  | 'RECORDING'
+  | 'STOPPED';
+
+export type MaDashboardFilter = {
+  from: InputMaybe<Scalars['DateTime']['input']>;
+  language: InputMaybe<MaLanguage>;
+  ownerId: InputMaybe<Scalars['String']['input']>;
+  participantUserId: InputMaybe<Scalars['String']['input']>;
+  scope: InputMaybe<MaScope>;
+  status: InputMaybe<MaMeetingStatus>;
+  to: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type MaDeliveryStatus =
+  | 'FAILED'
+  | 'PENDING'
+  | 'SENT';
+
+export type MaEmailStatus =
+  | 'AWAITING_APPROVAL'
+  | 'FAILED'
+  | 'NOT_SENT'
+  | 'PARTIAL'
+  | 'QUEUED'
+  | 'SENT';
+
+export type MaEventLevel =
+  | 'ERROR'
+  | 'INFO'
+  | 'WARN';
+
+export type MaHeartbeatInput = {
+  captureState: MaCaptureState;
+  participantCount: Scalars['Int']['input'];
+  title: InputMaybe<Scalars['String']['input']>;
+  transcriptionState: MaTranscriptionState;
+};
+
+export type MaLanguage =
+  | 'AUTO'
+  | 'ENGLISH'
+  | 'HINDI'
+  | 'HINGLISH';
+
+export type MaMeetingStatus =
+  | 'ACTIVE'
+  | 'ENDED';
+
+export type MaNotesContentInput = {
+  agenda: Array<Scalars['String']['input']>;
+  blockers: Array<Scalars['String']['input']>;
+  discussionPoints: Array<Scalars['String']['input']>;
+  executiveSummary: Scalars['String']['input'];
+  followUps: Array<Scalars['String']['input']>;
+  nextTopics: Array<Scalars['String']['input']>;
+  openQuestions: Array<Scalars['String']['input']>;
+  overview: Scalars['String']['input'];
+  risks: Array<Scalars['String']['input']>;
+};
+
+/** A Meet participant event, as the extension saw it in the visible call UI. */
+export type MaParticipantEventInput = {
+  at: Scalars['DateTime']['input'];
+  displayName: Scalars['String']['input'];
+  event: MaParticipantStatus;
+  /** True for the signed-in extension user, whose identity is verified. */
+  isSelf: Scalars['Boolean']['input'];
+  key: Scalars['String']['input'];
+};
+
+export type MaParticipantSource =
+  | 'EXTENSION_USER'
+  | 'GOOGLE_MEET_API'
+  | 'MEET_UI';
+
+export type MaParticipantStatus =
+  | 'JOINED'
+  | 'LEFT'
+  | 'UNKNOWN';
+
+export type MaPriority =
+  | 'CRITICAL'
+  | 'HIGH'
+  | 'LOW'
+  | 'MEDIUM';
+
+export type MaRegisterReleaseInput = {
+  artifactName: Scalars['String']['input'];
+  artifactSize: Scalars['Int']['input'];
+  assetUrl: Scalars['String']['input'];
+  buildNumber: Scalars['Int']['input'];
+  buildRunUrl: Scalars['String']['input'];
+  builtAt: Scalars['DateTime']['input'];
+  channel: MaReleaseChannel;
+  commitSha: Scalars['String']['input'];
+  minChromeVersion: Scalars['String']['input'];
+  releaseNotes: Scalars['String']['input'];
+  releaseUrl: Scalars['String']['input'];
+  sha256: Scalars['String']['input'];
+  version: Scalars['String']['input'];
+};
+
+export type MaReleaseChannel =
+  | 'BETA'
+  | 'INTERNAL'
+  | 'STABLE';
+
+export type MaReleaseStatus =
+  | 'BUILDING'
+  | 'BUILD_FAILED'
+  | 'DEPRECATED'
+  | 'DRAFT'
+  | 'INTERNAL_RELEASED'
+  | 'IN_REVIEW'
+  | 'PUBLISHED'
+  | 'QA_PENDING'
+  | 'READY_FOR_INTERNAL_TESTING'
+  | 'READY_FOR_STORE_SUBMISSION'
+  | 'REJECTED'
+  | 'SUBMITTED_FOR_REVIEW';
+
+export type MaReleaseStatusInput = {
+  note: Scalars['String']['input'];
+  status: MaReleaseStatus;
+  storeItemId: InputMaybe<Scalars['String']['input']>;
+  storeUrl: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Which meetings a list covers: the caller's own, or the whole company (AI role). */
+export type MaScope =
+  | 'ALL'
+  | 'MINE';
+
+export type MaSettingsInput = {
+  allowedUserIds: Array<Scalars['String']['input']>;
+  analysisModel: Scalars['String']['input'];
+  audioRetentionDays: Scalars['Int']['input'];
+  autoEmail: Scalars['Boolean']['input'];
+  autoGenerateSummary: Scalars['Boolean']['input'];
+  defaultRecipients: Array<Scalars['String']['input']>;
+  diarization: Scalars['Boolean']['input'];
+  emailAllowedDomains: Array<Scalars['String']['input']>;
+  emailParticipants: Scalars['Boolean']['input'];
+  emailRequiresApproval: Scalars['Boolean']['input'];
+  enabled: Scalars['Boolean']['input'];
+  liveTranscript: Scalars['Boolean']['input'];
+  maxMeetingMinutes: Scalars['Int']['input'];
+  maxRemindersPerMeeting: Scalars['Int']['input'];
+  monthlyBudgetUsd: Scalars['Float']['input'];
+  participantTracking: Scalars['Boolean']['input'];
+  preferredLanguage: MaLanguage;
+  releaseChannel: MaReleaseChannel;
+  reminderIntervalMinutes: Scalars['Int']['input'];
+  remindersEnabled: Scalars['Boolean']['input'];
+  saveRecordings: Scalars['Boolean']['input'];
+  summaryStyle: MaSummaryStyle;
+  transcriptRetentionDays: Scalars['Int']['input'];
+  transcriptionModel: Scalars['String']['input'];
+};
+
+export type MaSpeakerInput = {
+  label: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  userId: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MaStartSessionInput = {
+  meetingCode: Scalars['String']['input'];
+  startedAt: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type MaStepStatus =
+  | 'FAILED'
+  | 'NOT_STARTED'
+  | 'QUEUED'
+  | 'READY'
+  | 'RUNNING'
+  | 'SKIPPED';
+
+export type MaSummaryStyle =
+  | 'CLIENT'
+  | 'DETAILED'
+  | 'EXECUTIVE'
+  | 'PROJECT_REVIEW'
+  | 'SALES'
+  | 'SHORT'
+  | 'STANDUP'
+  | 'TECHNICAL';
+
+export type MaTranscriptSource =
+  | 'AI'
+  | 'GOOGLE_MEET';
+
+export type MaTranscriptionState =
+  | 'NOT_SUPPORTED'
+  | 'OFF'
+  | 'ON'
+  | 'PERMISSION_REQUIRED'
+  | 'UNKNOWN';
+
+export type MaUpdateMeetingInput = {
+  language: MaLanguage;
+  title: Scalars['String']['input'];
+};
+
 export type ManagementReviewActionInput = {
   description: Scalars['String']['input'];
   done: Scalars['Boolean']['input'];
