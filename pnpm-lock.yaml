@@ -2577,6 +2577,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell

@@ -136,6 +136,10 @@ function fields({ t }: ThemeParts): ComponentGroup {
     MuiInputLabel: {
       styleOverrides: { root: { '&.Mui-disabled': { color: t.text.secondary } } },
     },
+    // The required star is red, so the fields that must be filled stand out from the rest.
+    MuiFormLabel: {
+      styleOverrides: { asterisk: { color: t.error } },
+    },
     MuiAutocomplete: {
       styleOverrides: {
         paper: {

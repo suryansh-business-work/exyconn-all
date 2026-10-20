@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { attachmentSchema } from '../../lib/attachments';
 
 export const BUG_SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 export const BUG_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
@@ -6,7 +7,16 @@ export const BUG_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as con
 const bugSchema = new Schema(
   {
     title: { type: String, required: true, trim: true },
+    /** Rich text (HTML): what was being done and what went wrong. */
     description: { type: String, required: true, trim: true },
+    /** Rich text (HTML): the steps that make the bug happen again. */
+    stepsToReproduce: { type: String, default: '', trim: true },
+    /** A link anyone may see — the live page, a design, a demo. */
+    publicLink: { type: String, default: '', trim: true },
+    /** A link for the team only — staging, an internal doc, another ticket. */
+    privateLink: { type: String, default: '', trim: true },
+    /** Screenshots, recordings, logs; uploader stamped on the server. */
+    attachments: { type: [attachmentSchema], default: [] },
     severity: { type: String, enum: BUG_SEVERITIES, required: true, default: 'MEDIUM' },
     status: { type: String, enum: BUG_STATUSES, required: true, default: 'OPEN' },
     /** The project the bug was found in. `projectName` is denormalised from it on write. */
@@ -23,7 +33,8 @@ const bugSchema = new Schema(
     /** The board ticket this bug became, once promoted. Empty until then. */
     taskId: { type: String, default: '', trim: true },
     taskKey: { type: String, default: '', trim: true },
-    dueDate: { type: Date, required: true },
+    /** Optional: not every bug has a deadline. */
+    dueDate: { type: Date, default: null },
   },
   { timestamps: true },
 );

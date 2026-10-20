@@ -56,14 +56,14 @@ async function dueBugs(now: Date): Promise<DueItem[]> {
   const rows = await BugModel.find({
     assigneeId: { $nin: ['', null] },
     status: { $in: OPEN_BUG_STATUSES },
-    dueDate: { $lte: endOfDay(now) },
+    dueDate: { $ne: null, $lte: endOfDay(now) },
   })
     .select('title assigneeId dueDate')
     .lean();
   return rows.map((row) => ({
     assigneeId: String(row.assigneeId),
     label: row.title,
-    dueDate: row.dueDate,
+    dueDate: row.dueDate as Date,
   }));
 }
 

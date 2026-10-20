@@ -41,6 +41,18 @@ describe('RichTextEditor', () => {
     expect(screen.getByText('Shown on the site')).toBeInTheDocument();
   });
 
+  it('marks a required field with a red star that screen readers skip', () => {
+    renderEditor({ required: true });
+    const star = screen.getByText('*');
+    expect(star).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('textbox', { name: 'Body' })).toBeInTheDocument();
+  });
+
+  it('shows no star on an optional field', () => {
+    renderEditor();
+    expect(screen.queryByText('*')).not.toBeInTheDocument();
+  });
+
   it('shows the validation message instead of the helper text', () => {
     renderEditor({ helperText: 'Shown on the site', error: 'Content is required' });
     expect(screen.getByText('Content is required')).toBeInTheDocument();

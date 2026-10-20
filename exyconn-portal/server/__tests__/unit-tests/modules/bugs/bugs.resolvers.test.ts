@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { bugsResolvers } from '../../../../src/modules/bugs';
 import { BugModel } from '../../../../src/modules/bugs/bugs.model';
-import { projectNameFor } from '../../../../src/modules/bugs/bugs.promote';
+import { projectNameFor, ticketDescription } from '../../../../src/modules/bugs/bugs.promote';
 import { boardResolvers } from '../../../../src/modules/projects/board.resolvers';
 import { TaskModel } from '../../../../src/modules/projects/board.model';
 import { ProjectModel } from '../../../../src/modules/projects/projects.model';
@@ -77,6 +77,53 @@ describe('updateBug', () => {
   });
 });
 
+describe('createBug', () => {
+  it('files a bug with no assignee and no due date', async () => {
+    const { ctx, projectId } = await setup();
+
+    const created = await mutation.createBug(
+      null,
+      { input: bugInput({ projectId, assigneeId: null, dueDate: null }) },
+      ctx,
+    );
+
+    expect(created).toMatchObject({ assigneeId: '', assigneeName: '', dueDate: null });
+  });
+
+  it('keeps the steps, the links and the files, stamping who attached them', async () => {
+    const { ctx, projectId } = await setup();
+
+    const created = await mutation.createBug(
+      null,
+      {
+        input: bugInput({
+          projectId,
+          stepsToReproduce: '<ol><li>Export</li></ol>',
+          publicLink: 'https://app.exyconn.com/export',
+          privateLink: 'https://staging.exyconn.com/export',
+          attachments: [{ url: ' https://cdn/a.png ', name: 'a.png', contentType: 'image/png' }],
+        }),
+      },
+      ctx,
+    );
+
+    expect(created).toMatchObject({
+      stepsToReproduce: '<ol><li>Export</li></ol>',
+      publicLink: 'https://app.exyconn.com/export',
+      privateLink: 'https://staging.exyconn.com/export',
+    });
+    const stored = await BugModel.findById(created.id).lean();
+    expect(stored?.attachments).toEqual([
+      expect.objectContaining({
+        url: 'https://cdn/a.png',
+        name: 'a.png',
+        contentType: 'image/png',
+        uploadedBy: 'lead@exyconn.com',
+      }),
+    ]);
+  });
+});
+
 describe('projectNameFor', () => {
   it('is empty for a bug on no project', async () => {
     expect(await projectNameFor(null)).toBe('');
@@ -96,6 +143,10 @@ describe('Bug field resolvers on rows that predate the fields', () => {
     expect(bugsResolvers.Bug.assigneeId(legacy)).toBe('');
     expect(bugsResolvers.Bug.assigneeName({ assigneeName: '', assignee: '' })).toBe('');
     expect(bugsResolvers.Bug.taskKey(legacy)).toBe('');
+    expect(bugsResolvers.Bug.stepsToReproduce({})).toBe('');
+    expect(bugsResolvers.Bug.publicLink({})).toBe('');
+    expect(bugsResolvers.Bug.privateLink({})).toBe('');
+    expect(bugsResolvers.Bug.attachments({})).toEqual([]);
   });
 
   it('prefers the stored values when present', () => {
@@ -105,6 +156,27 @@ describe('Bug field resolvers on rows that predate the fields', () => {
     expect(bugsResolvers.Bug.assigneeId(row)).toBe('u1');
     expect(bugsResolvers.Bug.assigneeName({ ...row, assignee: 'Old Text' })).toBe('Asha');
     expect(bugsResolvers.Bug.taskKey(row)).toBe('B-2');
+    const file = { url: 'u', name: 'n', contentType: 'c', uploadedBy: 'b', uploadedAt: DUE };
+    const filed = {
+      stepsToReproduce: '<p>1</p>',
+      publicLink: 'https://a',
+      privateLink: 'https://b',
+      attachments: [file],
+    };
+    expect(bugsResolvers.Bug.stepsToReproduce(filed)).toBe('<p>1</p>');
+    expect(bugsResolvers.Bug.publicLink(filed)).toBe('https://a');
+    expect(bugsResolvers.Bug.privateLink(filed)).toBe('https://b');
+    expect(bugsResolvers.Bug.attachments(filed)).toEqual([file]);
+  });
+});
+
+describe('ticketDescription', () => {
+  it('adds the steps to reproduce under a heading, when there are any', () => {
+    expect(ticketDescription('<p>Breaks</p>', '<ol><li>Go</li></ol>')).toBe(
+      '<p>Breaks</p><h3>Steps to reproduce</h3><ol><li>Go</li></ol>',
+    );
+    expect(ticketDescription('<p>Breaks</p>', '')).toBe('<p>Breaks</p>');
+    expect(ticketDescription('<p>Breaks</p>', null)).toBe('<p>Breaks</p>');
   });
 });
 

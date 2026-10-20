@@ -6,6 +6,7 @@ import { useImageKitUpload } from '@/hooks/useImageKitUpload';
 interface RhfRichTextProps {
   name: string;
   label: string;
+  required?: boolean;
   helperText?: string;
   placeholder?: string;
   /** ImageKit folder the editor's images are uploaded into. */
@@ -21,6 +22,7 @@ interface RhfRichTextProps {
 export function RhfRichText({
   name,
   label,
+  required,
   helperText,
   placeholder,
   folder = 'rich-text',
@@ -39,6 +41,7 @@ export function RhfRichText({
       onBlur={field.onBlur}
       uploadImage={uploadImage}
       label={t(label)}
+      required={required}
       helperText={helperText ? t(helperText) : undefined}
       error={fieldState.error?.message ? t(fieldState.error.message) : undefined}
       placeholder={placeholder}

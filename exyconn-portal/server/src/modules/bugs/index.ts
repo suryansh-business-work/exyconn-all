@@ -6,15 +6,20 @@ import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
+import { toAttachments, type Attachment, type AttachmentInput } from '../../lib/attachments';
 
 interface BugInput extends Partial<BugNames> {
   title: string;
   description: string;
+  stepsToReproduce?: string | null;
+  publicLink?: string | null;
+  privateLink?: string | null;
+  attachments?: AttachmentInput[] | null;
   severity: string;
   status: string;
   projectId?: string | null;
-  assigneeId: string;
-  dueDate: Date;
+  assigneeId?: string | null;
+  dueDate?: Date | null;
 }
 
 /** A stored bug, as `.lean()` returns it — older rows lack the fields added since. */
@@ -24,6 +29,10 @@ interface BugRow {
   assigneeName?: string | null;
   assignee?: string | null;
   taskKey?: string | null;
+  stepsToReproduce?: string | null;
+  publicLink?: string | null;
+  privateLink?: string | null;
+  attachments?: Attachment[] | null;
 }
 
 const BUG_ROLES = [ROLES.PROJECTS];
@@ -51,24 +60,38 @@ const crud = createCrudResolvers(bugsService, {
   stats: { countBy: ['status', 'severity'] },
 });
 
-/** The names are looked up from their ids here, never trusted from the form. */
-async function withNames(input: BugInput): Promise<BugInput> {
+/**
+ * The names are looked up from their ids here, never trusted from the form, and who attached
+ * a file is stamped from the session rather than taken from the client.
+ */
+async function withNames(input: BugInput, ctx: GraphQLContext): Promise<BugInput> {
   const [projectName, assigneeName] = await Promise.all([
     projectNameFor(input.projectId),
     assigneeNameFor(input.assigneeId),
   ]);
-  return { ...input, projectId: input.projectId ?? '', projectName, assigneeName };
+  const attachments =
+    input.attachments === undefined
+      ? undefined
+      : (toAttachments(input.attachments, ctx.user?.email ?? '') as unknown as AttachmentInput[]);
+  return {
+    ...input,
+    projectId: input.projectId ?? '',
+    assigneeId: input.assigneeId ?? '',
+    projectName,
+    assigneeName,
+    attachments,
+  };
 }
 
 const createBug = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: BugInput };
-  const completed = { input: await withNames(input) } as unknown as never;
+  const completed = { input: await withNames(input, ctx) } as unknown as never;
   return crud.Mutation.createBug(p, completed, ctx);
 };
 
 const updateBug = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: BugInput };
-  const completed = { id, input: await withNames(input) } as unknown as never;
+  const completed = { id, input: await withNames(input, ctx) } as unknown as never;
   return crud.Mutation.updateBug(p, completed, ctx);
 };
 
@@ -86,6 +109,10 @@ export const bugsResolvers = {
     // The legacy free-text assignee still renders on rows written before it was a user.
     assigneeName: (bug: BugRow) => bug.assigneeName || bug.assignee || '',
     taskKey: (bug: BugRow) => bug.taskKey ?? '',
+    stepsToReproduce: (bug: BugRow) => bug.stepsToReproduce ?? '',
+    publicLink: (bug: BugRow) => bug.publicLink ?? '',
+    privateLink: (bug: BugRow) => bug.privateLink ?? '',
+    attachments: (bug: BugRow) => bug.attachments ?? [],
   },
   Query: crud.Query,
   Mutation: { ...crud.Mutation, createBug, updateBug, promoteBugToTask: promoteBug },

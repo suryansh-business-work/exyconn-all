@@ -8,6 +8,8 @@ interface RhfAutocompleteProps {
   label: string;
   options: SelectOption[];
   helperText?: string;
+  /** Marks the label with the required star; Zod still owns the rule. */
+  required?: boolean;
 }
 
 /** React Hook Form-bound MUI Autocomplete — a searchable single-select. */
@@ -16,6 +18,7 @@ export function RhfAutocomplete({
   label,
   options,
   helperText,
+  required,
 }: Readonly<RhfAutocompleteProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
@@ -40,6 +43,7 @@ export function RhfAutocomplete({
                 // input[name="…"] rather than by its rendered value.
                 name={name}
                 label={copy(label)}
+                required={required}
                 error={Boolean(fieldState.error)}
                 helperText={copy(fieldState.error?.message ?? helperText)}
               />

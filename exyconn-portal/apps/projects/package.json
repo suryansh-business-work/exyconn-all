@@ -23,6 +23,7 @@
     "@exyconn/crud": "workspace:*",
     "@exyconn/i18n": "workspace:*",
     "@exyconn/kanban": "workspace:*",
+    "@exyconn/regex": "workspace:*",
     "@exyconn/login": "workspace:*",
     "@exyconn/shell": "workspace:*",
     "@exyconn/tabber": "workspace:*",

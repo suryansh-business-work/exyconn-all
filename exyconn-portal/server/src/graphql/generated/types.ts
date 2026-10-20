@@ -1347,15 +1347,23 @@ export type Bug = {
   /** Empty for bugs filed before the assignee was a user; assigneeName still shows the name. */
   assigneeId: Scalars['String']['output'];
   assigneeName: Scalars['String']['output'];
+  attachments: Array<FileAttachment>;
   createdAt: Scalars['DateTime']['output'];
+  /** Rich text (HTML). */
   description: Scalars['String']['output'];
-  dueDate: Scalars['DateTime']['output'];
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
+  /** A link for the team only: staging, an internal doc, another ticket. */
+  privateLink: Scalars['String']['output'];
   /** The project the bug was found in. Null for bugs filed before bugs had a project. */
   projectId?: Maybe<Scalars['String']['output']>;
   projectName: Scalars['String']['output'];
+  /** A link anyone may see: the live page, a design, a demo. */
+  publicLink: Scalars['String']['output'];
   severity: BugSeverity;
   status: BugStatus;
+  /** Rich text (HTML): the steps that make the bug happen again. */
+  stepsToReproduce: Scalars['String']['output'];
   /** The board ticket this bug became, once promoted. */
   taskId?: Maybe<Scalars['String']['output']>;
   taskKey: Scalars['String']['output'];
@@ -1364,12 +1372,17 @@ export type Bug = {
 };
 
 export type BugInput = {
-  assigneeId: Scalars['String']['input'];
+  /** Empty or null leaves the bug unassigned. */
+  assigneeId?: InputMaybe<Scalars['String']['input']>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   description: Scalars['String']['input'];
-  dueDate: Scalars['DateTime']['input'];
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  privateLink?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
+  publicLink?: InputMaybe<Scalars['String']['input']>;
   severity: BugSeverity;
   status: BugStatus;
+  stepsToReproduce?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
 
@@ -23488,14 +23501,18 @@ export type BudgetVarianceResolvers<ContextType = GraphQLContext, ParentType ext
 export type BugResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Bug'] = ResolversParentTypes['Bug']> = ResolversObject<{
   assigneeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  dueDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  dueDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  privateLink?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   projectId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   projectName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publicLink?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   severity?: Resolver<ResolversTypes['BugSeverity'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['BugStatus'], ParentType, ContextType>;
+  stepsToReproduce?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   taskId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   taskKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

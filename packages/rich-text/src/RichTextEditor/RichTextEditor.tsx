@@ -29,6 +29,7 @@ export function RichTextEditor({
   onBlur,
   uploadImage,
   label,
+  required = false,
   helperText,
   error,
   placeholder = 'Start writing…',
@@ -52,6 +53,11 @@ export function RichTextEditor({
     <Flex direction="column" spacing={1}>
       <Text size="sm" weight="medium" color={hasError ? 'error.main' : 'text.primary'}>
         {label}
+        {required && (
+          <Box component="span" aria-hidden sx={{ color: 'error.main' }}>
+            {' *'}
+          </Box>
+        )}
       </Text>
       <Box
         sx={[

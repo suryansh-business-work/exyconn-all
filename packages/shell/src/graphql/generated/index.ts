@@ -1348,15 +1348,23 @@ export type Bug = {
   /** Empty for bugs filed before the assignee was a user; assigneeName still shows the name. */
   assigneeId: Scalars['String']['output'];
   assigneeName: Scalars['String']['output'];
+  attachments: Array<FileAttachment>;
   createdAt: Scalars['DateTime']['output'];
+  /** Rich text (HTML). */
   description: Scalars['String']['output'];
-  dueDate: Scalars['DateTime']['output'];
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
+  /** A link for the team only: staging, an internal doc, another ticket. */
+  privateLink: Scalars['String']['output'];
   /** The project the bug was found in. Null for bugs filed before bugs had a project. */
   projectId?: Maybe<Scalars['String']['output']>;
   projectName: Scalars['String']['output'];
+  /** A link anyone may see: the live page, a design, a demo. */
+  publicLink: Scalars['String']['output'];
   severity: BugSeverity;
   status: BugStatus;
+  /** Rich text (HTML): the steps that make the bug happen again. */
+  stepsToReproduce: Scalars['String']['output'];
   /** The board ticket this bug became, once promoted. */
   taskId?: Maybe<Scalars['String']['output']>;
   taskKey: Scalars['String']['output'];
@@ -1365,12 +1373,17 @@ export type Bug = {
 };
 
 export type BugInput = {
-  assigneeId: Scalars['String']['input'];
+  /** Empty or null leaves the bug unassigned. */
+  assigneeId?: InputMaybe<Scalars['String']['input']>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   description: Scalars['String']['input'];
-  dueDate: Scalars['DateTime']['input'];
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  privateLink?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
+  publicLink?: InputMaybe<Scalars['String']['input']>;
   severity: BugSeverity;
   status: BugStatus;
+  stepsToReproduce?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
 
@@ -21561,14 +21574,14 @@ export type ImportMediaFromUrlMutation = { __typename?: 'Mutation', importMediaF
 export type ListBugsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListBugsQuery = { __typename?: 'Query', listBugs: Array<{ __typename?: 'Bug', id: string, title: string, description: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate: string }> };
+export type ListBugsQuery = { __typename?: 'Query', listBugs: Array<{ __typename?: 'Bug', id: string, title: string, description: string, stepsToReproduce: string, publicLink: string, privateLink: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate?: string | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> };
 
 export type ListBugsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListBugsPagedQuery = { __typename?: 'Query', listBugsPaged: { __typename?: 'BugPage', totalCount: number, rows: Array<{ __typename?: 'Bug', id: string, title: string, description: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate: string }> } };
+export type ListBugsPagedQuery = { __typename?: 'Query', listBugsPaged: { __typename?: 'BugPage', totalCount: number, rows: Array<{ __typename?: 'Bug', id: string, title: string, description: string, stepsToReproduce: string, publicLink: string, privateLink: string, severity: BugSeverity, status: BugStatus, projectId?: string | null, projectName: string, assigneeId: string, assigneeName: string, taskId?: string | null, taskKey: string, dueDate?: string | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> } };
 
 export type ListBugsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -37416,6 +37429,14 @@ export const ListBugsDocument = gql`
     id
     title
     description
+    stepsToReproduce
+    publicLink
+    privateLink
+    attachments {
+      url
+      name
+      contentType
+    }
     severity
     status
     projectId
@@ -37472,6 +37493,14 @@ export const ListBugsPagedDocument = gql`
       id
       title
       description
+      stepsToReproduce
+      publicLink
+      privateLink
+      attachments {
+        url
+        name
+        contentType
+      }
       severity
       status
       projectId

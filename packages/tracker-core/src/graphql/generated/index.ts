@@ -497,12 +497,17 @@ export type BudgetInput = {
 };
 
 export type BugInput = {
-  assigneeId: Scalars['String']['input'];
+  /** Empty or null leaves the bug unassigned. */
+  assigneeId: InputMaybe<Scalars['String']['input']>;
+  attachments: InputMaybe<Array<FileAttachmentInput>>;
   description: Scalars['String']['input'];
-  dueDate: Scalars['DateTime']['input'];
+  dueDate: InputMaybe<Scalars['DateTime']['input']>;
+  privateLink: InputMaybe<Scalars['String']['input']>;
   projectId: InputMaybe<Scalars['String']['input']>;
+  publicLink: InputMaybe<Scalars['String']['input']>;
   severity: BugSeverity;
   status: BugStatus;
+  stepsToReproduce: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
 
