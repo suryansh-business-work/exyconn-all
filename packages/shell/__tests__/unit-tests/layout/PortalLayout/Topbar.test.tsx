@@ -8,6 +8,11 @@ import {
   MyUnreadNotificationCountDocument,
 } from '@/graphql/generated';
 import { Topbar } from '@/layout/PortalLayout/Topbar';
+import { currentPortalName } from '@/config/modules';
+import { env } from '@/config/env';
+
+/** The all-portals button's accessible name. */
+const ALL_APPS = /portals|apps/i;
 import { makeUser, renderWithProviders } from '../../test-utils';
 import { answer } from '../../mockResult';
 
@@ -99,14 +104,14 @@ describe('the topbar', () => {
     showTopbar();
     const user = userEvent.setup();
 
-    await user.click(screen.getByRole('button', { name: /Search…/ }));
+    await user.click(screen.getByRole('button', { name: 'Search' }));
 
     expect(await screen.findByRole('textbox', { name: 'Search the portal' })).toBeInTheDocument();
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('leaves the search button off a phone', () => {
+  it('keeps the search icon on a phone, leaving the all-portals button to the sidebar', () => {
     vi.stubGlobal(
       'matchMedia',
       vi.fn((query: string) => ({
@@ -120,7 +125,15 @@ describe('the topbar', () => {
     );
     showTopbar();
 
-    expect(screen.queryByRole('button', { name: /Search…/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: ALL_APPS })).not.toBeInTheDocument();
+  });
+
+  it('names the portal it is in rather than the product', () => {
+    showTopbar();
+
+    expect(screen.getByText(currentPortalName(env.portalApp))).toBeInTheDocument();
+    expect(screen.queryByText('Exyconn Track')).not.toBeInTheDocument();
   });
 
   it('shows the account address and goes to the profile', async () => {

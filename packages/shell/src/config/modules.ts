@@ -1630,3 +1630,11 @@ export function appForPath(path: string): PortalAppKey | undefined {
 export function moduleUrl(module: ModuleDefinition, path = module.path): string {
   return appUrl(module.key, path);
 }
+
+/**
+ * The name of the portal this app is: its module's label ("Legal", "HR"), or "Portal Home"
+ * for the launcher. What the topbar calls the portal a person is in.
+ */
+export function currentPortalName(app: string): string {
+  return MODULES.find((module) => module.key === app)?.label ?? 'Portal Home';
+}
