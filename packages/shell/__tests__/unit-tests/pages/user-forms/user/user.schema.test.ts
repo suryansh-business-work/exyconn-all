@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { WorkingTime, WorkLocation } from '@/graphql/generated';
 import { toFormValues, userSchema } from '@/pages/user-forms/user';
+import { toUserInput } from '@/pages/user-forms/user/user.schema';
 import { makeSalary, makeUserRow } from './userFixtures';
 
 /** The first message a failed parse reports for each field, as a form would show it. */
@@ -14,6 +15,34 @@ function errorsOf(values: unknown): Record<string, string> {
 }
 
 const valid = () => toFormValues(makeUserRow(), makeSalary(), 'INR');
+
+describe('the personal email', () => {
+  it('may be left empty, but anything typed must be an address', () => {
+    expect(errorsOf({ ...valid(), personalEmail: '' }).personalEmail).toBeUndefined();
+    expect(
+      errorsOf({ ...valid(), personalEmail: 'me@home.example' }).personalEmail,
+    ).toBeUndefined();
+    expect(errorsOf({ ...valid(), personalEmail: 'not an address' }).personalEmail).toBe(
+      'Enter a valid email',
+    );
+  });
+
+  it('is stored as null when empty, and as typed otherwise', () => {
+    const empty = userSchema.parse({ ...valid(), personalEmail: '' });
+    const given = userSchema.parse({ ...valid(), personalEmail: 'me@home.example' });
+    expect(toUserInput(empty).personalEmail).toBeNull();
+    expect(toUserInput(given).personalEmail).toBe('me@home.example');
+  });
+});
+
+describe('the work week', () => {
+  it('follows the company week (null) when no day is picked, else keeps the days', () => {
+    expect(toUserInput(userSchema.parse({ ...valid(), workDays: [] })).workDays).toBeNull();
+    expect(toUserInput(userSchema.parse({ ...valid(), workDays: [1, 2, 3] })).workDays).toEqual([
+      1, 2, 3,
+    ]);
+  });
+});
 
 describe('userSchema', () => {
   it('accepts a complete record', () => {

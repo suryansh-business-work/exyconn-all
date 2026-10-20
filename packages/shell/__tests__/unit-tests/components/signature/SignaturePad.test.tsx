@@ -24,7 +24,7 @@ function renderPad(props: Partial<Parameters<typeof SignaturePad>[0]> = {}) {
 }
 
 const typeMode = () => userEvent.click(screen.getByRole('button', { name: 'Type' }));
-const typedField = () => screen.getByRole('textbox', { name: 'Type your full name' });
+const typedField = () => screen.getByRole('textbox', { name: 'Type your name as your signature' });
 
 beforeEach(() => {
   FakeSignaturePad.instances.length = 0;

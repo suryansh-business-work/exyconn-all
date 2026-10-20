@@ -22,7 +22,12 @@ const contract = (documentUrl: string) =>
   }) as never;
 
 const signed: MockLink.MockedResponse = {
-  request: { query: SignContractDocument, variables: { id: '1' } },
+  // The signature is drawn in the browser, so any PNG data URL for this contract matches.
+  request: {
+    query: SignContractDocument,
+    variables: (vars: Record<string, unknown>) =>
+      vars.id === '1' && String(vars.signatureImage).startsWith('data:image/png;base64,'),
+  },
   result: {
     data: {
       signContract: {
@@ -53,11 +58,24 @@ const mount = (
     </MockedProvider>,
   );
 
+/** Signs on the pad by typing a name (Type mode), as a keyboard user would. */
+const drawSignature = (name: string) => {
+  cy.contains('button', 'Type').click();
+  cy.contains('label', 'Type your name as your signature').parent().find('input').type(name);
+};
+
 describe('signing our own side of a contract', () => {
-  it('asks for nothing: the signer is the account, not a typed name', () => {
+  it('asks only for a signature: the signer is the account, not a typed name', () => {
     mount();
-    cy.get('input').should('not.exist');
+    cy.get('[data-testid="signature-canvas"]').should('be.visible');
+    cy.get('input[type="text"]').should('not.exist');
     cy.contains('as yourself').should('be.visible');
+  });
+
+  it('will not sign without a signature', () => {
+    mount();
+    cy.contains('button', 'Sign').click();
+    cy.contains('Draw or type your signature').should('be.visible');
   });
 
   it('says the document will be hashed, so the signature is of this version', () => {
@@ -73,7 +91,8 @@ describe('signing our own side of a contract', () => {
 
   it('signs, and tells whoever opened it', () => {
     mount('https://cdn.example.com/msa.pdf', [signed]);
-    cy.contains('button', 'Sign').click();
+    drawSignature('Dev Lead');
+    cy.contains('button', /^Sign$/).click();
     cy.get('@done').should('have.been.called');
   });
 

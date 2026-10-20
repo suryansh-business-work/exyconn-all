@@ -74,11 +74,12 @@ export function AttachmentPicker({ value, onChange, folder }: Readonly<Attachmen
     }
   };
 
-  const pick = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // upload() reports its own failures, so these handlers can simply wait for it.
+  const pick = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     event.target.value = '';
     if (files.length > 0) {
-      upload(files).catch(() => undefined);
+      await upload(files);
     }
   };
 
@@ -87,12 +88,12 @@ export function AttachmentPicker({ value, onChange, folder }: Readonly<Attachmen
     setDragOver(true);
   };
 
-  const onDrop = (event: DragEvent<HTMLDivElement>) => {
+  const onDrop = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragOver(false);
     const files = Array.from(event.dataTransfer.files);
     if (files.length > 0 && !uploading) {
-      upload(files).catch(() => undefined);
+      await upload(files);
     }
   };
 

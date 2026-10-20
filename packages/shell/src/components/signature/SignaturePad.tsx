@@ -95,7 +95,7 @@ export function SignaturePad({
         <TextField
           value={typed}
           onChange={(event) => type(event.target.value)}
-          label={t('Type your full name')}
+          label={t('Type your name as your signature')}
           error={Boolean(error)}
           fullWidth
           slotProps={{ htmlInput: { maxLength: 80 } }}

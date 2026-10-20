@@ -116,6 +116,7 @@ describe('AttachmentPicker', () => {
     const onChange = renderPicker([]);
 
     fireEvent.change(screen.getByTestId('attachment-input'), { target: { files: [] } });
+    fireEvent.change(screen.getByTestId('attachment-input'), { target: { files: null } });
 
     expect(onChange).not.toHaveBeenCalled();
   });
