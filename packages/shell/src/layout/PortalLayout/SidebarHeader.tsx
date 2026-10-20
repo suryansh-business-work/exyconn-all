@@ -97,7 +97,7 @@ export function SidebarHeader({
       )}
 
       {/* Each portal is its own site, so jumping between them needs an explicit switcher. */}
-      <Box sx={{ px: 1, pb: 0.5 }}>
+      <Box sx={{ px: 1, pt: 1.5, pb: 0.5 }}>
         <Tooltip title={collapsed ? t('Other Portals') : ''} placement="right">
           <ListItemButton
             onClick={onOpenSwitcher}
