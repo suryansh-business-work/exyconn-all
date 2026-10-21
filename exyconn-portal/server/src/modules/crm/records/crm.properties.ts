@@ -154,16 +154,15 @@ export async function createProperties(ctx: GraphQLContext, input: CrmProperties
     throw error;
   }
 
-  await Promise.all(
-    created.map((row) =>
-      recordAudit(ctx, {
-        action: 'CREATE',
-        module: AUDIT_MODULE,
-        entityId: row._id,
-        entityLabel: row.label,
-        summary: `Added the ${OBJECT_DEFS[row.object].module} property "${row.label}" (${row.type})`,
-      }),
-    ),
+  // In creation order, so the audit log reads the way the properties were added.
+  await inSequence(created, (row) =>
+    recordAudit(ctx, {
+      action: 'CREATE',
+      module: AUDIT_MODULE,
+      entityId: row._id,
+      entityLabel: row.label,
+      summary: `Added the ${OBJECT_DEFS[row.object].module} property "${row.label}" (${row.type})`,
+    }),
   );
   return created.map((row) => present(row.toObject() as unknown as PropertyRow));
 }
