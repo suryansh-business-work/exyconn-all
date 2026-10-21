@@ -69,7 +69,8 @@ describe('AssignLegalForm', () => {
 
   it('adds a whole group and assigns it', () => {
     mount();
-    cy.contains('label', 'Add a whole group').parent().find('[role="combobox"]').click();
+    // The group shortcut is the first picker on the form.
+    cy.get('[role="combobox"]').first().click();
     cy.contains('li', 'Part Time Employee Contracts (2 items)').click();
     cy.contains('Part-time offer').should('be.visible');
     cy.contains('Part-time NDA').should('be.visible');
