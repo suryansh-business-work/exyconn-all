@@ -36,7 +36,9 @@ describe('angleSpans', () => {
 
 describe('htmlToText', () => {
   it('drops tags and keeps the text between them', () => {
-    expect(htmlToText('<p>Hi <b>there</b></p><p>a < b <> c</p>')).toBe('Hi there\na < b <> c');
+    expect(htmlToText('<p>Hi <b>there</b></p><p>x <> y</p><p>1 < 2 <i>i</i> tail <</p>')).toBe(
+      'Hi there\nx <> y\n1 i tail <',
+    );
   });
 });
 

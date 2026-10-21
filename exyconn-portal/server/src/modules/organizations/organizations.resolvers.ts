@@ -9,6 +9,7 @@ import { diffChanges, recordAudit } from '../audit/audit.service';
 import type { OrganizationStatus } from './organization.model';
 import { assertAuthenticated, assertPlatformAdmin } from '../../middleware/roleGuard';
 import { withId, withIds } from '../../utils/serialize';
+import { inSequence } from '../../utils/inSequence';
 import { organizationOf } from '../../lib/tenant';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -143,17 +144,15 @@ export const organizationsResolvers = {
     ) => {
       assertPlatformAdmin(ctx);
       const users = await organizationService.inviteMembers(organizationId, members);
-      // One independent audit row per invited person.
-      await Promise.all(
-        users.map((user) =>
-          recordAudit(ctx, {
-            action: 'CREATE',
-            module: ORGANIZATION_MODULE,
-            entityId: organizationId,
-            entityLabel: user.email,
-            summary: `Invited ${user.email} with ${user.roles.join(', ')}`,
-          }),
-        ),
+      // One audit row per invited person, written in invite order so the log reads that way.
+      await inSequence(users, (user) =>
+        recordAudit(ctx, {
+          action: 'CREATE',
+          module: ORGANIZATION_MODULE,
+          entityId: organizationId,
+          entityLabel: user.email,
+          summary: `Invited ${user.email} with ${user.roles.join(', ')}`,
+        }),
       );
       return withIds(users);
     },
