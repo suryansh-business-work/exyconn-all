@@ -6,12 +6,11 @@ import { createPaypalOrder } from '../../../../../src/modules/clienthub/payments
 import { createPayoneerList } from '../../../../../src/modules/clienthub/payments/payoneer.client';
 import { OrganizationModel } from '../../../../../src/modules/organizations';
 import { runAsPlatform } from '../../../../../src/lib/tenant';
-import { invalidatePlatformOperatorCache } from '../../../../../src/lib/platformAccess';
 import { logger } from '../../../../../src/utils/logger';
 import { env } from '../../../../../src/config/env';
 import type { ClientHubContact } from '../../../../../src/modules/clienthub/clienthub.auth';
 import { useTestOrganization } from '../../../../helpers';
-import { SECRETS, configureGateways, makeOperator, seedContact, seedInvoice } from './fixtures';
+import { SECRETS, configureGateways, seedContact, seedInvoice } from './fixtures';
 
 jest.mock('../../../../../src/modules/clienthub/payments/stripe.client', () => ({
   ...jest.requireActual('../../../../../src/modules/clienthub/payments/stripe.client'),
@@ -36,7 +35,6 @@ const checkout = { externalId: 'ext-1', url: 'https://pay.test/ext-1' };
 let contact: ClientHubContact;
 
 beforeEach(async () => {
-  invalidatePlatformOperatorCache();
   contact = await seedContact(organizationId);
 });
 
@@ -44,11 +42,9 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-describe('startPayment inside the platform operator', () => {
-  beforeEach(async () => {
-    await makeOperator(organizationId);
-  });
-
+// The suite's company is a customer, not the platform operator: every company's clients pay
+// into Exyconn's gateways.
+describe('startPayment', () => {
   it('opens a Stripe checkout for the whole balance and records the attempt', async () => {
     await configureGateways(['STRIPE']);
     const invoice = await seedInvoice(contact.clientId);

@@ -122,6 +122,23 @@ describe('how many versions a new draft writes', () => {
     expect(subjectsOf(saved)).toEqual(['v1', 'v2', 'Third']);
     expect(promptOf(0)).not.toContain('clearly different versions');
   });
+
+  it('refuses to add one when the draft filled up while the AI was writing it', async () => {
+    const draft = await draftWith(9);
+    ai.mockImplementationOnce(async () => {
+      await ColdEmailDraftModel.updateOne(
+        { _id: draft.id },
+        { $push: { variants: { subject: 'meanwhile', body: 'b', tone: 'FRIENDLY' } } },
+      );
+      return email('Too late');
+    });
+
+    await expect(Mutation.addColdEmailVariant(null, { id: draft.id }, crm())).rejects.toThrow(
+      'A draft holds at most 10 versions.',
+    );
+    const stored = await ColdEmailDraftModel.findById(draft.id).lean();
+    expect(stored?.variants).toHaveLength(10);
+  });
 });
 
 describe('rewriting a draft from the latest data', () => {

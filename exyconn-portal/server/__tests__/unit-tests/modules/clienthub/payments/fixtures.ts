@@ -1,10 +1,7 @@
 import { ClientModel } from '../../../../../src/modules/clients/clients.model';
 import { InvoiceModel } from '../../../../../src/modules/finance/finance.model';
-import { OrganizationModel } from '../../../../../src/modules/organizations';
 import { gatewayService } from '../../../../../src/modules/clienthub/payments/gateway.service';
 import { walletGatewayService } from '../../../../../src/modules/clienthub/payments/gateway.wallets.service';
-import { invalidatePlatformOperatorCache } from '../../../../../src/lib/platformAccess';
-import { runAsPlatform } from '../../../../../src/lib/tenant';
 import type { PaymentGateway } from '../../../../../src/modules/clienthub/payments/attempt.model';
 import type { ClientHubContact } from '../../../../../src/modules/clienthub/clienthub.auth';
 
@@ -16,14 +13,6 @@ export const SECRETS = {
   payoneerToken: `po_${'t'.repeat(24)}`,
   webhook: `wh_${'w'.repeat(24)}`,
 };
-
-/** Flags the suite's company as the one that operates the platform (and owns the gateways). */
-export async function makeOperator(organizationId: string): Promise<void> {
-  await runAsPlatform(() =>
-    OrganizationModel.updateOne({ _id: organizationId }, { isPlatformOperator: true }),
-  );
-  invalidatePlatformOperatorCache();
-}
 
 /** A client in the suite's company, and its signed-in client hub contact. */
 export async function seedContact(organizationId: string, country = ''): Promise<ClientHubContact> {
