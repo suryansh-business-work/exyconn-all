@@ -137,7 +137,7 @@ describe('POST /releases/upload', () => {
       minChromeVersion: '120',
       publisherName: 'GitHub Actions (octocat)',
     });
-    expect(stored?.statusHistory[0].note).toBe('Uploaded by run 987 (push) at abcdef1');
+    expect(stored?.statusHistory[0].note).toBe('Uploaded by run 987 (workflow_run) at abcdef1');
     const chunks: Buffer[] = [];
     await releaseStore.streamReleaseZip(
       stored?.fileId as Types.ObjectId,
