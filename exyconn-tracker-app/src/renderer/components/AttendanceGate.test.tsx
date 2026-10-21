@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { TrackerLocationInput } from '@shared/types';
+import { LOCATION_UNAVAILABLE_MESSAGE } from '@exyconn/tracker-core';
 import AttendanceGate from './AttendanceGate';
 import { trackerState } from '../a11y/tracker-fixture';
 import { cleanup, installDomShims, mount } from '../a11y/render-harness';
@@ -79,6 +80,35 @@ describe('AttendanceGate', () => {
     expect(errorText()).toBe('Could not read your location.');
     expect(dialog()).toBeNull();
     expect(markAttendance).not.toHaveBeenCalled();
+  });
+
+  it('offers no settings page for a failure that is not about location access', async () => {
+    await mount(<AttendanceGate workday={unmarked} />, state);
+    overrideTracker({ getLocation: () => Promise.reject(new Error('Network down.')) });
+
+    await press(buttonNamed('Mark attendance'));
+    await finish(() => undefined);
+    expect(errorText()).toBe('Network down.');
+    expect(document.querySelector('.MuiAlert-action')).toBeNull();
+  });
+
+  it('offers the OS location settings when location access is off', async () => {
+    await mount(<AttendanceGate workday={unmarked} />, state);
+    const openLocationSettings = vi.fn(() => Promise.resolve());
+    overrideTracker({
+      // As it crosses IPC: Electron's wrapper round the controller's sentence.
+      getLocation: () =>
+        Promise.reject(
+          new Error(`Error invoking remote method 'x': Error: ${LOCATION_UNAVAILABLE_MESSAGE}`),
+        ),
+      openLocationSettings,
+    });
+
+    await press(buttonNamed('Mark attendance'));
+    await finish(() => undefined);
+    expect(errorText()).toContain(LOCATION_UNAVAILABLE_MESSAGE);
+    await press(buttonNamed('Open location settings'));
+    expect(openLocationSettings).toHaveBeenCalledTimes(1);
   });
 
   it('spins on confirm until the portal answers, then closes the map', async () => {

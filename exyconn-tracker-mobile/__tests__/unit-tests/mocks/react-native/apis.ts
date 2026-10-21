@@ -87,6 +87,7 @@ export const AccessibilityInfo = {
 export const Linking = {
   openURL: vi.fn((_url: string) => Promise.resolve(true)),
   openSettings: vi.fn(() => Promise.resolve()),
+  sendIntent: vi.fn((_action: string) => Promise.resolve()),
   canOpenURL: vi.fn((_url: string) => Promise.resolve(true)),
   getInitialURL: vi.fn(() => Promise.resolve(null)),
   addEventListener: vi.fn(() => ({ remove: vi.fn() })),

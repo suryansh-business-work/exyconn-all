@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ATTENDANCE_NOTE_MAX, AttendanceForm } from '../../../../src/forms/attendance';
 import { tracker } from '../../../../src/tracker/instance';
 import { webViewTest } from '../../mocks/react-native-webview';
+import { Linking } from '../../mocks/react-native/apis';
 import { renderWithProviders } from '../../test-utils';
 import { typeInto } from '../field';
 import { failingOn } from '../unexpected';
@@ -126,12 +127,28 @@ describe('AttendanceForm', () => {
     expect(error).toHaveBeenCalledWith('Reading the location for attendance failed', cause);
   });
 
+  it('offers the location settings beside the error, and drops them on the next try', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(tracker.readLocation)
+      .mockRejectedValueOnce(new Error(LOCATION_UNAVAILABLE_MESSAGE))
+      .mockRejectedValueOnce(new Error('GPS timed out.'));
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
+    markAttendance();
+    fireEvent.click(await screen.findByRole('button', { name: 'Open location settings' }));
+    expect(Linking.openSettings).toHaveBeenCalledTimes(1);
+
+    markAttendance();
+    expect(await screen.findByText('GPS timed out.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Open location settings' })).toBeNull();
+  });
+
   it('falls back to a plain sentence when locating fails with no reason', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.mocked(tracker.readLocation).mockRejectedValue(undefined);
     renderWithProviders(<AttendanceForm workday={TODAY} />);
     markAttendance();
     expect(await screen.findByText('Could not read your location.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Open location settings' })).toBeNull();
   });
 
   it("keeps the map open with the portal's reason when attendance cannot be marked", async () => {

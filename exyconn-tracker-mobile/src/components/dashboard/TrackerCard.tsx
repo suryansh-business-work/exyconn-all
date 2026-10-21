@@ -1,17 +1,13 @@
 import { Separator, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { offDayMessage } from '@exyconn/tracker-core';
-import { PresenceForm } from '../../forms/presence';
 import type { MobileTrackerState } from '../../tracker/types';
-import { Notice } from '../ui/Notice';
 import { Surface } from '../ui/Surface';
 import { Body, Caption } from '../ui/Typography';
-import { AttendanceGate } from './AttendanceGate';
 import { AutoStopNotice } from './AutoStopNotice';
-import { ProjectPicker } from './ProjectPicker';
 import { StatusChip } from './StatusChip';
-import { TicketPicker } from './TicketPicker';
 import { TrackingControls } from './TrackingControls';
+import { TrackingSteps } from './TrackingSteps';
 
 interface Props {
   state: MobileTrackerState;
@@ -19,14 +15,14 @@ interface Props {
 
 /**
  * Who is signed in and what the tracker is doing, then everything that decides the next
- * session, in the order it has to happen: attendance, the schedule's hours, the booking, what
- * the employee is doing, and finally the buttons. On an off day (week off, holiday, leave)
- * the attendance gate and the buttons give way to one sentence saying why tracking is paused.
+ * session as a three-step timeline in the order it has to happen (attendance, the booking,
+ * what the employee is doing), then the schedule's hours and finally the buttons. On an off
+ * day (week off, holiday, leave) the attendance gate and the buttons give way to one sentence
+ * saying why tracking is paused.
  */
 export function TrackerCard({ state }: Readonly<Props>) {
   const t = useT();
   const { status, settings, user, timezone, workday } = state;
-  const tracking = status === 'tracking' || status === 'paused';
   // Once, here: the gate and the controls both hang off it.
   const offDay = workday === null ? null : offDayMessage(workday, t);
 
@@ -42,33 +38,10 @@ export function TrackerCard({ state }: Readonly<Props>) {
         <StatusChip status={status} />
       </XStack>
 
-      {offDay === null ? (
-        <AttendanceGate workday={workday} />
-      ) : (
-        <Notice severity="info" icon="calendar-remove-outline">
-          {offDay}
-        </Notice>
-      )}
+      <TrackingSteps state={state} offDay={offDay} />
       {/* Above the controls: the hour their time stops counting is worth knowing BEFORE they
           press start, not after the schedule has already stopped them. */}
       <AutoStopNotice settings={settings} timezone={timezone} status={status} />
-      <ProjectPicker
-        projects={state.projects}
-        selectedProjectId={state.selectedProjectId}
-        disabled={tracking}
-        loading={workday === null}
-      />
-      <TicketPicker
-        tasks={state.tasks}
-        selectedTaskId={state.selectedTaskId}
-        disabled={tracking}
-        loading={state.tasksLoading}
-      />
-      <Separator borderColor="$hairline" />
-      {/* Above the controls, not below: saying "I am at lunch" IS a tracking control — it
-          pauses the session — and finding it under the buttons would make it look like a
-          status somebody else reads rather than something that acts. */}
-      <PresenceForm presence={state.presence} timezone={timezone} />
       <Separator borderColor="$hairline" />
       {offDay === null ? (
         <TrackingControls

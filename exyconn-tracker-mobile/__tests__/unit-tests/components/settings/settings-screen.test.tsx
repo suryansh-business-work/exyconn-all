@@ -27,6 +27,9 @@ vi.mock('../../../../src/components/settings/WorkspaceSettingsCard', () => ({
     <span>{settings === null ? 'no workspace settings' : 'workspace settings'}</span>
   ),
 }));
+vi.mock('../../../../src/components/settings/LocationCard', () => ({
+  LocationCard: () => <span>location access</span>,
+}));
 vi.mock('../../../../src/components/settings/CapabilityCard', () => ({
   CapabilityCard: () => <span>capabilities</span>,
 }));
@@ -55,6 +58,14 @@ describe('SettingsScreen', () => {
     expect(zone.compareDocumentPosition(app) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(app.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByText('no working day')).toBeInTheDocument();
+    const location = screen.getByText('location access');
+    expect(
+      screen.getByText('no working day').compareDocumentPosition(location) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      location.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByText('capabilities')).toBeInTheDocument();
     expect(screen.getByText('about, unbranded')).toBeInTheDocument();
   });

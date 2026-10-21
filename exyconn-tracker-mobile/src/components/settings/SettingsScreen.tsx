@@ -4,6 +4,7 @@ import type { MobileTrackerState } from '../../tracker/types';
 import { ScreenLayout } from '../ui/ScreenLayout';
 import { AboutCard } from './AboutCard';
 import { CapabilityCard } from './CapabilityCard';
+import { LocationCard } from './LocationCard';
 import { SettingsCard } from './SettingsCard';
 import { MY_DATA_URL } from '../../tracker/config';
 import { run } from '../../tracker/run';
@@ -36,6 +37,7 @@ export function SettingsScreen({ state }: Readonly<Props>) {
       </SettingsCard>
       <ThisPhoneCard preferences={state.preferences} settings={state.settings} />
       <WorkArrangementCard workProfile={state.workProfile} />
+      <LocationCard />
       <WorkspaceSettingsCard settings={state.settings} />
       <CapabilityCard settings={state.settings} />
       <SettingsCard

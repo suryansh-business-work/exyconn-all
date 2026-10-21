@@ -3,19 +3,15 @@ import { Box, Divider, Stack, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { TrackerState } from '@shared/types';
 import Surface from '../components/Surface';
-import AttendanceGate from '../components/AttendanceGate';
 import AutoStopNotice from '../components/AutoStopNotice';
 import DayProgress from '../components/DayProgress';
-import PresencePicker from '../components/PresencePicker';
-import ProjectPicker from '../components/ProjectPicker';
-import TicketPicker from '../components/TicketPicker';
 import StatGrid from '../components/StatGrid';
 import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
 import TodayActivity from '../components/TodayActivity';
 import TotalsPanel from '../components/TotalsPanel';
 import TrackingControls from '../components/TrackingControls';
-import OffDayBanner from '../components/OffDayBanner';
+import TrackingSteps from '../components/TrackingSteps';
 import TodayLocationsCard from '../components/TodayLocationsCard';
 import EarningsCard from '../components/EarningsCard';
 import { sessionTiles } from '../tiles';
@@ -37,7 +33,6 @@ interface Props {
 export default function DashboardScreen({ state }: Readonly<Props>): ReactElement {
   const t = useT();
   const { stats, status, settings, user, timezone, workday, workProfile, preferences } = state;
-  const tracking = status === 'tracking' || status === 'paused';
   // On an off day there is nothing to mark and nothing to start: one banner replaces both
   // (a session still open when the day turned off is stopped by the controller's heartbeat).
   const offDay = workday === null ? null : offDayMessage(workday, t);
@@ -81,31 +76,10 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
         </Stack>
 
         <Stack spacing={1.75}>
-          {offDay === null ? (
-            <AttendanceGate workday={workday} />
-          ) : (
-            <OffDayBanner message={offDay} />
-          )}
+          <TrackingSteps state={state} offDay={offDay} />
           {/* Above the controls: the hour their time stops counting is worth knowing BEFORE
               they press start, not after the schedule has already stopped them. */}
           <AutoStopNotice settings={settings} timezone={timezone} status={status} />
-          <ProjectPicker
-            projects={state.projects}
-            selectedProjectId={state.selectedProjectId}
-            disabled={tracking}
-            loading={workday === null}
-          />
-          <TicketPicker
-            tasks={state.tasks}
-            selectedTaskId={state.selectedTaskId}
-            disabled={tracking}
-            loading={state.tasksLoading}
-          />
-          <Divider />
-          {/* Above the controls, not below: saying "I am at lunch" IS a tracking control —
-              it pauses the session — and finding it under the buttons would make it look
-              like a status somebody else reads rather than something that acts. */}
-          <PresencePicker presence={state.presence} timezone={timezone} />
           {offDay === null && <Divider />}
           {offDay === null && (
             <TrackingControls

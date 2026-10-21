@@ -7,6 +7,12 @@ export const requestForegroundPermissionsAsync = vi.fn(() =>
   Promise.resolve({ granted: true, status: 'granted' }),
 );
 
+export const getForegroundPermissionsAsync = vi.fn(() =>
+  Promise.resolve({ granted: true, status: 'granted', canAskAgain: true }),
+);
+
+export const hasServicesEnabledAsync = vi.fn(() => Promise.resolve(true));
+
 /** Arbitrary test coordinates; `timestamp` is epoch milliseconds, as the native module sends. */
 export const getCurrentPositionAsync = vi.fn((_options?: unknown) =>
   Promise.resolve({

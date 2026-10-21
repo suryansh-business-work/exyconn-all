@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { YStack } from 'tamagui';
 import {
   ATTENDANCE_OPTIONS,
+  isLocationUnavailable,
   messageOf,
   trackerErrorText,
   type TrackerLocationInput,
@@ -14,6 +15,7 @@ import { useT } from '@exyconn/i18n';
 import { SelectField } from '../../components/form/SelectField';
 import { TextField } from '../../components/form/TextField';
 import { LocationMapSheet } from '../../components/location/LocationMapSheet';
+import { OpenLocationSettingsButton } from '../../components/location/OpenLocationSettingsButton';
 import { AppButton } from '../../components/ui/AppButton';
 import { Notice } from '../../components/ui/Notice';
 import { tracker } from '../../tracker/instance';
@@ -44,6 +46,8 @@ interface Props {
 export function AttendanceForm({ workday }: Readonly<Props>) {
   const t = useT();
   const [error, setError] = useState<string | null>(null);
+  /** The error is "location access is off" — offer the way to turn it on beside it. */
+  const [locationOff, setLocationOff] = useState(false);
   const [pending, setPending] = useState<Pending | null>(null);
   const [marking, setMarking] = useState(false);
   const [markError, setMarkError] = useState<string | null>(null);
@@ -63,12 +67,14 @@ export function AttendanceForm({ workday }: Readonly<Props>) {
   // Locating is the submit's own work, so the button's spinner covers it.
   const submit = handleSubmit(async (values) => {
     setError(null);
+    setLocationOff(false);
     setMarkError(null);
     try {
       setPending({ values, pin: await tracker.readLocation() });
     } catch (cause: unknown) {
       console.error('Reading the location for attendance failed', cause);
       setError(errorText(cause, LOCATE_FAILED));
+      setLocationOff(isLocationUnavailable(messageOf(cause, '')));
     }
   });
 
@@ -109,6 +115,7 @@ export function AttendanceForm({ workday }: Readonly<Props>) {
         disabled={busy}
       />
       {error === null ? null : <Notice severity="error">{error}</Notice>}
+      {locationOff ? <OpenLocationSettingsButton /> : null}
       <View ref={opener}>
         <AppButton
           label={t('Mark attendance')}

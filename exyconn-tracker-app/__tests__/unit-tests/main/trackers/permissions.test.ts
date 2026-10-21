@@ -114,3 +114,32 @@ describe('requestPermission on macOS', () => {
     expect(openExternal).toHaveBeenCalledWith(SCREEN_PANE);
   });
 });
+
+describe('openLocationSettings', () => {
+  it('opens Windows’ location privacy page', async () => {
+    const { openLocationSettings } = await on('win32');
+
+    await openLocationSettings();
+
+    expect(openExternal).toHaveBeenCalledWith('ms-settings:privacy-location');
+  });
+
+  it('opens the Location Services pane on macOS', async () => {
+    const { openLocationSettings } = await on('darwin');
+
+    await openLocationSettings();
+
+    expect(openExternal).toHaveBeenCalledWith(
+      'x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices',
+    );
+  });
+
+  it('refuses on a system with no common settings page, opening nothing', async () => {
+    const { openLocationSettings } = await on('linux');
+
+    await expect(openLocationSettings()).rejects.toThrow(
+      'This system has no location settings page to open.',
+    );
+    expect(openExternal).not.toHaveBeenCalled();
+  });
+});

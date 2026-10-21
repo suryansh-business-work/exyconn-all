@@ -38,6 +38,33 @@ afterEach(() => {
 });
 
 describe('startup', () => {
+  it('reads location from Windows Location Services on Windows', async () => {
+    const realPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    try {
+      await launch();
+    } finally {
+      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+    }
+
+    expect(electron.app.commandLine.appendSwitch).toHaveBeenCalledWith(
+      'enable-features',
+      'WinrtGeolocationImplementation',
+    );
+  });
+
+  it('leaves Chromium’s features alone off Windows', async () => {
+    const realPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
+    try {
+      await launch();
+    } finally {
+      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+    }
+
+    expect(electron.app.commandLine.appendSwitch).not.toHaveBeenCalled();
+  });
+
   it('reports errors and guards navigation before anything else, then builds the app', async () => {
     await launch();
 
