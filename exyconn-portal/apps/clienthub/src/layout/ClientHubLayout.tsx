@@ -54,6 +54,7 @@ export function ClientHubLayout() {
       <SkipLink />
       <ClientHubTopbar
         drawerWidth={DRAWER_WIDTH}
+        company={company}
         name={me?.name ?? ''}
         onMenuClick={() => setMobileOpen((open) => !open)}
         onSignOut={signOut}
@@ -73,7 +74,7 @@ export function ClientHubLayout() {
             '& .MuiDrawer-paper': drawerPaper(theme, true),
           })}
         >
-          <ClientHubSidebar company={company} onNavigate={() => setMobileOpen(false)} />
+          <ClientHubSidebar onNavigate={() => setMobileOpen(false)} />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -83,7 +84,7 @@ export function ClientHubLayout() {
             '& .MuiDrawer-paper': drawerPaper(theme, false),
           })}
         >
-          <ClientHubSidebar company={company} />
+          <ClientHubSidebar />
         </Drawer>
       </Box>
       <Box

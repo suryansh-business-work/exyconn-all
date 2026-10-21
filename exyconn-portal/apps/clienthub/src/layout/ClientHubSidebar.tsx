@@ -6,7 +6,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Text,
   Toolbar,
   radius,
 } from '@exyconn/shell/components/ui';
@@ -16,13 +15,12 @@ import { CLIENT_NAV } from './clienthub.nav';
 import { useClientBrandLogo } from './useClientBrandLogo';
 
 interface ClientHubSidebarProps {
-  company: string;
   /** Closes the phone drawer after a pick. */
   onNavigate?: () => void;
 }
 
-/** The brand, the company signed in for, and the five sections as the portals' pill rows. */
-export function ClientHubSidebar({ company, onNavigate }: Readonly<ClientHubSidebarProps>) {
+/** The brand and the hub's sections as the portals' pill rows. */
+export function ClientHubSidebar({ onNavigate }: Readonly<ClientHubSidebarProps>) {
   const t = useT();
   const logo = useClientBrandLogo();
   const { pathname } = useLocation();
@@ -36,14 +34,6 @@ export function ClientHubSidebar({ company, onNavigate }: Readonly<ClientHubSide
           sx={{ height: 26, maxWidth: 168, objectFit: 'contain' }}
         />
       </Toolbar>
-      <Box sx={{ px: 2, pb: 1.5 }}>
-        <Text size="caption" color="text.secondary">
-          {t('Client Hub')}
-        </Text>
-        <Text weight="semibold" noWrap title={company}>
-          {company}
-        </Text>
-      </Box>
       <List component="div" sx={{ px: 1 }}>
         {CLIENT_NAV.map((item) => {
           const selected = pathname.startsWith(item.to);
