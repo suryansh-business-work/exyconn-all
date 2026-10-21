@@ -209,7 +209,12 @@ describe('maCalendar', () => {
   it("lists only the viewer's own meetings in the range, and the company's for the AI role", async () => {
     const other = await seedAccount('Ravi', [ROLES.EMPLOYEE]);
     await seedMeeting(viewer, { startedAt: new Date(STARTS), title: 'Mine' });
-    await seedMeeting(viewer, { startedAt: new Date('2026-12-01T10:00:00Z'), title: 'Later' });
+    // Its own Meet code: one person can have only one live meeting per code.
+    await seedMeeting(viewer, {
+      startedAt: new Date('2026-12-01T10:00:00Z'),
+      title: 'Later',
+      meetingCode: 'lat-erxx-mtg',
+    });
     await seedMeeting(other, { startedAt: new Date(STARTS), title: 'Theirs' });
 
     const mine = await calendar(asViewer);
