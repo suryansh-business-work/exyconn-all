@@ -42,7 +42,9 @@ export function EmployeeLocationsPanel({ employeeId }: Readonly<{ employeeId: st
           slotProps={{ textField: { size: 'small' } }}
         />
       </Flex>
+      {/* Keyed by day, so picking another day closes the pin that was open. */}
       <LocationsView
+        key={format(day, 'yyyy-MM-dd')}
         pins={data?.employeeLocations ?? []}
         loading={loading}
         error={error}
