@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DEFAULT_FORMAT_SETTINGS, formatDate, formatDateTime } from '@exyconn/i18n';
-import { SocialNetwork } from '@exyconn/shell/graphql/generated';
+import { SocialAccountKind, SocialApp, SocialNetwork } from '@exyconn/shell/graphql/generated';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { ConnectedAccountsTable } from '../../../../src/pages/social/ConnectedAccountsTable';
 import type { useSocialAccounts } from '../../../../src/pages/social/useSocialAccounts';
@@ -35,6 +35,7 @@ function socialWith(overrides: Partial<Social> = {}): Social {
     syncing: null,
     connect: vi.fn().mockResolvedValue(undefined),
     disconnect: vi.fn().mockResolvedValue(undefined),
+    setActive: vi.fn().mockResolvedValue(undefined),
     sync: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -51,7 +52,7 @@ describe('ConnectedAccountsTable', () => {
     renderWithProviders(<ConnectedAccountsTable social={socialWith()} />);
     const facebook = within(rowOf('Acme'));
 
-    expect(facebook.getByText('FACEBOOK')).toBeInTheDocument();
+    expect(facebook.getByRole('img', { name: 'Acme · Facebook' })).toBeInTheDocument();
     expect(facebook.getByText('@acme')).toBeInTheDocument();
     expect(
       facebook.getByText(formatDate(ACCOUNTS[0].createdAt, DEFAULT_FORMAT_SETTINGS)),
@@ -124,5 +125,97 @@ describe('ConnectedAccountsTable', () => {
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
     expect(social.refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('pauses an account from the switch named after it, and turns it back on', async () => {
+    const social = socialWith({
+      accounts: [
+        accountRow({ id: 'fb-1' }),
+        accountRow({ id: 'x-2', name: 'Acme X', active: false }),
+      ],
+    });
+    renderWithProviders(<ConnectedAccountsTable social={social} />);
+
+    const active = screen.getByRole('switch', { name: 'Active: Acme · Facebook' });
+    expect(active).toBeChecked();
+    await userEvent.click(active);
+    expect(social.setActive).toHaveBeenCalledWith(expect.objectContaining({ id: 'fb-1' }), false);
+
+    const paused = screen.getByRole('switch', { name: 'Active: Acme X · Facebook' });
+    expect(paused).not.toBeChecked();
+    await userEvent.click(paused);
+    expect(social.setActive).toHaveBeenCalledWith(expect.objectContaining({ id: 'x-2' }), true);
+  });
+
+  it('says a paused account is paused and offers no sync for it', () => {
+    renderWithProviders(
+      <ConnectedAccountsTable
+        social={socialWith({ accounts: [accountRow({ name: 'Quiet', active: false })] })}
+      />,
+    );
+    const row = within(rowOf('Quiet'));
+
+    expect(row.getByText('Paused')).toBeInTheDocument();
+    expect(row.queryByRole('button', { name: 'sync account' })).not.toBeInTheDocument();
+    expect(row.getByRole('button', { name: 'disconnect account' })).toBeInTheDocument();
+  });
+
+  it('asks an older LinkedIn connection to reconnect, and names company pages', () => {
+    const accounts = [
+      accountRow({
+        id: 'li-1',
+        name: 'Suryansh',
+        network: SocialNetwork.Linkedin,
+        app: SocialApp.Linkedin,
+        needsReconnect: true,
+      }),
+      accountRow({
+        id: 'li-2',
+        name: 'Exyconn',
+        network: SocialNetwork.Linkedin,
+        app: SocialApp.Linkedin,
+        kind: SocialAccountKind.Organization,
+      }),
+    ];
+    renderWithProviders(<ConnectedAccountsTable social={socialWith({ accounts })} />);
+
+    expect(
+      within(rowOf('Suryansh')).getByText('Reconnect LinkedIn to add your company pages'),
+    ).toBeInTheDocument();
+    expect(
+      within(rowOf('Exyconn')).getByRole('img', { name: 'Exyconn · LinkedIn page' }),
+    ).toBeInTheDocument();
+  });
+
+  it('marks a page its member no longer administers, with nothing to switch back on', () => {
+    renderWithProviders(
+      <ConnectedAccountsTable
+        social={socialWith({
+          accounts: [accountRow({ name: 'Old page', disconnectedAt: '2026-10-01T00:00:00.000Z' })],
+        })}
+      />,
+    );
+    const row = within(rowOf('Old page'));
+
+    expect(
+      row.getByText('No longer an administrator of this page — disconnected'),
+    ).toBeInTheDocument();
+    expect(row.queryByRole('switch')).not.toBeInTheDocument();
+    expect(row.queryByRole('button', { name: 'sync account' })).not.toBeInTheDocument();
+  });
+
+  it('logs a pause that throws', async () => {
+    const failure = new Error('offline');
+    const social = socialWith({
+      accounts: [accountRow()],
+      setActive: vi.fn().mockRejectedValue(failure),
+    });
+    renderWithProviders(<ConnectedAccountsTable social={social} />);
+
+    await userEvent.click(screen.getByRole('switch', { name: 'Active: Acme · Facebook' }));
+
+    await waitFor(() =>
+      expect(portalLogger.error).toHaveBeenCalledWith('Pausing an account failed', failure),
+    );
   });
 });

@@ -5,6 +5,7 @@ import { SocialAccountModel } from './social.models';
 import { SocialMediaPostModel } from './social-post.model';
 import { ruleProblem, type Draft } from './social.rules';
 import { accessTokenOf } from './social.tokens';
+import { idleAccountIds } from './social.accounts';
 
 export interface ComposeInput extends Draft {
   accountIds: string[];
@@ -17,17 +18,44 @@ export interface ComposeInput extends Draft {
 const messageOf = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
+/** What a scheduled post to a paused account says while it waits. */
+export const HELD_NOTE =
+  'Held: the account is paused or no longer reachable. It goes out once it is back on.';
+
+/** An account that is paused or no longer reachable takes no posts. */
+const idleReason = (account: {
+  name: string;
+  active?: boolean | null;
+  disconnectedAt?: Date | null;
+}): string | null => {
+  if (account.active === false) return `${account.name} is paused. Turn it back on to post to it.`;
+  if (account.disconnectedAt) return `${account.name} is no longer reachable — connect it again.`;
+  return null;
+};
+
 /** Publishes one claimed (PUBLISHING) post and records the outcome on it. */
 export async function deliver(postId: string): Promise<void> {
   const post = await SocialMediaPostModel.findById(postId).lean();
   if (!post) return;
   const account = await SocialAccountModel.findById(post.accountId).lean();
   const client = NETWORKS[post.network];
+  if (account?.active === false) {
+    // Paused between the claim and now: the post waits rather than fails.
+    await SocialMediaPostModel.updateOne(
+      { _id: postId },
+      { $set: { status: 'SCHEDULED', error: HELD_NOTE } },
+    );
+    return;
+  }
   try {
     if (!account) throw new Error('The account was disconnected before the post went out.');
     if (!client.publish) throw new Error(`${post.network} does not take posts from here.`);
     const result = await client.publish(
-      { externalId: account.externalId, accessToken: await accessTokenOf(account) },
+      {
+        externalId: account.externalId,
+        accessToken: await accessTokenOf(account),
+        kind: account.kind ?? 'PERSON',
+      },
       { text: post.text, mediaUrl: post.mediaUrl, link: post.link },
     );
     await SocialMediaPostModel.updateOne(
@@ -56,7 +84,7 @@ async function assertPublishable(input: ComposeInput) {
   const accounts = await SocialAccountModel.find({ _id: { $in: input.accountIds } }).lean();
   if (accounts.length !== new Set(input.accountIds).size) notFound('Social account');
   const problems = accounts
-    .map((account) => ruleProblem(account.network, input))
+    .map((account) => idleReason(account) ?? ruleProblem(account.network, input))
     .filter((problem): problem is string => problem !== null);
   if (problems.length > 0) badRequest(problems.join(' '));
   if (input.scheduledAt && input.scheduledAt.getTime() <= Date.now()) {
@@ -138,7 +166,10 @@ export async function updatePost(id: string, draft: Draft & { scheduledAt?: Date
 
 /** Publishes an unsent post now — a draft, a scheduled one ahead of time, or a retry. */
 export async function publishNow(id: string) {
-  await unsentPost(id);
+  const post = await unsentPost(id);
+  const account = await SocialAccountModel.findById(post.accountId).lean();
+  const idle = account ? idleReason(account) : null;
+  if (idle) badRequest(idle);
   await SocialMediaPostModel.updateOne({ _id: id }, { $set: { status: 'PUBLISHING', error: '' } });
   await deliver(id);
   const sent = await SocialMediaPostModel.findById(id).lean();
@@ -156,21 +187,29 @@ export async function deletePost(id: string): Promise<boolean> {
  * Claims and publishes due posts one after another until none is left. Sequential on purpose:
  * each claim pops the queue in schedule order, and the networks rate-limit publishing.
  */
-async function publishFrom(now: Date, published: number): Promise<number> {
+async function publishFrom(now: Date, idle: string[], published: number): Promise<number> {
   const claimed = await SocialMediaPostModel.findOneAndUpdate(
-    { status: 'SCHEDULED', scheduledAt: { $lte: now } },
+    { status: 'SCHEDULED', scheduledAt: { $lte: now }, accountId: { $nin: idle } },
     { $set: { status: 'PUBLISHING' } },
     { new: true, sort: { scheduledAt: 1 } },
   ).lean();
   if (!claimed) return published;
-  await deliver(String(claimed._id));
-  return publishFrom(now, published + 1);
+  await deliver(claimed._id.toHexString());
+  return publishFrom(now, idle, published + 1);
 }
 
 /**
  * Publishes every scheduled post that is due. Each is claimed (SCHEDULED → PUBLISHING) in one
- * atomic step first, so two servers ticking at once never publish the same post twice.
+ * atomic step first, so two servers ticking at once never publish the same post twice. Posts
+ * to a paused or unreachable account are held — left SCHEDULED, with a note saying why.
  */
-export function publishDuePosts(now = new Date()): Promise<number> {
-  return publishFrom(now, 0);
+export async function publishDuePosts(now = new Date()): Promise<number> {
+  const idle = await idleAccountIds();
+  if (idle.length > 0) {
+    await SocialMediaPostModel.updateMany(
+      { status: 'SCHEDULED', scheduledAt: { $lte: now }, accountId: { $in: idle }, error: '' },
+      { $set: { error: HELD_NOTE } },
+    );
+  }
+  return publishFrom(now, idle, 0);
 }

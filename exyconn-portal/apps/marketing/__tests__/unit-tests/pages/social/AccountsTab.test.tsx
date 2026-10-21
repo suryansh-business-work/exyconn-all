@@ -43,6 +43,7 @@ function socialWith(overrides: Partial<Social> = {}): Social {
     syncing: null,
     connect: vi.fn().mockResolvedValue(undefined),
     disconnect: vi.fn(),
+    setActive: vi.fn().mockResolvedValue(undefined),
     sync: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };

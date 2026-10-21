@@ -49,6 +49,8 @@ const REFRESH: Partial<Record<SocialApp, Refresh>> = {
 interface StoredAccount {
   _id: unknown;
   app: SocialApp;
+  /** An account that acts through another's token (a LinkedIn page through its member). */
+  tokenAccountId?: string | null;
   accessToken: string;
   refreshToken?: string | null;
   expiresAt?: Date | null;
@@ -60,6 +62,16 @@ interface StoredAccount {
  * account has to be connected again — said in words the Marketing page can show.
  */
 export async function accessTokenOf(account: StoredAccount): Promise<string> {
+  if (account.tokenAccountId) {
+    const owner = await SocialAccountModel.findById(account.tokenAccountId).lean();
+    if (!owner) {
+      throw new SocialProviderError(
+        PROVIDERS[account.app].label,
+        'the profile this page was connected through is no longer connected — connect it again',
+      );
+    }
+    return accessTokenOf(owner);
+  }
   if (!account.expiresAt || account.expiresAt.getTime() - EARLY_MS > Date.now()) {
     return open(account.accessToken);
   }

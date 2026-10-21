@@ -1,4 +1,4 @@
-import { getJson, postJson } from '../social.http';
+import { getJson, postJson, sendJson } from '../social.http';
 import {
   SYNC_LIMIT,
   count,
@@ -49,5 +49,11 @@ export const x: NetworkClient = {
     );
     const id = str((created.data as Record<string, unknown> | undefined)?.id);
     return { externalId: id, permalink: `https://x.com/i/web/status/${id}` };
+  },
+  remove: async (account, externalId) => {
+    await sendJson('X', `${API}/tweets/${encodeURIComponent(externalId)}`, {
+      method: 'DELETE',
+      accessToken: account.accessToken,
+    });
   },
 };

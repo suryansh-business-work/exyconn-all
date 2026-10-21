@@ -1,5 +1,5 @@
 import { THREADS_GRAPH } from '../social.constants';
-import { SocialProviderError, getJson, postForm } from '../social.http';
+import { SocialProviderError, getJson, postForm, sendJson } from '../social.http';
 import {
   SYNC_LIMIT,
   count,
@@ -103,5 +103,9 @@ export const threads: NetworkClient = {
     const id = str(published.id);
     const details = await getJson('Threads', endpoint(id, account, { fields: 'permalink' }));
     return { externalId: id, permalink: str(details.permalink) };
+  },
+  /** Needs the `threads_delete` permission, asked for on connect. */
+  remove: async (account, externalId) => {
+    await sendJson('Threads', endpoint(externalId, account, {}), { method: 'DELETE' });
   },
 };

@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { SOCIAL_APPS, type SocialApp } from './social.constants';
-import { completeConnect } from './social.service';
+import { completeConnect, restartWithoutPages } from './social.service';
 import { logger } from '../../utils/logger';
 import { runAsPlatform } from '../../lib/tenant';
 import { SocialOAuthStateModel } from './social.models';
 
 const APPS = new Set<string>(SOCIAL_APPS);
+/** What LinkedIn answers when the app has not been granted a scope it asked for. */
+const SCOPE_REFUSED = 'unauthorized_scope_error';
 
 /** Adds `?key=value` to the Marketing page the browser goes back to. */
 const withParams = (returnTo: string, params: Record<string, string>) =>
@@ -37,6 +39,13 @@ export function socialCallbackRouter(): Router {
     }
     const fallback = await returnAddressOf(nonce);
     try {
+      if (app === 'LINKEDIN' && denied === SCOPE_REFUSED) {
+        // The company-page scopes are not approved for the app: connect the member alone.
+        const detail =
+          typeof req.query.error_description === 'string' ? req.query.error_description : '';
+        res.redirect(await restartWithoutPages(nonce, detail));
+        return;
+      }
       if (denied !== '' || code === '') {
         throw new Error('The connection was cancelled on the provider’s page.');
       }

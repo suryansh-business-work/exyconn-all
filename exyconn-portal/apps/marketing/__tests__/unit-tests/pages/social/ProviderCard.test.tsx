@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { SocialNetwork } from '@exyconn/shell/graphql/generated';
+import { SocialApp, SocialNetwork } from '@exyconn/shell/graphql/generated';
 import { ProviderCard } from '../../../../src/pages/social/ProviderCard';
 import { renderWithProviders } from '../../test-utils';
 import { providerRow } from '../../fixtures';
@@ -48,5 +48,34 @@ describe('ProviderCard', () => {
     expect(
       screen.getByText('Not set up yet — Tech adds it under Environment Variables › Social apps.'),
     ).toBeInTheDocument();
+  });
+
+  it('names LinkedIn pages, and says why company pages are off when LinkedIn refused them', () => {
+    const provider = providerRow({
+      app: SocialApp.Linkedin,
+      label: 'LinkedIn',
+      networks: [SocialNetwork.Linkedin],
+      pagesRefused: true,
+    });
+    renderWithProviders(
+      <ProviderCard provider={provider} connecting={false} onConnect={vi.fn()} />,
+    );
+
+    expect(screen.getByText('Adds: LinkedIn profile and company pages')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'LinkedIn has not approved company pages for this app yet. Tech: add the Community Management API product to the LinkedIn app.',
+      ),
+    ).toBeInTheDocument();
+    // The brand mark sits beside the visible name, so it is not read out a second time.
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('says nothing about company pages while LinkedIn allows them', () => {
+    renderWithProviders(
+      <ProviderCard provider={providerRow()} connecting={false} onConnect={vi.fn()} />,
+    );
+
+    expect(screen.queryByText(/has not approved company pages/)).not.toBeInTheDocument();
   });
 });

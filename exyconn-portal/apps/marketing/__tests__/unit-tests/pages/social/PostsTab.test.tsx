@@ -5,6 +5,8 @@ import { DEFAULT_FORMAT_SETTINGS, formatDateTime } from '@exyconn/i18n';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { PostsTab } from '../../../../src/pages/social/PostsTab';
 import { renderWithProviders } from '../../test-utils';
+import { SocialNetwork } from '@exyconn/shell/graphql/generated';
+import { postRow, ruleRow } from '../../fixtures';
 import { ACCOUNTS, POSTS, RULES } from './posts-tab.fixtures';
 
 const tab = vi.hoisted(() => ({
@@ -14,6 +16,7 @@ const tab = vi.hoisted(() => ({
   refetch: vi.fn(),
   publishNow: vi.fn(),
   deletePost: vi.fn(),
+  deletePublished: vi.fn(),
 }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -23,7 +26,11 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useSocialNetworkRulesQuery: () => tab.rules(),
 }));
 vi.mock('../../../../src/pages/social/usePostActions', () => ({
-  usePostActions: () => ({ publishNow: tab.publishNow, deletePost: tab.deletePost }),
+  usePostActions: () => ({
+    publishNow: tab.publishNow,
+    deletePost: tab.deletePost,
+    deletePublished: tab.deletePublished,
+  }),
 }));
 vi.mock('../../../../src/pages/social/forms/social-post', async () => ({
   SocialPostForm: (await import('./composer-stub')).ComposerStub,
@@ -97,7 +104,7 @@ describe('PostsTab', () => {
       'publish post now',
       'delete post',
     ]);
-    expect(actionsIn('Launch day')).toEqual(['open post on the network']);
+    expect(actionsIn('Launch day')).toEqual(['delete published post', 'open post on the network']);
   });
 
   it('opens a published post on its network in a new tab', async () => {
@@ -121,6 +128,38 @@ describe('PostsTab', () => {
 
     expect(tab.publishNow).toHaveBeenCalledWith(POSTS[1]);
     expect(tab.deletePost).toHaveBeenCalledWith(POSTS[1]);
+  });
+
+  it('deletes a published post, telling the action whether its network allows it', async () => {
+    tab.deletePublished.mockResolvedValue(undefined);
+    tab.rules.mockReturnValue({
+      data: {
+        socialNetworkRules: [...RULES, ruleRow(SocialNetwork.Instagram, { canDelete: false })],
+      },
+      loading: false,
+    });
+    renderWithProviders(<PostsTab />);
+
+    await userEvent.click(
+      rowOf('Launch day').getByRole('button', { name: 'delete published post' }),
+    );
+
+    expect(tab.deletePublished).toHaveBeenCalledWith(POSTS[2], false);
+  });
+
+  it('shows why a scheduled post is held, as a note rather than an error', () => {
+    tab.posts.mockReturnValue({
+      data: {
+        socialMediaPosts: [
+          postRow({ id: 'p-held', text: 'Held one', error: 'Held: the account is paused' }),
+        ],
+      },
+      loading: false,
+      refetch: tab.refetch,
+    });
+    renderWithProviders(<PostsTab />);
+
+    expect(rowOf('Held one').getByText('Held: the account is paused')).toBeInTheDocument();
   });
 
   it('logs a post action that throws', async () => {

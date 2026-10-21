@@ -30,6 +30,7 @@ query SocialAppStatuses {
     label
     available
     networks
+    pagesRefused
   }
 }
 
@@ -41,6 +42,10 @@ query SocialAccounts {
     name
     handle
     avatarUrl
+    kind
+    active
+    disconnectedAt
+    needsReconnect
     expiresAt
     lastSyncedAt
     syncError
@@ -54,6 +59,13 @@ mutation StartSocialConnect($app: SocialApp!) {
 
 mutation DisconnectSocialAccount($id: ID!) {
   disconnectSocialAccount(id: $id)
+}
+
+mutation SetSocialAccountActive($id: ID!, $active: Boolean!) {
+  setSocialAccountActive(id: $id, active: $active) {
+    id
+    active
+  }
 }
 
 mutation TestSocialAppConfig($app: SocialApp!) {
@@ -106,6 +118,7 @@ query SocialNetworkRules {
     maxChars
     requiresImage
     allowsImage
+    canDelete
     note
   }
 }
@@ -173,6 +186,16 @@ mutation PublishSocialMediaPostNow($id: ID!) {
 
 mutation DeleteSocialMediaPost($id: ID!) {
   deleteSocialMediaPost(id: $id)
+}
+
+mutation DeletePublishedSocialPost($id: ID!) {
+  deletePublishedSocialPost(id: $id) {
+    postId
+    accountId
+    network
+    outcome
+    message
+  }
 }
 
 mutation SocialMediaInsights($days: Int!) {

@@ -1,5 +1,10 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
-import { OAUTH_STATE_TTL_SECONDS, SOCIAL_APPS, SOCIAL_NETWORKS } from './social.constants';
+import {
+  OAUTH_STATE_TTL_SECONDS,
+  SOCIAL_ACCOUNT_KINDS,
+  SOCIAL_APPS,
+  SOCIAL_NETWORKS,
+} from './social.constants';
 
 /**
  * One provider's OAuth app (client id and secret), shared by every company on the install and
@@ -11,6 +16,12 @@ const socialAppConfigSchema = new Schema(
     clientId: { type: String, trim: true, default: '' },
     clientSecret: { type: String, trim: true, default: '' },
     enabled: { type: Boolean, required: true, default: false },
+    /**
+     * LinkedIn only: the provider refused the company-page scopes (the app lacks the Community
+     * Management API product), so connections ask for the member scopes alone. Saving the app
+     * again in Tech clears it.
+     */
+    pagesRefused: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
@@ -28,7 +39,16 @@ const socialAccountSchema = new Schema(
     name: { type: String, required: true, trim: true },
     handle: { type: String, trim: true, default: '' },
     avatarUrl: { type: String, trim: true, default: '' },
-    accessToken: { type: String, required: true },
+    /** A person's own account, or an organization's page (a LinkedIn company page). */
+    kind: { type: String, enum: SOCIAL_ACCOUNT_KINDS, default: 'PERSON' },
+    /**
+     * Set on an account that acts through another's token — a LinkedIn page through the
+     * member who administers it — whose own token fields stay empty, so the token is stored once.
+     */
+    tokenAccountId: { type: String, default: null, index: true },
+    /** The scopes the provider granted, where it says (LinkedIn does). */
+    scopes: { type: [String], default: undefined },
+    accessToken: { type: String, default: '' },
     refreshToken: { type: String, default: '' },
     /** Null when the provider's token does not expire (a Facebook Page token). */
     expiresAt: { type: Date, default: null },
@@ -37,6 +57,13 @@ const socialAccountSchema = new Schema(
     lastSyncedAt: { type: Date, default: null },
     /** Why the last read failed, in the network's words; '' when it worked. */
     syncError: { type: String, default: '' },
+    /**
+     * False while paused: not offered in Compose, not synced, and its scheduled posts held.
+     * Rows from before the switch lack it, so read anything but `false` as active.
+     */
+    active: { type: Boolean, default: true },
+    /** When the provider stopped reaching it (a page the member no longer administers). */
+    disconnectedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

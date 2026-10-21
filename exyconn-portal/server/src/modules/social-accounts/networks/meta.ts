@@ -1,4 +1,4 @@
-import { getJson, postForm } from '../social.http';
+import { getJson, postForm, sendJson } from '../social.http';
 import {
   SYNC_LIMIT,
   count,
@@ -59,6 +59,9 @@ export const facebook: NetworkClient = {
     const id = str(created.post_id) || str(created.id);
     return { externalId: id, permalink: `https://www.facebook.com/${id}` };
   },
+  remove: async (account, externalId) => {
+    await sendJson('Facebook', graph(externalId, account, {}), { method: 'DELETE' });
+  },
 };
 
 /** An Instagram Business account: its media with likes and comments; image posts only. */
@@ -101,4 +104,6 @@ export const instagram: NetworkClient = {
     const details = await getJson('Instagram', graph(id, account, { fields: 'permalink' }));
     return { externalId: id, permalink: str(details.permalink) };
   },
+  // The Instagram Graph API has no way for an app to delete published media.
+  remove: null,
 };

@@ -13,6 +13,9 @@ import {
   type ComposeInput,
 } from './social.publish';
 import { syncAccount, syncAllAccounts } from './social.sync';
+import { deletePublishedPost } from './social.delete';
+import { NETWORKS } from './networks';
+import type { SocialNetwork } from './social.constants';
 import { socialAnalytics } from './social.analytics';
 import { analysePosts, postIdeas } from './social.ai';
 
@@ -21,6 +24,8 @@ const MAX_LIST = 500;
 const MAX_DAYS = 365;
 const MAX_CALENDAR_DAYS = 62;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+/** A post deleted here that its network kept (Instagram) is never listed again. */
+const LISTED = { $ne: 'REMOVED' } as const;
 
 /** The AI assists are billed to the person who asked, named as the AI module names them. */
 const actorOf = (ctx: GraphQLContext) => {
@@ -44,7 +49,7 @@ export const socialPostsResolvers = {
       guard(ctx);
       const filter = {
         ...(args.accountId ? { accountId: args.accountId } : {}),
-        ...(args.status ? { status: args.status } : {}),
+        status: args.status ?? LISTED,
       };
       const rows = await SocialMediaPostModel.find(filter)
         .sort({ publishedAt: -1, scheduledAt: -1, createdAt: -1 })
@@ -64,6 +69,7 @@ export const socialPostsResolvers = {
       const inRange = { $gte: from, $lt: to };
       const rows = await SocialMediaPostModel.find({
         $or: [{ scheduledAt: inRange }, { publishedAt: inRange }],
+        status: LISTED,
         ...(accountIds?.length ? { accountId: { $in: accountIds } } : {}),
       })
         .sort({ scheduledAt: 1, publishedAt: 1 })
@@ -113,6 +119,10 @@ export const socialPostsResolvers = {
       guard(ctx);
       return deletePost(id);
     },
+    deletePublishedSocialPost: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      guard(ctx);
+      return deletePublishedPost(id, ctx);
+    },
     socialMediaInsights: async (_p: unknown, { days }: { days: number }, ctx: GraphQLContext) => {
       assertDays(days);
       return analysePosts(days, actorOf(ctx));
@@ -122,6 +132,9 @@ export const socialPostsResolvers = {
       { topic, count }: { topic: string; count: number },
       ctx: GraphQLContext,
     ) => postIdeas(topic, count, actorOf(ctx)),
+  },
+  SocialNetworkRule: {
+    canDelete: (rule: { network: SocialNetwork }) => NETWORKS[rule.network].remove !== null,
   },
   SocialMediaPost: {
     engagement: (post: {

@@ -2,9 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { Types } from 'mongoose';
 import {
   completeConnect,
-  disconnect,
   saveAppConfig,
 } from '../../../../src/modules/social-accounts/social.service';
+import { disconnect } from '../../../../src/modules/social-accounts/social.accounts';
 import {
   SocialAccountModel,
   SocialAppConfigModel,

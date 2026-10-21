@@ -168,6 +168,26 @@ describe('DataTable actions', () => {
     expect(screen.getAllByRole('button', { name: 'mail lead' })).toHaveLength(2);
     expect(screen.queryByRole('button', { name: 'edit' })).not.toBeInTheDocument();
   });
+
+  it('renders a control action of its own beside the buttons, where it is not hidden', async () => {
+    const onToggle = vi.fn();
+    const actions: RowAction<Lead>[] = [
+      {
+        key: 'convert',
+        hidden: (row) => row.converted,
+        render: (row) => (
+          <input type="checkbox" aria-label={`Converted: ${row.name}`} onChange={onToggle} />
+        ),
+      },
+      { icon: <span>m</span>, tooltip: 'Mail', ariaLabel: 'mail lead', onClick: vi.fn() },
+    ];
+    renderTable(<DataTable columns={columns} rows={rows} actions={actions} />);
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Converted: Acme' }));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('checkbox', { name: 'Converted: Globex' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'mail lead' })).toHaveLength(2);
+  });
 });
 
 describe('DataTable refresh', () => {

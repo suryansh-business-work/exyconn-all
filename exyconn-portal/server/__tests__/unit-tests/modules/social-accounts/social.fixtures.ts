@@ -20,8 +20,8 @@ export interface Call {
   headers: Record<string, string>;
 }
 
-/** A URL pattern, the status it answers with and the JSON body. */
-export type Route = [RegExp, number, unknown];
+/** A URL pattern, the status it answers with, the JSON body and any reply headers. */
+export type Route = [RegExp, number, unknown, Record<string, string>?];
 
 /**
  * Stands in for every provider: each URL is answered by the first route that matches it, and
@@ -43,7 +43,7 @@ export function fakeFetch(routes: Route[]): Call[] {
         status: 400,
       });
     }
-    return new Response(JSON.stringify(hit[2]), { status: hit[1] });
+    return new Response(JSON.stringify(hit[2]), { status: hit[1], headers: hit[3] });
   });
   return calls;
 }

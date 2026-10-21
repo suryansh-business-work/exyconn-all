@@ -10,6 +10,12 @@ export const socialAccountsTypeDefs = gql`
     YOUTUBE
   }
 
+  "A person's own account, or an organization's page acting as itself (a LinkedIn company page)."
+  enum SocialAccountKind {
+    PERSON
+    ORGANIZATION
+  }
+
   enum SocialNetwork {
     LINKEDIN
     FACEBOOK
@@ -57,6 +63,8 @@ export const socialAccountsTypeDefs = gql`
     available: Boolean!
     "The networks one connection adds (Facebook and Instagram for Meta)."
     networks: [SocialNetwork!]!
+    "LinkedIn refused the company-page scopes for this app, so it connects member profiles only."
+    pagesRefused: Boolean!
   }
 
   "A connected account. Its tokens never leave the server."
@@ -67,6 +75,13 @@ export const socialAccountsTypeDefs = gql`
     name: String!
     handle: String!
     avatarUrl: String!
+    kind: SocialAccountKind!
+    "False while paused: left out of Compose and syncs, and its scheduled posts held."
+    active: Boolean!
+    "When the network stopped reaching it (a page its member no longer administers)."
+    disconnectedAt: DateTime
+    "A LinkedIn profile connected before company pages: reconnect to add them."
+    needsReconnect: Boolean!
     "Null when the token does not expire."
     expiresAt: DateTime
     connectedBy: String!
@@ -93,6 +108,9 @@ export const socialAccountsTypeDefs = gql`
     testSocialAppConfig(app: SocialApp!): SocialAppTest!
     "Starts connecting an account: returns the provider's consent page to open. MARKETING."
     startSocialConnect(app: SocialApp!): String!
+    "Disconnects an account, and the LinkedIn pages connected through it. MARKETING."
     disconnectSocialAccount(id: ID!): Boolean!
+    "Pauses an account (false) or turns it back on (true). MARKETING."
+    setSocialAccountActive(id: ID!, active: Boolean!): SocialAccount!
   }
 `;

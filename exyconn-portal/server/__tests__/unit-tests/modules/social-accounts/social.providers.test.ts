@@ -12,7 +12,7 @@ const paramsOf = (consent: string) => Object.fromEntries(new URL(consent).search
 afterEach(() => jest.restoreAllMocks());
 
 describe('LinkedIn provider', () => {
-  it('asks for consent with the member posting scope', () => {
+  it('asks for consent with the member and company-page scopes', () => {
     const app = credentials();
     const consent = PROVIDERS.LINKEDIN.authorizeUrl(app, CALLBACK, 'state-1', 'unused');
     expect(consent.startsWith('https://www.linkedin.com/oauth/v2/authorization?')).toBe(true);
@@ -21,8 +21,19 @@ describe('LinkedIn provider', () => {
       client_id: app.clientId,
       redirect_uri: CALLBACK,
       state: 'state-1',
-      scope: 'openid profile w_member_social',
+      scope:
+        'openid profile w_member_social r_organization_admin w_organization_social r_organization_social',
     });
+  });
+
+  it('asks for the member scopes alone once LinkedIn refused the page ones for the app', () => {
+    const consent = PROVIDERS.LINKEDIN.authorizeUrl(
+      { ...credentials(), pagesRefused: true },
+      CALLBACK,
+      'state-1',
+      'unused',
+    );
+    expect(paramsOf(consent).scope).toBe('openid profile w_member_social');
   });
 
   it('swaps the code for tokens, and reads the member', async () => {
@@ -31,7 +42,12 @@ describe('LinkedIn provider', () => {
       [
         /oauth\/v2\/accessToken/,
         200,
-        { access_token: 'li', refresh_token: 'li-r', expires_in: 5_184_000 },
+        {
+          access_token: 'li',
+          refresh_token: 'li-r',
+          expires_in: 5_184_000,
+          scope: 'openid,profile,r_organization_admin',
+        },
       ],
       [/v2\/userinfo/, 200, { sub: 'm-1', name: 'Asha', picture: 'https://img/a.png' }],
     ]);
@@ -39,6 +55,7 @@ describe('LinkedIn provider', () => {
       accessToken: 'li',
       refreshToken: 'li-r',
       expiresInSeconds: 5_184_000,
+      scopes: ['openid', 'profile', 'r_organization_admin'],
     });
     expect(formOf(calls[0])).toEqual({
       grant_type: 'authorization_code',

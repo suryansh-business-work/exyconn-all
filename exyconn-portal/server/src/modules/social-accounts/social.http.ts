@@ -4,9 +4,13 @@
  * the person setting the app up needs to read.
  */
 export class SocialProviderError extends Error {
-  constructor(provider: string, detail: string) {
+  /** The HTTP status the provider answered with, when the refusal came from a reply. */
+  readonly status: number | null;
+
+  constructor(provider: string, detail: string, status: number | null = null) {
     super(`${provider} refused the connection: ${detail}`);
     this.name = 'SocialProviderError';
+    this.status = status;
   }
 }
 
@@ -20,10 +24,13 @@ async function read(provider: string, response: Response): Promise<Json> {
       (typeof error === 'object' ? error?.message : error) ??
       body.error_description ??
       body.message ??
+      // X words its refusals as `detail`.
+      body.detail ??
       `HTTP ${response.status}`;
     throw new SocialProviderError(
       provider,
       typeof detail === 'string' ? detail : JSON.stringify(detail),
+      response.status,
     );
   }
   return body;
@@ -53,14 +60,53 @@ export async function postForm(
   return read(provider, response);
 }
 
-export async function getJson(provider: string, url: string, accessToken?: string): Promise<Json> {
+export async function getJson(
+  provider: string,
+  url: string,
+  accessToken?: string,
+  headers: Record<string, string> = {},
+): Promise<Json> {
   const response = await fetch(url, {
     headers: {
       Accept: 'application/json',
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...headers,
     },
   });
   return read(provider, response);
+}
+
+/** What a JSON request answered: the body, and the headers some providers put ids in. */
+export interface JsonReply {
+  body: Json;
+  headers: Headers;
+}
+
+/**
+ * Any authenticated JSON request — a POST whose new id comes back in a header (LinkedIn's
+ * `x-restli-id`), or a DELETE. An empty reply (204) reads as an empty body.
+ */
+export async function sendJson(
+  provider: string,
+  url: string,
+  init: Readonly<{
+    method: 'POST' | 'DELETE';
+    accessToken?: string;
+    body?: unknown;
+    headers?: Record<string, string>;
+  }>,
+): Promise<JsonReply> {
+  const response = await fetch(url, {
+    method: init.method,
+    headers: {
+      Accept: 'application/json',
+      ...(init.body === undefined ? {} : { 'Content-Type': 'application/json' }),
+      ...(init.accessToken ? { Authorization: `Bearer ${init.accessToken}` } : {}),
+      ...init.headers,
+    },
+    ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
+  });
+  return { body: await read(provider, response), headers: response.headers };
 }
 
 /** An authenticated JSON POST — what publishing uses. */

@@ -2,19 +2,19 @@ import { assertRole } from '../../middleware/roleGuard';
 import { assertPlatformStaff, callerOrganization } from '../../lib/platformAccess';
 import { ROLES } from '../../constants/roles';
 import { portalOrigin } from '../../utils/portalOrigin';
-import { withIds } from '../../utils/serialize';
+import { withId, withIds } from '../../utils/serialize';
 import { badRequest } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
 import { secretHint } from '../tech/tech.secrets';
+import { recordAudit } from '../audit';
 import type { SocialApp, SocialNetwork } from './social.constants';
 import {
   appConfigs,
-  disconnect,
-  listAccounts,
   saveAppConfig,
   startConnect,
   type SocialAppConfigInput,
 } from './social.service';
+import { disconnect, listAccounts, setAccountActive } from './social.accounts';
 import { testAppConnection } from './social.test-connection';
 
 export { socialCallbackRouter } from './social.routes';
@@ -50,6 +50,7 @@ export const socialAccountsResolvers = {
         label: config.label,
         available: config.enabled && config.clientId !== '' && config.clientSecret !== '',
         networks: NETWORKS[config.app],
+        pagesRefused: config.pagesRefused,
       }));
     },
     socialAccounts: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -81,7 +82,34 @@ export const socialAccountsResolvers = {
     },
     disconnectSocialAccount: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       marketingGuard(ctx);
-      return disconnect(id);
+      const { account, pages } = await disconnect(id);
+      const pageNote = pages.length > 0 ? `, with its pages ${pages.join(', ')}` : '';
+      await recordAudit(ctx, {
+        action: 'DELETE',
+        module: 'SocialAccount',
+        entityId: id,
+        entityLabel: account.name,
+        summary: `Disconnected ${account.network} account ${account.name}${pageNote}`,
+      });
+      return true;
+    },
+    setSocialAccountActive: async (
+      _p: unknown,
+      { id, active }: { id: string; active: boolean },
+      ctx: GraphQLContext,
+    ) => {
+      marketingGuard(ctx);
+      const account = await setAccountActive(id, active);
+      const verb = active ? 'Turned back on' : 'Paused';
+      await recordAudit(ctx, {
+        action: 'UPDATE',
+        module: 'SocialAccount',
+        entityId: id,
+        entityLabel: account.name,
+        summary: `${verb} social account ${account.name}`,
+        changes: { active: { from: !active, to: active } },
+      });
+      return withId(account);
     },
   },
   SocialAppConfig: {

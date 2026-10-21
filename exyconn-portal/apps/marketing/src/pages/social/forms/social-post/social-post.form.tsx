@@ -18,9 +18,10 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
   useComposeSocialMediaPostMutation,
   useUpdateSocialMediaPostMutation,
+  type SocialAccountKind,
   type SocialNetwork,
 } from '@exyconn/shell/graphql/generated';
-import { NETWORK_LABEL, accountLabel } from '../../social.labels';
+import { NETWORK_LABEL, accountLabel, isPostable } from '../../social.labels';
 import {
   makeSocialPostSchema,
   postLength,
@@ -34,6 +35,9 @@ interface ComposeAccount {
   id: string;
   name: string;
   network: SocialNetwork;
+  kind?: SocialAccountKind;
+  active?: boolean;
+  disconnectedAt?: string | null;
 }
 
 interface SocialPostFormProps {
@@ -76,7 +80,9 @@ export function SocialPostForm({
     };
   }, [rules, networkOf]);
   const schema = useMemo(() => makeSocialPostSchema(ruleOf), [ruleOf]);
-  const publishable = accounts.filter((account) => ruleOf(account.id)?.canPublish);
+  const publishable = accounts.filter(
+    (account) => isPostable(account) && ruleOf(account.id)?.canPublish,
+  );
   const methods = useForm<z.input<typeof schema>, unknown, SocialPostValues>({
     mode: 'onTouched',
     resolver: zodResolver(schema),

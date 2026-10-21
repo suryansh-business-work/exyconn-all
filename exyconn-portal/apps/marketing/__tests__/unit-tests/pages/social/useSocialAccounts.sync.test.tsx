@@ -22,6 +22,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useSocialAccountsQuery: () => gql.accounts(),
   useStartSocialConnectMutation: () => [gql.startConnect],
   useDisconnectSocialAccountMutation: () => [gql.disconnect],
+  useSetSocialAccountActiveMutation: () => [vi.fn()],
   useSyncSocialAccountMutation: () => [gql.syncOne],
   useSyncAllSocialAccountsMutation: () => [gql.syncEvery],
 }));
