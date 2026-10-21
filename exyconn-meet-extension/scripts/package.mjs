@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { listFiles } from './lib/files.mjs';
 import { MIN_CHROME_VERSION, storeManifest } from './lib/manifest.mjs';
 import { PACKAGE_VERSION } from './lib/defines.mjs';
-import { ARTIFACTS_DIR, OUT_DIR, PACKAGE_DIR } from './lib/paths.mjs';
+import { ARTIFACTS_DIR, OUT_DIR } from './lib/paths.mjs';
 import { createZip } from './lib/zip.mjs';
 
 if (!existsSync(join(OUT_DIR, 'manifest.json'))) {
