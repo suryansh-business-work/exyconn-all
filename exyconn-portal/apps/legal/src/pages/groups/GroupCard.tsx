@@ -54,7 +54,7 @@ export function GroupCard({ group, members, onEdit, onDelete }: Readonly<Props>)
           {group.description}
         </Text>
       )}
-      <Box component="ul" sx={{ pl: 2.5, mt: 1, mb: 0 }}>
+      <Box component="ul" sx={{ pl: 3, mt: 1, mb: 0 }}>
         {members.slice(0, SHOWN_MEMBERS).map((member) => (
           <Text key={member.id} component="li" size="sm">
             {member.title}
