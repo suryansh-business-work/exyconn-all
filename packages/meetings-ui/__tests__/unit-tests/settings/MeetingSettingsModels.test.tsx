@@ -60,7 +60,9 @@ describe('MeetingSettingsPage — models', () => {
     await user.click(screen.getByRole('option', { name: 'whisper-1' }));
     await user.click(screen.getByRole('button', { name: 'Save settings' }));
     expect(update).toHaveBeenCalledWith({
-      variables: { input: { ...toSettingsValues(makeSettings()), transcriptionModel: 'whisper-1' } },
+      variables: {
+        input: { ...toSettingsValues(makeSettings()), transcriptionModel: 'whisper-1' },
+      },
     });
   });
 

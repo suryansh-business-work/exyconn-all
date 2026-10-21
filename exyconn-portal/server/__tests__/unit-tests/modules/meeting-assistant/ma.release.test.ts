@@ -89,9 +89,9 @@ beforeEach(async () => {
   };
   asManager = { ...ctxOf(manager, [ROLES.ADMIN]), organizationId };
   jest.spyOn(slackNotifier, 'isConfigured').mockResolvedValue(true);
-  jest.spyOn(slackNotifier, 'listChannels').mockResolvedValue([
-    { id: 'C1', name: 'releases', isPrivate: false, isMember: true },
-  ]);
+  jest
+    .spyOn(slackNotifier, 'listChannels')
+    .mockResolvedValue([{ id: 'C1', name: 'releases', isPrivate: false, isMember: true }]);
 });
 
 afterEach(() => {
@@ -163,9 +163,7 @@ describe('maApproveRelease', () => {
     const waiting = await seedRelease('1.2.3');
 
     expect(await codeOf(approve(released, 'STABLE'))).toBe('BAD_USER_INPUT');
-    expect(await codeOf(approve(new Types.ObjectId().toHexString(), 'STABLE'))).toBe(
-      'NOT_FOUND',
-    );
+    expect(await codeOf(approve(new Types.ObjectId().toHexString(), 'STABLE'))).toBe('NOT_FOUND');
     expect(await codeOf(approve(waiting, 'STABLE', asEmployee))).toBe('FORBIDDEN');
     expect((await releaseByVersion('1.2.3'))?.status).toBe('QA_PENDING');
     expect(announcePublished).not.toHaveBeenCalled();

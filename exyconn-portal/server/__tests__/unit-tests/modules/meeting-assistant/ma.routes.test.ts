@@ -398,7 +398,33 @@ describe('Google Meet connect callback', () => {
     const connection = await MaGoogleConnectionModel.findOne({ userId: actor.id }).lean();
     expect(connection?.email).toBe('asha@gmail.com');
     expect(open(connection?.refreshToken ?? '')).toBe('refresh-1');
+    expect(connection?.scopes).toEqual([]);
     expect((await callback({ state, code: 'again' })).status).toBe(400);
+  });
+
+  it('stores the scopes Google granted, and replaces them on a reconnect', async () => {
+    const meet = 'https://www.googleapis.com/auth/meetings.space.readonly';
+    const calendar = 'https://www.googleapis.com/auth/calendar.events.readonly';
+    (verifiedEmailOf as jest.Mock).mockReturnValue('asha@gmail.com');
+    exchange.mockResolvedValueOnce({
+      refresh_token: 'refresh-1',
+      id_token: 'id-token',
+      scope: `openid  ${meet} ${calendar}`,
+    });
+    await callback({ state: await startConnect(), code: 'first' });
+    const first = await MaGoogleConnectionModel.findOne({ userId: actor.id }).lean();
+    exchange.mockResolvedValueOnce({
+      refresh_token: 'refresh-2',
+      id_token: 'id-token',
+      scope: meet,
+    });
+    await callback({ state: await startConnect(), code: 'second' });
+    const second = await MaGoogleConnectionModel.findOne({ userId: actor.id }).lean();
+
+    expect(first?.scopes).toEqual(['openid', meet, calendar]);
+    expect(second?.scopes).toEqual([meet]);
+    expect(open(second?.refreshToken ?? '')).toBe('refresh-2');
+    expect(await MaGoogleConnectionModel.countDocuments()).toBe(1);
   });
 
   it('returns with the reason when consent was cancelled or offline access was not granted', async () => {

@@ -96,9 +96,9 @@ describe('verifyGithubOidc', () => {
   });
 
   it('accepts a manual run of the workflow too', async () => {
-    await expect(verify(sign({ event_name: 'workflow_dispatch' }), EXPECTED)).resolves.toMatchObject(
-      { event_name: 'workflow_dispatch' },
-    );
+    await expect(
+      verify(sign({ event_name: 'workflow_dispatch' }), EXPECTED),
+    ).resolves.toMatchObject({ event_name: 'workflow_dispatch' });
   });
 
   it('refuses anything that is not an RS256 JWT with a key id', async () => {
@@ -133,10 +133,7 @@ describe('verifyGithubOidc', () => {
   it.each([
     ['repository', { repository: 'evil/portal' }],
     ['ref', { ref: 'refs/heads/feature' }],
-    [
-      'workflow_ref',
-      { workflow_ref: 'acme/portal/.github/workflows/other.yml@refs/heads/main' },
-    ],
+    ['workflow_ref', { workflow_ref: 'acme/portal/.github/workflows/other.yml@refs/heads/main' }],
     ['event_name', { event_name: 'pull_request' }],
   ])('refuses a token whose %s is not the release workflow on main', async (_claim, patch) => {
     expect(await refusalOf(sign(patch))).toBe(

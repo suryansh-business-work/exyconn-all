@@ -153,7 +153,9 @@ describe('ReleaseManagerActions — release settings', () => {
 
   it('keeps the settings open when saving fails, and cancels', async () => {
     const user = userEvent.setup();
-    save.mockRejectedValue(new Error('That Slack channel is not visible to the Exyconn Slack app.'));
+    save.mockRejectedValue(
+      new Error('That Slack channel is not visible to the Exyconn Slack app.'),
+    );
     renderWithProviders(<ReleaseManagerActions />);
     const dialog = await openSettings(user);
     await user.click(within(dialog).getByRole('button', { name: 'Update' }));

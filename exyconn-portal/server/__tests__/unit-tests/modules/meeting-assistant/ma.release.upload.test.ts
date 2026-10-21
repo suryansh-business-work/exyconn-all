@@ -155,9 +155,7 @@ describe('POST /releases/upload', () => {
         .lean(),
     );
     expect(audit).toMatchObject({ action: 'IMPORT', entityLabel: '1.4.0.45' });
-    expect(announceNewBuild).toHaveBeenCalledWith(
-      expect.objectContaining({ version: '1.4.0.45' }),
-    );
+    expect(announceNewBuild).toHaveBeenCalledWith(expect.objectContaining({ version: '1.4.0.45' }));
   });
 
   it('answers a re-upload of the same bytes with the stored build, and refuses other bytes', async () => {
@@ -212,14 +210,63 @@ describe('POST /releases/upload', () => {
   });
 
   it.each([
-    ['a body that is not multipart', () => request(app).post(`${MA_REST_PATH}${RELEASE_UPLOAD_PATH}`).set('Authorization', 'Bearer t').send({ a: 1 }), 'Send a multipart/form-data body.'],
-    ['a release.json that is not JSON', () => upload({ manifest: '{nope' }), 'release.json is not valid JSON.'],
-    ['no internal ZIP in release.json', () => upload({ manifest: { ...manifestOf(zipOf()), files: [] } }), 'The file is not the internal ZIP release.json describes.'],
-    ['a file named otherwise', () => upload({ fileName: 'other.zip' }), 'The file is not the internal ZIP release.json describes.'],
-    ['a size release.json does not name', () => upload({ manifest: manifestOf(zipOf(1, 80)) }), 'The file is not the ZIP release.json describes.'],
-    ['bytes that are not a ZIP', () => { const fake = Buffer.alloc(64, 7); return upload({ zip: fake, manifest: manifestOf(fake) }); }, 'The file is not the ZIP release.json describes.'],
-    ['a checksum that does not match', () => upload({ manifest: manifestOf(zipOf(3)) }), 'The ZIP does not match its SHA-256 checksum.'],
-    ['a version Chrome does not take', () => upload({ manifest: { ...manifestOf(zipOf()), version: '1.4.x' } }), 'The version must be a Chrome extension version, e.g. 1.2.3.'],
+    [
+      'a body that is not multipart',
+      () =>
+        request(app)
+          .post(`${MA_REST_PATH}${RELEASE_UPLOAD_PATH}`)
+          .set('Authorization', 'Bearer t')
+          .send({ a: 1 }),
+      'Send a multipart/form-data body.',
+    ],
+    [
+      'a multipart body that cannot be parsed',
+      () =>
+        request(app)
+          .post(`${MA_REST_PATH}${RELEASE_UPLOAD_PATH}`)
+          .set('Authorization', 'Bearer t')
+          .set('Content-Type', 'multipart/form-data; boundary=missing')
+          .send('not a multipart body'),
+      'Send a multipart/form-data body.',
+    ],
+    [
+      'a release.json that is not JSON',
+      () => upload({ manifest: '{nope' }),
+      'release.json is not valid JSON.',
+    ],
+    [
+      'no internal ZIP in release.json',
+      () => upload({ manifest: { ...manifestOf(zipOf()), files: [] } }),
+      'The file is not the internal ZIP release.json describes.',
+    ],
+    [
+      'a file named otherwise',
+      () => upload({ fileName: 'other.zip' }),
+      'The file is not the internal ZIP release.json describes.',
+    ],
+    [
+      'a size release.json does not name',
+      () => upload({ manifest: manifestOf(zipOf(1, 80)) }),
+      'The file is not the ZIP release.json describes.',
+    ],
+    [
+      'bytes that are not a ZIP',
+      () => {
+        const fake = Buffer.alloc(64, 7);
+        return upload({ zip: fake, manifest: manifestOf(fake) });
+      },
+      'The file is not the ZIP release.json describes.',
+    ],
+    [
+      'a checksum that does not match',
+      () => upload({ manifest: manifestOf(zipOf(3)) }),
+      'The ZIP does not match its SHA-256 checksum.',
+    ],
+    [
+      'a version Chrome does not take',
+      () => upload({ manifest: { ...manifestOf(zipOf()), version: '1.4.x' } }),
+      'The version must be a Chrome extension version, e.g. 1.2.3.',
+    ],
   ])('answers 400 for %s', async (_case, send, error) => {
     jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
 

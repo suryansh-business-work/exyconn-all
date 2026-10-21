@@ -16,7 +16,11 @@ const CHANNELS = [
   { value: '', label: "Don't post to Slack" },
   { value: 'C1', label: '#releases' },
 ];
-const SAVED_INPUT = { allowedRepository: 'acme/other', slackChannelId: 'C1', notifyOnNewBuild: true };
+const SAVED_INPUT = {
+  allowedRepository: 'acme/other',
+  slackChannelId: 'C1',
+  notifyOnNewBuild: true,
+};
 
 const saved: MockedResponse = {
   request: { query: MaUpdateReleaseSettingsDocument, variables: { input: SAVED_INPUT } },

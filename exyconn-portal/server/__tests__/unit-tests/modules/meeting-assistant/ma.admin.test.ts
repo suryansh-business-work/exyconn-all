@@ -403,7 +403,11 @@ describe('extension releases', () => {
     await runAsPlatform(() => MaReleaseModel.init());
     await register(release());
 
-    const again = await registerRelease(release({ channel: 'BETA', sha256: 'b'.repeat(64) }), 'ci', '')
+    const again = await registerRelease(
+      release({ channel: 'BETA', sha256: 'b'.repeat(64) }),
+      'ci',
+      '',
+    )
       .then(() => null)
       .catch((error: unknown) => error);
 

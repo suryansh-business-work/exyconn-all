@@ -121,7 +121,8 @@ describe('maAvailableModels', () => {
     const error = await available('TRANSCRIPTION').catch((caught: unknown) => caught);
 
     expect(error).toMatchObject({
-      message: 'OpenAI did not return its model list. Check the key in Tech > Environment Variables.',
+      message:
+        'OpenAI did not return its model list. Check the key in Tech > Environment Variables.',
       extensions: { code: 'BAD_USER_INPUT' },
     });
     expect(warn).toHaveBeenCalledWith(
