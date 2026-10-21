@@ -30,6 +30,7 @@ fragment ColdEmailDraftFields on ColdEmailDraft {
   goal
   tone
   createdAt
+  maxVariants
   variants {
     ...ColdEmailVariantFields
   }
@@ -58,6 +59,12 @@ mutation CreateColdEmailDraft($input: CreateColdEmailDraftInput!) {
 
 mutation AddColdEmailVariant($id: ID!, $instruction: String, $tone: ColdEmailTone) {
   addColdEmailVariant(id: $id, instruction: $instruction, tone: $tone) {
+    ...ColdEmailDraftFields
+  }
+}
+
+mutation RewriteColdEmailDraft($id: ID!, $readWebsite: Boolean) {
+  rewriteColdEmailDraft(id: $id, readWebsite: $readWebsite) {
     ...ColdEmailDraftFields
   }
 }

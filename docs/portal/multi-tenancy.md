@@ -53,7 +53,10 @@ The tenancy itself (`Organization`), shared infrastructure configured once for t
 (SMTP, ImageKit, GitHub, Slack, OpenAI, AI prices, tracker build settings), Exyconn's own public
 presence (the website's content, the public status page), client error reports, the shared
 translation catalogue, and sign-in artefacts. The support mailbox is deliberately **per
-company**: each reads its own mailbox into its own tickets.
+company**: each reads its own mailbox into its own tickets. So are the CRM's connected Gmail and
+Microsoft mailboxes (`GmailAccount`, `MicrosoftMailAccount`): the OAuth apps they connect through
+are the platform's (Tech), but each company connects, uses and disconnects only its own, and the
+OAuth callback saves the mailbox in the company recorded on the OAuth state.
 
 ### What stays unique across the platform
 

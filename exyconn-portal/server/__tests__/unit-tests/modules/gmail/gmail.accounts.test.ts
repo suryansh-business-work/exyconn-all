@@ -1,5 +1,6 @@
 import { runOnce } from '../../../../src/lib/migrations';
-import { runAsPlatform } from '../../../../src/lib/tenant';
+import { runAsPlatform, runForOrganization } from '../../../../src/lib/tenant';
+import { seedOrganization } from '../../../helpers';
 import { seal } from '../../../../src/utils/secretBox';
 import {
   disconnectGmailAccount,
@@ -71,14 +72,19 @@ describe('the single-mailbox migration', () => {
 });
 
 describe('connected accounts', () => {
+  let companyId = '';
+  beforeEach(async () => {
+    companyId = (await seedOrganization('Acme'))._id.toHexString();
+  });
+
   it('connecting the same Google account again renews its token on the same row', async () => {
-    const first = await saveConnectedAccount(LEGACY, seal('one'), 'Ravi');
+    const first = await saveConnectedAccount(companyId, LEGACY, seal('one'), 'Ravi');
     await GmailAccountModel.updateOne(
       { _id: first._id },
       { status: 'NEEDS_RECONNECT', lastError: 'revoked', enabled: false },
     );
 
-    const again = await saveConnectedAccount(LEGACY, seal('two'), 'Mira');
+    const again = await saveConnectedAccount(companyId, LEGACY, seal('two'), 'Mira');
 
     expect(again._id.toHexString()).toBe(first._id.toHexString());
     expect(again).toMatchObject({ status: 'CONNECTED', lastError: '', connectedByName: 'Mira' });
@@ -87,8 +93,25 @@ describe('connected accounts', () => {
     await expect(GmailAccountModel.countDocuments()).resolves.toBe(1);
   });
 
+  it('keeps the same address apart in two companies, each listing only its own', async () => {
+    const otherId = (await seedOrganization('Other'))._id.toHexString();
+    const ours = await saveConnectedAccount(companyId, LEGACY, seal('one'), 'Ravi');
+    const theirs = await saveConnectedAccount(otherId, LEGACY, seal('two'), 'Mira');
+
+    expect(theirs._id.toHexString()).not.toBe(ours._id.toHexString());
+    const listed = await runForOrganization(otherId, () => listGmailAccounts());
+    expect(listed.map((row) => [row._id.toHexString(), row.connectedByName])).toEqual([
+      [theirs._id.toHexString(), 'Mira'],
+    ]);
+    // Company B cannot reach company A's row by its id.
+    await expect(
+      runForOrganization(otherId, () => disconnectGmailAccount(ours._id.toHexString())),
+    ).rejects.toThrow('Gmail account not found');
+    await expect(GmailAccountModel.countDocuments()).resolves.toBe(2);
+  });
+
   it('turns an account off and disconnects it, never exposing its token', async () => {
-    const account = await saveConnectedAccount(LEGACY, seal('one'), 'Ravi');
+    const account = await saveConnectedAccount(companyId, LEGACY, seal('one'), 'Ravi');
     const id = account._id.toHexString();
 
     const off = await setGmailAccountEnabled(id, false);

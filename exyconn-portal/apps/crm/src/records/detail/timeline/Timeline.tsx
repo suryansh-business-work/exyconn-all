@@ -18,11 +18,15 @@ import { TimelineEntry, type TimelineRow } from './TimelineEntry';
 import { TimelineTable } from './TimelineTable';
 import { TimelineViewToggle, useTimelineView } from './TimelineViewToggle';
 
-/** Entries hang off the left rail: no opposite column taking half the width. */
+/**
+ * Entries hang off the left rail: no opposite column taking half the width. MUI Lab draws that
+ * column as each item's `::before` under `:not(:has(...))`, two classes deep and inserted after
+ * this style, so the doubled `&&` is what outranks it.
+ */
 const RAIL_SX = {
   p: 0,
   m: 0,
-  [`& .${timelineItemClasses.root}:before`]: { flex: 0, p: 0 },
+  [`&& .${timelineItemClasses.root}::before`]: { flex: 0, p: 0 },
 };
 
 /** The entries on the rail, newest first, with the loading and empty states. */

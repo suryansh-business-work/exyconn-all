@@ -15,6 +15,7 @@ import type { PermissionAction } from '../../permissions/permission.model';
 import { registerBulkTarget, registerTable } from '../../table-transfer/registry';
 import { ColdEmailDraftModel, type ColdEmailTone } from './cold-email.model';
 import {
+  MAX_VARIANTS,
   coldEmails,
   type ColdEmailAuthor,
   type CreateColdEmailInput,
@@ -81,6 +82,7 @@ const audit = (
 export const coldEmailResolvers = {
   ColdEmailDraft: {
     variantCount: (row: { variants?: unknown[] }) => row.variants?.length ?? 0,
+    maxVariants: () => MAX_VARIANTS,
   },
   ColdEmailVariant: {
     id: (row: { _id: unknown }) => stringOf(row._id),
@@ -122,6 +124,18 @@ export const coldEmailResolvers = {
       const { object } = await coldEmails.get(args.id);
       const author = await authorFor(ctx, object);
       return withId(await coldEmails.addVariant(args.id, args, author));
+    },
+    rewriteColdEmailDraft: async (
+      _p: unknown,
+      args: { id: string; readWebsite?: boolean | null },
+      ctx: GraphQLContext,
+    ) => {
+      await desk(ctx, 'EDIT');
+      const { object } = await coldEmails.get(args.id);
+      const author = await authorFor(ctx, object);
+      const saved = await coldEmails.rewrite(args.id, args.readWebsite === true, author);
+      await audit(ctx, 'UPDATE', saved, 'Rewrote the cold email from the latest data');
+      return withId(saved);
     },
     updateColdEmailVariant: async (
       _p: unknown,

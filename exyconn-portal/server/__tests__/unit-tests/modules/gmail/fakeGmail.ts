@@ -1,5 +1,5 @@
 import { seal } from '../../../../src/utils/secretBox';
-import { runAsPlatform } from '../../../../src/lib/tenant';
+import { runAsPlatform, runForOrganization } from '../../../../src/lib/tenant';
 import { GmailAccountModel, GmailConfigModel } from '../../../../src/modules/gmail/gmail.models';
 import type { GmailMessage } from '../../../../src/modules/gmail/gmail.client';
 
@@ -155,8 +155,12 @@ export const saveClient = () =>
     }),
   );
 
-/** A connected account whose refresh token the fake recognises. */
-export const connectAccount = (email: string, fields: Record<string, unknown> = {}) =>
-  runAsPlatform(() =>
+/** A connected account of one company whose refresh token the fake recognises. */
+export const connectAccount = (
+  organizationId: string,
+  email: string,
+  fields: Record<string, unknown> = {},
+) =>
+  runForOrganization(organizationId, () =>
     GmailAccountModel.create({ email, refreshToken: seal(`refresh-${email}`), ...fields }),
   ).then((account) => account._id.toHexString());

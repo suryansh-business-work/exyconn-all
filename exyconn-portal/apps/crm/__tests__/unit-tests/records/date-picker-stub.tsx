@@ -19,7 +19,12 @@ function typedDate(text: string): Date | null {
  * The MUI X date picker reduced to a text box labelled like the picker, for driving a form's
  * own date handling in jsdom. `data-value` shows the day the picker was given.
  */
-export function DatePickerStub({ label, value, onChange, slotProps }: Readonly<DatePickerStubProps>) {
+export function DatePickerStub({
+  label,
+  value,
+  onChange,
+  slotProps,
+}: Readonly<DatePickerStubProps>) {
   const textField = slotProps?.textField;
   return (
     <>

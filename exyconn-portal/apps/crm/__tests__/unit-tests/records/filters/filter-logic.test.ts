@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { CrmOp, CrmPropertyType } from '@exyconn/shell/graphql/generated';
-import { conditionIssue, type ConditionDraft } from '../../../../src/records/filters/conditionIssue';
+import {
+  conditionIssue,
+  type ConditionDraft,
+} from '../../../../src/records/filters/conditionIssue';
 import {
   describeCondition,
   type DescribeTools,
@@ -16,7 +19,12 @@ import { choiceProperty, property } from '../records-fixtures';
 
 const ALL_OPS = Object.values(CrmOp);
 const TEXT = property({ ops: ALL_OPS });
-const NUMBER = property({ key: 'value', label: 'Value', type: CrmPropertyType.Number, ops: ALL_OPS });
+const NUMBER = property({
+  key: 'value',
+  label: 'Value',
+  type: CrmPropertyType.Number,
+  ops: ALL_OPS,
+});
 const DATE = property({ key: 'due', label: 'Due', type: CrmPropertyType.Date, ops: ALL_OPS });
 
 describe('opArity', () => {
@@ -67,7 +75,8 @@ describe('conditionIssue', () => {
   });
 
   it('checks a range of numbers', () => {
-    const message = (values: string[]) => conditionIssue(draft(CrmOp.Between, values), NUMBER)?.message;
+    const message = (values: string[]) =>
+      conditionIssue(draft(CrmOp.Between, values), NUMBER)?.message;
     expect(message([])).toBe('Enter both values');
     expect(message(['1', ' '])).toBe('Enter both values');
     expect(message(['1', 'x'])).toBe('Enter a number in both boxes');
@@ -77,8 +86,11 @@ describe('conditionIssue', () => {
   });
 
   it('checks a range of dates', () => {
-    const message = (values: string[]) => conditionIssue(draft(CrmOp.Between, values), DATE)?.message;
-    expect(message(['2026-10-20', '2026-10-01'])).toBe('The start date must be on or before the end');
+    const message = (values: string[]) =>
+      conditionIssue(draft(CrmOp.Between, values), DATE)?.message;
+    expect(message(['2026-10-20', '2026-10-01'])).toBe(
+      'The start date must be on or before the end',
+    );
     expect(message(['2026-10-01', '2026-10-01'])).toBeUndefined();
   });
 
@@ -120,44 +132,61 @@ describe('describeCondition', () => {
   it('reads list conditions with option labels', () => {
     const stage = choiceProperty({ NEW: 'New', HOT: 'Hot' });
     expect(
-      describeCondition(condition({ property: 'stage', op: CrmOp.In, values: ['NEW', 'HOT'] }), stage, TOOLS),
+      describeCondition(
+        condition({ property: 'stage', op: CrmOp.In, values: ['NEW', 'HOT'] }),
+        stage,
+        TOOLS,
+      ),
     ).toBe('Stage is any of New or Hot');
   });
 
   it('names a deleted property by its key, without values', () => {
-    expect(describeCondition(condition({ property: 'gone', values: ['x'] }), undefined, TOOLS)).toBe(
-      'gone contains',
-    );
+    expect(
+      describeCondition(condition({ property: 'gone', values: ['x'] }), undefined, TOOLS),
+    ).toBe('gone contains');
   });
 
   it('reads known/unknown without a value', () => {
-    expect(describeCondition(condition({ op: CrmOp.IsEmpty }), TEXT, TOOLS)).toBe('Name is unknown');
+    expect(describeCondition(condition({ op: CrmOp.IsEmpty }), TEXT, TOOLS)).toBe(
+      'Name is unknown',
+    );
   });
 
   it('reads Yes/No checks as themselves or with No', () => {
-    const hasEmail = property({ key: 'hasEmail', label: 'Has email', type: CrmPropertyType.Boolean, filterOnly: true });
-    expect(describeCondition(condition({ op: CrmOp.Eq, values: ['true'] }), hasEmail, TOOLS)).toBe('Has email');
+    const hasEmail = property({
+      key: 'hasEmail',
+      label: 'Has email',
+      type: CrmPropertyType.Boolean,
+      filterOnly: true,
+    });
+    expect(describeCondition(condition({ op: CrmOp.Eq, values: ['true'] }), hasEmail, TOOLS)).toBe(
+      'Has email',
+    );
     expect(describeCondition(condition({ op: CrmOp.Eq, values: ['false'] }), hasEmail, TOOLS)).toBe(
       'Has email: No',
     );
     expect(describeCondition(condition({ op: CrmOp.Neq, values: ['true'] }), hasEmail, TOOLS)).toBe(
       'Has email is not Yes',
     );
-    expect(describeCondition(condition({ op: CrmOp.Eq, values: ['false'] }), property({ type: CrmPropertyType.Boolean }), TOOLS)).toBe(
-      'Name is No',
-    );
+    expect(
+      describeCondition(
+        condition({ op: CrmOp.Eq, values: ['false'] }),
+        property({ type: CrmPropertyType.Boolean }),
+        TOOLS,
+      ),
+    ).toBe('Name is No');
   });
 
   it('reads ranges, numbers, dates and last days', () => {
-    expect(describeCondition(condition({ op: CrmOp.Between, values: ['1', '9'] }), NUMBER, TOOLS)).toBe(
-      'Value is between N:1 and N:9',
-    );
+    expect(
+      describeCondition(condition({ op: CrmOp.Between, values: ['1', '9'] }), NUMBER, TOOLS),
+    ).toBe('Value is between N:1 and N:9');
     expect(describeCondition(condition({ op: CrmOp.Between, values: [] }), NUMBER, TOOLS)).toBe(
       'Value is between  and ',
     );
-    expect(describeCondition(condition({ op: CrmOp.Before, values: ['2026-10-15'] }), DATE, TOOLS)).toBe(
-      'Due is before D:2026-10-15',
-    );
+    expect(
+      describeCondition(condition({ op: CrmOp.Before, values: ['2026-10-15'] }), DATE, TOOLS),
+    ).toBe('Due is before D:2026-10-15');
     expect(describeCondition(condition({ op: CrmOp.LastDays, values: ['7'] }), DATE, TOOLS)).toBe(
       'Due is in the last 7 days',
     );
@@ -167,7 +196,12 @@ describe('describeCondition', () => {
   });
 });
 
-const present = (key: string): FilterCondition => ({ id: `p-${key}`, property: key, op: CrmOp.Eq, values: ['true'] });
+const present = (key: string): FilterCondition => ({
+  id: `p-${key}`,
+  property: key,
+  op: CrmOp.Eq,
+  values: ['true'],
+});
 const other: FilterCondition = { id: 'o', property: 'name', op: CrmOp.Contains, values: ['a'] };
 
 describe('presence', () => {
@@ -190,7 +224,9 @@ describe('presence', () => {
       { id: 'g', conditions: [{ ...present('hasEmail'), values: ['false'] }] },
     ];
     expect(hasPresence(no, 'hasEmail')).toBe(false);
-    const neq: FilterGroup[] = [{ id: 'g', conditions: [{ ...present('hasEmail'), op: CrmOp.Neq }] }];
+    const neq: FilterGroup[] = [
+      { id: 'g', conditions: [{ ...present('hasEmail'), op: CrmOp.Neq }] },
+    ];
     expect(hasPresence(neq, 'hasEmail')).toBe(false);
   });
 

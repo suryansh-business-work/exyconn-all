@@ -29,10 +29,11 @@ describe('OperatorSelect', () => {
     renderWithProviders(<Harness />);
     await userEvent.click(screen.getByRole('combobox', { name: 'Operator' }));
     const list = screen.getByRole('listbox');
-    expect(within(list).getAllByRole('option').map((option) => option.textContent)).toEqual([
-      'contains',
-      'is',
-    ]);
+    expect(
+      within(list)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['contains', 'is']);
     await userEvent.click(within(list).getByRole('option', { name: 'is' }));
     expect(screen.getByRole('status')).toHaveTextContent('[""]');
   });

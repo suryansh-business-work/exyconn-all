@@ -36,11 +36,12 @@ describe('EmailIntegrationsPanel', () => {
     expect(gql.status).toHaveBeenCalledWith({ fetchPolicy: 'cache-and-network' });
   });
 
-  it('says only the operator can connect, and both are off until the status loads', () => {
+  it('lets every company connect its own mailboxes, both off until the status loads', () => {
     gql.status.mockReturnValue({ data: undefined });
     renderWithProviders(<EmailIntegrationsPanel />);
 
-    expect(screen.getByText(/Email connections are available on the operator/)).toBeInTheDocument();
+    expect(screen.queryByText(/operator/)).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.getByText('Gmail card false')).toBeInTheDocument();
     expect(screen.getByText('Microsoft card false')).toBeInTheDocument();
   });

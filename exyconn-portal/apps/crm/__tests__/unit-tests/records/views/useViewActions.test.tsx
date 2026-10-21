@@ -32,7 +32,9 @@ const QUERY = {
   ...EMPTY_QUERY,
   search: ' globex ',
   sorts: [{ property: 'email', dir: SortDir.Desc }],
-  groups: [{ id: 'g', conditions: [{ id: 'c', property: 'name', op: CrmOp.Contains, values: ['x'] }] }],
+  groups: [
+    { id: 'g', conditions: [{ id: 'c', property: 'name', op: CrmOp.Contains, values: ['x'] }] },
+  ],
 };
 const SNAPSHOT = {
   search: 'globex',
@@ -173,7 +175,9 @@ describe('useViewActions', () => {
       done = result.current.remove(MINE);
     });
     const dialog = await screen.findByRole('dialog');
-    expect(dialog).toHaveTextContent('Delete the view "Hot leads"? The records in it are not affected.');
+    expect(dialog).toHaveTextContent(
+      'Delete the view "Hot leads"? The records in it are not affected.',
+    );
     await userEvent.click(within(dialog).getByRole('button', { name: 'Delete' }));
     await act(() => done);
     expect(gql.remove).toHaveBeenCalledWith({ variables: { id: 'view-1' } });
@@ -189,7 +193,9 @@ describe('useViewActions', () => {
     act(() => {
       done = result.current.remove(MINE);
     });
-    await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Delete' }));
+    await userEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Delete' }),
+    );
     await act(() => done);
     expect(list.selectView).not.toHaveBeenCalled();
   });
@@ -200,7 +206,9 @@ describe('useViewActions', () => {
     act(() => {
       done = result.current.remove(MINE);
     });
-    await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel' }),
+    );
     await act(() => done);
     expect(gql.remove).not.toHaveBeenCalled();
   });
@@ -212,7 +220,9 @@ describe('useViewActions', () => {
     act(() => {
       done = result.current.remove(MINE);
     });
-    await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Delete' }));
+    await userEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Delete' }),
+    );
     await act(() => done);
     await waitFor(() => expect(screen.getByText('Gone already')).toBeInTheDocument());
   });

@@ -56,7 +56,9 @@ describe('sortSchema', () => {
   });
 
   it('reads sorts into form values without typenames', () => {
-    expect(toSortFormValues([{ __typename: 'CrmSort', property: 'name', dir: SortDir.Desc } as never])).toEqual({
+    expect(
+      toSortFormValues([{ __typename: 'CrmSort', property: 'name', dir: SortDir.Desc } as never]),
+    ).toEqual({
       levels: [{ property: 'name', dir: SortDir.Desc }],
     });
   });
@@ -90,7 +92,9 @@ describe('SortButton and SortForm', () => {
 
     await userEvent.click(within(dialog).getByRole('button', { name: 'Add sort level' }));
     await userEvent.click(within(dialog).getByRole('combobox', { name: 'Then by' }));
-    await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Tier' }));
+    await userEvent.click(
+      within(screen.getByRole('listbox')).getByRole('option', { name: 'Tier' }),
+    );
     const directions = within(dialog).getAllByRole('group', { name: 'Direction' });
     await userEvent.click(within(directions[1]).getByRole('button', { name: 'Descending' }));
     // Clicking the chosen direction again keeps it: a level always has one.
@@ -119,7 +123,9 @@ describe('SortButton and SortForm', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Remove sort level 3' }));
     await userEvent.click(within(dialog).getByRole('button', { name: 'Remove sort level 2' }));
     await userEvent.click(within(dialog).getByRole('button', { name: 'Apply' }));
-    await waitFor(() => expect(onApply).toHaveBeenCalledWith([{ property: 'name', dir: SortDir.Asc }]));
+    await waitFor(() =>
+      expect(onApply).toHaveBeenCalledWith([{ property: 'name', dir: SortDir.Asc }]),
+    );
   });
 
   it('clears every level, and Cancel closes without applying', async () => {

@@ -8,6 +8,8 @@ interface ConnectMailboxButtonProps {
   label: string;
   /** Whether the platform can connect this provider; unknown while the first load runs. */
   available: boolean | undefined;
+  /** What the tooltip says while it cannot connect, as an English source string. */
+  unavailableHint: string;
   connecting: boolean;
   onConnect: () => void;
   /** The provider, for the log line when it cannot connect. */
@@ -16,11 +18,13 @@ interface ConnectMailboxButtonProps {
 
 /**
  * Opens the provider's consent page. While the platform cannot connect the provider yet, it does
- * nothing and says why in a short tooltip, and the page logs that once so Tech can see it.
+ * nothing and says why in a tooltip (who to ask, and where they switch it on), and the page
+ * logs that once so Tech can see it.
  */
 export function ConnectMailboxButton({
   label,
   available,
+  unavailableHint,
   connecting,
   onConnect,
   provider,
@@ -48,7 +52,7 @@ export function ConnectMailboxButton({
   // Stays focusable (aria-disabled, not disabled) so the reason can be reached from the keyboard.
   return (
     <Box>
-      <Tooltip title={t('Not available yet — ask your administrator')} describeChild>
+      <Tooltip title={t(unavailableHint)} describeChild>
         <Button
           variant="contained"
           aria-disabled

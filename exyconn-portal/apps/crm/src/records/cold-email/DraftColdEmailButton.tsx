@@ -5,9 +5,12 @@ import { useT } from '@exyconn/i18n';
 import { Button } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ColdEmailDraftForm, type ColdEmailDraftTarget } from './forms/cold-email-draft';
-import { coldEmailPath } from './coldEmailPaths';
+import { recordDraftPath } from './coldEmailPaths';
 
-/** "Draft a cold email" under a contact's or company's profile; opens the new draft when written. */
+/**
+ * "Draft a cold email" under a contact's or company's profile. Once written, the new draft
+ * opens in place in the record's own "Cold emails" section (Overview tab), not on another page.
+ */
 export function DraftColdEmailButton({ target }: Readonly<{ target: ColdEmailDraftTarget }>) {
   const t = useT();
   const navigate = useNavigate();
@@ -30,7 +33,7 @@ export function DraftColdEmailButton({ target }: Readonly<{ target: ColdEmailDra
             target={target}
             onCreated={(id) => {
               close();
-              navigate(coldEmailPath(id));
+              navigate(recordDraftPath(target.object, target.id, id));
             }}
             onCancel={close}
           />

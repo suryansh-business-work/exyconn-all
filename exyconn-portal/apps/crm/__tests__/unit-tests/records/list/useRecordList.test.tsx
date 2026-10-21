@@ -35,7 +35,12 @@ describe('useRecordList', () => {
   it('puts the schema, query, columns and fetcher together for a list', () => {
     const select = vi.fn();
     const { result } = renderHookWithProviders(() =>
-      useRecordList({ object: CrmObject.Lead, document: SearchLeadsDocument, select, columns: COLUMNS }),
+      useRecordList({
+        object: CrmObject.Lead,
+        document: SearchLeadsDocument,
+        select,
+        columns: COLUMNS,
+      }),
     );
     expect(mocked.schema).toHaveBeenCalledWith(CrmObject.Lead);
     expect(result.current.object).toBe(CrmObject.Lead);
@@ -44,7 +49,12 @@ describe('useRecordList', () => {
       'client',
       'actions',
     ]);
-    expect(result.current.snapshot).toEqual({ search: '', groups: [], sorts: [], columns: ['name'] });
+    expect(result.current.snapshot).toEqual({
+      search: '',
+      groups: [],
+      sorts: [],
+      columns: ['name'],
+    });
     expect(result.current.initialSearch).toBe('');
     expect(result.current.gridKey).toBe(0);
     expect(result.current.refreshSignal).toBe(0);
@@ -53,7 +63,12 @@ describe('useRecordList', () => {
 
   it('follows the working query into the snapshot', () => {
     const { result } = renderHookWithProviders(() =>
-      useRecordList({ object: CrmObject.Lead, document: SearchLeadsDocument, select: vi.fn(), columns: COLUMNS }),
+      useRecordList({
+        object: CrmObject.Lead,
+        document: SearchLeadsDocument,
+        select: vi.fn(),
+        columns: COLUMNS,
+      }),
     );
     act(() => result.current.list.apply({ search: ' acme ' }));
     expect(result.current.snapshot.search).toBe('acme');

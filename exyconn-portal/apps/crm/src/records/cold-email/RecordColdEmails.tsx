@@ -1,4 +1,4 @@
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { useFormatters, useT } from '@exyconn/i18n';
 import {
   Alert,
@@ -18,14 +18,33 @@ import {
   FilterOp,
   useColdEmailDraftsQuery,
 } from '@exyconn/shell/graphql/generated';
-import { COLD_EMAILS_PATH, coldEmailPath } from './coldEmailPaths';
+import { COLD_EMAILS_PATH, OPEN_DRAFT_PARAM } from './coldEmailPaths';
+import { InlineColdEmailDraft } from './InlineColdEmailDraft';
 
 /** How many of the record's drafts the Overview tab lists; the section holds the rest. */
 const SHOWN = 5;
 
-/** The record's cold email drafts on its Overview tab, newest first, each opening its page. */
+/**
+ * The record's cold email drafts on its Overview tab, newest first. A draft opens in place
+ * (its id rides in the URL, so a new draft opens here too), where it is read, edited and sent.
+ */
 export function RecordColdEmails({ id }: Readonly<{ id: string }>) {
   const t = useT();
+  const [params, setParams] = useSearchParams();
+  const openId = params.get(OPEN_DRAFT_PARAM);
+  const openDraft = (draftId: string | null) =>
+    setParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        if (draftId) {
+          next.set(OPEN_DRAFT_PARAM, draftId);
+        } else {
+          next.delete(OPEN_DRAFT_PARAM);
+        }
+        return next;
+      },
+      { replace: true },
+    );
   const { formatDateTime } = useFormatters();
   const { data, loading, error } = useColdEmailDraftsQuery({
     variables: {
@@ -56,7 +75,12 @@ export function RecordColdEmails({ id }: Readonly<{ id: string }>) {
     body = (
       <List disablePadding>
         {rows.map((row) => (
-          <ListItemButton key={row.id} component={RouterLink} to={coldEmailPath(row.id)}>
+          <ListItemButton
+            key={row.id}
+            selected={row.id === openId}
+            aria-expanded={row.id === openId}
+            onClick={() => openDraft(row.id === openId ? null : row.id)}
+          >
             <ListItemText
               primary={row.toEmail}
               secondary={t('{count} versions · {status} · updated {when}', {
@@ -81,6 +105,7 @@ export function RecordColdEmails({ id }: Readonly<{ id: string }>) {
           {t('All cold emails')}
         </Link>
       </Flex>
+      {openId && <InlineColdEmailDraft id={openId} onClose={() => openDraft(null)} />}
       {body}
     </Box>
   );

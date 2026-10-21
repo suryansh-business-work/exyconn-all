@@ -28,9 +28,9 @@ export const crmIntegrationsTypeDefs = gql`
   }
 
   type CrmEmailStatus {
-    "A Gmail mailbox is connected and enabled, and this is the operator's CRM."
+    "One of the company's Gmail mailboxes is connected and enabled."
     gmail: Boolean!
-    "A Microsoft mailbox is connected and enabled, and this is the operator's CRM."
+    "One of the company's Microsoft mailboxes is connected and enabled."
     microsoft: Boolean!
   }
 
@@ -159,7 +159,7 @@ export const crmIntegrationsTypeDefs = gql`
     crmIntegrationStatus: CrmIntegrationStatus!
     crmCallConfigs: [CrmCallConfig!]!
     crmSmsConfigs: [CrmSmsConfig!]!
-    "Every Gmail and Microsoft mailbox a CRM email may go from; empty outside the operator's CRM."
+    "Every Gmail and Microsoft mailbox of the company a CRM email may go from."
     crmEmailSenders: [CrmEmailSenderOption!]!
   }
 

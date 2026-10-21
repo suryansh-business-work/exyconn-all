@@ -10,9 +10,11 @@ const TEXT: MailProviderText = {
   empty: 'No Gmail account connected yet.',
   loading: 'Loading the Gmail accounts',
   loadError: 'Could not load the Gmail accounts.',
+  unavailable:
+    'Google mailbox connections are not switched on yet. Ask your platform administrator to set them up in Tech > Environment Variables > Email accounts (OAuth).',
 };
 
-/** The Gmail mailboxes the CRM reads threads in and sends from. */
+/** The company's Gmail mailboxes the CRM reads threads in and sends from. */
 export function GmailCard({ ready }: Readonly<{ ready: boolean }>) {
   const actions = useGmailAccountActions();
   const { data, loading, error, refetch } = useGmailAccountsQuery({

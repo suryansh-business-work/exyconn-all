@@ -44,6 +44,8 @@ export const coldEmailTypeDefs = gql`
     status: ColdEmailStatus!
     variants: [ColdEmailVariant!]!
     variantCount: Int!
+    "The most versions one draft may hold; generating stops there."
+    maxVariants: Int!
     createdByName: String!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -62,6 +64,8 @@ export const coldEmailTypeDefs = gql`
     tone: ColdEmailTone!
     "Read their website through Firecrawl first; costs a Firecrawl call."
     readWebsite: Boolean
+    "How many versions to write straight away, in one AI run: 1 to 4, default 4."
+    variantCount: Int
   }
 
   input SendColdEmailVariantInput {
@@ -79,10 +83,16 @@ export const coldEmailTypeDefs = gql`
   }
 
   extend type Mutation {
-    "Writes the first version with the AI from the record's business context; spends AI budget."
+    "Writes the first versions (4 by default) with the AI from the record's business context; spends AI budget."
     createColdEmailDraft(input: CreateColdEmailDraftInput!): ColdEmailDraft!
     "Writes another version (at most 10 per draft); spends AI budget."
     addColdEmailVariant(id: ID!, instruction: String, tone: ColdEmailTone): ColdEmailDraft!
+    "Writes fresh versions (up to 4, within the 10 per draft) from the record's latest data; spends AI budget."
+    rewriteColdEmailDraft(
+      id: ID!
+      "Read their website through Firecrawl again first; costs a Firecrawl call."
+      readWebsite: Boolean
+    ): ColdEmailDraft!
     updateColdEmailVariant(
       draftId: ID!
       variantId: ID!

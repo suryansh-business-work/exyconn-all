@@ -8,10 +8,11 @@ import { timelineTarget } from '../timeline/crm.timeline';
 import { businessContext, organizationName } from './cold-email.context';
 import { ColdEmailDraftModel, type ColdEmailObject, type ColdEmailTone } from './cold-email.model';
 import {
+  MAX_BATCH,
   MAX_BODY_CHARS,
   MAX_SUBJECT_CHARS,
   coldEmailPrompt,
-  parseColdEmail,
+  parseColdEmails,
   type ColdEmailText,
 } from './cold-email.prompt';
 
@@ -19,8 +20,9 @@ import {
 export const MAX_VARIANTS = 10;
 export const MAX_GOAL_CHARS = 1000;
 export const MAX_INSTRUCTION_CHARS = 500;
-/** One retry when the model answers with something other than the JSON asked for. */
-const ATTEMPTS = 2;
+/** How many versions a new draft, or a rewrite, writes when not told otherwise. */
+export const DEFAULT_VARIANT_COUNT = MAX_BATCH;
+const CAP_REACHED = `A draft holds at most ${MAX_VARIANTS} versions. Delete one to write another.`;
 
 /** Who is writing: the AI budget's owner, and the name the email is signed with. */
 export interface ColdEmailAuthor extends AiActor {
@@ -35,6 +37,8 @@ export interface CreateColdEmailInput {
   tone: ColdEmailTone;
   /** Read their website through Firecrawl first (it costs a Firecrawl call). */
   readWebsite?: boolean | null;
+  /** How many versions to write straight away, 1 to MAX_BATCH; 4 when left out. */
+  variantCount?: number | null;
 }
 
 export interface SendColdEmailInput {
@@ -66,6 +70,14 @@ function checkedText(subject: string, body: string): ColdEmailText {
   return text;
 }
 
+function checkedCount(count: number | null | undefined): number {
+  const value = count ?? DEFAULT_VARIANT_COUNT;
+  if (!Number.isInteger(value) || value < 1 || value > MAX_BATCH) {
+    badRequest(`Ask for between 1 and ${MAX_BATCH} versions.`);
+  }
+  return value;
+}
+
 async function findDraft(id: string) {
   const draft = await ColdEmailDraftModel.findById(id).lean();
   if (!draft) notFound('Cold email draft');
@@ -90,9 +102,21 @@ interface GenerateArgs {
   instruction: string;
   readWebsite: boolean;
   earlierSubjects: string[];
+  /** Versions to write in the one AI call, 1 to MAX_BATCH. */
+  count: number;
 }
 
-/** One version written by the AI, validated; one retry on a malformed answer, then a clear error. */
+/** One AI run and the usable versions in its answer. */
+async function ask(prompt: string, count: number, author: ColdEmailAuthor) {
+  const job = await runAssistJob('Draft cold email', prompt, author);
+  return { costUsd: job.costUsd ?? 0, texts: parseColdEmails(job.response).slice(0, count) };
+}
+
+/**
+ * Versions written by the AI in one call from the record's current business context, each
+ * validated. The usable versions are kept (a short answer is accepted); an answer with none is
+ * retried once, then a clear error. The run's cost is split across the versions.
+ */
 async function generate(args: GenerateArgs, author: ColdEmailAuthor) {
   const [business, organization] = await Promise.all([
     businessContext(args.object, args.recordId, args.readWebsite, author),
@@ -107,28 +131,33 @@ async function generate(args: GenerateArgs, author: ColdEmailAuthor) {
     tone: args.tone,
     instruction: args.instruction,
     earlierSubjects: args.earlierSubjects,
+    count: args.count,
   });
-  let costUsd = 0;
-  for (let attempt = 0; attempt < ATTEMPTS; attempt += 1) {
-    const job = await runAssistJob('Draft cold email', prompt, author);
-    costUsd += job.costUsd ?? 0;
-    const text = parseColdEmail(job.response);
-    if (text) {
-      return { recordName: business.name, variant: { ...text, costUsd } };
-    }
+  const first = await ask(prompt, args.count, author);
+  // One retry when nothing usable came back; it depends on the first, so it cannot run alongside.
+  const retry = first.texts.length === 0 ? await ask(prompt, args.count, author) : null;
+  const costUsd = first.costUsd + (retry?.costUsd ?? 0);
+  const texts = retry?.texts ?? first.texts;
+  if (texts.length === 0) {
+    return badRequest('The AI did not return a usable email. Try generating it again.');
   }
-  return badRequest('The AI did not return a usable email. Try generating it again.');
+  const share = costUsd / texts.length;
+  return {
+    recordName: business.name,
+    variants: texts.map((text) => ({ ...text, costUsd: share })),
+  };
 }
 
 /** CRM > Cold emails: drafts written by the AI for one record, and sending a chosen version. */
 export const coldEmails = {
   get: findDraft,
 
-  /** Writes the first version and notes the draft on the record's timeline. */
+  /** Writes the first versions (4 by default, in one AI call) and notes it on the timeline. */
   async create(input: CreateColdEmailInput, author: ColdEmailAuthor) {
+    const count = checkedCount(input.variantCount);
     const toEmail = await assertRecordAddress(input.object, input.recordId, input.toEmail);
     const goal = bounded(input.goal, MAX_GOAL_CHARS, 'goal');
-    const { recordName, variant } = await generate(
+    const { recordName, variants } = await generate(
       {
         object: input.object,
         recordId: input.recordId,
@@ -137,6 +166,7 @@ export const coldEmails = {
         instruction: '',
         readWebsite: input.readWebsite === true,
         earlierSubjects: [],
+        count,
       },
       author,
     );
@@ -147,7 +177,7 @@ export const coldEmails = {
       toEmail,
       goal,
       tone: input.tone,
-      variants: [{ ...variant, tone: input.tone }],
+      variants: variants.map((variant) => ({ ...variant, tone: input.tone })),
       createdById: author.id,
       createdByName: author.displayName,
     });
@@ -156,7 +186,7 @@ export const coldEmails = {
       record: { id: input.recordId, name: recordName },
       type: 'NOTE',
       subject: 'Cold email drafted',
-      notes: `To ${toEmail}: ${variant.subject}`,
+      notes: `To ${toEmail}: ${variants[0].subject}`,
       owner: author.displayName,
     });
     return draft.toObject();
@@ -170,10 +200,12 @@ export const coldEmails = {
   ) {
     const draft = await findDraft(id);
     if (draft.variants.length >= MAX_VARIANTS) {
-      badRequest(`A draft holds at most ${MAX_VARIANTS} versions. Delete one to write another.`);
+      badRequest(CAP_REACHED);
     }
     const tone = change.tone ?? draft.tone;
-    const { variant } = await generate(
+    const {
+      variants: [variant],
+    } = await generate(
       {
         object: draft.object,
         recordId: draft.recordId,
@@ -182,6 +214,7 @@ export const coldEmails = {
         instruction: bounded(change.instruction, MAX_INSTRUCTION_CHARS, 'instruction'),
         readWebsite: false,
         earlierSubjects: draft.variants.map((earlier) => earlier.subject),
+        count: 1,
       },
       author,
     );
@@ -192,7 +225,48 @@ export const coldEmails = {
       { new: true },
     ).lean();
     if (!saved) {
-      badRequest(`A draft holds at most ${MAX_VARIANTS} versions. Delete one to write another.`);
+      badRequest(CAP_REACHED);
+    }
+    return saved;
+  },
+
+  /**
+   * Fresh versions from the record's latest data (profile, timeline and, when asked, their
+   * website read again), as many as the draft still has room for, up to 4, in one AI call.
+   */
+  async rewrite(id: string, readWebsite: boolean, author: ColdEmailAuthor) {
+    const draft = await findDraft(id);
+    const room = MAX_VARIANTS - draft.variants.length;
+    if (room <= 0) {
+      badRequest(
+        `This draft already holds ${MAX_VARIANTS} versions, the most it can. Delete some to rewrite it.`,
+      );
+    }
+    const { variants } = await generate(
+      {
+        object: draft.object,
+        recordId: draft.recordId,
+        goal: draft.goal,
+        tone: draft.tone,
+        instruction: '',
+        readWebsite,
+        earlierSubjects: draft.variants.map((earlier) => earlier.subject),
+        count: Math.min(DEFAULT_VARIANT_COUNT, room),
+      },
+      author,
+    );
+    // The cap is checked again in the write, so two rewrites at once cannot pass it.
+    const saved = await ColdEmailDraftModel.findOneAndUpdate(
+      { _id: id, [`variants.${MAX_VARIANTS - variants.length}`]: { $exists: false } },
+      {
+        $push: {
+          variants: { $each: variants.map((variant) => ({ ...variant, tone: draft.tone })) },
+        },
+      },
+      { new: true },
+    ).lean();
+    if (!saved) {
+      badRequest(CAP_REACHED);
     }
     return saved;
   },

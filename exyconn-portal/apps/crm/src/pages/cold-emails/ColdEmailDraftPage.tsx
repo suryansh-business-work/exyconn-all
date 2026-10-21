@@ -4,7 +4,6 @@ import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Skeleton, Stack, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
@@ -13,11 +12,14 @@ import {
   type ColdEmailDraftFieldsFragment,
   type ColdEmailVariantFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
+import {
+  EditVariantDialog,
+  RewriteDraftButton,
+  VariantCard,
+  useVariantActions,
+} from '../../records/cold-email';
 import { AnotherVariantForm } from './forms/another-variant';
-import { EditVariantForm } from './forms/edit-variant';
 import { DraftSummary } from './DraftSummary';
-import { VariantCard } from './VariantCard';
-import { useVariantActions } from './useVariantActions';
 
 const logFailure = (what: string) => (error: unknown) => portalLogger.warn(`crm: ${what}`, error);
 
@@ -46,11 +48,7 @@ function DraftVersions({ draft }: Readonly<{ draft: ColdEmailDraftFieldsFragment
           onUse={() => actions.use(variant)}
         />
       ))}
-      <CrudDialog open={editing !== null} title={t('Edit version')} onClose={close}>
-        {editing && (
-          <EditVariantForm draftId={draft.id} variant={editing} onDone={close} onCancel={close} />
-        )}
-      </CrudDialog>
+      <EditVariantDialog draftId={draft.id} variant={editing} onClose={close} />
     </Stack>
   );
 }
@@ -112,6 +110,7 @@ export function ColdEmailDraftPage() {
       >
         <Stack spacing={2}>
           <DraftSummary draft={draft} />
+          <RewriteDraftButton draft={draft} />
           <Box component="section" aria-label={t('Generate another version')} sx={panel}>
             <AnotherVariantForm draftId={draft.id} tone={draft.tone} />
           </Box>

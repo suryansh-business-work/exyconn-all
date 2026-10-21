@@ -21,7 +21,13 @@ const addressesOf = (row: Addressed): string[] =>
 async function contactTarget(id: string, limit: number): Promise<TimelineTarget> {
   const contact = await ContactModel.findById(id).select('email emails').lean<Addressed>();
   if (!contact) notFound('Contact');
-  return { addresses: [...new Set(addressesOf(contact))], contactIds: [id], companyId: '', limit };
+  return {
+    addresses: [...new Set(addressesOf(contact))],
+    contactIds: [id],
+    companyId: '',
+    recordPath: `/contacts/${id}`,
+    limit,
+  };
 }
 
 /** A company's own addresses and every address of the people at it. */
@@ -36,6 +42,7 @@ async function companyTarget(id: string, limit: number): Promise<TimelineTarget>
     addresses: [...new Set(addresses)],
     contactIds: people.map((person) => String(person._id)),
     companyId: id,
+    recordPath: `/companies/${id}`,
     limit,
   };
 }

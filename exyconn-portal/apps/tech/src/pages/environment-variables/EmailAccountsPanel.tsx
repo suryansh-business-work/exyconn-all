@@ -17,7 +17,7 @@ export function EmailAccountsPanel() {
     <Stack spacing={2}>
       <Text size="sm" color="text.secondary">
         {t(
-          'The OAuth apps CRM users connect their Gmail and Microsoft mailboxes through. Users only see a Connect button; it stays off until the app here is saved and turned on.',
+          'The OAuth apps every company’s CRM users connect their own Gmail and Microsoft mailboxes through. Users only see a Connect button; it stays off until the app here is saved and turned on.',
         )}
       </Text>
       <GmailPanel />

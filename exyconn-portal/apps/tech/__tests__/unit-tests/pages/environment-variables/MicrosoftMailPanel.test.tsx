@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { screen } from '@testing-library/react';
 import { MicrosoftMailPanel } from '../../../../src/pages/environment-variables/MicrosoftMailPanel';
 import { renderWithProviders } from '../../test-utils';
 import { propsOf, resetHarness } from './panel.harness';
@@ -55,5 +56,27 @@ describe('MicrosoftMailPanel connection', () => {
     gql.query.mockReturnValue({ data: { microsoftMailConfig: config }, refetch: vi.fn() });
     renderWithProviders(<MicrosoftMailPanel />);
     expect(propsOf('MicrosoftMailConnection').accountCount).toBe(4);
+  });
+});
+
+describe('MicrosoftMailPanel switched off', () => {
+  const OFF =
+    /Microsoft connections are switched off\. Every company’s Connect Microsoft account button stays disabled/;
+
+  it('warns that every CRM’s Connect button is off while the app is switched off', () => {
+    resetHarness();
+    gql.query.mockReturnValue({
+      data: { microsoftMailConfig: { ...config, enabled: false } },
+      refetch: vi.fn(),
+    });
+    renderWithProviders(<MicrosoftMailPanel />);
+    expect(screen.getByText(OFF)).toBeInTheDocument();
+  });
+
+  it('says nothing of the kind once it is on', () => {
+    resetHarness();
+    gql.query.mockReturnValue({ data: { microsoftMailConfig: config }, refetch: vi.fn() });
+    renderWithProviders(<MicrosoftMailPanel />);
+    expect(screen.queryByText(OFF)).toBeNull();
   });
 });

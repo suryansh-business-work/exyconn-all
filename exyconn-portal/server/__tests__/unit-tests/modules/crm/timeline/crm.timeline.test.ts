@@ -161,7 +161,7 @@ async function seedContactHistory() {
       sentAt: day(16),
     },
   ]);
-  return { id, ticketId: ticket.insertedId.toHexString() };
+  return { id, ticketId: ticket.insertedId.toHexString(), campaignId: campaignId.toHexString() };
 }
 
 afterEach(() => {
@@ -170,7 +170,7 @@ afterEach(() => {
 
 describe('a contact timeline', () => {
   it('merges every source, newest first, matched by any of the contact addresses', async () => {
-    const { id, ticketId } = await seedContactHistory();
+    const { id, ticketId, campaignId } = await seedContactHistory();
 
     const items = await crmTimeline('CONTACT', id, null);
 
@@ -214,12 +214,14 @@ describe('a contact timeline', () => {
       title: 'Email from asha@acme.com: Re: Pricing',
       actor: '',
       status: 'Received',
+      url: `/contacts/${id}/emails`,
     });
     expect(sentOut).toMatchObject({
       title: 'Emailed: Pricing',
       actor: 'Ravi',
       status: 'Sent',
       summary: 'Attached',
+      url: `/contacts/${id}/emails`,
     });
     expect(noCompany).toMatchObject({
       summary: '',
@@ -231,15 +233,20 @@ describe('a contact timeline', () => {
       title: 'Sent the email "Welcome"',
       summary: 'welcome',
       actor: 'system',
+      url: '/tech/email/logs',
     });
     expect(openedNoCounts).toMatchObject({
       title: 'Received the campaign "email"',
       summary: 'Opened 1×, clicked 0×',
     });
-    expect(unopened.summary).toBe('Not opened');
+    expect(unopened).toMatchObject({
+      summary: 'Not opened',
+      url: `/marketing/campaigns/${MISSING_ID}`,
+    });
     expect(opened).toMatchObject({
       title: 'Received the campaign "Spring launch"',
       summary: 'Opened 3×, clicked 1×',
+      url: `/marketing/campaigns/${campaignId}`,
     });
     expect(ticket).toMatchObject({
       title: 'Support ticket T-1: Login',
@@ -264,7 +271,9 @@ describe('a contact timeline', () => {
       url: '/deals/list',
     });
     expect(task).toMatchObject({ status: '', attachments: [] });
+    // An ordinary activity has no page of its own.
     expect(note).toMatchObject({
+      url: '',
       status: 'Done',
       summary: 'Wants pricing',
       attachments: [{ url: 'https://ik.imagekit.io/a.png', name: 'a.png' }],
@@ -289,6 +298,7 @@ describe('a contact timeline', () => {
       addresses: ['old@x.com'],
       contactIds: [insertedId.toHexString()],
       companyId: '',
+      recordPath: `/contacts/${insertedId.toHexString()}`,
       limit: 5,
     });
   });
@@ -335,6 +345,7 @@ describe('a company timeline', () => {
       addresses: ['info@acme.com', 'asha@acme.com'],
       contactIds: [asha.id],
       companyId: acme.id,
+      recordPath: `/companies/${acme.id}`,
       limit: 10,
     });
     const items = await crmTimeline('COMPANY', acme.id, undefined);

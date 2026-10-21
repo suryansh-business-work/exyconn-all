@@ -2,11 +2,10 @@ import { ROLES } from '../../constants/roles';
 import { actorNameOf } from '../../lib/actor';
 import { assertPermission } from '../../lib/permissions';
 import { assertPlatformStaff } from '../../lib/platformAccess';
-import { currentOrganizationId } from '../../lib/tenant';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { PermissionAction } from '../permissions/permission.model';
 import { recordAudit } from '../audit';
-import { assertOperatorCrm } from '../gmail/gmail.crm';
+import { assertCompanyCrm } from '../gmail/gmail.crm';
 import { forCrmUser } from '../gmail/gmail.client';
 import {
   presentMicrosoftConfig,
@@ -28,11 +27,10 @@ import { auditMicrosoft } from './microsoft.audit';
 const TECH_MODULE = 'TechConfig';
 const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
   assertPlatformStaff(ctx, TECH_MODULE, [ROLES.TECH], action);
-/** Every mailbox call: a CRM user with the right, in the operator's own CRM (as for Gmail). */
+/** Every mailbox call: a CRM user with the right, working in their company's CRM (as for Gmail). */
 const crmMailbox = async (ctx: GraphQLContext, action: PermissionAction) => {
   const user = await assertPermission(ctx, 'Activity', [ROLES.CRM], action);
-  await assertOperatorCrm();
-  return user;
+  return { user, organizationId: assertCompanyCrm() };
 };
 
 export const microsoftMailResolvers = {
@@ -82,12 +80,8 @@ export const microsoftMailResolvers = {
       { returnTo }: { returnTo: string },
       ctx: GraphQLContext,
     ) => {
-      const user = await crmMailbox(ctx, 'EDIT');
-      const actor = {
-        id: user.id,
-        name: await actorNameOf(ctx),
-        organizationId: currentOrganizationId(),
-      };
+      const { user, organizationId } = await crmMailbox(ctx, 'EDIT');
+      const actor = { id: user.id, name: await actorNameOf(ctx), organizationId };
       return forCrmUser(() => startMicrosoftConnect(returnTo, actor));
     },
     setMicrosoftMailAccountEnabled: async (

@@ -1,10 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { CrmObject, CrmOp, SortDir } from '@exyconn/shell/graphql/generated';
-import {
-  RecordListToolbar,
-  type RecordListToolbarSource,
-} from '../../../../src/records/list';
+import { RecordListToolbar, type RecordListToolbarSource } from '../../../../src/records/list';
 import { EMPTY_QUERY } from '../../../../src/records/list/recordQuery';
 import type { RecordQuery } from '../../../../src/records/list/useRecordQuery';
 import { renderWithProviders } from '../../test-utils';

@@ -1,21 +1,20 @@
 import { isValidObjectId } from 'mongoose';
-import { runAsPlatform } from '../../lib/tenant';
+import { runForOrganization } from '../../lib/tenant';
 import { notFound } from '../../utils/errors';
 import { seal } from '../../utils/secretBox';
 import { MicrosoftAuthError, microsoftApp, type MicrosoftMailbox } from './microsoft.client';
 import { MicrosoftMailAccountModel, type MicrosoftMailAccountDocument } from './microsoft.models';
 
 /**
- * The Microsoft mailboxes connected to the operator's CRM. Platform rows (the callback that
- * creates them runs before any company is in scope); only the operator's CRM reaches them.
+ * The Microsoft mailboxes connected to a company's CRM. Each row belongs to one company, so
+ * every read and write here runs in the caller's company scope; only Microsoft's callback,
+ * which has no session, names the company itself (the one recorded on the OAuth state).
  */
 
 const newestFirst = { connectedAt: -1 } as const;
 
 export const listMicrosoftAccounts = () =>
-  runAsPlatform(() =>
-    MicrosoftMailAccountModel.find().sort(newestFirst).lean<MicrosoftMailAccountDocument[]>(),
-  );
+  MicrosoftMailAccountModel.find().sort(newestFirst).lean<MicrosoftMailAccountDocument[]>();
 
 /** What the CRM sees of an account: never its token. */
 export const presentMicrosoftAccount = (account: MicrosoftMailAccountDocument) => ({
@@ -29,9 +28,14 @@ export const presentMicrosoftAccount = (account: MicrosoftMailAccountDocument) =
   lastUsedAt: account.lastUsedAt,
 });
 
-/** Connected, or connected again: one row per mailbox, its token replaced. */
-export const saveMicrosoftAccount = (email: string, refreshToken: string, actorName: string) =>
-  runAsPlatform(() =>
+/** Connected, or connected again: one row per mailbox in the company, its token replaced. */
+export const saveMicrosoftAccount = (
+  organizationId: string,
+  email: string,
+  refreshToken: string,
+  actorName: string,
+) =>
+  runForOrganization(organizationId, () =>
     MicrosoftMailAccountModel.findOneAndUpdate(
       { email },
       {
@@ -49,13 +53,11 @@ export const saveMicrosoftAccount = (email: string, refreshToken: string, actorN
   );
 
 async function updateAccount(id: string, fields: Partial<MicrosoftMailAccountDocument>) {
-  const saved = await runAsPlatform(() =>
-    MicrosoftMailAccountModel.findByIdAndUpdate(
-      id,
-      { $set: fields },
-      { new: true },
-    ).lean<MicrosoftMailAccountDocument | null>(),
-  );
+  const saved = await MicrosoftMailAccountModel.findByIdAndUpdate(
+    id,
+    { $set: fields },
+    { new: true },
+  ).lean<MicrosoftMailAccountDocument | null>();
   if (!saved) notFound('Microsoft mailbox');
   return saved;
 }
@@ -64,9 +66,9 @@ export const setMicrosoftAccountEnabled = (id: string, enabled: boolean) =>
   updateAccount(id, { enabled });
 
 export async function disconnectMicrosoftAccount(id: string) {
-  const removed = await runAsPlatform(() =>
-    MicrosoftMailAccountModel.findByIdAndDelete(id).lean<MicrosoftMailAccountDocument | null>(),
-  );
+  const removed = await MicrosoftMailAccountModel.findByIdAndDelete(
+    id,
+  ).lean<MicrosoftMailAccountDocument | null>();
   if (!removed) notFound('Microsoft mailbox');
   return removed;
 }
@@ -96,14 +98,12 @@ export async function noteMicrosoftOutcome(
   });
 }
 
-/** Every mailbox the CRM sends from: enabled and still connected, with the app's client. */
+/** Every mailbox the company's CRM sends from: enabled and connected, with the app's client. */
 export async function enabledMicrosoftMailboxes(): Promise<MicrosoftMailbox[]> {
   const app = await microsoftApp();
-  const accounts = await runAsPlatform(() =>
-    MicrosoftMailAccountModel.find({ enabled: true, status: 'CONNECTED' })
-      .sort(newestFirst)
-      .lean<MicrosoftMailAccountDocument[]>(),
-  );
+  const accounts = await MicrosoftMailAccountModel.find({ enabled: true, status: 'CONNECTED' })
+    .sort(newestFirst)
+    .lean<MicrosoftMailAccountDocument[]>();
   return accounts.map((account) => ({
     id: account._id.toHexString(),
     email: account.email,
@@ -114,10 +114,10 @@ export async function enabledMicrosoftMailboxes(): Promise<MicrosoftMailbox[]> {
   }));
 }
 
-/** Whether a sender id names a connected Microsoft mailbox (rather than a Gmail one). */
+/** Whether a sender id names one of the company's Microsoft mailboxes (rather than a Gmail one). */
 export async function isMicrosoftAccount(id: string): Promise<boolean> {
   if (!isValidObjectId(id)) {
     return false;
   }
-  return Boolean(await runAsPlatform(() => MicrosoftMailAccountModel.exists({ _id: id })));
+  return Boolean(await MicrosoftMailAccountModel.exists({ _id: id }));
 }

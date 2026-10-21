@@ -49,7 +49,12 @@ async function openFilters(active = 0) {
 function renderBuilder(groups: FilterGroup[] = []) {
   const onApply = vi.fn();
   renderWithProviders(
-    <FilterBuilderForm properties={PROPERTIES} groups={groups} onApply={onApply} onCancel={vi.fn()} />,
+    <FilterBuilderForm
+      properties={PROPERTIES}
+      groups={groups}
+      onApply={onApply}
+      onCancel={vi.fn()}
+    />,
   );
   return { onApply, form: screen.getByRole('form', { name: 'Filters' }) };
 }
@@ -60,7 +65,9 @@ function typeInto(field: HTMLElement, value: string) {
 
 async function pickProperty(form: HTMLElement, name: string, row = 0) {
   await userEvent.click(within(form).getAllByRole('combobox', { name: 'Property' })[row]);
-  await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: new RegExp(`^${name}`) }));
+  await userEvent.click(
+    within(screen.getByRole('listbox')).getByRole('option', { name: new RegExp(`^${name}`) }),
+  );
 }
 
 async function pickOperator(form: HTMLElement, label: string, row = 0) {
@@ -121,7 +128,9 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
   it('groups the properties Built-in then Custom with their types', async () => {
     const { form } = renderBuilder();
     await userEvent.click(within(form).getByRole('combobox', { name: 'Property' }));
-    expect(screen.getByRole('listbox')).toHaveTextContent(/^Built-in.*NameText.*Custom.*StageDropdown$/);
+    expect(screen.getByRole('listbox')).toHaveTextContent(
+      /^Built-in.*NameText.*Custom.*StageDropdown$/,
+    );
   });
 
   it('builds a text condition, and shows a missing value under it', async () => {
@@ -138,7 +147,9 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
       expect(onApply).toHaveBeenCalledWith([
         {
           id: expect.any(String),
-          conditions: [{ id: expect.any(String), property: 'name', op: CrmOp.Contains, values: ['acme'] }],
+          conditions: [
+            { id: expect.any(String), property: 'name', op: CrmOp.Contains, values: ['acme'] },
+          ],
         },
       ]),
     );
@@ -154,7 +165,9 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
   });
 
   it('starts blank boxes when the operator takes another shape, keeps the value otherwise', async () => {
-    renderBuilder([{ id: 'g', conditions: [{ id: 'c', property: 'value', op: CrmOp.Gt, values: ['5'] }] }]);
+    renderBuilder([
+      { id: 'g', conditions: [{ id: 'c', property: 'value', op: CrmOp.Gt, values: ['5'] }] },
+    ]);
     const form = screen.getByRole('form', { name: 'Filters' });
     expect(within(form).getByRole('spinbutton', { name: 'Value' })).toHaveValue(5);
     await pickOperator(form, 'is greater than');
@@ -193,7 +206,10 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
     await pickProperty(form, 'Due');
     expect(within(form).getByRole('combobox', { name: 'Operator' })).toHaveTextContent('is before');
     typeInto(within(form).getByLabelText('Date'), '2026-10-15');
-    expect(within(form).getByLabelText('Date')).toHaveAttribute('data-value', new Date(2026, 9, 15).toDateString());
+    expect(within(form).getByLabelText('Date')).toHaveAttribute(
+      'data-value',
+      new Date(2026, 9, 15).toDateString(),
+    );
     await apply(form);
     await waitFor(() =>
       expect(onApply.mock.calls[0][0][0].conditions[0].values).toEqual([
@@ -226,7 +242,9 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
     typeInto(within(form).getByLabelText('From'), '2026-10-20');
     await apply(form);
     await waitFor(() =>
-      expect(within(form).getByRole('alert')).toHaveTextContent('The start date must be on or before the end'),
+      expect(within(form).getByRole('alert')).toHaveTextContent(
+        'The start date must be on or before the end',
+      ),
     );
     typeInto(within(form).getByLabelText('From'), '2026-09-20');
     fireEvent.blur(within(form).getByLabelText('From'));
@@ -241,7 +259,10 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
     typeInto(within(form).getByRole('spinbutton', { name: 'Days' }), '7');
     await apply(form);
     await waitFor(() =>
-      expect(onApply.mock.calls[0][0][0].conditions[0]).toMatchObject({ op: CrmOp.LastDays, values: ['7'] }),
+      expect(onApply.mock.calls[0][0][0].conditions[0]).toMatchObject({
+        op: CrmOp.LastDays,
+        values: ['7'],
+      }),
     );
   });
 
@@ -257,7 +278,9 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
     await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'New' }));
     fireEvent.blur(within(form).getByRole('combobox', { name: 'Values' }));
     await apply(form);
-    await waitFor(() => expect(onApply.mock.calls[0][0][0].conditions[0].values).toEqual(['HOT', 'NEW']));
+    await waitFor(() =>
+      expect(onApply.mock.calls[0][0][0].conditions[0].values).toEqual(['HOT', 'NEW']),
+    );
   });
 
   it('picks one option of a choice property', async () => {
@@ -268,7 +291,10 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
     await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'New' }));
     await apply(form);
     await waitFor(() =>
-      expect(onApply.mock.calls[0][0][0].conditions[0]).toMatchObject({ op: CrmOp.Eq, values: ['NEW'] }),
+      expect(onApply.mock.calls[0][0][0].conditions[0]).toMatchObject({
+        op: CrmOp.Eq,
+        values: ['NEW'],
+      }),
     );
   });
 
@@ -278,7 +304,9 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
     await userEvent.click(within(form).getByRole('combobox', { name: 'Value' }));
     await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'No' }));
     await apply(form);
-    await waitFor(() => expect(onApply.mock.calls[0][0][0].conditions[0]).toMatchObject({ values: ['false'] }));
+    await waitFor(() =>
+      expect(onApply.mock.calls[0][0][0].conditions[0]).toMatchObject({ values: ['false'] }),
+    );
   });
 
   it('adds and removes conditions and groups, and clears everything', async () => {
@@ -310,7 +338,10 @@ describe('FilterBuilderForm', { timeout: 60_000 }, () => {
       }));
     const { form } = renderBuilder([
       { id: 'g0', conditions: many(20, 'c') },
-      ...Array.from({ length: 9 }, (_unused, index) => ({ id: `g${index + 1}`, conditions: many(1, `x${index}`) })),
+      ...Array.from({ length: 9 }, (_unused, index) => ({
+        id: `g${index + 1}`,
+        conditions: many(1, `x${index}`),
+      })),
     ]);
     expect(within(form).getByRole('button', { name: 'Add filter group' })).toBeDisabled();
     expect(within(form).getAllByRole('button', { name: 'Add filter' })[0]).toBeDisabled();

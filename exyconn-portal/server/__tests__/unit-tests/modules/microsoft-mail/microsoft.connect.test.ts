@@ -23,7 +23,9 @@ const SALES = 'sales@contoso.test';
 const FOUNDER = 'founder@contoso.test';
 const PORTAL = `${env.corsOrigins[0]}/crm/integrations`;
 const REDIRECT_URI = `${env.apiPublicUrl}/oauth/microsoft/callback`;
-const actor = (organizationId: string | null = new Types.ObjectId().toHexString()) => ({
+/** The company a connection is started from. */
+const ORG = new Types.ObjectId().toHexString();
+const actor = (organizationId: string = ORG) => ({
   id: 'u1',
   name: 'Ravi',
   organizationId,
@@ -50,7 +52,7 @@ describe('the Entra app config (Tech)', () => {
   });
 
   it('shows Tech whether a secret is stored, never the secret, with the redirect to register', async () => {
-    await connectMailbox(SALES);
+    await connectMailbox(ORG, SALES);
     const blank = await presentMicrosoftConfig(await readMicrosoftConfig());
 
     expect(blank).toMatchObject({
@@ -119,7 +121,12 @@ describe('connecting a mailbox', () => {
       'https://login.microsoftonline.com/contoso.com/oauth2/v2.0/authorize',
     );
     const state = await MicrosoftOAuthStateModel.findOne().lean();
-    expect(state).toMatchObject({ returnTo: PORTAL, actorId: 'u1', actorName: 'Ravi', organizationId });
+    expect(state).toMatchObject({
+      returnTo: PORTAL,
+      actorId: 'u1',
+      actorName: 'Ravi',
+      organizationId,
+    });
     expect(Object.fromEntries(url.searchParams)).toEqual({
       client_id: 'ms-client-id',
       redirect_uri: REDIRECT_URI,
@@ -150,7 +157,7 @@ describe('connecting a mailbox', () => {
 
   it('a connection in progress can be taken only once', async () => {
     await saveApp();
-    await startMicrosoftConnect(PORTAL, actor(null));
+    await startMicrosoftConnect(PORTAL, actor());
     const { nonce } = (await MicrosoftOAuthStateModel.findOne().lean()) ?? { nonce: '' };
 
     await expect(takeMicrosoftState(nonce)).resolves.toMatchObject({ returnTo: PORTAL });
@@ -162,7 +169,7 @@ describe('connecting a mailbox', () => {
     const microsoft = fakeMicrosoft({ [SALES]: {} });
 
     const email = await finishMicrosoftConnect(
-      { codeVerifier: 'verifier-1', actorName: 'Ravi' },
+      { codeVerifier: 'verifier-1', actorName: 'Ravi', organizationId: ORG },
       `code-${SALES}`,
     );
 
@@ -175,6 +182,9 @@ describe('connecting a mailbox', () => {
     });
     const account = await MicrosoftMailAccountModel.findOne({ email: SALES }).lean();
     expect(account?.connectedByName).toBe('Ravi');
+    // Saved in the company that started the connection.
+    const owners = await MicrosoftMailAccountModel.distinct('organizationId', { email: SALES });
+    expect(owners).toEqual([new Types.ObjectId(ORG)]);
     expect(open(account?.refreshToken ?? '')).toBe(`refresh-${SALES}`);
   });
 
@@ -186,6 +196,7 @@ describe('connecting a mailbox', () => {
       nonce: 'old-nonce',
       codeVerifier: 'v',
       returnTo: PORTAL,
+      organizationId: ORG,
       createdAt: new Date(),
     });
     const state = await takeMicrosoftState('old-nonce');
@@ -198,6 +209,20 @@ describe('connecting a mailbox', () => {
     expect(account?.connectedByName).toBe('');
   });
 
+  it('refuses a connection that names no company, before asking Microsoft for a token', async () => {
+    await saveApp();
+    const fetchMock = jest.spyOn(globalThis, 'fetch');
+
+    await expect(
+      finishMicrosoftConnect(
+        { codeVerifier: 'v', actorName: 'Ravi', organizationId: '' },
+        'code-x',
+      ),
+    ).rejects.toThrow('This Microsoft connection was not started from a company. Connect again.');
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(await MicrosoftMailAccountModel.countDocuments()).toBe(0);
+  });
+
   it('refuses a grant without offline access', async () => {
     await saveApp();
     jest
@@ -205,7 +230,10 @@ describe('connecting a mailbox', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({ access_token: 'at' }), { status: 200 }));
 
     await expect(
-      finishMicrosoftConnect({ codeVerifier: 'v', actorName: 'Ravi' }, 'code-x'),
+      finishMicrosoftConnect(
+        { codeVerifier: 'v', actorName: 'Ravi', organizationId: ORG },
+        'code-x',
+      ),
     ).rejects.toThrow('Microsoft did not grant offline access.');
     expect(await MicrosoftMailAccountModel.countDocuments()).toBe(0);
   });
@@ -220,8 +248,8 @@ describe('testMicrosoftMail', () => {
 
   it('proves each enabled mailbox, and records which work and which need a reconnect', async () => {
     await saveApp();
-    const salesId = await connectMailbox(SALES);
-    const founderId = await connectMailbox(FOUNDER);
+    const salesId = await connectMailbox(ORG, SALES);
+    const founderId = await connectMailbox(ORG, FOUNDER);
     fakeMicrosoft({ [SALES]: { rotateTo: 'rt-rotated' }, [FOUNDER]: { revoked: true } });
 
     const report = await testMicrosoftMail();
@@ -237,7 +265,7 @@ describe('testMicrosoftMail', () => {
 
   it('reports a mailbox Microsoft never answered for', async () => {
     await saveApp();
-    const salesId = await connectMailbox(SALES);
+    const salesId = await connectMailbox(ORG, SALES);
     jest.spyOn(globalThis, 'fetch').mockRejectedValue({ code: 'ECONNRESET' });
 
     await expect(testMicrosoftMail()).resolves.toBe(`Microsoft answered for ${SALES}: no answer.`);

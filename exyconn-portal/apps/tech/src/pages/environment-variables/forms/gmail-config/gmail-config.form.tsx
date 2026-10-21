@@ -19,7 +19,7 @@ import {
   type GmailFormValues,
 } from './gmail-config.types';
 
-/** React Hook Form + Zod form for the Google OAuth client the CRM's Gmail connects with. */
+/** React Hook Form + Zod form for the Google OAuth client every company's CRM Gmail connects with. */
 export function GmailConfigForm({ initial }: Readonly<{ initial: GmailConfigRow }>) {
   const notify = useNotify();
   const revealFor = useTechSecretReveal(initial.id);
@@ -61,7 +61,10 @@ export function GmailConfigForm({ initial }: Readonly<{ initial: GmailConfigRow 
         onReveal={revealFor(TechSecret.GmailClientSecret)}
         helperText={initial.hasClientSecret ? KEEP_SECRET_HINT : 'Shown next to the client ID'}
       />
-      <RhfSwitch name="enabled" label="Let the CRM send and read email through Gmail" />
+      <RhfSwitch
+        name="enabled"
+        label="Turn on Gmail connections: every company's CRM can connect, read and send from its Gmail accounts"
+      />
     </EntityForm>
   );
 }

@@ -4,7 +4,10 @@ import request from 'supertest';
 import { env } from '../../../../src/config/env';
 import { runForOrganization } from '../../../../src/lib/tenant';
 import { AuditLogModel } from '../../../../src/modules/audit';
-import { MicrosoftMailAccountModel, MicrosoftOAuthStateModel } from '../../../../src/modules/microsoft-mail/microsoft.models';
+import {
+  MicrosoftMailAccountModel,
+  MicrosoftOAuthStateModel,
+} from '../../../../src/modules/microsoft-mail/microsoft.models';
 import { microsoftConnectRouter } from '../../../../src/modules/microsoft-mail/microsoft.routes';
 import { logger } from '../../../../src/utils/logger';
 import { fakeMicrosoft, saveApp } from './fakeMicrosoft';
@@ -23,6 +26,7 @@ const pending = (fields: Record<string, unknown> = {}) =>
     returnTo: PORTAL,
     actorId: 'u1',
     actorName: 'Ravi',
+    organizationId: new Types.ObjectId().toHexString(),
     ...fields,
   });
 const auditIn = (organizationId: string) =>
@@ -93,13 +97,17 @@ describe('the Microsoft connect callback', () => {
     expect(audit[0]).toMatchObject({ actorId: '', actorName: '' });
   });
 
-  it('audits nothing when the connection named no company', async () => {
+  it('refuses a connection that named no company, saving and auditing nothing', async () => {
     await pending({ organizationId: '' });
-    fakeMicrosoft({ [SALES]: {} });
+    const microsoft = fakeMicrosoft({ [SALES]: {} });
 
     const response = await callback(`state=nonce-1&code=code-${SALES}`);
 
-    expect(redirectParams(response.headers.location)).toEqual({ microsoftConnected: SALES });
+    expect(redirectParams(response.headers.location)).toEqual({
+      microsoftError: 'This Microsoft connection was not started from a company. Connect again.',
+    });
+    expect(microsoft.tokens).toHaveLength(0);
+    expect(await MicrosoftMailAccountModel.countDocuments()).toBe(0);
     expect(await AuditLogModel.countDocuments()).toBe(0);
   });
 

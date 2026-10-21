@@ -9,7 +9,7 @@ import {
   type ColdEmailDraftFieldsFragment,
   type ColdEmailVariantFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
-import { openComms } from '../../records/comms';
+import { openComms } from '../comms';
 
 /** Deleting a version (after a confirm) and opening one in the email dock to send it. */
 export function useVariantActions(draft: ColdEmailDraftFieldsFragment) {

@@ -22,7 +22,7 @@ import {
   presentGmailAccount,
   setGmailAccountEnabled,
 } from './gmail.accounts';
-import { assertOperatorCrm, type SendCrmEmailInput } from './gmail.crm';
+import { assertCompanyCrm, type SendCrmEmailInput } from './gmail.crm';
 import { crmEmailThreads } from './gmail.sync';
 import { auditGmail } from './gmail.audit';
 import { forCrmUser, gmailClientConfig } from './gmail.client';
@@ -35,11 +35,10 @@ const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
 /** Emailing a contact is a CRM activity; reading their mail needs to see the contact. */
 const crmUser = (ctx: GraphQLContext, action: PermissionAction) =>
   assertPermission(ctx, 'Activity', [ROLES.CRM], action);
-/** Every Gmail account call: a CRM user with the right, in the operator's own CRM. */
+/** Every Gmail account call: a CRM user with the right, working in their company's CRM. */
 const crmGmail = async (ctx: GraphQLContext, action: PermissionAction) => {
   const user = await crmUser(ctx, action);
-  await assertOperatorCrm();
-  return user;
+  return { user, organizationId: assertCompanyCrm() };
 };
 
 type Kind = 'CONTACT' | 'COMPANY';
@@ -86,7 +85,7 @@ export const gmailResolvers = {
     crmGmailReady: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await crmUser(ctx, 'VIEW');
       try {
-        await assertOperatorCrm();
+        assertCompanyCrm();
         return (await enabledMailboxes()).length > 0;
       } catch {
         return false;
@@ -127,8 +126,7 @@ export const gmailResolvers = {
       { returnTo }: { returnTo: string },
       ctx: GraphQLContext,
     ) => {
-      const user = await crmUser(ctx, 'EDIT');
-      const organizationId = await assertOperatorCrm();
+      const { user, organizationId } = await crmGmail(ctx, 'EDIT');
       return startGmailConnect(returnTo, {
         id: user.id,
         name: await actorNameOf(ctx),

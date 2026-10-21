@@ -1,8 +1,9 @@
 import { useT, useFormatters } from '@exyconn/i18n';
-import { Chip, Link, Text } from '@exyconn/shell/components/ui';
+import { Chip, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { KIND_STYLES } from './timeline.kinds';
 import type { TimelineRow } from './TimelineEntry';
+import { TimelineTitle } from './TimelineTitle';
 
 interface TimelineTableProps {
   rows: TimelineRow[];
@@ -23,14 +24,7 @@ export function TimelineTable({ rows, loading, onRefresh }: Readonly<TimelineTab
     {
       key: 'title',
       label: 'Activity',
-      render: (row) =>
-        row.url ? (
-          <Link href={row.url} underline="hover">
-            {row.title}
-          </Link>
-        ) : (
-          row.title
-        ),
+      render: (row) => <TimelineTitle row={row} />,
     },
     {
       key: 'status',

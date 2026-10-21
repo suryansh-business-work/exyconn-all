@@ -1,4 +1,4 @@
-import { runAsPlatform } from '../../lib/tenant';
+import { runForOrganization } from '../../lib/tenant';
 import { badRequest, notFound } from '../../utils/errors';
 import { GmailAuthError, gmailClientConfig, type Mailbox } from './gmail.client';
 import {
@@ -9,14 +9,15 @@ import {
 } from './gmail.models';
 
 /**
- * The Gmail mailboxes connected to the operator's CRM. Each is a platform row (the callback
- * that creates it runs before any company is in scope); only the operator's CRM reaches them.
+ * The Gmail mailboxes connected to a company's CRM. Each row belongs to one company, so every
+ * read and write here runs in the caller's company scope; only Google's callback, which has no
+ * session, names the company itself (the one recorded on the OAuth state).
  */
 
 const newestFirst = { connectedAt: -1 } as const;
 
 export const listGmailAccounts = () =>
-  runAsPlatform(() => GmailAccountModel.find().sort(newestFirst).lean<GmailAccountDocument[]>());
+  GmailAccountModel.find().sort(newestFirst).lean<GmailAccountDocument[]>();
 
 /** What the CRM sees of an account: never its token. */
 export const presentGmailAccount = (account: GmailAccountDocument) => ({
@@ -30,9 +31,17 @@ export const presentGmailAccount = (account: GmailAccountDocument) => ({
   lastSyncAt: account.lastSyncAt,
 });
 
-/** Connected, or connected again: one row per Google account, its token replaced. */
-export const saveConnectedAccount = (email: string, sealedToken: string, actorName: string) =>
-  runAsPlatform(() =>
+/**
+ * Connected, or connected again: one row per Google account in the company that connected it,
+ * its token replaced.
+ */
+export const saveConnectedAccount = (
+  organizationId: string,
+  email: string,
+  sealedToken: string,
+  actorName: string,
+) =>
+  runForOrganization(organizationId, () =>
     GmailAccountModel.findOneAndUpdate(
       { email },
       {
@@ -50,13 +59,11 @@ export const saveConnectedAccount = (email: string, sealedToken: string, actorNa
   );
 
 async function updateAccount(id: string, fields: Partial<GmailAccountDocument>) {
-  const saved = await runAsPlatform(() =>
-    GmailAccountModel.findByIdAndUpdate(
-      id,
-      { $set: fields },
-      { new: true },
-    ).lean<GmailAccountDocument | null>(),
-  );
+  const saved = await GmailAccountModel.findByIdAndUpdate(
+    id,
+    { $set: fields },
+    { new: true },
+  ).lean<GmailAccountDocument | null>();
   if (!saved) notFound('Gmail account');
   return saved;
 }
@@ -65,9 +72,7 @@ export const setGmailAccountEnabled = (id: string, enabled: boolean) =>
   updateAccount(id, { enabled });
 
 export async function disconnectGmailAccount(id: string): Promise<GmailAccountDocument> {
-  const removed = await runAsPlatform(() =>
-    GmailAccountModel.findByIdAndDelete(id).lean<GmailAccountDocument | null>(),
-  );
+  const removed = await GmailAccountModel.findByIdAndDelete(id).lean<GmailAccountDocument | null>();
   if (!removed) notFound('Gmail account');
   return removed;
 }
@@ -99,14 +104,12 @@ const mailboxOf = (
 
 export type AccountMailbox = ReturnType<typeof mailboxOf>;
 
-/** Every account the CRM reads and sends from: enabled and still connected. */
+/** Every account the company's CRM reads and sends from: enabled and still connected. */
 export async function enabledMailboxes(): Promise<AccountMailbox[]> {
   const config = await gmailClientConfig();
-  const accounts = await runAsPlatform(() =>
-    GmailAccountModel.find({ enabled: true, status: 'CONNECTED' })
-      .sort(newestFirst)
-      .lean<GmailAccountDocument[]>(),
-  );
+  const accounts = await GmailAccountModel.find({ enabled: true, status: 'CONNECTED' })
+    .sort(newestFirst)
+    .lean<GmailAccountDocument[]>();
   return accounts.map((account) => mailboxOf(config, account));
 }
 

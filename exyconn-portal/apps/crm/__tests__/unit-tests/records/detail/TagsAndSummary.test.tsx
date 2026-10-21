@@ -39,7 +39,9 @@ describe('TagsEditor', () => {
     gql.saving = false;
     gql.tags.mockReturnValue({ data: { crmTags: ['vip', 'partner'] } });
     gql.save.mockImplementation(({ variables }: { variables: { tags: string[] } }) =>
-      Promise.resolve({ data: { setCrmTags: [...variables.tags].sort((a, b) => a.localeCompare(b)) } }),
+      Promise.resolve({
+        data: { setCrmTags: [...variables.tags].sort((a, b) => a.localeCompare(b)) },
+      }),
     );
   });
 
@@ -60,7 +62,9 @@ describe('TagsEditor', () => {
     const input = renderTags([]);
     expect(input).toHaveAttribute('placeholder', 'Add a tag and press Enter');
     await userEvent.click(input);
-    await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'partner' }));
+    await userEvent.click(
+      within(screen.getByRole('listbox')).getByRole('option', { name: 'partner' }),
+    );
     await waitFor(() => expect(chips()).toEqual(['partner']));
     expect(input).not.toHaveAttribute('placeholder');
   });
@@ -77,7 +81,9 @@ describe('TagsEditor', () => {
   it('refuses a tag that is too long', async () => {
     const input = renderTags();
     await userEvent.type(input, `${'x'.repeat(41)}{Enter}`);
-    expect(await screen.findByText('Use up to 20 tags of at most 40 characters each.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Use up to 20 tags of at most 40 characters each.'),
+    ).toBeInTheDocument();
     expect(gql.save).not.toHaveBeenCalled();
     expect(chips()).toEqual(['vip']);
   });
@@ -85,7 +91,9 @@ describe('TagsEditor', () => {
   it('refuses more than twenty tags', async () => {
     const input = renderTags(Array.from({ length: 20 }, (_unused, index) => `t${index}`));
     await userEvent.type(input, 'one-more{Enter}');
-    expect(await screen.findByText('Use up to 20 tags of at most 40 characters each.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Use up to 20 tags of at most 40 characters each.'),
+    ).toBeInTheDocument();
     expect(gql.save).not.toHaveBeenCalled();
   });
 
@@ -127,7 +135,9 @@ describe('AiSummary', () => {
   });
 
   function renderSummary() {
-    renderWithProviders(<AiSummary object={CrmTimelineObject.Company} id="company-1" name="Acme" />);
+    renderWithProviders(
+      <AiSummary object={CrmTimelineObject.Company} id="company-1" name="Acme" />,
+    );
     return screen.getByRole('region', { name: 'Acme summary' });
   }
 
@@ -137,7 +147,9 @@ describe('AiSummary', () => {
     expect(region).toHaveTextContent('Summarise this record from its timeline');
     await userEvent.click(within(region).getByRole('button', { name: 'Summarise with AI' }));
     expect(await within(region).findByText('Interested in 50 seats.')).toBeInTheDocument();
-    expect(gql.summarise).toHaveBeenCalledWith({ variables: { object: CrmTimelineObject.Company, id: 'company-1' } });
+    expect(gql.summarise).toHaveBeenCalledWith({
+      variables: { object: CrmTimelineObject.Company, id: 'company-1' },
+    });
     expect(region.querySelector('time')).toHaveTextContent(/^Generated /);
     expect(within(region).getByRole('button', { name: 'Refresh summary' })).toBeInTheDocument();
   });
@@ -146,15 +158,21 @@ describe('AiSummary', () => {
     gql.summarise.mockResolvedValue({ data: undefined });
     const region = renderSummary();
     await userEvent.click(within(region).getByRole('button', { name: 'Summarise with AI' }));
-    await waitFor(() => expect(within(region).getByRole('button', { name: 'Refresh summary' })).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(region).getByRole('button', { name: 'Refresh summary' })).toBeInTheDocument(),
+    );
     expect(region).not.toHaveTextContent('Summarise this record from its timeline');
   });
 
   it('says why the AI failed and clears that on the next try', async () => {
-    gql.summarise.mockRejectedValueOnce({}).mockResolvedValueOnce({ data: { crmRecordSummary: 'Done' } });
+    gql.summarise
+      .mockRejectedValueOnce({})
+      .mockResolvedValueOnce({ data: { crmRecordSummary: 'Done' } });
     const region = renderSummary();
     await userEvent.click(within(region).getByRole('button', { name: 'Summarise with AI' }));
-    expect(await within(region).findByRole('alert')).toHaveTextContent('The AI could not write a summary.');
+    expect(await within(region).findByRole('alert')).toHaveTextContent(
+      'The AI could not write a summary.',
+    );
     await userEvent.click(within(region).getByRole('button', { name: 'Summarise with AI' }));
     await within(region).findByText('Done');
     expect(within(region).queryByRole('alert')).not.toBeInTheDocument();

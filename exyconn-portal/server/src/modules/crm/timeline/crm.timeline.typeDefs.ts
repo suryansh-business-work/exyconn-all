@@ -33,7 +33,7 @@ export const crmTimelineTypeDefs = gql`
     "Who on our side did it or owns it; empty when nobody did."
     actor: String!
     status: String!
-    "Where to open it in the portals; empty when it has no page."
+    "Where to open it: a path inside the portal app that owns this kind; empty when it has no page."
     url: String!
     attachments: [FileAttachment!]!
   }

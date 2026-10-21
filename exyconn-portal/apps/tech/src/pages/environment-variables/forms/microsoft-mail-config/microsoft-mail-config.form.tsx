@@ -70,7 +70,10 @@ export function MicrosoftMailConfigForm({
         label="Tenant"
         helperText="common (any work or personal account), organizations, consumers, or your directory (tenant) ID"
       />
-      <RhfSwitch name="enabled" label="Let the CRM send email through Microsoft mailboxes" />
+      <RhfSwitch
+        name="enabled"
+        label="Turn on Microsoft connections: every company's CRM can connect and send from its Microsoft mailboxes"
+      />
     </EntityForm>
   );
 }

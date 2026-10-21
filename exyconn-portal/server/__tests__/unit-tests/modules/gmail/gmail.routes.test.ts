@@ -1,10 +1,14 @@
 import express from 'express';
+import { Types } from 'mongoose';
 import request from 'supertest';
 import { runForOrganization } from '../../../../src/lib/tenant';
 import { AuditLogModel } from '../../../../src/modules/audit';
 import { gmailConnectRouter, withParams } from '../../../../src/modules/gmail/gmail.routes';
 import { GMAIL_AUDIT_MODULE } from '../../../../src/modules/gmail/gmail.audit';
-import { GmailAccountModel, GmailOAuthStateModel } from '../../../../src/modules/gmail/gmail.models';
+import {
+  GmailAccountModel,
+  GmailOAuthStateModel,
+} from '../../../../src/modules/gmail/gmail.models';
 import { seedOrganization } from '../../../helpers';
 import { saveClient } from './fakeGmail';
 
@@ -86,9 +90,11 @@ describe('the Gmail OAuth callback', () => {
     expect(response.headers.location).toBe(
       `${RETURN_TO}?tab=gmail&gmailConnected=sales%40exyconn.test`,
     );
-    await expect(GmailAccountModel.countDocuments({ email: 'sales@exyconn.test' })).resolves.toBe(
-      1,
-    );
+    // The mailbox belongs to the company that started the connection.
+    const owners = await GmailAccountModel.distinct('organizationId', {
+      email: 'sales@exyconn.test',
+    });
+    expect(owners).toEqual([new Types.ObjectId(organizationId)]);
     const audit = await runForOrganization(organizationId, () =>
       AuditLogModel.findOne({ module: GMAIL_AUDIT_MODULE }).lean(),
     );
@@ -128,15 +134,18 @@ describe('the Gmail OAuth callback', () => {
     expect(audit).toMatchObject({ actorId: '', actorName: '' });
   });
 
-  it('writes no audit line when the state names no company', async () => {
+  it('refuses a connection whose state names no company, saving and auditing nothing', async () => {
     await GmailOAuthStateModel.create({ nonce: 'n3', codeVerifier: 'v3', returnTo: RETURN_TO });
-    googleGrants('sales@exyconn.test');
+    const fetchMock = googleGrants('sales@exyconn.test');
 
     const response = await callback({ state: 'n3', code: 'code-3' });
 
-    expect(redirectParams(response.headers.location).get('gmailConnected')).toBe(
-      'sales@exyconn.test',
+    expect(redirectParams(response.headers.location).get('gmailError')).toBe(
+      'This Gmail connection was not started from a company. Connect again.',
     );
+    // Refused before the code is traded, so Google never hands over a token.
+    expect(fetchMock).not.toHaveBeenCalled();
+    await expect(GmailAccountModel.countDocuments()).resolves.toBe(0);
     await expect(AuditLogModel.countDocuments({ module: GMAIL_AUDIT_MODULE })).resolves.toBe(0);
   });
 
@@ -153,8 +162,15 @@ describe('the Gmail OAuth callback', () => {
   });
 
   it('returns with Google’s refusal, or a general message when there is none to give', async () => {
-    await GmailOAuthStateModel.create({ nonce: 'n5', codeVerifier: 'v5', returnTo: RETURN_TO });
-    await GmailOAuthStateModel.create({ nonce: 'n6', codeVerifier: 'v6', returnTo: RETURN_TO });
+    const organizationId = (await seedOrganization())._id.toHexString();
+    await GmailOAuthStateModel.create(
+      ['n5', 'n6'].map((nonce) => ({
+        nonce,
+        codeVerifier: `v-${nonce}`,
+        returnTo: RETURN_TO,
+        organizationId,
+      })),
+    );
     jest
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(json({ error: 'invalid_grant', error_description: 'Bad code' }, 400))
