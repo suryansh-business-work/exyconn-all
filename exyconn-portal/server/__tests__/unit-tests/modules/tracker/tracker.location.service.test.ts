@@ -173,3 +173,68 @@ describe('pinsOn', () => {
     );
   });
 });
+
+describe('pinsBetween', () => {
+  const at = (iso: string) => ({
+    ...officeFix,
+    userId: USER,
+    day: new Date(`${iso.slice(0, 10)}T00:00:00Z`),
+    kind: 'MOVE',
+    capturedAt: new Date(iso),
+  });
+
+  it('answers every pin from the first day to the last, both included, oldest first', async () => {
+    await TrackerLocationModel.create([
+      at('2026-01-03T10:00:00Z'),
+      at('2026-01-05T08:00:00Z'),
+      at('2026-01-04T12:00:00Z'),
+      at('2026-01-04T09:00:00Z'),
+      at('2026-01-06T09:00:00Z'),
+      { ...at('2026-01-04T10:00:00Z'), userId: 'someone-else' },
+    ]);
+
+    const pins = await trackerLocationService.pinsBetween(USER, '2026-01-04', '2026-01-05');
+
+    expect(pins.map((p) => p.capturedAt.toISOString())).toEqual([
+      '2026-01-04T09:00:00.000Z',
+      '2026-01-04T12:00:00.000Z',
+      '2026-01-05T08:00:00.000Z',
+    ]);
+  });
+
+  it('reads a single day when both ends are the same, as pinsOn does', async () => {
+    await TrackerLocationModel.create([at('2026-01-04T09:00:00Z'), at('2026-01-05T09:00:00Z')]);
+
+    const between = await trackerLocationService.pinsBetween(USER, '2026-01-04', '2026-01-04');
+    const on = await trackerLocationService.pinsOn(USER, '2026-01-04');
+
+    expect(between).toHaveLength(1);
+    expect(on.map((p) => p._id)).toEqual(between.map((p) => p._id));
+  });
+
+  it('allows exactly 31 days and refuses 32', async () => {
+    await TrackerLocationModel.create([at('2026-01-01T09:00:00Z'), at('2026-01-31T09:00:00Z')]);
+
+    await expect(
+      trackerLocationService.pinsBetween(USER, '2026-01-01', '2026-01-31'),
+    ).resolves.toHaveLength(2);
+    expect(() => trackerLocationService.pinsBetween(USER, '2026-01-01', '2026-02-01')).toThrow(
+      'Locations are read at most 31 days at a time.',
+    );
+  });
+
+  it('refuses a range that ends before it starts', () => {
+    expect(() => trackerLocationService.pinsBetween(USER, '2026-01-05', '2026-01-04')).toThrow(
+      'The range ends before it starts.',
+    );
+  });
+
+  it.each([
+    ['from', '2026-1-1', '2026-01-02'],
+    ['to', '2026-01-01', 'tomorrow'],
+  ])('refuses a malformed %s date', (_end, from, to) => {
+    expect(() => trackerLocationService.pinsBetween(USER, from, to)).toThrow(
+      'Dates are written YYYY-MM-DD.',
+    );
+  });
+});

@@ -68,6 +68,58 @@ describe('reading pins', () => {
   });
 });
 
+describe('reading pins over a range', () => {
+  const RANGE = { from: DATE, to: '2026-01-07' };
+
+  it('serves the caller only their own pins across the days', async () => {
+    const me = await person();
+    await pin(me);
+    await TrackerLocationModel.create({
+      ...officeFix,
+      userId: me,
+      day: new Date('2026-01-07T00:00:00Z'),
+      kind: 'MOVE',
+    });
+    await pin(await person());
+
+    const pins = await Query.myTrackerLocationsBetween(null, RANGE, ctxAs(me, [ROLES.EMPLOYEE]));
+
+    expect(pins.map((p) => p.kind)).toEqual(['ATTENDANCE', 'MOVE']);
+    expect(pins[0]).toMatchObject({ id: expect.any(String), userId: me });
+    await expect(
+      codeOf(Query.myTrackerLocationsBetween(null, RANGE, { user: null } as GraphQLContext)),
+    ).resolves.toBe('UNAUTHENTICATED');
+  });
+
+  it('passes the range checks on as a bad request', async () => {
+    const me = await person();
+
+    await expect(
+      codeOf(
+        Query.myTrackerLocationsBetween(
+          null,
+          { from: '2026-01-07', to: DATE },
+          ctxAs(me, [ROLES.EMPLOYEE]),
+        ),
+      ),
+    ).resolves.toBe('BAD_USER_INPUT');
+  });
+
+  it('lets HR and the employee’s manager read a range, and nobody else', async () => {
+    const manager = await person();
+    const employee = await person(manager);
+    await pin(employee);
+    const read = (ctx: GraphQLContext) =>
+      Query.employeeLocationsBetween(null, { employeeId: employee, ...RANGE }, ctx);
+
+    await expect(read(ctxAs(new Types.ObjectId().toHexString(), [ROLES.HR]))).resolves.toHaveLength(
+      1,
+    );
+    await expect(read(ctxAs(manager, [ROLES.EMPLOYEE]))).resolves.toHaveLength(1);
+    await expect(codeOf(read(ctxAs(await person(), [ROLES.EMPLOYEE])))).resolves.toBe('FORBIDDEN');
+  });
+});
+
 describe('reading earnings', () => {
   const earnings = jest.spyOn(trackerEarningsService, 'earnings');
   const figure = { payType: 'HOURLY' as const, rate: 10, currency: 'USD', trackedMs: 0, amount: 0 };
@@ -159,6 +211,8 @@ describe('trackerRecordLocation', () => {
 describe('the tracker module’s resolver map', () => {
   it('serves the location and earnings fields beside the core ones', () => {
     expect(trackerResolvers.Query.myTrackerLocations).toBe(Query.myTrackerLocations);
+    expect(trackerResolvers.Query.myTrackerLocationsBetween).toBe(Query.myTrackerLocationsBetween);
+    expect(trackerResolvers.Query.employeeLocationsBetween).toBe(Query.employeeLocationsBetween);
     expect(trackerResolvers.Query.employeeEarnings).toBe(Query.employeeEarnings);
     expect(trackerResolvers.Mutation.trackerRecordLocation).toBe(Mutation.trackerRecordLocation);
     expect(trackerResolvers.Mutation.trackerMarkAttendance).toEqual(expect.any(Function));

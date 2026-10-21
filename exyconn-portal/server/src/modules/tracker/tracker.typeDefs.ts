@@ -864,6 +864,10 @@ export const trackerTypeDefs = gql`
     myTrackerLocations(date: String!): [TrackerLocation!]!
     "HR, ADMIN or the employee's manager: their location pins on one local day, oldest first."
     employeeLocations(employeeId: ID!, date: String!): [TrackerLocation!]!
+    "The caller's own location pins from one local day to another (YYYY-MM-DD, both included, at most 31 days), oldest first."
+    myTrackerLocationsBetween(from: String!, to: String!): [TrackerLocation!]!
+    "HR, ADMIN or the employee's manager: their location pins from one local day to another (YYYY-MM-DD, both included, at most 31 days), oldest first."
+    employeeLocationsBetween(employeeId: ID!, from: String!, to: String!): [TrackerLocation!]!
     "The caller's own tracked time over a range priced at their pay rate. ISO date-times."
     myTrackerEarnings(from: String!, to: String!): TrackerEarnings!
     "HR/ADMIN: an employee's tracked time over a range priced at their pay rate. ISO date-times."
