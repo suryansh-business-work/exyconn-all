@@ -74,7 +74,12 @@ export function SalaryStructureForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="Whose pay this is. Picking someone who already has a structure updates theirs."
+      />
       <CompensationFields />
     </EntityForm>
   );

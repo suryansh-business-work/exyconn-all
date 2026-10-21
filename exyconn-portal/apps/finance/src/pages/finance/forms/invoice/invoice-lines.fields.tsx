@@ -37,11 +37,17 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
   const t = useT();
   return (
     <Flex direction="row" spacing={1} alignItems="flex-start">
-      <RhfTextField name={`lines.${index}.description`} label="Description" size="small" />
+      <RhfTextField
+        name={`lines.${index}.description`}
+        label="Description"
+        size="small"
+        helperText="What is billed on this line."
+      />
       <RhfTextField
         name={`lines.${index}.hsnSac`}
         label="HSN/SAC"
         size="small"
+        helperText="Optional. The GST HSN or SAC code."
         sx={{ maxWidth: 100 }}
       />
       <RhfTextField
@@ -49,6 +55,7 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
         label="Qty"
         type="number"
         size="small"
+        helperText="How many units, 0 or more."
         sx={{ maxWidth: 80 }}
       />
       <RhfTextField
@@ -56,6 +63,7 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
         label="Rate"
         type="number"
         size="small"
+        helperText="Price per unit, before tax."
         sx={{ maxWidth: 110 }}
       />
       <RhfTextField
@@ -63,6 +71,7 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
         label="Tax %"
         type="number"
         size="small"
+        helperText="Tax rate on this line, 0 to 100."
         sx={{ maxWidth: 80 }}
       />
       <Text component="p" size="sm" sx={{ minWidth: 90, textAlign: 'right', pt: 1.5 }}>

@@ -67,7 +67,12 @@ export function SendSmsForm({ panel, onCancel }: Readonly<SendSmsFormProps>) {
       submitLabel="Send"
       onCancel={onCancel}
     >
-      <RhfSelect name="to" label="To" options={options} />
+      <RhfSelect
+        name="to"
+        label="To"
+        options={options}
+        helperText="One of the record's phone numbers."
+      />
       <RhfTextField
         name="body"
         label="Message"

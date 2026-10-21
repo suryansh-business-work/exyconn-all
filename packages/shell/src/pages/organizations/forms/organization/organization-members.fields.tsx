@@ -40,8 +40,19 @@ export function OrganizationMembersFields() {
             borderRadius: 1,
           }}
         >
-          <RhfTextField name={`members.${index}.name`} label="Name" required />
-          <RhfTextField name={`members.${index}.email`} label="Email" type="email" required />
+          <RhfTextField
+            name={`members.${index}.name`}
+            label="Name"
+            required
+            helperText="Their full name."
+          />
+          <RhfTextField
+            name={`members.${index}.email`}
+            label="Email"
+            type="email"
+            required
+            helperText="The address they will sign in with."
+          />
           <RhfMultiSelect
             name={`members.${index}.roles`}
             label="Portals"

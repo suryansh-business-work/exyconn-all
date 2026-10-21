@@ -77,7 +77,12 @@ export function StartCallForm({
       submitLabel="Call"
       onCancel={onCancel}
     >
-      <RhfSelect name="to" label="Number to call" options={options} />
+      <RhfSelect
+        name="to"
+        label="Number to call"
+        options={options}
+        helperText="One of the record's phone numbers; it is rung once you answer your phone."
+      />
       <RhfTextField
         name="agentPhone"
         label="Your phone"

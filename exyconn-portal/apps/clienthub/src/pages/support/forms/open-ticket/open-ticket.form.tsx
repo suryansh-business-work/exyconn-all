@@ -44,10 +44,30 @@ export function OpenTicketForm({ onDone, onCancel }: Readonly<OpenTicketFormProp
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={false} onCancel={onCancel}>
-      <RhfTextField name="subject" label="Subject" />
-      <RhfSelect name="category" label="What is it about?" options={CATEGORY_OPTIONS} />
-      <RhfSelect name="priority" label="How urgent is it?" options={PRIORITY_OPTIONS} />
-      <RhfTextField name="description" label="Describe the problem" multiline minRows={5} />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="One line about what is wrong, e.g. Invoice shows the wrong amount."
+      />
+      <RhfSelect
+        name="category"
+        label="What is it about?"
+        options={CATEGORY_OPTIONS}
+        helperText="Pick the closest match; Other is fine if none fits."
+      />
+      <RhfSelect
+        name="priority"
+        label="How urgent is it?"
+        options={PRIORITY_OPTIONS}
+        helperText="High for something that stops your work, Low for questions."
+      />
+      <RhfTextField
+        name="description"
+        label="Describe the problem"
+        multiline
+        minRows={5}
+        helperText="What happened, what you expected, and any steps to repeat it, up to 4000 characters."
+      />
     </EntityForm>
   );
 }

@@ -47,16 +47,40 @@ export function NetworkItemForm({ initial, onDone, onCancel }: Readonly<NetworkI
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="name" label="Name" helperText="e.g. Office Wi-Fi, Staff VPN" />
-      <RhfSelect name="kind" label="Kind" options={KIND_OPTIONS} />
+      <RhfSelect
+        name="kind"
+        label="Kind"
+        options={KIND_OPTIONS}
+        helperText="What it is, e.g. Wi-Fi, VPN, firewall, DNS zone or IP range."
+      />
       <RhfTextField
         name="address"
         label="Address"
         helperText="IP, CIDR range, hostname or SSID — never a password"
       />
-      <RhfTextField name="location" label="Location" />
-      <RhfTextField name="provider" label="Provider" />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="notes" label="Notes" multiline rows={3} />
+      <RhfTextField
+        name="location"
+        label="Location"
+        helperText="Optional. The office or site it serves, e.g. London office."
+      />
+      <RhfTextField
+        name="provider"
+        label="Provider"
+        helperText="Optional. The vendor or ISP behind it, e.g. Cloudflare."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Whether it is working normally, degraded, down or retired."
+      />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={3}
+        helperText="Optional. Setup details or known issues. Never store passwords here."
+      />
     </EntityForm>
   );
 }

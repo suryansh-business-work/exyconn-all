@@ -36,7 +36,12 @@ function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
           sm: 4,
         }}
       >
-        <RhfSelect name={`lines.${index}.productId`} label="Product" options={products} />
+        <RhfSelect
+          name={`lines.${index}.productId`}
+          label="Product"
+          options={products}
+          helperText="What this line orders."
+        />
       </Grid>
       <Grid
         size={{
@@ -44,7 +49,12 @@ function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
           sm: 2,
         }}
       >
-        <RhfTextField name={`lines.${index}.quantity`} label="Qty" type="number" />
+        <RhfTextField
+          name={`lines.${index}.quantity`}
+          label="Qty"
+          type="number"
+          helperText="Whole units, 1 or more."
+        />
       </Grid>
       <Grid
         size={{
@@ -52,7 +62,12 @@ function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
           sm: 2,
         }}
       >
-        <RhfTextField name={`lines.${index}.unitCost`} label="Unit cost" type="number" />
+        <RhfTextField
+          name={`lines.${index}.unitCost`}
+          label="Unit cost"
+          type="number"
+          helperText="Per unit, before tax."
+        />
       </Grid>
       <Grid
         size={{
@@ -60,7 +75,12 @@ function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
           sm: 2,
         }}
       >
-        <RhfTextField name={`lines.${index}.taxPercent`} label="Tax %" type="number" />
+        <RhfTextField
+          name={`lines.${index}.taxPercent`}
+          label="Tax %"
+          type="number"
+          helperText="0 to 100, added on top."
+        />
       </Grid>
       <Grid
         size={{

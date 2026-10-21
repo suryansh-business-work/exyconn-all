@@ -54,7 +54,12 @@ export function MarketingFooterForm({ initial, onSaved }: Readonly<MarketingFoot
           'Every marketing email ends with this footer, plus its Unsubscribe and Manage preferences links.',
         )}
       </Alert>
-      <RhfTextField name="companyName" label="Company name" required />
+      <RhfTextField
+        name="companyName"
+        label="Company name"
+        required
+        helperText="The sender's legal or trading name, shown first in the footer."
+      />
       <RhfTextField
         name="contactLine"
         label="Contact details"

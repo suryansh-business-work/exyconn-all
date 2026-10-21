@@ -78,8 +78,19 @@ export function DepartmentForm({ initial, onDone, onCancel }: Readonly<Departmen
         }
       />
       <RhfTextField name="code" label="Code (optional)" helperText="A short reference, e.g. ENG." />
-      <RhfAutocomplete name="headId" label="Head of department (optional)" options={headOptions} />
-      <RhfTextField name="description" label="Description (optional)" multiline minRows={2} />
+      <RhfAutocomplete
+        name="headId"
+        label="Head of department (optional)"
+        options={headOptions}
+        helperText="The employee who leads this department."
+      />
+      <RhfTextField
+        name="description"
+        label="Description (optional)"
+        multiline
+        minRows={2}
+        helperText="What the department does. Up to 200 characters."
+      />
     </EntityForm>
   );
 }

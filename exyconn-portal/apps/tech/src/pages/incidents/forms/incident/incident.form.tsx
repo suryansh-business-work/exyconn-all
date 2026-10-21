@@ -62,8 +62,18 @@ export function IncidentForm({ onDone, onCancel }: Readonly<IncidentFormProps>) 
         label="Title"
         helperText="Shown as the headline on the status page"
       />
-      <RhfSelect name="impact" label="Impact" options={IMPACT_OPTIONS} />
-      <RhfMultiSelect name="affectedServiceKeys" label="Affected services" options={services} />
+      <RhfSelect
+        name="impact"
+        label="Impact"
+        options={IMPACT_OPTIONS}
+        helperText="How badly people are affected, from Minor to Critical."
+      />
+      <RhfMultiSelect
+        name="affectedServiceKeys"
+        label="Affected services"
+        options={services}
+        helperText="The status page services this incident is shown against; pick at least one."
+      />
       <RhfTextField
         name="body"
         label="What do we know?"

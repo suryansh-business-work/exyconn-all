@@ -69,15 +69,33 @@ export function EmailTemplateForm({ initial, onDone, onCancel }: Readonly<Props>
           {t('Code sends this template by its key. Renaming the key stops whatever sends it.')}
         </Alert>
       ) : null}
-      <RhfTextField name="key" label="Key" />
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="description" label="Description" />
+      <RhfTextField
+        name="key"
+        label="Key"
+        helperText="The id code sends this email by, e.g. password-reset; lower-case letters, numbers and hyphens."
+      />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="A readable name for this list, e.g. Password reset."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        helperText="Optional. When this email is sent and to whom."
+      />
       <RhfTextField
         name="subject"
         label="Subject"
         helperText="Takes the same {{placeholders}} as the body."
       />
-      <RhfCodeEditor name="mjml" label="MJML" language="html" height={380} />
+      <RhfCodeEditor
+        name="mjml"
+        label="MJML"
+        language="html"
+        height={380}
+        helperText="The email body in MJML. Use {{placeholders}} for values and {{> key }} for fragments."
+      />
       <RhfSwitch name="isActive" label="Active (an inactive template refuses to send)" />
     </EntityForm>
   );

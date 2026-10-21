@@ -53,9 +53,24 @@ export function ChangePasswordForm() {
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit onCancel={() => methods.reset()}>
-      <RhfTextField name="currentPassword" label="Current password" type="password" />
-      <RhfTextField name="newPassword" label="New password" type="password" />
-      <RhfTextField name="confirmPassword" label="Confirm new password" type="password" />
+      <RhfTextField
+        name="currentPassword"
+        label="Current password"
+        type="password"
+        helperText="The password you sign in with today."
+      />
+      <RhfTextField
+        name="newPassword"
+        label="New password"
+        type="password"
+        helperText="10 to 128 characters, different from your current password."
+      />
+      <RhfTextField
+        name="confirmPassword"
+        label="Confirm new password"
+        type="password"
+        helperText="Type the new password again to rule out a typo."
+      />
     </EntityForm>
   );
 }

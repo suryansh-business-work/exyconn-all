@@ -98,7 +98,11 @@ export function DealForm({ initial, onDone, onCancel }: Readonly<DealFormProps>)
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Deal" />
+      <RhfTextField
+        name="title"
+        label="Deal"
+        helperText="A short name for the opportunity, e.g. Acme annual plan."
+      />
       <QuickCreateSelect
         name="companyId"
         label="Company"
@@ -115,17 +119,41 @@ export function DealForm({ initial, onDone, onCancel }: Readonly<DealFormProps>)
         onRefresh={refetchContacts}
         renderCreate={(done, cancel) => <CreateContactPanel done={done} cancel={cancel} />}
       />
-      <RhfSelect name="stage" label="Stage" options={STAGE_OPTIONS} />
-      <RhfTextField name="value" label="Value" type="number" />
+      <RhfSelect
+        name="stage"
+        label="Stage"
+        options={STAGE_OPTIONS}
+        helperText="Where the deal sits on the pipeline, from Qualifying to Won or Lost."
+      />
+      <RhfTextField
+        name="value"
+        label="Value"
+        type="number"
+        helperText="What the deal should be worth if won; 0 if not known yet."
+      />
       <RhfTextField
         name="probability"
         label="Probability"
         type="number"
         helperText="Percent, 0-100"
       />
-      <RhfDatePicker name="expectedCloseDate" label="Expected close" />
-      <RhfTextField name="owner" label="Owner" />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfDatePicker
+        name="expectedCloseDate"
+        label="Expected close"
+        helperText="Optional. When you expect a decision."
+      />
+      <RhfTextField
+        name="owner"
+        label="Owner"
+        helperText="Who is working the deal, e.g. Priya Sharma."
+      />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Context the team should know, e.g. budget or blockers."
+      />
     </EntityForm>
   );
 }

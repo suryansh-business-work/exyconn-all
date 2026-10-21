@@ -65,10 +65,19 @@ function TaskRow({ index, onRemove }: Readonly<TaskRowProps>) {
   return (
     <Flex direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start">
       <Box sx={{ flex: 2, width: '100%' }}>
-        <RhfTextField name={`tasks.${index}.label`} label="Task" />
+        <RhfTextField
+          name={`tasks.${index}.label`}
+          label="Task"
+          helperText="What has to be done, e.g. Issue a laptop."
+        />
       </Box>
       <Box sx={{ flex: 1, width: '100%' }}>
-        <RhfSelect name={`tasks.${index}.owner`} label="Owner" options={OWNER_OPTIONS} />
+        <RhfSelect
+          name={`tasks.${index}.owner`}
+          label="Owner"
+          options={OWNER_OPTIONS}
+          helperText="Who is responsible for getting it done."
+        />
       </Box>
       <Box sx={{ flex: 1, width: '100%' }}>
         <RhfTextField
@@ -78,6 +87,7 @@ function TaskRow({ index, onRemove }: Readonly<TaskRowProps>) {
           slotProps={{
             htmlInput: { min: 0, max: 365 },
           }}
+          helperText="Days after the join date it is due; 0 is the first day."
         />
       </Box>
       <IconButton
@@ -145,7 +155,11 @@ export function OnboardingTemplateForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Template name" />
+      <RhfTextField
+        name="name"
+        label="Template name"
+        helperText="What HR picks when starting an onboarding, e.g. Engineering joiner."
+      />
       <RhfSwitch name="active" label="Offer this template when starting an onboarding" />
       <Text size="sm" color="text.secondary">
         {t(

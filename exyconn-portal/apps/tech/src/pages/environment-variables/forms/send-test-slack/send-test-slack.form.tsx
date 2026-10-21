@@ -62,7 +62,11 @@ export function SendTestSlackForm({
           { label: configLabel },
         )}
       </Text>
-      <RhfTextField name="channel" label="Channel" />
+      <RhfTextField
+        name="channel"
+        label="Channel"
+        helperText="The channel to post the test message in, e.g. #general."
+      />
     </EntityForm>
   );
 }

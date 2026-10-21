@@ -97,6 +97,7 @@ export function TwoFactorForm({ onEnrolled, onCancel }: Readonly<TwoFactorFormPr
             label={t('Code from the app')}
             autoComplete="one-time-code"
             inputMode="numeric"
+            helperText="The six-digit code your authenticator app is showing now."
           />
           <Flex direction="row" spacing={1}>
             <Button type="submit" variant="contained" loading={methods.formState.isSubmitting}>

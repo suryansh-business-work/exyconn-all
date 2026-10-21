@@ -16,7 +16,13 @@ export function BrandingIdentityFields() {
         helperText="Registered entity name, used on invoices and contracts."
       />
       <RhfTextField name="slogan" label="Slogan" helperText="One short line under the logo." />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="Optional. A few sentences about the business, shown on the website."
+      />
     </Flex>
   );
 }

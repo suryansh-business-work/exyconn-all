@@ -47,5 +47,12 @@ export function RelatedPicker({
       />
     );
   }
-  return <RhfSelect name="relatedId" label="Related to" options={options} />;
+  return (
+    <RhfSelect
+      name="relatedId"
+      label="Related to"
+      options={options}
+      helperText="The deal this activity is about."
+    />
+  );
 }

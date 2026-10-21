@@ -97,9 +97,22 @@ export function AiModelPriceForm({ initial, onDone, onCancel }: Readonly<AiModel
         helperText="The model id, e.g. gpt-4o-mini"
         disabled={Boolean(initial)}
       />
-      <RhfTextField name="inputPer1kUsd" label="Input price (USD / 1K tokens)" />
-      <RhfTextField name="outputPer1kUsd" label="Output price (USD / 1K tokens)" />
-      <RhfSelect name="active" label="Use this price" options={BOOL_OPTIONS} />
+      <RhfTextField
+        name="inputPer1kUsd"
+        label="Input price (USD / 1K tokens)"
+        helperText="What 1,000 prompt tokens cost, e.g. 0.00015."
+      />
+      <RhfTextField
+        name="outputPer1kUsd"
+        label="Output price (USD / 1K tokens)"
+        helperText="What 1,000 generated tokens cost, e.g. 0.0006."
+      />
+      <RhfSelect
+        name="active"
+        label="Use this price"
+        options={BOOL_OPTIONS}
+        helperText="No leaves runs of this model costed at nothing."
+      />
     </EntityForm>
   );
 }

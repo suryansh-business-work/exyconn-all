@@ -82,8 +82,17 @@ export function MilestoneForm({
         minRows={2}
         helperText="Shown to clients on a shared link — write it for them"
       />
-      <RhfDatePicker name="dueOn" label="Due on" />
-      <RhfSelect name="state" label="State" options={enumOptions(Object.values(MilestoneState))} />
+      <RhfDatePicker
+        name="dueOn"
+        label="Due on"
+        helperText="Optional. The date the project commits to; clients see it on a shared link."
+      />
+      <RhfSelect
+        name="state"
+        label="State"
+        options={enumOptions(Object.values(MilestoneState))}
+        helperText="Whether the milestone is planned, in progress, hit or missed."
+      />
     </EntityForm>
   );
 }

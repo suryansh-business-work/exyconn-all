@@ -58,7 +58,11 @@ export function MeetingDetailsForm({ meeting }: Readonly<MeetingDetailsFormProps
       onCancel={() => methods.reset()}
       submitLabel="Save"
     >
-      <RhfTextField name="title" label="Meeting title" />
+      <RhfTextField
+        name="title"
+        label="Meeting title"
+        helperText="How the meeting is listed and named in its notes, up to 300 characters."
+      />
       <RhfSelect
         name="language"
         label="Spoken language"

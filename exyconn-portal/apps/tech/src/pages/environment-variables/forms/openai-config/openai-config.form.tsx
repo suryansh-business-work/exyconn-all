@@ -84,7 +84,11 @@ export function OpenAiConfigForm({ initial, onDone, onCancel }: Readonly<OpenAiC
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfSecretField
         name="apiKey"
         label="API key"
@@ -97,7 +101,12 @@ export function OpenAiConfigForm({ initial, onDone, onCancel }: Readonly<OpenAiC
         label="Model"
         helperText="The model requests default to, e.g. gpt-4o-mini. Tested against this key."
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

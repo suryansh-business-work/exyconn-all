@@ -109,23 +109,48 @@ export function ActivityForm({ initial, onDone, onCancel }: Readonly<ActivityFor
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="subject" label="Subject" />
-      <RhfSelect name="type" label="Type" options={TYPE_OPTIONS} />
-      <RhfSelect name="relatedType" label="About" options={SUBJECT_OPTIONS} />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="A short summary, e.g. Follow-up call about pricing."
+      />
+      <RhfSelect
+        name="type"
+        label="Type"
+        options={TYPE_OPTIONS}
+        helperText="What kind of interaction it is, e.g. Call or Meeting."
+      />
+      <RhfSelect
+        name="relatedType"
+        label="About"
+        options={SUBJECT_OPTIONS}
+        helperText="Whether it is about a deal, a contact or a company; the list below follows it."
+      />
       <RelatedPicker
         relatedType={relatedType}
         options={options}
         refetchContacts={refetchContacts}
         refetchCompanies={refetchCompanies}
       />
-      <RhfDatePicker name="dueDate" label="Due" />
+      <RhfDatePicker name="dueDate" label="Due" helperText="Optional. When it should happen." />
       <RhfSelect
         name="done"
         label="Status"
         options={DONE_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
+        helperText="Mark it Done once it has happened."
       />
-      <RhfTextField name="owner" label="Owner" />
-      <RhfTextField name="notes" label="Notes" multiline rows={3} />
+      <RhfTextField
+        name="owner"
+        label="Owner"
+        helperText="Who is responsible for it, e.g. Priya Sharma."
+      />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={3}
+        helperText="Optional. Details worth keeping, e.g. what was agreed."
+      />
     </EntityForm>
   );
 }

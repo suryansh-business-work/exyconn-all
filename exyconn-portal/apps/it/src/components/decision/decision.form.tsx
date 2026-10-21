@@ -56,7 +56,12 @@ export function DecisionForm({ onDecide, onDone, onCancel }: Readonly<DecisionFo
       onCancel={onCancel}
       submitLabel="Record decision"
     >
-      <RhfSelect name="decision" label="Decision" options={DECISION_OPTIONS} />
+      <RhfSelect
+        name="decision"
+        label="Decision"
+        options={DECISION_OPTIONS}
+        helperText="Approve to let the work go ahead, or reject to stop it."
+      />
       <RhfTextField
         name="note"
         label="Note"

@@ -29,14 +29,32 @@ export function CompanyDetailsFields() {
         name="logoUrl"
         label={t('Company logo')}
         folder="crm-companies"
-        helperText={t('Shown on the company page and beside its people')}
+        helperText="Shown on the company page and beside its people"
         cropOptions={LOGO_CROP}
       />
-      <RhfTextField name="name" label="Company name" />
+      <RhfTextField
+        name="name"
+        label="Company name"
+        helperText="The name the company trades under, e.g. Acme Retail."
+      />
       <RhfTextField name="domain" label="Domain" helperText="e.g. exyconn.com" />
-      <RhfTextField name="industry" label="Industry" />
-      <RhfSelect name="size" label="Size" options={sizeOptions} />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfTextField
+        name="industry"
+        label="Industry"
+        helperText="Optional. What they do, e.g. Retail or Healthcare."
+      />
+      <RhfSelect
+        name="size"
+        label="Size"
+        options={sizeOptions}
+        helperText="Optional. Their headcount band; leave Not known if unsure."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Where the account stands with you: Prospect, Customer, Partner or Churned."
+      />
       <RhfTextField
         name="owner"
         label="Company owner"
@@ -56,16 +74,37 @@ export function CompanyDetailsFields() {
         addLabel="Add phone"
       />
       <Divider />
-      <RhfTextField name="annualRevenue" label="Annual revenue" inputMode="numeric" />
-      <RhfTextField name="employeeCount" label="Employees" inputMode="numeric" />
-      <RhfTextField name="foundedYear" label="Founded" inputMode="numeric" />
+      <RhfTextField
+        name="annualRevenue"
+        label="Annual revenue"
+        inputMode="numeric"
+        helperText="Optional. A whole number without commas, e.g. 2500000."
+      />
+      <RhfTextField
+        name="employeeCount"
+        label="Employees"
+        inputMode="numeric"
+        helperText="Optional. Headcount if known, e.g. 120."
+      />
+      <RhfTextField
+        name="foundedYear"
+        label="Founded"
+        inputMode="numeric"
+        helperText="Optional. A four-digit year, e.g. 2015."
+      />
       <RhfTextField
         name="location"
         label="Location"
         helperText="How the account is known, e.g. London HQ"
       />
       <ProfileFields aboutLabel="About the company" />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Internal notes about the account."
+      />
     </>
   );
 }

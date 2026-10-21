@@ -88,9 +88,20 @@ export function PositionForm({
         label="Position name"
         helperText="Shown as the designation on employee records."
       />
-      <RhfSelect name="department" label="Department" options={departmentOptions} />
+      <RhfSelect
+        name="department"
+        label="Department"
+        options={departmentOptions}
+        helperText="The department this position sits in."
+      />
       <RhfTextField name="code" label="Code (optional)" helperText="A short reference, e.g. SE2." />
-      <RhfTextField name="description" label="Description (optional)" multiline minRows={3} />
+      <RhfTextField
+        name="description"
+        label="Description (optional)"
+        multiline
+        minRows={3}
+        helperText="What the role does and what it is responsible for."
+      />
       <RhfTextField
         name="minSalary"
         label="Minimum salary"
@@ -107,11 +118,13 @@ export function PositionForm({
         name="grade"
         label="Grade (optional)"
         options={codeOptions(grades?.listGrades ?? [])}
+        helperText="The pay grade this position is placed at."
       />
       <RhfSelect
         name="employmentType"
         label="Employment type (optional)"
         options={codeOptions(types?.listEmploymentTypes ?? [])}
+        helperText="How people in this position are engaged, e.g. Full-time or Contract."
       />
       <RhfTextField
         name="headcount"

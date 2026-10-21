@@ -91,10 +91,20 @@ export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps
       </Alert>
       <Grid container spacing={2}>
         <Grid size={12}>
-          <RhfTextField name="title" label="Title" />
+          <RhfTextField
+            name="title"
+            label="Title"
+            helperText="The notification heading, up to 120 characters."
+          />
         </Grid>
         <Grid size={12}>
-          <RhfTextField name="body" label="Message" multiline minRows={4} />
+          <RhfTextField
+            name="body"
+            label="Message"
+            multiline
+            minRows={4}
+            helperText="What employees read in the notification and under Announcements, up to 2000 characters."
+          />
         </Grid>
         <Grid size={12}>
           <RhfMultiSelect

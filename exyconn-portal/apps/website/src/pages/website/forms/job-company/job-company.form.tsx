@@ -7,7 +7,6 @@ import { Divider, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch, RhfRichText } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { RhfMediaField } from '../../../cms/media';
 import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateJobCompanyMutation,
@@ -15,6 +14,11 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 import { CompanyBenefitsFields } from './company-benefits.fields';
+import {
+  CompanyIdentityFields,
+  CompanyProfileFields,
+  CompanySocialFields,
+} from './company-profile.fields';
 import type { JobCompanyRow } from './job-company.types';
 import { ItemSeoFields, itemSeoSchema, toItemSeoValues } from '../item-seo';
 
@@ -147,11 +151,7 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="companyCode" label="Company code" />
-      <RhfTextField name="slug" label="Slug" />
-      <RhfTextField name="name" label="Name" />
-      <RhfMediaField name="logo" label="Logo" siteId={siteId} />
-      <RhfTextField name="tagline" label="Tagline" />
+      <CompanyIdentityFields siteId={siteId} />
       <RhfRichText
         name="description"
         label="Description"
@@ -166,28 +166,28 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
       />
 
       <Divider />
-      <Typography variant="subtitle2">{t('Company profile')}</Typography>
-      <RhfTextField name="website" label="Website" />
-      <RhfTextField name="founded" label="Founded" />
-      <RhfTextField name="employees" label="Employees" />
-      <RhfTextField name="industry" label="Industry" />
-      <RhfTextField name="headquarters" label="Headquarters" />
+      <CompanyProfileFields />
 
       <Divider />
       <CompanyBenefitsFields />
 
       <Divider />
-      <Typography variant="subtitle2">{t('Social links')}</Typography>
-      <RhfTextField name="socialLinks.linkedin" label="LinkedIn" />
-      <RhfTextField name="socialLinks.twitter" label="Twitter" />
-      <RhfTextField name="socialLinks.facebook" label="Facebook" />
-      <RhfTextField name="socialLinks.instagram" label="Instagram" />
+      <CompanySocialFields />
 
       <Divider />
       <Typography variant="subtitle2">{t('Branding & visibility')}</Typography>
       <RhfTextField name="brandColor" label="Brand color" helperText="Hex value, e.g. #f9851f" />
-      <RhfTextField name="secondaryColor" label="Secondary color" />
-      <RhfTextField name="order" label="Order" type="number" />
+      <RhfTextField
+        name="secondaryColor"
+        label="Secondary color"
+        helperText="Optional. Hex value for accents, e.g. #1f2a44."
+      />
+      <RhfTextField
+        name="order"
+        label="Order"
+        type="number"
+        helperText="Lower numbers appear first in the company list."
+      />
       <RhfSwitch name="isActive" label="Active" />
       <ItemSeoFields siteId={siteId} />
     </EntityForm>

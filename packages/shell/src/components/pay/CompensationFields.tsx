@@ -67,7 +67,12 @@ export function CompensationFields() {
             sm: 6,
           }}
         >
-          <RhfSelect name="payType" label="Pay type" options={PAY_TYPE_OPTIONS} />
+          <RhfSelect
+            name="payType"
+            label="Pay type"
+            options={PAY_TYPE_OPTIONS}
+            helperText="Fixed pay is split into basic, HRA and allowances; the other types are one amount."
+          />
         </Grid>
         <Grid
           size={{
@@ -75,7 +80,7 @@ export function CompensationFields() {
             sm: 6,
           }}
         >
-          <RhfCurrencyField />
+          <RhfCurrencyField helperText="The currency this person is paid in." />
         </Grid>
 
         {payType === PayType.Other && (
@@ -110,7 +115,11 @@ export function CompensationFields() {
             sm: 6,
           }}
         >
-          <RhfDatePicker name="effectiveFrom" label="Effective from" />
+          <RhfDatePicker
+            name="effectiveFrom"
+            label="Effective from"
+            helperText="The first day this pay applies."
+          />
         </Grid>
       </Grid>
     </>

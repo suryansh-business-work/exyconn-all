@@ -14,13 +14,26 @@ function QuoteRow({ index, onRemove }: Readonly<{ index: number; onRemove: () =>
   return (
     <Grid container spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
       <Grid size={{ xs: 12, sm: 4 }}>
-        <RhfTextField name={`quotes.${index}.vendor`} label="Vendor" />
+        <RhfTextField
+          name={`quotes.${index}.vendor`}
+          label="Vendor"
+          helperText="The supplier that gave this quote."
+        />
       </Grid>
       <Grid size={{ xs: 6, sm: 3 }}>
-        <RhfTextField name={`quotes.${index}.amount`} label="Amount" type="number" />
+        <RhfTextField
+          name={`quotes.${index}.amount`}
+          label="Amount"
+          type="number"
+          helperText="The quoted total. The cheapest quote is used in spend reports."
+        />
       </Grid>
       <Grid size={{ xs: 6, sm: 4 }}>
-        <RhfTextField name={`quotes.${index}.notes`} label="Notes" />
+        <RhfTextField
+          name={`quotes.${index}.notes`}
+          label="Notes"
+          helperText="Optional. Delivery time, warranty or other terms."
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 1 }}>
         <IconButton aria-label={t('Remove quote')} onClick={onRemove} size="small">

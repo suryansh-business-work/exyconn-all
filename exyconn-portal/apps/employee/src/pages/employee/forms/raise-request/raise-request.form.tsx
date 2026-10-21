@@ -54,9 +54,20 @@ export function RaiseRequestForm({ onCancel, onDone }: Readonly<RaiseRequestForm
         name="type"
         label="Request type"
         options={enumOptions(Object.values(RequestType))}
+        helperText="What you are asking HR for, e.g. work from home, a reimbursement or a document."
       />
-      <RhfTextField name="subject" label="Subject" />
-      <RhfTextField name="details" label="Details" multiline minRows={4} />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="A one-line summary, e.g. WFH on 12 March. Up to 120 characters."
+      />
+      <RhfTextField
+        name="details"
+        label="Details"
+        multiline
+        minRows={4}
+        helperText="Dates, amounts and anything else HR needs to decide. At least 10 characters."
+      />
     </EntityForm>
   );
 }

@@ -48,8 +48,17 @@ export function NewsletterSubscriberForm({
       onCancel={onCancel}
       submitLabel="Add subscriber"
     >
-      <RhfTextField name="email" label="Email" type="email" />
-      <RhfTextField name="name" label="Name" />
+      <RhfTextField
+        name="email"
+        label="Email"
+        type="email"
+        helperText="Where issues are sent. An address already on the list is subscribed again."
+      />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="Optional. Helps you recognise the subscriber in the list, up to 120 characters."
+      />
     </EntityForm>
   );
 }

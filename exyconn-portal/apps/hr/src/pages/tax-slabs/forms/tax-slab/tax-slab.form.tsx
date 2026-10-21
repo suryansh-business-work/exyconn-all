@@ -110,7 +110,12 @@ export function TaxSlabForm({
           'Each band’s rate applies only to the part of the year’s income inside it. Bands take effect on the next payroll run.',
         )}
       </Text>
-      <RhfSelect name="regimeKey" label="Regime" options={regimeOptions} />
+      <RhfSelect
+        name="regimeKey"
+        label="Regime"
+        options={regimeOptions}
+        helperText="The tax regime whose table this band belongs to, e.g. NEW or OLD."
+      />
       <RhfTextField name="financialYear" label="Financial year" helperText="As 2026-27." />
       <RhfTextField
         name="order"
@@ -130,7 +135,12 @@ export function TaxSlabForm({
         type="number"
         helperText="Leave empty for the top band, which has no upper bound."
       />
-      <RhfTextField name="ratePercent" label="Rate (%)" type="number" />
+      <RhfTextField
+        name="ratePercent"
+        label="Rate (%)"
+        type="number"
+        helperText="Tax charged on the income inside this band, from 0 to 100, e.g. 5."
+      />
       <RhfSwitch name="active" label="Apply this band" />
     </EntityForm>
   );

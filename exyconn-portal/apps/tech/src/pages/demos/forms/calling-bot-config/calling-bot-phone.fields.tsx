@@ -33,7 +33,12 @@ export function CallingBotPhoneFields({
       />
       {provider === CallingBotPhoneProvider.Vobiz && <VobizFields {...props} />}
       {provider === CallingBotPhoneProvider.Twilio && <TwilioFields {...props} />}
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one setting is active at a time; the demo uses that one."
+      />
     </>
   );
 }

@@ -2,19 +2,14 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { currencyField } from '@exyconn/shell/utils/currencyField';
-import { Grid } from '@exyconn/shell/components/ui';
 import {
   RhfAutocomplete,
-  RhfDatePicker,
-  RhfSelect,
   RhfSwitch,
   RhfTextField,
-  RhfCurrencyField,
   useCompanyCurrency,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { gstStateCodeField } from '@exyconn/shell/utils/gstFields';
 import { useGstStateOptions } from '@exyconn/shell/hooks/useGstStateOptions';
 import {
@@ -24,6 +19,7 @@ import {
   useUpdateRecurringInvoiceMutation,
 } from '@exyconn/shell/graphql/generated';
 import { InvoiceLinesFields } from '../invoice/invoice-lines.fields';
+import { RecurringScheduleFields } from './recurring-invoice.fields';
 import type { RecurringInvoiceRow } from './recurring-invoice.types';
 
 const lineSchema = z.object({
@@ -135,71 +131,14 @@ export function RecurringInvoiceForm({
         label="Name"
         helperText="For this screen only — never printed on the invoice."
       />
-      <RhfAutocomplete name="clientId" label="Client" options={clientOptions} />
+      <RhfAutocomplete
+        name="clientId"
+        label="Client"
+        options={clientOptions}
+        helperText="Who every invoice from this retainer is addressed to."
+      />
       <InvoiceLinesFields currency={currency} />
-      <Grid container spacing={2}>
-        <Grid
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <RhfSelect
-            name="frequency"
-            label="Bills every"
-            options={enumOptions(Object.values(RecurrenceFrequency))}
-          />
-        </Grid>
-        <Grid
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <RhfCurrencyField />
-        </Grid>
-        <Grid
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <RhfDatePicker name="startDate" label="First invoice on" />
-        </Grid>
-        <Grid
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <RhfDatePicker name="endDate" label="Stop after (optional)" />
-        </Grid>
-        <Grid
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <RhfTextField
-            name="dueDays"
-            label="Payment terms (days)"
-            type="number"
-            helperText="Days between an invoice's issue date and its due date."
-          />
-        </Grid>
-        <Grid
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <RhfSelect
-            name="placeOfSupplyStateCode"
-            label="Place of supply"
-            options={gstStateOptions}
-          />
-        </Grid>
-      </Grid>
+      <RecurringScheduleFields gstStateOptions={gstStateOptions} />
       <RhfSwitch name="active" label="Active" />
     </EntityForm>
   );

@@ -89,7 +89,12 @@ export function CallingBotScenarioForm({
         label="Opening line"
         helperText="The first thing the bot says when the call connects."
       />
-      <RhfSelect name="languageCode" label="Language" options={SCENARIO_LANGUAGE_OPTIONS} />
+      <RhfSelect
+        name="languageCode"
+        label="Language"
+        options={SCENARIO_LANGUAGE_OPTIONS}
+        helperText="The language the bot speaks and listens in on this example."
+      />
       <RhfTextField
         name="order"
         label="Order"

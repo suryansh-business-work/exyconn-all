@@ -67,16 +67,36 @@ export function NavLinkForm({ initial, onDone, onCancel }: Readonly<NavLinkFormP
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="The text visitors see for this link in the site navigation."
+      />
       <RhfTextField name="href" label="Link URL" helperText="e.g. /services/ai-consulting" />
-      <RhfTextField name="description" label="Description" multiline minRows={2} />
-      <RhfSelect name="category" label="Category" options={CATEGORY_OPTIONS} />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={2}
+        helperText="Optional. A short line saying where the link leads."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={CATEGORY_OPTIONS}
+        helperText="The navigation group this link is listed under."
+      />
       <RhfTextField
         name="keywords"
         label="Keywords"
         helperText="Comma-separated search keywords."
       />
-      <RhfTextField name="order" label="Order" type="number" />
+      <RhfTextField
+        name="order"
+        label="Order"
+        type="number"
+        helperText="Position within its category. Lower numbers appear first."
+      />
       <RhfSwitch name="isActive" label="Active" />
     </EntityForm>
   );

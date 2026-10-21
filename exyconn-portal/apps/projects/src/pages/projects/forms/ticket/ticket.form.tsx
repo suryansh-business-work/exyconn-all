@@ -110,24 +110,55 @@ export function TicketForm({
       onCancel={onCancel}
       submitLabel="Save ticket"
     >
-      <RhfTextField name="title" label="Summary" />
-      <RhfRichText name="description" label="Description" />
+      <RhfTextField
+        name="title"
+        label="Summary"
+        helperText="A short line saying what needs doing, e.g. Fix login on Safari."
+      />
+      <RhfRichText
+        name="description"
+        label="Description"
+        helperText="Optional. Details, steps to reproduce or acceptance criteria."
+      />
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <RhfSelect name="type" label="Type" options={typeOptions} />
+          <RhfSelect
+            name="type"
+            label="Type"
+            options={typeOptions}
+            helperText="Story, task, bug or epic; an epic groups other tickets."
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <RhfSelect name="priority" label="Priority" options={priorityOptions} />
+          <RhfSelect
+            name="priority"
+            label="Priority"
+            options={priorityOptions}
+            helperText="How urgent it is, from Lowest to Highest."
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <RhfAutocomplete name="assigneeId" label="Assignee" options={assigneeOptions} />
+          <RhfAutocomplete
+            name="assigneeId"
+            label="Assignee"
+            options={assigneeOptions}
+            helperText="Who works on the ticket; leave Unassigned if nobody yet."
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <RhfTextField name="storyPoints" label="Story points" />
+          <RhfTextField
+            name="storyPoints"
+            label="Story points"
+            helperText="Optional. A rough size as a whole number, e.g. 3."
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <RhfDatePicker name="dueDate" label="Due date" />
+          <RhfDatePicker
+            name="dueDate"
+            label="Due date"
+            helperText="Optional. When the ticket should be done."
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
           <RhfChipsInput name="labels" label="Labels" helperText="Type a label and press Enter" />

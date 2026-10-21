@@ -81,8 +81,18 @@ export function SendInvoiceForm({ invoice, onDone, onCancel }: Readonly<SendInvo
       <Text size="sm" color="text.secondary">
         {summary}
       </Text>
-      <RhfTextField name="email" label="Recipient email" />
-      <RhfTextField name="message" label="Message (optional)" multiline minRows={3} />
+      <RhfTextField
+        name="email"
+        label="Recipient email"
+        helperText="Starts as the client's email on file; change it to send to another inbox this once."
+      />
+      <RhfTextField
+        name="message"
+        label="Message (optional)"
+        multiline
+        minRows={3}
+        helperText="Optional. A note in the email body, up to 1000 characters."
+      />
     </EntityForm>
   );
 }

@@ -56,6 +56,7 @@ export function ClientCodeStep({
             autoComplete="one-time-code"
             autoFocus
             slotProps={{ htmlInput: { inputMode: 'numeric', maxLength: 6 } }}
+            helperText="The six digits from the email we just sent you."
           />
           <Button
             type="submit"

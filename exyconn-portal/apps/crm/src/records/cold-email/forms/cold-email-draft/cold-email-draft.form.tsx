@@ -112,7 +112,12 @@ export function ColdEmailDraftForm({
         minRows={3}
         helperText="e.g. a free audit of their checkout. Leave blank to introduce your company."
       />
-      <RhfSelect name="tone" label="Tone" options={toneOptions} />
+      <RhfSelect
+        name="tone"
+        label="Tone"
+        options={toneOptions}
+        helperText="How the email reads: Friendly, Formal or Brief."
+      />
       {canReadWebsite ? (
         <>
           <RhfSwitch name="readWebsite" label="Read their website first" />

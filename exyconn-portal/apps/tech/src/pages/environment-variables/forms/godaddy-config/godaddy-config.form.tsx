@@ -84,7 +84,11 @@ export function GodaddyConfigForm({ initial, onDone, onCancel }: Readonly<Godadd
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfSecretField
         name="apiKey"
         label="API key"
@@ -101,7 +105,12 @@ export function GodaddyConfigForm({ initial, onDone, onCancel }: Readonly<Godadd
           isEdit ? KEEP_SECRET_HINT : 'Shown once, next to the key, when GoDaddy creates it'
         }
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

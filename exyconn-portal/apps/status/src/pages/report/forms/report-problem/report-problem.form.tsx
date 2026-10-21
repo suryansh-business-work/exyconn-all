@@ -65,8 +65,18 @@ export function ReportProblemForm({
         options={[wholePlatform, ...services]}
         helperText="Pick the service you were using when it went wrong"
       />
-      <RhfSelect name="category" label="What kind of problem?" options={CATEGORY_OPTIONS} />
-      <RhfSelect name="severity" label="How badly is it blocking you?" options={SEVERITY_OPTIONS} />
+      <RhfSelect
+        name="category"
+        label="What kind of problem?"
+        options={CATEGORY_OPTIONS}
+        helperText="Helps us send the report to the right team."
+      />
+      <RhfSelect
+        name="severity"
+        label="How badly is it blocking you?"
+        options={SEVERITY_OPTIONS}
+        helperText="Pick critical only when you cannot get your work done at all."
+      />
       <RhfTextField name="subject" label="Title" helperText="One line we can scan quickly" />
       <RhfTextField
         name="description"
@@ -75,7 +85,11 @@ export function ReportProblemForm({
         rows={5}
         helperText="What you did, what you expected and what you saw instead"
       />
-      <RhfTextField name="reporterName" label="Your name" />
+      <RhfTextField
+        name="reporterName"
+        label="Your name"
+        helperText="So we know who to ask for more detail, 2 to 80 characters."
+      />
       <RhfTextField name="reporterEmail" label="Your email" helperText="Only used to reply" />
       <RhfTextField
         name="pageUrl"

@@ -119,21 +119,55 @@ export function AnnouncementForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Title" />
-      <RhfTextField name="body" label="Message" multiline minRows={4} />
-      <RhfSelect name="category" label="Category" options={enumOptions([...categories])} />
-      <RhfDatePicker name="publishedAt" label="Publish on" />
-      <RhfDatePicker name="expiresAt" label="Expires on (optional)" />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="A short headline people see first, up to 120 characters."
+      />
+      <RhfTextField
+        name="body"
+        label="Message"
+        multiline
+        minRows={4}
+        helperText="The full announcement your audience reads."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={enumOptions([...categories])}
+        helperText="What kind of announcement this is, e.g. notice, policy or event."
+      />
+      <RhfDatePicker
+        name="publishedAt"
+        label="Publish on"
+        helperText="The day the announcement goes out."
+      />
+      <RhfDatePicker
+        name="expiresAt"
+        label="Expires on (optional)"
+        helperText="Optional. Must be after the publish date; leave empty to keep it up until removed."
+      />
       <RhfSelect
         name="audience"
         label="Audience"
         options={enumOptions(Object.values(AnnouncementAudience))}
+        helperText="Everyone, one department, or the employees you pick."
       />
       {audience === AnnouncementAudience.Department && (
-        <RhfSelect name="department" label="Department" options={departmentOptions} />
+        <RhfSelect
+          name="department"
+          label="Department"
+          options={departmentOptions}
+          helperText="Only people in this department see the announcement."
+        />
       )}
       {audience === AnnouncementAudience.Employees && (
-        <RhfMultiSelect name="employeeIds" label="Employees" options={employeeOptions} />
+        <RhfMultiSelect
+          name="employeeIds"
+          label="Employees"
+          options={employeeOptions}
+          helperText="Only the people picked here see the announcement."
+        />
       )}
       <RhfSwitch name="pinned" label="Pin to the top" />
     </EntityForm>

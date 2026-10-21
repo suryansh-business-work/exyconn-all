@@ -4,8 +4,8 @@ import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useT } from '@exyconn/i18n';
 import { Link as RouterLink } from 'react-router-dom';
-import { Alert, Button, Flex, Link, TextField } from '@exyconn/shell/components/ui';
-import { RhfChipsInput, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { Alert, Button, Flex, Link } from '@exyconn/shell/components/ui';
+import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -22,6 +22,7 @@ import {
   type ComposeEmailContext,
   type ComposeEmailValues,
 } from './compose-email.types';
+import { ComposeAddressFields } from './compose-email.fields';
 import { useComposeSender } from './useComposeSender';
 import { readMemory } from '../../../comms/commsStore';
 import { useFormMemory } from '../../../comms/useFormMemory';
@@ -156,19 +157,7 @@ export function ComposeEmailForm({
         options={sender.options}
         helperText="The connected Gmail or Microsoft mailbox it is sent from"
       />
-      {context.recipientsLocked ? (
-        <TextField
-          label={t('To')}
-          value={context.to.join(', ')}
-          slotProps={{ input: { readOnly: true } }}
-        />
-      ) : (
-        <>
-          <RhfChipsInput name="to" label="To" helperText="Type an address and press Enter" />
-          <RhfChipsInput name="cc" label="Cc" />
-        </>
-      )}
-      <RhfTextField name="subject" label="Subject" />
+      <ComposeAddressFields to={context.to} recipientsLocked={context.recipientsLocked} />
       <Flex direction="column" spacing={1}>
         <RhfTextField
           name="instruction"
@@ -188,7 +177,13 @@ export function ComposeEmailForm({
           {t('Draft with AI')}
         </Button>
       </Flex>
-      <RhfTextField name="body" label="Message" multiline minRows={8} />
+      <RhfTextField
+        name="body"
+        label="Message"
+        multiline
+        minRows={8}
+        helperText="Sent as written. Draft with AI fills this in, and you can edit it before sending."
+      />
     </EntityForm>
   );
 }

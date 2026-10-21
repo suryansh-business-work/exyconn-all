@@ -21,10 +21,18 @@ function DayRow({ index }: Readonly<{ index: number }>) {
         <RhfSwitch name={`weeklyHours.${index}.enabled`} label={enabled ? 'Open' : 'Closed'} />
       </Grid>
       <Grid size={{ xs: 6, sm: 3 }}>
-        <RhfTimePicker name={`weeklyHours.${index}.start`} label="Opens" />
+        <RhfTimePicker
+          name={`weeklyHours.${index}.start`}
+          label="Opens"
+          helperText="When the team starts answering live on this day."
+        />
       </Grid>
       <Grid size={{ xs: 6, sm: 3 }}>
-        <RhfTimePicker name={`weeklyHours.${index}.end`} label="Closes" />
+        <RhfTimePicker
+          name={`weeklyHours.${index}.end`}
+          label="Closes"
+          helperText="After this the Knowledge Bot answers until the next opening."
+        />
       </Grid>
     </Grid>
   );

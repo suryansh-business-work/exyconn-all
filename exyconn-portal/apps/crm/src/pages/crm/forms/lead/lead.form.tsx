@@ -105,12 +105,40 @@ function LeadFormFields({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="email" label="Email" type="email" />
-      <RhfSelect name="source" label="Source" options={enumOptions(Object.values(LeadSource))} />
-      <RhfSelect name="stage" label="Stage" options={enumOptions(Object.values(LeadStage))} />
-      <RhfTextField name="value" label="Value" type="number" />
-      <RhfTextField name="owner" label="Owner" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The person or business this lead is about."
+      />
+      <RhfTextField
+        name="email"
+        label="Email"
+        type="email"
+        helperText="How to reach them; its domain is used to match a company on conversion."
+      />
+      <RhfSelect
+        name="source"
+        label="Source"
+        options={enumOptions(Object.values(LeadSource))}
+        helperText="Where the lead first came from: Website, Referral, Event or Ads."
+      />
+      <RhfSelect
+        name="stage"
+        label="Stage"
+        options={enumOptions(Object.values(LeadStage))}
+        helperText="How far the lead has got; converting it to a deal marks it Won."
+      />
+      <RhfTextField
+        name="value"
+        label="Value"
+        type="number"
+        helperText="What it could be worth if it closes; 0 if not known yet."
+      />
+      <RhfTextField
+        name="owner"
+        label="Owner"
+        helperText="Who is following up on this lead, e.g. Priya Sharma."
+      />
       <RhfAutocomplete
         name="campaignId"
         label="Campaign"

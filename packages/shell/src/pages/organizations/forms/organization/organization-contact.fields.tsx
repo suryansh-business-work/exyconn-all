@@ -46,8 +46,8 @@ export function OrganizationContactFields() {
         label="Address line 2"
         helperText="Area, landmark or suite."
       />
-      <RhfTextField name="city" label="City" />
-      <RhfTextField name="region" label="State or region" />
+      <RhfTextField name="city" label="City" helperText="Town or city." />
+      <RhfTextField name="region" label="State or region" helperText="State, province or county." />
       <RhfTextField name="postalCode" label="Postal code" helperText="PIN, ZIP or postcode." />
     </FormSection>
   );

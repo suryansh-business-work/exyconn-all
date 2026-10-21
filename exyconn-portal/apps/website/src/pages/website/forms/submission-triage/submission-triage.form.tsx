@@ -55,7 +55,12 @@ export function SubmissionTriageForm({
       onCancel={onCancel}
       submitLabel="Save triage"
     >
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Where this submission is in your follow-up, from new to resolved."
+      />
       <RhfTextField
         name="notes"
         label="Notes"

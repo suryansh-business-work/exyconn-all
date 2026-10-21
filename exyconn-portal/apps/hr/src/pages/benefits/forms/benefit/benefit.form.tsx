@@ -89,15 +89,53 @@ export function BenefitForm({ initial, onDone, onCancel }: Readonly<BenefitFormP
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfSelect name="kind" label="Type" options={enumOptions(Object.values(BenefitKind))} />
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="provider" label="Provider" />
-      <RhfTextField name="reference" label="Reference" />
-      <RhfTextField name="coverage" label="Coverage" />
-      <RhfDatePicker name="validFrom" label="Valid from" />
-      <RhfDatePicker name="validTo" label="Valid to" />
-      <RhfTextField name="documentUrl" label="Document link" />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee who receives this benefit."
+      />
+      <RhfSelect
+        name="kind"
+        label="Type"
+        options={enumOptions(Object.values(BenefitKind))}
+        helperText="The kind of benefit, e.g. insurance, provident fund or gratuity."
+      />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="What the benefit is called, e.g. Group health insurance."
+      />
+      <RhfTextField
+        name="provider"
+        label="Provider"
+        helperText="The insurer or body that provides it, e.g. HDFC Ergo or EPFO."
+      />
+      <RhfTextField
+        name="reference"
+        label="Reference"
+        helperText="The policy, member or account number for this employee."
+      />
+      <RhfTextField
+        name="coverage"
+        label="Coverage"
+        helperText="What it covers, e.g. 5,00,000 sum insured for employee and spouse."
+      />
+      <RhfDatePicker
+        name="validFrom"
+        label="Valid from"
+        helperText="Optional. The day the cover starts."
+      />
+      <RhfDatePicker
+        name="validTo"
+        label="Valid to"
+        helperText="Optional. The day the cover ends; empty means it does not lapse."
+      />
+      <RhfTextField
+        name="documentUrl"
+        label="Document link"
+        helperText="Optional. A full link to the policy document, starting with https://."
+      />
     </EntityForm>
   );
 }

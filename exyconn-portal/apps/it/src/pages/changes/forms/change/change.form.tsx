@@ -53,22 +53,65 @@ export function ChangeForm({ initial, onDone, onCancel }: Readonly<ChangeFormPro
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Title" />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="A short name for the change, e.g. Upgrade the database to version 7."
+      />
       <RhfTextField name="system" label="System" helperText="e.g. Portal API, Office firewall" />
-      <RhfTextField name="description" label="What will change" multiline rows={4} />
+      <RhfTextField
+        name="description"
+        label="What will change"
+        multiline
+        rows={4}
+        helperText="The steps and what users will notice, so approvers can judge it."
+      />
       <RhfSelect
         name="type"
         label="Type"
         options={TYPE_OPTIONS}
         helperText="A STANDARD change is pre-approved; the rest need approval first"
       />
-      <RhfSelect name="risk" label="Risk" options={RISK_OPTIONS} />
-      <RhfSelect name="environment" label="Environment" options={ENVIRONMENT_OPTIONS} />
-      <RhfDateTimePicker name="plannedStart" label="Window starts" />
-      <RhfDateTimePicker name="plannedEnd" label="Window ends" />
-      <RhfSelect name="status" label="Status" options={statusOptions} />
-      <RhfTextField name="ownerName" label="Owner" />
-      <RhfTextField name="rollbackPlan" label="Rollback plan" multiline rows={3} />
+      <RhfSelect
+        name="risk"
+        label="Risk"
+        options={RISK_OPTIONS}
+        helperText="How likely it is to cause trouble. Medium or high in production needs a rollback plan."
+      />
+      <RhfSelect
+        name="environment"
+        label="Environment"
+        options={ENVIRONMENT_OPTIONS}
+        helperText="Where the change is made: production, staging or development."
+      />
+      <RhfDateTimePicker
+        name="plannedStart"
+        label="Window starts"
+        helperText="When the work is due to begin."
+      />
+      <RhfDateTimePicker
+        name="plannedEnd"
+        label="Window ends"
+        helperText="When the work should be finished; must be after the start."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={statusOptions}
+        helperText="Where the change stands. Approval and rejection are recorded with their own action."
+      />
+      <RhfTextField
+        name="ownerName"
+        label="Owner"
+        helperText="Optional. The person carrying out the change."
+      />
+      <RhfTextField
+        name="rollbackPlan"
+        label="Rollback plan"
+        multiline
+        rows={3}
+        helperText="How to undo the change if it goes wrong. Required for medium or high risk in production."
+      />
     </EntityForm>
   );
 }

@@ -56,9 +56,23 @@ export function AuditForm({ initial, onDone, onCancel }: Readonly<AuditFormProps
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Audit" />
-      <RhfSelect name="kind" label="Kind" options={KIND_OPTIONS} />
-      <RhfMultiSelect name="standards" label="Standards" options={STANDARD_OPTIONS} />
+      <RhfTextField
+        name="title"
+        label="Audit"
+        helperText="A short name for the audit, e.g. Q2 access control audit."
+      />
+      <RhfSelect
+        name="kind"
+        label="Kind"
+        options={KIND_OPTIONS}
+        helperText="Internal, run by an external body, or an audit of a supplier."
+      />
+      <RhfMultiSelect
+        name="standards"
+        label="Standards"
+        options={STANDARD_OPTIONS}
+        helperText="The ISO standards this audit covers. Pick at least one."
+      />
       <RhfTextField
         name="scope"
         label="Scope"
@@ -71,13 +85,46 @@ export function AuditForm({ initial, onDone, onCancel }: Readonly<AuditFormProps
         rows={2}
         helperText="What it is audited against — clauses, a policy, a contract"
       />
-      <RhfTextField name="leadAuditorName" label="Lead auditor" />
-      <RhfTextField name="auditeeName" label="Auditee" />
-      <RhfDatePicker name="plannedOn" label="Planned for" />
-      <RhfDatePicker name="performedOn" label="Carried out on" />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="summary" label="What was looked at" multiline rows={3} />
-      <RhfTextField name="conclusion" label="Conclusion" multiline rows={3} />
+      <RhfTextField
+        name="leadAuditorName"
+        label="Lead auditor"
+        helperText="The person leading the audit and signing off the report."
+      />
+      <RhfTextField
+        name="auditeeName"
+        label="Auditee"
+        helperText="Optional. The person or team being audited."
+      />
+      <RhfDatePicker
+        name="plannedOn"
+        label="Planned for"
+        helperText="The date the audit is scheduled for in the programme."
+      />
+      <RhfDatePicker
+        name="performedOn"
+        label="Carried out on"
+        helperText="When the audit actually took place. Required once it is reported or closed."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Where the audit stands. Reported or closed needs a date and a conclusion."
+      />
+      <RhfTextField
+        name="summary"
+        label="What was looked at"
+        multiline
+        rows={3}
+        helperText="Optional. The records, interviews and samples reviewed."
+      />
+      <RhfTextField
+        name="conclusion"
+        label="Conclusion"
+        multiline
+        rows={3}
+        helperText="Whether the area conforms, and why. Required once the audit is reported."
+      />
     </EntityForm>
   );
 }

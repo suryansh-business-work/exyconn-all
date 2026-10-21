@@ -91,16 +91,56 @@ export function ExitRecordForm({ initial, onDone, onCancel }: Readonly<ExitRecor
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfDatePicker name="resignationDate" label="Resignation date" />
-      <RhfDatePicker name="lastWorkingDate" label="Last working date" />
-      <RhfTextField name="noticePeriodDays" label="Notice period (days)" type="number" />
-      <RhfTextField name="reason" label="Reason" multiline minRows={3} />
-      <RhfSelect name="stage" label="Stage" options={enumOptions(Object.values(ExitStage))} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee who is leaving."
+      />
+      <RhfDatePicker
+        name="resignationDate"
+        label="Resignation date"
+        helperText="The day the employee handed in their resignation."
+      />
+      <RhfDatePicker
+        name="lastWorkingDate"
+        label="Last working date"
+        helperText="Optional. The employee's final day at work, once agreed."
+      />
+      <RhfTextField
+        name="noticePeriodDays"
+        label="Notice period (days)"
+        type="number"
+        helperText="Days of notice the employee has to serve, e.g. 30."
+      />
+      <RhfTextField
+        name="reason"
+        label="Reason"
+        multiline
+        minRows={3}
+        helperText="Optional. Why the employee is leaving."
+      />
+      <RhfSelect
+        name="stage"
+        label="Stage"
+        options={enumOptions(Object.values(ExitStage))}
+        helperText="Where the exit is, from resignation through notice and clearance to exited."
+      />
       <RhfSwitch name="assetsReturned" label="Assets returned" />
       <RhfSwitch name="knowledgeTransferDone" label="Knowledge transfer done" />
-      <RhfTextField name="exitInterviewNotes" label="Exit interview notes" multiline minRows={3} />
-      <RhfTextField name="finalSettlementAmount" label="Final settlement" type="number" />
+      <RhfTextField
+        name="exitInterviewNotes"
+        label="Exit interview notes"
+        multiline
+        minRows={3}
+        helperText="Optional. What came up in the exit interview."
+      />
+      <RhfTextField
+        name="finalSettlementAmount"
+        label="Final settlement"
+        type="number"
+        helperText="Optional. The full and final amount paid, in the company currency; empty until worked out."
+      />
       <RhfSwitch name="documentsIssued" label="Documents issued" />
     </EntityForm>
   );

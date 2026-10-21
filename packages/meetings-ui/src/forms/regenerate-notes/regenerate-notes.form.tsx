@@ -64,7 +64,12 @@ export function RegenerateNotesForm({
       <Text size="sm" color="text.secondary">
         {t('Action items keep their status and edits; the notes get a new version.')}
       </Text>
-      <RhfSelect name="style" label="Summary style" options={styles} />
+      <RhfSelect
+        name="style"
+        label="Summary style"
+        options={styles}
+        helperText="Who the new notes are written for, e.g. executive, client or sales."
+      />
     </EntityForm>
   );
 }

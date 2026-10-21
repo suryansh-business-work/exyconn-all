@@ -60,6 +60,7 @@ export function DisableTwoFactorForm({
             label={t('Password')}
             type="password"
             autoComplete="current-password"
+            helperText="The password you sign in with."
           />
           <Flex direction="row" spacing={1}>
             <Button

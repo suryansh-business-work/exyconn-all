@@ -89,19 +89,53 @@ export function TrainingForm({ initial, onDone, onCancel }: Readonly<TrainingFor
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfTextField name="title" label="Course" />
-      <RhfTextField name="provider" label="Provider" />
-      <RhfTextField name="category" label="Category" />
-      <RhfDatePicker name="assignedOn" label="Assigned on" />
-      <RhfDatePicker name="dueOn" label="Due on" />
-      <RhfDatePicker name="completedOn" label="Completed on" />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee who has to take this training."
+      />
+      <RhfTextField
+        name="title"
+        label="Course"
+        helperText="The name of the course, e.g. Information security awareness."
+      />
+      <RhfTextField
+        name="provider"
+        label="Provider"
+        helperText="Who runs the course, e.g. Coursera or an in-house trainer."
+      />
+      <RhfTextField
+        name="category"
+        label="Category"
+        helperText="Groups trainings in reports, e.g. Compliance or Technical."
+      />
+      <RhfDatePicker
+        name="assignedOn"
+        label="Assigned on"
+        helperText="The day the training was given to the employee."
+      />
+      <RhfDatePicker
+        name="dueOn"
+        label="Due on"
+        helperText="Optional. The day it should be finished by; empty means no deadline."
+      />
+      <RhfDatePicker
+        name="completedOn"
+        label="Completed on"
+        helperText="Optional. The day the employee finished it."
+      />
       <RhfSelect
         name="status"
         label="Status"
         options={enumOptions(Object.values(TrainingStatus))}
+        helperText="Where the employee is with the course."
       />
-      <RhfTextField name="certificateUrl" label="Certificate link" />
+      <RhfTextField
+        name="certificateUrl"
+        label="Certificate link"
+        helperText="Optional. A full link to the certificate, starting with https://."
+      />
     </EntityForm>
   );
 }

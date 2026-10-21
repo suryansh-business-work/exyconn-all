@@ -55,11 +55,30 @@ export function GradeForm({ initial, onDone, onCancel }: Readonly<GradeFormProps
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="code" label="Code" />
-      <RhfTextField name="level" label="Level" type="number" />
-      <RhfTextField name="minSalary" label="Minimum salary" type="number" />
-      <RhfTextField name="maxSalary" label="Maximum salary" type="number" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The grade as people know it, e.g. Senior Engineer."
+      />
+      <RhfTextField name="code" label="Code" helperText="A short reference, e.g. G5." />
+      <RhfTextField
+        name="level"
+        label="Level"
+        type="number"
+        helperText="Seniority rank; a higher number is a more senior grade. 0 or more."
+      />
+      <RhfTextField
+        name="minSalary"
+        label="Minimum salary"
+        type="number"
+        helperText="The bottom of this grade's pay band, in the company currency."
+      />
+      <RhfTextField
+        name="maxSalary"
+        label="Maximum salary"
+        type="number"
+        helperText="The top of this grade's pay band, in the company currency."
+      />
       <RhfSwitch name="active" label="Active" />
     </EntityForm>
   );

@@ -85,24 +85,56 @@ export function ApplicantForm({ initial, onDone, onCancel }: Readonly<ApplicantF
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Full name" />
+      <RhfTextField
+        name="name"
+        label="Full name"
+        helperText="The applicant's name as it should appear in emails to them."
+      />
       <RhfTextField name="email" label="Email" helperText="Stage emails go here" />
-      <RhfTextField name="phone" label="Phone" />
-      <RhfTextField name="jobTitle" label="Job title" />
+      <RhfTextField
+        name="phone"
+        label="Phone"
+        helperText="Optional. Include the country code, e.g. +91 98765 43210."
+      />
+      <RhfTextField
+        name="jobTitle"
+        label="Job title"
+        helperText="The role they applied for, e.g. Sales Manager."
+      />
       <RhfTextField
         name="jobCode"
         label="Job code"
         helperText="From the website posting, e.g. GRP-SM-001"
       />
-      <RhfTextField name="companySlug" label="Company slug" />
-      <RhfSelect name="source" label="Source" options={SOURCE_OPTIONS} />
-      <RhfSelect name="rating" label="Rating" options={RATING_OPTIONS} />
+      <RhfTextField
+        name="companySlug"
+        label="Company slug"
+        helperText="Optional. The hiring company's slug from the website job posting, e.g. exyconn."
+      />
+      <RhfSelect
+        name="source"
+        label="Source"
+        options={SOURCE_OPTIONS}
+        helperText="How the application reached you: added by hand, a referral or the website."
+      />
+      <RhfSelect
+        name="rating"
+        label="Rating"
+        options={RATING_OPTIONS}
+        helperText="Your overall assessment so far; Not rated clears it."
+      />
       <RhfTextField
         name="resumeUrl"
         label="Resume link"
         helperText="A URL, or the file name if it arrived by email"
       />
-      <RhfTextField name="coverLetter" label="Cover letter" multiline rows={5} />
+      <RhfTextField
+        name="coverLetter"
+        label="Cover letter"
+        multiline
+        rows={5}
+        helperText="Optional. Paste the cover letter if there is one. Up to 8000 characters."
+      />
     </EntityForm>
   );
 }

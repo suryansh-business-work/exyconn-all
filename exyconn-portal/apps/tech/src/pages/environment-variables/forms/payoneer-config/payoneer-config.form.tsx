@@ -87,7 +87,11 @@ export function PayoneerConfigForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfTextField
         name="merchantCode"
         label="Merchant code"
@@ -111,7 +115,12 @@ export function PayoneerConfigForm({
         options={MODE_OPTIONS}
         helperText="Sandbox and live accounts have different credentials"
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

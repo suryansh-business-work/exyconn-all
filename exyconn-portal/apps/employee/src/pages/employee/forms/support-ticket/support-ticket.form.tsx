@@ -74,18 +74,30 @@ export function SupportTicketForm({
       onCancel={onCancel}
       submitLabel="Raise ticket"
     >
-      <RhfTextField name="subject" label="Subject" />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="A short summary of the problem, e.g. VPN will not connect."
+      />
       <RhfSelect
         name="category"
         label="Category"
         options={enumOptions(Object.values(SupportCategory))}
+        helperText="The area the problem is in, e.g. IT, HR or Payroll."
       />
       <RhfSelect
         name="priority"
         label="Priority"
         options={enumOptions(Object.values(SupportPriority))}
+        helperText="How much it is holding up your work; use High only when you cannot work."
       />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="What happened, what you expected and any steps to reproduce it."
+      />
       <AttachmentPicker
         value={attachments}
         onChange={setAttachments}

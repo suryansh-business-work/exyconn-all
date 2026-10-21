@@ -81,14 +81,27 @@ export function EmailVerifierConfigForm({
   });
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfTextField
         name="proxyHost"
         label="SOCKS5 proxy host"
         helperText="A proxy allowed to connect out on port 25. Leave empty to check without one."
       />
-      <RhfTextField name="proxyPort" label="Proxy port" type="number" />
-      <RhfTextField name="proxyUsername" label="Proxy username" />
+      <RhfTextField
+        name="proxyPort"
+        label="Proxy port"
+        type="number"
+        helperText="The SOCKS5 port, usually 1080."
+      />
+      <RhfTextField
+        name="proxyUsername"
+        label="Proxy username"
+        helperText="Optional. Only if the proxy asks for a login."
+      />
       <RhfSecretField
         name="proxyPassword"
         label="Proxy password"
@@ -96,7 +109,12 @@ export function EmailVerifierConfigForm({
         onReveal={revealFor(TechSecret.EmailVerifierProxyPassword)}
         helperText={isEdit ? KEEP_SECRET_HINT : 'Only if the proxy asks for one'}
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

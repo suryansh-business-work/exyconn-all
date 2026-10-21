@@ -30,9 +30,21 @@ export function ReviewActionFields() {
 
       {fields.map((field, index) => (
         <Flex key={field.id} direction="row" spacing={1} alignItems="flex-start">
-          <RhfTextField name={`actions.${index}.description`} label="Action" />
-          <RhfTextField name={`actions.${index}.ownerName`} label="Owner" />
-          <RhfDatePicker name={`actions.${index}.dueOn`} label="Due" />
+          <RhfTextField
+            name={`actions.${index}.description`}
+            label="Action"
+            helperText="What leadership decided someone should do."
+          />
+          <RhfTextField
+            name={`actions.${index}.ownerName`}
+            label="Owner"
+            helperText="Optional. Who will do it."
+          />
+          <RhfDatePicker
+            name={`actions.${index}.dueOn`}
+            label="Due"
+            helperText="Optional. When it should be done by."
+          />
           <RhfSwitch name={`actions.${index}.done`} label="Done" />
           <IconButton
             aria-label={t('Remove action {number}', { number: index + 1 })}

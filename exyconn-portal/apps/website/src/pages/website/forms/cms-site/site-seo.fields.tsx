@@ -14,7 +14,13 @@ export function SiteSeoFields({ siteId }: Readonly<{ siteId?: string }>) {
         label="Title template"
         helperText="%s is replaced by the page title, e.g. %s | Exyconn"
       />
-      <RhfTextField name="seo.description" label="Default description" multiline minRows={2} />
+      <RhfTextField
+        name="seo.description"
+        label="Default description"
+        multiline
+        minRows={2}
+        helperText="Optional. Used in search results for any page without its own description."
+      />
       <RhfMediaField
         name="seo.ogImageUrl"
         label="Default share image"

@@ -61,7 +61,11 @@ export function WorkWeekForm({ initial, onDone, onCancel }: Readonly<WorkWeekFor
           'The days people work unless their employee record sets a week of their own. The other days are their week off: no expected hours, and the tracker does not run.',
         )}
       </Text>
-      <RhfWorkDays name="days" label="Work days" />
+      <RhfWorkDays
+        name="days"
+        label="Work days"
+        helperText="Select a day to switch it on or off. At least one day is needed."
+      />
     </EntityForm>
   );
 }

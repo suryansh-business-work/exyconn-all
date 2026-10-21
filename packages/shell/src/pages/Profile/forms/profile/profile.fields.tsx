@@ -28,7 +28,12 @@ export function AboutFields({ email }: Readonly<{ email: string }>) {
   return (
     <>
       <SectionTitle>About you</SectionTitle>
-      <RhfTextField name="name" label="Full name" autoComplete="name" />
+      <RhfTextField
+        name="name"
+        label="Full name"
+        autoComplete="name"
+        helperText="How your name appears to colleagues across the portals."
+      />
       <TextField
         label={t('Email')}
         value={email}
@@ -66,6 +71,7 @@ export function SocialLinkFields() {
           label={label}
           type="url"
           placeholder="https://"
+          helperText="Optional. The full link to your profile, starting with https://."
           slotProps={{
             input: {
               startAdornment: (

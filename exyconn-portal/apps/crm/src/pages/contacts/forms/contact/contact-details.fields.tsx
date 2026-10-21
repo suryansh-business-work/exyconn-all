@@ -28,11 +28,23 @@ export function ContactDetailsFields({
         name="avatarUrl"
         label={t('Profile picture')}
         folder="crm-contacts"
-        helperText={t('Shown on the contact page and in the company’s people')}
+        helperText="Shown on the contact page and in the company’s people"
       />
-      <RhfTextField name="name" label="Full name" />
-      <RhfTextField name="title" label="Job title" />
-      <RhfTextField name="department" label="Department" />
+      <RhfTextField
+        name="name"
+        label="Full name"
+        helperText="Their name as they use it, e.g. Priya Sharma."
+      />
+      <RhfTextField
+        name="title"
+        label="Job title"
+        helperText="Optional. Their role, e.g. Head of Operations."
+      />
+      <RhfTextField
+        name="department"
+        label="Department"
+        helperText="Optional. The team they work in, e.g. Finance."
+      />
       <QuickCreateSelect
         name="companyId"
         label="Company"
@@ -55,8 +67,18 @@ export function ContactDetailsFields({
         addLabel="Add phone"
       />
       <Divider />
-      <RhfSelect name="lifecycleStage" label="Lifecycle stage" options={STAGE_OPTIONS} />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfSelect
+        name="lifecycleStage"
+        label="Lifecycle stage"
+        options={STAGE_OPTIONS}
+        helperText="How far along they are, from Subscriber and Lead through to Customer."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Whether you can still reach them; use Bounced, Unsubscribed or Left company when you cannot."
+      />
       <RhfTextField
         name="leadSource"
         label="Lead source"
@@ -73,7 +95,13 @@ export function ContactDetailsFields({
         helperText="Who looks after this person; leave blank until someone takes them on"
       />
       <ProfileFields aboutLabel="About" />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Internal notes about this person."
+      />
     </>
   );
 }

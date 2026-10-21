@@ -3,10 +3,11 @@ import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
-import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { TdsMode, useUpdatePayrollSettingsMutation } from '@exyconn/shell/graphql/generated';
+import { StatutoryFields } from './statutory.fields';
 import { TdsSlabFields } from './tds-slabs.fields';
 import { TdsRegimeFields } from './tds-regime.fields';
 import type { PayrollSettingsRow } from './payroll-settings.types';
@@ -168,29 +169,13 @@ export function PayrollSettingsForm({
         type="number"
         helperText="A month's payroll opens on this day of that month (1-28), on the company's clock."
       />
-      <RhfSwitch name="pfEnabled" label="Withhold provident fund (PF)" />
-      <RhfTextField name="pfEmployeePercent" label="PF rate (% of basic)" type="number" />
-      <RhfTextField
-        name="pfWageCeiling"
-        label="PF wage ceiling"
-        type="number"
-        helperText="PF is charged on basic only up to this figure; anything above it is exempt."
+      <StatutoryFields />
+      <RhfSelect
+        name="tdsMode"
+        label="Income tax (TDS)"
+        options={TDS_OPTIONS}
+        helperText="How income tax is withheld from each payslip, if at all."
       />
-      <RhfSwitch name="esiEnabled" label="Withhold employee state insurance (ESI)" />
-      <RhfTextField name="esiEmployeePercent" label="ESI rate (% of gross)" type="number" />
-      <RhfTextField
-        name="esiWageLimit"
-        label="ESI wage limit"
-        type="number"
-        helperText="ESI applies only while gross is at or below this figure."
-      />
-      <RhfTextField
-        name="professionalTaxMonthly"
-        label="Professional tax per month"
-        type="number"
-        helperText="A flat amount. Set it to 0 in a state that does not levy it."
-      />
-      <RhfSelect name="tdsMode" label="Income tax (TDS)" options={TDS_OPTIONS} />
       <TdsFields />
     </EntityForm>
   );

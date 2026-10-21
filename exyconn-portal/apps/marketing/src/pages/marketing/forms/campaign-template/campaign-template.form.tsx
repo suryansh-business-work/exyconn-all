@@ -101,14 +101,25 @@ export function CampaignTemplateForm({
         ]}
         helperText="Updating keeps the old version in the template's history."
       />
-      <RhfTextField name="name" label="Template name" required />
+      <RhfTextField
+        name="name"
+        label="Template name"
+        required
+        helperText="How the template appears in the template picker, up to 120 characters."
+      />
       <RhfTextField
         name="category"
         label="Category"
         required
         helperText="e.g. Newsletter, Event, Promotion."
       />
-      <RhfTextField name="description" label="Description" multiline rows={2} />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        rows={2}
+        helperText="Optional. When to use this template, up to 500 characters."
+      />
       <RhfTextField
         name="note"
         label="Version note"

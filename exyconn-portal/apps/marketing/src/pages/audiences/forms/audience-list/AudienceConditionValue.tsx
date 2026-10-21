@@ -70,12 +70,20 @@ export function AudienceConditionValue({
         name={name}
         label="Days"
         type="number"
+        helperText="A whole number of days counted back from today."
         slotProps={{ htmlInput: { min: 1, step: 1 } }}
       />
     );
   }
   if (field.kind === AudienceFilterKind.Enum || field.kind === AudienceFilterKind.EmailStatus) {
-    return <RhfSelect name={name} label="Value" options={enumOptions(field.values)} />;
+    return (
+      <RhfSelect
+        name={name}
+        label="Value"
+        options={enumOptions(field.values)}
+        helperText="The value the field is compared with."
+      />
+    );
   }
   return <SuggestedValue index={index} field={field} />;
 }

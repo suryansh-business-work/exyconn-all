@@ -40,7 +40,9 @@ export function RhfWorkDays({ name, label, helperText, required }: Readonly<RhfW
             : [...selected, day];
           field.onChange(inWeekOrder(next));
         };
-        const hint = fieldState.error?.message ? copy(fieldState.error.message) : meta.helperText;
+        const hint = fieldState.error?.message
+          ? copy(fieldState.error.message)
+          : copy(meta.helperText);
         return (
           <Box role="group" aria-labelledby={labelId} aria-describedby={hint ? hintId : undefined}>
             <Text id={labelId} size="sm" color="text.secondary" sx={{ display: 'block', mb: 1 }}>

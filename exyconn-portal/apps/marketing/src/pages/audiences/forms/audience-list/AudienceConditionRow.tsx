@@ -83,6 +83,7 @@ export function AudienceConditionRow({
           name={`conditions.${index}.operator`}
           label="Comparison"
           options={operatorOptions}
+          helperText="How the field is checked against the value."
         />
       </Box>
       <Box sx={{ flex: 2 }}>

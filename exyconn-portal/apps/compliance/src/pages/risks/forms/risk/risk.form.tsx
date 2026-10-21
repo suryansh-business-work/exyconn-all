@@ -58,23 +58,53 @@ export function RiskForm({ initial, onDone, onCancel }: Readonly<RiskFormProps>)
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="Risk" helperText="What could happen, in one line" />
-      <RhfTextField name="description" label="Description" multiline rows={3} />
-      <RhfMultiSelect name="standards" label="Standards" options={STANDARD_OPTIONS} />
-      <RhfSelect name="category" label="Category" options={CATEGORY_OPTIONS} />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        rows={3}
+        helperText="Optional. Causes, consequences and who would be affected."
+      />
+      <RhfMultiSelect
+        name="standards"
+        label="Standards"
+        options={STANDARD_OPTIONS}
+        helperText="The ISO standards this risk falls under. Pick at least one."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={CATEGORY_OPTIONS}
+        helperText="The area it belongs to, e.g. information security or health and safety."
+      />
       <RhfTextField
         name="subject"
         label="Subject"
         helperText="The process, system, site or asset it is about"
       />
-      <RhfTextField name="ownerName" label="Owner" />
-      <RhfSelect name="likelihood" label="Likelihood" options={RISK_SCALE_OPTIONS} />
+      <RhfTextField
+        name="ownerName"
+        label="Owner"
+        helperText="The person accountable for managing this risk."
+      />
+      <RhfSelect
+        name="likelihood"
+        label="Likelihood"
+        options={RISK_SCALE_OPTIONS}
+        helperText="How likely it is to happen with no controls, from 1 (very low) to 5 (very high)."
+      />
       <RhfSelect
         name="impact"
         label="Impact"
         options={RISK_SCALE_OPTIONS}
         helperText={ratingHint('Inherent', values.likelihood, values.impact)}
       />
-      <RhfSelect name="treatment" label="Treatment" options={RISK_TREATMENT_OPTIONS} />
+      <RhfSelect
+        name="treatment"
+        label="Treatment"
+        options={RISK_TREATMENT_OPTIONS}
+        helperText="How the risk is handled: reduce, avoid, transfer or accept it."
+      />
       <RhfTextField
         name="controls"
         label="Controls"
@@ -86,6 +116,7 @@ export function RiskForm({ initial, onDone, onCancel }: Readonly<RiskFormProps>)
         name="residualLikelihood"
         label="Residual likelihood"
         options={RISK_SCALE_OPTIONS}
+        helperText="How likely it is once the controls above work, from 1 to 5."
       />
       <RhfSelect
         name="residualImpact"
@@ -93,9 +124,22 @@ export function RiskForm({ initial, onDone, onCancel }: Readonly<RiskFormProps>)
         options={RISK_SCALE_OPTIONS}
         helperText={ratingHint('Residual', values.residualLikelihood, values.residualImpact)}
       />
-      <RhfSelect name="status" label="Status" options={RISK_STATUS_OPTIONS} />
-      <RhfDatePicker name="identifiedOn" label="Identified on" />
-      <RhfDatePicker name="reviewDueOn" label="Review due" />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={RISK_STATUS_OPTIONS}
+        helperText="Where the risk stands: identified, being treated, monitored or closed."
+      />
+      <RhfDatePicker
+        name="identifiedOn"
+        label="Identified on"
+        helperText="The date the risk was first recorded."
+      />
+      <RhfDatePicker
+        name="reviewDueOn"
+        label="Review due"
+        helperText="Optional. When the risk should next be reassessed."
+      />
     </EntityForm>
   );
 }

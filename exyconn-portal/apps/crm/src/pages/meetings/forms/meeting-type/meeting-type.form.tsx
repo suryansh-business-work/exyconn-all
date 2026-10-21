@@ -67,14 +67,30 @@ export function MeetingTypeForm({ initial, onDone, onCancel }: Readonly<MeetingT
         label="Link"
         helperText="The end of the booking link: /book/<link>"
       />
-      <RhfTextField name="description" label="Description" multiline minRows={2} />
-      <RhfTextField name="durationMinutes" label="Length (minutes)" inputMode="numeric" />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={2}
+        helperText="Optional. Shown on the booking page, up to 2000 characters."
+      />
+      <RhfTextField
+        name="durationMinutes"
+        label="Length (minutes)"
+        inputMode="numeric"
+        helperText="How long each booking lasts, from 5 to 480 minutes."
+      />
       <RhfTextField
         name="location"
         label="Location"
         helperText="A video-call link, a phone number or an address; shown once booked"
       />
-      <RhfAutocomplete name="timezone" label="Time zone" options={zones} />
+      <RhfAutocomplete
+        name="timezone"
+        label="Time zone"
+        options={zones}
+        helperText="The available hours below are read in this time zone."
+      />
       <Divider />
       <WeeklyHoursFields />
       <Divider />

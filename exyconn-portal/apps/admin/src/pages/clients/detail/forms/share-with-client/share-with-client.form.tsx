@@ -73,7 +73,12 @@ export function ShareWithClientForm({
       submitLabel="Share"
       onCancel={onCancel}
     >
-      <RhfSelect name="kind" label="What to share" options={KIND_OPTIONS} />
+      <RhfSelect
+        name="kind"
+        label="What to share"
+        options={KIND_OPTIONS}
+        helperText="The kind of Legal record. Changing it clears the record picked below."
+      />
       <RhfAutocomplete
         name="refId"
         label="Record"

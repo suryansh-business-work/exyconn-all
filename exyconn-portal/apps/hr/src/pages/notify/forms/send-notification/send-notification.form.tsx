@@ -110,20 +110,46 @@ export function SendNotificationForm({ onSent }: Readonly<SendNotificationFormPr
             name="kind"
             label="Type"
             options={enumOptions(Object.values(NotificationKind))}
+            helperText="Groups the notification in the bell so people can tell what it is about."
           />
-          <RhfTextField name="title" label="Title" />
-          <RhfTextField name="body" label="Message (optional)" multiline minRows={3} />
-          <RhfTextField name="link" label="Opens (optional path, e.g. /me/announcements)" />
+          <RhfTextField
+            name="title"
+            label="Title"
+            helperText="The headline people see in their notification list. Up to 120 characters."
+          />
+          <RhfTextField
+            name="body"
+            label="Message (optional)"
+            multiline
+            minRows={3}
+            helperText="Optional. More detail shown under the title."
+          />
+          <RhfTextField
+            name="link"
+            label="Opens (optional path, e.g. /me/announcements)"
+            helperText="Optional. The portal page that opens when it is clicked; empty means it opens nowhere."
+          />
           <RhfSelect
             name="audience"
             label="Send to"
             options={enumOptions(Object.values(NotificationAudience))}
+            helperText="Everyone, one department, or the employees you pick."
           />
           {audience === NotificationAudience.Department && (
-            <RhfSelect name="department" label="Department" options={departmentOptions} />
+            <RhfSelect
+              name="department"
+              label="Department"
+              options={departmentOptions}
+              helperText="Everyone whose profile is in this department gets it."
+            />
           )}
           {audience === NotificationAudience.Employees && (
-            <RhfMultiSelect name="employeeIds" label="Employees" options={employeeOptions} />
+            <RhfMultiSelect
+              name="employeeIds"
+              label="Employees"
+              options={employeeOptions}
+              helperText="Only these people get it. Pick at least one."
+            />
           )}
           <Flex direction="row" justifyContent="flex-end">
             <Button type="submit" loading={loading} loadingPosition="start">

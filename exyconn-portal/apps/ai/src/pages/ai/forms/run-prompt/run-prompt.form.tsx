@@ -80,7 +80,12 @@ export function RunPromptForm({ prompt, onDone, onCancel }: Readonly<RunPromptFo
         {renderMergeFields(prompt.content, filled)}
       </Text>
       {prompt.variables.map((name) => (
-        <RhfTextField key={name} name={`${VARIABLE_FIELD_PREFIX}${name}`} label={name} />
+        <RhfTextField
+          key={name}
+          name={`${VARIABLE_FIELD_PREFIX}${name}`}
+          label={name}
+          helperText="Filled into the prompt above wherever this placeholder appears."
+        />
       ))}
       <RhfAutocomplete
         name="model"

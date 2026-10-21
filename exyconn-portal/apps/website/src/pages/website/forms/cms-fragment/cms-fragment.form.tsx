@@ -54,7 +54,12 @@ export function CmsFragmentForm({
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="name" label="Name" helperText="e.g. Main header, Newsletter sign-up" />
-      <RhfSelect name="kind" label="Kind" options={FRAGMENT_KIND_OPTIONS} />
+      <RhfSelect
+        name="kind"
+        label="Kind"
+        options={FRAGMENT_KIND_OPTIONS}
+        helperText="Where the fragment is used: a header or footer on every page, or a reusable block."
+      />
     </EntityForm>
   );
 }

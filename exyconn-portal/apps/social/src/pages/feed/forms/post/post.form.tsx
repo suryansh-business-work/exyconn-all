@@ -63,7 +63,12 @@ export function PostForm({ onPosted }: Readonly<PostFormProps>) {
             minRows={3}
             helperText={`Up to ${MAX_POST_LENGTH} characters. Everyone signed in can see this.`}
           />
-          <RhfImageField name="imageUrl" label="Photo" folder="social" />
+          <RhfImageField
+            name="imageUrl"
+            label="Photo"
+            folder="social"
+            helperText="Optional. One picture shown with your post."
+          />
         </EntityForm>
       </CardContent>
     </Card>

@@ -93,13 +93,22 @@ export function ImageConfigForm({ initial, onDone, onCancel }: Readonly<ImageCon
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfSelect
         name="provider"
         label="Provider"
+        helperText="The image service uploads are stored on."
         options={PROVIDER_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
       />
-      <RhfTextField name="publicKey" label="Public key" />
+      <RhfTextField
+        name="publicKey"
+        label="Public key"
+        helperText="ImageKit dashboard › Developer options › API keys."
+      />
       <RhfSecretField
         name="privateKey"
         label="Private key"
@@ -111,8 +120,17 @@ export function ImageConfigForm({ initial, onDone, onCancel }: Readonly<ImageCon
             : 'Kept on the server; open the config again and use the eye to see it'
         }
       />
-      <RhfTextField name="urlEndpoint" label="URL endpoint" />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfTextField
+        name="urlEndpoint"
+        label="URL endpoint"
+        helperText="The address images are served from, e.g. https://ik.imagekit.io/your_id."
+      />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

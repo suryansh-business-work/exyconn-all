@@ -63,7 +63,12 @@ export function ApplicantStageForm({
       <Text size="sm" color="text.secondary">
         {applicant.name} · {t('currently {stage}', { stage: applicant.stage.toLowerCase() })}
       </Text>
-      <RhfSelect name="stage" label="Stage" options={STAGE_OPTIONS} />
+      <RhfSelect
+        name="stage"
+        label="Stage"
+        options={STAGE_OPTIONS}
+        helperText="Where the applicant now is in hiring. Interview, Offer and Rejected email the applicant."
+      />
       <RhfTextField
         name="note"
         label="Note"

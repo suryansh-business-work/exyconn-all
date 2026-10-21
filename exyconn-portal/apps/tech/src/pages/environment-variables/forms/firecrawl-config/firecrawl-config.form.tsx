@@ -76,7 +76,11 @@ export function FirecrawlConfigForm({
   });
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfTextField
         name="baseUrl"
         label="Base URL"
@@ -88,7 +92,12 @@ export function FirecrawlConfigForm({
         stored={initial?.hasApiKey}
         helperText={isEdit ? KEEP_SECRET_HINT : NEW_KEY_HINT}
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

@@ -63,27 +63,90 @@ export function AssetForm({ initial, onDone, onCancel }: Readonly<AssetFormProps
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="assetTag" label="Asset tag" helperText="The label stuck on the item" />
-      <RhfTextField name="name" label="Name" />
-      <RhfSelect name="category" label="Category" options={CATEGORY_OPTIONS} />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="What the item is, e.g. MacBook Pro 14 or Dell 27 monitor."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={CATEGORY_OPTIONS}
+        helperText="The type of equipment, used to group the register."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Where the item is now. Assigned asks who has it."
+      />
       {isAssignedStatus(String(status)) && (
-        <RhfSelect name="assignedToId" label="Assigned to" options={assignees} />
+        <RhfSelect
+          name="assignedToId"
+          label="Assigned to"
+          options={assignees}
+          helperText="The employee who currently has the item."
+        />
       )}
-      <RhfTextField name="manufacturer" label="Manufacturer" />
-      <RhfTextField name="modelName" label="Model" />
-      <RhfTextField name="serialNumber" label="Serial number" />
-      <RhfTextField name="location" label="Location" />
-      <RhfDatePicker name="purchaseDate" label="Purchase date" />
-      <RhfDatePicker name="warrantyExpiry" label="Warranty expiry" />
-      <RhfTextField name="purchaseCost" label="Purchase cost" type="number" />
+      <RhfTextField
+        name="manufacturer"
+        label="Manufacturer"
+        helperText="Optional. The brand, e.g. Apple or Dell."
+      />
+      <RhfTextField
+        name="modelName"
+        label="Model"
+        helperText="Optional. The exact model, e.g. A2442."
+      />
+      <RhfTextField
+        name="serialNumber"
+        label="Serial number"
+        helperText="Optional. The maker's serial number, used for warranty claims."
+      />
+      <RhfTextField
+        name="location"
+        label="Location"
+        helperText="Optional. Where the item is kept, e.g. London office or Remote."
+      />
+      <RhfDatePicker
+        name="purchaseDate"
+        label="Purchase date"
+        helperText="Optional. When the item was bought."
+      />
+      <RhfDatePicker
+        name="warrantyExpiry"
+        label="Warranty expiry"
+        helperText="Optional. IT is reminded before the warranty ends."
+      />
+      <RhfTextField
+        name="purchaseCost"
+        label="Purchase cost"
+        type="number"
+        helperText="What was paid for the item. Enter 0 if unknown."
+      />
       <RhfChipsInput
         name="installedSoftware"
         label="Installed software"
         helperText="Press Enter after each"
       />
-      <RhfSelect name="edrStatus" label="Antivirus / EDR" options={EDR_OPTIONS} />
-      <RhfDatePicker name="edrCheckedAt" label="EDR last checked" />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfSelect
+        name="edrStatus"
+        label="Antivirus / EDR"
+        options={EDR_OPTIONS}
+        helperText="Whether endpoint protection is installed and up to date on this device."
+      />
+      <RhfDatePicker
+        name="edrCheckedAt"
+        label="EDR last checked"
+        helperText="Optional. When the protection status was last confirmed."
+      />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Condition, accessories or repair history."
+      />
     </EntityForm>
   );
 }

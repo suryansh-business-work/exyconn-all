@@ -116,6 +116,7 @@ export function BrandingImagesFields() {
                 <RhfImageField
                   name={row.light}
                   label={t('{label} (light)', { label: row.label })}
+                  helperText="Used in light mode, and in dark mode when no dark image is set."
                   folder={UPLOAD_FOLDER}
                   media={row.media}
                 />
@@ -124,7 +125,7 @@ export function BrandingImagesFields() {
                 <RhfImageField
                   name={row.dark}
                   label={t('{label} (dark)', { label: row.label })}
-                  helperText={t('Empty uses the light image.')}
+                  helperText="Empty uses the light image."
                   folder={UPLOAD_FOLDER}
                   media={row.media}
                 />

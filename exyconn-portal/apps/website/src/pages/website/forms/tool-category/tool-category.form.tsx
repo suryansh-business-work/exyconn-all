@@ -67,8 +67,18 @@ export function ToolCategoryForm({ initial, onDone, onCancel }: Readonly<ToolCat
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. ai-writing" />
-      <RhfTextField name="category" label="Category" />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="category"
+        label="Category"
+        helperText="The category name visitors see, e.g. AI writing."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="Optional. A short summary of the tools in this category."
+      />
       <RhfTextField name="icon" label="Icon" helperText="Icon name rendered on the site" />
       <RhfTextField name="color" label="Color" helperText="Hex color, e.g. #f9851f" />
       <RhfSwitch name="isActive" label="Active" />

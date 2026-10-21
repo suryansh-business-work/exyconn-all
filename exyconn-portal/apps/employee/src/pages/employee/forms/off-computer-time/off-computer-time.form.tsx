@@ -92,7 +92,12 @@ export function OffComputerTimeForm({ projects, onDone }: Readonly<OffComputerTi
             sm: 6,
           }}
         >
-          <RhfDateTimePicker name="startedAt" label="Started" maxDateTime={new Date()} />
+          <RhfDateTimePicker
+            name="startedAt"
+            label="Started"
+            maxDateTime={new Date()}
+            helperText="When the work away from the computer began."
+          />
         </Grid>
         <Grid
           size={{
@@ -112,6 +117,7 @@ export function OffComputerTimeForm({ projects, onDone }: Readonly<OffComputerTi
         name="projectId"
         label="Project"
         options={projects.map((project) => ({ value: project.id, label: project.name }))}
+        helperText="The project the hours are booked against."
       />
       <RhfTextField
         name="note"

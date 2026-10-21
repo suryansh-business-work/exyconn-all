@@ -94,11 +94,33 @@ export function ConvertLeadForm({ lead, onDone, onCancel }: Readonly<ConvertLead
         label="Company"
         helperText="An existing company with this name, or on the lead's email domain, is reused."
       />
-      <RhfTextField name="contactName" label="Contact name" />
-      <RhfTextField name="contactEmail" label="Contact email" type="email" />
-      <RhfTextField name="dealTitle" label="Deal title" />
-      <RhfTextField name="value" label="Deal value" type="number" />
-      <RhfDatePicker name="expectedCloseDate" label="Expected close" />
+      <RhfTextField
+        name="contactName"
+        label="Contact name"
+        helperText="The new contact's name; starts as the lead's name."
+      />
+      <RhfTextField
+        name="contactEmail"
+        label="Contact email"
+        type="email"
+        helperText="Saved on the new contact."
+      />
+      <RhfTextField
+        name="dealTitle"
+        label="Deal title"
+        helperText="How the deal shows on the pipeline, e.g. Acme annual plan."
+      />
+      <RhfTextField
+        name="value"
+        label="Deal value"
+        type="number"
+        helperText="What the deal should be worth if won; 0 if not known yet."
+      />
+      <RhfDatePicker
+        name="expectedCloseDate"
+        label="Expected close"
+        helperText="Optional. When you expect a decision."
+      />
     </EntityForm>
   );
 }

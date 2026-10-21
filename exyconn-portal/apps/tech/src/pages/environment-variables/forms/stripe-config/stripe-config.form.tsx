@@ -82,7 +82,11 @@ export function StripeConfigForm({ initial, onDone, onCancel }: Readonly<StripeC
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfSecretField
         name="secretKey"
         label="Secret key"
@@ -101,7 +105,12 @@ export function StripeConfigForm({ initial, onDone, onCancel }: Readonly<StripeC
             : `Add the endpoint ${webhookUrl('/webhooks/stripe')} (checkout.session.* events), then copy its signing secret`
         }
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

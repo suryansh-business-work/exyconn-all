@@ -71,7 +71,13 @@ export function CallNoteForm({ panel, onCancel }: Readonly<CallNoteFormProps>) {
       submitLabel="Save note"
       onCancel={onCancel}
     >
-      <RhfTextField name="notes" label="Notes" multiline minRows={3} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        minRows={3}
+        helperText="What was said or agreed; saved to the record's timeline as call notes."
+      />
     </EntityForm>
   );
 }

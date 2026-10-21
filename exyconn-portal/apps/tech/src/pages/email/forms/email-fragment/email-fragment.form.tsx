@@ -62,9 +62,23 @@ export function EmailFragmentForm({ initial, onDone, onCancel }: Readonly<Props>
         label="Key"
         helperText="Templates include this as {{> key }}. Renaming it breaks those templates."
       />
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="description" label="Description" />
-      <RhfCodeEditor name="mjml" label="MJML" language="html" height={320} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="A readable name for this list, e.g. Footer."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        helperText="Optional. What this block is and where it is used."
+      />
+      <RhfCodeEditor
+        name="mjml"
+        label="MJML"
+        language="html"
+        height={320}
+        helperText="The reusable MJML block, inserted wherever a template includes this key."
+      />
     </EntityForm>
   );
 }

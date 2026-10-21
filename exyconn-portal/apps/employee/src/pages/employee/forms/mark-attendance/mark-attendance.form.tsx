@@ -50,13 +50,24 @@ export function MarkAttendanceForm({
       onCancel={onCancel}
       submitLabel="Save"
     >
-      <RhfDatePicker name="date" label="Date" />
+      <RhfDatePicker
+        name="date"
+        label="Date"
+        helperText="The day you are marking. Saving again for the same day replaces it."
+      />
       <RhfSelect
         name="status"
         label="Status"
         options={enumOptions(Object.values(AttendanceStatus))}
+        helperText="How you worked that day: present, from home, half day or absent."
       />
-      <RhfTextField name="note" label="Note (optional)" multiline minRows={2} />
+      <RhfTextField
+        name="note"
+        label="Note (optional)"
+        multiline
+        minRows={2}
+        helperText="Anything HR should know about the day. Up to 200 characters."
+      />
     </EntityForm>
   );
 }

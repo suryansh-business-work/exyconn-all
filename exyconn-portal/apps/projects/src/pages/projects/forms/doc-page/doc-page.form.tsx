@@ -47,8 +47,12 @@ export function DocPageForm({ page, onSubmit, onCancel }: Readonly<DocPageFormPr
       onCancel={onCancel}
       submitLabel="Save page"
     >
-      <RhfTextField name="title" label="Title" />
-      <RhfRichText name="body" label="Page" />
+      <RhfTextField name="title" label="Title" helperText="The page name shown in the docs tree." />
+      <RhfRichText
+        name="body"
+        label="Page"
+        helperText="Optional. The page content; format it with the toolbar."
+      />
     </EntityForm>
   );
 }

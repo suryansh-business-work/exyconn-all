@@ -19,7 +19,11 @@ export function SiteIdentityFields({ siteId }: Readonly<{ siteId?: string }>) {
   return (
     <>
       <Text weight="semibold">{t('Website')}</Text>
-      <RhfTextField name="name" label="Name" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="Tells this website apart in the portal, up to 100 characters."
+      />
       <RhfTextField
         name="slug"
         label="Key"
@@ -30,7 +34,12 @@ export function SiteIdentityFields({ siteId }: Readonly<{ siteId?: string }>) {
         label="Domains"
         helperText="Host names this site answers on, like example.com. Type one and press Enter."
       />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Keep the site in draft until its pages are ready to go live."
+      />
       <RhfSwitch name="markets" label="Serve pages under a market prefix (/en-us/…)" />
       <RhfTextField name="defaultLocale" label="Default locale" helperText="e.g. en, en-US, de" />
       <RhfMediaField

@@ -107,7 +107,11 @@ export function CustomMailForm({
         minHeight={180}
         helperText="Formatting, links, lists and images are kept in the email."
       />
-      <RhfAttachmentPicker name="attachments" folder={MAIL_UPLOAD_FOLDER} />
+      <RhfAttachmentPicker
+        name="attachments"
+        folder={MAIL_UPLOAD_FOLDER}
+        helperText="Optional. Files sent with the email, uploaded to the portal first."
+      />
     </EntityForm>
   );
 }

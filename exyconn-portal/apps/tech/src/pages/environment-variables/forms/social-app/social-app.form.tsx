@@ -75,7 +75,11 @@ export function SocialAppForm({ row, onDone, onCancel }: Readonly<SocialAppFormP
           {t('3. Paste its client ID and secret below and turn it on.')}
         </Text>
       </Box>
-      <RhfTextField name="clientId" label="Client ID" />
+      <RhfTextField
+        name="clientId"
+        label="Client ID"
+        helperText="From the app created in step 1; needed before the app can be turned on."
+      />
       <RhfSecretField
         name="clientSecret"
         label="Client secret"

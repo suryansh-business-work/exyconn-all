@@ -56,7 +56,13 @@ export function ActionCommentForm({ actionId, onDone }: Readonly<ActionCommentFo
       onCancel={() => methods.reset({ text: '' })}
       submitLabel="Add comment"
     >
-      <RhfTextField name="text" label="Comment" multiline minRows={2} />
+      <RhfTextField
+        name="text"
+        label="Comment"
+        multiline
+        minRows={2}
+        helperText="An update or question on this action item, up to 2,000 characters."
+      />
     </EntityForm>
   );
 }

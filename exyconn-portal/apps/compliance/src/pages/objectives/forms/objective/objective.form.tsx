@@ -61,36 +61,103 @@ export function ObjectiveForm({ initial, onDone, onCancel }: Readonly<ObjectiveF
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Objective" />
-      <RhfTextField name="description" label="Description" multiline rows={2} />
-      <RhfMultiSelect name="standards" label="Standards" options={STANDARD_OPTIONS} />
-      <RhfSelect name="category" label="Category" options={CATEGORY_OPTIONS} />
-      <RhfSelect name="scope" label="Scope" options={SCOPE_OPTIONS} />
+      <RhfTextField
+        name="title"
+        label="Objective"
+        helperText="What should be achieved, e.g. Cut customer complaints by a third."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        rows={2}
+        helperText="Optional. Why this objective matters and how it supports the policy."
+      />
+      <RhfMultiSelect
+        name="standards"
+        label="Standards"
+        options={STANDARD_OPTIONS}
+        helperText="The ISO standards this objective supports. Pick at least one."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={CATEGORY_OPTIONS}
+        helperText="The area it belongs to, e.g. quality or information security."
+      />
+      <RhfSelect
+        name="scope"
+        label="Scope"
+        options={SCOPE_OPTIONS}
+        helperText="Whether it applies to the whole company, one department or one process."
+      />
       <RhfTextField
         name="area"
         label="Department or process"
         helperText="Leave empty for a company-wide objective"
       />
-      <RhfTextField name="ownerName" label="Owner" />
+      <RhfTextField
+        name="ownerName"
+        label="Owner"
+        helperText="The person accountable for meeting the objective."
+      />
       <RhfTextField
         name="measure"
         label="Measured by"
         helperText="e.g. complaints per 1,000 orders"
       />
-      <RhfTextField name="unit" label="Unit" />
-      <RhfTextField name="baseline" label="Baseline" type="number" />
-      <RhfTextField name="target" label="Target" type="number" />
+      <RhfTextField
+        name="unit"
+        label="Unit"
+        helperText="Optional. The unit of the figures below, e.g. %, hours or count."
+      />
+      <RhfTextField
+        name="baseline"
+        label="Baseline"
+        type="number"
+        helperText="The value of the measure when the objective was set."
+      />
+      <RhfTextField
+        name="target"
+        label="Target"
+        type="number"
+        helperText="The value to reach by the end of the period. Must differ from the baseline."
+      />
       <RhfTextField
         name="actual"
         label="Current value"
         type="number"
         helperText={achievementHint(values.baseline, values.target, values.actual)}
       />
-      <RhfSelect name="frequency" label="Measured" options={FREQUENCY_OPTIONS} />
-      <RhfDatePicker name="periodStart" label="Period starts" />
-      <RhfDatePicker name="periodEnd" label="Period ends" />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="plan" label="Plan" multiline rows={3} />
+      <RhfSelect
+        name="frequency"
+        label="Measured"
+        options={FREQUENCY_OPTIONS}
+        helperText="How often the current value is checked and updated."
+      />
+      <RhfDatePicker
+        name="periodStart"
+        label="Period starts"
+        helperText="The first day the objective is measured from."
+      />
+      <RhfDatePicker
+        name="periodEnd"
+        label="Period ends"
+        helperText="The date the target should be met by; cannot be before the start."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Whether it is planned, on track, at risk, met or missed."
+      />
+      <RhfTextField
+        name="plan"
+        label="Plan"
+        multiline
+        rows={3}
+        helperText="Optional. The actions, resources and steps that will get it done."
+      />
     </EntityForm>
   );
 }

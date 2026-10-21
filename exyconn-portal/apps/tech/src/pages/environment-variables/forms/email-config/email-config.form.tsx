@@ -93,11 +93,33 @@ export function EmailConfigForm({ initial, onDone, onCancel }: Readonly<EmailCon
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
-      <RhfTextField name="host" label="SMTP host" />
-      <RhfTextField name="port" label="Port" type="number" />
-      <RhfSelect name="secure" label="Use TLS/SSL (secure)" options={BOOL_OPTIONS} />
-      <RhfTextField name="username" label="Username" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
+      <RhfTextField
+        name="host"
+        label="SMTP host"
+        helperText="The outgoing mail server, e.g. smtp.gmail.com."
+      />
+      <RhfTextField
+        name="port"
+        label="Port"
+        type="number"
+        helperText="Usually 587 for STARTTLS or 465 for TLS/SSL."
+      />
+      <RhfSelect
+        name="secure"
+        label="Use TLS/SSL (secure)"
+        options={BOOL_OPTIONS}
+        helperText="Yes for port 465; No for 587, which upgrades with STARTTLS."
+      />
+      <RhfTextField
+        name="username"
+        label="Username"
+        helperText="The SMTP login, usually the full mailbox address."
+      />
       <RhfSecretField
         name="password"
         label="Password"
@@ -109,8 +131,17 @@ export function EmailConfigForm({ initial, onDone, onCancel }: Readonly<EmailCon
             : 'Kept on the server; open the config again and use the eye to see it'
         }
       />
-      <RhfTextField name="fromAddress" label="From address" />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfTextField
+        name="fromAddress"
+        label="From address"
+        helperText="The sender recipients see, e.g. no-reply@exyconn.com; the SMTP account must allow it."
+      />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

@@ -57,7 +57,11 @@ export function DesignSystemForm({
       onCancel={onCancel}
       submitLabel="Save design system"
     >
-      <RhfTextField name="name" label="Name" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="Tells this design system apart in the portal, e.g. Exyconn brand."
+      />
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 8 }}>
           <Tabber

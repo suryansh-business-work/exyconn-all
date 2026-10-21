@@ -75,6 +75,7 @@ export function SlaPolicyForm({ initial, onDone, onCancel }: Readonly<SlaPolicyF
         name="priority"
         label="Priority"
         options={enumOptions(Object.values(SupportPriority))}
+        helperText="The ticket priority these targets apply to."
       />
       <RhfTextField
         name="firstResponseMinutes"

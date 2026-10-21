@@ -73,17 +73,37 @@ export function LeaveRequestForm({ initial, onDone, onCancel }: Readonly<LeaveRe
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee taking the leave."
+      />
       <RhfSelect
         name="type"
         label="Type"
         options={leaveTypeOptions(policies?.listLeavePolicies ?? [])}
         helperText="Leave types are managed under Leave Settings."
       />
-      <RhfDatePicker name="fromDate" label="From date" />
-      <RhfDatePicker name="toDate" label="To date" />
-      <RhfTextField name="reason" label="Reason" multiline minRows={2} />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(LeaveStatus))} />
+      <RhfDatePicker name="fromDate" label="From date" helperText="The first day of leave." />
+      <RhfDatePicker
+        name="toDate"
+        label="To date"
+        helperText="The last day of leave; the same as the first day for a single day."
+      />
+      <RhfTextField
+        name="reason"
+        label="Reason"
+        multiline
+        minRows={2}
+        helperText="Why the leave is needed, in a few words."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(LeaveStatus))}
+        helperText="Pending until decided, then Approved or Rejected."
+      />
     </EntityForm>
   );
 }

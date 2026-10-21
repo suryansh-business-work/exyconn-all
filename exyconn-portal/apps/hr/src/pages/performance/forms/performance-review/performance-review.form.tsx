@@ -83,15 +83,62 @@ export function PerformanceReviewForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfTextField name="cycle" label="Cycle" />
-      <RhfTextField name="selfAssessment" label="Self assessment" multiline minRows={3} />
-      <RhfTextField name="managerAssessment" label="Manager assessment" multiline minRows={3} />
-      <RhfTextField name="competencies" label="Competencies" multiline minRows={3} />
-      <RhfTextField name="score" label="Score (0-10)" type="number" />
-      <RhfTextField name="rating" label="Rating" />
-      <RhfTextField name="actionPlan" label="Action plan" multiline minRows={3} />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ReviewStatus))} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee being reviewed."
+      />
+      <RhfTextField
+        name="cycle"
+        label="Cycle"
+        helperText="The review period, e.g. H1 2026 or FY 2025-26."
+      />
+      <RhfTextField
+        name="selfAssessment"
+        label="Self assessment"
+        multiline
+        minRows={3}
+        helperText="The employee's own view of their work this cycle."
+      />
+      <RhfTextField
+        name="managerAssessment"
+        label="Manager assessment"
+        multiline
+        minRows={3}
+        helperText="The manager's view of the employee's work this cycle."
+      />
+      <RhfTextField
+        name="competencies"
+        label="Competencies"
+        multiline
+        minRows={3}
+        helperText="The skills assessed and how the employee did on each."
+      />
+      <RhfTextField
+        name="score"
+        label="Score (0-10)"
+        type="number"
+        helperText="Optional. An overall score from 0 to 10; leave empty until it is agreed."
+      />
+      <RhfTextField
+        name="rating"
+        label="Rating"
+        helperText="Optional. A short overall label, e.g. Exceeds expectations."
+      />
+      <RhfTextField
+        name="actionPlan"
+        label="Action plan"
+        multiline
+        minRows={3}
+        helperText="What the employee will work on before the next review."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(ReviewStatus))}
+        helperText="Where the review is: open, self or manager assessment submitted, or closed."
+      />
     </EntityForm>
   );
 }

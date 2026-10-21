@@ -168,7 +168,12 @@ export function SocialPostForm({
         label="Link"
         helperText="Optional. Added to the end of the text where the network has no link field."
       />
-      <RhfSelect name="timing" label="When" options={initial ? EDIT_TIMING : NEW_TIMING} />
+      <RhfSelect
+        name="timing"
+        label="When"
+        options={initial ? EDIT_TIMING : NEW_TIMING}
+        helperText="A draft stays here until you schedule or publish it."
+      />
       {timing === 'SCHEDULE' && (
         <RhfDateTimePicker
           name="scheduledAt"

@@ -54,7 +54,12 @@ export function ClientContactForm({ clientId, onAdded }: Readonly<ClientContactF
         <Stack spacing={1.5}>
           {error && <Alert severity="error">{error}</Alert>}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-            <RhfTextField name="name" label={t('Name')} autoComplete="off" />
+            <RhfTextField
+              name="name"
+              label={t('Name')}
+              autoComplete="off"
+              helperText="The contact's full name, used to greet them in hub emails."
+            />
             <RhfTextField
               name="email"
               label={t('Email')}

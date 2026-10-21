@@ -72,11 +72,30 @@ export function ExpenseClaimForm({ onCancel, onDone }: Readonly<ExpenseClaimForm
       onCancel={onCancel}
       submitLabel="Submit claim"
     >
-      <RhfTextField name="category" label="Category" />
-      <RhfTextField name="description" label="Description" multiline minRows={2} />
-      <RhfTextField name="amount" label="Amount" type="number" />
-      <RhfCurrencyField />
-      <RhfDatePicker name="incurredOn" label="Incurred on" />
+      <RhfTextField
+        name="category"
+        label="Category"
+        helperText="The kind of expense, e.g. Travel, Meals or Software."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={2}
+        helperText="What you spent on and why it was for work."
+      />
+      <RhfTextField
+        name="amount"
+        label="Amount"
+        type="number"
+        helperText="The amount on the receipt, more than 0."
+      />
+      <RhfCurrencyField helperText="The currency you paid in; it starts as the company currency." />
+      <RhfDatePicker
+        name="incurredOn"
+        label="Incurred on"
+        helperText="The day you spent the money."
+      />
       <RhfImageField
         name="receiptUrl"
         label="Receipt link (optional)"

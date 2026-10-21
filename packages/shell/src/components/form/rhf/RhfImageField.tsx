@@ -12,6 +12,7 @@ import {
 } from '@/components/ui';
 import type { CropOptions } from '@/components/ui/ImageUploadDialog';
 import { useFieldMeta } from './useFieldMeta';
+import { useFieldCopy } from './useFieldCopy';
 import { RequiredStar } from './RequiredStar';
 
 interface RhfImageFieldProps {
@@ -52,6 +53,7 @@ export function RhfImageField({
 }: Readonly<RhfImageFieldProps>) {
   const { control } = useFormContext();
   const meta = useFieldMeta(name, { required, helperText });
+  const copy = useFieldCopy();
   const [open, setOpen] = useState(false);
 
   return (
@@ -92,14 +94,14 @@ export function RhfImageField({
                   onBlur={field.onBlur}
                   placeholder="https://…"
                   error={Boolean(error)}
-                  helperText={error ?? meta.helperText}
+                  helperText={copy(error ?? meta.helperText)}
                   slotProps={{
                     htmlInput: { 'aria-label': label },
                   }}
                 />
               ) : (
                 <Typography variant="caption" color={error ? 'error' : 'text.secondary'}>
-                  {error ?? meta.helperText ?? url}
+                  {copy(error ?? meta.helperText) ?? url}
                 </Typography>
               )}
             </Stack>

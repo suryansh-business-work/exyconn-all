@@ -54,7 +54,10 @@ export function CrmCallConfigForm({ initial, onDone, onCancel }: Readonly<CrmCal
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" helperText="e.g. Sales line" />
-      <RhfProviderSelect providers={PROVIDERS} />
+      <RhfProviderSelect
+        providers={PROVIDERS}
+        helperText="The calling service this account is with; the fields below change to match."
+      />
       <RhfTextField
         name="accountId"
         label={accountLabel(provider)}
@@ -76,7 +79,12 @@ export function CrmCallConfigForm({ initial, onDone, onCancel }: Readonly<CrmCal
         inputMode="tel"
         helperText="A number on this account, in international format, e.g. +14155550100. It is the caller id people see."
       />
-      <RhfSelect name="isActive" label="Set as active" options={ACTIVE_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={ACTIVE_OPTIONS}
+        helperText="Yes makes this the account calls go out through and turns the others off."
+      />
     </EntityForm>
   );
 }

@@ -57,8 +57,19 @@ export function IncidentUpdateForm({
       onCancel={onCancel}
       submitLabel="Post update"
     >
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="note" label="What happened" multiline rows={3} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Move the incident on if this update changes where it stands."
+      />
+      <RhfTextField
+        name="note"
+        label="What happened"
+        multiline
+        rows={3}
+        helperText="Added to the incident timeline, e.g. Rolled back the release. Up to 2000 characters."
+      />
     </EntityForm>
   );
 }

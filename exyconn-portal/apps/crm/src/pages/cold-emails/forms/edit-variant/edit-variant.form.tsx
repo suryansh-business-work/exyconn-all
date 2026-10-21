@@ -48,7 +48,11 @@ export function EditVariantForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit onCancel={onCancel}>
-      <RhfTextField name="subject" label="Subject" />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="What they see in their inbox, up to 200 characters."
+      />
       <RhfTextField
         name="body"
         label="Message"

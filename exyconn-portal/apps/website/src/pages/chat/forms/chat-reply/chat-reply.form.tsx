@@ -118,6 +118,7 @@ export function ChatReplyForm({ maxUploadMb, onSend, onTyping }: Readonly<ChatRe
             <RhfTextField
               name="body"
               label="Reply"
+              helperText="Sent to the visitor live, up to 2000 characters. May be empty when you attach a file."
               placeholder={t('Write a reply… (Enter sends, Shift+Enter for a new line)')}
               multiline
               maxRows={6}

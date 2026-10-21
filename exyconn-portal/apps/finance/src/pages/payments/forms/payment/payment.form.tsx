@@ -127,7 +127,12 @@ export function PaymentForm({ onDone, onCancel }: Readonly<PaymentFormProps>) {
       onCancel={onCancel}
       submitLabel="Record"
     >
-      <RhfSelect name="invoiceId" label="Invoice" options={invoiceOptions} />
+      <RhfSelect
+        name="invoiceId"
+        label="Invoice"
+        options={invoiceOptions}
+        helperText="The open invoice this money was received against."
+      />
       <RhfTextField
         name="amount"
         label="Amount"
@@ -137,9 +142,20 @@ export function PaymentForm({ onDone, onCancel }: Readonly<PaymentFormProps>) {
       <Text size="sm" color="text.secondary">
         {effectOf(t, money, Number(amount) || 0, chosen)}
       </Text>
-      <RhfSelect name="method" label="Method" options={METHOD_OPTIONS} />
+      <RhfSelect
+        name="method"
+        label="Method"
+        options={METHOD_OPTIONS}
+        helperText="How the money arrived, e.g. bank transfer, UPI or cheque."
+      />
       <RhfTextField name="reference" label="Reference" helperText="UTR, cheque number, txn id…" />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Anything finance should know about this payment."
+      />
     </EntityForm>
   );
 }

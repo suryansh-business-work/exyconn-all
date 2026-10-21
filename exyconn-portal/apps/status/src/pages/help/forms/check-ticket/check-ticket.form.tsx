@@ -92,7 +92,11 @@ export function CheckTicketForm({ onCancel }: Readonly<CheckTicketFormProps>) {
         label="Ticket reference"
         helperText="The EXY- code from your confirmation"
       />
-      <RhfTextField name="email" label="Your email" />
+      <RhfTextField
+        name="email"
+        label="Your email"
+        helperText="The address you raised the ticket from."
+      />
       {/* One message for "no such ticket" and for "not your ticket": telling them apart
           would confirm that a reference exists to somebody who only guessed it. */}
       {missing && (

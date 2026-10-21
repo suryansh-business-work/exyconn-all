@@ -51,7 +51,11 @@ export function OrganizationAdminForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={false} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The administrator's full name, as shown on their account."
+      />
       <RhfTextField
         name="email"
         label="Email"

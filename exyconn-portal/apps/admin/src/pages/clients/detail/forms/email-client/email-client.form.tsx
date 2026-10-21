@@ -80,7 +80,11 @@ export function EmailClientForm({ clientId, onDone, onCancel }: Readonly<EmailCl
         options={options}
         helperText="The client’s own address and their hub contacts"
       />
-      <RhfTextField name="subject" label="Subject" />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="The email's subject line and the log entry's title. Up to 200 characters."
+      />
       <RhfTextField
         name="message"
         label="Message"

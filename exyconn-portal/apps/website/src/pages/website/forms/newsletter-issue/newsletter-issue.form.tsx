@@ -60,7 +60,11 @@ export function NewsletterIssueForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Title" />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="The issue's headline, up to 200 characters."
+      />
       <RhfTextField name="slug" label="Slug" helperText="The issue's address: /newsletter/<slug>" />
       <RhfTextField
         name="summary"
@@ -69,9 +73,24 @@ export function NewsletterIssueForm({
         minRows={2}
         helperText="Shown in the issue list and link previews."
       />
-      <RhfMediaField name="coverImage" label="Cover image" siteId={siteId} />
-      <RhfRichText name="content" label="Content" folder="website/newsletter" minHeight={320} />
-      <RhfDatePicker name="publishedAt" label="Publish date" />
+      <RhfMediaField
+        name="coverImage"
+        label="Cover image"
+        siteId={siteId}
+        helperText="Optional. Shown at the top of the issue and in the issue list."
+      />
+      <RhfRichText
+        name="content"
+        label="Content"
+        folder="website/newsletter"
+        minHeight={320}
+        helperText="The body of the issue as readers see it on the site."
+      />
+      <RhfDatePicker
+        name="publishedAt"
+        label="Publish date"
+        helperText="The date shown on the issue; issues are listed newest first."
+      />
       <RhfSwitch name="isActive" label="Published on the site" />
       <ItemSeoFields siteId={siteId} />
     </EntityForm>

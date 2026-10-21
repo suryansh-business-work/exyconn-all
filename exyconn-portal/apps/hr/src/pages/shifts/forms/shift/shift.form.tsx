@@ -61,12 +61,34 @@ export function ShiftForm({ initial, onDone, onCancel }: Readonly<ShiftFormProps
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="code" label="Code" />
-      <RhfTimePicker name="startTime" label="Start time" />
-      <RhfTimePicker name="endTime" label="End time" />
-      <RhfTextField name="breakMinutes" label="Break (minutes)" type="number" />
-      <RhfTextField name="graceMinutes" label="Grace (minutes)" type="number" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The shift as people know it, e.g. Morning shift."
+      />
+      <RhfTextField name="code" label="Code" helperText="A short reference, e.g. MOR." />
+      <RhfTimePicker
+        name="startTime"
+        label="Start time"
+        helperText="When the shift begins each working day."
+      />
+      <RhfTimePicker
+        name="endTime"
+        label="End time"
+        helperText="When the shift ends each working day."
+      />
+      <RhfTextField
+        name="breakMinutes"
+        label="Break (minutes)"
+        type="number"
+        helperText="Unpaid break time within the shift, in minutes, e.g. 60."
+      />
+      <RhfTextField
+        name="graceMinutes"
+        label="Grace (minutes)"
+        type="number"
+        helperText="How many minutes late someone can start before it counts as late, e.g. 15."
+      />
       <RhfSwitch name="active" label="Active" />
     </EntityForm>
   );

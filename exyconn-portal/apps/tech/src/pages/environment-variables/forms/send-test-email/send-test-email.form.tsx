@@ -62,7 +62,12 @@ export function SendTestEmailForm({
           label: configLabel,
         })}
       </Text>
-      <RhfTextField name="to" label="Recipient email" type="email" />
+      <RhfTextField
+        name="to"
+        label="Recipient email"
+        type="email"
+        helperText="An inbox you can check, e.g. your own address."
+      />
     </EntityForm>
   );
 }

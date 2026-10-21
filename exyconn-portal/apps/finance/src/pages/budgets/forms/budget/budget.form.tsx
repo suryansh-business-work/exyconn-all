@@ -66,11 +66,27 @@ export function BudgetForm({ initial, costCentres, onDone, onCancel }: Readonly<
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfSelect name="costCenterId" label="Cost centre" options={costCentres} />
+      <RhfSelect
+        name="costCenterId"
+        label="Cost centre"
+        options={costCentres}
+        helperText="The team or area this budget is for."
+      />
       <RhfTextField name="month" label="Month" helperText="YYYY-MM — one row per month" />
-      <RhfTextField name="amount" label="Budget amount" type="number" />
-      <RhfCurrencyField />
-      <RhfTextField name="note" label="Note" multiline rows={2} />
+      <RhfTextField
+        name="amount"
+        label="Budget amount"
+        type="number"
+        helperText="What the centre may spend in this month; 0 or more."
+      />
+      <RhfCurrencyField helperText="The currency the budget is set in." />
+      <RhfTextField
+        name="note"
+        label="Note"
+        multiline
+        rows={2}
+        helperText="Optional. Why the budget is set at this level."
+      />
     </EntityForm>
   );
 }
