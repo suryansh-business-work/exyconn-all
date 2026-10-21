@@ -121,4 +121,29 @@ describe('ColdEmailDraftPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(refetch).toHaveBeenCalledTimes(1);
   });
+
+  it('holds the place while the draft loads', () => {
+    gql.draft.mockReturnValue({ data: undefined });
+    renderPage();
+    expect(screen.getByLabelText('Loading the cold email')).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('edits a version in a side panel over the page', async () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1'), variant('v2')]) } });
+    renderPage();
+
+    const [newest] = screen.getAllByRole('article');
+    await userEvent.click(within(newest).getByRole('button', { name: 'Edit' }));
+
+    const heading = await screen.findByRole('heading', { name: 'Edit version' });
+    expect(
+      within(heading.closest<HTMLElement>('.MuiDrawer-paper')!).getByDisplayValue('Subject v2'),
+    ).toBeInTheDocument();
+  });
+
+  it('offers to rewrite the draft from the latest data', () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1')]) } });
+    renderPage();
+    expect(screen.getByRole('button', { name: 'Rewrite based on latest data' })).toBeEnabled();
+  });
 });

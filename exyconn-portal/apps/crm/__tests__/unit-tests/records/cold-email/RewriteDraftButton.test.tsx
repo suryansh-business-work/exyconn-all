@@ -125,6 +125,20 @@ describe('RewriteDraftButton', () => {
     expect(screen.getByRole('heading', { name: TITLE })).toBeInTheDocument();
   });
 
+  it('keeps the panel open when the server answers with no draft', async () => {
+    gql.rewrite.mockResolvedValue({ data: null });
+    const onRewritten = vi.fn();
+    renderWithProviders(<RewriteDraftButton draft={TWO} onRewritten={onRewritten} />);
+
+    await userEvent.click(within(await openDialog()).getByRole('button', { name: 'Rewrite' }));
+
+    expect(
+      await screen.findByText('New versions written from the latest data'),
+    ).toBeInTheDocument();
+    expect(onRewritten).not.toHaveBeenCalled();
+    expect(screen.getByRole('heading', { name: TITLE })).toBeInTheDocument();
+  });
+
   it('closes on Cancel', async () => {
     renderWithProviders(<RewriteDraftButton draft={TWO} />);
     await userEvent.click(within(await openDialog()).getByRole('button', { name: 'Cancel' }));
