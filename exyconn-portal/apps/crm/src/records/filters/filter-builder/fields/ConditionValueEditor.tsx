@@ -26,8 +26,20 @@ function RangeEditor({ path, property }: Readonly<Omit<ConditionValueEditorProps
   }
   return (
     <Flex direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-      <RhfTextField name={`${path}.values.0`} label="From" type="number" size="small" />
-      <RhfTextField name={`${path}.values.1`} label="To" type="number" size="small" />
+      <RhfTextField
+        name={`${path}.values.0`}
+        label="From"
+        type="number"
+        size="small"
+        helperText="The lowest value that matches."
+      />
+      <RhfTextField
+        name={`${path}.values.1`}
+        label="To"
+        type="number"
+        size="small"
+        helperText="The highest value that matches."
+      />
     </Flex>
   );
 }
@@ -47,7 +59,15 @@ export function ConditionValueEditor({ path, property, op }: Readonly<ConditionV
     return <EnumValuesField path={path} property={property} />;
   }
   if (op === CrmOp.LastDays) {
-    return <RhfTextField name={single} label="Days" type="number" size="small" />;
+    return (
+      <RhfTextField
+        name={single}
+        label="Days"
+        type="number"
+        size="small"
+        helperText="Counts back from today, 1 to 3650 days."
+      />
+    );
   }
   if (property.type === CrmPropertyType.Date) {
     const edge = op === CrmOp.After ? 'end' : 'start';
@@ -58,11 +78,33 @@ export function ConditionValueEditor({ path, property, op }: Readonly<ConditionV
       { value: 'true', label: t('Yes') },
       { value: 'false', label: t('No') },
     ];
-    return <RhfSelect name={single} label="Value" options={options} />;
+    return (
+      <RhfSelect
+        name={single}
+        label="Value"
+        options={options}
+        helperText="No also matches records where it was never set."
+      />
+    );
   }
   if (CHOICE_TYPES.has(property.type)) {
-    return <RhfSelect name={single} label="Value" options={property.options} />;
+    return (
+      <RhfSelect
+        name={single}
+        label="Value"
+        options={property.options}
+        helperText="The option to compare the property with."
+      />
+    );
   }
   const type = property.type === CrmPropertyType.Number ? 'number' : 'text';
-  return <RhfTextField name={single} label="Value" type={type} size="small" />;
+  return (
+    <RhfTextField
+      name={single}
+      label="Value"
+      type={type}
+      size="small"
+      helperText="The value to compare the property with."
+    />
+  );
 }

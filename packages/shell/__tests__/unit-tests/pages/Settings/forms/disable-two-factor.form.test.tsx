@@ -23,7 +23,7 @@ function renderForm() {
 }
 
 async function submit(value: string) {
-  if (value) await userEvent.type(screen.getByLabelText('Password'), value);
+  if (value) await userEvent.type(screen.getByLabelText(/^Password\s*\*?$/), value);
   await userEvent.click(screen.getByRole('button', { name: 'Turn off' }));
 }
 
@@ -56,7 +56,7 @@ describe('DisableTwoFactorForm', () => {
     await submit(typed);
 
     expect(await screen.findByText('Wrong password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toHaveValue('');
+    expect(screen.getByLabelText(/^Password\s*\*?$/)).toHaveValue('');
     expect(onDisabled).not.toHaveBeenCalled();
   });
 

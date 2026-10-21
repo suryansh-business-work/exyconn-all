@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import {
   RhfDateTimePicker,
   RhfSelect,
@@ -59,8 +59,17 @@ export function ClientCommunicationForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfSelect name="type" label="Type" options={TYPE_OPTIONS} />
-      <RhfDateTimePicker name="occurredAt" label="When" />
+      <RhfSelect
+        name="type"
+        label="Type"
+        options={TYPE_OPTIONS}
+        helperText="How you were in touch: a call, email, meeting or message."
+      />
+      <RhfDateTimePicker
+        name="occurredAt"
+        label="When"
+        helperText="When it happened. The log and the client's hub are sorted by this."
+      />
       <RhfTextField name="subject" label="Subject" helperText="What it was about, in a few words" />
       <RhfTextField
         name="participants"

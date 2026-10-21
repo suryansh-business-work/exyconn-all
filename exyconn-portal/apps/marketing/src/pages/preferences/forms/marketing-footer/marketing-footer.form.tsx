@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Alert } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -54,7 +54,12 @@ export function MarketingFooterForm({ initial, onSaved }: Readonly<MarketingFoot
           'Every marketing email ends with this footer, plus its Unsubscribe and Manage preferences links.',
         )}
       </Alert>
-      <RhfTextField name="companyName" label="Company name" required />
+      <RhfTextField
+        name="companyName"
+        label="Company name"
+        required
+        helperText="The sender's legal or trading name, shown first in the footer."
+      />
       <RhfTextField
         name="contactLine"
         label="Contact details"

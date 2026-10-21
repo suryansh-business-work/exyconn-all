@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { LINK, SLUG } from '@exyconn/regex';
 import {
@@ -106,18 +106,53 @@ export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFor
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. scaling-graphql" />
-      <RhfTextField name="title" label="Title" />
-      <RhfTextField name="summary" label="Summary" multiline minRows={2} />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="The headline shown on the post and in the blog list."
+      />
+      <RhfTextField
+        name="summary"
+        label="Summary"
+        multiline
+        minRows={2}
+        helperText="Optional. One or two sentences shown in the blog list."
+      />
       <ArticleBodyField folder={MEDIA_FOLDERS.blog} />
-      <RhfTextField name="author.name" label="Author name" />
-      <RhfTextField name="author.role" label="Author role" />
-      <RhfTextField name="author.initials" label="Author initials" />
+      <RhfTextField
+        name="author.name"
+        label="Author name"
+        helperText="Who wrote the post, shown with the article."
+      />
+      <RhfTextField
+        name="author.role"
+        label="Author role"
+        helperText="Optional. Job title shown under the author's name, e.g. Head of Engineering."
+      />
+      <RhfTextField
+        name="author.initials"
+        label="Author initials"
+        helperText="Optional. Shown in the author badge, e.g. JD."
+      />
       <RhfTextField name="readTime" label="Read time" helperText="e.g. 5 min read" />
-      <RhfChipsInput name="tags" label="Tags" />
-      <RhfMediaField name="coverImage" label="Cover image" siteId={siteId} />
+      <RhfChipsInput
+        name="tags"
+        label="Tags"
+        helperText="Optional. Topics for the post. Type one and press Enter."
+      />
+      <RhfMediaField
+        name="coverImage"
+        label="Cover image"
+        siteId={siteId}
+        helperText="Optional. Shown at the top of the post and on its card in the list."
+      />
       <RhfSwitch name="featured" label="Featured" />
       <RhfSwitch name="isActive" label="Active" />
-      <RhfDatePicker name="publishedAt" label="Published at" />
+      <RhfDatePicker
+        name="publishedAt"
+        label="Published at"
+        helperText="Optional. The publication date shown with the post."
+      />
       <ItemSeoFields siteId={siteId} />
     </EntityForm>
   );

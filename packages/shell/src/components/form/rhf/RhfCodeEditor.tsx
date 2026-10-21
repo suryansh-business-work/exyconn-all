@@ -1,6 +1,7 @@
 import { useController, useFormContext } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { CodeEditor, type CodeLanguage } from '@exyconn/code-editor';
+import { useFieldMeta } from './useFieldMeta';
 
 interface RhfCodeEditorProps {
   name: string;
@@ -24,6 +25,7 @@ export function RhfCodeEditor({
   const { control } = useFormContext();
   const t = useT();
   const { field, fieldState } = useController({ name, control });
+  const hint = useFieldMeta(name, { helperText }).helperText;
 
   return (
     <CodeEditor
@@ -32,7 +34,7 @@ export function RhfCodeEditor({
       onBlur={field.onBlur}
       language={language}
       label={t(label)}
-      helperText={helperText ? t(helperText) : undefined}
+      helperText={hint ? t(hint) : undefined}
       error={fieldState.error?.message ? t(fieldState.error.message) : undefined}
       height={height}
     />

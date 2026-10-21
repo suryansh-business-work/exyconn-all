@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EmailVerifierConfigsPanel } from '../../../../src/pages/environment-variables/EmailVerifierConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 import { notify, resetHarness } from './panel.harness';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
@@ -46,7 +46,7 @@ const rows = [
   },
 ];
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'EmailVerifierConfigsPanel',
   Panel: EmailVerifierConfigsPanel,
   listQuery: gql.list,
@@ -74,8 +74,15 @@ describeConfigPanel({
   },
 });
 
+describe('EmailVerifierConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
+});
+
 describe('EmailVerifierConfigsPanel test action', () => {
-  const refetch = vi.fn(async () => undefined);
+  const refetch = vi.fn(() => Promise.resolve(undefined));
   const renderPanel = () => {
     resetHarness();
     gql.test.mockReset();

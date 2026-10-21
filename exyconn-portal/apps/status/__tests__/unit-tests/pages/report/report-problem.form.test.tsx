@@ -69,7 +69,7 @@ describe('ReportProblemForm', () => {
     await submit();
 
     await waitFor(() => expect(onSubmitted).toHaveBeenCalledWith(REFERENCE));
-    expect(screen.getByLabelText('Title')).toHaveValue('');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('');
   });
 
   it('keeps the report and says why when it cannot be sent', async () => {
@@ -79,7 +79,7 @@ describe('ReportProblemForm', () => {
 
     expect(await findSnackbar('Service unavailable')).toBeInTheDocument();
     expect(onSubmitted).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('Title')).toHaveValue(reportInput.subject);
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue(reportInput.subject);
   });
 
   it('hands back an empty reference when the server answers without data', async () => {

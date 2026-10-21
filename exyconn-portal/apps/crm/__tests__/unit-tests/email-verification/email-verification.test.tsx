@@ -17,7 +17,15 @@ import { EmailCell, type EmailRow } from '../../../src/email-verification/EmailC
 import { useVerifyEmail } from '../../../src/email-verification/useVerifyEmail';
 import { renderHookWithProviders, renderWithProviders } from '../test-utils';
 
-const mocked = vi.hoisted(() => ({ verify: vi.fn() }));
+const mocked = vi.hoisted(() => ({ verify: vi.fn(), warn: vi.fn() }));
+
+vi.mock('@exyconn/shell/logging/portalLogger', () => ({
+  portalLogger: {
+    warn: (...args: unknown[]) => mocked.warn(...args),
+    error: vi.fn(),
+    info: vi.fn(),
+  },
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
@@ -193,10 +201,26 @@ describe('EmailCell and emailColumn', () => {
     await userEvent.click(screen.getByRole('button', { name: /^Not checked:/ }));
     expect(verifyEmail).toHaveBeenCalledWith('a@b.io');
     expect(screen.getByRole('img', { name: /^Checking…:/ })).toBeInTheDocument();
-    await act(async () => finish());
+    await act(() => Promise.resolve(finish()));
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /^Not checked:/ })).toBeInTheDocument(),
     );
+  });
+
+  it('logs a check that fails and frees the cell to try again', async () => {
+    const failure = new Error('Verifier offline');
+    const verifyEmail = vi.fn().mockRejectedValue(failure);
+    renderWithProviders(<EmailCell {...cellParams({ email: 'a@b.io' }, verifyEmail)} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /^Not checked:/ }));
+
+    await waitFor(() =>
+      expect(mocked.warn).toHaveBeenCalledWith(
+        'crm: checking an email from the grid failed',
+        failure,
+      ),
+    );
+    expect(screen.getByRole('button', { name: /^Not checked:/ })).toBeInTheDocument();
   });
 
   it('shows the stored result of a checked address', () => {

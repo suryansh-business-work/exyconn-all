@@ -35,7 +35,11 @@ export function CallingBotVoiceFields({ initial, revealFor }: Readonly<CallingBo
 
   return (
     <>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell settings apart, e.g. Hotel demo."
+      />
       <RhfSecretField
         name="sarvamApiKey"
         label="Sarvam AI key"
@@ -65,11 +69,22 @@ export function CallingBotVoiceFields({ initial, revealFor }: Readonly<CallingBo
         helperText="The bot's role, what it knows and what it should get from the caller."
       />
       <RhfTextField name="greeting" label="Greeting" helperText="The first thing the bot says." />
-      <RhfSelect name="languageCode" label="Language" options={LANGUAGE_OPTIONS} />
-      <RhfSelect name="ttsModel" label="Voice model" options={MODEL_OPTIONS} />
+      <RhfSelect
+        name="languageCode"
+        label="Language"
+        options={LANGUAGE_OPTIONS}
+        helperText="The language the bot speaks and listens in, unless an example sets its own."
+      />
+      <RhfSelect
+        name="ttsModel"
+        label="Voice model"
+        options={MODEL_OPTIONS}
+        helperText="The Sarvam text-to-speech model; each model has its own voices."
+      />
       <RhfSelect
         name="ttsSpeaker"
         label="Voice"
+        helperText="The voice the bot speaks with, from the chosen model."
         options={voices.map((voice) => ({ value: voice, label: voice }))}
       />
       <RhfTextField

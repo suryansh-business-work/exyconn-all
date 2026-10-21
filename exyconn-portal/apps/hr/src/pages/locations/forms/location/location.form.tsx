@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -62,13 +62,35 @@ export function LocationForm({ initial, onDone, onCancel }: Readonly<LocationFor
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="code" label="Code" />
-      <RhfTextField name="city" label="City" />
-      <RhfTextField name="state" label="State" />
-      <RhfTextField name="country" label="Country" />
-      <RhfTextField name="timezone" label="Timezone" />
-      <RhfTextField name="address" label="Address" multiline minRows={3} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The office or site as people know it, e.g. Pune HQ."
+      />
+      <RhfTextField name="code" label="Code" helperText="A short reference, e.g. PUN-1." />
+      <RhfTextField name="city" label="City" helperText="Optional. The city the site is in." />
+      <RhfTextField
+        name="state"
+        label="State"
+        helperText="Optional. The state or region, e.g. Maharashtra."
+      />
+      <RhfTextField
+        name="country"
+        label="Country"
+        helperText="Optional. The country the site is in, e.g. India."
+      />
+      <RhfTextField
+        name="timezone"
+        label="Timezone"
+        helperText="The site's IANA timezone, e.g. Asia/Kolkata."
+      />
+      <RhfTextField
+        name="address"
+        label="Address"
+        multiline
+        minRows={3}
+        helperText="Optional. The full postal address of the site."
+      />
       <RhfSwitch name="active" label="Active" />
     </EntityForm>
   );

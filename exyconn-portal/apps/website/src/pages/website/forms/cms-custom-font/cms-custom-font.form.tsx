@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ChangeEvent } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useT } from '@exyconn/i18n';
 import {

@@ -34,7 +34,7 @@ export const meetingSettingsSchema = z.object({
   reminderIntervalMinutes: z.coerce
     .number()
     .refine(
-      (value) => REMINDER_INTERVALS.some((interval) => interval === value),
+      (value) => (REMINDER_INTERVALS as readonly number[]).includes(value),
       'Pick an interval',
     ),
   maxRemindersPerMeeting: whole(LIMITS.reminders.min, LIMITS.reminders.max, 'Between 1 and 30'),

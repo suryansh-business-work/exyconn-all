@@ -42,11 +42,11 @@ describe('ConvertLeadForm', () => {
         'Converting “Kiran Shah” marks the lead won and opens a deal at the top of the pipeline.',
       ),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Company')).toHaveValue('');
-    expect(screen.getByLabelText('Contact name')).toHaveValue('Kiran Shah');
-    expect(screen.getByLabelText('Contact email')).toHaveValue('kiran@initech.com');
-    expect(screen.getByLabelText('Deal title')).toHaveValue('Kiran Shah opportunity');
-    expect(screen.getByLabelText('Deal value')).toHaveValue(60000);
+    expect(screen.getByLabelText(/^Company\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Contact name\s*\*?$/)).toHaveValue('Kiran Shah');
+    expect(screen.getByLabelText(/^Contact email\s*\*?$/)).toHaveValue('kiran@initech.com');
+    expect(screen.getByLabelText(/^Deal title\s*\*?$/)).toHaveValue('Kiran Shah opportunity');
+    expect(screen.getByLabelText(/^Deal value\s*\*?$/)).toHaveValue(60000);
   });
 
   it('needs a company, a deal title and the contact details', async () => {

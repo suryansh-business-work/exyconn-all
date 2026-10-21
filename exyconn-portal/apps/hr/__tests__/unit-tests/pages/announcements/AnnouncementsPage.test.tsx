@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListAnnouncementsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { AnnouncementsPage } from '../../../../src/pages/announcements';
 import { ANNOUNCEMENT_COLUMNS } from '../../../../src/pages/announcements/announcements-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -27,7 +27,7 @@ vi.mock('@exyconn/shell/pages/content-forms', async () => ({
   AnnouncementForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('AnnouncementsPage', {
+const suite = crudPageSuite({
   page: <AnnouncementsPage />,
   mocks: gql,
   statsKey: 'listAnnouncementsStats',
@@ -46,4 +46,11 @@ describeCrudPage('AnnouncementsPage', {
   row: { id: 'ann-5', title: 'Office closed Friday' },
   confirm: 'Delete announcement "Office closed Friday"?',
   entity: 'Announcement',
+});
+
+describe('AnnouncementsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

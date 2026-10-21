@@ -8,6 +8,15 @@ import {
 import { renderWithProviders } from '../../../../test-utils';
 import { doneOnce, expectMessages, fill, formCallbacks, press, toast } from '../form.helpers';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ save: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -40,8 +49,8 @@ describe('AiSpendLimitForm', () => {
 
   it('shows the stored budget and explains that 0 switches a cap off', () => {
     renderForm();
-    expect(screen.getByLabelText(MONTHLY)).toHaveValue('250');
-    expect(screen.getByLabelText(DAILY)).toHaveValue('5');
+    expect(screen.getByLabelText(labelled(MONTHLY))).toHaveValue('250');
+    expect(screen.getByLabelText(labelled(DAILY))).toHaveValue('5');
     expect(screen.getByRole('switch', { name: 'Enforce the AI budget' })).toBeChecked();
     expect(screen.getByText(/Leave a cap at 0 to switch it off/)).toBeInTheDocument();
   });

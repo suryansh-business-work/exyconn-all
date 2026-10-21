@@ -4,8 +4,7 @@ import {
   type OverviewBreakdown,
 } from '@exyconn/shell/components/dashboard/ModuleOverview';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { Alert } from '@exyconn/shell/components/ui';
-import { color } from '@exyconn/shell/components/ui';
+import { Alert, color } from '@exyconn/shell/components/ui';
 import {
   useCampaignLeadCountsQuery,
   useMarketingDashboardQuery,

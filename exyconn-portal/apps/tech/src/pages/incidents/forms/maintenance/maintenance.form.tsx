@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import {
   RhfDateTimePicker,
@@ -72,9 +72,22 @@ export function MaintenanceForm({ initial, onDone, onCancel }: Readonly<Maintena
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="Title" helperText="Shown on the status page banner" />
-      <RhfMultiSelect name="affectedServiceKeys" label="Affected services" options={services} />
-      <RhfDateTimePicker name="startsAt" label="Starts" />
-      <RhfDateTimePicker name="endsAt" label="Ends" />
+      <RhfMultiSelect
+        name="affectedServiceKeys"
+        label="Affected services"
+        options={services}
+        helperText="The status page services marked as under maintenance; pick at least one."
+      />
+      <RhfDateTimePicker
+        name="startsAt"
+        label="Starts"
+        helperText="When the work begins, in your time zone."
+      />
+      <RhfDateTimePicker
+        name="endsAt"
+        label="Ends"
+        helperText="When the services should be back; must be after the start."
+      />
       <RhfTextField
         name="body"
         label="Notice"

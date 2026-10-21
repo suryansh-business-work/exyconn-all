@@ -60,8 +60,17 @@ function toHex([r, g, b]: [number, number, number]): string {
 
 /** The opacity an `rgba()` colour is painted at; 1 for anything opaque. */
 export function parseAlpha(color: string): number {
-  const match = /rgba\([^)]*[,\s/]\s*([\d.]+)\s*\)$/i.exec(color.trim());
-  return match ? Number(match[1]) : 1;
+  const value = color.trim().toLowerCase();
+  if (!value.startsWith('rgba(') || !value.endsWith(')')) {
+    return 1;
+  }
+  // The last channel is the alpha: `rgba(r, g, b, a)` or `rgba(r g b / a)`.
+  const channels = value
+    .slice('rgba('.length, -1)
+    .trim()
+    .split(/[\s,/]+/);
+  const alpha = Number.parseFloat(String(channels.at(-1)));
+  return Number.isNaN(alpha) ? 1 : alpha;
 }
 
 /**

@@ -1,5 +1,6 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useFieldCopy } from './useFieldCopy';
+import { useFieldMeta } from './useFieldMeta';
 import { MenuItem, TextField } from '@/components/ui';
 import type { SelectOption } from './types';
 
@@ -21,6 +22,7 @@ export function RhfSelect({
   required,
 }: Readonly<RhfSelectProps>) {
   const { control } = useFormContext();
+  const meta = useFieldMeta(name, { required, helperText });
   const copy = useFieldCopy();
   return (
     <Controller
@@ -33,9 +35,9 @@ export function RhfSelect({
           select
           fullWidth
           label={copy(label)}
-          required={required}
+          required={meta.required}
           error={Boolean(fieldState.error)}
-          helperText={copy(fieldState.error?.message ?? helperText)}
+          helperText={copy(fieldState.error?.message ?? meta.helperText)}
         >
           {options.map((option) => (
             <MenuItem key={option.value} value={option.value}>

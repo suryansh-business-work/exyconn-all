@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { CLOUDFLARE_ID } from '@exyconn/regex';
 import {
@@ -91,7 +91,11 @@ export function CloudflareConfigForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfSecretField
         name="apiToken"
         label="API token"
@@ -108,7 +112,12 @@ export function CloudflareConfigForm({
         label="Account ID"
         helperText="On the Cloudflare dashboard's account home, under API — new zones are created here"
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

@@ -23,8 +23,11 @@ function setup() {
 const submit = () => userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
 async function fillValid() {
-  await userEvent.type(screen.getByLabelText('Subject'), ' Work from home Friday ');
-  await userEvent.type(screen.getByLabelText('Details'), 'Plumber visiting between 10 and 2.');
+  await userEvent.type(screen.getByLabelText(/^Subject\s*\*?$/), ' Work from home Friday ');
+  await userEvent.type(
+    screen.getByLabelText(/^Details\s*\*?$/),
+    'Plumber visiting between 10 and 2.',
+  );
 }
 
 beforeEach(() => {
@@ -48,7 +51,9 @@ describe('RaiseRequestForm', () => {
 
   it('keeps the subject under 120 characters', async () => {
     setup();
-    fireEvent.change(screen.getByLabelText('Subject'), { target: { value: 's'.repeat(121) } });
+    fireEvent.change(screen.getByLabelText(/^Subject\s*\*?$/), {
+      target: { value: 's'.repeat(121) },
+    });
     await submit();
 
     expect(await screen.findByText('Keep it under 120 characters')).toBeInTheDocument();
@@ -72,7 +77,7 @@ describe('RaiseRequestForm', () => {
       },
     });
     expect(await screen.findByText('Request submitted — pending approval')).toBeInTheDocument();
-    expect(screen.getByLabelText('Subject')).toHaveValue('');
+    expect(screen.getByLabelText(/^Subject\s*\*?$/)).toHaveValue('');
   });
 
   it('raises the request type the employee picks', async () => {

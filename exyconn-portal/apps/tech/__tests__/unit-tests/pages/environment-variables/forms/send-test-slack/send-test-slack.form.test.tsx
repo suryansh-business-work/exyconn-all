@@ -33,7 +33,7 @@ describe('SendTestSlackForm', () => {
   it('names the bot it verifies and starts with no channel', () => {
     renderForm();
     expect(screen.getByText(/Verify the “Releases bot” bot token/)).toBeInTheDocument();
-    expect(screen.getByLabelText('Channel')).toHaveValue('');
+    expect(screen.getByLabelText(/^Channel\s*\*?$/)).toHaveValue('');
   });
 
   it('asks for a channel and refuses an overlong one', async () => {
@@ -49,7 +49,7 @@ describe('SendTestSlackForm', () => {
 
   it('posts to the default channel through this config', async () => {
     renderForm('#releases');
-    expect(screen.getByLabelText('Channel')).toHaveValue('#releases');
+    expect(screen.getByLabelText(/^Channel\s*\*?$/)).toHaveValue('#releases');
     await press('Send test');
 
     await doneOnce(cb.onDone);

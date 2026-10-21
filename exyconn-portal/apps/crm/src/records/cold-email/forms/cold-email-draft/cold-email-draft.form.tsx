@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Alert, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -112,7 +112,12 @@ export function ColdEmailDraftForm({
         minRows={3}
         helperText="e.g. a free audit of their checkout. Leave blank to introduce your company."
       />
-      <RhfSelect name="tone" label="Tone" options={toneOptions} />
+      <RhfSelect
+        name="tone"
+        label="Tone"
+        options={toneOptions}
+        helperText="How the email reads: Friendly, Formal or Brief."
+      />
       {canReadWebsite ? (
         <>
           <RhfSwitch name="readWebsite" label="Read their website first" />

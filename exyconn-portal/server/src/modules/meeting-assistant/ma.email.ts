@@ -24,7 +24,8 @@ export function htmlList(items: string[]): string {
   if (items.length === 0) {
     return '<br />None recorded.';
   }
-  return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+  const rows = items.map((item) => '<li>' + escapeHtml(item) + '</li>').join('');
+  return `<ul>${rows}</ul>`;
 }
 
 function durationText(meeting: LeanMeeting): string {

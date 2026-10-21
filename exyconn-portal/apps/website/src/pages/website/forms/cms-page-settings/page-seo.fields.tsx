@@ -14,9 +14,20 @@ export function PageSeoFields({ siteId }: Readonly<{ siteId: string }>) {
         label="SEO title"
         helperText="Shown in search results; the page title when empty."
       />
-      <RhfTextField name="seo.description" label="Description" multiline minRows={2} />
+      <RhfTextField
+        name="seo.description"
+        label="Description"
+        multiline
+        minRows={2}
+        helperText="Optional. The snippet under the title in search results, up to 500 characters."
+      />
       <RhfTextField name="seo.keywords" label="Keywords" helperText="Comma-separated." />
-      <RhfMediaField name="seo.ogImageUrl" label="Share image" siteId={siteId} />
+      <RhfMediaField
+        name="seo.ogImageUrl"
+        label="Share image"
+        siteId={siteId}
+        helperText="Optional. Shown in link previews; the site default is used when empty."
+      />
       <RhfTextField
         name="seo.canonical"
         label="Canonical URL"

@@ -179,6 +179,9 @@ describe('compositing a translucent colour', () => {
     expect(parseAlpha('rgba(255, 255, 255, 0.72)')).toBe(0.72);
     expect(parseAlpha('#ffffff')).toBe(1);
     expect(parseAlpha('rgb(1, 2, 3)')).toBe(1);
+    expect(parseAlpha('RGBA(0 0 0 / 0.5)')).toBe(0.5);
+    expect(parseAlpha('rgba(0, 0, 0, 0.5')).toBe(1);
+    expect(parseAlpha('rgba()')).toBe(1);
   });
 
   it('blends a colour over another at an opacity', () => {

@@ -68,19 +68,19 @@ describe('ARecordForm', () => {
     renderForm(domainRow());
 
     expect(screen.getByRole('heading', { name: 'A record for exyconn.com' })).toBeInTheDocument();
-    expect(screen.getByLabelText('IPv4 address')).toHaveValue(CURRENT_IP);
-    expect(screen.getByLabelText('TTL (seconds)')).toHaveValue(3600);
+    expect(screen.getByLabelText(/^IPv4 address\s*\*?$/)).toHaveValue(CURRENT_IP);
+    expect(screen.getByLabelText(/^TTL \(seconds\)\s*\*?$/)).toHaveValue(3600);
   });
 
   it('offers the websites server for a domain with no record yet', async () => {
     renderForm(domainRow({ records: [] }));
-    expect(screen.getByLabelText('IPv4 address')).toHaveValue(SERVER_IP);
-    expect(screen.getByLabelText('TTL (seconds)')).toHaveValue(600);
+    expect(screen.getByLabelText(/^IPv4 address\s*\*?$/)).toHaveValue(SERVER_IP);
+    expect(screen.getByLabelText(/^TTL \(seconds\)\s*\*?$/)).toHaveValue(600);
 
     await fillField('IPv4 address', CURRENT_IP);
     await press(`Use Exyconn server (${SERVER_IP})`);
 
-    expect(screen.getByLabelText('IPv4 address')).toHaveValue(SERVER_IP);
+    expect(screen.getByLabelText(/^IPv4 address\s*\*?$/)).toHaveValue(SERVER_IP);
   });
 
   it('asks for the address when the server address is not configured', () => {
@@ -90,7 +90,7 @@ describe('ARecordForm', () => {
       'The websites server address is not configured, so enter the IP to point at.',
     );
     expect(screen.queryByRole('button', { name: /Use Exyconn server/ })).not.toBeInTheDocument();
-    expect(screen.getByLabelText('IPv4 address')).toHaveValue('');
+    expect(screen.getByLabelText(/^IPv4 address\s*\*?$/)).toHaveValue('');
   });
 
   it.each([
@@ -101,11 +101,11 @@ describe('ARecordForm', () => {
     [SERVER_IP, '600.5', 'Use whole seconds'],
   ])('rejects ip "%s" with ttl %s: %s', async (ip, ttl, message) => {
     renderForm(domainRow());
-    await userEvent.clear(screen.getByLabelText('IPv4 address'));
+    await userEvent.clear(screen.getByLabelText(/^IPv4 address\s*\*?$/));
     if (ip) {
-      await userEvent.type(screen.getByLabelText('IPv4 address'), ip);
+      await userEvent.type(screen.getByLabelText(/^IPv4 address\s*\*?$/), ip);
     }
-    fireEvent.change(screen.getByLabelText('TTL (seconds)'), { target: { value: ttl } });
+    fireEvent.change(screen.getByLabelText(/^TTL \(seconds\)\s*\*?$/), { target: { value: ttl } });
 
     await press('Save record');
 

@@ -14,13 +14,25 @@ function FollowUpRow({ index, onRemove }: Readonly<{ index: number; onRemove: ()
   return (
     <Grid container spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
       <Grid size={{ xs: 12, sm: 4 }}>
-        <RhfTextField name={`followUps.${index}.title`} label="Action" />
+        <RhfTextField
+          name={`followUps.${index}.title`}
+          label="Action"
+          helperText="What has to be done so it does not happen again."
+        />
       </Grid>
       <Grid size={{ xs: 6, sm: 3 }}>
-        <RhfTextField name={`followUps.${index}.ownerName`} label="Owner" />
+        <RhfTextField
+          name={`followUps.${index}.ownerName`}
+          label="Owner"
+          helperText="Optional. Who will do it."
+        />
       </Grid>
       <Grid size={{ xs: 6, sm: 3 }}>
-        <RhfDatePicker name={`followUps.${index}.dueAt`} label="Due" />
+        <RhfDatePicker
+          name={`followUps.${index}.dueAt`}
+          label="Due"
+          helperText="Optional. When it should be done by."
+        />
       </Grid>
       <Grid size={{ xs: 8, sm: 1 }}>
         <RhfSwitch name={`followUps.${index}.done`} label="Done" />

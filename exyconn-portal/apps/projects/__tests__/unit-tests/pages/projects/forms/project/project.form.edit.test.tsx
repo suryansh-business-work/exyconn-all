@@ -33,7 +33,7 @@ describe('ProjectForm editing', () => {
 
   it('updates an existing project by id with its new status', async () => {
     renderForm(projectRow({ id: 'proj-3' }));
-    expect(screen.getByLabelText('Project name')).toHaveValue('Website');
+    expect(screen.getByLabelText(/^Project name\s*\*?$/)).toHaveValue('Website');
 
     await pickOption(/^Status/, 'On Hold');
     await press('Update');

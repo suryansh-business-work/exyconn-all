@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { RhfTextField, RhfSelect, type SelectOption } from '@/components/form/rhf';
@@ -75,9 +75,20 @@ export function SupportReplyForm({ ticketId, onDone, onCancel }: Readonly<Suppor
       onCancel={onCancel}
       submitLabel="Send"
     >
-      <RhfSelect name="internal" label="Visibility" options={visibilityOptions} />
+      <RhfSelect
+        name="internal"
+        label="Visibility"
+        options={visibilityOptions}
+        helperText="A reply goes to the requester; an internal note is seen only by the support team."
+      />
       <CannedReplyPicker onPick={insertSnippet} />
-      <RhfTextField name="body" label="Message" multiline rows={4} />
+      <RhfTextField
+        name="body"
+        label="Message"
+        multiline
+        rows={4}
+        helperText="Write it yourself or start from a canned reply above."
+      />
       <AttachmentPicker
         value={attachments}
         onChange={setAttachments}

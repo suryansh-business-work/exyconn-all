@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -55,7 +55,12 @@ export function SubmissionTriageForm({
       onCancel={onCancel}
       submitLabel="Save triage"
     >
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Where this submission is in your follow-up, from new to resolved."
+      />
       <RhfTextField
         name="notes"
         label="Notes"

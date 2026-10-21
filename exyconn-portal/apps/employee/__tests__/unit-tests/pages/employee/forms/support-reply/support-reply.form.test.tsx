@@ -26,7 +26,7 @@ function setup() {
   return { onCancel, onDone };
 }
 
-const body = () => screen.getByLabelText('Your reply');
+const body = () => screen.getByLabelText(/^Your reply\s*\*?$/);
 const send = () => userEvent.click(screen.getByRole('button', { name: 'Send reply' }));
 
 async function attachScreenshot() {

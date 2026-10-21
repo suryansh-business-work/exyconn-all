@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import type { z } from 'zod';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -57,14 +57,28 @@ export function RaiseTicketForm({ onSubmitted, onCancel }: Readonly<RaiseTicketF
       onCancel={onCancel}
       submitLabel="Ask for help"
     >
-      <RhfTextField name="requesterName" label="Your name" />
+      <RhfTextField
+        name="requesterName"
+        label="Your name"
+        helperText="How we address you in our replies, 2 to 80 characters."
+      />
       <RhfTextField
         name="requesterEmail"
         label="Your email"
         helperText="Where we reply, and how you follow the ticket later"
       />
-      <RhfSelect name="category" label="What is it about?" options={CATEGORY_OPTIONS} />
-      <RhfSelect name="priority" label="How urgent is it?" options={PRIORITY_OPTIONS} />
+      <RhfSelect
+        name="category"
+        label="What is it about?"
+        options={CATEGORY_OPTIONS}
+        helperText="Helps us pass the ticket to the right person."
+      />
+      <RhfSelect
+        name="priority"
+        label="How urgent is it?"
+        options={PRIORITY_OPTIONS}
+        helperText="How soon you need an answer from us."
+      />
       <RhfTextField name="subject" label="Title" helperText="One line we can scan quickly" />
       <RhfTextField
         name="description"

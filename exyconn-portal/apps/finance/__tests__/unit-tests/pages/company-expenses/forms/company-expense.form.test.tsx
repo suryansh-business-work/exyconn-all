@@ -63,13 +63,13 @@ describe('CompanyExpenseForm', () => {
       inRupees: true,
     });
 
-    await userEvent.type(screen.getByLabelText('Vendor'), 'Figma');
+    await userEvent.type(screen.getByLabelText(/^Vendor\s*\*?$/), 'Figma');
     await pick(/Category/, 'Software');
-    fireEvent.change(screen.getByLabelText('Amount'), { target: { value: '450' } });
+    fireEvent.change(screen.getByLabelText(/^Amount\s*\*?$/), { target: { value: '450' } });
     await pick(/Cost centre/, 'ENG — Engineering');
     typeDate('incurredOn', '09/01/2026');
     typeDate('dueDate', '09/30/2026');
-    await userEvent.type(screen.getByLabelText('Reference'), 'INV-F-1');
+    await userEvent.type(screen.getByLabelText(/^Reference\s*\*?$/), 'INV-F-1');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

@@ -50,7 +50,7 @@ export const communicationsService = {
       loggedByName,
     });
     if (input.notify) {
-      await communicationsService.notify(String(entry._id));
+      await communicationsService.notify(entry._id.toHexString());
     }
     return entry.toObject();
   },

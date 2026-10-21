@@ -118,7 +118,7 @@ describe('TeamReviewsSection', () => {
     const { refetch } = setup({ data: { teamPerformanceReviews: ROWS } });
     const dialog = await openAssessment();
 
-    await userEvent.type(within(dialog).getByLabelText('Your assessment'), ASSESSMENT);
+    await userEvent.type(within(dialog).getByLabelText(/^Your assessment\s*\*?$/), ASSESSMENT);
     await userEvent.click(within(dialog).getByRole('button', { name: 'Submit assessment' }));
 
     await waitFor(() => expect(refetch).toHaveBeenCalledTimes(1));

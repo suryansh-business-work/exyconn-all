@@ -80,9 +80,9 @@ export function useImportRun<Mode extends string>(
         onImported();
         await sendFrom(offset + CHUNK_SIZE);
       };
-      sendFrom(0).catch((failure: unknown) => {
-        portalLogger.error('An import chunk failed', failure, { title: source.title });
-        const error = errorMessage(failure, t('The import failed.'));
+      sendFrom(0).catch((error_: unknown) => {
+        portalLogger.error('An import chunk failed', error_, { title: source.title });
+        const error = errorMessage(error_, t('The import failed.'));
         setState((current) => ({ ...current, status: 'done', error }));
       });
     },

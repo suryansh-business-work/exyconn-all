@@ -37,7 +37,7 @@ const renderForm = (initial: TrackerNotificationsFormValues = NONE) =>
     />,
   );
 
-const save = () => userEvent.click(screen.getByRole('button', { name: 'Save channels' }));
+const clickSave = () => userEvent.click(screen.getByRole('button', { name: 'Save channels' }));
 
 describe('TrackerNotificationsForm', () => {
   beforeEach(() => {
@@ -58,7 +58,7 @@ describe('TrackerNotificationsForm', () => {
 
   it('saves the chosen channels and hands control back', async () => {
     renderForm({ slackChannels: ['C1'], statusAlertChannels: ['C2'] });
-    await save();
+    await clickSave();
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.save).toHaveBeenCalledWith({
       variables: { slackChannels: ['C1'], statusAlertChannels: ['C2'] },
@@ -68,7 +68,7 @@ describe('TrackerNotificationsForm', () => {
 
   it('allows saving no channels at all', async () => {
     renderForm();
-    await save();
+    await clickSave();
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.save).toHaveBeenCalledWith({
       variables: { slackChannels: [], statusAlertChannels: [] },
@@ -83,7 +83,7 @@ describe('TrackerNotificationsForm', () => {
     await userEvent.click(within(listbox).getByRole('option', { name: '#status' }));
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
-    await save();
+    await clickSave();
     await waitFor(() =>
       expect(gql.save).toHaveBeenCalledWith({
         variables: { slackChannels: [], statusAlertChannels: ['C1', 'C2'] },
@@ -94,9 +94,9 @@ describe('TrackerNotificationsForm', () => {
   it('reports a save that fails and stays open', async () => {
     gql.save.mockRejectedValueOnce(new Error('not_authed')).mockRejectedValueOnce(undefined);
     renderForm();
-    await save();
+    await clickSave();
     await waitFor(() => expect(gql.notify).toHaveBeenCalledWith('not_authed', 'error'));
-    await save();
+    await clickSave();
     await waitFor(() => expect(gql.notify).toHaveBeenCalledWith('Could not save', 'error'));
     expect(onDone).not.toHaveBeenCalled();
   });

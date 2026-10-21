@@ -1,7 +1,8 @@
+import type { TypedDocumentNode } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useApolloClient } from '@apollo/client/react';
 import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Flex, Heading } from '@exyconn/shell/components/ui';
@@ -31,6 +32,9 @@ import {
   type CampaignStudioValues,
   type StudioStep,
 } from './campaign.types';
+
+const getCampaignQuery: TypedDocumentNode<GetCampaignQuery, GetCampaignQueryVariables> =
+  GetCampaignDocument;
 
 const PREVIEW_STEPS: ReadonlySet<StudioStep> = new Set(['design', 'personalize', 'test']);
 const CHECK_STEPS: ReadonlySet<StudioStep> = new Set(['test', 'review']);
@@ -125,8 +129,8 @@ export function CampaignForm({ initial, onExit }: Readonly<CampaignFormProps>) {
     const id = draft.campaign?.id;
     if (!id) return;
     client
-      .query<GetCampaignQuery, GetCampaignQueryVariables>({
-        query: GetCampaignDocument,
+      .query({
+        query: getCampaignQuery,
         variables: { id },
         fetchPolicy: 'network-only',
       })

@@ -28,7 +28,7 @@ export function fingerprint(text: string): string {
       .normalize('NFKC')
       .toLowerCase()
       .match(/[\p{L}\p{N}]+/gu) ?? [];
-  return createHash('sha1').update(words.join(' ')).digest('hex');
+  return createHash('sha256').update(words.join(' ')).digest('hex');
 }
 
 type Evidence = ReturnType<typeof evidenceFor>;

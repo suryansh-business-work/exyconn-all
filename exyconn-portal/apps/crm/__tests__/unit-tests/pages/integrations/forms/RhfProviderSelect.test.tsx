@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { screen } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfProviderSelect } from '../../../../../src/pages/integrations/forms/RhfProviderSelect';
 import { renderWithProviders } from '../../../test-utils';

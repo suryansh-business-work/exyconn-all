@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
@@ -80,7 +80,11 @@ export function ConfirmSpeakerForm({
       <Text size="sm" color="text.secondary">
         {t('Every line labelled {label} will show this name.', { label })}
       </Text>
-      <RhfTextField name="name" label="Speaker name" />
+      <RhfTextField
+        name="name"
+        label="Speaker name"
+        helperText="The person's real name, up to 120 characters."
+      />
       <RhfAutocomplete
         name="userId"
         label="Portal user (optional)"

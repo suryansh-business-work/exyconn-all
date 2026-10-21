@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
@@ -112,15 +112,41 @@ export function StockMovementForm({ onDone, onCancel }: Readonly<StockMovementFo
       onCancel={onCancel}
       submitLabel="Record"
     >
-      <RhfSelect name="productId" label="Product" options={productOptions} />
-      <RhfSelect name="reason" label="Reason" options={REASON_OPTIONS} />
-      <RhfTextField name="quantity" label="Quantity" type="number" />
+      <RhfSelect
+        name="productId"
+        label="Product"
+        options={productOptions}
+        helperText="The product whose stock level changes."
+      />
+      <RhfSelect
+        name="reason"
+        label="Reason"
+        options={REASON_OPTIONS}
+        helperText="Receipt and Return add stock, Issue and Write off remove it, Count sets the exact level."
+      />
+      <RhfTextField
+        name="quantity"
+        label="Quantity"
+        type="number"
+        helperText="Whole units moved; for a count, the number actually on the shelf."
+      />
       <Text size="sm" color="text.secondary">
         {effectOf(t, String(reason), Number(quantity) || 0, current)}
       </Text>
-      <RhfSelect name="supplierId" label="Supplier" options={supplierOptions} />
+      <RhfSelect
+        name="supplierId"
+        label="Supplier"
+        options={supplierOptions}
+        helperText="Optional. The supplier involved, usually for a receipt."
+      />
       <RhfTextField name="reference" label="Reference" helperText="PO number, invoice, ticket…" />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Why the stock moved, e.g. damaged in transit."
+      />
     </EntityForm>
   );
 }

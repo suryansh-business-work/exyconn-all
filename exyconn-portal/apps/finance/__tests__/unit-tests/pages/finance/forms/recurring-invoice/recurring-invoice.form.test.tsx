@@ -46,8 +46,8 @@ describe('RecurringInvoiceForm', () => {
       inRupees: true,
     });
 
-    await user.type(screen.getByLabelText('Name'), 'Globex hosting');
-    await user.type(screen.getByRole('combobox', { name: 'Client' }), 'Glo');
+    await user.type(screen.getByLabelText(/^Name\s*\*?$/), 'Globex hosting');
+    await user.type(screen.getByRole('combobox', { name: /^Client\s*\*?$/ }), 'Glo');
     await user.click(await screen.findByRole('option', { name: 'Globex' }));
     await user.click(screen.getByRole('button', { name: 'Add line' }));
     await user.type(field('lines.0.description'), 'Hosting');
@@ -121,8 +121,8 @@ describe('RecurringInvoiceForm', () => {
       <RecurringInvoiceForm initial={recurringRow()} onDone={vi.fn()} onCancel={vi.fn()} />,
     );
 
-    await userEvent.clear(screen.getByLabelText('Payment terms (days)'));
-    await userEvent.type(screen.getByLabelText('Payment terms (days)'), '400');
+    await userEvent.clear(screen.getByLabelText(/^Payment terms \(days\)\s*\*?$/));
+    await userEvent.type(screen.getByLabelText(/^Payment terms \(days\)\s*\*?$/), '400');
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
     expect(await screen.findByText('Must be ≤ 365')).toBeInTheDocument();
@@ -145,7 +145,7 @@ describe('RecurringInvoiceForm', () => {
     gql.clients.mockReturnValue({ data: undefined });
     renderForm(<RecurringInvoiceForm initial={null} onDone={vi.fn()} onCancel={vi.fn()} />);
 
-    expect(screen.getByRole('combobox', { name: 'Client' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: /^Client\s*\*?$/ })).toHaveValue('');
     expect(
       screen.getByText('For this screen only — never printed on the invoice.'),
     ).toBeInTheDocument();

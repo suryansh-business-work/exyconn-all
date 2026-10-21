@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { HTTP_URL } from '@exyconn/regex';
@@ -94,12 +94,36 @@ export function ExpenseClaimForm({ initial, onDone, onCancel }: Readonly<Expense
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfTextField name="category" label="Category" />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
-      <RhfTextField name="amount" label="Amount" type="number" />
-      <RhfCurrencyField />
-      <RhfDatePicker name="incurredOn" label="Incurred on" />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The person who spent the money and is to be reimbursed."
+      />
+      <RhfTextField
+        name="category"
+        label="Category"
+        helperText="What kind of spend this is, e.g. Travel, Meals or Software."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="What was bought and why, so the approver can check it."
+      />
+      <RhfTextField
+        name="amount"
+        label="Amount"
+        type="number"
+        helperText="The amount claimed, as on the receipt; 0 or more."
+      />
+      <RhfCurrencyField helperText="The currency the money was spent in." />
+      <RhfDatePicker
+        name="incurredOn"
+        label="Incurred on"
+        helperText="The day the money was spent."
+      />
       <RhfImageField
         name="receiptUrl"
         label="Receipt link"
@@ -107,8 +131,18 @@ export function ExpenseClaimForm({ initial, onDone, onCancel }: Readonly<Expense
         editableUrl
         helperText="Upload a photo of the receipt, or paste a link to it."
       />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ExpenseStatus))} />
-      <RhfTextField name="approvedAmount" label="Approved amount" type="number" />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(ExpenseStatus))}
+        helperText="Where the claim stands: submitted, approved, rejected or paid."
+      />
+      <RhfTextField
+        name="approvedAmount"
+        label="Approved amount"
+        type="number"
+        helperText="Optional. The amount approved for reimbursement; leave empty until it is approved."
+      />
     </EntityForm>
   );
 }

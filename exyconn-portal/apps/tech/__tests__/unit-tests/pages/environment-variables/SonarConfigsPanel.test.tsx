@@ -3,7 +3,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SonarConfigsPanel } from '../../../../src/pages/environment-variables/SonarConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 import { notify, resetHarness, table } from './panel.harness';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
@@ -52,7 +52,7 @@ const outcome = (ok: boolean, message: string) => ({
   data: { testSonarConnection: { ok, message } },
 });
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'SonarConfigsPanel',
   Panel: SonarConfigsPanel,
   listQuery: gql.list,
@@ -80,8 +80,15 @@ describeConfigPanel({
   },
 });
 
+describe('SonarConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
+});
+
 describe('SonarConfigsPanel test outcomes', () => {
-  const refetch = vi.fn(async () => undefined);
+  const refetch = vi.fn(() => Promise.resolve(undefined));
 
   beforeEach(() => {
     resetHarness();

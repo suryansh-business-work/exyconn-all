@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import {
   RhfSecretField,
@@ -117,11 +117,29 @@ export function InboundMailConfigForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfTextField name="host" label="IMAP host" helperText="For example imap.gmail.com" />
-      <RhfTextField name="port" label="Port" type="number" />
-      <RhfSelect name="secure" label="Use TLS/SSL (secure)" options={BOOL_OPTIONS} />
-      <RhfTextField name="user" label="Username" />
+      <RhfTextField
+        name="port"
+        label="Port"
+        type="number"
+        helperText="Usually 993 for TLS/SSL or 143 without it."
+      />
+      <RhfSelect
+        name="secure"
+        label="Use TLS/SSL (secure)"
+        options={BOOL_OPTIONS}
+        helperText="Yes for port 993; No for 143."
+      />
+      <RhfTextField
+        name="user"
+        label="Username"
+        helperText="The IMAP login, usually the full mailbox address."
+      />
       <RhfSecretField
         name="password"
         label="Password"
@@ -142,7 +160,12 @@ export function InboundMailConfigForm({
         options={BOOL_OPTIONS}
         helperText="Off keeps the message in the mailbox, marked as read"
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

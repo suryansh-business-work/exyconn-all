@@ -73,7 +73,7 @@ describe('LeadForm', () => {
     await fillField('Email', 'kiran@initech.com');
     await fillField('Owner', 'Priya');
     setNumber('Value', '40000');
-    await userEvent.type(screen.getByRole('combobox', { name: 'Campaign' }), 'Trade');
+    await userEvent.type(screen.getByRole('combobox', { name: /^Campaign\s*\*?$/ }), 'Trade');
     await userEvent.click(await screen.findByRole('option', { name: 'Trade fair' }));
 
     await press('Create');
@@ -103,7 +103,7 @@ describe('LeadForm', () => {
     await fillField('Email', 'kiran@initech.com');
     await fillField('Owner', 'Priya');
 
-    await userEvent.click(screen.getByRole('combobox', { name: 'Campaign' }));
+    await userEvent.click(screen.getByRole('combobox', { name: /^Campaign\s*\*?$/ }));
     expect(screen.queryByRole('option')).not.toBeInTheDocument();
     await press('Create');
 
@@ -115,7 +115,7 @@ describe('LeadForm', () => {
     const row = leadRow({ id: 'lead-1', campaignId: 'campaign-1' });
     const { onDone } = renderForm(row);
 
-    expect(screen.getByRole('combobox', { name: 'Campaign' })).toHaveValue('Diwali offer');
+    expect(screen.getByRole('combobox', { name: /^Campaign\s*\*?$/ })).toHaveValue('Diwali offer');
     await chooseOption('Source', 'Event');
     await chooseOption('Stage', 'Won');
     await press('Update');

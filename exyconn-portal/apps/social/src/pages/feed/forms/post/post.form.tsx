@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { Card, CardContent } from '@exyconn/shell/components/ui';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { RhfImageField, RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -63,7 +63,12 @@ export function PostForm({ onPosted }: Readonly<PostFormProps>) {
             minRows={3}
             helperText={`Up to ${MAX_POST_LENGTH} characters. Everyone signed in can see this.`}
           />
-          <RhfImageField name="imageUrl" label="Photo" folder="social" />
+          <RhfImageField
+            name="imageUrl"
+            label="Photo"
+            folder="social"
+            helperText="Optional. One picture shown with your post."
+          />
         </EntityForm>
       </CardContent>
     </Card>

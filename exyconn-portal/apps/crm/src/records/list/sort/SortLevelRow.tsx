@@ -26,7 +26,12 @@ export function SortLevelRow({ index, options, onRemove }: Readonly<SortLevelRow
   return (
     <Flex direction="row" spacing={1} alignItems="flex-start">
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <RhfSelect name={`levels.${index}.property`} label={label} options={options} />
+        <RhfSelect
+          name={`levels.${index}.property`}
+          label={label}
+          options={options}
+          helperText="Records are ordered by this; later levels only order records that tie."
+        />
       </Box>
       <Controller
         name={`levels.${index}.dir`}

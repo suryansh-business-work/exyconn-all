@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { HEX_COLOR, LINK } from '@exyconn/regex';
 import {
@@ -104,8 +104,18 @@ export function ToolForm({ initial, onDone, onCancel }: Readonly<ToolFormProps>)
         options={categoryOptions}
         helperText="Managed under Website → Tool categories"
       />
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="description" label="Description" multiline minRows={2} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The tool name shown on its card and page."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={2}
+        helperText="Optional. A short summary shown on the tool card and used in search."
+      />
       <RhfRichText
         name="longDescription"
         label="Long description"
@@ -115,9 +125,21 @@ export function ToolForm({ initial, onDone, onCancel }: Readonly<ToolFormProps>)
       <RhfTextField name="url" label="URL" helperText="Where the tool lives, e.g. /tools/foo" />
       <RhfTextField name="icon" label="Icon" helperText="Icon name rendered on the site" />
       <RhfTextField name="color" label="Color" helperText="Hex color, e.g. #f9851f" />
-      <RhfChipsInput name="features" label="Features" />
-      <RhfChipsInput name="useCases" label="Use cases" />
-      <RhfChipsInput name="keywords" label="Keywords" />
+      <RhfChipsInput
+        name="features"
+        label="Features"
+        helperText="Optional. What the tool can do, listed on its page. One per entry."
+      />
+      <RhfChipsInput
+        name="useCases"
+        label="Use cases"
+        helperText="Optional. Situations the tool helps with, one per entry."
+      />
+      <RhfChipsInput
+        name="keywords"
+        label="Keywords"
+        helperText="Optional. Extra words that help visitors find the tool in search."
+      />
       <RhfSwitch name="isActive" label="Active" />
       <RhfSwitch name="isMVP" label="MVP" />
       <RhfTextField

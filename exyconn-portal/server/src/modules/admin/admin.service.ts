@@ -375,7 +375,7 @@ async function placementFields(input: HrFields) {
   ];
   // Independent read-only lookups; the first missing one, in list order, is the one refused.
   const found = await Promise.all(
-    checks.map(([, value, exists]) => (value === '' ? true : exists())),
+    checks.map(([, value, exists]) => (value === '' ? Promise.resolve(true) : exists())),
   );
   const missing = checks.find((_, index) => !found[index]);
   if (missing) {

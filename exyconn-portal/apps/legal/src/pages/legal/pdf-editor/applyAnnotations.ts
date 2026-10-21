@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, type PDFPage } from 'pdf-lib';
 import { HIGHLIGHT, type PdfAnnotation } from './pdf-editor.types';
+import { inSequence } from '@exyconn/shell/utils/inSequence';
 
 /** "#1d4ed8" as pdf-lib's 0–1 RGB. */
 export function hexToRgb(hex: string) {
@@ -86,11 +87,12 @@ export async function applyAnnotations(
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.load(bytes);
   const pages = doc.getPages();
-  for (const annotation of annotations) {
+  // In order: a later annotation is drawn over an earlier one.
+  await inSequence(annotations, async (annotation) => {
     const page = pages[annotation.page];
     if (page) {
       await draw(doc, page, annotation);
     }
-  }
+  });
   return doc.save();
 }

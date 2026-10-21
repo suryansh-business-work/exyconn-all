@@ -195,23 +195,25 @@ export async function assignLegalItems(
   const heldKeys = new Set(held.map((row) => `${row.kind}:${row.itemId}`));
   const fresh = items.filter((item) => !heldKeys.has(`${item.kind}:${item.itemId}`));
   const actor = await UserModel.findById(ctx.user?.id).select('name').lean();
-  for (const item of fresh) {
-    const created = await LegalAssignmentModel.create({
-      ...item,
-      userId,
-      assignedById: ctx.user?.id,
-      assignedByName: actor?.name ?? ctx.user?.email ?? '',
-    });
-    const key = `${item.kind}:${item.itemId}`;
-    const title = titles.get(key) ?? '';
-    await recordAudit(ctx, {
-      action: 'CREATE',
-      module: 'LegalAssignment',
-      entityId: created._id,
-      entityLabel: title,
-      summary: `Assigned ${item.kind.toLowerCase()} "${title}" to ${person.name}`,
-    });
-  }
+  // Each item is its own row and its own audit entry, so they are written side by side.
+  await Promise.all(
+    fresh.map(async (item) => {
+      const created = await LegalAssignmentModel.create({
+        ...item,
+        userId,
+        assignedById: ctx.user?.id,
+        assignedByName: actor?.name ?? ctx.user?.email ?? '',
+      });
+      const title = titles.get(`${item.kind}:${item.itemId}`) ?? '';
+      await recordAudit(ctx, {
+        action: 'CREATE',
+        module: 'LegalAssignment',
+        entityId: created._id,
+        entityLabel: title,
+        summary: `Assigned ${item.kind.toLowerCase()} "${title}" to ${person.name}`,
+      });
+    }),
+  );
   return assignmentsOf(userId);
 }
 

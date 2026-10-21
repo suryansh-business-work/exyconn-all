@@ -118,7 +118,7 @@ export function CalendarPage() {
             })}
           </Box>
         )}
-        {data && data.crmCalendar.length === 0 && (
+        {data?.crmCalendar.length === 0 && (
           <Text
             component="p"
             size="sm"

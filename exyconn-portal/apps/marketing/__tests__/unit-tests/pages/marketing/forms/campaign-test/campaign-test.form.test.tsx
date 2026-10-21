@@ -130,7 +130,7 @@ describe('CampaignTestForm', () => {
 
     await press('Cancel');
 
-    expect(screen.getByLabelText('Send a test to')).toHaveValue('');
+    expect(screen.getByLabelText(/^Send a test to\s*\*?$/)).toHaveValue('');
   });
 });
 

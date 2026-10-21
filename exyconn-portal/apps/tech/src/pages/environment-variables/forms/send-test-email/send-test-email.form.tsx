@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
 import { useT } from '@exyconn/i18n';
@@ -62,7 +62,12 @@ export function SendTestEmailForm({
           label: configLabel,
         })}
       </Text>
-      <RhfTextField name="to" label="Recipient email" type="email" />
+      <RhfTextField
+        name="to"
+        label="Recipient email"
+        type="email"
+        helperText="An inbox you can check, e.g. your own address."
+      />
     </EntityForm>
   );
 }

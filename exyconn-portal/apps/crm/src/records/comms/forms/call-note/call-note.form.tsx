@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -71,7 +71,13 @@ export function CallNoteForm({ panel, onCancel }: Readonly<CallNoteFormProps>) {
       submitLabel="Save note"
       onCancel={onCancel}
     >
-      <RhfTextField name="notes" label="Notes" multiline minRows={3} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        minRows={3}
+        helperText="What was said or agreed; saved to the record's timeline as call notes."
+      />
     </EntityForm>
   );
 }

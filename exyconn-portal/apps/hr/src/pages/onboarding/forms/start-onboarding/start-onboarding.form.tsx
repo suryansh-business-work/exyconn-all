@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
@@ -75,7 +75,12 @@ export function StartOnboardingForm({ onDone, onCancel }: Readonly<StartOnboardi
           "The template's tasks are copied onto the joiner and dated from their join date. An employee can only have one unfinished checklist at a time.",
         )}
       </Text>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The joiner whose onboarding checklist starts now."
+      />
       <RhfSelect
         name="templateId"
         label="Template"

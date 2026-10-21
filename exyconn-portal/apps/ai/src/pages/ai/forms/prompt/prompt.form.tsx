@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Flex } from '@exyconn/shell/components/ui';
@@ -83,10 +83,15 @@ export function PromptForm({ initial, onDone, onCancel }: Readonly<PromptFormPro
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Prompt title" />
+      <RhfTextField
+        name="title"
+        label="Prompt title"
+        helperText="How the prompt is listed in the library, e.g. Summarise a support ticket."
+      />
       <RhfSelect
         name="category"
         label="Category"
+        helperText="Groups the prompt in the library, e.g. Writing or Coding."
         options={enumOptions(Object.values(PromptCategory))}
       />
       <RhfTextField
@@ -96,7 +101,11 @@ export function PromptForm({ initial, onDone, onCancel }: Readonly<PromptFormPro
         minRows={4}
         helperText="Wrap a value in {{braces}} to be asked for it each time the prompt is run"
       />
-      <RhfTextField name="description" label="Description (optional)" />
+      <RhfTextField
+        name="description"
+        label="Description (optional)"
+        helperText="Optional. What the prompt does in one line, or use Describe this prompt below."
+      />
       <Flex direction="row">
         <AiAssistButton
           label={t('Describe this prompt')}
@@ -105,7 +114,11 @@ export function PromptForm({ initial, onDone, onCancel }: Readonly<PromptFormPro
           onResult={(result) => setValue('description', result, { shouldDirty: true })}
         />
       </Flex>
-      <RhfTextField name="tags" label="Tags (comma separated)" />
+      <RhfTextField
+        name="tags"
+        label="Tags (comma separated)"
+        helperText="Optional. Words to find the prompt by, e.g. support, email."
+      />
     </EntityForm>
   );
 }

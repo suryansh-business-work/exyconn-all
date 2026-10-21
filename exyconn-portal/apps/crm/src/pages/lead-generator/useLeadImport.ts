@@ -18,6 +18,7 @@ import {
   toInput,
 } from './leadImportInput';
 import type { EmailLookup, LeadImportPreview, LeadImportResult, LeadPlace } from './leadTypes';
+import { inSequence } from '@exyconn/shell/utils/inSequence';
 
 /** A batch waiting for the person to decide what happens to its duplicates. */
 export interface PendingReview {
@@ -47,13 +48,14 @@ export function useLeadImport(onFiled: (filed: LeadImportResult['filed']) => voi
   ) => {
     const total = emptyResult();
     try {
-      for (const chunk of chunksOf(places)) {
+      // One chunk at a time, so whatever was filed before a failure is still counted.
+      await inSequence(chunksOf(places), async (chunk) => {
         const ids = new Set(chunk.map((place) => place.placeId));
         const leads = chunk.map((place) => toInput(place, lookups[place.placeId]));
         const mergeInto = merges.filter((merge) => ids.has(merge.placeId));
         const result = await importLeads({ variables: { leads, mergeInto } });
         addResult(total, queryData(result, 'The lead import').importLeadsToCrm);
-      }
+      });
     } catch (error_) {
       portalLogger.warn('crm: adding leads to the CRM failed', error_);
       setError(errorMessage(error_, t('Could not add the leads to the CRM')));
@@ -65,16 +67,15 @@ export function useLeadImport(onFiled: (filed: LeadImportResult['filed']) => voi
   };
 
   const preview = async (places: LeadPlace[], lookups: Record<string, EmailLookup>) => {
-    const previews: LeadImportPreview[] = [];
-    for (const chunk of chunksOf(places)) {
+    const chunks = await inSequence(chunksOf(places), async (chunk) => {
       const leads = chunk.map((place) => toInput(place, lookups[place.placeId]));
       const { data, error: failure } = await previewLeads({ variables: { leads } });
       if (failure ?? !data) {
         throw failure ?? new Error('No import preview came back');
       }
-      previews.push(...data.previewLeadImport);
-    }
-    return previews;
+      return data.previewLeadImport;
+    });
+    return chunks.flat();
   };
 
   const run = async (places: LeadPlace[], lookups: Record<string, EmailLookup>) => {

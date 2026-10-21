@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Alert, Box, Button, Text } from '@exyconn/shell/components/ui';

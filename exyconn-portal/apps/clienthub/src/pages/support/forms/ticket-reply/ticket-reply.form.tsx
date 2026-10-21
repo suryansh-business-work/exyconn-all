@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Button, Stack } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -38,7 +38,13 @@ export function TicketReplyForm({ ticketId, onReplied }: Readonly<TicketReplyFor
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
         <Stack spacing={1.5}>
-          <RhfTextField name="body" label={t('Your reply')} multiline minRows={3} />
+          <RhfTextField
+            name="body"
+            label={t('Your reply')}
+            multiline
+            minRows={3}
+            helperText="Our support team sees this on the ticket; up to 5000 characters."
+          />
           <Button
             type="submit"
             variant="contained"

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { RhfMultiSelect, RhfSelect, RhfTextField } from '@/components/form/rhf';
 import { renderWithProviders } from '../../../test-utils';
 import { FormHarness, formValues } from '../formHarness';
@@ -21,7 +21,7 @@ describe('RhfTextField', () => {
       { messages: { Title: 'Título', 'Shown on the card': 'Se muestra en la tarjeta' } },
     );
 
-    await userEvent.type(screen.getByLabelText('Título'), 'Quarterly plan');
+    await userEvent.type(screen.getByLabelText(/^Título\s*\*?$/), 'Quarterly plan');
 
     expect(formValues().title).toBe('Quarterly plan');
     expect(screen.getByText('Se muestra en la tarjeta')).toBeInTheDocument();
@@ -34,8 +34,8 @@ describe('RhfTextField', () => {
       </FormHarness>,
     );
 
-    expect(screen.getByLabelText('Title')).toHaveValue('');
-    expect(screen.getByLabelText('Title')).toHaveAttribute('placeholder', 'Untitled');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveAttribute('placeholder', 'Untitled');
   });
 
   it('shows the validation message instead of the hint', async () => {
@@ -49,7 +49,7 @@ describe('RhfTextField', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     expect(await screen.findByText('Title is required')).toBeInTheDocument();
-    expect(screen.getByLabelText('Title')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveAttribute('aria-invalid', 'true');
     expect(screen.queryByText('Shown on the card')).not.toBeInTheDocument();
   });
 });

@@ -100,7 +100,7 @@ describe('LicenceForm', () => {
   it('updates an existing licence by id', async () => {
     const { onDone } = renderForm(licenceRow({ id: 'licence-4', notes: 'Team plan' }));
 
-    expect(screen.getByLabelText('Licence')).toHaveValue('Figma');
+    expect(screen.getByLabelText(/^Licence\s*\*?$/)).toHaveValue('Figma');
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

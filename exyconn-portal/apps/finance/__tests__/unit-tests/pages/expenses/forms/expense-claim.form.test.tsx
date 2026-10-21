@@ -45,12 +45,12 @@ describe('ExpenseClaimForm', () => {
       inRupees: true,
     });
 
-    await user.type(screen.getByRole('combobox', { name: 'Employee' }), 'Asha');
+    await user.type(screen.getByRole('combobox', { name: /^Employee\s*\*?$/ }), 'Asha');
     await user.click(await screen.findByRole('option', { name: 'Asha Rao (asha@example.com)' }));
-    await user.type(screen.getByLabelText('Category'), 'Travel');
-    await user.type(screen.getByLabelText('Description'), 'Airport cab');
-    await user.clear(screen.getByLabelText('Amount'));
-    await user.type(screen.getByLabelText('Amount'), '640');
+    await user.type(screen.getByLabelText(/^Category\s*\*?$/), 'Travel');
+    await user.type(screen.getByLabelText(/^Description\s*\*?$/), 'Airport cab');
+    await user.clear(screen.getByLabelText(/^Amount\s*\*?$/));
+    await user.type(screen.getByLabelText(/^Amount\s*\*?$/), '640');
     typeDate('incurredOn', '09/03/2026');
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -139,6 +139,6 @@ describe('ExpenseClaimForm', () => {
     gql.employees.mockReturnValue({ data: undefined });
     renderForm(<ExpenseClaimForm initial={null} onDone={vi.fn()} onCancel={vi.fn()} />);
 
-    expect(screen.getByRole('combobox', { name: 'Employee' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: /^Employee\s*\*?$/ })).toHaveValue('');
   });
 });

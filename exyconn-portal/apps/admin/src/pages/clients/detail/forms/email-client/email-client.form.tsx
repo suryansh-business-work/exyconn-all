@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { Alert } from '@exyconn/shell/components/ui';
 import { RhfMultiSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -80,7 +80,11 @@ export function EmailClientForm({ clientId, onDone, onCancel }: Readonly<EmailCl
         options={options}
         helperText="The client’s own address and their hub contacts"
       />
-      <RhfTextField name="subject" label="Subject" />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="The email's subject line and the log entry's title. Up to 200 characters."
+      />
       <RhfTextField
         name="message"
         label="Message"

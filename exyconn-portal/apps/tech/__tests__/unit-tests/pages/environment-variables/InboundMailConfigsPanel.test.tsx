@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { InboundMailConfigsPanel } from '../../../../src/pages/environment-variables/InboundMailConfigsPanel';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -21,7 +21,7 @@ vi.mock('../../../../src/pages/environment-variables/forms/inbound-mail-config',
   (await import('./panel.harness')).formModule('InboundMailConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'InboundMailConfigsPanel',
   Panel: InboundMailConfigsPanel,
   listQuery: gql.list,
@@ -75,4 +75,11 @@ describeConfigPanel({
       { host: 'imap.example.test', mailbox: 'INBOX' },
     ],
   },
+});
+
+describe('InboundMailConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

@@ -104,7 +104,7 @@ describe('PropertiesPanel', () => {
     await userEvent.click(buttons[1]);
 
     expect(await screen.findByRole('heading', { name: 'Create property' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Label')).toHaveValue('');
+    expect(screen.getByLabelText(/^Label\s*\*?$/)).toHaveValue('');
   });
 
   it('opens a custom property in the edit form and closes it on cancel', async () => {
@@ -113,7 +113,7 @@ describe('PropertiesPanel', () => {
     await userEvent.click(within(rowOf('Tier')).getByRole('button', { name: 'Edit property' }));
 
     expect(await screen.findByRole('heading', { name: 'Edit property' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Label')).toHaveValue('Tier');
+    expect(screen.getByLabelText(/^Label\s*\*?$/)).toHaveValue('Tier');
     await press('Cancel');
     await waitFor(() =>
       expect(screen.queryByRole('heading', { name: 'Edit property' })).not.toBeInTheDocument(),

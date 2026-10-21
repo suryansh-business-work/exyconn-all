@@ -1,7 +1,7 @@
-import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
-import { setContext } from '@apollo/client/link/context';
-import { onError } from '@apollo/client/link/error';
+import { SetContextLink } from '@apollo/client/link/context';
+import { ErrorLink } from '@apollo/client/link/error';
 import { env } from './env';
 import { activityLink, BACKGROUND_REQUEST } from './networkActivity';
 import { tokenStore } from '@/auth/tokenStore';
@@ -11,7 +11,7 @@ import { setLogTransport } from '@/logging/portalLogger';
 import { reportApolloError } from '@/logging/reportApolloError';
 
 /** Single ApolloClient instance shared across the app (singleton). */
-const httpLink = createHttpLink({ uri: env.graphqlUrl });
+const httpLink = new HttpLink({ uri: env.graphqlUrl });
 
 // The company the address names travels with every request; the API decides whether the
 // caller may work in it (only a SUPER_ADMIN may leave their own).
@@ -38,7 +38,7 @@ export function setAppRequestHeaders(provider: () => Record<string, string>): vo
   appHeaders = provider;
 }
 
-const authLink = setContext((_operation, { headers }) => {
+const authLink = new SetContextLink(({ headers }) => {
   const token = portalSession ? tokenStore.get() : null;
   return {
     headers: {
@@ -52,7 +52,7 @@ const authLink = setContext((_operation, { headers }) => {
 
 // Apollo 4 hands the handler one `error` rather than separate GraphQL and network lists;
 // the GraphQL errors are inside it when it is a CombinedGraphQLErrors.
-const errorLink = onError(({ error, operation }) => {
+const errorLink = new ErrorLink(({ error, operation }) => {
   reportApolloError(error, operation.operationName);
   if (!CombinedGraphQLErrors.is(error)) {
     return;
@@ -64,7 +64,7 @@ const errorLink = onError(({ error, operation }) => {
 });
 
 export const apolloClient = new ApolloClient({
-  link: from([activityLink, errorLink, authLink, httpLink]),
+  link: ApolloLink.from([activityLink, errorLink, authLink, httpLink]),
   cache: new InMemoryCache(),
   defaultOptions: { watchQuery: { fetchPolicy: 'cache-and-network' } },
 });

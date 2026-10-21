@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import {
   RhfDatePicker,
   RhfSelect,
@@ -89,13 +89,35 @@ export function LogActivityForm({
       submitLabel="Log"
       onCancel={onCancel}
     >
-      <RhfSelect name="type" label="Type" options={TYPE_OPTIONS} />
-      <RhfTextField name="subject" label="Subject" />
-      <RhfTextField name="notes" label="Notes" multiline minRows={3} />
+      <RhfSelect
+        name="type"
+        label="Type"
+        options={TYPE_OPTIONS}
+        helperText="Note, call, meeting or task; emails are logged from the connected mailbox instead."
+      />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="A short summary shown on the timeline, e.g. Pricing call with Priya."
+      />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        minRows={3}
+        helperText="Optional. What was said or agreed, up to 10,000 characters."
+      />
       {TIMED.has(chosen) && (
-        <RhfTextField name="durationMinutes" label="Duration (minutes)" inputMode="numeric" />
+        <RhfTextField
+          name="durationMinutes"
+          label="Duration (minutes)"
+          inputMode="numeric"
+          helperText="Optional. Whole minutes, up to 1440."
+        />
       )}
-      {chosen === ActivityType.Task && <RhfDatePicker name="dueDate" label="Due" />}
+      {chosen === ActivityType.Task && (
+        <RhfDatePicker name="dueDate" label="Due" helperText="When the task should be done." />
+      )}
       <RhfSwitch name="done" label="Done" />
       <MediaAttachField name="attachments" />
     </EntityForm>

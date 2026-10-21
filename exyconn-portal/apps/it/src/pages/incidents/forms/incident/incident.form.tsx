@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import {
   RhfChipsInput,
   RhfDateTimePicker,
@@ -60,11 +60,36 @@ export function IncidentForm({ initial, onDone, onCancel }: Readonly<IncidentFor
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="Title" helperText="e.g. VPN unreachable for all staff" />
-      <RhfTextField name="description" label="What is happening" multiline rows={3} />
-      <RhfSelect name="severity" label="Severity" options={SEVERITY_OPTIONS} />
-      <RhfSelect name="category" label="Category" options={CATEGORY_OPTIONS} />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfDateTimePicker name="startedAt" label="Started" />
+      <RhfTextField
+        name="description"
+        label="What is happening"
+        multiline
+        rows={3}
+        helperText="The symptoms and what has been seen so far. At least 10 characters."
+      />
+      <RhfSelect
+        name="severity"
+        label="Severity"
+        options={SEVERITY_OPTIONS}
+        helperText="How serious it is. SEV1 is the most severe, SEV4 the least."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={CATEGORY_OPTIONS}
+        helperText="The kind of problem, e.g. outage, network or security."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Where the response stands. Resolved or closed needs a root cause."
+      />
+      <RhfDateTimePicker
+        name="startedAt"
+        label="Started"
+        helperText="When the problem began, not when it was reported."
+      />
       <RhfTextField
         name="impact"
         label="Impact"
@@ -77,8 +102,18 @@ export function IncidentForm({ initial, onDone, onCancel }: Readonly<IncidentFor
         label="Affected systems"
         helperText="Press Enter after each"
       />
-      <RhfTextField name="commanderName" label="Incident commander" />
-      <RhfTextField name="rootCause" label="Root cause (RCA)" multiline rows={3} />
+      <RhfTextField
+        name="commanderName"
+        label="Incident commander"
+        helperText="Optional. The person leading the response."
+      />
+      <RhfTextField
+        name="rootCause"
+        label="Root cause (RCA)"
+        multiline
+        rows={3}
+        helperText="Why it happened. Required once the incident is resolved or closed."
+      />
       <IncidentFollowUpsFields />
     </EntityForm>
   );

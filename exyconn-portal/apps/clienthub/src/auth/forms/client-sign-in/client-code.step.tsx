@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button, Flex, Link, Text, readableInk } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -56,6 +56,7 @@ export function ClientCodeStep({
             autoComplete="one-time-code"
             autoFocus
             slotProps={{ htmlInput: { inputMode: 'numeric', maxLength: 6 } }}
+            helperText="The six digits from the email we just sent you."
           />
           <Button
             type="submit"

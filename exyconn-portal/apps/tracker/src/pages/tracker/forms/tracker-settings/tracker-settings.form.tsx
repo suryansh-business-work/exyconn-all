@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Box, FormHelperText } from '@exyconn/shell/components/ui';
 import { RhfSwitch, RhfSelect, RhfAutocomplete } from '@exyconn/shell/components/form/rhf';

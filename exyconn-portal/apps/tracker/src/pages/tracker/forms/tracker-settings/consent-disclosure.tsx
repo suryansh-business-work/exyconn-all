@@ -38,6 +38,7 @@ export function ConsentDisclosureFields() {
         <RhfSelect
           name="consentPolicySlug"
           label="Tracking disclosure policy (Legal)"
+          helperText="The Legal policy employees accept in the desktop app before tracking starts."
           options={options}
         />
         <FormHelperText>

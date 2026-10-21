@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useMaUpdateSettingsMutation } from '@exyconn/shell/graphql/generated';
 import { useEmployeeOptions } from '../../lib/useEmployeeOptions';

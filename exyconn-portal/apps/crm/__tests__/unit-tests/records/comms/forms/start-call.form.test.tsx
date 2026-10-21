@@ -67,7 +67,7 @@ describe('StartCallForm', () => {
       commsPanel({ channel: 'CALL', object: 'COMPANY', id: 'co-2' }),
     );
 
-    expect(screen.getByLabelText('Your phone')).toHaveValue('+442079460958');
+    expect(screen.getByLabelText(/^Your phone\s*\*?$/)).toHaveValue('+442079460958');
     await press('Call');
 
     await waitFor(() => expect(onStarted).toHaveBeenCalled());
@@ -83,7 +83,7 @@ describe('StartCallForm', () => {
 
     renderForm();
 
-    expect(screen.getByLabelText('Your phone')).toHaveValue('+15550001111');
+    expect(screen.getByLabelText(/^Your phone\s*\*?$/)).toHaveValue('+15550001111');
   });
 
   it('does not call without a valid agent phone', async () => {

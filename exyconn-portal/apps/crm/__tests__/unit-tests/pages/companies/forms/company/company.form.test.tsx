@@ -155,7 +155,7 @@ describe('CompanyForm', () => {
   it('updates an existing company by id with the chosen size and status', async () => {
     const { onDone } = renderForm(companyRow({ id: 'company-1', size: '51-200' }));
 
-    expect(screen.getByLabelText('Company name')).toHaveValue('Acme');
+    expect(screen.getByLabelText(/^Company name\s*\*?$/)).toHaveValue('Acme');
     await chooseOption('Size', '201-1000 people');
     await chooseOption('Status', 'Customer');
     await press('Update');

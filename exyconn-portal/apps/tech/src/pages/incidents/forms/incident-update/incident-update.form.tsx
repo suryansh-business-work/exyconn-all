@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Alert, Text } from '@exyconn/shell/components/ui';
@@ -68,7 +68,12 @@ export function IncidentUpdateForm({
       <Text size="sm" color="text.secondary">
         {incident.title}
       </Text>
-      <RhfSelect name="status" label="Status" options={UPDATE_STATUS_OPTIONS} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={UPDATE_STATUS_OPTIONS}
+        helperText="Where the incident stands now; Resolved closes it."
+      />
       <RhfTextField
         name="body"
         label="Update"

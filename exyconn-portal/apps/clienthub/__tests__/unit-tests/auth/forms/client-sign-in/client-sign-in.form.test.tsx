@@ -22,7 +22,7 @@ function renderForm() {
   return userEvent.setup();
 }
 
-const emailField = () => screen.getByLabelText('Work email');
+const emailField = () => screen.getByLabelText(/^Work email\s*\*?$/);
 const sendButton = () => screen.getByRole('button', { name: 'Email me a code' });
 
 describe('ClientSignInForm', () => {
@@ -66,7 +66,7 @@ describe('ClientSignInForm', () => {
       ),
     ).toBeInTheDocument();
     expect(requestCode).toHaveBeenCalledWith({ variables: { email: 'Ada@Acme.com' } });
-    expect(screen.getByLabelText('Code from the email')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Code from the email\s*\*?$/)).toBeInTheDocument();
   });
 
   it('goes back to the email step when the contact starts over', async () => {
@@ -79,7 +79,7 @@ describe('ClientSignInForm', () => {
     );
     expect(emailField()).toBeInTheDocument();
     expect(sendButton()).toBeInTheDocument();
-    expect(screen.queryByLabelText('Code from the email')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Code from the email\s*\*?$/)).not.toBeInTheDocument();
   });
 
   it("shows the server's reason when the code cannot be sent", async () => {
@@ -90,7 +90,7 @@ describe('ClientSignInForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'This email has no client hub access',
     );
-    expect(screen.queryByLabelText('Code from the email')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Code from the email\s*\*?$/)).not.toBeInTheDocument();
   });
 
   it('falls back to a plain message when the failure carries none', async () => {

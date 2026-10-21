@@ -1,6 +1,7 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { format, isValid, parse } from 'date-fns';
 import { useFieldCopy } from './useFieldCopy';
+import { useFieldMeta } from './useFieldMeta';
 import { TimePicker } from '@/components/ui';
 import { useI18n } from '@exyconn/i18n';
 import { cellText } from '../../../utils/cellText';
@@ -13,6 +14,8 @@ interface RhfTimePickerProps {
   hoursOnly?: boolean;
   /** `small` for a dense grid of pickers, such as a week of opening hours. */
   size?: 'small' | 'medium';
+  /** Marks the label with the required star; by default the schema decides. */
+  required?: boolean;
 }
 
 /** Reads a stored `HH:mm` string (or a 0–23 hour) into a Date for the picker. */
@@ -36,10 +39,12 @@ export function RhfTimePicker({
   name,
   label,
   helperText,
+  required,
   hoursOnly = false,
   size = 'medium',
 }: Readonly<RhfTimePickerProps>) {
   const { control } = useFormContext();
+  const meta = useFieldMeta(name, { required, helperText });
   const copy = useFieldCopy();
   const { timeFormat } = useI18n().settings;
   const ampm = timeFormat.includes('a');
@@ -70,9 +75,10 @@ export function RhfTimePicker({
               name,
               fullWidth: true,
               size,
+              required: meta.required,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),
-              helperText: copy(fieldState.error?.message ?? helperText),
+              helperText: copy(fieldState.error?.message ?? meta.helperText),
             },
           }}
         />

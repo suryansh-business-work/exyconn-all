@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -72,10 +72,27 @@ export function ProductForm({ initial, onDone, onCancel }: Readonly<ProductFormP
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="sku" label="SKU" />
-      <RhfTextField name="price" label="Price" type="number" />
-      <RhfTextField name="category" label="Category" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="What the product is called in lists, stock movements and purchase orders."
+      />
+      <RhfTextField
+        name="sku"
+        label="SKU"
+        helperText="Your unique stock-keeping code, e.g. TSHIRT-BLK-M."
+      />
+      <RhfTextField
+        name="price"
+        label="Price"
+        type="number"
+        helperText="Selling price for one unit."
+      />
+      <RhfTextField
+        name="category"
+        label="Category"
+        helperText="Groups similar products, e.g. Apparel or Accessories."
+      />
       {!isEdit && (
         <RhfTextField
           name="stock"
@@ -90,7 +107,12 @@ export function ProductForm({ initial, onDone, onCancel }: Readonly<ProductFormP
         type="number"
         helperText="At or below this the product shows as low stock"
       />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ProductStatus))} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(ProductStatus))}
+        helperText="Draft while it is being set up, Active once in use, Archived when it is no longer stocked."
+      />
     </EntityForm>
   );
 }

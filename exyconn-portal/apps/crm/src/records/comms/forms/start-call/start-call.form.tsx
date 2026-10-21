@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -77,7 +77,12 @@ export function StartCallForm({
       submitLabel="Call"
       onCancel={onCancel}
     >
-      <RhfSelect name="to" label="Number to call" options={options} />
+      <RhfSelect
+        name="to"
+        label="Number to call"
+        options={options}
+        helperText="One of the record's phone numbers; it is rung once you answer your phone."
+      />
       <RhfTextField
         name="agentPhone"
         label="Your phone"

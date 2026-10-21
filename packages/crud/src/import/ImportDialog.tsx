@@ -66,9 +66,9 @@ export function ImportDialog<Mode extends string>({
   };
 
   const downloadTemplate = (format: TableFileFormat) => {
-    source.downloadTemplate(format).catch((failure: unknown) => {
-      portalLogger.error('Downloading an import sample failed', failure);
-      notify(errorMessage(failure, t('The sample file could not be downloaded.')), 'error');
+    source.downloadTemplate(format).catch((error_: unknown) => {
+      portalLogger.error('Downloading an import sample failed', error_);
+      notify(errorMessage(error_, t('The sample file could not be downloaded.')), 'error');
     });
   };
 
@@ -91,7 +91,7 @@ export function ImportDialog<Mode extends string>({
   };
 
   const requestClose = () => {
-    close().catch((failure: unknown) => portalLogger.error('Closing an import failed', failure));
+    close().catch((error_: unknown) => portalLogger.error('Closing an import failed', error_));
   };
 
   const downloadIssues = () => {

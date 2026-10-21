@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import {
   RhfAutocomplete,
@@ -99,19 +99,52 @@ export function ProjectForm({ initial, onDone, onCancel }: Readonly<ProjectFormP
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Project name" />
+      <RhfTextField
+        name="name"
+        label="Project name"
+        helperText="How the project appears across the portal, e.g. Website redesign."
+      />
       <RhfAutocomplete
         name="clientId"
         label="Client (optional)"
         options={clientOptions}
         helperText="Who the work is for"
       />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ProjectStatus))} />
-      <RhfTextField name="budgetAmount" label="Budget amount (optional)" type="number" />
-      <RhfTextField name="budgetHours" label="Budget hours (optional)" type="number" />
-      <RhfDatePicker name="startDate" label="Start date" />
-      <RhfDatePicker name="endDate" label="End date" />
-      <RhfTextField name="description" label="Description (optional)" multiline minRows={2} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(ProjectStatus))}
+        helperText="Where the project stands: planning, active, on hold or completed."
+      />
+      <RhfTextField
+        name="budgetAmount"
+        label="Budget amount (optional)"
+        type="number"
+        helperText="Optional. The money agreed for the project; billed time is compared against it."
+      />
+      <RhfTextField
+        name="budgetHours"
+        label="Budget hours (optional)"
+        type="number"
+        helperText="Optional. The hours agreed for the project; leave empty if none were agreed."
+      />
+      <RhfDatePicker
+        name="startDate"
+        label="Start date"
+        helperText="Optional. When work on the project begins."
+      />
+      <RhfDatePicker
+        name="endDate"
+        label="End date"
+        helperText="Optional. The planned finish, on or after the start date."
+      />
+      <RhfTextField
+        name="description"
+        label="Description (optional)"
+        multiline
+        minRows={2}
+        helperText="Optional. What the project covers, up to 500 characters."
+      />
     </EntityForm>
   );
 }

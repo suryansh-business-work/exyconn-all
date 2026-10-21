@@ -58,7 +58,7 @@ describe('EmailFragmentForm', () => {
 
   it('rejects a key a template could not type', async () => {
     renderForm(null);
-    await userEvent.type(screen.getByLabelText('Key'), 'Brand_Footer');
+    await userEvent.type(screen.getByLabelText(/^Key\s*\*?$/), 'Brand_Footer');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
     expect(
       await screen.findByText('Lower-case letters, numbers and hyphens only'),
@@ -68,9 +68,9 @@ describe('EmailFragmentForm', () => {
   it('creates a fragment from trimmed values', async () => {
     gql.create.mockResolvedValue({ data: {} });
     renderForm(null);
-    await userEvent.type(screen.getByLabelText('Key'), 'brand-header');
-    await userEvent.type(screen.getByLabelText('Name'), 'Header ');
-    await userEvent.type(screen.getByLabelText('MJML'), '<mj-section></mj-section>');
+    await userEvent.type(screen.getByLabelText(/^Key\s*\*?$/), 'brand-header');
+    await userEvent.type(screen.getByLabelText(/^Name\s*\*?$/), 'Header ');
+    await userEvent.type(screen.getByLabelText(/^MJML\s*\*?$/), '<mj-section></mj-section>');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.create).toHaveBeenCalledWith({
@@ -89,7 +89,7 @@ describe('EmailFragmentForm', () => {
   it('updates the stored fragment by id', async () => {
     gql.update.mockResolvedValue({ data: {} });
     renderForm(ROW);
-    expect(screen.getByLabelText('Name')).toHaveValue('Footer');
+    expect(screen.getByLabelText(/^Name\s*\*?$/)).toHaveValue('Footer');
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.update).toHaveBeenCalledWith({
@@ -109,9 +109,9 @@ describe('EmailFragmentForm', () => {
   it('says why a save failed and keeps the form open', async () => {
     gql.create.mockRejectedValue('network');
     renderForm(null);
-    await userEvent.type(screen.getByLabelText('Key'), 'x');
-    await userEvent.type(screen.getByLabelText('Name'), 'X');
-    await userEvent.type(screen.getByLabelText('MJML'), '<p/>');
+    await userEvent.type(screen.getByLabelText(/^Key\s*\*?$/), 'x');
+    await userEvent.type(screen.getByLabelText(/^Name\s*\*?$/), 'X');
+    await userEvent.type(screen.getByLabelText(/^MJML\s*\*?$/), '<p/>');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
     await waitFor(() => expect(notify).toHaveBeenCalledWith('Save failed', 'error'));
     expect(onDone).not.toHaveBeenCalled();

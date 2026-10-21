@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -48,8 +48,17 @@ export function NewsletterSubscriberForm({
       onCancel={onCancel}
       submitLabel="Add subscriber"
     >
-      <RhfTextField name="email" label="Email" type="email" />
-      <RhfTextField name="name" label="Name" />
+      <RhfTextField
+        name="email"
+        label="Email"
+        type="email"
+        helperText="Where issues are sent. An address already on the list is subscribed again."
+      />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="Optional. Helps you recognise the subscriber in the list, up to 120 characters."
+      />
     </EntityForm>
   );
 }

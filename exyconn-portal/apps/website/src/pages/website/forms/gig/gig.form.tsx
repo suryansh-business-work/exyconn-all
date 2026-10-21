@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import {
   RhfTextField,
@@ -104,33 +104,79 @@ export function GigForm({ initial, onDone, onCancel }: Readonly<GigFormProps>) {
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="gigCode" label="Gig code" helperText="Unique code, e.g. GIG-001" />
-      <RhfTextField name="title" label="Title" />
-      <RhfSelect name="category" label="Category" options={toOptions(GIG_CATEGORIES)} />
-      <RhfTextField name="shortDescription" label="Short description" multiline minRows={2} />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="What the gig is, e.g. Landing page redesign."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={toOptions(GIG_CATEGORIES)}
+        helperText="The kind of work, used to filter gigs."
+      />
+      <RhfTextField
+        name="shortDescription"
+        label="Short description"
+        multiline
+        minRows={2}
+        helperText="Optional. A sentence or two shown in the gig list."
+      />
       <RhfRichText
         name="fullDescription"
         label="Full description"
         folder={MEDIA_FOLDERS.careers}
         helperText="Shown on the gig's page of the public website"
       />
-      <RhfChipsInput name="deliverables" label="Deliverables" />
-      <RhfChipsInput name="requirements" label="Requirements" />
-      <RhfChipsInput name="tags" label="Tags" />
+      <RhfChipsInput
+        name="deliverables"
+        label="Deliverables"
+        helperText="Optional. What the freelancer hands over, one per entry."
+      />
+      <RhfChipsInput
+        name="requirements"
+        label="Requirements"
+        helperText="Optional. Skills or tools the freelancer needs, one per entry."
+      />
+      <RhfChipsInput
+        name="tags"
+        label="Tags"
+        helperText="Optional. Keywords for the gig. Type one and press Enter."
+      />
       <RhfTextField name="budget" label="Budget" helperText="e.g. ₹25,000 - ₹40,000" />
-      <RhfSelect name="duration" label="Duration" options={toOptions(GIG_DURATIONS)} />
-      <RhfSelect name="status" label="Status" options={toOptions(GIG_STATUSES)} />
+      <RhfSelect
+        name="duration"
+        label="Duration"
+        options={toOptions(GIG_DURATIONS)}
+        helperText="Roughly how long the work takes."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={toOptions(GIG_STATUSES)}
+        helperText="Only open gigs take applications."
+      />
       <RhfSelect
         name="applicationType"
         label="Application type"
         options={toOptions(GIG_APPLICATION_TYPES)}
+        helperText="How freelancers apply: by email, a form or WhatsApp."
       />
       <RhfTextField
         name="applicationContact"
         label="Application contact"
         helperText="Email, form URL or WhatsApp number, matching the application type."
       />
-      <RhfDatePicker name="postedDate" label="Posted date" />
-      <RhfDatePicker name="deadline" label="Deadline" />
+      <RhfDatePicker
+        name="postedDate"
+        label="Posted date"
+        helperText="Optional. The date the gig is shown as posted."
+      />
+      <RhfDatePicker
+        name="deadline"
+        label="Deadline"
+        helperText="Optional. Last day to apply; leave empty for no deadline."
+      />
       <RhfSwitch name="isUrgent" label="Urgent" />
       <ItemSeoFields siteId={siteId} />
     </EntityForm>

@@ -33,7 +33,7 @@ function enterWindow(started: string, ended: string) {
 }
 
 const send = () => userEvent.click(screen.getByRole('button', { name: 'Send for approval' }));
-const note = () => screen.getByLabelText('What was the time for?');
+const note = () => screen.getByLabelText(/^What was the time for\?\s*\*?$/);
 
 beforeEach(() => {
   createEntry.mockReset();

@@ -36,7 +36,7 @@ describe('EmailCheckForm', () => {
     const onCheck = renderForm();
 
     // Pasted in one go: typing 259 characters key by key is slow and proves nothing more.
-    fireEvent.change(screen.getByLabelText('Email address'), {
+    fireEvent.change(screen.getByLabelText(/^Email address\s*\*?$/), {
       target: { value: `${'a'.repeat(250)}@acme.com` },
     });
     await press('Check');

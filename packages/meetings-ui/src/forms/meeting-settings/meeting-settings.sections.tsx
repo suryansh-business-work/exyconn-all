@@ -36,11 +36,17 @@ export function AccessSection({ people }: Readonly<{ people: SelectOption[] }>) 
         helperText="Leave empty to allow everyone"
       />
       <RhfSwitch name="remindersEnabled" label="Remind people to start recording" />
-      <RhfSelect name="reminderIntervalMinutes" label="Reminder interval" options={intervals} />
+      <RhfSelect
+        name="reminderIntervalMinutes"
+        label="Reminder interval"
+        options={intervals}
+        helperText="How long the extension waits between reminders."
+      />
       <RhfTextField
         name="maxRemindersPerMeeting"
         label="Most reminders per meeting"
         type="number"
+        helperText="Reminders stop after this many in one meeting, from 1 to 30."
         slotProps={{ htmlInput: LIMITS.reminders }}
       />
     </FormSection>
@@ -56,11 +62,13 @@ export function NotesSection() {
         name="preferredLanguage"
         label="Preferred language"
         options={options(Object.values(MaLanguage))}
+        helperText="The language calls are usually held in; each meeting can change it."
       />
       <RhfSelect
         name="summaryStyle"
         label="Summary style"
         options={options(Object.values(MaSummaryStyle))}
+        helperText="The default shape of the AI notes, e.g. executive, detailed or client."
       />
       <RhfSwitch name="autoGenerateSummary" label="Write the notes when a call ends" />
       <RhfSwitch name="diarization" label="Tell speakers apart" />
@@ -70,6 +78,7 @@ export function NotesSection() {
         name="transcriptRetentionDays"
         label="Keep transcripts for (days)"
         type="number"
+        helperText="0 keeps them forever; up to 3,650 days."
         slotProps={{ htmlInput: LIMITS.retentionDays }}
       />
       <RhfSwitch name="saveRecordings" label="Save the call audio (WAV)" />
@@ -80,8 +89,16 @@ export function NotesSection() {
         helperText="0 keeps them until the meeting is deleted"
         slotProps={{ htmlInput: LIMITS.audioRetentionDays }}
       />
-      <RhfTextField name="analysisModel" label="Analysis model" />
-      <RhfTextField name="transcriptionModel" label="Transcription model" />
+      <RhfTextField
+        name="analysisModel"
+        label="Analysis model"
+        helperText="The AI model that writes the notes and action items, e.g. gpt-4o."
+      />
+      <RhfTextField
+        name="transcriptionModel"
+        label="Transcription model"
+        helperText="The AI model that turns call audio into text, e.g. gpt-4o-transcribe."
+      />
     </FormSection>
   );
 }
@@ -116,18 +133,21 @@ export function LimitsSection() {
         name="monthlyBudgetUsd"
         label="Monthly AI budget (USD)"
         type="number"
+        helperText="AI work stops for the month once spend reaches this; 0 means no limit."
         slotProps={{ htmlInput: { min: 0 } }}
       />
       <RhfTextField
         name="maxMeetingMinutes"
         label="Longest call recorded (minutes)"
         type="number"
+        helperText="Recording stops after this many minutes, from 5 to 1,440."
         slotProps={{ htmlInput: LIMITS.meetingMinutes }}
       />
       <RhfSelect
         name="releaseChannel"
         label="Extension release channel"
         options={options(Object.values(MaReleaseChannel))}
+        helperText="Which extension builds people get: stable, beta or internal."
       />
     </FormSection>
   );

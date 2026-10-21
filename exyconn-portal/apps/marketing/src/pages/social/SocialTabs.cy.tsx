@@ -15,7 +15,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { PostsTab } from './PostsTab';
 import { AnalyticsTab } from './AnalyticsTab';
-import { ACCOUNTS, RULES, post } from './social.fixtures.cy';
+import { ACCOUNTS, RULES, post } from '../../../cypress/support/social.fixtures';
 
 const mount = (children: ReactNode, mocks: MockLink.MockedResponse[]) =>
   cy.mount(

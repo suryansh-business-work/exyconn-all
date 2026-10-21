@@ -13,6 +13,12 @@ const LABEL_OPTIONS = POINT_LABELS.map((label) => ({ value: label, label }));
 type ListName = 'emails' | 'phones';
 type ValueKey = 'address' | 'number';
 
+/** What each kind of value looks like, shown under its input. */
+const VALUE_HINTS: Record<ValueKey, string> = {
+  address: 'An address they read, e.g. priya@acme.com.',
+  number: 'In international format, e.g. +14155550100.',
+};
+
 interface PointRowProps {
   name: ListName;
   valueKey: ValueKey;
@@ -38,8 +44,18 @@ function PointRow({
   const primaryLabel = primary ? t('Primary') : t('Make primary');
   return (
     <Flex direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start">
-      <RhfTextField name={`${name}.${index}.${valueKey}`} label={inputLabel} size="small" />
-      <RhfSelect name={`${name}.${index}.label`} label="Label" options={LABEL_OPTIONS} />
+      <RhfTextField
+        name={`${name}.${index}.${valueKey}`}
+        label={inputLabel}
+        size="small"
+        helperText={VALUE_HINTS[valueKey]}
+      />
+      <RhfSelect
+        name={`${name}.${index}.label`}
+        label="Label"
+        options={LABEL_OPTIONS}
+        helperText="What kind it is, e.g. Work or Mobile."
+      />
       <Flex direction="row" spacing={0.5}>
         <Tooltip title={primaryLabel}>
           <IconButton

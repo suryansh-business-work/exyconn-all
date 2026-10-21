@@ -188,7 +188,7 @@ export async function exchangeCode(grant: CodeGrant, device: DeviceInfo): Promis
         actor: { id: code.userId },
       },
     );
-    return issue(String(session._id), code.userId, organizationId, refresh);
+    return issue(session._id.toHexString(), code.userId, organizationId, refresh);
   });
 }
 
@@ -234,7 +234,7 @@ export async function refreshSession(
     throw new TokenRefusal('invalid_grant', 'Sign in again.');
   }
   return runForOrganization(organizationId, () =>
-    issue(String(session._id), session.userId, organizationId, next),
+    issue(session._id.toHexString(), session.userId, organizationId, next),
   );
 }
 
@@ -254,6 +254,6 @@ export async function extensionSessionIsLive(sessionId: string, userId: string):
     MaExtensionSessionModel.findById(sessionId).select('userId revokedAt expiresAt').lean(),
   );
   return Boolean(
-    session && session.userId === userId && !session.revokedAt && session.expiresAt > new Date(),
+    session?.userId === userId && !session.revokedAt && session.expiresAt > new Date(),
   );
 }

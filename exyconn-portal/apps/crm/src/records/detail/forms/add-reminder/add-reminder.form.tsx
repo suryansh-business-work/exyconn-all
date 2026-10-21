@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { RhfDateTimePicker, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -81,7 +81,11 @@ export function AddReminderForm({ target, onDone, onCancel }: Readonly<AddRemind
       submitLabel="Add reminder"
       onCancel={onCancel}
     >
-      <RhfTextField name="subject" label="Title" />
+      <RhfTextField
+        name="subject"
+        label="Title"
+        helperText="What to be reminded about, e.g. Send the revised quote."
+      />
       <RhfDateTimePicker
         name="remindAt"
         label="Remind at"
@@ -93,7 +97,13 @@ export function AddReminderForm({ target, onDone, onCancel }: Readonly<AddRemind
         options={options}
         helperText={peopleLoading ? 'Loading people…' : undefined}
       />
-      <RhfTextField name="notes" label="Note (optional)" multiline minRows={3} />
+      <RhfTextField
+        name="notes"
+        label="Note (optional)"
+        multiline
+        minRows={3}
+        helperText="Extra detail for whoever is reminded, up to 10,000 characters."
+      />
     </EntityForm>
   );
 }

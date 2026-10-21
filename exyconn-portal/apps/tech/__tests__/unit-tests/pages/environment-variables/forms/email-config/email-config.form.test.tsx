@@ -64,7 +64,7 @@ describe('EmailConfigForm', () => {
 
   it('starts a new config on port 587, without TLS, set active', () => {
     renderForm();
-    expect(screen.getByLabelText('Port')).toHaveValue(587);
+    expect(screen.getByLabelText(/^Port\s*\*?$/)).toHaveValue(587);
     expect(screen.getByRole('combobox', { name: SECURE })).toHaveTextContent('No');
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('Yes');
     expect(

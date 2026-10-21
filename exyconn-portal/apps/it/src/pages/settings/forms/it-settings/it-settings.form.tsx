@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import type { z } from 'zod';
 import { RhfChipsInput, RhfMultiSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -58,6 +58,7 @@ export function ItSettingsForm({ settings, onSaved }: Readonly<ItSettingsFormPro
         name="onboardingApplications"
         label="Given to every new joiner"
         options={onboardingOptions}
+        helperText="Access to these is requested automatically for each new joiner. Only names from the list above."
       />
       <RhfChipsInput
         name="ticketTopics"
@@ -68,16 +69,19 @@ export function ItSettingsForm({ settings, onSaved }: Readonly<ItSettingsFormPro
         name="warrantyWarningDays"
         label="Warn about warranties (days ahead)"
         type="number"
+        helperText="How many days before an asset's warranty ends IT is reminded. 1 to 365."
       />
       <RhfTextField
         name="renewalWarningDays"
         label="Warn about renewals (days ahead)"
         type="number"
+        helperText="How many days before a licence renews IT is reminded. 1 to 365."
       />
       <RhfTextField
         name="certificateWarningDays"
         label="Warn about domains and certificates (days ahead)"
         type="number"
+        helperText="How many days before a domain or SSL certificate expires IT is reminded. 1 to 365."
       />
     </EntityForm>
   );

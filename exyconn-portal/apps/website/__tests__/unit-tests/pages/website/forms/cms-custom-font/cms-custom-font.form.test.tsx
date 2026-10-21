@@ -187,7 +187,7 @@ describe('CustomFontForm', () => {
     rerender(reopen(false));
     rerender(reopen(true));
 
-    expect(await screen.findByLabelText('Family name')).toHaveValue('');
+    expect(await screen.findByLabelText(/^Family name\s*\*?$/)).toHaveValue('');
   });
 
   it('closes from its cancel button', async () => {

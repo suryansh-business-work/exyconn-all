@@ -122,7 +122,9 @@ describe('TrackerSettingsForm', () => {
 
   it('prefills the saved default timezone with its UTC offset', () => {
     mount();
-    timezoneInput().should('have.value', 'Asia/Kolkata (UTC+05:30)');
+    timezoneInput().should(($input) => {
+      expect($input).to.have.value('Asia/Kolkata (UTC+05:30)');
+    });
   });
 
   it("offers the device's own timezone as an explicit option", () => {
@@ -131,6 +133,8 @@ describe('TrackerSettingsForm', () => {
     // filter does not reliably open a MUI Autocomplete that already has a value.
     timezoneInput().click();
     cy.get('ul[role="listbox"]').contains('li', "Use each device's own timezone").click();
-    timezoneInput().should('have.value', "Use each device's own timezone");
+    timezoneInput().should(($input) => {
+      expect($input).to.have.value("Use each device's own timezone");
+    });
   });
 });

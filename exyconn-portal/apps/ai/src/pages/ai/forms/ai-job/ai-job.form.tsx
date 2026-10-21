@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField, RhfAutocomplete } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -60,14 +60,24 @@ export function AiJobForm({ initial, onDone, onCancel }: Readonly<AiJobFormProps
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Job name" />
+      <RhfTextField
+        name="name"
+        label="Job name"
+        helperText="A name to find this job by in the list, e.g. Weekly ticket summary."
+      />
       <RhfAutocomplete
         name="model"
         label="Model"
         options={options}
         helperText={error ?? 'Models the active OpenAI key can reach'}
       />
-      <RhfTextField name="prompt" label="Prompt" multiline minRows={4} />
+      <RhfTextField
+        name="prompt"
+        label="Prompt"
+        multiline
+        minRows={4}
+        helperText="The instruction sent to the model when the job runs, at least 3 characters."
+      />
     </EntityForm>
   );
 }

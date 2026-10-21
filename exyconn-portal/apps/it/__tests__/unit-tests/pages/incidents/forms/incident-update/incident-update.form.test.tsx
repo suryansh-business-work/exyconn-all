@@ -56,7 +56,7 @@ describe('IncidentUpdateForm', () => {
         note: 'Fix deployed, watching error rates',
       },
     });
-    expect(screen.getByLabelText('What happened')).toHaveValue('');
+    expect(screen.getByLabelText(/^What happened\s*\*?$/)).toHaveValue('');
     expect(screen.getByRole('combobox', { name: /^Status/ })).toHaveTextContent('Monitoring');
     expect(await toast()).toHaveTextContent('Update posted');
   });
@@ -67,7 +67,7 @@ describe('IncidentUpdateForm', () => {
     fill('What happened', 'Still down');
     await press('Post update');
     expect(await toast()).toHaveTextContent('Incident is closed');
-    expect(screen.getByLabelText('What happened')).toHaveValue('Still down');
+    expect(screen.getByLabelText(/^What happened\s*\*?$/)).toHaveValue('Still down');
     expect(onDone).not.toHaveBeenCalled();
   });
 

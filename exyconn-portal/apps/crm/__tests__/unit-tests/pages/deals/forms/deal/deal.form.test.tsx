@@ -148,7 +148,7 @@ describe('DealForm', () => {
     const row = dealRow({ id: 'deal-1', expectedCloseDate: closing, probability: 40 });
     const { onDone } = renderForm(row);
 
-    expect(screen.getByLabelText('Deal')).toHaveValue('Acme rollout');
+    expect(screen.getByLabelText(/^Deal\s*\*?$/)).toHaveValue('Acme rollout');
     await chooseOption('Stage', 'Negotiation');
     await press('Update');
 

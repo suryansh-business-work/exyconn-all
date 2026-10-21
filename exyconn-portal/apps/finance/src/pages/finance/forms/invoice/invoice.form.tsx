@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { currencyField } from '@exyconn/shell/utils/currencyField';
 import {
@@ -124,15 +124,24 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="number" label="Invoice number" />
-      <RhfAutocomplete name="clientId" label="Client" options={clientOptions} />
+      <RhfTextField
+        name="number"
+        label="Invoice number"
+        helperText="The number printed on the invoice, e.g. INV-2026-001."
+      />
+      <RhfAutocomplete
+        name="clientId"
+        label="Client"
+        options={clientOptions}
+        helperText="Who is billed; picking one switches to the currency they are invoiced in."
+      />
       <RhfSelect
         name="placeOfSupplyStateCode"
         label="Place of supply"
         options={stateOptions}
         helperText="The client's GST state. Same as ours: CGST + SGST; otherwise IGST."
       />
-      <RhfCurrencyField />
+      <RhfCurrencyField helperText="The currency the invoice is raised in." />
       <InvoiceLinesFields currency={currency} />
       <RhfSelect
         name="status"
@@ -140,8 +149,16 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
         options={invoiceStatusOptions(initial?.status ?? null)}
         helperText="Paid, part paid and overdue are set by the payments and the due date, not here."
       />
-      <RhfDatePicker name="issuedDate" label="Issued date" />
-      <RhfDatePicker name="dueDate" label="Due date" />
+      <RhfDatePicker
+        name="issuedDate"
+        label="Issued date"
+        helperText="The date printed on the invoice."
+      />
+      <RhfDatePicker
+        name="dueDate"
+        label="Due date"
+        helperText="When payment is expected; the invoice shows as overdue after it."
+      />
     </EntityForm>
   );
 }

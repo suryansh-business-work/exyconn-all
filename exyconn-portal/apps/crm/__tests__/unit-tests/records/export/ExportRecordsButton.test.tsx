@@ -133,9 +133,11 @@ describe('ExportRecordsButton', () => {
     renderButton();
     await exportWith('Export all properties');
 
-    await screen.findByText(
-      'Exported the first 1 of 9 rows. Narrow the filters to export the rest.',
-    );
+    expect(
+      await screen.findByText(
+        'Exported the first 1 of 9 rows. Narrow the filters to export the rest.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('shows the failure, logs it and frees the button again', async () => {

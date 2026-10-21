@@ -1,6 +1,15 @@
 import { useFormContext } from 'react-hook-form';
 import { screen } from '@testing-library/react';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 interface StubFieldProps {
   name: string;
   label: string;
@@ -34,4 +43,4 @@ export const POLICIES = [
 ];
 
 /** The control behind a switch, select or field label. */
-export const field = (label: string) => screen.getByLabelText(label);
+export const field = (label: string) => screen.getByLabelText(labelled(label));

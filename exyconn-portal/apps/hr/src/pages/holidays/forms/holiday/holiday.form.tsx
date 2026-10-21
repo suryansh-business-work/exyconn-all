@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import {
   RhfAutocomplete,
@@ -94,10 +94,25 @@ export function HolidayForm({ initial, onDone, onCancel }: Readonly<HolidayFormP
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfDatePicker name="date" label="Date" />
-      <RhfSelect name="type" label="Type" options={enumOptions(Object.values(HolidayType))} />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="What employees see in the holiday calendar, e.g. Diwali."
+      />
+      <RhfDatePicker name="date" label="Date" helperText="The day the holiday falls on." />
+      <RhfSelect
+        name="type"
+        label="Type"
+        options={enumOptions(Object.values(HolidayType))}
+        helperText="Public is a day off for everyone; Optional and Restricted are taken by choice."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="Optional. A note shown with the holiday, e.g. what it marks."
+      />
       <RhfAutocomplete
         name="country"
         label="Country"

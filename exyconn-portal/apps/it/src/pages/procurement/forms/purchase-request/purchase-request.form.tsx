@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import type { z } from 'zod';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -56,11 +56,32 @@ export function PurchaseRequestForm({
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="What is being bought" helperText="e.g. MacBook Pro 14" />
-      <RhfSelect name="kind" label="Kind" options={KIND_OPTIONS} />
-      <RhfTextField name="quantity" label="Quantity" type="number" />
-      <RhfTextField name="estimatedCost" label="Estimated total cost" type="number" />
+      <RhfSelect
+        name="kind"
+        label="Kind"
+        options={KIND_OPTIONS}
+        helperText="Whether it is hardware, software or a service."
+      />
+      <RhfTextField
+        name="quantity"
+        label="Quantity"
+        type="number"
+        helperText="How many are needed. Whole numbers, at least one."
+      />
+      <RhfTextField
+        name="estimatedCost"
+        label="Estimated total cost"
+        type="number"
+        helperText="The expected cost for the whole quantity, before quotes come in."
+      />
       <RhfTextField name="requestedForName" label="For whom" helperText="Empty when it is for IT" />
-      <RhfTextField name="justification" label="Why it is needed" multiline rows={3} />
+      <RhfTextField
+        name="justification"
+        label="Why it is needed"
+        multiline
+        rows={3}
+        helperText="The business reason, so the approver can decide. At least 10 characters."
+      />
       <PurchaseQuotesFields />
       <RhfSelect
         name="status"
@@ -68,7 +89,11 @@ export function PurchaseRequestForm({
         options={statusOptions}
         helperText="Approval is its own action. Ordering needs it approved first."
       />
-      <RhfTextField name="orderReference" label="Supplier order reference" />
+      <RhfTextField
+        name="orderReference"
+        label="Supplier order reference"
+        helperText="The supplier's order number. Required once the status is ordered."
+      />
     </EntityForm>
   );
 }

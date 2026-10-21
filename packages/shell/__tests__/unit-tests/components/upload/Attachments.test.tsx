@@ -274,6 +274,21 @@ describe('RhfAttachmentPicker', () => {
     expect(formValues().files).toEqual([PHOTO]);
   });
 
+  it('says what belongs there, translated', () => {
+    renderWithProviders(
+      <FormHarness defaultValues={{ files: [] }}>
+        <RhfAttachmentPicker
+          name="files"
+          folder={COMPLIANCE_UPLOAD_FOLDER}
+          helperText="Screenshots of the problem."
+        />
+      </FormHarness>,
+      { messages: { 'Screenshots of the problem.': 'Capturas del problema.' } },
+    );
+
+    expect(screen.getByText('Capturas del problema.')).toBeInTheDocument();
+  });
+
   it('starts with no files when the form has none', () => {
     renderWithProviders(
       <FormHarness defaultValues={{}}>

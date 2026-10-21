@@ -92,7 +92,7 @@ describe('CloudflareConfigForm', () => {
     expect(
       screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Account ID')).toHaveValue(ACCOUNT);
+    expect(screen.getByLabelText(/^Account ID\s*\*?$/)).toHaveValue(ACCOUNT);
     await pickOption(/^Set as active/, 'No');
     await press('Update');
 

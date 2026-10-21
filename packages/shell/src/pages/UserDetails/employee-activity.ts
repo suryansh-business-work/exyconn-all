@@ -1,5 +1,5 @@
 import type { ColDef, ICellRendererParams, ValueFormatterParams } from 'ag-grid-community';
-import type { ApolloClient } from '@apollo/client';
+import type { ApolloClient, TypedDocumentNode } from '@apollo/client';
 import { createElement } from 'react';
 import type { AuditLogRow } from '@/components/audit';
 import { StatusChip } from '@/components/data/StatusChip';
@@ -7,6 +7,7 @@ import type { GridFetcher, TablePageResult } from '@/components/data/ServerDataG
 import {
   ListUserActivityPagedDocument,
   type ListUserActivityPagedQuery,
+  type ListUserActivityPagedQueryVariables,
   type TableQueryInput,
 } from '@/graphql/generated';
 import { queryData } from '@/utils/queryData';
@@ -47,12 +48,18 @@ export const ACTIVITY_COLUMNS: ColDef<AuditLogRow>[] = [
   { field: 'summary', headerName: 'Summary', flex: 1, minWidth: 260 },
 ];
 
+/** The activity list query, typed: the generated document carries no result type. */
+const activityQuery: TypedDocumentNode<
+  ListUserActivityPagedQuery,
+  ListUserActivityPagedQueryVariables
+> = ListUserActivityPagedDocument;
+
 /** Fetches one page of what `userId` did, newest first, for the server-paged grid. */
 export function activityFetcher(client: ApolloClient, userId: string): GridFetcher<AuditLogRow> {
   const variablesFor = (input: TableQueryInput) => ({ userId, input });
   const fetchPage = async (input: TableQueryInput): Promise<TablePageResult<AuditLogRow>> => {
-    const result = await client.query<ListUserActivityPagedQuery>({
-      query: ListUserActivityPagedDocument,
+    const result = await client.query({
+      query: activityQuery,
       variables: variablesFor(input),
       fetchPolicy: 'network-only',
     });

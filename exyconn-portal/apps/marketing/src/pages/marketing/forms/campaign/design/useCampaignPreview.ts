@@ -1,3 +1,4 @@
+import type { TypedDocumentNode } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -7,6 +8,11 @@ import {
   type PreviewCampaignContentQuery,
   type PreviewCampaignContentQueryVariables,
 } from '@exyconn/shell/graphql/generated';
+
+const previewCampaignContentQuery: TypedDocumentNode<
+  PreviewCampaignContentQuery,
+  PreviewCampaignContentQueryVariables
+> = PreviewCampaignContentDocument;
 
 /** Long enough that typing compiles once per pause. */
 const DEBOUNCE_MS = 500;
@@ -41,8 +47,8 @@ export function useCampaignPreview(input: CampaignPreviewInput | null): Campaign
     setState((previous) => ({ ...previous, updating: true, error: null }));
     const timer = globalThis.setTimeout(() => {
       client
-        .query<PreviewCampaignContentQuery, PreviewCampaignContentQueryVariables>({
-          query: PreviewCampaignContentDocument,
+        .query({
+          query: previewCampaignContentQuery,
           variables: { input: JSON.parse(key) as CampaignPreviewInput },
           fetchPolicy: 'network-only',
           context: { fetchOptions: { signal: controller.signal } },

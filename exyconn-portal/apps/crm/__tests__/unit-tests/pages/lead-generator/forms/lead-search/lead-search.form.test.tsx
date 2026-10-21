@@ -6,6 +6,15 @@ import { renderWithProviders } from '../../../../test-utils';
 import { fillField, press, setNumber } from '../../../../form-helpers';
 import { corners } from '../../search-area-fake';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const suggestions = vi.hoisted(() => ({ result: {} as Record<string, unknown> }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -35,7 +44,7 @@ function renderForm(overrides: Partial<Props> = {}) {
 
 /** Pastes `text` into the field labelled `label`; typing 201 characters one by one is slow. */
 async function pasteInto(label: string, text: string) {
-  await userEvent.click(screen.getByLabelText(label));
+  await userEvent.click(screen.getByLabelText(labelled(label)));
   await userEvent.paste(text);
 }
 
@@ -109,7 +118,7 @@ describe('LeadSearchForm', () => {
     await userEvent.click(mode('A place'));
 
     expect(mode('A place')).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByLabelText('Where')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Where\s*\*?$/)).toBeInTheDocument();
     expect(onModeChange).toHaveBeenCalledTimes(1);
   });
 
@@ -117,7 +126,7 @@ describe('LeadSearchForm', () => {
     const { onSearch, onModeChange } = renderForm();
     await userEvent.click(mode('Around the map centre'));
     expect(onModeChange).toHaveBeenLastCalledWith('map');
-    expect(screen.queryByLabelText('Where')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Where\s*\*?$/)).not.toBeInTheDocument();
     await fillField('What to look for', 'bakeries');
 
     setNumber('Radius (km)', '0');
@@ -140,7 +149,7 @@ describe('LeadSearchForm', () => {
     rerender({ mapReady: false });
 
     await waitFor(() => expect(onModeChange).toHaveBeenLastCalledWith('place'));
-    expect(screen.getByLabelText('Where')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Where\s*\*?$/)).toBeInTheDocument();
   });
 
   it('needs a drawn area of at least 3 corners, and takes it once drawn', async () => {

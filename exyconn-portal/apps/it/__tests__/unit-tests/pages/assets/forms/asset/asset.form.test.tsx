@@ -102,7 +102,7 @@ describe('AssetForm', () => {
     renderForm(
       assetRow({ status: AssetStatus.Assigned, assignedToId: 'emp-1', assignedToName: 'Ana Rao' }),
     );
-    expect(screen.getByLabelText('Asset tag')).toHaveValue('LT-001');
+    expect(screen.getByLabelText(/^Asset tag\s*\*?$/)).toHaveValue('LT-001');
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

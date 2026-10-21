@@ -88,9 +88,9 @@ export function useTableBulk({
   const deletable = data?.tableBulkInfo.deletable ?? false;
   const archivable = data?.tableBulkInfo.archivable ?? false;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [archived, setArchivedState] = useState(false);
+  const [archived, setArchived] = useState(false);
   const archivedRef = useRef(false);
-  const [matching, setMatchingState] = useState<MatchingRows | null>(null);
+  const [matching, setMatching] = useState<MatchingRows | null>(null);
   const [allMatching, setAllMatching] = useState(false);
   const job = useBulkJob((finished: BulkJob) => {
     refresh();
@@ -109,8 +109,8 @@ export function useTableBulk({
     setSelectedIds([]);
     setAllMatching(false);
   }, [gridRef]);
-  const setMatching = useCallback(
-    (query: GridQuery, total: number) => setMatchingState({ query, total }),
+  const recordMatching = useCallback(
+    (query: GridQuery, total: number) => setMatching({ query, total }),
     [],
   );
   const selectAllMatching = useCallback(() => setAllMatching(true), []);
@@ -132,10 +132,10 @@ export function useTableBulk({
     api.setNodesSelected({ nodes, newValue: true });
   }, [gridRef]);
 
-  const setArchived = useCallback(
+  const switchArchived = useCallback(
     (next: boolean) => {
       archivedRef.current = next;
-      setArchivedState(next);
+      setArchived(next);
       clearSelection();
       reload();
     },
@@ -154,12 +154,12 @@ export function useTableBulk({
     job,
     archived,
     archivedRef,
-    setArchived,
+    setArchived: switchArchived,
     onSelectionChanged,
     clearSelection,
     selectPage,
     matching,
-    setMatching,
+    setMatching: recordMatching,
     allMatching,
     selectAllMatching,
   };

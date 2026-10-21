@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
@@ -61,7 +61,11 @@ export function WorkWeekForm({ initial, onDone, onCancel }: Readonly<WorkWeekFor
           'The days people work unless their employee record sets a week of their own. The other days are their week off: no expected hours, and the tracker does not run.',
         )}
       </Text>
-      <RhfWorkDays name="days" label="Work days" />
+      <RhfWorkDays
+        name="days"
+        label="Work days"
+        helperText="Select a day to switch it on or off. At least one day is needed."
+      />
     </EntityForm>
   );
 }

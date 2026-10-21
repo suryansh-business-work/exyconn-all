@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import type { z } from 'zod';
 import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -71,8 +71,18 @@ export function ProblemReportForm({ initial, onDone, onCancel }: Readonly<Proble
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       {initial && <ReportedDetails report={initial} />}
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfSelect name="severity" label="Severity" options={SEVERITY_OPTIONS} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Where triage stands; Resolved and Closed need resolution notes."
+      />
+      <RhfSelect
+        name="severity"
+        label="Severity"
+        options={SEVERITY_OPTIONS}
+        helperText="How badly this affects people, from Low to Critical."
+      />
       <RhfTextField name="assignee" label="Assignee" helperText="Who is picking this up" />
       <RhfTextField
         name="resolutionNotes"
@@ -81,13 +91,45 @@ export function ProblemReportForm({ initial, onDone, onCancel }: Readonly<Proble
         rows={4}
         helperText="Required before a report can be resolved or closed"
       />
-      <RhfSelect name="serviceKey" label="Service" options={[WHOLE_PLATFORM, ...services]} />
-      <RhfSelect name="category" label="Type" options={CATEGORY_OPTIONS} />
-      <RhfTextField name="subject" label="Title" />
-      <RhfTextField name="description" label="What happened?" multiline rows={4} />
-      <RhfTextField name="reporterName" label="Reported by" />
-      <RhfTextField name="reporterEmail" label="Reporter email" />
-      <RhfTextField name="pageUrl" label="Page address" />
+      <RhfSelect
+        name="serviceKey"
+        label="Service"
+        options={[WHOLE_PLATFORM, ...services]}
+        helperText="The monitored service affected, or Whole platform if it is not one service."
+      />
+      <RhfSelect
+        name="category"
+        label="Type"
+        options={CATEGORY_OPTIONS}
+        helperText="The kind of problem, e.g. outage, login or slowness."
+      />
+      <RhfTextField
+        name="subject"
+        label="Title"
+        helperText="A one-line summary, 5 to 120 characters."
+      />
+      <RhfTextField
+        name="description"
+        label="What happened?"
+        multiline
+        rows={4}
+        helperText="What the reporter saw and was trying to do, at least 20 characters."
+      />
+      <RhfTextField
+        name="reporterName"
+        label="Reported by"
+        helperText="The name of the person who raised it."
+      />
+      <RhfTextField
+        name="reporterEmail"
+        label="Reporter email"
+        helperText="Where to reach the reporter, e.g. name@company.com."
+      />
+      <RhfTextField
+        name="pageUrl"
+        label="Page address"
+        helperText="Optional. The full URL where it happened, starting with https://."
+      />
     </EntityForm>
   );
 }

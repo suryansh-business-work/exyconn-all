@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { HTTP_URL } from '@exyconn/regex';
@@ -85,7 +85,12 @@ export function ReleaseStatusForm({ release, onDone, onCancel }: Readonly<Releas
       onCancel={onCancel}
       submitLabel="Change status"
     >
-      <RhfSelect name="status" label="Status" options={statuses} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={statuses}
+        helperText="The lifecycle stage this release moves to, e.g. QA pending or published."
+      />
       <RhfTextField
         name="note"
         label="Note"
@@ -94,7 +99,11 @@ export function ReleaseStatusForm({ release, onDone, onCancel }: Readonly<Releas
         minRows={2}
         helperText="Kept in the release's history"
       />
-      <RhfTextField name="storeItemId" label="Chrome Web Store item id (optional)" />
+      <RhfTextField
+        name="storeItemId"
+        label="Chrome Web Store item id (optional)"
+        helperText="Optional. The extension's id from the store dashboard, up to 100 characters."
+      />
       <RhfTextField
         name="storeUrl"
         label="Chrome Web Store address (optional)"

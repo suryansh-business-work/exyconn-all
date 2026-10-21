@@ -2,11 +2,27 @@ import { Grid } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 
 const CONTACT_FIELDS = [
-  { name: 'supportEmail', label: 'Support email' },
-  { name: 'hrEmail', label: 'HR email' },
-  { name: 'contactPhone', label: 'Contact phone' },
-  { name: 'websiteUrl', label: 'Website URL' },
-  { name: 'address', label: 'Address' },
+  {
+    name: 'supportEmail',
+    label: 'Support email',
+    hint: 'Optional. Shown on sign-in pages, the trackers and the website for help requests.',
+  },
+  {
+    name: 'hrEmail',
+    label: 'HR email',
+    hint: 'Optional. Printed on payslips as the address for pay questions.',
+  },
+  {
+    name: 'contactPhone',
+    label: 'Contact phone',
+    hint: 'Optional. The public phone number shown on the website, e.g. +91 98765 43210.',
+  },
+  {
+    name: 'websiteUrl',
+    label: 'Website URL',
+    hint: 'Optional. The full company website address, e.g. https://example.com.',
+  },
+  { name: 'address', label: 'Address', hint: 'Optional. The postal address shown in footers.' },
 ] as const;
 
 const SOCIAL_FIELDS = [
@@ -33,7 +49,7 @@ export function BrandingContactFields() {
             sm: 6,
           }}
         >
-          <RhfTextField name={field.name} label={field.label} />
+          <RhfTextField name={field.name} label={field.label} helperText={field.hint} />
         </Grid>
       ))}
       {SOCIAL_FIELDS.map((field) => (

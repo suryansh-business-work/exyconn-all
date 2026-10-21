@@ -3,6 +3,7 @@ import { useApolloClient } from '@apollo/client/react';
 import { useT } from '@exyconn/i18n';
 import { Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { toCsv, downloadCsv } from '@exyconn/shell/utils/csv';
 import DownloadIcon from '@mui/icons-material/Download';
 import type { AnyReport } from './reports.types';
@@ -31,7 +32,8 @@ export function ReportPanel({ report }: Readonly<{ report: AnyReport }>) {
   }, [client, notify, report]);
 
   useEffect(() => {
-    load();
+    // `load` reports its own failure; this only catches a toast that itself throws.
+    load().catch((error: unknown) => portalLogger.error('hr: showing a report failed', error));
   }, [load]);
 
   const exportCsv = () => {

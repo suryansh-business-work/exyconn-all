@@ -1,3 +1,4 @@
+import type { TypedDocumentNode } from '@apollo/client';
 import { useCallback } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
@@ -14,6 +15,15 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { RECIPIENT_COLUMNS, type RecipientRow } from './audience-recipients-grid';
 
+const audienceResolutionRecipientsQuery: TypedDocumentNode<
+  AudienceResolutionRecipientsQuery,
+  AudienceResolutionRecipientsQueryVariables
+> = AudienceResolutionRecipientsDocument;
+const previewAudienceRecipientsQuery: TypedDocumentNode<
+  PreviewAudienceRecipientsQuery,
+  PreviewAudienceRecipientsQueryVariables
+> = PreviewAudienceRecipientsDocument;
+
 /** Either a saved audience (its snapshot honoured) or the form's unsaved settings. */
 export type RecipientsTarget = { audienceId: string } | { draft: AudienceListInput };
 
@@ -29,21 +39,15 @@ export function AudienceRecipientsGrid({ target }: Readonly<AudienceRecipientsGr
     async (page: TableQueryInput) => {
       const parsed = JSON.parse(targetKey) as RecipientsTarget;
       if ('audienceId' in parsed) {
-        const { data } = await client.query<
-          AudienceResolutionRecipientsQuery,
-          AudienceResolutionRecipientsQueryVariables
-        >({
-          query: AudienceResolutionRecipientsDocument,
+        const { data } = await client.query({
+          query: audienceResolutionRecipientsQuery,
           variables: { id: parsed.audienceId, page },
           fetchPolicy: 'network-only',
         });
         return data?.audienceResolution.recipients ?? { rows: [], totalCount: 0 };
       }
-      const { data } = await client.query<
-        PreviewAudienceRecipientsQuery,
-        PreviewAudienceRecipientsQueryVariables
-      >({
-        query: PreviewAudienceRecipientsDocument,
+      const { data } = await client.query({
+        query: previewAudienceRecipientsQuery,
         variables: { input: parsed.draft, page },
         fetchPolicy: 'network-only',
       });

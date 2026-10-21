@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -58,7 +58,11 @@ export function MeetingDetailsForm({ meeting }: Readonly<MeetingDetailsFormProps
       onCancel={() => methods.reset()}
       submitLabel="Save"
     >
-      <RhfTextField name="title" label="Meeting title" />
+      <RhfTextField
+        name="title"
+        label="Meeting title"
+        helperText="How the meeting is listed and named in its notes, up to 300 characters."
+      />
       <RhfSelect
         name="language"
         label="Spoken language"

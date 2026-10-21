@@ -5,7 +5,7 @@ import EventIcon from '@mui/icons-material/Event';
 import NoteIcon from '@mui/icons-material/StickyNote2';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useT } from '@exyconn/i18n';
-import { Box, Button } from '@exyconn/shell/components/ui';
+import { Box, Button, fontSize } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ActivityType } from '@exyconn/shell/graphql/generated';
 import {
@@ -16,6 +16,9 @@ import {
 import { AddReminderForm } from './forms/add-reminder';
 
 type Loggable = LogActivityValues['type'];
+
+/** Button text scales with the action grid's width, between the 2xs and sm steps. */
+const BUTTON_FONT_SIZE = `clamp(${fontSize['2xs']}px, 4cqi, ${fontSize.sm}px)`;
 
 const QUICK: ReadonlyArray<{ type: Loggable; label: string; icon: ReactNode }> = [
   { type: ActivityType.Note, label: 'Note', icon: <NoteIcon /> },
@@ -45,6 +48,10 @@ export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
           gap: 1,
           // Equal-width cells: two across the narrow profile column, more where there is room.
           gridTemplateColumns: (theme) => `repeat(auto-fit, minmax(${theme.spacing(15)}, 1fr))`,
+          containerType: 'inline-size',
+          // Applies to every action, including the `extra` ones passed in.
+          '& .MuiButton-root': { fontSize: BUTTON_FONT_SIZE, px: 1, minWidth: 0 },
+          '& .MuiButton-startIcon': { mr: 0.5 },
         }}
       >
         {QUICK.map((action) => (

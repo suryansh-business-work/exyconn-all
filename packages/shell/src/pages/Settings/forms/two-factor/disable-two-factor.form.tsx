@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Button, Flex, Text } from '@/components/ui';
@@ -60,6 +60,7 @@ export function DisableTwoFactorForm({
             label={t('Password')}
             type="password"
             autoComplete="current-password"
+            helperText="The password you sign in with."
           />
           <Flex direction="row" spacing={1}>
             <Button

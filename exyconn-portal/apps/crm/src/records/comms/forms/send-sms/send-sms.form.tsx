@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -67,7 +67,12 @@ export function SendSmsForm({ panel, onCancel }: Readonly<SendSmsFormProps>) {
       submitLabel="Send"
       onCancel={onCancel}
     >
-      <RhfSelect name="to" label="To" options={options} />
+      <RhfSelect
+        name="to"
+        label="To"
+        options={options}
+        helperText="One of the record's phone numbers."
+      />
       <RhfTextField
         name="body"
         label="Message"

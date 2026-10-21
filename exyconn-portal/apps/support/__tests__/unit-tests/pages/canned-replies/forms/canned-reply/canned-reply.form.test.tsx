@@ -26,7 +26,7 @@ const BODY = 'Could you send a screenshot of the error, please?';
 const renderForm = (initial: CannedReplyRow | null = null) =>
   renderWithProviders(<CannedReplyForm initial={initial} onDone={onDone} onCancel={onCancel} />);
 
-const offered = () => screen.getByLabelText('Offer in the composer');
+const offered = () => screen.getByLabelText(/^Offer in the composer\s*\*?$/);
 
 describe('CannedReplyForm', () => {
   beforeEach(() => {
@@ -38,8 +38,8 @@ describe('CannedReplyForm', () => {
 
   it('opens a new snippet empty, filed under Other and offered in the composer', () => {
     renderForm();
-    expect(screen.getByLabelText('Snippet name')).toHaveValue('');
-    expect(screen.getByLabelText('Text')).toHaveValue('');
+    expect(screen.getByLabelText(/^Snippet name\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Text\s*\*?$/)).toHaveValue('');
     expect(screen.getByRole('combobox', { name: /^Category/ })).toHaveTextContent('Other');
     expect(offered()).toBeChecked();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
@@ -96,7 +96,7 @@ describe('CannedReplyForm', () => {
   it('opens a snippet with what it says, then saves it back onto that snippet', async () => {
     const row = cannedReplyRow({ isActive: false });
     renderForm(row);
-    expect(screen.getByLabelText('Snippet name')).toHaveValue('Ask for a screenshot');
+    expect(screen.getByLabelText(/^Snippet name\s*\*?$/)).toHaveValue('Ask for a screenshot');
     expect(screen.getByRole('combobox', { name: /^Category/ })).toHaveTextContent('Hr');
     expect(offered()).not.toBeChecked();
 

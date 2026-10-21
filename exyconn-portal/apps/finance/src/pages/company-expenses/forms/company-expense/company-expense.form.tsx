@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { useT } from '@exyconn/i18n';
@@ -99,19 +99,48 @@ export function CompanyExpenseForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="vendor" label="Vendor" />
+      <RhfTextField
+        name="vendor"
+        label="Vendor"
+        helperText="Who the company is paying, e.g. the landlord or a software supplier."
+      />
       <RhfSelect
         name="category"
         label="Category"
         options={enumOptions(Object.values(ExpenseCategory))}
+        helperText="Groups the cost in spend reports."
       />
-      <RhfTextField name="amount" label="Amount" type="number" />
-      <RhfCurrencyField />
-      <RhfSelect name="costCenterId" label="Cost centre" options={centreOptions} />
+      <RhfTextField
+        name="amount"
+        label="Amount"
+        type="number"
+        helperText="The bill total; 0 or more."
+      />
+      <RhfCurrencyField helperText="The currency the bill is in." />
+      <RhfSelect
+        name="costCenterId"
+        label="Cost centre"
+        options={centreOptions}
+        helperText="Optional. The team or area the cost is charged to; leave unallocated if unsure."
+      />
       {/* Profit is measured on this date; the money leaving is a separate one (Mark paid). */}
-      <RhfDatePicker name="incurredOn" label="Incurred on" />
-      <RhfDatePicker name="dueDate" label="Due date" />
-      <RhfTextField name="description" label="Description" multiline rows={2} />
+      <RhfDatePicker
+        name="incurredOn"
+        label="Incurred on"
+        helperText="The day the cost was incurred; profit is counted on this date."
+      />
+      <RhfDatePicker
+        name="dueDate"
+        label="Due date"
+        helperText="When the bill must be paid; on or after the incurred date."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        rows={2}
+        helperText="Optional. What the cost covers."
+      />
       <RhfTextField name="reference" label="Reference" helperText="Bill number, PO, contract…" />
     </EntityForm>
   );

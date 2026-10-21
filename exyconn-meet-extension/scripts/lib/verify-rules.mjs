@@ -3,7 +3,11 @@ import { PERMISSIONS } from './manifest.mjs';
 const ALLOWED_PERMISSIONS = new Set(PERMISSIONS);
 const VERSION_FORMAT = /^\d+(\.\d+){0,3}$/;
 const MAX_VERSION_PART = 65535;
-const BROAD_MATCHES = new Set(['<all_urls>', '*://*/*', 'http://*/*', 'https://*/*']);
+/** Host patterns that grant every site: the special token, and a wildcard host under any scheme. */
+const BROAD_MATCHES = new Set([
+  '<all_urls>',
+  ...['*', 'http', 'https'].map((scheme) => `${scheme}://*/*`),
+]);
 const REQUIRED_FIELDS = [
   'name',
   'version',

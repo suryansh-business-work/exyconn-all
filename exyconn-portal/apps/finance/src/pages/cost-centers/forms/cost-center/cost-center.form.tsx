@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { CODE } from '@exyconn/regex';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
@@ -64,8 +64,18 @@ export function CostCenterForm({ initial, onDone, onCancel }: Readonly<CostCente
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="code" label="Code" helperText="Short key finance quotes — ENG, MKT" />
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="description" label="Description" multiline rows={2} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The full name shown in pickers and reports, e.g. Engineering."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        rows={2}
+        helperText="Optional. What spend belongs to this centre."
+      />
       <RhfSwitch name="isActive" label="Active" />
     </EntityForm>
   );

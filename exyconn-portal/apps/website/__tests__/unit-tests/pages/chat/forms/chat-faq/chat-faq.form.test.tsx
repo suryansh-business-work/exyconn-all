@@ -5,6 +5,15 @@ import { ChatFaqForm, type ChatFaqRow } from '../../../../../../src/pages/chat/f
 import { renderWithProviders } from '../../../../test-utils';
 import { faqRow } from '../../chat-fixtures';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -20,9 +29,9 @@ const renderForm = (initial: ChatFaqRow | null = null) =>
   renderWithProviders(<ChatFaqForm initial={initial} onDone={onDone} onCancel={onCancel} />);
 
 const fill = (label: string, value: string) =>
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 const click = (name: string) => userEvent.click(screen.getByRole('button', { name }));
-const shown = () => screen.getByLabelText('Show in the chat widget');
+const shown = () => screen.getByLabelText(/^Show in the chat widget\s*\*?$/);
 
 describe('ChatFaqForm', () => {
   beforeEach(() => {
@@ -35,9 +44,9 @@ describe('ChatFaqForm', () => {
   it('opens a new FAQ empty, first in the list and shown in the widget', () => {
     renderForm();
 
-    expect(screen.getByLabelText('Question')).toHaveValue('');
-    expect(screen.getByLabelText('Answer')).toHaveValue('');
-    expect(screen.getByLabelText('Order')).toHaveValue(0);
+    expect(screen.getByLabelText(/^Question\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Answer\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Order\s*\*?$/)).toHaveValue(0);
     expect(shown()).toBeChecked();
     expect(screen.getByText('Lower numbers appear first in the widget.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
@@ -98,8 +107,8 @@ describe('ChatFaqForm', () => {
   it('opens an FAQ with what it says and saves it back onto that FAQ', async () => {
     const row = faqRow({ isActive: false });
     renderForm(row);
-    expect(screen.getByLabelText('Question')).toHaveValue(row.question);
-    expect(screen.getByLabelText('Order')).toHaveValue(2);
+    expect(screen.getByLabelText(/^Question\s*\*?$/)).toHaveValue(row.question);
+    expect(screen.getByLabelText(/^Order\s*\*?$/)).toHaveValue(2);
     expect(shown()).not.toBeChecked();
 
     await click('Update');

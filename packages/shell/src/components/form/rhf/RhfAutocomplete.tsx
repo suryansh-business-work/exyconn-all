@@ -1,5 +1,6 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useFieldCopy } from './useFieldCopy';
+import { useFieldMeta } from './useFieldMeta';
 import { Autocomplete, TextField } from '@/components/ui';
 import type { SelectOption } from './types';
 
@@ -21,6 +22,7 @@ export function RhfAutocomplete({
   required,
 }: Readonly<RhfAutocompleteProps>) {
   const { control } = useFormContext();
+  const meta = useFieldMeta(name, { required, helperText });
   const copy = useFieldCopy();
   return (
     <Controller
@@ -43,9 +45,9 @@ export function RhfAutocomplete({
                 // input[name="…"] rather than by its rendered value.
                 name={name}
                 label={copy(label)}
-                required={required}
+                required={meta.required}
                 error={Boolean(fieldState.error)}
-                helperText={copy(fieldState.error?.message ?? helperText)}
+                helperText={copy(fieldState.error?.message ?? meta.helperText)}
               />
             )}
           />

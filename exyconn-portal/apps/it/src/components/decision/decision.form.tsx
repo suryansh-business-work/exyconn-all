@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -56,7 +56,12 @@ export function DecisionForm({ onDecide, onDone, onCancel }: Readonly<DecisionFo
       onCancel={onCancel}
       submitLabel="Record decision"
     >
-      <RhfSelect name="decision" label="Decision" options={DECISION_OPTIONS} />
+      <RhfSelect
+        name="decision"
+        label="Decision"
+        options={DECISION_OPTIONS}
+        helperText="Approve to let the work go ahead, or reject to stop it."
+      />
       <RhfTextField
         name="note"
         label="Note"

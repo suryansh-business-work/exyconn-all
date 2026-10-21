@@ -41,6 +41,8 @@ describe('ActionCommentForm', () => {
     cy.contains('button', 'Add comment').click();
     cy.get('@done').should('not.have.been.called');
     cy.get('textarea[name="text"]').should('have.value', 'On it');
+    // An error toast stays until it is dismissed, and it sits over the form's buttons.
+    cy.get('[role="alert"]').should('be.visible').find('[aria-label="Close"]').click();
     cy.contains('button', 'Cancel').click();
     cy.get('textarea[name="text"]').should('have.value', '');
   });

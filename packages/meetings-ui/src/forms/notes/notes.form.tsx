@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button } from '@exyconn/shell/components/ui';
@@ -93,8 +93,20 @@ export function NotesForm({
           {failure}
         </Alert>
       )}
-      <RhfTextField name="executiveSummary" label="Executive summary" multiline minRows={2} />
-      <RhfTextField name="overview" label="Overview" multiline minRows={4} />
+      <RhfTextField
+        name="executiveSummary"
+        label="Executive summary"
+        multiline
+        minRows={2}
+        helperText="A few lines on the outcome, for readers who will not read further."
+      />
+      <RhfTextField
+        name="overview"
+        label="Overview"
+        multiline
+        minRows={4}
+        helperText="What the meeting covered, in more detail than the summary."
+      />
       {LIST_SECTIONS.map((section) => (
         <RhfTextField
           key={section.key}

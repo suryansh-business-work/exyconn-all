@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useFieldCopy } from './useFieldCopy';
+import { useFieldMeta } from './useFieldMeta';
 import {
   Box,
   FormControl,
@@ -28,6 +29,8 @@ interface RhfRadioGroupProps {
   helperText?: ReactNode;
   /** Shown under the group whatever is chosen — an example, a warning. */
   children?: ReactNode;
+  /** Marks the label with the required star; by default the schema decides. */
+  required?: boolean;
 }
 
 /**
@@ -39,9 +42,11 @@ export function RhfRadioGroup({
   label,
   options,
   helperText,
+  required,
   children,
 }: Readonly<RhfRadioGroupProps>) {
   const { control } = useFormContext();
+  const meta = useFieldMeta<ReactNode>(name, { required, helperText });
   const copy = useFieldCopy();
   const labelId = useId();
   const hintId = useId();
@@ -51,7 +56,9 @@ export function RhfRadioGroup({
       control={control}
       render={({ field, fieldState }) => (
         <FormControl error={Boolean(fieldState.error)}>
-          <FormLabel id={labelId}>{copy(label)}</FormLabel>
+          <FormLabel id={labelId} required={meta.required}>
+            {copy(label)}
+          </FormLabel>
           <RadioGroup
             {...field}
             aria-labelledby={labelId}
@@ -85,7 +92,7 @@ export function RhfRadioGroup({
             ))}
           </RadioGroup>
           <FormHelperText id={hintId} role={fieldState.error ? 'alert' : undefined}>
-            {copy(fieldState.error?.message ?? helperText)}
+            {copy(fieldState.error?.message ?? meta.helperText)}
           </FormHelperText>
           {children}
         </FormControl>

@@ -47,9 +47,9 @@ describe('AiModelPriceForm', () => {
 
   it('starts a new price at zero, active, with an editable model name', () => {
     renderForm();
-    expect(screen.getByLabelText('Model')).toBeEnabled();
-    expect(screen.getByLabelText('Input price (USD / 1K tokens)')).toHaveValue('0');
-    expect(screen.getByLabelText('Output price (USD / 1K tokens)')).toHaveValue('0');
+    expect(screen.getByLabelText(/^Model\s*\*?$/)).toBeEnabled();
+    expect(screen.getByLabelText(/^Input price \(USD \/ 1K tokens\)\s*\*?$/)).toHaveValue('0');
+    expect(screen.getByLabelText(/^Output price \(USD \/ 1K tokens\)\s*\*?$/)).toHaveValue('0');
     expect(screen.getByRole('combobox', { name: /^Use this price/ })).toHaveTextContent('Yes');
     expect(screen.getByText(/we never guess a rate/)).toBeInTheDocument();
   });
@@ -97,8 +97,10 @@ describe('AiModelPriceForm', () => {
 
   it('corrects a stored price without renaming the model and can switch it off', async () => {
     renderForm(stored());
-    expect(screen.getByLabelText('Model')).toBeDisabled();
-    expect(screen.getByLabelText('Input price (USD / 1K tokens)')).toHaveValue('0.00015');
+    expect(screen.getByLabelText(/^Model\s*\*?$/)).toBeDisabled();
+    expect(screen.getByLabelText(/^Input price \(USD \/ 1K tokens\)\s*\*?$/)).toHaveValue(
+      '0.00015',
+    );
     await pickOption(/^Use this price/, 'No');
     await press('Save price');
 

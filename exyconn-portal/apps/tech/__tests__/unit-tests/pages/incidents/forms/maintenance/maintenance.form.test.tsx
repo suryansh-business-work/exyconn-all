@@ -135,7 +135,7 @@ describe('MaintenanceForm', () => {
 
   it('reschedules a stored window by its id', async () => {
     renderForm(stored);
-    expect(screen.getByLabelText('Title')).toHaveValue('Database upgrade');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Database upgrade');
     fill('Ends', '2026-11-01T13:00:00.000Z');
     await press('Update');
 

@@ -32,8 +32,10 @@ async function choose(label: string, option: string) {
 
 /** Fills the fields a new employee cannot be saved without, then submits. */
 async function fillAndCreate() {
-  fireEvent.change(await screen.findByLabelText('Name'), { target: { value: 'Kiran Rao' } });
-  fireEvent.change(screen.getByLabelText('Official email'), {
+  fireEvent.change(await screen.findByLabelText(/^Name\s*\*?$/), {
+    target: { value: 'Kiran Rao' },
+  });
+  fireEvent.change(screen.getByLabelText(/^Official email\s*\*?$/), {
     target: { value: 'kiran@acme.test' },
   });
   await choose('Department', 'People');
@@ -41,11 +43,11 @@ async function fillAndCreate() {
   fireEvent.change(input('joinDate'), { target: { value: '04/15/2026' } });
   fireEvent.change(input('effectiveFrom'), { target: { value: '04/15/2026' } });
   // The test workspace has no company currency, so it is picked by hand.
-  fireEvent.change(screen.getByRole('combobox', { name: 'Currency' }), {
+  fireEvent.change(screen.getByRole('combobox', { name: /^Currency\s*\*?$/ }), {
     target: { value: 'Indian Rupee' },
   });
   await userEvent.click(await screen.findByRole('option', { name: /Indian Rupee/ }, SLOW));
-  fireEvent.change(screen.getByLabelText('Basic'), { target: { value: '42000' } });
+  fireEvent.change(screen.getByLabelText(/^Basic\s*\*?$/), { target: { value: '42000' } });
   await userEvent.click(screen.getByRole('button', { name: 'Create' }));
 }
 
@@ -65,8 +67,8 @@ describe('UserForm — creating an employee', () => {
       expect(
         screen.getByText('A temporary password will be emailed to the user.'),
       ).toBeInTheDocument();
-      expect(screen.queryByLabelText('New password (optional)')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Loading compensation')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/^New password \(optional\)\s*\*?$/)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/^Loading compensation\s*\*?$/)).not.toBeInTheDocument();
       // A new employee has no saved address to verify yet.
       expect(screen.queryByRole('button', { name: 'Verify' })).not.toBeInTheDocument();
       expect(

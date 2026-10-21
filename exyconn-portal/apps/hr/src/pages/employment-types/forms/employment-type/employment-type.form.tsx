@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -61,9 +61,19 @@ export function EmploymentTypeForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="code" label="Code" />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="How people are engaged, e.g. Full-time, Intern or Contractor."
+      />
+      <RhfTextField name="code" label="Code" helperText="A short reference, e.g. FT." />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="Optional. What sets this type apart, e.g. notice period or benefits."
+      />
       <RhfSwitch name="payrollEligible" label="Payroll eligible" />
       <RhfSwitch name="active" label="Active" />
     </EntityForm>

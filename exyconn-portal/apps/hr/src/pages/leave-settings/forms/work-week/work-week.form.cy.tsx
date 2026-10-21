@@ -38,10 +38,16 @@ const day = (name: string) => cy.contains('[role="button"]', name);
 describe('WorkWeekForm', () => {
   it('opens on the saved week', () => {
     mount();
-    day('Monday').should('have.attr', 'aria-pressed', 'true');
-    day('Friday').should('have.attr', 'aria-pressed', 'true');
-    day('Saturday').should('have.attr', 'aria-pressed', 'false');
-    day('Sunday').should('have.attr', 'aria-pressed', 'false');
+    for (const [name, pressed] of [
+      ['Monday', 'true'],
+      ['Friday', 'true'],
+      ['Saturday', 'false'],
+      ['Sunday', 'false'],
+    ]) {
+      day(name).should(($day) => {
+        expect($day).to.have.attr('aria-pressed', pressed);
+      });
+    }
   });
 
   it('refuses a week with no working day', () => {

@@ -131,6 +131,7 @@ export function EmploymentFields({
         name="employmentStatus"
         label="Employment status"
         options={EMPLOYMENT_STATUS_OPTIONS}
+        helperText="Whether they are working, on leave or have left the company."
       />
       <PlacementFields />
       <PlaceOfEmploymentFields />
@@ -153,7 +154,12 @@ export function WorkArrangementFields() {
 
   return (
     <>
-      <RhfSelect name="workingTime" label="Working time" options={WORKING_TIME_OPTIONS} />
+      <RhfSelect
+        name="workingTime"
+        label="Working time"
+        options={WORKING_TIME_OPTIONS}
+        helperText="Fixed hours, flexible hours, or another arrangement you describe."
+      />
       {workingTime === WorkingTime.Other && (
         <RhfTextField
           name="workingTimeNote"
@@ -161,7 +167,12 @@ export function WorkArrangementFields() {
           helperText="Describe the arrangement, e.g. “Four days, Mon–Thu”."
         />
       )}
-      <RhfSelect name="workLocation" label="Work location" options={WORK_LOCATION_OPTIONS} />
+      <RhfSelect
+        name="workLocation"
+        label="Work location"
+        options={WORK_LOCATION_OPTIONS}
+        helperText="Where they usually work from: office, home, hybrid or somewhere else."
+      />
       {workLocation === WorkLocation.Other && (
         <RhfTextField
           name="workLocationNote"

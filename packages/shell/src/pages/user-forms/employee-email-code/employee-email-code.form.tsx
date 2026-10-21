@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { ONE_TIME_CODE } from '@exyconn/regex';
 import { useT } from '@exyconn/i18n';

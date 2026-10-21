@@ -37,7 +37,7 @@ function setup(managerComment: string | null = null) {
   return { onCancel, onDone };
 }
 
-const field = () => screen.getByLabelText('Your comment');
+const field = () => screen.getByLabelText(/^Your comment\s*\*?$/);
 const save = () => userEvent.click(screen.getByRole('button', { name: 'Save comment' }));
 
 beforeEach(() => {

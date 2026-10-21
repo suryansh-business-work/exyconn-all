@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import {
   RhfAutocomplete,
   RhfSelect,
@@ -73,7 +73,12 @@ export function ShareWithClientForm({
       submitLabel="Share"
       onCancel={onCancel}
     >
-      <RhfSelect name="kind" label="What to share" options={KIND_OPTIONS} />
+      <RhfSelect
+        name="kind"
+        label="What to share"
+        options={KIND_OPTIONS}
+        helperText="The kind of Legal record. Changing it clears the record picked below."
+      />
       <RhfAutocomplete
         name="refId"
         label="Record"

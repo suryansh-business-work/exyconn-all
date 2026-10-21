@@ -20,7 +20,7 @@ export function VerifiedEmailList({ emails }: Readonly<{ emails: readonly Checke
     <ContactPointList
       scheme="mailto"
       points={emails.map((email) => ({ ...email, value: email.address }))}
-      trailing={(address) => (
+      renderTrailing={(address) => (
         <EmailVerifyButton email={address} verification={checks.get(address) ?? null} />
       )}
     />

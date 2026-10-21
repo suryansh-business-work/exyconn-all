@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -75,6 +75,7 @@ export function SlaPolicyForm({ initial, onDone, onCancel }: Readonly<SlaPolicyF
         name="priority"
         label="Priority"
         options={enumOptions(Object.values(SupportPriority))}
+        helperText="The ticket priority these targets apply to."
       />
       <RhfTextField
         name="firstResponseMinutes"

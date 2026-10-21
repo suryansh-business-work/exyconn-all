@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ListEmployeeRequestsPagedDocument,
   RequestStatus,
@@ -7,7 +7,7 @@ import {
 import { RequestsPage } from '../../../../src/pages/requests';
 import { EMPLOYEE_REQUEST_COLUMNS } from '../../../../src/pages/requests/employee-request-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 import { actionKeys, columnIds } from '../../harness/grid';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
@@ -43,7 +43,7 @@ const row = {
   createdAt: '2026-03-04T12:00:00.000Z',
 };
 
-describeCrudPage('RequestsPage', {
+const suite = crudPageSuite({
   page: <RequestsPage />,
   mocks: gql,
   statsKey: 'listEmployeeRequestsStats',
@@ -62,6 +62,13 @@ describeCrudPage('RequestsPage', {
   row,
   confirm: 'Delete this request?',
   entity: 'EmployeeRequest',
+});
+
+describe('RequestsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('EMPLOYEE_REQUEST_COLUMNS', () => {

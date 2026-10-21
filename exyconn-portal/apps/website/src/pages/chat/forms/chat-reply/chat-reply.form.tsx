@@ -1,6 +1,6 @@
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import MicIcon from '@mui/icons-material/Mic';
@@ -118,6 +118,7 @@ export function ChatReplyForm({ maxUploadMb, onSend, onTyping }: Readonly<ChatRe
             <RhfTextField
               name="body"
               label="Reply"
+              helperText="Sent to the visitor live, up to 2000 characters. May be empty when you attach a file."
               placeholder={t('Write a reply… (Enter sends, Shift+Enter for a new line)')}
               multiline
               maxRows={6}

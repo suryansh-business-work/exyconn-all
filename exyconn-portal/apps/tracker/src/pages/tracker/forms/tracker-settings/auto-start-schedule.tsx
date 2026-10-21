@@ -38,7 +38,12 @@ export function AutoStartScheduleFields() {
               sm: 6,
             }}
           >
-            <RhfTimePicker name="autoStartHour" label="Start at" hoursOnly />
+            <RhfTimePicker
+              name="autoStartHour"
+              label="Start at"
+              hoursOnly
+              helperText="The hour tracking starts on its own each day."
+            />
           </Grid>
           <Grid
             size={{

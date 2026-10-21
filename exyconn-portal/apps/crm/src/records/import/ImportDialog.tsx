@@ -57,8 +57,13 @@ export function ImportDialog({ object, onImported, onClose }: Readonly<ImportDia
       matchLabel: dedupe ? propertyLabel(t, dedupe) : dedupeKey,
       synonyms: HEADER_SYNONYMS,
       templateFormats: [TableFileFormat.Csv],
-      downloadTemplate: async () =>
-        downloadCsvTemplate(`${object.toLowerCase()}-import-template`, labels),
+      // A promise whose executor throws rejects, so a failed download still reaches the
+      // dialog's error toast.
+      downloadTemplate: () =>
+        new Promise<void>((resolve) => {
+          downloadCsvTemplate(`${object.toLowerCase()}-import-template`, labels);
+          resolve();
+        }),
       loadError: error ? t('The properties could not be loaded.') : null,
       runChunk: async (rows: ImportRow[], mode: CrmImportMode, firstRowNumber: number) => {
         const { data } = await importRecords({

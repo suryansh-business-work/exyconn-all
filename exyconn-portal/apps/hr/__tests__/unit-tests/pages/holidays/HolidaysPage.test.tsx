@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { HolidayType, ListHolidaysPagedDocument } from '@exyconn/shell/graphql/generated';
 import { HolidaysPage } from '../../../../src/pages/holidays';
 import { HOLIDAY_COLUMNS } from '../../../../src/pages/holidays/holiday-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -26,7 +26,7 @@ vi.mock('../../../../src/pages/holidays/forms/holiday', async () => ({
   HolidayForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('HolidaysPage', {
+const suite = crudPageSuite({
   page: <HolidaysPage />,
   mocks: gql,
   statsKey: 'listHolidaysStats',
@@ -45,4 +45,11 @@ describeCrudPage('HolidaysPage', {
   row: { id: 'holiday-9', name: 'Diwali', type: HolidayType.Public, country: 'IN' },
   confirm: 'Delete this holiday?',
   entity: 'Holiday',
+});
+
+describe('HolidaysPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

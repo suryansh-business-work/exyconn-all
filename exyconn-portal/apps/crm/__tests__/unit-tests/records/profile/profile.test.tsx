@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
@@ -16,6 +16,15 @@ import {
   type ProfileValues,
 } from '../../../../src/records/profile';
 import { renderWithProviders } from '../../test-utils';
+
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
 
 describe('profile schema', () => {
   const valid: ProfileValues = {
@@ -46,7 +55,11 @@ describe('profile schema', () => {
   it('requires a valid email address and a short label', () => {
     const blank = emailPointSchema.safeParse({ address: ' ', label: 'Work', primary: false });
     expect(blank.error?.issues[0].message).toBe('Enter the address');
-    const wrong = emailPointSchema.safeParse({ address: 'nope', label: 'x'.repeat(41), primary: false });
+    const wrong = emailPointSchema.safeParse({
+      address: 'nope',
+      label: 'x'.repeat(41),
+      primary: false,
+    });
     expect(wrong.error?.issues.map((issue) => issue.message)).toEqual([
       'Enter a valid email',
       'Keep the label short',
@@ -142,10 +155,13 @@ describe('ContactPointsField', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add email' }));
     await userEvent.click(screen.getByRole('button', { name: 'Add email' }));
-    const [first, second] = screen.getAllByLabelText('Email');
+    const [first, second] = screen.getAllByLabelText(/^Email\s*\*?$/);
     await userEvent.type(first, 'a@b.io');
     await userEvent.type(second, 'c@d.io');
-    expect(screen.getByRole('button', { name: 'Primary 1' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Primary 1' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     expect(screen.getByRole('button', { name: 'Make primary 2' })).toHaveAttribute(
       'aria-pressed',
       'false',
@@ -196,7 +212,12 @@ function PhonesHarness({ onSubmit }: Readonly<{ onSubmit: (values: unknown) => v
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <ContactPointsField name="phones" title="Phone numbers" inputLabel="Phone" addLabel="Add phone" />
+        <ContactPointsField
+          name="phones"
+          title="Phone numbers"
+          inputLabel="Phone"
+          addLabel="Add phone"
+        />
         <button type="submit">Save</button>
       </form>
     </FormProvider>
@@ -208,7 +229,7 @@ describe('ContactPointsField for phones', () => {
     const onSubmit = vi.fn();
     renderWithProviders(<PhonesHarness onSubmit={onSubmit} />);
     await userEvent.click(screen.getByRole('button', { name: 'Add phone' }));
-    await userEvent.type(screen.getByLabelText('Phone'), '+91 98765 43210');
+    await userEvent.type(screen.getByLabelText(/^Phone\s*\*?$/), '+91 98765 43210');
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() =>
       expect(onSubmit.mock.calls[0][0]).toEqual({
@@ -233,10 +254,12 @@ describe('ProfileFields', () => {
     expect(screen.getByRole('heading', { name: 'Online' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Location' })).toBeInTheDocument();
     for (const label of ['Website', 'LinkedIn', 'X (Twitter)', 'Address', 'City']) {
-      expect(screen.getByLabelText(label)).toBeInTheDocument();
+      expect(screen.getByLabelText(labelled(label))).toBeInTheDocument();
     }
-    expect(screen.getByLabelText('About the company')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('combobox', { name: 'Country' }));
-    expect(within(screen.getByRole('listbox')).getByRole('option', { name: 'India' })).toBeVisible();
+    expect(screen.getByLabelText(/^About the company\s*\*?$/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('combobox', { name: /^Country\s*\*?$/ }));
+    expect(
+      within(screen.getByRole('listbox')).getByRole('option', { name: 'India' }),
+    ).toBeVisible();
   });
 });

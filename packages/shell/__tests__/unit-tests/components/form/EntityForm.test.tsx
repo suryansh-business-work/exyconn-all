@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { I18nProvider } from '@exyconn/i18n';
 import { NotificationProvider } from '@/components/feedback/NotificationProvider';
 import { EntityForm } from '@/components/form/EntityForm';
@@ -54,7 +54,7 @@ describe('EntityForm', () => {
     );
     renderWithProviders(<LeadForm onSubmit={onSubmit} onCancel={vi.fn()} submitLabel="Send" />);
 
-    await userEvent.type(screen.getByLabelText('Name'), 'Acme');
+    await userEvent.type(screen.getByLabelText(/^Name\s*\*?$/), 'Acme');
     await userEvent.click(screen.getByRole('button', { name: 'Send' }));
 
     expect(await screen.findByRole('button', { name: /Saving…/ })).toBeInTheDocument();

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
 import {
@@ -80,11 +80,29 @@ export function EmployeeDocumentForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfSelect name="kind" label="Type" options={enumOptions(Object.values(DocumentKind))} />
-      <RhfTextField name="title" label="Title" />
-      <RhfTextField name="url" label="File link" />
-      <RhfDatePicker name="issuedOn" label="Issued on" />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee the document belongs to; it shows under their Documents."
+      />
+      <RhfSelect
+        name="kind"
+        label="Type"
+        options={enumOptions(Object.values(DocumentKind))}
+        helperText="What sort of document it is, e.g. offer letter or payslip."
+      />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="The name the employee sees, e.g. Offer letter 2026."
+      />
+      <RhfTextField
+        name="url"
+        label="File link"
+        helperText="A full link to the file, starting with https://."
+      />
+      <RhfDatePicker name="issuedOn" label="Issued on" helperText="The date on the document." />
     </EntityForm>
   );
 }

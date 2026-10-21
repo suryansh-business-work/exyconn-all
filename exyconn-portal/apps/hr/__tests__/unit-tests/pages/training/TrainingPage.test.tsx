@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ListTrainingsPagedDocument, TrainingStatus } from '@exyconn/shell/graphql/generated';
 import { TrainingPage } from '../../../../src/pages/training';
 import { TRAINING_COLUMNS } from '../../../../src/pages/training/training-grid';
 import { renderWithProviders } from '../../test-utils';
 import { dashboardProps } from '../../harness/crud-dashboard';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -31,7 +31,7 @@ vi.mock('../../../../src/pages/training/forms/training', async () => ({
   TrainingForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('TrainingPage', {
+const suite = crudPageSuite({
   page: <TrainingPage />,
   mocks: gql,
   statsKey: 'listTrainingsStats',
@@ -58,6 +58,13 @@ describeCrudPage('TrainingPage', {
   },
   confirm: 'Delete this training?',
   entity: 'Training',
+});
+
+describe('TrainingPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('TrainingPage employee names', () => {

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField, RhfSelect, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -58,13 +58,24 @@ export function CannedReplyForm({ initial, onDone, onCancel }: Readonly<CannedRe
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Snippet name" />
+      <RhfTextField
+        name="title"
+        label="Snippet name"
+        helperText="Name it for what it does so agents find it fast, e.g. Ask for a screenshot."
+      />
       <RhfSelect
         name="category"
         label="Category"
         options={enumOptions(Object.values(SupportCategory))}
+        helperText="The kind of ticket it fits, e.g. IT or Payroll."
       />
-      <RhfTextField name="body" label="Text" multiline rows={6} />
+      <RhfTextField
+        name="body"
+        label="Text"
+        multiline
+        rows={6}
+        helperText="Inserted into the reply as written; at least 10 characters."
+      />
       {/* A retired snippet stays in the register but is not offered in the composer. */}
       <RhfSwitch name="isActive" label="Offer in the composer" />
     </EntityForm>

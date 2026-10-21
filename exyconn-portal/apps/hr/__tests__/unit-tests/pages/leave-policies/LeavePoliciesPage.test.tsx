@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListLeavePoliciesPagedDocument } from '@exyconn/shell/graphql/generated';
 import { LeavePoliciesPage } from '../../../../src/pages/leave-policies';
 import { LEAVE_POLICY_COLUMNS } from '../../../../src/pages/leave-policies/leave-policy-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -26,7 +26,7 @@ vi.mock('../../../../src/pages/leave-policies/forms/leave-policy', async () => (
   LeavePolicyForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('LeavePoliciesPage', {
+const suite = crudPageSuite({
   page: <LeavePoliciesPage />,
   mocks: gql,
   statsKey: 'listLeavePoliciesStats',
@@ -48,4 +48,11 @@ describeCrudPage('LeavePoliciesPage', {
   row: { id: 'policy-3', name: 'Sick leave', code: 'SICK' },
   confirm: 'Delete this leave type?',
   entity: 'LeavePolicy',
+});
+
+describe('LeavePoliciesPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

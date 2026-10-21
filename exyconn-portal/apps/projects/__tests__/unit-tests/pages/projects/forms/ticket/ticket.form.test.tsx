@@ -134,8 +134,8 @@ describe('TicketForm', () => {
         dueDate: '2026-11-01T00:00:00.000Z',
       }),
     );
-    expect(screen.getByLabelText('Summary')).toHaveValue('Login fails');
-    expect(screen.getByLabelText('Story points')).toHaveValue('0');
+    expect(screen.getByLabelText(/^Summary\s*\*?$/)).toHaveValue('Login fails');
+    expect(screen.getByLabelText(/^Story points\s*\*?$/)).toHaveValue('0');
 
     await press('Save ticket');
 

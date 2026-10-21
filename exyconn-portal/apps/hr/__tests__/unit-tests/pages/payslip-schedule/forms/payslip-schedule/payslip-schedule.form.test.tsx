@@ -26,7 +26,7 @@ function renderForm(initial: PayslipScheduleRow = payslipSchedule()) {
 
 const timeInput = () =>
   document.querySelector<HTMLInputElement>('input[name="time"]') as HTMLInputElement;
-const save = () => userEvent.click(screen.getByRole('button', { name: 'Save schedule' }));
+const clickSave = () => userEvent.click(screen.getByRole('button', { name: 'Save schedule' }));
 
 async function choose(field: RegExp, option: string) {
   await userEvent.click(screen.getByRole('combobox', { name: field }));
@@ -52,7 +52,7 @@ describe('PayslipScheduleForm', () => {
   it('saves the schedule as an hour and a minute and says it is on', async () => {
     const { onDone } = renderForm();
 
-    await save();
+    await clickSave();
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.save).toHaveBeenCalledWith({
@@ -70,7 +70,7 @@ describe('PayslipScheduleForm', () => {
     await choose(/Day of the month/, 'Day 28');
     fireEvent.change(timeInput(), { target: { value: '06:05 PM' } });
     await choose(/Send payslips for/, 'The current month');
-    await save();
+    await clickSave();
 
     await waitFor(() => expect(gql.save).toHaveBeenCalledTimes(1));
     expect(gql.save).toHaveBeenCalledWith({
@@ -96,7 +96,7 @@ describe('PayslipScheduleForm', () => {
     renderForm();
 
     fireEvent.change(timeInput(), { target: { value: '' } });
-    await save();
+    await clickSave();
 
     expect(await screen.findByText('Pick a time')).toBeInTheDocument();
     expect(gql.save).not.toHaveBeenCalled();
@@ -105,7 +105,7 @@ describe('PayslipScheduleForm', () => {
   it('refuses a stored day past the 28th and a month it does not know', async () => {
     renderForm(payslipSchedule({ dayOfMonth: 31, period: 'WEEKLY' }));
 
-    await save();
+    await clickSave();
 
     expect(
       await screen.findByText('The latest is the 28th, so every month has it'),
@@ -118,7 +118,7 @@ describe('PayslipScheduleForm', () => {
     gql.save.mockRejectedValue(new Error('Schedule is locked'));
     const { onDone } = renderForm();
 
-    await save();
+    await clickSave();
 
     expect(await screen.findByText('Schedule is locked')).toBeInTheDocument();
     expect(onDone).not.toHaveBeenCalled();
@@ -128,7 +128,7 @@ describe('PayslipScheduleForm', () => {
     gql.save.mockRejectedValue('offline');
     renderForm();
 
-    await save();
+    await clickSave();
 
     expect(await screen.findByText('Could not save the schedule')).toBeInTheDocument();
   });

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { HTTP_URL, SONAR_PROJECT_KEY } from '@exyconn/regex';
 import {
@@ -139,7 +139,12 @@ export function SonarConfigForm({ initial, onDone, onCancel }: Readonly<SonarCon
         label="Organization key"
         helperText="SonarCloud only; leave blank for a self-hosted SonarQube"
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

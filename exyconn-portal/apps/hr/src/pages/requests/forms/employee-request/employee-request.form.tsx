@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField, RhfSelect, RhfAutocomplete } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -77,12 +77,41 @@ export function EmployeeRequestForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfSelect name="type" label="Type" options={enumOptions(Object.values(RequestType))} />
-      <RhfTextField name="subject" label="Subject" />
-      <RhfTextField name="details" label="Details" multiline minRows={3} />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(RequestStatus))} />
-      <RhfTextField name="decisionNote" label="Decision note" />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee the request is from."
+      />
+      <RhfSelect
+        name="type"
+        label="Type"
+        options={enumOptions(Object.values(RequestType))}
+        helperText="What is being asked for, e.g. work from home, a reimbursement or a document."
+      />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="A one-line summary of the request."
+      />
+      <RhfTextField
+        name="details"
+        label="Details"
+        multiline
+        minRows={3}
+        helperText="What the employee needs, with any dates or amounts."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(RequestStatus))}
+        helperText="Pending until decided, then Approved or Rejected."
+      />
+      <RhfTextField
+        name="decisionNote"
+        label="Decision note"
+        helperText="Optional. Why it was approved or rejected."
+      />
     </EntityForm>
   );
 }

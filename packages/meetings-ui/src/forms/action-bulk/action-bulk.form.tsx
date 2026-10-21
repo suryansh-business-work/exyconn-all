@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
@@ -78,11 +78,13 @@ export function ActionBulkForm({ ids, onDone, onCancel }: Readonly<ActionBulkFor
             name="status"
             label="Set status"
             options={options(Object.values(MaActionStatus))}
+            helperText="Applied to every selected item; leave as it is to keep each one's status."
           />
           <RhfSelect
             name="priority"
             label="Set priority"
             options={options(Object.values(MaPriority))}
+            helperText="Applied to every selected item; leave as it is to keep each one's priority."
           />
         </Flex>
       </EntityForm>

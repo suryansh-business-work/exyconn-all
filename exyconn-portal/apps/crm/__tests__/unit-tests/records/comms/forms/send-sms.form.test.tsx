@@ -57,7 +57,7 @@ describe('SendSmsForm', () => {
     );
     expect(gql.options).toHaveBeenCalledWith({ refetchQueries: [CrmTimelineDocument] });
     expect(await screen.findByText('SMS sent to Ada Lovelace')).toBeInTheDocument();
-    expect(screen.getByLabelText('Message')).toHaveValue('');
+    expect(screen.getByLabelText(/^Message\s*\*?$/)).toHaveValue('');
   });
 
   it('sends for a company record', async () => {
@@ -114,7 +114,7 @@ describe('SendSmsForm', () => {
 
     expect(await screen.findByText('SMS provider rejected the number')).toBeInTheDocument();
     expect(warn).toHaveBeenCalledWith('crm: sending an SMS failed', failure);
-    expect(screen.getByLabelText('Message')).toHaveValue('Hello Ada');
+    expect(screen.getByLabelText(/^Message\s*\*?$/)).toHaveValue('Hello Ada');
   });
 
   it('keeps the draft for the next mount and starts from it', async () => {
@@ -129,7 +129,7 @@ describe('SendSmsForm', () => {
     writeMemory(PANEL.key, 'sms-draft', { to: '+442079460958', body: 'Saved draft' });
     renderForm();
 
-    expect(screen.getByLabelText('Message')).toHaveValue('Saved draft');
+    expect(screen.getByLabelText(/^Message\s*\*?$/)).toHaveValue('Saved draft');
   });
 
   it('cancels through the panel', async () => {

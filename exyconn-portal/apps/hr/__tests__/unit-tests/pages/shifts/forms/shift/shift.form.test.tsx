@@ -46,7 +46,7 @@ describe('ShiftForm', () => {
     pickDate('endTime', '06:30 AM');
     setNumber('Break (minutes)', '45');
     setNumber('Grace (minutes)', '10');
-    await userEvent.click(screen.getByLabelText('Active'));
+    await userEvent.click(screen.getByLabelText(/^Active\s*\*?$/));
     await press('Create');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -68,8 +68,8 @@ describe('ShiftForm', () => {
 
   it('opens an existing shift with its values and updates it by id', async () => {
     renderForm(ROW);
-    expect(screen.getByLabelText('Name')).toHaveValue('Morning');
-    expect(screen.getByLabelText('Active')).toBeChecked();
+    expect(screen.getByLabelText(/^Name\s*\*?$/)).toHaveValue('Morning');
+    expect(screen.getByLabelText(/^Active\s*\*?$/)).toBeChecked();
     setNumber('Grace (minutes)', '0');
     await press('Update');
 
@@ -94,9 +94,9 @@ describe('ShiftForm', () => {
   it('starts a new shift inactive, with no break and no grace', () => {
     renderForm();
 
-    expect(screen.getByLabelText('Active')).not.toBeChecked();
-    expect(screen.getByRole('spinbutton', { name: 'Break (minutes)' })).toHaveValue(0);
-    expect(screen.getByRole('spinbutton', { name: 'Grace (minutes)' })).toHaveValue(0);
+    expect(screen.getByLabelText(/^Active\s*\*?$/)).not.toBeChecked();
+    expect(screen.getByRole('spinbutton', { name: /^Break \(minutes\)\s*\*?$/ })).toHaveValue(0);
+    expect(screen.getByRole('spinbutton', { name: /^Grace \(minutes\)\s*\*?$/ })).toHaveValue(0);
   });
 
   it('asks for the name, code and both times before anything is sent', async () => {

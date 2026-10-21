@@ -40,7 +40,7 @@ describe('ClientTicketForm', () => {
 
   it('opens empty, as an Other ticket at Medium priority, with a hint on the address', () => {
     renderForm();
-    expect(screen.getByLabelText('Customer name')).toHaveValue('');
+    expect(screen.getByLabelText(/^Customer name\s*\*?$/)).toHaveValue('');
     expect(screen.getByRole('combobox', { name: /^Category/ })).toHaveTextContent('Other');
     expect(screen.getByRole('combobox', { name: /^Priority/ })).toHaveTextContent('Medium');
     expect(
@@ -103,8 +103,8 @@ describe('ClientTicketForm', () => {
       },
     });
     expect(await screen.findByText('Ticket SUP-0042 raised')).toBeInTheDocument();
-    expect(screen.getByLabelText('Customer name')).toHaveValue('');
-    expect(screen.getByLabelText('Subject')).toHaveValue('');
+    expect(screen.getByLabelText(/^Customer name\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Subject\s*\*?$/)).toHaveValue('');
   });
 
   it('still confirms the ticket when the server returns no reference', async () => {
@@ -125,7 +125,7 @@ describe('ClientTicketForm', () => {
 
     expect(await screen.findByText('Too many tickets from this address')).toBeInTheDocument();
     expect(onDone).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('Subject')).toHaveValue('Portal will not load');
+    expect(screen.getByLabelText(/^Subject\s*\*?$/)).toHaveValue('Portal will not load');
   });
 
   it('falls back to a plain failure message when the error says nothing', async () => {

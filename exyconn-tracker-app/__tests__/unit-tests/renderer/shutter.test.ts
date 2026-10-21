@@ -77,7 +77,9 @@ describe('playShutter', () => {
     const { playShutter } = await load();
 
     expect(() => playShutter()).not.toThrow();
-    expect(warn).toHaveBeenCalledWith('Camera shutter sound could not play', broken);
+    await vi.waitFor(() =>
+      expect(warn).toHaveBeenCalledWith('Camera shutter sound could not play', broken),
+    );
   });
 
   it('stops trying once the file has failed to load', async () => {

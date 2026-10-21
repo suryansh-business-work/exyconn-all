@@ -105,7 +105,7 @@ describe('SupplierForm', () => {
   it('updates an existing supplier by id with its new status and contact details', async () => {
     const { onDone } = renderForm(supplierRow({ id: 'supplier-1' }));
 
-    expect(screen.getByLabelText('Supplier name')).toHaveValue('Acme Supplies');
+    expect(screen.getByLabelText(/^Supplier name\s*\*?$/)).toHaveValue('Acme Supplies');
     await fillField('Phone', '+91 98765 43210');
     await chooseOption('Status', 'On Hold');
     await press('Update');

@@ -16,6 +16,7 @@ import { reportBranding } from './tracker.report.file';
 import { buildHoursReportPdf, formatHm } from './tracker.report.pdf';
 import { getTrackerSettings, type TrackerSettingsLean } from './tracker.settings.service';
 import { isValidTimezone, zonedDateKey, zonedHour } from './tracker.timezone';
+import { inSequence } from '../../utils/inSequence';
 
 /** Checked every five minutes: an evening report lands within minutes of its hour. */
 const TICK_MS = 5 * 60_000;
@@ -171,22 +172,25 @@ export async function runEmployeeReports(now: Date = new Date()): Promise<number
   const accesses = await TrackerAccessModel.find({ isActive: true })
     .select('userId timezone')
     .lean();
-  let sent = 0;
-  for (const access of accesses) {
+  // Every report due now, across people and periods. Sent one at a time so a large company
+  // does not open hundreds of mail connections at once.
+  const due = accesses.flatMap((access) => {
     const zone = zoneOf(access.timezone, settings.defaultTimezone, company.timezone);
-    if (zonedHour(now, zone) < settings.employeeReportHour) continue;
-    const todayKey = zonedDateKey(now, zone);
-    for (const period of periodsDue(todayKey, settings)) {
-      try {
-        sent += (await sendEmployeeReport(access.userId, period, todayKey, zone)) ? 1 : 0;
-      } catch (error) {
-        logger.error(
-          { err: error, userId: access.userId, period },
-          'Tracker employee report failed',
-        );
-      }
+    if (zonedHour(now, zone) < settings.employeeReportHour) {
+      return [];
     }
-  }
+    const todayKey = zonedDateKey(now, zone);
+    return periodsDue(todayKey, settings).map((period) => ({ access, period, todayKey, zone }));
+  });
+  const outcomes = await inSequence(due, async ({ access, period, todayKey, zone }) => {
+    try {
+      return await sendEmployeeReport(access.userId, period, todayKey, zone);
+    } catch (error) {
+      logger.error({ err: error, userId: access.userId, period }, 'Tracker employee report failed');
+      return false;
+    }
+  });
+  const sent = outcomes.filter(Boolean).length;
   recordJobRun(JOB_KEYS.trackerEmployeeReports, `Sent ${sent} employee reports`);
   return sent;
 }

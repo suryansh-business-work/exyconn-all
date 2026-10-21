@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import {
   RhfAutocomplete,
   RhfDatePicker,
@@ -81,7 +81,12 @@ export function AccessRequestForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employees} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employees}
+        helperText="The person whose access should change."
+      />
       <RhfAutocomplete
         name="application"
         label="Application"
@@ -90,12 +95,31 @@ export function AccessRequestForm({
           applications.length === 0 ? 'Add applications in IT Admin Settings first' : undefined
         }
       />
-      {!lockKind && <RhfSelect name="kind" label="Request" options={KIND_OPTIONS} />}
+      {!lockKind && (
+        <RhfSelect
+          name="kind"
+          label="Request"
+          options={KIND_OPTIONS}
+          helperText="Grant new access, change a role, revoke access or reset a password."
+        />
+      )}
       {levelled && (
         <RhfTextField name="accessLevel" label="Role or level" helperText="e.g. Viewer, Editor" />
       )}
-      <RhfTextField name="reason" label="Reason" multiline rows={3} />
-      {levelled && <RhfDatePicker name="expiresAt" label="Temporary until (optional)" />}
+      <RhfTextField
+        name="reason"
+        label="Reason"
+        multiline
+        rows={3}
+        helperText="Why the access is needed, so the approver can decide. Up to 500 characters."
+      />
+      {levelled && (
+        <RhfDatePicker
+          name="expiresAt"
+          label="Temporary until (optional)"
+          helperText="Leave empty for access that does not expire. Must be a future date."
+        />
+      )}
     </EntityForm>
   );
 }

@@ -120,7 +120,11 @@ export function SetupStep({ options, campaign }: Readonly<SetupStepProps>) {
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
-                <RhfDatePicker name="endDate" label="Campaign ends" />
+                <RhfDatePicker
+                  name="endDate"
+                  label="Campaign ends"
+                  helperText="Optional end of the reporting period."
+                />
               </Grid>
             </Grid>
             <RhfSwitch name="trackClicks" label="Track link clicks" />

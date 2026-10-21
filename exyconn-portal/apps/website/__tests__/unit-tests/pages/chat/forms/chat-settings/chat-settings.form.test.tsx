@@ -27,7 +27,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
 const ROW = settingsRow();
 
 const renderForm = () => renderWithProviders(<ChatSettingsForm initial={ROW} />);
-const botName = () => screen.getByLabelText('Bot name');
+const botName = () => screen.getByLabelText(/^Bot name\s*\*?$/);
 const save = () => userEvent.click(screen.getByRole('button', { name: 'Save settings' }));
 
 describe('ChatSettingsForm', () => {
@@ -42,10 +42,12 @@ describe('ChatSettingsForm', () => {
       expect(screen.getByRole('heading', { level: 2, name: heading })).toBeInTheDocument();
     }
     expect(botName()).toHaveValue('Exy');
-    expect(screen.getByLabelText('Largest upload (MB)')).toHaveValue(5);
-    expect(screen.getByLabelText('Bot model')).toHaveValue('gpt-4o');
-    expect(screen.getByLabelText('Custom instructions')).toHaveValue('Friendly, short answers.');
-    expect(screen.getByRole('combobox', { name: 'Timezone' })).toBe(
+    expect(screen.getByLabelText(/^Largest upload \(MB\)\s*\*?$/)).toHaveValue(5);
+    expect(screen.getByLabelText(/^Bot model\s*\*?$/)).toHaveValue('gpt-4o');
+    expect(screen.getByLabelText(/^Custom instructions\s*\*?$/)).toHaveValue(
+      'Friendly, short answers.',
+    );
+    expect(screen.getByRole('combobox', { name: /^Timezone\s*\*?$/ })).toBe(
       screen.getByDisplayValue(/Kolkata/),
     );
   });
@@ -71,7 +73,9 @@ describe('ChatSettingsForm', () => {
   it('saves the settings, then confirms and refreshes them', async () => {
     renderForm();
     fireEvent.change(botName(), { target: { value: '  Exy Bot  ' } });
-    fireEvent.change(screen.getByLabelText('Largest upload (MB)'), { target: { value: '8' } });
+    fireEvent.change(screen.getByLabelText(/^Largest upload \(MB\)\s*\*?$/), {
+      target: { value: '8' },
+    });
     await save();
 
     expect(await screen.findByText('Chatbot settings saved')).toBeInTheDocument();
@@ -86,7 +90,7 @@ describe('ChatSettingsForm', () => {
   it('shows what is wrong and saves nothing', async () => {
     renderForm();
     fireEvent.change(botName(), { target: { value: 'E' } });
-    fireEvent.change(screen.getByLabelText('No-reply timeout (seconds)'), {
+    fireEvent.change(screen.getByLabelText(/^No-reply timeout \(seconds\)\s*\*?$/), {
       target: { value: '5000' },
     });
     await save();

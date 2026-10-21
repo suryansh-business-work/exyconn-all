@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useFormatters, useT } from '@exyconn/i18n';
 import { Alert } from '@exyconn/shell/components/ui';
 import { RhfDateTimePicker, RhfRadioGroup } from '@exyconn/shell/components/form/rhf';
@@ -90,7 +90,12 @@ export function CampaignScheduleForm({
       onCancel={() => methods.reset()}
       submitLabel={timing === 'LATER' ? 'Schedule campaign' : 'Send campaign'}
     >
-      <RhfRadioGroup name="timing" label="When" options={TIMING_OPTIONS} />
+      <RhfRadioGroup
+        name="timing"
+        label="When"
+        options={TIMING_OPTIONS}
+        helperText="Whether the campaign goes out now or at a time you pick."
+      />
       {timing === 'LATER' && (
         <RhfDateTimePicker
           name="scheduledAt"

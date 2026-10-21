@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { CODE, EMAIL, PHONE } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
@@ -69,13 +69,41 @@ export function SupplierForm({ initial, onDone, onCancel }: Readonly<SupplierFor
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Supplier name" />
+      <RhfTextField
+        name="name"
+        label="Supplier name"
+        helperText="The company you buy from, as it appears on their invoices."
+      />
       <RhfTextField name="code" label="Code" helperText="Short reference, e.g. ACME-01" />
-      <RhfTextField name="contactName" label="Contact" />
-      <RhfTextField name="email" label="Email" type="email" />
-      <RhfTextField name="phone" label="Phone" />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfTextField
+        name="contactName"
+        label="Contact"
+        helperText="Optional. The person you deal with there."
+      />
+      <RhfTextField
+        name="email"
+        label="Email"
+        type="email"
+        helperText="Optional. The address you use to reach them, e.g. orders@acme.com."
+      />
+      <RhfTextField
+        name="phone"
+        label="Phone"
+        helperText="Optional. In international format, e.g. +14155550100."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Whether you still buy from this supplier; On hold pauses it for now."
+      />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Payment terms, lead times or anything else worth remembering."
+      />
     </EntityForm>
   );
 }

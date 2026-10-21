@@ -13,13 +13,28 @@ export function CaptureFields() {
   return (
     <Grid container spacing={2}>
       <Grid size={HALF}>
-        <RhfTextField name="intervalMinutes" label="Interval (minutes)" type="number" />
+        <RhfTextField
+          name="intervalMinutes"
+          label="Interval (minutes)"
+          type="number"
+          helperText="Length of each activity block the desktop app records, 1 to 60 minutes."
+        />
       </Grid>
       <Grid size={HALF}>
-        <RhfTextField name="screenshotsPerInterval" label="Screenshots / interval" type="number" />
+        <RhfTextField
+          name="screenshotsPerInterval"
+          label="Screenshots / interval"
+          type="number"
+          helperText="Screenshots taken in each interval, 0 to 10; 0 takes none."
+        />
       </Grid>
       <Grid size={HALF}>
-        <RhfTextField name="idleThresholdSeconds" label="Idle threshold (s)" type="number" />
+        <RhfTextField
+          name="idleThresholdSeconds"
+          label="Idle threshold (s)"
+          type="number"
+          helperText="Seconds without keyboard or mouse input before time counts as idle, 10 to 3600."
+        />
       </Grid>
       <Grid size={HALF}>
         <RhfTextField
@@ -30,7 +45,12 @@ export function CaptureFields() {
         />
       </Grid>
       <Grid size={HALF}>
-        <RhfTextField name="screenshotMaxWidth" label="Screenshot max width" type="number" />
+        <RhfTextField
+          name="screenshotMaxWidth"
+          label="Screenshot max width"
+          type="number"
+          helperText="Widest a screenshot is stored, in pixels, 320 to 3840."
+        />
       </Grid>
       <Grid size={HALF}>
         <RhfTextField

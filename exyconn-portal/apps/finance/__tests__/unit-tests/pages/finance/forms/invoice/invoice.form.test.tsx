@@ -49,8 +49,8 @@ describe('InvoiceForm', () => {
       inRupees: true,
     });
 
-    await user.type(screen.getByLabelText('Invoice number'), 'INV-100');
-    await user.type(screen.getByRole('combobox', { name: 'Client' }), 'Nimbus');
+    await user.type(screen.getByLabelText(/^Invoice number\s*\*?$/), 'INV-100');
+    await user.type(screen.getByRole('combobox', { name: /^Client\s*\*?$/ }), 'Nimbus');
     await user.click(await screen.findByRole('option', { name: 'Nimbus Ltd · Nimbus' }));
     typeDate('issuedDate', '08/01/2026');
     typeDate('dueDate', '08/15/2026');
@@ -145,8 +145,8 @@ describe('InvoiceForm', () => {
     renderForm(<InvoiceForm initial={invoiceRow()} {...handlers()} />);
     expect(field('currency')).toHaveValue('INR — Indian Rupee (₹)');
 
-    await user.clear(screen.getByRole('combobox', { name: 'Client' }));
-    await user.type(screen.getByRole('combobox', { name: 'Client' }), 'Glob');
+    await user.clear(screen.getByRole('combobox', { name: /^Client\s*\*?$/ }));
+    await user.type(screen.getByRole('combobox', { name: /^Client\s*\*?$/ }), 'Glob');
     await user.click(await screen.findByRole('option', { name: 'Globex · Globex Corp' }));
 
     expect(field('currency')).toHaveValue('USD — US Dollar ($)');
@@ -156,8 +156,8 @@ describe('InvoiceForm', () => {
     const user = userEvent.setup();
     renderForm(<InvoiceForm initial={invoiceRow()} {...handlers()} />);
 
-    await user.clear(screen.getByRole('combobox', { name: 'Client' }));
-    await user.type(screen.getByRole('combobox', { name: 'Client' }), 'Init');
+    await user.clear(screen.getByRole('combobox', { name: /^Client\s*\*?$/ }));
+    await user.type(screen.getByRole('combobox', { name: /^Client\s*\*?$/ }), 'Init');
     await user.click(await screen.findByRole('option', { name: 'Initech · Initech LLC' }));
 
     expect(field('clientId')).toHaveValue('Initech · Initech LLC');
@@ -168,7 +168,7 @@ describe('InvoiceForm', () => {
     gql.clients.mockReturnValueOnce({ data: undefined } as never);
     renderForm(<InvoiceForm initial={null} {...handlers()} />);
 
-    expect(screen.getByRole('combobox', { name: 'Client' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: /^Client\s*\*?$/ })).toHaveValue('');
   });
 
   it('hands control back on cancel', async () => {

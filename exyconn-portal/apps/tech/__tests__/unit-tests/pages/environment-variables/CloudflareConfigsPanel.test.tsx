@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { CloudflareConfigsPanel } from '../../../../src/pages/environment-variables/CloudflareConfigsPanel';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -21,7 +21,7 @@ vi.mock('../../../../src/pages/environment-variables/forms/cloudflare-config', a
   (await import('./panel.harness')).formModule('CloudflareConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'CloudflareConfigsPanel',
   Panel: CloudflareConfigsPanel,
   listQuery: gql.list,
@@ -63,4 +63,11 @@ describeConfigPanel({
     mutation: gql.test,
     success: ['Cloudflare accepted the token on "{label}"', 'success', { label: 'Main zone' }],
   },
+});
+
+describe('CloudflareConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

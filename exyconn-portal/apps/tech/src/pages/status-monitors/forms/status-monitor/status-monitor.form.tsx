@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import type { z } from 'zod';
 import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -45,10 +45,24 @@ export function StatusMonitorForm({ initial, onDone, onCancel }: Readonly<Status
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="name" label="Service name" helperText="Shown on the public page" />
       <RhfTextField name="key" label="Key" helperText="Stable identifier, e.g. hr or tools-api" />
-      <RhfTextField name="description" label="Description" />
-      <RhfSelect name="category" label="Category" options={CATEGORY_OPTIONS} />
+      <RhfTextField
+        name="description"
+        label="Description"
+        helperText="Optional. A short line shown under the service name, up to 160 characters."
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={CATEGORY_OPTIONS}
+        helperText="The group the service is listed under, e.g. Portal or API."
+      />
       <RhfTextField name="url" label="URL to probe" helperText="A 2xx response counts as healthy" />
-      <RhfTextField name="order" label="Order" type="number" />
+      <RhfTextField
+        name="order"
+        label="Order"
+        type="number"
+        helperText="Smaller numbers are listed first."
+      />
       <RhfSwitch name="isActive" label="Show on the status page" />
     </EntityForm>
   );

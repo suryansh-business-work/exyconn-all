@@ -32,7 +32,7 @@ describe('CrmCallConfigForm', () => {
     renderForm();
 
     expect(await optionsOf('Provider')).toEqual(['Twilio', 'Vobiz']);
-    expect(screen.getByLabelText('Account SID')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Account SID\s*\*?$/)).toBeInTheDocument();
     expect(screen.getByText('Twilio console > Account info: starts with AC')).toBeInTheDocument();
     expect(screen.getByText('Shown next to the account id in the console')).toBeInTheDocument();
   });
@@ -80,7 +80,7 @@ describe('CrmCallConfigForm', () => {
   it('updates a stored account by id, keeping the token when left blank', async () => {
     const { onDone } = renderForm(callConfigRow());
 
-    expect(screen.getByLabelText('Label')).toHaveValue('Sales line');
+    expect(screen.getByLabelText(/^Label\s*\*?$/)).toHaveValue('Sales line');
     expect(screen.getByText('Leave blank to keep the stored value')).toBeInTheDocument();
     await press('Update');
 

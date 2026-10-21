@@ -86,6 +86,15 @@ describe('emailing a due reminder', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  it('sends at most 50 in one tick and leaves the rest for the next', async () => {
+    const asha = await seedPerson('Asha');
+    await Promise.all(Array.from({ length: 51 }, () => seedReminder(asha)));
+
+    await expect(dispatchDueCrmReminders()).resolves.toBe(50);
+    await expect(dispatchDueCrmReminders()).resolves.toBe(1);
+    expect(send).toHaveBeenCalledTimes(51);
+  });
+
   it('never chases a task already done, an archived one or a deleted one', async () => {
     const asha = await seedPerson('Asha');
     await seedReminder(asha, { done: true });

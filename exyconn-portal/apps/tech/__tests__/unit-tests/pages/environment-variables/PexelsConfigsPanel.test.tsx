@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { PexelsConfigsPanel } from '../../../../src/pages/environment-variables/PexelsConfigsPanel';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -21,7 +21,7 @@ vi.mock('../../../../src/pages/environment-variables/forms/pexels-config', async
   (await import('./panel.harness')).formModule('PexelsConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'PexelsConfigsPanel',
   Panel: PexelsConfigsPanel,
   listQuery: gql.list,
@@ -49,4 +49,11 @@ describeConfigPanel({
     mutation: gql.test,
     success: ['Pexels accepted the key on "{label}"', 'success', { label: 'Stock' }],
   },
+});
+
+describe('PexelsConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

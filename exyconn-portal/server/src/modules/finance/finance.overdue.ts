@@ -10,6 +10,7 @@ import { remindDueSoonInvoices } from './finance.dueSoon';
 import { recordSystemAudit } from '../audit';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { registerBackgroundJob } from '../tech/jobs.registry';
 
@@ -68,18 +69,16 @@ async function moveStatus(
     { ...filter, _id: { $in: rows.map((row) => row._id) } },
     { status },
   );
-  // Independent inserts, one audit row per invoice; recordSystemAudit never throws.
-  await Promise.all(
-    rows.map((row) =>
-      recordSystemAudit({
-        action: 'UPDATE',
-        module: 'Invoice',
-        entityId: row._id,
-        entityLabel: row.number,
-        summary: `Overdue sweep set Invoice ${row.number} to ${status}`,
-        changes: { status: { from: row.status, to: status } },
-      }),
-    ),
+  // One audit row per invoice, written in read order so the log keeps the sweep's order.
+  await inSequence(rows, (row) =>
+    recordSystemAudit({
+      action: 'UPDATE',
+      module: 'Invoice',
+      entityId: row._id,
+      entityLabel: row.number,
+      summary: `Overdue sweep set Invoice ${row.number} to ${status}`,
+      changes: { status: { from: row.status, to: status } },
+    }),
   );
   return result.modifiedCount;
 }

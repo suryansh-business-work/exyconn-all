@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -57,7 +57,13 @@ export function SupportReplyForm({ ticketId, onCancel, onDone }: Readonly<Suppor
       onCancel={onCancel}
       submitLabel="Send reply"
     >
-      <RhfTextField name="body" label="Your reply" multiline minRows={3} />
+      <RhfTextField
+        name="body"
+        label="Your reply"
+        multiline
+        minRows={3}
+        helperText="Your message to the support team on this ticket. Up to 4000 characters."
+      />
       <AttachmentPicker
         value={attachments}
         onChange={setAttachments}

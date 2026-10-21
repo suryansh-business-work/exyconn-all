@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { RhfRichText } from '@/components/form/rhf';
 import { RichTextDownload } from '@/components/form/RichTextDownload';
 import { renderWithProviders } from '../../test-utils';

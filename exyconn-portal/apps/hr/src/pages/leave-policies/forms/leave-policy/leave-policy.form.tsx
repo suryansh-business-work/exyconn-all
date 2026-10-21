@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -102,10 +102,24 @@ export function LeavePolicyForm({ initial, onDone, onCancel }: Readonly<LeavePol
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="code" label="Code" />
-      <RhfTextField name="annualQuota" label="Annual quota (days)" type="number" />
-      <RhfTextField name="carryForwardCap" label="Carry-forward cap" type="number" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The leave type as employees see it, e.g. Casual leave."
+      />
+      <RhfTextField name="code" label="Code" helperText="A short reference, e.g. CL." />
+      <RhfTextField
+        name="annualQuota"
+        label="Annual quota (days)"
+        type="number"
+        helperText="Days a year each employee is granted, unless a country override below says otherwise."
+      />
+      <RhfTextField
+        name="carryForwardCap"
+        label="Carry-forward cap"
+        type="number"
+        helperText="Most unused days kept into next year; 0 keeps none."
+      />
       <RhfSwitch name="paid" label="Paid leave" />
       <RhfSwitch name="halfDayAllowed" label="Half day allowed" />
       <RhfSwitch name="active" label="Active" />

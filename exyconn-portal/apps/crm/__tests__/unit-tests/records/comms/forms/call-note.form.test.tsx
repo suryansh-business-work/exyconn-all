@@ -76,7 +76,7 @@ describe('CallNoteForm', () => {
     );
     expect(gql.options).toHaveBeenCalledWith({ refetchQueries: [CrmTimelineDocument] });
     expect(await screen.findByText('Note saved')).toBeInTheDocument();
-    expect(screen.getByLabelText('Notes')).toHaveValue('');
+    expect(screen.getByLabelText(/^Notes\s*\*?$/)).toHaveValue('');
   });
 
   it('logs on a company, with no owner when nobody is signed in', async () => {
@@ -104,7 +104,7 @@ describe('CallNoteForm', () => {
 
     renderForm();
 
-    expect(screen.getByLabelText('Notes')).toHaveValue('Half a thought');
+    expect(screen.getByLabelText(/^Notes\s*\*?$/)).toHaveValue('Half a thought');
   });
 
   it('does not save an empty note', async () => {
@@ -127,6 +127,6 @@ describe('CallNoteForm', () => {
 
     expect(await screen.findByText('Timeline is read-only')).toBeInTheDocument();
     expect(warn).toHaveBeenCalledWith('crm: saving a call note failed', failure);
-    expect(screen.getByLabelText('Notes')).toHaveValue('Callback Friday');
+    expect(screen.getByLabelText(/^Notes\s*\*?$/)).toHaveValue('Callback Friday');
   });
 });

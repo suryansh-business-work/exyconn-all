@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { currencyField } from '@exyconn/shell/utils/currencyField';
 import { Grid } from '@exyconn/shell/components/ui';
@@ -118,7 +118,12 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
             sm: 6,
           }}
         >
-          <RhfSelect name="supplierId" label="Supplier" options={supplierOptions} />
+          <RhfSelect
+            name="supplierId"
+            label="Supplier"
+            options={supplierOptions}
+            helperText="Who the goods are ordered from. Add new ones under Suppliers."
+          />
         </Grid>
         <Grid
           size={{
@@ -130,6 +135,7 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
             name="status"
             label="Status"
             options={enumOptions(Object.values(PurchaseOrderStatus))}
+            helperText="Draft until sent; booking goods in moves it to Partially received or Received."
           />
         </Grid>
       </Grid>
@@ -141,7 +147,7 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
             sm: 4,
           }}
         >
-          <RhfCurrencyField />
+          <RhfCurrencyField helperText="The currency the supplier bills in; starts as your company currency." />
         </Grid>
         <Grid
           size={{
@@ -149,7 +155,11 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
             sm: 4,
           }}
         >
-          <RhfDatePicker name="orderDate" label="Ordered on" />
+          <RhfDatePicker
+            name="orderDate"
+            label="Ordered on"
+            helperText="The day the order was placed with the supplier."
+          />
         </Grid>
         <Grid
           size={{
@@ -157,10 +167,20 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
             sm: 4,
           }}
         >
-          <RhfDatePicker name="expectedDate" label="Expected (optional)" />
+          <RhfDatePicker
+            name="expectedDate"
+            label="Expected (optional)"
+            helperText="When the goods should arrive, if the supplier gave a date."
+          />
         </Grid>
       </Grid>
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Anything the team should know, e.g. delivery instructions."
+      />
     </EntityForm>
   );
 }

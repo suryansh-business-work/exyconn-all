@@ -5,6 +5,7 @@ import { borderWidth, Box, Button, Chip, Stack, Text } from '@exyconn/ui';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useUploadImageMutation } from '@/graphql/generated';
 import { fileToDataUrl, MAX_IMAGE_BYTES } from '@/utils/file';
+import { inSequence } from '@/utils/inSequence';
 import type { AttachmentItem } from './AttachmentList';
 
 const MAX_MB = MAX_IMAGE_BYTES / (1024 * 1024);
@@ -61,9 +62,9 @@ export function AttachmentPicker({ value, onChange, folder }: Readonly<Attachmen
     setUploading(true);
     const added: AttachmentItem[] = [];
     try {
-      for (const file of files) {
+      await inSequence(files, async (file) => {
         added.push(await uploadOne(file));
-      }
+      });
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Upload failed', 'error');
     } finally {

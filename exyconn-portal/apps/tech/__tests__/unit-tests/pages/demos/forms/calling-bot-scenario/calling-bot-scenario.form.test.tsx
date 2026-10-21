@@ -54,7 +54,7 @@ beforeEach(() => {
 describe('CallingBotScenarioForm — a new example', () => {
   it('goes after the last example, speaks the settings’ language and is offered', () => {
     renderForm();
-    expect(screen.getByLabelText('Order')).toHaveValue(30);
+    expect(screen.getByLabelText(/^Order\s*\*?$/)).toHaveValue(30);
     expect(screen.getByRole('combobox', { name: LANGUAGE })).toHaveTextContent(
       'Same as the active settings',
     );
@@ -127,8 +127,8 @@ describe('CallingBotScenarioForm — a new example', () => {
 describe('CallingBotScenarioForm — editing an example', () => {
   it('reads back an example on the settings’ language and saves it by id', async () => {
     renderForm(scenarioRow({ enabled: false }), 90);
-    expect(screen.getByLabelText('Title')).toHaveValue('Clinic booking');
-    expect(screen.getByLabelText('Order')).toHaveValue(10);
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Clinic booking');
+    expect(screen.getByLabelText(/^Order\s*\*?$/)).toHaveValue(10);
     expect(screen.getByRole('combobox', { name: LANGUAGE })).toHaveTextContent(
       'Same as the active settings',
     );

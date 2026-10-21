@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -51,7 +51,11 @@ export function OrganizationAdminForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={false} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The administrator's full name, as shown on their account."
+      />
       <RhfTextField
         name="email"
         label="Email"

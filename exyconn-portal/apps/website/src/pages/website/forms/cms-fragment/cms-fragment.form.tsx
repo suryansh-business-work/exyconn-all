@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -54,7 +54,12 @@ export function CmsFragmentForm({
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="name" label="Name" helperText="e.g. Main header, Newsletter sign-up" />
-      <RhfSelect name="kind" label="Kind" options={FRAGMENT_KIND_OPTIONS} />
+      <RhfSelect
+        name="kind"
+        label="Kind"
+        options={FRAGMENT_KIND_OPTIONS}
+        helperText="Where the fragment is used: a header or footer on every page, or a reusable block."
+      />
     </EntityForm>
   );
 }

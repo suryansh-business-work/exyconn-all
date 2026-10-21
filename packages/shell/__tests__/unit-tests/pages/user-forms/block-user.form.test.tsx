@@ -46,7 +46,7 @@ function renderForm(mocks: MockLink.MockedResponse[] = []) {
   return { onDone, onCancel };
 }
 
-const reasonField = () => screen.getByLabelText('Reason for blocking');
+const reasonField = () => screen.getByLabelText(/^Reason for blocking\s*\*?$/);
 
 describe('BlockUserForm', () => {
   it(

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { inSequence } from '@exyconn/shell/utils/inSequence';
 import { TrackerPlatform } from '@exyconn/shell/graphql/generated';
 import { StartBuildForm } from '../../../../../../src/pages/tracker-build/forms/start-build';
 import { renderWithProviders } from '../../../../test-utils';
@@ -27,14 +28,15 @@ const renderForm = (channelCount = 2) =>
 async function pick(...labels: string[]) {
   await userEvent.click(screen.getByRole('combobox', { name: /Installers to build/ }));
   const listbox = screen.getByRole('listbox');
-  for (const label of labels) {
-    await userEvent.click(within(listbox).getByRole('option', { name: label }));
-  }
+  // One option after another, as a person ticks them.
+  await inSequence(labels, (label) =>
+    userEvent.click(within(listbox).getByRole('option', { name: label })),
+  );
   await userEvent.keyboard('{Escape}');
   await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
 }
 
-const start = () => userEvent.click(screen.getByRole('button', { name: 'Start build' }));
+const clickStart = () => userEvent.click(screen.getByRole('button', { name: 'Start build' }));
 
 describe('StartBuildForm', () => {
   beforeEach(() => {
@@ -58,28 +60,28 @@ describe('StartBuildForm', () => {
 
   it('starts from the default branch and explains the phone builds', () => {
     renderForm();
-    expect(screen.getByLabelText('Branch')).toHaveValue('main');
+    expect(screen.getByLabelText(/^Branch\s*\*?$/)).toHaveValue('main');
     expect(screen.getByText(/Android produces an APK/)).toBeInTheDocument();
   });
 
   it('refuses a build that would produce no installer', async () => {
     renderForm();
-    await start();
+    await clickStart();
     expect(await screen.findByText('Choose at least one installer to build')).toBeInTheDocument();
     expect(gql.start).not.toHaveBeenCalled();
   });
 
   it('requires a branch to build from', async () => {
     renderForm();
-    fireEvent.change(screen.getByLabelText('Branch'), { target: { value: '   ' } });
-    await start();
+    fireEvent.change(screen.getByLabelText(/^Branch\s*\*?$/), { target: { value: '   ' } });
+    await clickStart();
     expect(await screen.findByText('Branch is required')).toBeInTheDocument();
   });
 
   it('starts one installer and says so', async () => {
     renderForm();
     await pick('iOS — Unsigned app (.ipa)');
-    await start();
+    await clickStart();
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.start).toHaveBeenCalledWith({
       variables: { platforms: [TrackerPlatform.Ios], ref: 'main' },
@@ -97,8 +99,8 @@ describe('StartBuildForm', () => {
   it('starts several installers off a chosen branch', async () => {
     renderForm();
     await pick('Windows — Installer (.exe)', 'Android — App package (.apk) + Play bundle (.aab)');
-    fireEvent.change(screen.getByLabelText('Branch'), { target: { value: ' staging ' } });
-    await start();
+    fireEvent.change(screen.getByLabelText(/^Branch\s*\*?$/), { target: { value: ' staging ' } });
+    await clickStart();
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.start).toHaveBeenCalledWith({
       variables: { platforms: [TrackerPlatform.Windows, TrackerPlatform.Android], ref: 'staging' },
@@ -117,9 +119,9 @@ describe('StartBuildForm', () => {
     gql.start.mockRejectedValueOnce(new Error('Workflow not found')).mockRejectedValueOnce({});
     renderForm();
     await pick('Linux — Portable app (.AppImage)');
-    await start();
+    await clickStart();
     await waitFor(() => expect(gql.notify).toHaveBeenCalledWith('Workflow not found', 'error'));
-    await start();
+    await clickStart();
     await waitFor(() =>
       expect(gql.notify).toHaveBeenCalledWith('Could not start the build', 'error'),
     );

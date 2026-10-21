@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
 import { useT } from '@exyconn/i18n';
@@ -92,7 +92,11 @@ export function CheckTicketForm({ onCancel }: Readonly<CheckTicketFormProps>) {
         label="Ticket reference"
         helperText="The EXY- code from your confirmation"
       />
-      <RhfTextField name="email" label="Your email" />
+      <RhfTextField
+        name="email"
+        label="Your email"
+        helperText="The address you raised the ticket from."
+      />
       {/* One message for "no such ticket" and for "not your ticket": telling them apart
           would confirm that a reference exists to somebody who only guessed it. */}
       {missing && (

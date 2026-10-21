@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import {
   RhfAutocomplete,
   RhfDatePicker,
@@ -162,7 +162,11 @@ export function BugForm({ initial, onDone, onCancel }: Readonly<BugFormProps>) {
           <Text size="sm" weight="medium" sx={{ mb: 1 }}>
             Attachments
           </Text>
-          <RhfAttachmentPicker name="attachments" folder={BUG_UPLOAD_FOLDER} />
+          <RhfAttachmentPicker
+            name="attachments"
+            folder={BUG_UPLOAD_FOLDER}
+            helperText="Optional. Screenshots, recordings or logs that show the bug happening."
+          />
         </Grid>
       </Grid>
     </EntityForm>

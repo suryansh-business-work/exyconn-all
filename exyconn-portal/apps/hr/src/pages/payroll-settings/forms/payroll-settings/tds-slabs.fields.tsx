@@ -40,7 +40,12 @@ export function TdsSlabFields() {
             type="number"
             helperText={index === fields.length - 1 ? 'Empty = everything above' : undefined}
           />
-          <RhfTextField name={`tdsSlabs.${index}.percent`} label="Rate (%)" type="number" />
+          <RhfTextField
+            name={`tdsSlabs.${index}.percent`}
+            label="Rate (%)"
+            type="number"
+            helperText="Charged on the part of annual taxable pay inside this band, e.g. 5."
+          />
           <IconButton
             aria-label={t('Remove band {number}', { number: index + 1 })}
             onClick={() => remove(index)}

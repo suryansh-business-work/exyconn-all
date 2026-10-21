@@ -25,14 +25,14 @@ function promptFor(copy: Copy, matching: boolean, count: string): ConfirmOptions
  * Asks first where the action loses something (deleting, archiving); true once the person
  * goes ahead, or straight away for an action that asks nothing (restoring).
  */
-export async function approved(
+export function approved(
   confirm: Confirm,
   copy: Copy,
   matching: boolean,
   count: string,
 ): Promise<boolean> {
   const prompt = promptFor(copy, matching, count);
-  return prompt === null || confirm(prompt);
+  return prompt === null ? Promise.resolve(true) : confirm(prompt);
 }
 
 /** Every matching row: their count and the list's query, once chosen and the fetcher can say. */
@@ -77,13 +77,13 @@ export function useBulkRun(bulk: TableBulk): (action: TableBulkAction) => Promis
       const rows = scope ? { variables: scope.variables } : { ids: [...selectedIds] };
       await job.start({ list, action, ...rows });
       clearSelection();
-    } catch (failure) {
-      portalLogger.error('Could not start the bulk table action', failure, {
+    } catch (error_) {
+      portalLogger.error('Could not start the bulk table action', error_, {
         list,
         action,
         allMatching: scope !== null,
       });
-      notify(errorMessage(failure, 'The bulk action failed'), 'error');
+      notify(errorMessage(error_, 'The bulk action failed'), 'error');
     }
   };
 }

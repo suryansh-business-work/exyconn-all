@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -48,7 +48,11 @@ export function EditVariantForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit onCancel={onCancel}>
-      <RhfTextField name="subject" label="Subject" />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="What they see in their inbox, up to 200 characters."
+      />
       <RhfTextField
         name="body"
         label="Message"

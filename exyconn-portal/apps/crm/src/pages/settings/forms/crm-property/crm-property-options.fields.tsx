@@ -48,7 +48,12 @@ function OptionRow({ index, count, onMove, onRemove }: Readonly<OptionRowProps>)
       role="group"
       aria-label={t('Choice {number}', { number })}
     >
-      <RhfTextField name={`options.${index}.label`} label="Choice" size="small" />
+      <RhfTextField
+        name={`options.${index}.label`}
+        label="Choice"
+        size="small"
+        helperText="What people pick on the record, e.g. Enterprise."
+      />
       <RhfTextField
         name={valuePath}
         label="Value"

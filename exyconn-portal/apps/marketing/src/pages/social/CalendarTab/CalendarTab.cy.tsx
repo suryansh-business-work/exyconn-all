@@ -1,6 +1,6 @@
 import { startOfMonth } from 'date-fns';
 import { buildCalendar } from '../calendar.days';
-import { post } from '../social.fixtures.cy';
+import { post } from '../../../../cypress/support/social.fixtures';
 import {
   FB_LINE,
   TODAY,
@@ -11,7 +11,7 @@ import {
   now,
   planLabel,
   today,
-} from './calendar.fixtures.cy';
+} from '../../../../cypress/support/calendar.fixtures';
 
 describe('CalendarTab', () => {
   it('shows a loader until the accounts and the month first arrive', () => {

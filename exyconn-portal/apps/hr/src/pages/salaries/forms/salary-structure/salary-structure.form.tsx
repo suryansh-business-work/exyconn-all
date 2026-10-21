@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfAutocomplete, useCompanyCurrency } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -74,7 +74,12 @@ export function SalaryStructureForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="Whose pay this is. Picking someone who already has a structure updates theirs."
+      />
       <CompensationFields />
     </EntityForm>
   );

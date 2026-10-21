@@ -42,11 +42,13 @@ const zoneLabel = (zone: string) => timezoneOptionLabel(zone);
 
 /**
  * The timezone field's own Clear button — every Autocomplete on the form has one, so it is
- * scoped to this field. Forced because MUI keeps the clear indicator hidden until the field
- * is hovered or focused.
+ * scoped to this field. MUI keeps the clear indicator hidden until the field is hovered or
+ * focused, so the field is focused first, as a person tabbing to it would.
  */
-const clearTimezone = () =>
-  cy.get('input[name="timezone"]').parent().find('button[title="Clear"]').click({ force: true });
+const clearTimezone = () => {
+  cy.get('input[name="timezone"]').focus();
+  cy.get('input[name="timezone"]').parent().find('button[title="Clear"]').click();
+};
 
 describe('AppSettingsForm', () => {
   it('shows the loaded values and previews now through them', () => {

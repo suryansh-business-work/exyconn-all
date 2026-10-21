@@ -84,7 +84,7 @@ describe('NetworkItemForm', () => {
   it('updates an existing item by id with its new state', async () => {
     const { onDone } = renderForm(networkRow({ id: 'net-3' }));
 
-    expect(screen.getByLabelText('Name')).toHaveValue('Office Wi-Fi');
+    expect(screen.getByLabelText(/^Name\s*\*?$/)).toHaveValue('Office Wi-Fi');
     await chooseOption('Status', 'Degraded');
     await press('Update');
 

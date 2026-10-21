@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { HTTP_URL, LINK, SLUG } from '@exyconn/regex';
 import {
@@ -104,17 +104,48 @@ export function CaseStudyForm({ initial, onDone, onCancel }: Readonly<CaseStudyF
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. acme-migration" />
-      <RhfTextField name="title" label="Title" />
-      <RhfTextField name="excerpt" label="Excerpt" multiline minRows={2} />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="The headline shown on the case study and in the list."
+      />
+      <RhfTextField
+        name="excerpt"
+        label="Excerpt"
+        multiline
+        minRows={2}
+        helperText="Optional. One or two sentences shown in the case study list."
+      />
       <ArticleBodyField folder={MEDIA_FOLDERS.caseStudies} />
-      <RhfMediaField name="coverImage" label="Cover image" siteId={siteId} />
-      <RhfTextField name="category" label="Category" />
-      <RhfTextField name="author" label="Author" />
-      <RhfChipsInput name="tags" label="Tags" />
-      <RhfTextField name="pdfUrl" label="PDF URL" />
+      <RhfMediaField
+        name="coverImage"
+        label="Cover image"
+        siteId={siteId}
+        helperText="Optional. Shown at the top of the case study and on its card."
+      />
+      <RhfTextField
+        name="category"
+        label="Category"
+        helperText="Optional. The industry or service it belongs to, e.g. Fintech."
+      />
+      <RhfTextField name="author" label="Author" helperText="Optional. Who wrote the case study." />
+      <RhfChipsInput
+        name="tags"
+        label="Tags"
+        helperText="Optional. Topics for the case study. Type one and press Enter."
+      />
+      <RhfTextField
+        name="pdfUrl"
+        label="PDF URL"
+        helperText="Optional. A downloadable PDF version, starting with https://."
+      />
       <RhfSwitch name="featured" label="Featured" />
       <RhfSwitch name="isActive" label="Active" />
-      <RhfDatePicker name="publishedAt" label="Published at" />
+      <RhfDatePicker
+        name="publishedAt"
+        label="Published at"
+        helperText="Optional. The publication date shown with the case study."
+      />
       <ItemSeoFields siteId={siteId} />
     </EntityForm>
   );

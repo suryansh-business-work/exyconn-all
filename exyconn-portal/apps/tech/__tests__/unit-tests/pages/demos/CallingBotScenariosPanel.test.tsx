@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CallingBotScenariosPanel } from '../../../../src/pages/demos/CallingBotScenariosPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from '../environment-variables/config-panel.suite';
+import { configPanelSuite } from '../environment-variables/config-panel.suite';
 import {
   crudState,
   propsOf,
@@ -39,7 +39,7 @@ const ROWS = [
   }),
 ];
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'CallingBotScenariosPanel',
   Panel: CallingBotScenariosPanel,
   listQuery: gql.list,
@@ -60,6 +60,13 @@ describeConfigPanel({
   newTitle: 'New example',
   editTitle: 'Edit example',
   backLabel: 'Back to Examples',
+});
+
+describe('CallingBotScenariosPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('CallingBotScenariosPanel — where a new example goes', () => {

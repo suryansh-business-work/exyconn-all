@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
@@ -102,9 +102,23 @@ export function PayslipScheduleForm({
         )}
       </Text>
       <RhfSwitch name="enabled" label="Email payslips automatically" />
-      <RhfSelect name="dayOfMonth" label="Day of the month" options={DAY_OPTIONS} />
-      <RhfTimePicker name="time" label="Send at" />
-      <RhfSelect name="period" label="Send payslips for" options={PERIOD_OPTIONS} />
+      <RhfSelect
+        name="dayOfMonth"
+        label="Day of the month"
+        options={DAY_OPTIONS}
+        helperText="The day each month the emails go out, from the 1st to the 28th so every month has it."
+      />
+      <RhfTimePicker
+        name="time"
+        label="Send at"
+        helperText="The time of day they are sent, in the portal timezone set under Admin > Settings."
+      />
+      <RhfSelect
+        name="period"
+        label="Send payslips for"
+        options={PERIOD_OPTIONS}
+        helperText="Which month's payslips are sent; most payrolls send the month just finished."
+      />
     </EntityForm>
   );
 }

@@ -31,17 +31,15 @@ function warnUnplayable(cause: unknown): void {
 
 /**
  * Rewinds and starts the sound, so two captures close together are both audible instead of
- * the second being swallowed by the first still playing. A synchronous throw is warned here;
- * the returned promise carries a later refusal to the caller.
+ * the second being swallowed by the first still playing. The executor runs at once, so the
+ * rewind and the play happen now; a throw from either becomes a rejection, which is warned
+ * exactly like a refusal from play() itself — never thrown.
  */
-function rewindAndPlay(audio: HTMLAudioElement): Promise<void> | undefined {
-  try {
+function rewindAndPlay(audio: HTMLAudioElement): void {
+  new Promise<void>((resolve, reject) => {
     audio.currentTime = 0;
-    return audio.play();
-  } catch (cause: unknown) {
-    warnUnplayable(cause);
-    return undefined;
-  }
+    audio.play().then(resolve, reject);
+  }).catch(warnUnplayable);
 }
 
 /**
@@ -57,5 +55,5 @@ export function playShutter(): void {
   if (audio === null) {
     return;
   }
-  rewindAndPlay(audio)?.catch(warnUnplayable);
+  rewindAndPlay(audio);
 }

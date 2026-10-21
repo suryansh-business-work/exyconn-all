@@ -63,7 +63,7 @@ function renderForm(mocks: MockLink.MockedResponse[] = []) {
   return { onDone, onCancel };
 }
 
-const codeField = () => screen.getByLabelText('Verification code');
+const codeField = () => screen.getByLabelText(/^Verification code\s*\*?$/);
 const verifyButton = () => screen.getByRole('button', { name: 'Verify' });
 
 describe('EmployeeEmailCodeForm', () => {

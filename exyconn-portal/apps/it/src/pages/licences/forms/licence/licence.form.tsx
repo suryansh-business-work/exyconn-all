@@ -1,7 +1,7 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import {
   RhfTextField,
   RhfSelect,
@@ -66,19 +66,53 @@ export function LicenceForm({ initial, onDone, onCancel }: Readonly<LicenceFormP
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="name" label="Licence" helperText="e.g. Figma Organization" />
-      <RhfTextField name="vendor" label="Vendor" />
-      <RhfTextField name="seatsTotal" label="Seats bought" type="number" />
+      <RhfTextField
+        name="vendor"
+        label="Vendor"
+        helperText="The company that sells the licence, e.g. Figma."
+      />
+      <RhfTextField
+        name="seatsTotal"
+        label="Seats bought"
+        type="number"
+        helperText="How many people the licence covers. At least one."
+      />
       <RhfMultiSelect
         name="assigneeIds"
         label="Seats assigned"
         options={assignees}
         helperText={seatsHelper}
       />
-      <RhfTextField name="cost" label="Cost per cycle" type="number" />
-      <RhfSelect name="billingCycle" label="Billing cycle" options={CYCLE_OPTIONS} />
-      <RhfDatePicker name="renewalDate" label="Renews on" />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <RhfTextField
+        name="cost"
+        label="Cost per cycle"
+        type="number"
+        helperText="What each billing cycle costs for all seats. Enter 0 if it is free."
+      />
+      <RhfSelect
+        name="billingCycle"
+        label="Billing cycle"
+        options={CYCLE_OPTIONS}
+        helperText="How often the licence is billed."
+      />
+      <RhfDatePicker
+        name="renewalDate"
+        label="Renews on"
+        helperText="The next renewal date; IT is reminded before it arrives."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Whether the licence is active or has been cancelled."
+      />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        rows={2}
+        helperText="Optional. Contract details or who to contact at the vendor."
+      />
     </EntityForm>
   );
 }

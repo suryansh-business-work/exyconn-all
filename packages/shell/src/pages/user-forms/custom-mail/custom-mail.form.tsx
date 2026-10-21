@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Button, Flex, Text } from '@/components/ui';
 import { RhfChipsInput, RhfRichText, RhfTextField } from '@/components/form/rhf';
@@ -107,7 +107,11 @@ export function CustomMailForm({
         minHeight={180}
         helperText="Formatting, links, lists and images are kept in the email."
       />
-      <RhfAttachmentPicker name="attachments" folder={MAIL_UPLOAD_FOLDER} />
+      <RhfAttachmentPicker
+        name="attachments"
+        folder={MAIL_UPLOAD_FOLDER}
+        helperText="Optional. Files sent with the email, uploaded to the portal first."
+      />
     </EntityForm>
   );
 }

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfAutocomplete, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -61,10 +61,29 @@ export function TeamForm({ initial, onDone, onCancel }: Readonly<TeamFormProps>)
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Name" />
-      <RhfTextField name="department" label="Department" />
-      <RhfAutocomplete name="leadEmployeeId" label="Team lead" options={employeeOptions} />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="The team as people know it, e.g. Payments squad."
+      />
+      <RhfTextField
+        name="department"
+        label="Department"
+        helperText="Optional. The department the team belongs to, e.g. Engineering."
+      />
+      <RhfAutocomplete
+        name="leadEmployeeId"
+        label="Team lead"
+        options={employeeOptions}
+        helperText="The employee who leads the team."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="Optional. What the team works on."
+      />
       <RhfSwitch name="active" label="Active" />
     </EntityForm>
   );

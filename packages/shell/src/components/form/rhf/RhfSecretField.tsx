@@ -14,12 +14,15 @@ import {
 } from '@/components/ui';
 import { errorMessage } from '@/utils/errorMessage';
 import { useFieldCopy } from './useFieldCopy';
+import { useFieldMeta } from './useFieldMeta';
 
 interface RhfSecretFieldProps {
   name: string;
   label: string;
   /** A hint under the field; replaced by the saved-key hint while a revealable key is hidden. */
   helperText?: ReactNode;
+  /** Marks the label with the required star; by default the schema decides. */
+  required?: boolean;
   /** Whether a value is already saved on the server, so the empty field is not empty there. */
   stored?: boolean;
   /** Fetches the saved value for the eye button. Without it the eye only shows what was typed. */
@@ -76,6 +79,7 @@ export function RhfSecretField({
   name,
   label,
   helperText,
+  required,
   stored = false,
   onReveal,
   onTest,
@@ -84,6 +88,7 @@ export function RhfSecretField({
   const copy = useFieldCopy();
   const notify = useNotify();
   const { control, setValue, getValues } = useFormContext();
+  const meta = useFieldMeta<ReactNode>(name, { required, helperText });
   const [visible, setVisible] = useState(false);
   const [revealing, setRevealing] = useState(false);
 
@@ -122,7 +127,7 @@ export function RhfSecretField({
       render={({ field, fieldState }) => {
         const hiddenSaved = stored && !field.value;
         // Only an eye that can fetch the saved key may say so; otherwise the caller's hint stands.
-        const hint = hiddenSaved && onReveal ? SAVED_HINT : helperText;
+        const hint = hiddenSaved && onReveal ? SAVED_HINT : meta.helperText;
         return (
           <TextField
             {...field}
@@ -131,6 +136,7 @@ export function RhfSecretField({
             label={copy(label)}
             placeholder={hiddenSaved ? '••••••••••••' : undefined}
             fullWidth
+            required={meta.required}
             autoComplete="off"
             error={Boolean(fieldState.error)}
             helperText={copy(fieldState.error?.message ?? hint)}

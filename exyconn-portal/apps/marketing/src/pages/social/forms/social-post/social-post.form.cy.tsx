@@ -4,7 +4,7 @@ import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 import { SocialPostForm } from './social-post.form';
-import { ACCOUNTS, RULES, post } from '../../social.fixtures.cy';
+import { ACCOUNTS, RULES, post } from '../../../../../cypress/support/social.fixtures';
 import type { SocialMediaPostRow } from './social-post.types';
 
 const mount = (initial: SocialMediaPostRow | null = null) =>
@@ -54,9 +54,7 @@ describe('SocialPostForm', () => {
   });
 
   it('edits a stored post without choosing accounts again', () => {
-    mount(
-      post('p1', { origin: 'COMPOSED', status: 'DRAFT', accountId: 'x1', network: 'X' }),
-    );
+    mount(post('p1', { origin: 'COMPOSED', status: 'DRAFT', accountId: 'x1', network: 'X' }));
     cy.contains('label', 'Post to').should('not.exist');
     cy.get('textarea[name="text"]').should('have.value', 'Post p1');
     cy.contains('X 7/280').should('be.visible');

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import type { z } from 'zod';
 import {
   RhfSecretField,
@@ -71,7 +71,11 @@ export function GoogleMapsConfigForm({
   });
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="label" label="Label" />
+      <RhfTextField
+        name="label"
+        label="Label"
+        helperText="A name to tell configs apart, e.g. Production."
+      />
       <RhfSecretField
         name="browserKey"
         label="Maps JavaScript key (browser)"
@@ -94,7 +98,12 @@ export function GoogleMapsConfigForm({
             : 'Used by the server only: enable Places API (New) and restrict the key to it'
         }
       />
-      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={BOOL_OPTIONS}
+        helperText="Only one config is active at a time; the server uses that one."
+      />
     </EntityForm>
   );
 }

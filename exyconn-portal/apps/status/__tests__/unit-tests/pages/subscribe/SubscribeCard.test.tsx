@@ -28,7 +28,7 @@ describe('SubscribeCard', () => {
         `Check ${EMAIL} for a confirmation link. Nothing else is sent until you follow it.`,
       ),
     ).toBeInTheDocument();
-    expect(screen.queryByLabelText('Your email')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Your email\s*\*?$/)).not.toBeInTheDocument();
   });
 
   it('asks for an address before sending anything', async () => {
@@ -52,7 +52,7 @@ describe('SubscribeCard', () => {
     await submit();
 
     expect(await findSnackbar('Too many requests')).toBeInTheDocument();
-    expect(screen.getByLabelText('Your email')).toHaveValue(EMAIL);
+    expect(screen.getByLabelText(/^Your email\s*\*?$/)).toHaveValue(EMAIL);
     expect(screen.queryByText(/for a confirmation link/)).not.toBeInTheDocument();
   });
 
@@ -60,6 +60,6 @@ describe('SubscribeCard', () => {
     renderWithProviders(<SubscribeCard />);
     fill('Your email', EMAIL);
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(screen.getByLabelText('Your email')).toHaveValue('');
+    expect(screen.getByLabelText(/^Your email\s*\*?$/)).toHaveValue('');
   });
 });

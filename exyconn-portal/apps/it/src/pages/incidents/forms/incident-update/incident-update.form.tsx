@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -57,8 +57,19 @@ export function IncidentUpdateForm({
       onCancel={onCancel}
       submitLabel="Post update"
     >
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="note" label="What happened" multiline rows={3} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Move the incident on if this update changes where it stands."
+      />
+      <RhfTextField
+        name="note"
+        label="What happened"
+        multiline
+        rows={3}
+        helperText="Added to the incident timeline, e.g. Rolled back the release. Up to 2000 characters."
+      />
     </EntityForm>
   );
 }

@@ -224,7 +224,7 @@ describe('ImageCropper', () => {
     await click('Transparent');
     expect(stage()).toHaveAttribute('data-fill', 'none');
     expect(container.querySelector('img[aria-hidden="true"]')).toBeNull();
-    expect(screen.queryByRole('textbox', { name: 'Hex colour' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /^Hex colour\s*\*?$/ })).not.toBeInTheDocument();
 
     // Clicking the chosen background again keeps it.
     await click('Transparent');

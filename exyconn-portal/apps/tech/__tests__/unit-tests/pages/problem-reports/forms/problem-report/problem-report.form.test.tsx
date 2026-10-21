@@ -8,6 +8,15 @@ import {
 import { renderWithProviders } from '../../../../test-utils';
 import { reportRow } from '../../report.fixtures';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn(), monitors: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -29,7 +38,7 @@ const renderForm = (initial: ProblemReportRow | null = null) =>
   renderWithProviders(<ProblemReportForm initial={initial} onDone={onDone} onCancel={onCancel} />);
 
 const fill = (label: string, value: string) =>
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 
 const press = (name: string) => userEvent.click(screen.getByRole('button', { name }));
 

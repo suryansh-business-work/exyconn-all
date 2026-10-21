@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Button } from '@exyconn/shell/components/ui';
 import { RhfChipsInput, RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -66,8 +66,19 @@ export function BookMeetingForm({
       submitLabel="Schedule Event"
       onCancel={onBack}
     >
-      <RhfTextField name="name" label="Name" autoComplete="name" />
-      <RhfTextField name="email" label="Email" type="email" autoComplete="email" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        autoComplete="name"
+        helperText="So the host knows who they are meeting."
+      />
+      <RhfTextField
+        name="email"
+        label="Email"
+        type="email"
+        autoComplete="email"
+        helperText="We send the booking confirmation here."
+      />
       {withGuests ? (
         <RhfChipsInput
           name="guests"
@@ -89,6 +100,7 @@ export function BookMeetingForm({
         label="Please share anything that will help prepare for our meeting."
         multiline
         minRows={3}
+        helperText="Optional. Up to 2000 characters, e.g. topics you want to cover."
       />
     </EntityForm>
   );

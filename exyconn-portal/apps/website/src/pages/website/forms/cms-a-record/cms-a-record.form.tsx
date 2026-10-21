@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import DnsIcon from '@mui/icons-material/Dns';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button, Dialog, DialogContent, DialogTitle } from '@exyconn/shell/components/ui';

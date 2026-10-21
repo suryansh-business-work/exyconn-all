@@ -10,6 +10,15 @@ import { renderWithProviders } from '../../../../test-utils';
 import { press } from '../../../../form-helpers';
 import { meetingTypeRow } from '../../meetings-fixtures';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -34,7 +43,7 @@ function renderForm(initial: MeetingTypeRow | null = null) {
 
 /** Sets a text field in one change, as a paste would; typing key by key is slow here. */
 function fillField(label: string, text: string) {
-  fireEvent.change(screen.getByLabelText(label), { target: { value: text } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value: text } });
 }
 
 function day(label: string) {
@@ -52,11 +61,11 @@ describe('MeetingTypeForm', () => {
     renderForm();
 
     fillField('Meeting name', 'Discovery Call');
-    expect(screen.getByLabelText('Link')).toHaveValue('discovery-call');
+    expect(screen.getByLabelText(/^Link\s*\*?$/)).toHaveValue('discovery-call');
 
     fillField('Link', 'disco');
     fillField('Meeting name', 'Something else');
-    expect(screen.getByLabelText('Link')).toHaveValue('disco');
+    expect(screen.getByLabelText(/^Link\s*\*?$/)).toHaveValue('disco');
   });
 
   it('leaves a saved type’s link alone when its name changes', async () => {
@@ -64,27 +73,27 @@ describe('MeetingTypeForm', () => {
 
     fillField('Meeting name', 'Renamed call');
 
-    expect(screen.getByLabelText('Link')).toHaveValue('intro-call');
+    expect(screen.getByLabelText(/^Link\s*\*?$/)).toHaveValue('intro-call');
   });
 
   it('shows weekdays with their hours and the weekend as unavailable', () => {
     renderForm();
 
-    expect(day('Monday').getByLabelText('From')).toHaveValue('09:00');
-    expect(day('Monday').getByLabelText('To')).toHaveValue('17:00');
+    expect(day('Monday').getByLabelText(/^From\s*\*?$/)).toHaveValue('09:00');
+    expect(day('Monday').getByLabelText(/^To\s*\*?$/)).toHaveValue('17:00');
     expect(day('Monday').queryByText('Unavailable')).not.toBeInTheDocument();
     expect(day('Sunday').getByText('Unavailable')).toBeInTheDocument();
-    expect(day('Sunday').queryAllByLabelText('From')).toHaveLength(0);
+    expect(day('Sunday').queryAllByLabelText(/^From\s*\*?$/)).toHaveLength(0);
   });
 
   it('swaps a day between its hours and "Unavailable" with its switch', async () => {
     renderForm();
 
-    await userEvent.click(day('Saturday').getByLabelText('Saturday'));
-    expect(day('Saturday').getByLabelText('To')).toHaveValue('17:00');
+    await userEvent.click(day('Saturday').getByLabelText(/^Saturday\s*\*?$/));
+    expect(day('Saturday').getByLabelText(/^To\s*\*?$/)).toHaveValue('17:00');
     expect(day('Saturday').queryByText('Unavailable')).not.toBeInTheDocument();
 
-    await userEvent.click(day('Monday').getByLabelText('Monday'));
+    await userEvent.click(day('Monday').getByLabelText(/^Monday\s*\*?$/));
     expect(day('Monday').getByText('Unavailable')).toBeInTheDocument();
   });
 
@@ -111,7 +120,7 @@ describe('MeetingTypeForm', () => {
     renderForm();
     fillField('Meeting name', 'Discovery Call');
     for (const label of ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']) {
-      await userEvent.click(day(label).getByLabelText(label));
+      await userEvent.click(day(label).getByLabelText(labelled(label)));
     }
 
     await press('Create');
@@ -136,7 +145,7 @@ describe('MeetingTypeForm', () => {
   it('updates a saved type by id with the length typed', async () => {
     const { onDone } = renderForm(meetingTypeRow());
     fillField('Length (minutes)', '45');
-    await userEvent.click(screen.getByLabelText('The booking link is open'));
+    await userEvent.click(screen.getByLabelText(/^The booking link is open\s*\*?$/));
 
     await press('Update');
 

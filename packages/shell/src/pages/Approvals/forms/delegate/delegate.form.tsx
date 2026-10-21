@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { RhfAutocomplete, RhfDatePicker, RhfTextField } from '@/components/form/rhf';
@@ -79,9 +79,21 @@ export function DelegateApprovalsForm({ onDone, onCancel }: Readonly<DelegateApp
         options={people}
         helperText="They see exactly what you would have seen, and nothing more"
       />
-      <RhfDatePicker name="fromDate" label="First day" />
-      <RhfDatePicker name="toDate" label="Last day (included)" />
-      <RhfTextField name="note" label="Note (optional)" />
+      <RhfDatePicker
+        name="fromDate"
+        label="First day"
+        helperText="The first day they approve on your behalf."
+      />
+      <RhfDatePicker
+        name="toDate"
+        label="Last day (included)"
+        helperText="Cover ends after this day; it cannot be before the first day."
+      />
+      <RhfTextField
+        name="note"
+        label="Note (optional)"
+        helperText="Optional. Context for the person covering, up to 200 characters."
+      />
     </EntityForm>
   );
 }

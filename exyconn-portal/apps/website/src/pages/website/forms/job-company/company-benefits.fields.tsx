@@ -75,13 +75,22 @@ export function CompanyBenefitsFields() {
                 <DeleteIcon fontSize="small" />
               </IconButton>
             </Stack>
-            <RhfTextField name={`benefits.${index}.icon`} label="Icon" />
-            <RhfTextField name={`benefits.${index}.title`} label="Title" />
+            <RhfTextField
+              name={`benefits.${index}.icon`}
+              label="Icon"
+              helperText="Icon name stored with the benefit, e.g. health."
+            />
+            <RhfTextField
+              name={`benefits.${index}.title`}
+              label="Title"
+              helperText="The benefit in a few words, e.g. Health insurance."
+            />
             <RhfTextField
               name={`benefits.${index}.description`}
               label="Description"
               multiline
               minRows={2}
+              helperText="Optional. A sentence on what the benefit includes."
             />
           </Flex>
         </Box>

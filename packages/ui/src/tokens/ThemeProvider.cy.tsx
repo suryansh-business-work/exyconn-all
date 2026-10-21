@@ -9,7 +9,7 @@ describe('ThemeProvider (tokens)', () => {
         <div>hello</div>
       </ThemeProvider>,
     );
-    cy.contains('hello');
+    cy.contains('hello').should('be.visible');
   });
 
   it('renders children as plain text content without extra wrapping markup', () => {

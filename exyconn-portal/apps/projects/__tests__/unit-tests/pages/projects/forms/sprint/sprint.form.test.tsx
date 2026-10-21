@@ -96,7 +96,7 @@ describe('SprintForm', () => {
 
   it('re-plans an existing sprint by id, keeping its dates', async () => {
     renderForm(sprintRow({ id: 'sprint-7' }));
-    expect(screen.getByLabelText('Sprint name')).toHaveValue('Sprint 12');
+    expect(screen.getByLabelText(/^Sprint name\s*\*?$/)).toHaveValue('Sprint 12');
     fill('Sprint name', 'Sprint 12b');
 
     await press('Update');

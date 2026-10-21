@@ -15,9 +15,9 @@ import {
   SocialNetworkRulesDocument,
   type SocialCalendarQueryVariables,
 } from '@exyconn/shell/graphql/generated';
-import { CalendarTab } from './CalendarTab';
-import { dayKeyIn, wallClock } from '../calendar.days';
-import { ACCOUNTS, RULES, post } from '../social.fixtures.cy';
+import { CalendarTab } from '../../src/pages/social/CalendarTab/CalendarTab';
+import { dayKeyIn, wallClock } from '../../src/pages/social/calendar.days';
+import { ACCOUNTS, RULES, post } from './social.fixtures';
 
 export const now = new Date();
 /** The workspace's zone (the default settings here) and today's date there. */

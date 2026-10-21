@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfDatePicker, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -82,8 +82,17 @@ export function MilestoneForm({
         minRows={2}
         helperText="Shown to clients on a shared link — write it for them"
       />
-      <RhfDatePicker name="dueOn" label="Due on" />
-      <RhfSelect name="state" label="State" options={enumOptions(Object.values(MilestoneState))} />
+      <RhfDatePicker
+        name="dueOn"
+        label="Due on"
+        helperText="Optional. The date the project commits to; clients see it on a shared link."
+      />
+      <RhfSelect
+        name="state"
+        label="State"
+        options={enumOptions(Object.values(MilestoneState))}
+        helperText="Whether the milestone is planned, in progress, hit or missed."
+      />
     </EntityForm>
   );
 }

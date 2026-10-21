@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import { useT } from '@exyconn/i18n';
 import { Box, Button } from '@exyconn/shell/components/ui';

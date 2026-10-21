@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
@@ -66,8 +66,18 @@ export function TrackerNotificationsForm({
           'Every channel the Slack bot can see is listed. It joins a public channel on its own; a private one marked “needs /invite” has to be joined by hand first.',
         )}
       </Text>
-      <RhfMultiSelect name="slackChannels" label="Channels for tracker builds" options={options} />
-      <RhfMultiSelect name="statusAlertChannels" label="Status alerts" options={options} />
+      <RhfMultiSelect
+        name="slackChannels"
+        label="Channels for tracker builds"
+        options={options}
+        helperText="Optional. Each finished desktop and phone tracker build is posted here."
+      />
+      <RhfMultiSelect
+        name="statusAlertChannels"
+        label="Status alerts"
+        options={options}
+        helperText="Optional. Told when a status incident opens or is resolved."
+      />
     </EntityForm>
   );
 }

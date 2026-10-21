@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -64,7 +64,12 @@ export function AnotherVariantForm({ draftId, tone }: Readonly<AnotherVariantFor
         label="What should change (optional)"
         helperText="e.g. shorter, mention our free pilot, ask for a 15-minute call"
       />
-      <RhfSelect name="tone" label="Tone" options={toneOptions} />
+      <RhfSelect
+        name="tone"
+        label="Tone"
+        options={toneOptions}
+        helperText="How the new version reads: Friendly, Formal or Brief."
+      />
       <Text component="p" size="caption" color="text.secondary">
         {t('Each version is written by the AI and spends AI budget.')}
       </Text>

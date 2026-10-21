@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { SLUG } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, RhfSwitch } from '@/components/form/rhf';
@@ -81,15 +81,30 @@ export function KbArticleForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Title" />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="Phrase it the way people would search, e.g. “How do I reset my VPN password?”."
+      />
       <RhfTextField name="slug" label="Slug" helperText="Stays put when the title is reworded" />
-      <RhfSelect name="category" label="Category" options={enumOptions([...categories])} />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={enumOptions([...categories])}
+        helperText="The help desk area this article belongs to."
+      />
       <RhfTextField
         name="summary"
         label="Summary"
         helperText="One line — this is what search results show"
       />
-      <RhfTextField name="body" label="Answer" multiline rows={10} />
+      <RhfTextField
+        name="body"
+        label="Answer"
+        multiline
+        rows={10}
+        helperText="The full answer, at least 20 characters, written so the reader can act on it."
+      />
       {/* Only published articles are searchable: a half-written answer is worse than none. */}
       <RhfSwitch name="isPublished" label="Published" />
     </EntityForm>

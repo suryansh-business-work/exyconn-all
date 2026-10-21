@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ListPerformanceReviewsPagedDocument,
   ReviewStatus,
@@ -8,7 +8,7 @@ import { PERFORMANCE_REVIEW_COLUMNS } from '../../../../src/pages/performance/pe
 import { renderWithProviders } from '../../test-utils';
 import { dashboardProps } from '../../harness/crud-dashboard';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 import { actionKeys, columnIds, formatCell } from '../../harness/grid';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
@@ -49,7 +49,7 @@ const row = {
   updatedAt: '2026-03-04T12:00:00.000Z',
 };
 
-describeCrudPage('PerformancePage', {
+const suite = crudPageSuite({
   page: <PerformancePage />,
   mocks: gql,
   statsKey: 'listPerformanceReviewsStats',
@@ -68,6 +68,13 @@ describeCrudPage('PerformancePage', {
   row,
   confirm: 'Delete this review?',
   entity: 'PerformanceReview',
+});
+
+describe('PerformancePage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('PerformancePage employee names', () => {

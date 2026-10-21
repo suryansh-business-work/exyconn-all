@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Alert, Text } from '@exyconn/shell/components/ui';
@@ -63,7 +63,12 @@ export function ApplicantStageForm({
       <Text size="sm" color="text.secondary">
         {applicant.name} · {t('currently {stage}', { stage: applicant.stage.toLowerCase() })}
       </Text>
-      <RhfSelect name="stage" label="Stage" options={STAGE_OPTIONS} />
+      <RhfSelect
+        name="stage"
+        label="Stage"
+        options={STAGE_OPTIONS}
+        helperText="Where the applicant now is in hiring. Interview, Offer and Rejected email the applicant."
+      />
       <RhfTextField
         name="note"
         label="Note"

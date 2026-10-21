@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   RhfTextField,
@@ -57,10 +57,29 @@ export function ReviewForm({ initial, onDone, onCancel }: Readonly<ReviewFormPro
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="Review" helperText="e.g. Q3 management review" />
-      <RhfMultiSelect name="standards" label="Standards" options={STANDARD_OPTIONS} />
-      <RhfDatePicker name="heldOn" label="Held on" />
-      <RhfTextField name="chairName" label="Chaired by" />
-      <RhfTextField name="attendees" label="Attendees" multiline rows={2} />
+      <RhfMultiSelect
+        name="standards"
+        label="Standards"
+        options={STANDARD_OPTIONS}
+        helperText="The ISO standards the review covered. Pick at least one."
+      />
+      <RhfDatePicker
+        name="heldOn"
+        label="Held on"
+        helperText="The date the meeting took place or is planned for."
+      />
+      <RhfTextField
+        name="chairName"
+        label="Chaired by"
+        helperText="Optional. The person who led the meeting."
+      />
+      <RhfTextField
+        name="attendees"
+        label="Attendees"
+        multiline
+        rows={2}
+        helperText="Optional. Who took part, e.g. CEO, Head of IT, Quality lead."
+      />
       <RhfTextField
         name="inputs"
         label="What was considered"
@@ -76,7 +95,12 @@ export function ReviewForm({ initial, onDone, onCancel }: Readonly<ReviewFormPro
         helperText="What it concluded about the system's suitability, adequacy and effectiveness"
       />
       <ReviewActionFields />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={STATUS_OPTIONS}
+        helperText="Planned, held or minuted. Minuted needs what was considered and decided."
+      />
     </EntityForm>
   );
 }

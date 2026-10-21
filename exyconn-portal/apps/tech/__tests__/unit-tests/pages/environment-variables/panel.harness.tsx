@@ -5,6 +5,9 @@ import { forms } from './stub-modules';
 export { dialogModule, formModule, forms, panelModule, propsModule, propsOf } from './stub-modules';
 
 /** A table row as the stand-in reads it: an id and whatever fields the panel's columns name. */
+/** One shared suite case: its title and its body, registered with `it` by the test file. */
+export type SuiteCase = readonly [title: string, run: () => void | Promise<void>];
+
 export interface StubRow {
   id: string;
   [field: string]: unknown;

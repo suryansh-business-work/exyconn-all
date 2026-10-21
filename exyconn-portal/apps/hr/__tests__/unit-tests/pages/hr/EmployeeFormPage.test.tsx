@@ -52,21 +52,13 @@ describe('EmployeeFormPage — new employee', () => {
     );
   });
 
-  it('returns to the records once the employee is created', async () => {
+  it.each([
+    ['once the employee is created', 'Finish form'],
+    ['from the back link', 'Back to employee records'],
+    ['when the form is cancelled', 'Cancel form'],
+  ])('returns to the records %s', async (_case, button) => {
     renderAt('/hr/employees/new');
-    await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
-    expect(url()).toHaveTextContent(/^\/hr\/employees$/);
-  });
-
-  it('goes back to the records from the back link', async () => {
-    renderAt('/hr/employees/new');
-    await userEvent.click(screen.getByRole('button', { name: 'Back to employee records' }));
-    expect(url()).toHaveTextContent(/^\/hr\/employees$/);
-  });
-
-  it('cancels back to the records', async () => {
-    renderAt('/hr/employees/new');
-    await userEvent.click(screen.getByRole('button', { name: 'Cancel form' }));
+    await userEvent.click(screen.getByRole('button', { name: button }));
     expect(url()).toHaveTextContent(/^\/hr\/employees$/);
   });
 });
@@ -113,9 +105,7 @@ describe('EmployeeFormPage — editing', () => {
   it('falls back to a plain sentence for an error with no message', () => {
     const blank = new Error('replaced below');
     blank.message = '';
-    vi.mocked(useGetUserQuery).mockReturnValue(
-      queryResult(undefined, { error: blank }) as never,
-    );
+    vi.mocked(useGetUserQuery).mockReturnValue(queryResult(undefined, { error: blank }) as never);
     renderAt('/hr/employees/u1/edit');
     expect(screen.getByText('Failed to load the employee.')).toBeInTheDocument();
   });

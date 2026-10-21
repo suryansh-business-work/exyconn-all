@@ -63,7 +63,7 @@ describe('the hub sidebar', () => {
 
     await user.click(screen.getByRole('button', { name: 'Other Portals' }));
     const switcher = await screen.findByRole('dialog', { name: 'Other Portals' });
-    expect(within(switcher).getByRole('textbox', { name: 'Search portals' })).toBeVisible();
+    expect(within(switcher).getByRole('textbox', { name: /^Search portals\s*\*?$/ })).toBeVisible();
 
     await user.keyboard('{Escape}');
 

@@ -91,7 +91,7 @@ describe('TeamGoalsSection', () => {
     expect(
       within(dialog).getByRole('heading', { name: 'Comment on “Cut churn”' }),
     ).toBeInTheDocument();
-    expect(within(dialog).getByLabelText('Your comment')).toHaveValue('Great result');
+    expect(within(dialog).getByLabelText(/^Your comment\s*\*?$/)).toHaveValue('Great result');
   });
 
   it('cancels the comment without saving', async () => {
@@ -118,7 +118,7 @@ describe('TeamGoalsSection', () => {
     const { refetch } = setup({ data: { teamGoals: ROWS } });
     const dialog = await openComment(1);
 
-    await userEvent.type(within(dialog).getByLabelText('Your comment'), 'On track');
+    await userEvent.type(within(dialog).getByLabelText(/^Your comment\s*\*?$/), 'On track');
     await userEvent.click(within(dialog).getByRole('button', { name: 'Save comment' }));
 
     await waitFor(() => expect(refetch).toHaveBeenCalledTimes(1));

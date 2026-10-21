@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useClientProjectOptionsQuery } from '@exyconn/shell/graphql/generated';
 import {

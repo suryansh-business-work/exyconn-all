@@ -37,16 +37,19 @@ export function CountryOverrideFields() {
             name={`overrides.${index}.country`}
             label="Country"
             options={countries}
+            helperText="Employees based here get this row instead of the global terms."
           />
           <RhfTextField
             name={`overrides.${index}.annualQuota`}
             label="Annual quota (days)"
             type="number"
+            helperText="Days a year granted in this country."
           />
           <RhfTextField
             name={`overrides.${index}.carryForwardCap`}
             label="Carry-forward cap"
             type="number"
+            helperText="Most unused days kept into next year here; 0 keeps none."
           />
           <RhfSwitch name={`overrides.${index}.active`} label="Offered" />
           <IconButton

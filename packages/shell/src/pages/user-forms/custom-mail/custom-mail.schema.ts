@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
-
-/** Visible text of a rich-text value, so an editor holding only empty tags counts as empty. */
-const textOf = (html: string) => html.replaceAll(/<[^>]*>/g, '').trim();
+import { visibleText } from '@/utils/visibleText';
 
 /** A list of addresses typed as chips: every one must be an email, and at most 20. */
 const addressList = z
@@ -23,8 +21,8 @@ export const customMailSchema = z.object({
     .max(200, 'Keep the subject under 200 characters'),
   message: z
     .string()
-    .refine((html) => textOf(html).length > 0, { message: 'Message is required' })
-    .refine((html) => textOf(html).length >= 10, { message: 'Minimum 10 characters' }),
+    .refine((html) => visibleText(html).length > 0, { message: 'Message is required' })
+    .refine((html) => visibleText(html).length >= 10, { message: 'Minimum 10 characters' }),
   attachments: z
     .array(z.object({ url: z.string(), name: z.string(), contentType: z.string() }))
     .max(10, 'Attach at most 10 files'),

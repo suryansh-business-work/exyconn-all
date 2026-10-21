@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
@@ -87,24 +87,40 @@ export function ClientTicketForm({ onCancel, onDone }: Readonly<ClientTicketForm
       onCancel={onCancel}
       submitLabel="Raise ticket"
     >
-      <RhfTextField name="requesterName" label="Customer name" />
+      <RhfTextField
+        name="requesterName"
+        label="Customer name"
+        helperText="The customer's name as they gave it, 2 to 80 characters."
+      />
       <RhfTextField
         name="requesterEmail"
         label="Customer email"
         helperText="Matched against the client book; replies go to this address."
       />
-      <RhfTextField name="subject" label="Subject" />
+      <RhfTextField
+        name="subject"
+        label="Subject"
+        helperText="A short summary of the issue, 5 to 120 characters."
+      />
       <RhfSelect
         name="category"
         label="Category"
         options={enumOptions(Object.values(SupportCategory))}
+        helperText="The area the issue belongs to, e.g. IT or Payroll."
       />
       <RhfSelect
         name="priority"
         label="Priority"
         options={enumOptions(Object.values(SupportPriority))}
+        helperText="How urgent it is; it decides which SLA targets apply."
       />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="What happened and what they need, 20 to 4000 characters."
+      />
     </EntityForm>
   );
 }

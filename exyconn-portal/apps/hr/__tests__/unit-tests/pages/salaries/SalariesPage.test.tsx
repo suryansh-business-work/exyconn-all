@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ListSalaryStructuresPagedDocument, PayType } from '@exyconn/shell/graphql/generated';
 import type { TableStatsShape } from '@exyconn/shell/components/data/tableStats';
 import { SalariesPage } from '../../../../src/pages/salaries';
 import { SALARY_STRUCTURE_COLUMNS } from '../../../../src/pages/salaries/salary-structure-grid';
 import { renderWithProviders } from '../../test-utils';
 import { dashboardProps } from '../../harness/crud-dashboard';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -42,7 +42,7 @@ const stats: TableStatsShape = {
   ],
 };
 
-describeCrudPage('SalariesPage', {
+const suite = crudPageSuite({
   page: <SalariesPage />,
   mocks: gql,
   statsKey: 'listSalaryStructuresStats',
@@ -73,6 +73,13 @@ describeCrudPage('SalariesPage', {
   confirm: 'Delete this salary structure?',
   // The page labels the resource with its type name, so the toast reads it that way.
   entity: 'SalaryStructure',
+});
+
+describe('SalariesPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('SalariesPage employee names', () => {

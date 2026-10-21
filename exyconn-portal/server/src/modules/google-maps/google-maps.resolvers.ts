@@ -9,6 +9,7 @@ import { assertRole } from '../../middleware/roleGuard';
 import { badRequest } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { UnsafeUrlError } from '../../utils/safeFetch';
+import { inSequence } from '../../utils/inSequence';
 import { recordAudit } from '../audit';
 import { CompanyModel } from '../crm/company.model';
 import type { PermissionAction } from '../permissions/permission.model';
@@ -57,18 +58,17 @@ const leadImportDesk = async (ctx: GraphQLContext, merging: boolean) => {
 
 /** One audit row per company that got extra details: the field names, never the values. */
 async function auditMerges(ctx: GraphQLContext, result: LeadImportResult) {
-  await Promise.all(
-    result.merges.map((merge) => {
-      const fields = [...new Set(merge.added.map((extra) => extra.field))];
-      return recordAudit(ctx, {
-        action: 'UPDATE',
-        module: 'Company',
-        entityId: merge.companyId,
-        entityLabel: merge.name,
-        summary: `Added details from ${LEAD_SOURCE}: ${fields.join(', ')}`,
-      });
-    }),
-  );
+  // In merge order, so the audit log reads the way the import ran.
+  await inSequence(result.merges, (merge) => {
+    const fields = [...new Set(merge.added.map((extra) => extra.field))];
+    return recordAudit(ctx, {
+      action: 'UPDATE',
+      module: 'Company',
+      entityId: merge.companyId,
+      entityLabel: merge.name,
+      summary: `Added details from ${LEAD_SOURCE}: ${fields.join(', ')}`,
+    });
+  });
 }
 
 const importSummary = (result: LeadImportResult) => {

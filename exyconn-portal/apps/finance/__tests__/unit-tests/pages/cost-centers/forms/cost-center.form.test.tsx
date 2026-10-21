@@ -13,7 +13,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useUpdateCostCenterMutation: () => [gql.update],
 }));
 
-const codeField = () => screen.getByLabelText('Code');
+const codeField = () => screen.getByLabelText(/^Code\s*\*?$/);
 
 async function submitCode(code: string) {
   await userEvent.clear(codeField());
@@ -34,7 +34,7 @@ describe('CostCenterForm', () => {
     expect(field('isActive')).toBeChecked();
 
     await userEvent.type(codeField(), 'MKT-1');
-    await userEvent.type(screen.getByLabelText('Name'), '  Marketing  ');
+    await userEvent.type(screen.getByLabelText(/^Name\s*\*?$/), '  Marketing  ');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

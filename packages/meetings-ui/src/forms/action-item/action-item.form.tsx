@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import {
@@ -81,17 +81,47 @@ export function ActionItemForm({
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="title" label="Title" required />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField
+        name="title"
+        label="Title"
+        required
+        helperText="What has to be done, e.g. “Send the revised quote to the client”."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="Optional. Context or detail, up to 5,000 characters."
+      />
       <RhfTextField
         name="assignedTo"
         label="Owner"
         helperText="The name as it was said in the call, or anyone outside the company"
       />
-      <RhfAutocomplete name="assignedUserId" label="Portal user (optional)" options={people} />
-      <RhfDatePicker name="dueDate" label="Due date" />
-      <RhfSelect name="priority" label="Priority" options={translated(Object.values(MaPriority))} />
-      <RhfSelect name="status" label="Status" options={translated(Object.values(MaActionStatus))} />
+      <RhfAutocomplete
+        name="assignedUserId"
+        label="Portal user (optional)"
+        options={people}
+        helperText="Optional. Links the item to a colleague's portal account."
+      />
+      <RhfDatePicker
+        name="dueDate"
+        label="Due date"
+        helperText="Optional. When the item should be done."
+      />
+      <RhfSelect
+        name="priority"
+        label="Priority"
+        options={translated(Object.values(MaPriority))}
+        helperText="How urgent the item is, from low to critical."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={translated(Object.values(MaActionStatus))}
+        helperText="Where the item stands, e.g. pending, in progress or completed."
+      />
     </EntityForm>
   );
 }

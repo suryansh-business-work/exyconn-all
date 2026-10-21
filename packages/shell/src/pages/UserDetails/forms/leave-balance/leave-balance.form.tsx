@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import type { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@/components/ui';

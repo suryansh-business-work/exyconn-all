@@ -32,9 +32,9 @@ describe('CrmSmsConfigForm', () => {
     renderForm();
 
     expect(await optionsOf('Provider')).toEqual(['Twilio', 'MSG91']);
-    expect(screen.getByLabelText('Account SID')).toBeInTheDocument();
-    expect(screen.getByLabelText('From number')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Sender ID')).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^Account SID\s*\*?$/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^From number\s*\*?$/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Sender ID\s*\*?$/)).not.toBeInTheDocument();
     expect(
       screen.getByText('Shown next to the Account SID in the Twilio console'),
     ).toBeInTheDocument();
@@ -68,9 +68,9 @@ describe('CrmSmsConfigForm', () => {
     await fillField('Label', 'India texts');
     await chooseOption('Provider', 'MSG91');
 
-    expect(screen.queryByLabelText('Account SID')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Account SID\s*\*?$/)).not.toBeInTheDocument();
     expect(screen.getByText('MSG91 > Settings > API keys')).toBeInTheDocument();
-    expect(screen.getByLabelText('Template variable name')).toHaveValue('message');
+    expect(screen.getByLabelText(/^Template variable name\s*\*?$/)).toHaveValue('message');
     await fillField('Sender ID', 'EX');
     await fillField('Auth key', 'key-1');
     await press('Create');

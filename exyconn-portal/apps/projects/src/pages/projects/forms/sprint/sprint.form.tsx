@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -71,8 +71,16 @@ export function SprintForm({ projectId, initial, onDone, onCancel }: Readonly<Sp
         minRows={2}
         helperText="What this sprint is for, in one sentence"
       />
-      <RhfDatePicker name="startsOn" label="Starts on" />
-      <RhfDatePicker name="endsOn" label="Ends on" />
+      <RhfDatePicker
+        name="startsOn"
+        label="Starts on"
+        helperText="Optional. The first day of the sprint."
+      />
+      <RhfDatePicker
+        name="endsOn"
+        label="Ends on"
+        helperText="Optional. The last day of the sprint, on or after the start."
+      />
     </EntityForm>
   );
 }

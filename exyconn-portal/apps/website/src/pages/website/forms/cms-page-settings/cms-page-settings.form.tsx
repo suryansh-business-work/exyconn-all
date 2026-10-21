@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { Divider } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -73,9 +73,23 @@ export function CmsPageSettingsForm({
         label="Path"
         helperText="e.g. /about-us, or /blog/:slug for a template"
       />
-      <RhfTextField name="title" label="Title" />
-      <RhfSelect name="kind" label="Kind" options={KIND_OPTIONS} />
-      <RhfSelect name="layout" label="Layout" options={LAYOUT_OPTIONS} />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="Names the page in the portal and in the browser tab."
+      />
+      <RhfSelect
+        name="kind"
+        label="Kind"
+        options={KIND_OPTIONS}
+        helperText="A template renders every address that matches its path parameter."
+      />
+      <RhfSelect
+        name="layout"
+        label="Layout"
+        options={LAYOUT_OPTIONS}
+        helperText="Whether the page shows the site's shared header and footer."
+      />
       {isEdit && <Divider />}
       {isEdit && <PageSeoFields siteId={siteId} />}
     </EntityForm>

@@ -157,7 +157,7 @@ describe('ContactForm', () => {
     const row = contactRow({ id: 'contact-1', status: ContactStatus.Bounced });
     const { onDone } = renderForm(row);
 
-    expect(screen.getByLabelText('Full name')).toHaveValue('Asha Rao');
+    expect(screen.getByLabelText(/^Full name\s*\*?$/)).toHaveValue('Asha Rao');
     await chooseOption('Status', 'Unsubscribed');
     await press('Update');
 

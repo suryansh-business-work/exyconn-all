@@ -26,8 +26,8 @@ function renderForm() {
 type User = ReturnType<typeof userEvent.setup>;
 
 async function fill(user: User) {
-  await user.type(screen.getByLabelText('Subject'), SUBJECT);
-  await user.click(screen.getByLabelText('Describe the problem'));
+  await user.type(screen.getByLabelText(/^Subject\s*\*?$/), SUBJECT);
+  await user.click(screen.getByLabelText(/^Describe the problem\s*\*?$/));
   await user.paste(DESCRIPTION);
 }
 

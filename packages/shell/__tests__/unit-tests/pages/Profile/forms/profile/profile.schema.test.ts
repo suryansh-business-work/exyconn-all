@@ -79,8 +79,8 @@ describe('the profile schema', () => {
   it('accepts only the offered date and time patterns', () => {
     expect(messageFor({ dateFormat: 'yyyy/MM/dd' }, 'dateFormat')).toBe('Choose a date format');
     expect(messageFor({ timeFormat: 'H:m' }, 'timeFormat')).toBe('Choose a time format');
-    expect(messageFor({ dateFormat: 'dd/MM/yyyy', timeFormat: 'hh:mm a' }, 'dateFormat')).toBe(
-      undefined,
-    );
+    expect(
+      messageFor({ dateFormat: 'dd/MM/yyyy', timeFormat: 'hh:mm a' }, 'dateFormat'),
+    ).toBeUndefined();
   });
 });

@@ -9,6 +9,15 @@ import { renderWithProviders } from '../../../../test-utils';
 import { settingsRow } from '../../../page-kit/fixtures';
 import { fill, optionsOf, press } from '../../../page-kit/form-actions';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ save: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -38,7 +47,7 @@ describe('ItSettingsForm', () => {
     expect(screen.getAllByText('Email')).toHaveLength(2);
     expect(screen.getByText('Slack')).toBeInTheDocument();
     expect(screen.getByText('Hardware')).toBeInTheDocument();
-    expect(screen.getByLabelText(WARRANTY)).toHaveValue(60);
+    expect(screen.getByLabelText(labelled(WARRANTY))).toHaveValue(60);
   });
 
   it('saves the settings, shows what the server kept and tells the page', async () => {
@@ -60,7 +69,7 @@ describe('ItSettingsForm', () => {
       },
     });
     expect(await screen.findByText('IT settings saved')).toBeInTheDocument();
-    expect(screen.getByLabelText(WARRANTY)).toHaveValue(90);
+    expect(screen.getByLabelText(labelled(WARRANTY))).toHaveValue(90);
   });
 
   it('falls back to the standard windows when the server answers without settings', async () => {
@@ -70,14 +79,14 @@ describe('ItSettingsForm', () => {
     await press('Save settings');
 
     await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
-    expect(screen.getByLabelText(WARRANTY)).toHaveValue(60);
+    expect(screen.getByLabelText(labelled(WARRANTY))).toHaveValue(60);
     expect(screen.queryByText('Slack')).not.toBeInTheDocument();
   });
 
   it('offers new joiners only the applications in the list, including one just added', async () => {
     renderForm();
 
-    await userEvent.type(screen.getByLabelText('Applications'), 'Zoom{Enter}');
+    await userEvent.type(screen.getByLabelText(/^Applications\s*\*?$/), 'Zoom{Enter}');
 
     expect(screen.getByText('Zoom')).toBeInTheDocument();
     expect(await optionsOf('Given to every new joiner')).toEqual(['Email', 'Slack', 'Zoom']);
@@ -124,11 +133,11 @@ describe('ItSettingsForm', () => {
   it('puts back the saved values on cancel', async () => {
     renderForm();
     fill(WARRANTY, '45');
-    expect(screen.getByLabelText(WARRANTY)).toHaveValue(45);
+    expect(screen.getByLabelText(labelled(WARRANTY))).toHaveValue(45);
 
     await press('Cancel');
 
-    expect(screen.getByLabelText(WARRANTY)).toHaveValue(60);
+    expect(screen.getByLabelText(labelled(WARRANTY))).toHaveValue(60);
     expect(gql.save).not.toHaveBeenCalled();
   });
 });

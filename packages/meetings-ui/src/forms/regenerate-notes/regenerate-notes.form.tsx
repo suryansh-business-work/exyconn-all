@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
@@ -64,7 +64,12 @@ export function RegenerateNotesForm({
       <Text size="sm" color="text.secondary">
         {t('Action items keep their status and edits; the notes get a new version.')}
       </Text>
-      <RhfSelect name="style" label="Summary style" options={styles} />
+      <RhfSelect
+        name="style"
+        label="Summary style"
+        options={styles}
+        helperText="Who the new notes are written for, e.g. executive, client or sales."
+      />
     </EntityForm>
   );
 }

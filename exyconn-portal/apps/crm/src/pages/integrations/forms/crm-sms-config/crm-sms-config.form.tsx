@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import type { z } from 'zod';
 import { RhfSecretField, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -57,7 +57,10 @@ export function CrmSmsConfigForm({ initial, onDone, onCancel }: Readonly<CrmSmsC
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" helperText="e.g. Sales texts" />
-      <RhfProviderSelect providers={PROVIDERS} />
+      <RhfProviderSelect
+        providers={PROVIDERS}
+        helperText="The SMS service this account is with; the fields below change to match."
+      />
       {isTwilio ? <TwilioSmsFields /> : <Msg91SmsFields />}
       <RhfSecretField
         name="authToken"
@@ -65,7 +68,12 @@ export function CrmSmsConfigForm({ initial, onDone, onCancel }: Readonly<CrmSmsC
         stored={initial?.hasAuthToken}
         helperText={isEdit ? KEEP_TOKEN_HINT : tokenHelp}
       />
-      <RhfSelect name="isActive" label="Set as active" options={ACTIVE_OPTIONS} />
+      <RhfSelect
+        name="isActive"
+        label="Set as active"
+        options={ACTIVE_OPTIONS}
+        helperText="Yes makes this the account texts go out through and turns the others off."
+      />
     </EntityForm>
   );
 }

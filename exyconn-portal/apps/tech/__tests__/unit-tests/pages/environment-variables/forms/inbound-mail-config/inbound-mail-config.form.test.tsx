@@ -16,6 +16,15 @@ import {
   toast,
 } from '../form.helpers';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -67,9 +76,9 @@ describe('InboundMailConfigForm', () => {
 
   it('starts a new mailbox on IMAPS, reading INBOX every two minutes and keeping mail', () => {
     renderForm();
-    expect(screen.getByLabelText('Port')).toHaveValue(993);
-    expect(screen.getByLabelText('Mailbox')).toHaveValue('INBOX');
-    expect(screen.getByLabelText(POLL)).toHaveValue(120);
+    expect(screen.getByLabelText(/^Port\s*\*?$/)).toHaveValue(993);
+    expect(screen.getByLabelText(/^Mailbox\s*\*?$/)).toHaveValue('INBOX');
+    expect(screen.getByLabelText(labelled(POLL))).toHaveValue(120);
     expect(screen.getByRole('combobox', { name: SECURE })).toHaveTextContent('Yes');
     expect(screen.getByRole('combobox', { name: DELETE })).toHaveTextContent('No');
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('Yes');

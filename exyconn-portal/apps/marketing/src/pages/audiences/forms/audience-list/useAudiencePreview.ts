@@ -1,3 +1,4 @@
+import type { TypedDocumentNode } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -8,6 +9,11 @@ import {
   type PreviewAudienceCountsQuery,
   type PreviewAudienceCountsQueryVariables,
 } from '@exyconn/shell/graphql/generated';
+
+const previewAudienceCountsQuery: TypedDocumentNode<
+  PreviewAudienceCountsQuery,
+  PreviewAudienceCountsQueryVariables
+> = PreviewAudienceCountsDocument;
 
 /** Long enough that typing a value is one request, short enough to feel live. */
 const DEBOUNCE_MS = 400;
@@ -43,8 +49,8 @@ export function useAudiencePreview(input: AudienceListInput): AudiencePreviewSta
     setState((previous) => ({ ...previous, updating: true, error: null }));
     const timer = globalThis.setTimeout(() => {
       client
-        .query<PreviewAudienceCountsQuery, PreviewAudienceCountsQueryVariables>({
-          query: PreviewAudienceCountsDocument,
+        .query({
+          query: previewAudienceCountsQuery,
           variables: { input: JSON.parse(key) as AudienceListInput },
           fetchPolicy: 'network-only',
           context: { fetchOptions: { signal: controller.signal } },

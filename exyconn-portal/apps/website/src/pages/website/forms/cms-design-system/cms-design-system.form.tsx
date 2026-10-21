@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { Tabber } from '@exyconn/tabber';
 import { Box, Grid } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -57,7 +57,11 @@ export function DesignSystemForm({
       onCancel={onCancel}
       submitLabel="Save design system"
     >
-      <RhfTextField name="name" label="Name" />
+      <RhfTextField
+        name="name"
+        label="Name"
+        helperText="Tells this design system apart in the portal, e.g. Exyconn brand."
+      />
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 8 }}>
           <Tabber

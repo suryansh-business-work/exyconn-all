@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfAutocomplete, RhfTextField } from '@exyconn/shell/components/form/rhf';
@@ -80,7 +80,12 @@ export function RunPromptForm({ prompt, onDone, onCancel }: Readonly<RunPromptFo
         {renderMergeFields(prompt.content, filled)}
       </Text>
       {prompt.variables.map((name) => (
-        <RhfTextField key={name} name={`${VARIABLE_FIELD_PREFIX}${name}`} label={name} />
+        <RhfTextField
+          key={name}
+          name={`${VARIABLE_FIELD_PREFIX}${name}`}
+          label={name}
+          helperText="Filled into the prompt above wherever this placeholder appears."
+        />
       ))}
       <RhfAutocomplete
         name="model"

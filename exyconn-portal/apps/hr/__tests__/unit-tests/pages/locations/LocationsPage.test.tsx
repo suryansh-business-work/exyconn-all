@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ListLocationsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { LocationsPage } from '../../../../src/pages/locations';
 import { LOCATION_COLUMNS } from '../../../../src/pages/locations/location-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 import { actionKeys, columnIds } from '../../harness/grid';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
@@ -27,7 +27,7 @@ vi.mock('../../../../src/pages/locations/forms/location', async () => ({
   LocationForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('LocationsPage', {
+const suite = crudPageSuite({
   page: <LocationsPage />,
   mocks: gql,
   statsKey: 'listLocationsStats',
@@ -47,6 +47,13 @@ describeCrudPage('LocationsPage', {
   row: { id: 'loc-4', name: 'Bengaluru office', code: 'BLR' },
   confirm: 'Delete this location?',
   entity: 'Location',
+});
+
+describe('LocationsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('LOCATION_COLUMNS', () => {

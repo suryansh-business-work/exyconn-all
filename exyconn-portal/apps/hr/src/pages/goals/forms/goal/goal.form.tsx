@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import {
   RhfTextField,
@@ -84,16 +84,60 @@ export function GoalForm({ initial, onDone, onCancel }: Readonly<GoalFormProps>)
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfTextField name="title" label="Title" />
-      <RhfTextField name="description" label="Description" multiline minRows={3} />
-      <RhfTextField name="kpi" label="KPI" />
-      <RhfTextField name="weightage" label="Weightage %" type="number" />
-      <RhfDatePicker name="startDate" label="Start date" />
-      <RhfDatePicker name="endDate" label="End date" />
-      <RhfTextField name="progress" label="Progress %" type="number" />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(GoalStatus))} />
-      <RhfTextField name="managerComment" label="Manager comment" multiline minRows={3} />
+      <RhfAutocomplete
+        name="employeeId"
+        label="Employee"
+        options={employeeOptions}
+        helperText="The employee who owns this goal."
+      />
+      <RhfTextField
+        name="title"
+        label="Title"
+        helperText="A short name for the goal, e.g. Cut ticket response time."
+      />
+      <RhfTextField
+        name="description"
+        label="Description"
+        multiline
+        minRows={3}
+        helperText="What the goal is and what done looks like."
+      />
+      <RhfTextField
+        name="kpi"
+        label="KPI"
+        helperText="How success is measured, e.g. Average first response under 4 hours."
+      />
+      <RhfTextField
+        name="weightage"
+        label="Weightage %"
+        type="number"
+        helperText="How much this goal counts in the review compared with the others, e.g. 25."
+      />
+      <RhfDatePicker
+        name="startDate"
+        label="Start date"
+        helperText="When work on the goal begins."
+      />
+      <RhfDatePicker name="endDate" label="End date" helperText="When the goal should be met." />
+      <RhfTextField
+        name="progress"
+        label="Progress %"
+        type="number"
+        helperText="How far along it is, from 0 to 100."
+      />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(GoalStatus))}
+        helperText="Draft until agreed, Active while in progress, then Completed or Cancelled."
+      />
+      <RhfTextField
+        name="managerComment"
+        label="Manager comment"
+        multiline
+        minRows={3}
+        helperText="Optional. The manager's feedback on how the goal is going."
+      />
     </EntityForm>
   );
 }
