@@ -111,6 +111,18 @@ describe('controller commands over IPC', () => {
       'https://portal.exyconn.com/me/tracker',
     );
   });
+
+  it('opens the OS location settings page for this platform', async () => {
+    const realPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    try {
+      await invoke(IPC.openLocationSettings);
+    } finally {
+      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+    }
+
+    expect(electron.shell.openExternal).toHaveBeenCalledWith('ms-settings:privacy-location');
+  });
 });
 
 describe('the webcam photo', () => {

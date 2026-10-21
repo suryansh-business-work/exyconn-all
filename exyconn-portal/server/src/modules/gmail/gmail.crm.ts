@@ -1,5 +1,4 @@
 import { currentOrganizationId } from '../../lib/tenant';
-import { platformOperatorOrganizationId } from '../../lib/platformAccess';
 import { badRequest, forbidden } from '../../utils/errors';
 import { isEmailAddress } from '../../utils/emailAddress';
 import { timelineTarget } from '../crm/timeline/crm.timeline';
@@ -14,15 +13,16 @@ import { CrmEmailMessageModel } from './gmail.models';
 import { keepRecord, toRecord } from './gmail.sync';
 
 /**
- * The CRM's Gmail: the operator's own mailboxes, so only the operator's own CRM may read or
- * send through them — a customer company never sees Exyconn's mail. Returns that company.
+ * The company whose CRM mailboxes a call works with. Every company connects and sends from
+ * its own (the tenancy scope keeps each to its own rows); a caller acting in no company has
+ * no CRM mailboxes at all. Returns that company.
  */
-export async function assertOperatorCrm(): Promise<string> {
-  const operator = await platformOperatorOrganizationId();
-  if (!operator || currentOrganizationId() !== operator) {
-    forbidden('Gmail is connected for Exyconn’s own CRM only.');
+export function assertCompanyCrm(): string {
+  const organizationId = currentOrganizationId();
+  if (organizationId === null) {
+    forbidden('Open a company’s CRM to use its email accounts.');
   }
-  return operator;
+  return organizationId;
 }
 
 export interface SendCrmEmailInput {
@@ -78,7 +78,7 @@ export function checkedRecipients(input: SendCrmEmailInput) {
 
 /** Sends from the chosen account and keeps the sent message, with its thread, on the record. */
 export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string) {
-  await assertOperatorCrm();
+  assertCompanyCrm();
   const { to, cc, subject } = checkedRecipients(input);
   const mailbox = await sendingMailbox(input.fromAccountId);
   const threading = await replyThreading(input, mailbox);

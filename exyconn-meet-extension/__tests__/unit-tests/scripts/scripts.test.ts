@@ -3,7 +3,7 @@ import { inflateRawSync, inflateSync } from 'node:zlib';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { crc32 } from '../../../scripts/lib/crc32.mjs';
 import {
   MODES,
@@ -50,6 +50,49 @@ describe('modes', () => {
   });
 });
 
+describe('build version', () => {
+  /** defines.mjs reads EXTENSION_BUILD_NUMBER when it loads, so each case loads it afresh. */
+  const definesWith = async (buildNumber?: string) => {
+    vi.resetModules();
+    if (buildNumber !== undefined) {
+      vi.stubEnv('EXTENSION_BUILD_NUMBER', buildNumber);
+    }
+    return import('../../../scripts/lib/defines.mjs');
+  };
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('is the package version on a local build, with no version name', async () => {
+    vi.stubEnv('EXTENSION_BUILD_NUMBER', '');
+    const defines = await definesWith();
+
+    expect(defines.BUILD_NUMBER).toBe(0);
+    expect(defines.BUILD_VERSION).toBe(PACKAGE_VERSION);
+    expect(defines.BUILD_VERSION_NAME).toBeUndefined();
+  });
+
+  it("adds the CI build number as Chrome's fourth part, and names it", async () => {
+    const defines = await definesWith('57');
+
+    expect(defines.BUILD_NUMBER).toBe(57);
+    expect(defines.BUILD_VERSION).toBe(`${PACKAGE_VERSION}.57`);
+    expect(defines.BUILD_VERSION_NAME).toBe(`${PACKAGE_VERSION} (build 57)`);
+    expect(defines.defineConstants('production').__VERSION__).toBe(
+      JSON.stringify(`${PACKAGE_VERSION}.57`),
+    );
+    expect(versionErrors(defines.BUILD_VERSION)).toEqual([]);
+  });
+
+  it('ignores a build number that is not a number', async () => {
+    const defines = await definesWith('not-a-number');
+
+    expect(defines.BUILD_NUMBER).toBe(0);
+    expect(defines.BUILD_VERSION).toBe(PACKAGE_VERSION);
+  });
+});
+
 describe('manifest', () => {
   it('builds a valid production MV3 manifest', () => {
     const manifest = buildManifest({ version: '1.2.3', apiUrl: API });
@@ -60,6 +103,17 @@ describe('manifest', () => {
       minimum_chrome_version: '116',
     });
     expect(manifest).not.toHaveProperty('key');
+    expect(manifest).not.toHaveProperty('version_name');
+    expect(manifestErrors(manifest, { exists: everyFileExists, production: true })).toEqual([]);
+  });
+
+  it('names a CI build the way Chrome shows it', () => {
+    const manifest = buildManifest({
+      version: '1.2.3.57',
+      versionName: '1.2.3 (build 57)',
+      apiUrl: API,
+    });
+    expect(manifest).toMatchObject({ version: '1.2.3.57', version_name: '1.2.3 (build 57)' });
     expect(manifestErrors(manifest, { exists: everyFileExists, production: true })).toEqual([]);
   });
 

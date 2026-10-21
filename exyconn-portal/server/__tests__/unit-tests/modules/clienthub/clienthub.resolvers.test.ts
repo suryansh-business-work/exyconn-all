@@ -1,7 +1,6 @@
 import { clientHubResolvers } from '../../../../src/modules/clienthub';
 import { ClientModel } from '../../../../src/modules/clients/clients.model';
 import { emailer } from '../../../../src/modules/email/email.service';
-import { invalidatePlatformOperatorCache } from '../../../../src/lib/platformAccess';
 import { ROLES, type Role } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import type { ClientHubContact } from '../../../../src/modules/clienthub/clienthub.auth';
@@ -26,7 +25,6 @@ let clientId: string;
 let asContact: GraphQLContext;
 
 beforeEach(async () => {
-  invalidatePlatformOperatorCache();
   jest.spyOn(emailer, 'send').mockResolvedValue(undefined);
   const client = await ClientModel.create({
     name: 'Dana',
@@ -119,7 +117,7 @@ describe('client hub operations', () => {
     ).rejects.toThrow(/Ticket not found/);
   });
 
-  it('file and answer tickets, and refuse online payment outside the operator', async () => {
+  it('file and answer tickets, and pay only an invoice of their own', async () => {
     const { Mutation } = clientHubResolvers;
     const input = {
       subject: 'Invoice total looks wrong',
@@ -136,6 +134,6 @@ describe('client hub operations', () => {
     ).rejects.toThrow(/up to 5000/);
     await expect(
       Mutation.clientHubPayInvoice(null, { id: MISSING, gateway: 'STRIPE' }, asContact),
-    ).rejects.toThrow(/not available/);
+    ).rejects.toThrow('Invoice not found');
   });
 });

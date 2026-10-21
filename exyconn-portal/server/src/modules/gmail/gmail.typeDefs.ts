@@ -105,7 +105,7 @@ export const gmailTypeDefs = gql`
     gmailConfig: GmailConfig!
     "The record's Gmail threads across every enabled account, synced from Gmail first."
     crmEmailThreads(object: CrmTimelineObject!, id: ID!): [CrmEmailThread!]!
-    "Whether the CRM can email through Gmail (an enabled account, and this is the operator's CRM)."
+    "Whether the company's CRM can email through Gmail (one of its accounts is enabled)."
     crmGmailReady: Boolean!
     "The Gmail accounts connected to the CRM, newest first."
     gmailAccounts: [GmailAccount!]!

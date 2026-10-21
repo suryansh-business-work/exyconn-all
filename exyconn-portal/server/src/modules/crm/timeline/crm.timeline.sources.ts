@@ -15,6 +15,7 @@ import {
   type TimelineKind,
   type TimelineTarget,
 } from './crm.timeline.types';
+import { coldEmailDraftPaths } from './crm.timeline.cold-email';
 
 /**
  * Each reader returns the newest `limit` records of one kind that belong to the target: by
@@ -35,6 +36,7 @@ async function activities({
     .sort(newest)
     .limit(limit)
     .lean();
+  const draftPaths = await coldEmailDraftPaths(rows);
   return rows.map((row) =>
     item({
       id: `activity:${idOf(row)}`,
@@ -45,6 +47,7 @@ async function activities({
       actor: row.owner,
       status: row.done ? 'Done' : '',
       attachments: (row as { attachments?: TimelineItem['attachments'] }).attachments ?? [],
+      url: draftPaths.get(idOf(row)) ?? '',
     }),
   );
 }
@@ -163,6 +166,7 @@ async function campaignEmails({ addresses, limit }: TimelineTarget): Promise<Tim
         ? `Opened ${row.openCount ?? 1}×, clicked ${row.clickCount ?? 0}×`
         : 'Not opened',
       status: row.status,
+      url: `/marketing/campaigns/${row.campaignId}`,
     }),
   );
 }
@@ -181,6 +185,7 @@ async function systemEmails({ addresses, limit }: TimelineTarget): Promise<Timel
       summary: row.templateName,
       actor: row.triggeredBy,
       status: row.status,
+      url: '/tech/email/logs',
     }),
   );
 }
@@ -203,7 +208,11 @@ async function whatsappLeads({ addresses, limit }: TimelineTarget): Promise<Time
   );
 }
 
-async function gmailMessages({ addresses, limit }: TimelineTarget): Promise<TimelineItem[]> {
+async function gmailMessages({
+  addresses,
+  recordPath,
+  limit,
+}: TimelineTarget): Promise<TimelineItem[]> {
   const rows = await CrmEmailMessageModel.find({ participants: { $in: addresses } })
     .sort({ sentAt: -1 })
     .limit(limit)
@@ -220,6 +229,7 @@ async function gmailMessages({ addresses, limit }: TimelineTarget): Promise<Time
       summary: row.snippet,
       actor: row.sentByName ?? '',
       status: row.direction === 'OUT' ? 'Sent' : 'Received',
+      url: `${recordPath}/emails`,
     }),
   );
 }

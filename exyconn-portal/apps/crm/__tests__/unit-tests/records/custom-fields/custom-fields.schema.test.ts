@@ -9,7 +9,15 @@ import {
 } from '../../../../src/records/custom-fields';
 
 function def(type: CrmPropertyType, overrides: Partial<CustomPropertyDef> = {}): CustomPropertyDef {
-  return { key: 'field', label: 'Field', type, options: [], required: false, description: '', ...overrides };
+  return {
+    key: 'field',
+    label: 'Field',
+    type,
+    options: [],
+    required: false,
+    description: '',
+    ...overrides,
+  };
 }
 
 const OPTIONS = [

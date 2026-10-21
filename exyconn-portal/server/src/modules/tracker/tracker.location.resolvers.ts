@@ -27,6 +27,22 @@ export const trackerLocationResolvers = {
       await assertMayActFor(ctx, employeeId, [ROLES.HR]);
       return withIds(await trackerLocationService.pinsOn(employeeId, date));
     },
+    myTrackerLocationsBetween: async (
+      _p: unknown,
+      { from, to }: { from: string; to: string },
+      ctx: GraphQLContext,
+    ) => {
+      const user = await assertEmployee(ctx);
+      return withIds(await trackerLocationService.pinsBetween(user.id, from, to));
+    },
+    employeeLocationsBetween: async (
+      _p: unknown,
+      { employeeId, from, to }: { employeeId: string; from: string; to: string },
+      ctx: GraphQLContext,
+    ) => {
+      await assertMayActFor(ctx, employeeId, [ROLES.HR]);
+      return withIds(await trackerLocationService.pinsBetween(employeeId, from, to));
+    },
     myTrackerEarnings: async (
       _p: unknown,
       { from, to }: { from: string; to: string },

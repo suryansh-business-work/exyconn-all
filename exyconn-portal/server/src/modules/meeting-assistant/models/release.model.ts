@@ -15,9 +15,10 @@ const statusEventSchema = new Schema(
  * One build of the Chrome extension. Install-wide (a platform model): Exyconn ships one
  * extension, and each company picks which channel it receives in its settings.
  *
- * The ZIP itself lives on a GitHub release (`assetUrl`, never handed to a browser); the portal
- * streams it through a signed, expiring link. `version` + `channel` is unique and the stored
- * checksum is fixed at registration, so a published version can never be swapped for other bytes.
+ * CI uploads the ZIP to the portal (GitHub Actions OIDC, see releases.upload.ts); it is stored in
+ * GridFS (`fileId`, never handed to a browser) and streamed through a signed, expiring link.
+ * `version` is unique and the stored checksum is fixed at upload, so a published version can
+ * never be swapped for other bytes.
  */
 const releaseSchema = new Schema(
   {
@@ -29,8 +30,8 @@ const releaseSchema = new Schema(
     artifactName: { type: String, required: true, trim: true },
     artifactSize: { type: Number, required: true, min: 1 },
     sha256: { type: String, required: true, lowercase: true, trim: true },
-    /** GitHub API URL of the release asset (octet-stream download). Server-side only. */
-    assetUrl: { type: String, required: true, trim: true },
+    /** The ZIP in the `ma_extension_releases` GridFS bucket (see releases.store.ts). Server-side only. */
+    fileId: { type: Schema.Types.ObjectId, required: true },
     releaseUrl: { type: String, default: '' },
     buildRunUrl: { type: String, default: '' },
     releaseNotes: { type: String, default: '', maxlength: 20_000 },
@@ -47,6 +48,8 @@ const releaseSchema = new Schema(
 
 releaseSchema.index({ version: 1, channel: 1 }, { unique: true });
 releaseSchema.index({ status: 1, builtAt: -1 });
+// One row per build version: an upload of a version already stored is refused, even by a race.
+releaseSchema.index({ version: 1 }, { unique: true });
 
 export type MaReleaseDocument = InferSchemaType<typeof releaseSchema>;
 

@@ -1,8 +1,9 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
 /**
- * A person's Google account connected with the Meet read-only scope, so the official
- * transcript and participant list of their calls can be imported. The refresh token is sealed
+ * A person's Google account connected with the Meet and Calendar read-only scopes, so the
+ * official transcript and participant list of their calls can be imported and their Meet
+ * events shown on the calendar. The refresh token is sealed
  * (utils/secretBox) and never leaves the server.
  */
 const connectionSchema = new Schema(
@@ -10,6 +11,8 @@ const connectionSchema = new Schema(
     userId: { type: String, required: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     refreshToken: { type: String, required: true },
+    /** The scopes Google granted at connect time; rows from before the calendar scope have none. */
+    scopes: { type: [String], default: [] },
     lastError: { type: String, default: '' },
   },
   { timestamps: true },

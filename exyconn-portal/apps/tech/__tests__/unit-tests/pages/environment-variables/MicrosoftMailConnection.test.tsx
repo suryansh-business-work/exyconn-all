@@ -23,7 +23,7 @@ const suite = mailConnectionSuite({
   mutation: gql.test,
   resultKey: 'testMicrosoftMailConfig',
   logger,
-  connected: '3 Microsoft mailboxes connected in the CRM.',
+  connected: '3 Microsoft mailboxes connected across every company’s CRM.',
   none: 'No Microsoft mailbox connected yet. Save the app, then connect mailboxes in the CRM.',
   manageLabel: 'Manage mailboxes in the CRM',
   crmPath: '/integrations/email',

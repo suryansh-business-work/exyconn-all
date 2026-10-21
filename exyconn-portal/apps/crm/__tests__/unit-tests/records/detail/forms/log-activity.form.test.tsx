@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ActivitySubject, ActivityType, CrmTimelineDocument } from '@exyconn/shell/graphql/generated';
+import {
+  ActivitySubject,
+  ActivityType,
+  CrmTimelineDocument,
+} from '@exyconn/shell/graphql/generated';
 import { DetailActions } from '../../../../../src/records/detail';
 import {
   logActivityDefaults,
@@ -25,10 +29,16 @@ vi.mock('@exyconn/shell/components/ui', async (importOriginal) => ({
   DatePicker: (await import('../../date-picker-stub')).DatePickerStub,
 }));
 
-const CONTACT: LogActivityTarget = { relatedType: 'CONTACT', relatedId: 'contact-1', relatedName: 'Asha Rao' };
+const CONTACT: LogActivityTarget = {
+  relatedType: 'CONTACT',
+  relatedId: 'contact-1',
+  relatedName: 'Asha Rao',
+};
 
 function renderActions(target = CONTACT) {
-  renderWithProviders(<DetailActions target={target} extra={<button type="button">Email</button>} />);
+  renderWithProviders(
+    <DetailActions target={target} extra={<button type="button">Email</button>} />,
+  );
 }
 
 async function openLog(action: string) {
@@ -48,8 +58,11 @@ describe('logActivitySchema', () => {
       'Pick when the task is due',
     ]);
     expect(
-      logActivitySchema.safeParse({ ...logActivityDefaults(ActivityType.Call), subject: 'x', durationMinutes: '1.5' })
-        .success,
+      logActivitySchema.safeParse({
+        ...logActivityDefaults(ActivityType.Call),
+        subject: 'x',
+        durationMinutes: '1.5',
+      }).success,
     ).toBe(false);
   });
 
@@ -78,8 +91,12 @@ describe('DetailActions and LogActivityForm', () => {
     const dialog = await openLog('Log call');
     expect(within(dialog).getByText('Log activity')).toBeInTheDocument();
     expect(within(dialog).getByRole('combobox', { name: 'Type' })).toHaveTextContent('Call');
-    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Subject' }), { target: { value: 'Intro call' } });
-    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Duration (minutes)' }), { target: { value: '15' } });
+    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Subject' }), {
+      target: { value: 'Intro call' },
+    });
+    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Duration (minutes)' }), {
+      target: { value: '15' },
+    });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Log' }));
 
     await waitFor(() => expect(gql.create).toHaveBeenCalled());
@@ -109,8 +126,12 @@ describe('DetailActions and LogActivityForm', () => {
     gql.user.mockReturnValue(null);
     renderActions({ relatedType: 'COMPANY', relatedId: 'company-1', relatedName: 'Acme' });
     const dialog = await openLog('Task');
-    expect(within(dialog).queryByRole('textbox', { name: 'Duration (minutes)' })).not.toBeInTheDocument();
-    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Subject' }), { target: { value: 'Send quote' } });
+    expect(
+      within(dialog).queryByRole('textbox', { name: 'Duration (minutes)' }),
+    ).not.toBeInTheDocument();
+    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Subject' }), {
+      target: { value: 'Send quote' },
+    });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Log' }));
     expect(await within(dialog).findByText('Pick when the task is due')).toBeInTheDocument();
 
@@ -130,9 +151,13 @@ describe('DetailActions and LogActivityForm', () => {
   it('switches the type inside the form', async () => {
     renderActions();
     const dialog = await openLog('Note');
-    expect(within(dialog).queryByRole('textbox', { name: 'Duration (minutes)' })).not.toBeInTheDocument();
+    expect(
+      within(dialog).queryByRole('textbox', { name: 'Duration (minutes)' }),
+    ).not.toBeInTheDocument();
     await userEvent.click(within(dialog).getByRole('combobox', { name: 'Type' }));
-    await userEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Meeting' }));
+    await userEvent.click(
+      within(screen.getByRole('listbox')).getByRole('option', { name: 'Meeting' }),
+    );
     expect(within(dialog).getByRole('textbox', { name: 'Duration (minutes)' })).toBeInTheDocument();
   });
 
@@ -140,7 +165,9 @@ describe('DetailActions and LogActivityForm', () => {
     gql.create.mockRejectedValue(new Error('Offline'));
     renderActions();
     const dialog = await openLog('Note');
-    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Subject' }), { target: { value: 'Note' } });
+    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Subject' }), {
+      target: { value: 'Note' },
+    });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Log' }));
     expect(await screen.findByText('Offline')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();

@@ -485,6 +485,20 @@ query EmployeeLocations($employeeId: ID!, $date: String!) {
   }
 }
 
+# HR/ADMIN/manager: every location pin an employee's tracker took over a range of local days
+# (at most 31), in time order.
+query EmployeeLocationsBetween($employeeId: ID!, $from: String!, $to: String!) {
+  employeeLocationsBetween(employeeId: $employeeId, from: $from, to: $to) {
+    id
+    lat
+    lng
+    accuracyM
+    source
+    kind
+    capturedAt
+  }
+}
+
 # HR/ADMIN: what an employee's tracked time over a range pays at their hourly rate.
 query EmployeeEarnings($employeeId: ID!, $from: String!, $to: String!) {
   employeeEarnings(employeeId: $employeeId, from: $from, to: $to) {

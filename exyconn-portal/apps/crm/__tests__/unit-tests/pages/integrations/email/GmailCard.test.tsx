@@ -33,6 +33,8 @@ describeMailProviderCard({
   connectLabel: 'Connect Gmail account',
   empty: 'No Gmail account connected yet.',
   loading: 'Loading the Gmail accounts',
+  unavailable:
+    'Google mailbox connections are not switched on yet. Ask your platform administrator to set them up in Tech > Environment Variables > Email accounts (OAuth).',
 });
 
 describe('GmailCard accounts', () => {

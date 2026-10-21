@@ -48,7 +48,9 @@ describe('checkedRecipients', () => {
   });
 
   it('refuses no recipient, an invalid one, and a blank subject or message', () => {
-    expect(() => checkedRecipients({ ...email, to: ['  '] })).toThrow('Enter valid email addresses.');
+    expect(() => checkedRecipients({ ...email, to: ['  '] })).toThrow(
+      'Enter valid email addresses.',
+    );
     expect(() => checkedRecipients({ ...email, cc: ['not-an-address'] })).toThrow(
       'Enter valid email addresses.',
     );
@@ -119,29 +121,27 @@ describe('gmail sync edges', () => {
       ContactModel.create({ name: 'Asha', email: ASHA, owner: 'Ravi' }),
     );
     await CrmEmailMessageModel.collection.insertMany([
-        {
-          organizationId: new Types.ObjectId(operatorId),
-          gmailId: 'old-1',
-          threadId: 't-old',
-          direction: 'IN',
-          participants: [ASHA],
-        },
-        {
-          organizationId: new Types.ObjectId(operatorId),
-          gmailId: 'new-1',
-          threadId: 't-new',
-          direction: 'IN',
-          participants: [ASHA],
-          accountId: 'a1',
-          mailbox: SALES,
-          subject: 'Pricing',
-          sentAt: new Date('2026-10-01T00:00:00Z'),
-        },
+      {
+        organizationId: new Types.ObjectId(operatorId),
+        gmailId: 'old-1',
+        threadId: 't-old',
+        direction: 'IN',
+        participants: [ASHA],
+      },
+      {
+        organizationId: new Types.ObjectId(operatorId),
+        gmailId: 'new-1',
+        threadId: 't-new',
+        direction: 'IN',
+        participants: [ASHA],
+        accountId: 'a1',
+        mailbox: SALES,
+        subject: 'Pricing',
+        sentAt: new Date('2026-10-01T00:00:00Z'),
+      },
     ]);
 
-    const threads = await asOperator(() =>
-      crmEmailThreads('CONTACT', contact._id.toHexString()),
-    );
+    const threads = await asOperator(() => crmEmailThreads('CONTACT', contact._id.toHexString()));
 
     expect(threads.map((thread) => [thread.threadId, thread.accountId, thread.subject])).toEqual([
       ['t-new', 'a1', 'Pricing'],
@@ -151,7 +151,7 @@ describe('gmail sync edges', () => {
   });
 
   it('searches a company by its addresses only when its domain is not a real one', async () => {
-    await connectAccount(SALES);
+    await connectAccount(operatorId, SALES);
     const gmail = fakeGmail({ [SALES]: { threads: {} } });
     const company = await asOperator(() =>
       CompanyModel.create({
@@ -170,7 +170,7 @@ describe('gmail sync edges', () => {
   });
 
   it('reads a company deleted during the sync as having no domain', async () => {
-    await connectAccount(SALES);
+    await connectAccount(operatorId, SALES);
     const gmail = fakeGmail({ [SALES]: { threads: {} } });
     const company = await asOperator(() =>
       CompanyModel.create({

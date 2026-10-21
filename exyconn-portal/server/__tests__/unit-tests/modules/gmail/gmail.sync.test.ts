@@ -47,8 +47,8 @@ const fromAsha = (id: string, threadId: string, at: string, to: string) =>
 
 describe('crmEmailThreads across connected accounts', () => {
   it('merges the threads of every enabled account, newest first, each with its mailbox', async () => {
-    const salesId = await connectAccount(SALES);
-    const founderId = await connectAccount(FOUNDER);
+    const salesId = await connectAccount(operatorId, SALES);
+    const founderId = await connectAccount(operatorId, FOUNDER);
     fakeGmail({
       [SALES]: { threads: { t1: [fromAsha('m1', 't1', '2026-10-01T09:00:00Z', SALES)] } },
       [FOUNDER]: {
@@ -81,7 +81,7 @@ describe('crmEmailThreads across connected accounts', () => {
   });
 
   it('searches Gmail for the primary and every other address of a contact', async () => {
-    await connectAccount(SALES);
+    await connectAccount(operatorId, SALES);
     const gmail = fakeGmail({ [SALES]: { threads: {} } });
     const id = await contact();
 
@@ -93,7 +93,7 @@ describe('crmEmailThreads across connected accounts', () => {
   });
 
   it('includes a company domain, but never a shared mail provider', async () => {
-    await connectAccount(SALES);
+    await connectAccount(operatorId, SALES);
     const gmail = fakeGmail({ [SALES]: { threads: {} } });
     const acme = await asOperator(() =>
       CompanyModel.create({ name: 'Acme', domain: 'acme.test', owner: 'Ravi' }),
@@ -111,8 +111,8 @@ describe('crmEmailThreads across connected accounts', () => {
   });
 
   it('neither reads nor shows an account turned off for the CRM', async () => {
-    await connectAccount(SALES);
-    const offId = await connectAccount(FOUNDER, { enabled: false });
+    await connectAccount(operatorId, SALES);
+    const offId = await connectAccount(operatorId, FOUNDER, { enabled: false });
     const gmail = fakeGmail({
       [SALES]: { threads: {} },
       [FOUNDER]: { threads: { t2: [fromAsha('m5', 't2', '2026-10-02T09:00:00Z', FOUNDER)] } },
@@ -125,9 +125,33 @@ describe('crmEmailThreads across connected accounts', () => {
     expect(threads.some((thread) => thread.accountId === offId)).toBe(false);
   });
 
+  it("reads only the calling company's own mailboxes", async () => {
+    await connectAccount(operatorId, SALES);
+    const other = await runAsPlatform(() =>
+      OrganizationModel.create({ name: 'Other', slug: 'other', currency: 'USD' }),
+    );
+    const otherId = other._id.toHexString();
+    const otherBox = 'team@other.test';
+    await connectAccount(otherId, otherBox);
+    const gmail = fakeGmail({
+      [SALES]: { threads: { t1: [fromAsha('m1', 't1', '2026-10-01T09:00:00Z', SALES)] } },
+      [otherBox]: { threads: { t7: [fromAsha('m7', 't7', '2026-10-02T09:00:00Z', otherBox)] } },
+    });
+    const otherContact = await runForOrganization(otherId, () =>
+      ContactModel.create({ name: 'Asha', email: ASHA, owner: 'Ravi' }),
+    );
+
+    const threads = await runForOrganization(otherId, () =>
+      crmEmailThreads('CONTACT', otherContact._id.toHexString()),
+    );
+
+    expect(gmail.queries.map((query) => query.mailbox)).toEqual([otherBox]);
+    expect(threads.map((thread) => [thread.threadId, thread.mailbox])).toEqual([['t7', otherBox]]);
+  });
+
   it('marks a revoked account NEEDS_RECONNECT and still returns the other accounts', async () => {
-    await connectAccount(SALES);
-    const founderId = await connectAccount(FOUNDER);
+    await connectAccount(operatorId, SALES);
+    const founderId = await connectAccount(operatorId, FOUNDER);
     fakeGmail({
       [SALES]: { threads: { t1: [fromAsha('m1', 't1', '2026-10-01T09:00:00Z', SALES)] } },
       [FOUNDER]: { threads: {}, revoked: true },

@@ -170,6 +170,7 @@ const api = {
     return () => ipcRenderer.removeListener(IPC.windowMaximized, handler);
   },
   openPrivacy: (): Promise<void> => ipcRenderer.invoke(IPC.openPrivacy),
+  openLocationSettings: (): Promise<void> => ipcRenderer.invoke(IPC.openLocationSettings),
   onStateChanged: (listener: (state: TrackerState) => void): (() => void) => {
     const handler = (_event: unknown, state: TrackerState): void => listener(state);
     ipcRenderer.on(IPC.stateChanged, handler);

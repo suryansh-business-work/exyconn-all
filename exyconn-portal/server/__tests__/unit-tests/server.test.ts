@@ -50,7 +50,9 @@ jest.mock('../../src/modules/ai', () => ({
   ensureAiModelPrices: jest.fn(),
   startAiWorker: jest.fn(),
 }));
-jest.mock('../../src/modules/meeting-assistant', () => ({ startMeetingAssistantWorker: jest.fn() }));
+jest.mock('../../src/modules/meeting-assistant', () => ({
+  startMeetingAssistantWorker: jest.fn(),
+}));
 jest.mock('../../src/modules/logs', () => ({ backfillAppLogGroupUsers: jest.fn() }));
 jest.mock('../../src/modules/hr', () => ({ backfillPositionDefaults: jest.fn() }));
 jest.mock('../../src/lib/migrations', () => ({
@@ -58,6 +60,9 @@ jest.mock('../../src/lib/migrations', () => ({
 }));
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
 jest.mock('../../src/modules/gmail', () => ({ migrateLegacyGmailConnection: jest.fn() }));
+jest.mock('../../src/modules/crm-integrations/crm-mailboxes.migrate', () => ({
+  assignMailboxesToOperator: jest.fn(),
+}));
 jest.mock('../../src/modules/crm/crm.origin.backfill', () => ({ backfillCrmOrigins: jest.fn() }));
 jest.mock('../../src/modules/marketing/marketing.migrate', () => ({
   migrateLegacyAudiences: jest.fn(),
@@ -101,6 +106,7 @@ const MODULES = {
   hr: '../../src/modules/hr',
   clients: '../../src/modules/clients',
   gmail: '../../src/modules/gmail',
+  mailboxes: '../../src/modules/crm-integrations/crm-mailboxes.migrate',
   crmOrigins: '../../src/modules/crm/crm.origin.backfill',
   marketingMigrate: '../../src/modules/marketing/marketing.migrate',
   dealClosed: '../../src/modules/crm/crm.deal-closed.backfill',
@@ -201,6 +207,7 @@ describe('server bootstrap', () => {
       'position-defaults',
       'client-tax-ids',
       'gmail-multi-account',
+      'crm-mailboxes-per-organization',
       'crm-record-origins',
       'marketing-audience-builder',
       'marketing-suppression-origins',
@@ -213,6 +220,7 @@ describe('server bootstrap', () => {
     expect(m.hr.backfillPositionDefaults).toHaveBeenCalled();
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
     expect(m.gmail.migrateLegacyGmailConnection).toHaveBeenCalled();
+    expect(m.mailboxes.assignMailboxesToOperator).toHaveBeenCalled();
     expect(m.crmOrigins.backfillCrmOrigins).toHaveBeenCalled();
     expect(m.marketingMigrate.migrateLegacyAudiences).toHaveBeenCalled();
     expect(m.marketingMigrate.backfillSuppressionOrigins).toHaveBeenCalled();
@@ -236,10 +244,10 @@ describe('server bootstrap', () => {
       'backfillDealClosedAt',
       'ensureWhatsappDemoSeeds',
     ]);
-    // Admin access, the log-group backfill, status monitors, the Gmail account migration, the two
-    // calling bot migrations, its example seeds and AI model prices run for the platform rather
-    // than for each company.
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(8);
+    // Admin access, the log-group backfill, status monitors, the Gmail account migration, the
+    // mailboxes' move into the operator, the two calling bot migrations, its example seeds and
+    // AI model prices run for the platform rather than for each company.
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(9);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {

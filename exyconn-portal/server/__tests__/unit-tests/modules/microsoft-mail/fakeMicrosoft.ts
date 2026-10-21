@@ -1,4 +1,4 @@
-import { runAsPlatform } from '../../../../src/lib/tenant';
+import { runAsPlatform, runForOrganization } from '../../../../src/lib/tenant';
 import { seal } from '../../../../src/utils/secretBox';
 import {
   MicrosoftMailAccountModel,
@@ -72,7 +72,10 @@ export function fakeMicrosoft(mailboxes: Record<string, FakeMicrosoftMailbox>) {
       if (box.sendFails) {
         return new Response('ErrorAccessDenied', { status: box.sendFails });
       }
-      sent.push({ mailbox: email, ...(JSON.parse(String(init?.body)) as Omit<SendCall, 'mailbox'>) });
+      sent.push({
+        mailbox: email,
+        ...(JSON.parse(String(init?.body)) as Omit<SendCall, 'mailbox'>),
+      });
       return new Response(null, { status: 202 });
     }
     return json({ error: 'unexpected call' }, 500);
@@ -105,8 +108,12 @@ export const saveApp = (fields: Record<string, unknown> = {}) =>
     }),
   );
 
-/** A connected mailbox whose refresh token the fake recognises; resolves to its id. */
-export const connectMailbox = (email: string, fields: Record<string, unknown> = {}) =>
-  runAsPlatform(() =>
+/** A connected mailbox of one company whose refresh token the fake recognises; resolves to its id. */
+export const connectMailbox = (
+  organizationId: string,
+  email: string,
+  fields: Record<string, unknown> = {},
+) =>
+  runForOrganization(organizationId, () =>
     MicrosoftMailAccountModel.create({ email, refreshToken: seal(`refresh-${email}`), ...fields }),
   ).then((account) => account._id.toHexString());

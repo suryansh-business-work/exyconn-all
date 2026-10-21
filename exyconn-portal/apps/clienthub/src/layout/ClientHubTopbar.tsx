@@ -20,14 +20,20 @@ import { PAGE_GUTTER, TOPBAR_HEIGHT } from '@exyconn/shell/layout/PortalLayout/m
 
 interface ClientHubTopbarProps {
   drawerWidth: number;
+  /** The client company signed in for. */
+  company: string;
   name: string;
   onMenuClick: () => void;
   onSignOut: () => void;
 }
 
-/** The frosted bar the portals wear: menu on a phone, who is signed in, theme and sign out. */
+/**
+ * The frosted bar the portals wear: menu on a phone, the client company, who is signed in,
+ * theme and sign out.
+ */
 export function ClientHubTopbar({
   drawerWidth,
+  company,
   name,
   onMenuClick,
   onSignOut,
@@ -64,7 +70,14 @@ export function ClientHubTopbar({
         >
           <MenuIcon />
         </IconButton>
-        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          <Text component="p" size="caption" color="text.secondary" sx={{ m: 0 }}>
+            {t('Client Hub')}
+          </Text>
+          <Text component="p" weight="semibold" noWrap title={company} sx={{ m: 0 }}>
+            {company}
+          </Text>
+        </Box>
         <Text size="sm" weight="medium" noWrap sx={{ display: { xs: 'none', sm: 'block' } }}>
           {name}
         </Text>

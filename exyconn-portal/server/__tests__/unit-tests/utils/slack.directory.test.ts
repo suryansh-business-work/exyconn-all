@@ -1,5 +1,6 @@
 import { logger } from '../../../src/utils/logger';
 import { slackNotifier } from '../../../src/utils/slack';
+import { SlackConfigModel } from '../../../src/modules/tech/slack-config.model';
 import { active, config, failed, ok, sentCall, stubSlack } from './slack.fixtures';
 
 let fetchMock: jest.SpyInstance;
@@ -69,6 +70,16 @@ describe('signingSecret', () => {
     jest.restoreAllMocks();
     active(null);
     await expect(slackNotifier.signingSecret()).resolves.toBe('');
+  });
+});
+
+describe('isConfigured', () => {
+  it('is true only while an active Slack configuration exists', async () => {
+    await expect(slackNotifier.isConfigured()).resolves.toBe(false);
+    await SlackConfigModel.create({ ...config, isActive: false });
+    await expect(slackNotifier.isConfigured()).resolves.toBe(false);
+    await SlackConfigModel.create({ ...config, label: 'Live bot', isActive: true });
+    await expect(slackNotifier.isConfigured()).resolves.toBe(true);
   });
 });
 

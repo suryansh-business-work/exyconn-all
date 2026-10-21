@@ -9,12 +9,12 @@ import {
   type GmailConfigFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
 
-/** Where the CRM connects, turns on and disconnects its Gmail accounts. */
+/** Where a company's CRM connects, turns on and disconnects its Gmail accounts. */
 const CRM_GMAIL_PATH = '/integrations/email';
 
 /**
- * How many mailboxes the CRM has connected with this client, a link to manage them in the CRM,
- * and a Test that reads every enabled mailbox's address.
+ * How many mailboxes every company's CRM has connected with this client, a link to manage this
+ * company's in the CRM, and a Test that reads each of this company's enabled mailboxes.
  */
 export function GmailConnection({ config }: Readonly<{ config: GmailConfigFieldsFragment }>) {
   const t = useT();
@@ -36,7 +36,9 @@ export function GmailConnection({ config }: Readonly<{ config: GmailConfigFields
     <Flex direction="column" spacing={1.5} sx={{ mb: 2 }}>
       <Alert severity={hasAccounts ? 'success' : 'info'}>
         {hasAccounts
-          ? t('{count} Gmail accounts connected in the CRM.', { count: config.accountCount })
+          ? t('{count} Gmail accounts connected across every company’s CRM.', {
+              count: config.accountCount,
+            })
           : t('No Gmail account connected yet. Save the client, then connect accounts in the CRM.')}
       </Alert>
       <Flex direction="row" spacing={1} flexWrap="wrap" useFlexGap>

@@ -45,7 +45,8 @@ describeOAuthClientForm({
   clientIdLabel: 'Application (client) ID',
   validClientId: '99999999-8888-7777-6666-555555555555',
   storedClientId: '11111111-2222-3333-4444-555555555555',
-  switchLabel: 'Let the CRM send email through Microsoft mailboxes',
+  switchLabel:
+    "Turn on Microsoft connections: every company's CRM can connect and send from its Microsoft mailboxes",
   extraInput: { tenant: 'organizations' },
   missingClientId: 'Add the client ID before turning Microsoft Mail on',
   missingSecret: 'Add the client secret before turning Microsoft Mail on',
@@ -62,7 +63,9 @@ describe('MicrosoftMailConfigForm tenant', () => {
     expect(screen.getByLabelText('Tenant')).toHaveValue('common');
     expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
     await press('Save changes');
-    await waitFor(() => expect(notify).toHaveBeenCalledWith('Microsoft Mail settings saved', 'success'));
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith('Microsoft Mail settings saved', 'success'),
+    );
     expect(gql.save.mock.calls[0][0].variables.input.tenant).toBe('common');
   });
 

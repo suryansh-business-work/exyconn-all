@@ -32,6 +32,7 @@ import {
 } from './modules/calling-bot-demo';
 import { migrateClientTaxIds } from './modules/clients';
 import { migrateLegacyGmailConnection } from './modules/gmail';
+import { assignMailboxesToOperator } from './modules/crm-integrations/crm-mailboxes.migrate';
 import { backfillCrmOrigins } from './modules/crm/crm.origin.backfill';
 import {
   backfillSuppressionOrigins,
@@ -106,6 +107,8 @@ async function bootstrap(): Promise<void> {
   );
   // The CRM's one Gmail mailbox of old releases becomes its first connected account, once.
   await runAsPlatform(() => runOnce('gmail-multi-account', migrateLegacyGmailConnection));
+  // Connected mailboxes became each company's own: those stored before go to the operator, once.
+  await runAsPlatform(() => runOnce('crm-mailboxes-per-organization', assignMailboxesToOperator));
   // Companies and contacts from before origins were kept learn who or what filed them, once.
   await forEachOrganization(
     () => runOnce('crm-record-origins', backfillCrmOrigins),

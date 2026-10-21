@@ -43,7 +43,8 @@ describeOAuthClientForm({
   clientIdLabel: 'Client ID',
   validClientId: 'new-client.apps.googleusercontent.com',
   storedClientId: 'stored.apps.googleusercontent.com',
-  switchLabel: 'Let the CRM send and read email through Gmail',
+  switchLabel:
+    "Turn on Gmail connections: every company's CRM can connect, read and send from its Gmail accounts",
   extraInput: {},
   missingClientId: 'Add the client ID before turning Gmail on',
   missingSecret: 'Add the client secret before turning Gmail on',
@@ -61,6 +62,8 @@ describe('GmailConfigForm client ID', () => {
     await press('Save changes');
     await expectMessages('A Google client ID ends with .apps.googleusercontent.com');
     expect(gql.save).not.toHaveBeenCalled();
-    expect(screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
   });
 });

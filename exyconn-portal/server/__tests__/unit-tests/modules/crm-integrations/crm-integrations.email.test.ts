@@ -1,4 +1,3 @@
-import { invalidatePlatformOperatorCache } from '../../../../src/lib/platformAccess';
 import { runForOrganization } from '../../../../src/lib/tenant';
 import { ConfigurationError } from '../../../../src/utils/errors';
 import { enabledMailboxes } from '../../../../src/modules/gmail/gmail.accounts';
@@ -32,13 +31,9 @@ jest.mock('../../../../src/modules/microsoft-mail', () => ({
 const gmailBoxes = jest.mocked(enabledMailboxes);
 const microsoftBoxes = jest.mocked(enabledMicrosoftMailboxes);
 
-/** Runs `fn` inside the operator company (or another one), as a request from it would. */
-async function asCompany<T>(operator: boolean, fn: () => Promise<T>): Promise<T> {
-  const company = await seedOrganization(operator ? 'Operator Co' : 'Customer Co');
-  if (operator) {
-    company.isPlatformOperator = true;
-    await company.save();
-  }
+/** Runs `fn` inside a company, as a request from it would. */
+async function inCompany<T>(fn: () => Promise<T>): Promise<T> {
+  const company = await seedOrganization('Customer Co');
   return runForOrganization(company._id.toHexString(), fn);
 }
 
@@ -50,32 +45,26 @@ beforeEach(() => {
   microsoftBoxes.mockResolvedValue([asArg(OUTLOOK)]);
 });
 
-afterEach(() => {
-  invalidatePlatformOperatorCache();
-});
-
 describe('CRM email senders', () => {
-  it('offers every connected Gmail and Microsoft mailbox in the operator CRM', async () => {
-    await expect(asCompany(true, crmEmailSenders)).resolves.toEqual([
+  it('offers every connected Gmail and Microsoft mailbox of the company, whichever it is', async () => {
+    await expect(inCompany(crmEmailSenders)).resolves.toEqual([
       { ...GMAIL, provider: 'GMAIL' },
       { ...OUTLOOK, provider: 'MICROSOFT' },
     ]);
   });
 
-  it('offers none in any other company, or when no operator is flagged', async () => {
-    await expect(crmEmailSenders()).resolves.toEqual([]);
-    const operator = await seedOrganization('Operator Co');
-    operator.isPlatformOperator = true;
-    await operator.save();
-    invalidatePlatformOperatorCache();
-    await expect(asCompany(false, crmEmailSenders)).resolves.toEqual([]);
+  it('offers none to a caller acting in no company, without asking either provider', async () => {
+    // The suites run as the platform by default: no company is in scope.
+    await expect(crmEmailSenders()).resolves.toHaveLength(0);
+    await expect(emailReadiness()).resolves.toEqual({ gmail: false, microsoft: false });
     expect(gmailBoxes).not.toHaveBeenCalled();
+    expect(microsoftBoxes).not.toHaveBeenCalled();
   });
 
   it('skips a provider whose sign-in app is not set up', async () => {
     gmailBoxes.mockRejectedValue(new ConfigurationError('Google OAuth is not configured'));
 
-    await expect(asCompany(true, emailReadiness)).resolves.toEqual({
+    await expect(inCompany(emailReadiness)).resolves.toEqual({
       gmail: false,
       microsoft: true,
     });
@@ -84,11 +73,11 @@ describe('CRM email senders', () => {
   it('fails on any other provider error', async () => {
     microsoftBoxes.mockRejectedValue(new Error('Graph is down'));
 
-    await expect(asCompany(true, crmEmailSenders)).rejects.toThrow('Graph is down');
+    await expect(inCompany(crmEmailSenders)).rejects.toThrow('Graph is down');
   });
 
   it('reports both providers ready when each has a mailbox', async () => {
-    await expect(asCompany(true, emailReadiness)).resolves.toEqual({
+    await expect(inCompany(emailReadiness)).resolves.toEqual({
       gmail: true,
       microsoft: true,
     });
@@ -97,7 +86,7 @@ describe('CRM email senders', () => {
   it('picks the default sender for a record from both providers', async () => {
     jest.mocked(crmEmailSender).mockResolvedValue(asArg('m1'));
 
-    await expect(asCompany(true, () => defaultEmailSender('CONTACT', 'c1'))).resolves.toBe('m1');
+    await expect(inCompany(() => defaultEmailSender('CONTACT', 'c1'))).resolves.toBe('m1');
     expect(crmEmailSender).toHaveBeenCalledWith('CONTACT', 'c1', ['g1', 'm1']);
   });
 });

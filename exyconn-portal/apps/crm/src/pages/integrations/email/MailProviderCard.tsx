@@ -16,6 +16,8 @@ export interface MailProviderText {
   empty: string;
   loading: string;
   loadError: string;
+  /** Why the connect button is off while the platform has not switched the provider on. */
+  unavailable: string;
 }
 
 interface MailProviderCardProps {
@@ -94,6 +96,7 @@ export function MailProviderCard(props: Readonly<MailProviderCardProps>) {
         <ConnectMailboxButton
           label={text.connectLabel}
           available={props.available}
+          unavailableHint={text.unavailable}
           connecting={props.connecting}
           onConnect={() => {
             props.onConnect().catch(logFailure);

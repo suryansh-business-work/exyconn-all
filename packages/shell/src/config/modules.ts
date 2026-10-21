@@ -175,6 +175,7 @@ const MA = '/ai/meeting-assistant';
 const MEETING_ASSISTANT_NAV: ModuleChild[] = [
   { key: 'ma-dashboard', label: 'Dashboard', path: MA, icon: DashboardIcon },
   { key: 'ma-meetings', label: 'All Meetings', path: `${MA}/meetings`, icon: VideoCallIcon },
+  { key: 'ma-calendar', label: 'Calendar', path: `${MA}/calendar`, icon: CalendarMonthIcon },
   {
     key: 'ma-transcripts',
     label: 'Transcripts',

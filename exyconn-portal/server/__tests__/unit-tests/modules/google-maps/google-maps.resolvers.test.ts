@@ -87,7 +87,7 @@ describe('the Google Maps config (Tech)', () => {
 });
 
 describe('the CRM side', () => {
-  it('gives CRM and HR users the browser key only, and nobody else', async () => {
+  it('gives CRM, HR and Tracker users the browser key only, and nobody else', async () => {
     await GoogleMapsConfigModel.create({
       label: 'Main',
       browserKey: 'b-key',
@@ -98,13 +98,19 @@ describe('the CRM side', () => {
     const hr: GraphQLContext = {
       user: { id: new Types.ObjectId().toHexString(), roles: [ROLES.HR], email: 'hr@exyconn.com' },
     };
+    // The tracker portal reads it to map where employees moved.
+    const tracker: GraphQLContext = {
+      user: {
+        id: new Types.ObjectId().toHexString(),
+        roles: [ROLES.TRACKER],
+        email: 'tracker@exyconn.com',
+      },
+    };
 
-    for (const ctx of [sales, hr]) {
-      await expect(Query.googleMapsClientConfig(null, {}, ctx)).resolves.toEqual({
-        browserKey: 'b-key',
-        placesReady: true,
-      });
-    }
+    const shown = await Promise.all(
+      [sales, hr, tracker].map((ctx) => Query.googleMapsClientConfig(null, {}, ctx)),
+    );
+    expect(shown).toEqual(Array(3).fill({ browserKey: 'b-key', placesReady: true }));
     expect(() => Query.googleMapsClientConfig(null, {}, employee)).toThrow();
   });
 

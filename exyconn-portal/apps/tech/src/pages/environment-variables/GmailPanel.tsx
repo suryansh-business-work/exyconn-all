@@ -6,8 +6,13 @@ import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { useGmailConfigQuery } from '@exyconn/shell/graphql/generated';
 import { GmailConfigForm } from './forms/gmail-config';
 import { GmailConnection } from './GmailConnection';
+import { ConnectionsOffNotice } from './ConnectionsOffNotice';
 import { RedirectUriInfo } from './RedirectUriInfo';
 import { UseGoogleClientButton } from './UseGoogleClientButton';
+
+/** Why every CRM's Connect Gmail account button is off while the client is switched off. */
+const GOOGLE_OFF =
+  'Gmail connections are switched off. Every company’s Connect Gmail account button stays disabled until the switch below is on and saved.';
 
 /** What the Google client needs besides the redirect URI. */
 const GOOGLE_INSTRUCTIONS =
@@ -15,8 +20,8 @@ const GOOGLE_INSTRUCTIONS =
 
 /**
  * Environment Variables > Email accounts > Google OAuth app: the Google OAuth client (Gmail API
- * enabled) the CRM's Gmail accounts connect through. The accounts themselves are connected in
- * CRM > Integrations.
+ * enabled) every company's CRM Gmail accounts connect through. Each company connects its own
+ * accounts in CRM > Integrations.
  */
 export function GmailPanel() {
   const t = useT();
@@ -49,6 +54,7 @@ export function GmailPanel() {
       <Typography id="gmail-title" variant="h6" component="h2" sx={{ mb: 2 }}>
         {t('Google OAuth app')}
       </Typography>
+      {config.enabled ? null : <ConnectionsOffNotice message={GOOGLE_OFF} />}
       <GmailConnection config={config} />
       <UseGoogleClientButton />
       <RedirectUriInfo uri={config.redirectUri} instructions={GOOGLE_INSTRUCTIONS} />

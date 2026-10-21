@@ -4,7 +4,7 @@ import { PERMISSION_MODULES } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { runAsPlatform } from '../../lib/tenant';
 import { badRequest, notFound } from '../../utils/errors';
-import { githubActions } from '../../utils/github';
+import type { Types } from 'mongoose';
 import { MaReleaseModel, type MaReleaseDocument } from './models';
 import { getMaSettings } from './settings.service';
 import {
@@ -22,7 +22,7 @@ const CHROME_VERSION = /^\d{1,5}(?:\.\d{1,5}){0,3}$/;
 const SHA256 = /^[\da-f]{64}$/;
 const COMMIT = /^[\da-f]{7,40}$/;
 
-type LeanRelease = MaReleaseDocument & { _id: unknown };
+export type LeanRelease = MaReleaseDocument & { _id: unknown };
 
 /** Release managers: platform staff with ADMIN. Every company sees the same releases. */
 export function assertReleaseManager(ctx: GraphQLContext, action: 'VIEW' | 'EDIT' = 'EDIT') {
@@ -84,14 +84,15 @@ export interface RegisterReleaseInput {
   artifactName: string;
   artifactSize: number;
   sha256: string;
-  assetUrl: string;
-  releaseUrl: string;
+  /** The stored ZIP (releases.store.ts). */
+  fileId: Types.ObjectId;
   buildRunUrl: string;
   releaseNotes: string;
   minChromeVersion: string;
 }
 
-async function checkRegistration(input: RegisterReleaseInput): Promise<void> {
+/** Refuses a build whose version, checksum, commit or artifact is malformed. */
+export function checkRegistration(input: Omit<RegisterReleaseInput, 'fileId'>): void {
   if (
     !CHROME_VERSION.test(input.version) ||
     input.version.split('.').some((part) => Number(part) > 65535)
@@ -104,49 +105,31 @@ async function checkRegistration(input: RegisterReleaseInput): Promise<void> {
   if (!input.artifactName.endsWith('.zip') || input.artifactSize <= 0) {
     badRequest('The artifact must be a non-empty .zip.');
   }
-  if (!(await githubActions.isRepoReleaseAsset(input.assetUrl))) {
-    badRequest('The artifact must be a release asset of the configured GitHub repository.');
-  }
+}
+
+/** The build registered with this version, on any channel, or null. */
+export function releaseByVersion(version: string): Promise<LeanRelease | null> {
+  return runAsPlatform(() => MaReleaseModel.findOne({ version }).lean<LeanRelease>());
 }
 
 /**
- * Registers a build (CI calls this with an API key). Registering the same version and channel
- * again with the SAME checksum returns the existing row; with different bytes it is refused —
- * a released version is never silently replaced.
+ * Registers an uploaded build as QA_PENDING. The version is unique, so a second registration of
+ * it (even a concurrent one) fails on the index: a released version is never replaced.
  */
 export async function registerRelease(
   input: RegisterReleaseInput,
   publisherName: string,
+  note: string,
 ): Promise<LeanRelease> {
-  await checkRegistration(input);
-  const sha256 = input.sha256.toLowerCase();
+  checkRegistration(input);
   return runAsPlatform(async () => {
-    const existing = await MaReleaseModel.findOne({
-      version: input.version,
-      channel: input.channel,
-    }).lean<LeanRelease>();
-    if (existing) {
-      if (existing.sha256 !== sha256) {
-        badRequest(
-          `Version ${input.version} (${input.channel}) is already registered with different bytes. Bump the version.`,
-        );
-      }
-      return existing;
-    }
     const created = await MaReleaseModel.create({
       ...input,
-      sha256,
+      sha256: input.sha256.toLowerCase(),
       commitSha: input.commitSha.toLowerCase(),
       status: 'QA_PENDING',
       publisherName,
-      statusHistory: [
-        {
-          status: 'QA_PENDING',
-          at: new Date(),
-          byName: publisherName,
-          note: 'Registered by the build',
-        },
-      ],
+      statusHistory: [{ status: 'QA_PENDING', at: new Date(), byName: publisherName, note }],
     });
     return created.toObject() as LeanRelease;
   });
@@ -210,15 +193,64 @@ export function setReleaseStatus(
   });
 }
 
-/** Opens the release's bytes on GitHub and counts the download. */
-export async function openReleaseArtifact(id: string) {
+/** Builds waiting for a release manager's approval. */
+const AWAITING_APPROVAL: ReadonlySet<ReleaseStatus> = new Set([
+  'QA_PENDING',
+  'READY_FOR_INTERNAL_TESTING',
+]);
+
+/**
+ * Approves a build waiting for review and offers it on a channel in one step: it is recorded
+ * as tested and released internally, which makes it downloadable for every company on that
+ * channel (or a less steady one).
+ */
+export function approveRelease(
+  id: string,
+  channel: ReleaseChannel,
+  byName: string,
+): Promise<LeanRelease> {
+  return runAsPlatform(async () => {
+    const release = await MaReleaseModel.findById(id);
+    if (!release) {
+      notFound('Release');
+    }
+    const status = release.status as ReleaseStatus;
+    if (!AWAITING_APPROVAL.has(status)) {
+      badRequest(`Only a build waiting for approval can be approved; this one is ${status}.`);
+    }
+    const steps: ReleaseStatus[] =
+      status === 'QA_PENDING'
+        ? ['READY_FOR_INTERNAL_TESTING', 'INTERNAL_RELEASED']
+        : ['INTERNAL_RELEASED'];
+    const at = new Date();
+    const note = `Approved for the ${channel} channel`;
+    release.channel = channel;
+    release.status = 'INTERNAL_RELEASED';
+    release.statusHistory.push(...steps.map((step) => ({ status: step, at, byName, note })));
+    await release.save();
+    return release.toObject() as LeanRelease;
+  });
+}
+
+/** How many builds exist and how many wait for approval, for the extension page's empty state. */
+export async function releaseCounts(): Promise<{ registered: number; awaitingApproval: number }> {
+  const [registered, awaitingApproval] = await runAsPlatform(() =>
+    Promise.all([
+      MaReleaseModel.countDocuments(),
+      MaReleaseModel.countDocuments({ status: { $in: [...AWAITING_APPROVAL] } }),
+    ]),
+  );
+  return { registered, awaitingApproval };
+}
+
+/** The release a download link names, counting the download. */
+export async function openReleaseArtifact(id: string): Promise<LeanRelease> {
   const release = await runAsPlatform(() => MaReleaseModel.findById(id).lean<LeanRelease>());
   if (!release) {
     notFound('Release');
   }
-  const response = await githubActions.openReleaseAsset(release.assetUrl);
   await runAsPlatform(() =>
     MaReleaseModel.updateOne({ _id: release._id }, { $inc: { downloadCount: 1 } }),
   );
-  return { release, response };
+  return release;
 }

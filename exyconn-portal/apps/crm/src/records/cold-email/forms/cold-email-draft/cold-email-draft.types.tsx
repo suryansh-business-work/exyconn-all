@@ -3,6 +3,8 @@ import { EMAIL } from '@exyconn/regex';
 import { ColdEmailTone } from '@exyconn/shell/graphql/generated';
 
 export const MAX_GOAL_CHARS = 1000;
+/** Versions a new draft is written with, in one AI run (the server allows 1 to 4). */
+export const DRAFT_VARIANT_COUNT = 4;
 
 export const coldEmailDraftSchema = z.object({
   /** One of the record's addresses. */

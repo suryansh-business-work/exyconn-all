@@ -62,6 +62,7 @@ export const electron = {
     whenReady: () => env.ready.promise,
     quit: vi.fn(),
     setAppUserModelId: vi.fn(),
+    commandLine: { appendSwitch: vi.fn() },
     getVersion: () => '1.10.6',
     get isPackaged(): boolean {
       return env.packaged;

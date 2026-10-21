@@ -1,0 +1,36 @@
+# Meeting Assistant > Calendar — consumed by @exyconn/meetings-ui.
+query MaCalendar($from: DateTime!, $to: DateTime!, $scope: MaScope) {
+  maCalendar(from: $from, to: $to, scope: $scope) {
+    google
+    googleError
+    meetings {
+      id
+      meetingCode
+      title
+      ownerName
+      startedAt
+      endedAt
+      status
+    }
+    events {
+      id
+      title
+      startsAt
+      endsAt
+      allDay
+      meetingCode
+      meetUrl
+      organizerName
+      organizerEmail
+      description
+      meetingId
+      attendees {
+        email
+        name
+        responseStatus
+        organizer
+        self
+      }
+    }
+  }
+}

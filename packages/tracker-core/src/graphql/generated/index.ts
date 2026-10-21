@@ -1139,6 +1139,8 @@ export type CreateColdEmailDraftInput = {
   recordId: Scalars['ID']['input'];
   toEmail: Scalars['String']['input'];
   tone: ColdEmailTone;
+  /** How many versions to write straight away, in one AI run: 1 to 4, default 4. */
+  variantCount: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type CreateUserInput = {
@@ -2533,6 +2535,18 @@ export type MaBulkActionInput = {
   status: InputMaybe<MaActionStatus>;
 };
 
+/** Whether the viewer's Google Meet events can be shown on the calendar. */
+export type MaCalendarGoogleState =
+  | 'CONNECTED'
+  /** The company has no Google sign-in client in Tech. */
+  | 'NOT_CONFIGURED'
+  /** The viewer has not connected Google Meet. */
+  | 'NOT_CONNECTED'
+  /** The connection predates the calendar scope, or Google no longer accepts it. */
+  | 'RECONNECT_REQUIRED'
+  /** Google could not be read just now; googleError says why. */
+  | 'UNAVAILABLE';
+
 export type MaCaptureState =
   | 'ERROR'
   | 'IDLE'
@@ -2585,6 +2599,11 @@ export type MaMeetingStatus =
   | 'ACTIVE'
   | 'ENDED';
 
+/** What a model is picked for: writing the notes (ANALYSIS) or speech to text (TRANSCRIPTION). */
+export type MaModelPurpose =
+  | 'ANALYSIS'
+  | 'TRANSCRIPTION';
+
 export type MaNotesContentInput = {
   agenda: Array<Scalars['String']['input']>;
   blockers: Array<Scalars['String']['input']>;
@@ -2623,26 +2642,16 @@ export type MaPriority =
   | 'LOW'
   | 'MEDIUM';
 
-export type MaRegisterReleaseInput = {
-  artifactName: Scalars['String']['input'];
-  artifactSize: Scalars['Int']['input'];
-  assetUrl: Scalars['String']['input'];
-  buildNumber: Scalars['Int']['input'];
-  buildRunUrl: Scalars['String']['input'];
-  builtAt: Scalars['DateTime']['input'];
-  channel: MaReleaseChannel;
-  commitSha: Scalars['String']['input'];
-  minChromeVersion: Scalars['String']['input'];
-  releaseNotes: Scalars['String']['input'];
-  releaseUrl: Scalars['String']['input'];
-  sha256: Scalars['String']['input'];
-  version: Scalars['String']['input'];
-};
-
 export type MaReleaseChannel =
   | 'BETA'
   | 'INTERNAL'
   | 'STABLE';
+
+export type MaReleaseSettingsInput = {
+  allowedRepository: Scalars['String']['input'];
+  notifyOnNewBuild: Scalars['Boolean']['input'];
+  slackChannelId: Scalars['String']['input'];
+};
 
 export type MaReleaseStatus =
   | 'BUILDING'

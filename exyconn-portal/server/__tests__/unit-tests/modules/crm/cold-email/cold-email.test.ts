@@ -1,18 +1,16 @@
-import { Types } from 'mongoose';
 import { runAssistJob } from '../../../../../src/modules/ai/ai.actions';
 import { sendFromAnyMailbox } from '../../../../../src/modules/crm-integrations/crm-integrations.email';
 import { coldEmailResolvers } from '../../../../../src/modules/crm/cold-email/cold-email.resolvers';
 import { ColdEmailDraftModel } from '../../../../../src/modules/crm/cold-email/cold-email.model';
 import { ActivityModel } from '../../../../../src/modules/crm/activity.model';
-import { CompanyModel } from '../../../../../src/modules/crm/company.model';
 import { ContactModel } from '../../../../../src/modules/crm/contact.model';
 import { WebScrapeModel } from '../../../../../src/modules/web-scraper/web-scrape.model';
 import { AuditLogModel } from '../../../../../src/modules/audit/audit.model';
 import { registeredBulkTarget } from '../../../../../src/modules/table-transfer/registry';
 import { ROLES, type Role } from '../../../../../src/constants/roles';
-import type { GraphQLContext } from '../../../../../src/middleware/auth';
 import { useTestOrganization } from '../../../../helpers';
 import { codeOf } from '../../codeOf';
+import { answer, ctxAs as ctxAsIn, email, seedAcme } from './coldEmail.fixtures';
 
 // The model and the mailbox are external; what the CRM hands them and keeps is under test.
 jest.mock('../../../../../src/modules/ai/ai.actions', () => ({ runAssistJob: jest.fn() }));
@@ -26,34 +24,9 @@ const { Query, Mutation, ColdEmailDraft, ColdEmailVariant } = coldEmailResolvers
 const ai = jest.mocked(runAssistJob);
 const send = jest.mocked(sendFromAnyMailbox);
 
-const ctxAs = (roles: Role[]): GraphQLContext => ({
-  user: {
-    id: new Types.ObjectId().toHexString(),
-    email: 'asha@exyconn.com',
-    roles,
-    organizationId: ORGANIZATION,
-  },
-  organizationId: ORGANIZATION,
-});
+const ctxAs = (roles: Role[]) => ctxAsIn(ORGANIZATION, roles);
 const crm = () => ctxAs([ROLES.CRM]);
-
-const answer = (response: string, costUsd = 0.01) =>
-  ({ response, costUsd }) as unknown as Awaited<ReturnType<typeof runAssistJob>>;
-const email = (subject: string, body = 'Hi Acme team,\n\nShort note.\n\nAsha') =>
-  answer(JSON.stringify({ subject, body }));
 const promptOf = (call: number) => ai.mock.calls[call][1];
-
-const seedAcme = () =>
-  CompanyModel.create({
-    name: 'Acme',
-    domain: 'acme.com',
-    website: 'https://www.acme.com',
-    industry: 'Retail',
-    city: 'Pune',
-    country: 'India',
-    description: 'Chain of grocery stores.',
-    emails: [{ address: 'hello@acme.com', primary: true }],
-  });
 
 async function draftFor(subject = 'Faster checkouts at Acme') {
   const acme = await seedAcme();
@@ -129,6 +102,8 @@ describe('drafting a cold email', () => {
     expect(prompt).toContain('CALL: Intro call');
     expect(prompt).toContain('We run 40 stores across Maharashtra.');
     expect(prompt).toContain('Polite and professional');
+    // A new draft asks for four versions in the one run unless told otherwise.
+    expect(prompt).toContain('Write 4 clearly different versions of it.');
 
     const note = await ActivityModel.findOne({ relatedId: acme.id, type: 'NOTE' }).lean();
     expect(note).toMatchObject({
@@ -181,7 +156,7 @@ describe('drafting a cold email', () => {
   it('retries once on a malformed answer and adds up both runs', async () => {
     const acme = await seedAcme();
     ai.mockResolvedValueOnce(answer('Sure! Here is your email.', 0.02)).mockResolvedValueOnce(
-      answer('```json\n{"subject":"Hi Acme","body":"Hello.\\n\\nAsha"}\n```', 0.03),
+      answer('```json\n{"versions":[{"subject":"Hi Acme","body":"Hello.\\n\\nAsha"}]}\n```', 0.03),
     );
 
     const draft = await Mutation.createColdEmailDraft(

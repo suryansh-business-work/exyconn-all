@@ -19,6 +19,14 @@ export const LOCATION_MIN_MOVE_METRES = 200;
 export const LOCATION_UNAVAILABLE_MESSAGE =
   'Location access is off. Turn it on so the tracker can record where you are working.';
 
+/**
+ * Whether a refused command's message is the location one. The desktop's errors cross IPC as
+ * text, so the sentence itself is the signal; the phone passes `messageOf(cause, …)`.
+ */
+export function isLocationUnavailable(message: string): boolean {
+  return message === LOCATION_UNAVAILABLE_MESSAGE;
+}
+
 /** How a platform reads where the device is. Rejects when location access is off. */
 export interface LocationProvider {
   current(): Promise<TrackerLocationInput>;

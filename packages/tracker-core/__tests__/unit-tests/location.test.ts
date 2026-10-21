@@ -6,6 +6,7 @@ import {
   LocationPoller,
   TrackerLocationError,
   distanceMetres,
+  isLocationUnavailable,
   readLocation,
   shouldSendPin,
 } from '../../src/location';
@@ -183,5 +184,13 @@ describe('LocationPoller', () => {
 
     expect(rig.send).toHaveBeenCalledWith(fix(HOME));
     rig.poller.stop();
+  });
+});
+
+describe('isLocationUnavailable', () => {
+  it('recognises only the location sentence', () => {
+    expect(isLocationUnavailable(LOCATION_UNAVAILABLE_MESSAGE)).toBe(true);
+    expect(isLocationUnavailable('Network down.')).toBe(false);
+    expect(isLocationUnavailable('')).toBe(false);
   });
 });

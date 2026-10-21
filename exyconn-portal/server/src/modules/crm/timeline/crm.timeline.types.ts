@@ -7,7 +7,10 @@ export interface TimelineItem {
   summary: string;
   actor: string;
   status: string;
-  /** Where to open it in the portals, when it has a page of its own. */
+  /**
+   * Where to open it: a path inside the portal app that owns this kind (the client maps kind to
+   * app), empty when it has no page of its own.
+   */
   url: string;
   attachments: Array<{ url: string; name: string; contentType?: string | null }>;
 }
@@ -32,6 +35,8 @@ export interface TimelineTarget {
   addresses: string[];
   contactIds: string[];
   companyId: string;
+  /** The contact's or company's own page in the CRM, e.g. `/contacts/<id>`. */
+  recordPath: string;
   /** The newest this many of each kind are read; the merged list is cut to the same. */
   limit: number;
 }

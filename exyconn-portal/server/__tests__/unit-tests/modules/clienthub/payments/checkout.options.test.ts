@@ -6,17 +6,15 @@ import { Types } from 'mongoose';
 import { PaymentAttemptModel } from '../../../../../src/modules/clienthub/payments/attempt.model';
 import { ClientModel } from '../../../../../src/modules/clients/clients.model';
 import { InvoiceModel } from '../../../../../src/modules/finance/finance.model';
-import { invalidatePlatformOperatorCache } from '../../../../../src/lib/platformAccess';
 import type { ClientHubContact } from '../../../../../src/modules/clienthub/clienthub.auth';
 import { useTestOrganization } from '../../../../helpers';
-import { configureGateways, makeOperator, seedContact, seedInvoice } from './fixtures';
+import { configureGateways, seedContact, seedInvoice } from './fixtures';
 
 const organizationId = useTestOrganization({ country: 'GB' });
 
 let contact: ClientHubContact;
 
 beforeEach(async () => {
-  invalidatePlatformOperatorCache();
   contact = await seedContact(organizationId);
 });
 
@@ -30,33 +28,38 @@ const gatewayAnswers = (body: unknown) =>
     .spyOn(globalThis, 'fetch')
     .mockImplementation(async () => new Response(JSON.stringify(body), { status: 200 }));
 
-describe('online payment outside the platform operator', () => {
-  it('offers no gateway, even a configured one, and refuses to start a payment', async () => {
+describe('online payment for a client of any company', () => {
+  it('offers the active gateways and starts a payment, though the company is not the operator', async () => {
     await configureGateways(['STRIPE']);
     const invoice = await seedInvoice(contact.clientId);
+    gatewayAnswers({ id: 'cs_1', url: 'https://checkout.stripe.com/c/cs_1' });
 
-    expect(await paymentOptions(contact)).toEqual({
+    expect(await paymentOptions()).toEqual({
+      stripe: true,
+      razorpay: false,
+      paypal: false,
+      payoneer: false,
+    });
+    const started = await startPayment(contact, invoice._id.toHexString(), 'STRIPE');
+
+    expect(started.url).toBe('https://checkout.stripe.com/c/cs_1');
+    const attempt = await PaymentAttemptModel.findById(started.attemptId).lean();
+    expect(attempt).toMatchObject({ status: 'PENDING', externalId: 'cs_1' });
+  });
+
+  it('offers nothing while no gateway is set up', async () => {
+    expect(await paymentOptions()).toEqual({
       stripe: false,
       razorpay: false,
       paypal: false,
       payoneer: false,
     });
-    await expect(startPayment(contact, invoice._id.toHexString(), 'STRIPE')).rejects.toThrow(
-      /pay by bank transfer/,
-    );
-    expect(await PaymentAttemptModel.countDocuments()).toBe(0);
-  });
-});
-
-describe('online payment inside the platform operator', () => {
-  beforeEach(async () => {
-    await makeOperator(organizationId);
   });
 
   it('offers exactly the gateways that have an active account', async () => {
     await configureGateways(['STRIPE', 'PAYPAL']);
 
-    expect(await paymentOptions(contact)).toEqual({
+    expect(await paymentOptions()).toEqual({
       stripe: true,
       razorpay: false,
       paypal: true,
@@ -67,7 +70,7 @@ describe('online payment inside the platform operator', () => {
   it('offers every gateway once all four are set up', async () => {
     await configureGateways(['STRIPE', 'RAZORPAY', 'PAYPAL', 'PAYONEER']);
 
-    expect(await paymentOptions(contact)).toEqual({
+    expect(await paymentOptions()).toEqual({
       stripe: true,
       razorpay: true,
       paypal: true,

@@ -30,10 +30,12 @@ export const GMAIL_ACCOUNT_STATUSES = ['CONNECTED', 'NEEDS_RECONNECT'] as const;
 export type GmailAccountStatus = (typeof GMAIL_ACCOUNT_STATUSES)[number];
 
 /**
- * One Gmail mailbox connected to the operator's CRM (CRM > Configuration > Connect Gmail).
+ * One Gmail mailbox connected to a company's CRM (CRM > Configuration > Integrations > Email).
+ * Company-scoped like every CRM record: a company lists, uses and disconnects only its own.
  * Many may be connected; only the enabled ones are read and sent from. The refresh token is
  * sealed (utils/secretBox) and never leaves the server. Connecting the same Google account
- * again replaces its token on this row, so an address is connected at most once.
+ * again replaces its token on this row, so an address is connected at most once per company
+ * (the tenancy plugin makes `unique` mean unique per organization).
  */
 const gmailAccountSchema = new Schema(
   {
@@ -57,7 +59,7 @@ const gmailOAuthStateSchema = new Schema({
   codeVerifier: { type: String, required: true },
   returnTo: { type: String, required: true },
   updatedByName: { type: String, default: '' },
-  /** Who started it and in which company, so the callback can audit the connection. */
+  /** Who started it and in which company: the callback saves the mailbox there and audits it. */
   actorId: { type: String, default: '' },
   organizationId: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now, expires: STATE_TTL_SECONDS },
@@ -92,6 +94,8 @@ const crmEmailMessageSchema = new Schema(
   },
   { timestamps: true },
 );
+// Made (organizationId, gmailId) by the tenancy plugin: two companies connecting the same
+// mailbox each keep their own copy of a message.
 crmEmailMessageSchema.index({ gmailId: 1 }, { unique: true });
 
 export type GmailConfigDocument = InferSchemaType<typeof gmailConfigSchema>;

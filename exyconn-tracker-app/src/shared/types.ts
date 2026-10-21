@@ -149,6 +149,8 @@ export const IPC = {
   getPermissions: 'tracker:get-permissions',
   requestPermission: 'tracker:request-permission',
   openPrivacy: 'tracker:open-privacy',
+  /** Opens the OS page where location access is switched on (Windows / macOS). */
+  openLocationSettings: 'tracker:open-location-settings',
   getReport: 'tracker:get-report',
   /** The month's contracted hours per day: expected, weekends, holidays and leave. */
   getExpected: 'tracker:get-expected',

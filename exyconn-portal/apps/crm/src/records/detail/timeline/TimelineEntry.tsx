@@ -2,7 +2,6 @@ import { useT, useFormatters } from '@exyconn/i18n';
 import {
   Chip,
   Flex,
-  Link,
   Text,
   TimelineConnector,
   TimelineContent,
@@ -13,6 +12,7 @@ import {
 import type { CrmTimelineQuery } from '@exyconn/shell/graphql/generated';
 import { AttachmentPreview } from './AttachmentPreview';
 import { KIND_STYLES } from './timeline.kinds';
+import { TimelineTitle } from './TimelineTitle';
 
 export type TimelineRow = CrmTimelineQuery['crmTimeline'][number];
 
@@ -40,13 +40,7 @@ export function TimelineEntry({ entry, last }: Readonly<TimelineEntryProps>) {
         <Flex direction="column" spacing={0.5}>
           <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
             <Chip size="small" label={t(style.label)} />
-            {entry.url ? (
-              <Link href={entry.url} underline="hover" sx={{ fontWeight: 600 }}>
-                {entry.title}
-              </Link>
-            ) : (
-              <Text weight="semibold">{entry.title}</Text>
-            )}
+            <TimelineTitle row={entry} strong />
             {entry.status && <Chip size="small" variant="outlined" label={entry.status} />}
           </Flex>
           {entry.summary && (

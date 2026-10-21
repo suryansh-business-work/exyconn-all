@@ -18,6 +18,9 @@ export interface LocationInput {
 }
 
 const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
+const DAY_MS = 86_400_000;
+/** The longest span one range read may cover — a month, so the map stays readable. */
+export const MAX_LOCATION_RANGE_DAYS = 31;
 
 /** Refuses a fix that is not a position on the globe, before anything is written. */
 function assertLocation(input: LocationInput): void {
@@ -93,8 +96,24 @@ class TrackerLocationService {
 
   /** One person's pins on a local day (`YYYY-MM-DD`), oldest first. */
   pinsOn(userId: string, date: string) {
-    return TrackerLocationModel.find({ userId, day: dayOf(date) })
-      .sort({ capturedAt: 1 })
+    return this.pinsBetween(userId, date, date);
+  }
+
+  /**
+   * One person's pins from `from` to `to` (local `YYYY-MM-DD`, both included), oldest first.
+   * At most MAX_LOCATION_RANGE_DAYS days; read on the `userId, day, capturedAt` index.
+   */
+  pinsBetween(userId: string, from: string, to: string) {
+    const start = dayOf(from);
+    const end = dayOf(to);
+    if (end < start) {
+      badRequest('The range ends before it starts.');
+    }
+    if ((end.getTime() - start.getTime()) / DAY_MS + 1 > MAX_LOCATION_RANGE_DAYS) {
+      badRequest(`Locations are read at most ${MAX_LOCATION_RANGE_DAYS} days at a time.`);
+    }
+    return TrackerLocationModel.find({ userId, day: { $gte: start, $lte: end } })
+      .sort({ day: 1, capturedAt: 1 })
       .lean();
   }
 }

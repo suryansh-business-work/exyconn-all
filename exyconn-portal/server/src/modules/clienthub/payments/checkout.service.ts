@@ -1,4 +1,3 @@
-import { platformOperatorOrganizationId } from '../../../lib/platformAccess';
 import { env } from '../../../config/env';
 import { badRequest, notFound } from '../../../utils/errors';
 import { logger } from '../../../utils/logger';
@@ -21,18 +20,11 @@ import { companyProfile } from '../../../lib/company';
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
 /**
- * The gateways are Exyconn's own accounts, so only invoices Exyconn issued — the platform
- * operator's — can be paid through them. Another company's clients see no Pay button.
+ * Which gateways a client may pay with right now. The gateways are Exyconn's own accounts
+ * (Tech > Environment Variables) and every client hub client pays into them, whichever company
+ * issued the invoice; the webhook then records the payment on that company's invoice.
  */
-async function payableHere(contact: ClientHubContact): Promise<boolean> {
-  return (await platformOperatorOrganizationId()) === contact.organizationId;
-}
-
-/** Which gateways a client may pay with right now. */
-export async function paymentOptions(contact: ClientHubContact) {
-  if (!(await payableHere(contact))) {
-    return { stripe: false, razorpay: false, paypal: false, payoneer: false };
-  }
+export async function paymentOptions() {
   const [stripe, razorpay, paypal, payoneer] = await Promise.all([
     activeStripe(),
     activeRazorpay(),
@@ -53,9 +45,6 @@ export async function startPayment(
   invoiceId: string,
   gateway: PaymentGateway,
 ): Promise<{ attemptId: string; url: string }> {
-  if (!(await payableHere(contact))) {
-    badRequest('Online payment is not available for this invoice. Please pay by bank transfer.');
-  }
   const invoice = await ownInvoice(contact, invoiceId);
   const balance = round2(invoice.amount - (invoice.amountPaid ?? 0));
   if (balance <= 0) {

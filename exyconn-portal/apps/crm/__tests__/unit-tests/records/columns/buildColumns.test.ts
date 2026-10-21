@@ -26,7 +26,12 @@ const PAGE: ColDef<Row>[] = [
 ];
 const NAME = property();
 const EMAIL = property({ key: 'email', label: 'Email' });
-const SEATS = property({ key: 'seats', label: 'Seats', type: CrmPropertyType.Number, builtIn: false });
+const SEATS = property({
+  key: 'seats',
+  label: 'Seats',
+  type: CrmPropertyType.Number,
+  builtIn: false,
+});
 
 describe('columnId', () => {
   it('prefers the colId, then the field, then nothing', () => {
@@ -67,12 +72,18 @@ describe('buildColumnDefs', () => {
       sorts: [{ property: 'name', dir: SortDir.Desc }],
       formatters: FORMATTERS,
     });
-    expect(columns.map((column) => [columnId(column), column.sortable, column.initialSort])).toEqual([
+    expect(
+      columns.map((column) => [columnId(column), column.sortable, column.initialSort]),
+    ).toEqual([
       ['name', true, 'desc'],
       ['client', false, undefined],
       ['actions', undefined, undefined],
     ]);
-    expect(columns[0]).toMatchObject({ headerName: 'Lead name', filter: false, floatingFilter: false });
+    expect(columns[0]).toMatchObject({
+      headerName: 'Lead name',
+      filter: false,
+      floatingFilter: false,
+    });
   });
 
   it('adds a formatted cell for a property the page has no column for', () => {

@@ -76,6 +76,14 @@ export function assertCompanyEditor(ctx: GraphQLContext) {
   return assertPermission(ctx, MA_PERMISSION_MODULE, MA_COMPANY_ROLES, 'EDIT');
 }
 
+/** Reading the company's settings: a company viewer, or else a company editor. */
+export async function assertSettingsReader(ctx: GraphQLContext): Promise<void> {
+  await assertMaUser(ctx);
+  if (!(await seesCompany(ctx))) {
+    await assertCompanyEditor(ctx);
+  }
+}
+
 type LeanMeeting = MaMeetingDocument & { _id: unknown };
 
 /** A meeting the caller may read, or not-found (never "forbidden": that would confirm it exists). */

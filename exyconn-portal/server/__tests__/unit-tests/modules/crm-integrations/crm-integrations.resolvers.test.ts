@@ -61,7 +61,7 @@ describe('integration status', () => {
 });
 
 describe('managing the accounts', () => {
-  it('lists configs without tokens and no email senders outside the operator CRM', async () => {
+  it('lists configs without tokens, and no email senders for a caller in no company', async () => {
     const ctx = crmUser();
     await Mutation.createCrmCallConfig(null, { input: twilioInput() }, ctx);
     await Mutation.createCrmSmsConfig(null, { input: msg91Input() }, ctx);

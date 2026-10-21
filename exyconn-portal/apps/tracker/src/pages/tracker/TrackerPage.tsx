@@ -23,6 +23,7 @@ import { TrackerReportButtons } from './TrackerReportButtons';
 import { useTrackerTarget } from './useTrackerTarget';
 import { useHoursReportDownload } from './useHoursReportDownload';
 import { TrackerView } from '@exyconn/shell/pages/tracker-view/TrackerView';
+import { TrackerMonthLocations } from './month-locations';
 
 /** Query-string key holding whose tracker is on screen. */
 const EMPLOYEE_PARAM = 'employee';
@@ -131,6 +132,7 @@ export function TrackerPage() {
         dayLabels={target.dayLabels}
         empty={!employeeId}
       />
+      {employeeId && <TrackerMonthLocations employeeId={employeeId} month={month.month} />}
     </Box>
   );
 }

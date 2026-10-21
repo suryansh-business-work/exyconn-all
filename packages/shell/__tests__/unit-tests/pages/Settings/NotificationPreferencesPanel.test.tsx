@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
+  MyNotificationPreferencesDocument,
   useMyNotificationPreferencesQuery,
   useSetMyNotificationPreferenceMutation,
 } from '@/graphql/generated';
@@ -64,9 +65,11 @@ describe('NotificationPreferencesPanel', () => {
 
     await userEvent.click(screen.getByRole('switch', { name: 'Leave decisions in the portal' }));
 
-    expect(save).toHaveBeenCalledWith({
-      variables: { input: { kind: 'LEAVE', inPortal: false, email: false } },
-    });
+    expect(save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { kind: 'LEAVE', inPortal: false, email: false } },
+      }),
+    );
   });
 
   it('saves the email switch with the portal choice unchanged', async () => {
@@ -75,9 +78,43 @@ describe('NotificationPreferencesPanel', () => {
 
     await userEvent.click(screen.getByRole('switch', { name: 'Leave decisions by email' }));
 
-    expect(save).toHaveBeenCalledWith({
-      variables: { input: { kind: 'LEAVE', inPortal: true, email: true } },
+    expect(save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { kind: 'LEAVE', inPortal: true, email: true } },
+      }),
+    );
+  });
+
+  it('moves the switch at once with the whole set, only the changed kind altered', async () => {
+    mockPreferences([leave, unknownKind]);
+    renderWithProviders(<NotificationPreferencesPanel />);
+
+    await userEvent.click(screen.getByRole('switch', { name: 'Leave decisions by email' }));
+
+    expect(save.mock.lastCall?.[0].optimisticResponse).toEqual({
+      setMyNotificationPreference: [{ ...leave, email: true }, unknownKind],
     });
+  });
+
+  it("writes the server's answer over the cached list, and nothing when there is none", async () => {
+    mockPreferences([leave]);
+    renderWithProviders(<NotificationPreferencesPanel />);
+    await userEvent.click(screen.getByRole('switch', { name: 'Leave decisions by email' }));
+    const { update } = save.mock.lastCall?.[0] as {
+      update: (cache: unknown, result: { data?: unknown }) => void;
+    };
+    const cache = { writeQuery: vi.fn() };
+    const saved = [{ ...leave, email: true }];
+
+    update(cache, { data: { setMyNotificationPreference: saved } });
+    expect(cache.writeQuery).toHaveBeenCalledWith({
+      query: MyNotificationPreferencesDocument,
+      data: { myNotificationPreferences: saved },
+    });
+
+    cache.writeQuery.mockClear();
+    update(cache, { data: null });
+    expect(cache.writeQuery).not.toHaveBeenCalled();
   });
 
   it('tells the person when a preference could not be saved', async () => {

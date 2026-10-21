@@ -67,7 +67,9 @@ describe('ColumnsDialog', () => {
     renderButton(['name']);
     const dialog = await openDialog();
     expect(within(dialog).getByRole('button', { name: 'Hide Nom' })).toBeDisabled();
-    await userEvent.click(within(dialog).getByText('Nom', { selector: '.MuiListItemButton-root *' }));
+    await userEvent.click(
+      within(dialog).getByText('Nom', { selector: '.MuiListItemButton-root *' }),
+    );
     expect(within(dialog).getByRole('checkbox', { name: 'Nom' })).toBeChecked();
     expect(shown(dialog)).toEqual(['Nom']);
   });

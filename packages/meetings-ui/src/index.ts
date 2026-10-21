@@ -5,6 +5,7 @@
  */
 export { MeetingDashboardPage } from './dashboard/MeetingDashboardPage';
 export { MeetingsListPage } from './meetings/MeetingsListPage';
+export { MeetingCalendarPage } from './calendar/MeetingCalendarPage';
 export { MeetingDetailPage } from './detail/MeetingDetailPage';
 export { TranscriptsPage } from './transcripts/TranscriptsPage';
 export { ActionChecklistPage } from './actions/ActionChecklistPage';

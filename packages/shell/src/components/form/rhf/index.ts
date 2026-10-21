@@ -10,6 +10,7 @@ export { RhfDatePicker } from './RhfDatePicker';
 export { RhfDateTimePicker } from './RhfDateTimePicker';
 export { RhfTimePicker } from './RhfTimePicker';
 export { RhfAutocomplete } from './RhfAutocomplete';
+export { RhfFreeSoloField } from './RhfFreeSoloField';
 export { RhfCurrencyField, useCompanyCurrency } from './RhfCurrencyField';
 export { RhfRichText } from './RhfRichText';
 export { RhfCodeEditor } from './RhfCodeEditor';

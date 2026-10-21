@@ -39,7 +39,7 @@ export const readMicrosoftConfig = () =>
     ).lean<MicrosoftMailConfigDocument>(),
   );
 
-/** What Tech sees: never the secret, only whether it is there. */
+/** What Tech sees: never the secret, only whether it is there; the count spans every company. */
 export async function presentMicrosoftConfig(doc: MicrosoftMailConfigDocument) {
   const accountCount = await runAsPlatform(() => MicrosoftMailAccountModel.countDocuments());
   return {
@@ -92,7 +92,7 @@ export async function saveMicrosoftConfig(input: MicrosoftMailConfigInput, actor
 export interface MicrosoftConnectActor {
   id: string;
   name: string;
-  organizationId: string | null;
+  organizationId: string;
 }
 
 /** Microsoft's consent page for one more mailbox (or the same one, to renew its token). */
@@ -132,11 +132,17 @@ export const takeMicrosoftState = (nonce: string) =>
     MicrosoftOAuthStateModel.findOneAndDelete({ nonce }).lean<MicrosoftOAuthStateDocument>(),
   );
 
-/** The callback's work: trade the code, keep the refresh token sealed on the mailbox's row. */
+/**
+ * The callback's work: trade the code, keep the refresh token sealed on the mailbox's row, in
+ * the company that started the connection (the callback itself has no session).
+ */
 export async function finishMicrosoftConnect(
-  state: Pick<MicrosoftOAuthStateDocument, 'codeVerifier' | 'actorName'>,
+  state: Pick<MicrosoftOAuthStateDocument, 'codeVerifier' | 'actorName' | 'organizationId'>,
   code: string,
 ): Promise<string> {
+  if (!state.organizationId) {
+    throw new Error('This Microsoft connection was not started from a company. Connect again.');
+  }
   const app = await microsoftApp();
   const tokens = await requestTokens(app, {
     grant_type: 'authorization_code',
@@ -148,11 +154,16 @@ export async function finishMicrosoftConnect(
     throw new Error('Microsoft did not grant offline access. Try Connect again.');
   }
   const email = await mailboxAddress(tokens.access_token);
-  await saveMicrosoftAccount(email, tokens.refresh_token, state.actorName ?? '');
+  await saveMicrosoftAccount(
+    state.organizationId,
+    email,
+    tokens.refresh_token,
+    state.actorName ?? '',
+  );
   return email;
 }
 
-/** Proves every enabled mailbox by reading its own address with the stored connection. */
+/** Proves every enabled mailbox of the caller's company by reading its own address. */
 export async function testMicrosoftMail(): Promise<string> {
   const mailboxes = await enabledMicrosoftMailboxes();
   if (mailboxes.length === 0) {

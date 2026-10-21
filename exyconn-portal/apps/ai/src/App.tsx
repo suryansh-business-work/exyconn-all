@@ -7,6 +7,7 @@ import {
   ActionChecklistPage,
   ExtensionPage,
   LogsPage,
+  MeetingCalendarPage,
   MeetingDashboardPage,
   MeetingDetailPage,
   MeetingSettingsPage,
@@ -29,6 +30,10 @@ export function App() {
       <Route path="/ai/prompts" element={<PromptLibraryPage />} />
       <Route path="/ai/meeting-assistant" element={<MeetingDashboardPage {...MEETINGS} />} />
       <Route path="/ai/meeting-assistant/meetings" element={<MeetingsListPage {...MEETINGS} />} />
+      <Route
+        path="/ai/meeting-assistant/calendar"
+        element={<MeetingCalendarPage {...MEETINGS} />}
+      />
       <Route
         path="/ai/meeting-assistant/meetings/:id/:tab?"
         element={<MeetingDetailPage {...MEETINGS} />}

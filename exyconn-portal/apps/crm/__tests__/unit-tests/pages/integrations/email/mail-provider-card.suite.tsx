@@ -21,6 +21,8 @@ export interface MailProviderCardSpec {
   connectLabel: string;
   empty: string;
   loading: string;
+  /** The tooltip's reason while the platform has not switched the provider on. */
+  unavailable: string;
 }
 
 /** The behaviour every mail provider card on Integrations > Email shares. */
@@ -76,7 +78,7 @@ export function describeMailProviderCard(spec: Readonly<MailProviderCardSpec>) {
       );
     });
 
-    it('turns Connect off with a plain reason, no setup jargon, when it cannot connect', async () => {
+    it('turns Connect off and says who switches it on, and where, when it cannot connect', async () => {
       vi.spyOn(portalLogger, 'warn').mockImplementation(() => undefined);
       answer([], false);
       renderWithProviders(spec.render(false));
@@ -85,10 +87,8 @@ export function describeMailProviderCard(spec: Readonly<MailProviderCardSpec>) {
       await userEvent.click(connectButton());
       expect(spec.actions.connect).not.toHaveBeenCalled();
       await userEvent.hover(connectButton());
-      expect(
-        await screen.findByRole('tooltip', { name: 'Not available yet — ask your administrator' }),
-      ).toBeInTheDocument();
-      expect(screen.queryByText(/Tech|Environment Variables|OAuth/)).not.toBeInTheDocument();
+      expect(await screen.findByRole('tooltip', { name: spec.unavailable })).toBeInTheDocument();
+      expect(connectButton()).toHaveAccessibleDescription(spec.unavailable);
     });
 
     it('shows a skeleton while the first load runs, with Connect off', () => {

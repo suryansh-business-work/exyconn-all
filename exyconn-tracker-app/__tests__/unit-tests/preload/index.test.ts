@@ -110,6 +110,7 @@ describe('the tracker bridge', () => {
     ['toggleMaximizeWindow', [], IPC.toggleMaximizeWindow],
     ['closeWindow', [], IPC.closeWindow],
     ['openPrivacy', [], IPC.openPrivacy],
+    ['openLocationSettings', [], IPC.openLocationSettings],
   ] as const)('%s invokes its channel with its arguments', async (name, args, channel) => {
     const command = api[name] as (...all: unknown[]) => Promise<unknown>;
 

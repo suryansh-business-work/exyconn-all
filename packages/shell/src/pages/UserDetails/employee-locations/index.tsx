@@ -1,83 +1,26 @@
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { format } from 'date-fns';
-import { useT } from '@exyconn/i18n';
-import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
-import { Alert, Box, DatePicker, Flex, Grid, Heading } from '@/components/ui';
-import { EmptyState } from '@/components/feedback/EmptyState';
-import { MapKeyNotSet, MapSkeleton } from '@/components/maps';
+import { useFormatters, useT } from '@exyconn/i18n';
+import { Box, DatePicker, Flex, Heading } from '@/components/ui';
 import { panel } from '@/components/glass/glass';
-import { useEmployeeLocationsQuery, useGoogleMapsClientConfigQuery } from '@/graphql/generated';
-import { LocationList } from './LocationList';
-
-// Maps JavaScript and @react-google-maps/api download only when there are pins to show.
-const LocationsMap = lazy(() => import('./LocationsMap'));
-
-const MAP_HEIGHT = { xs: 300, md: 360 };
+import { useEmployeeLocationsQuery } from '@/graphql/generated';
+import { LocationsView } from './LocationsView';
 
 /** HR/ADMIN panel: where the employee's tracker pinned them on one day, on a map and in a list. */
 export function EmployeeLocationsPanel({ employeeId }: Readonly<{ employeeId: string }>) {
   const t = useT();
   const [day, setDay] = useState(() => new Date());
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { formatTime } = useFormatters();
   const { data, loading, error } = useEmployeeLocationsQuery({
     variables: { employeeId, date: format(day, 'yyyy-MM-dd') },
     fetchPolicy: 'cache-and-network',
   });
-  const pins = data?.employeeLocations ?? [];
-  const config = useGoogleMapsClientConfigQuery({ skip: pins.length === 0 });
-  const apiKey = config.data?.googleMapsClientConfig.browserKey;
 
   const pickDay = (value: Date | null) => {
     if (value && !Number.isNaN(value.getTime())) {
       setDay(value);
-      setSelectedId(null);
     }
   };
-
-  let body = <MapSkeleton height={MAP_HEIGHT.md} />;
-  if (error) {
-    body = <Alert severity="error">{error.message}</Alert>;
-  } else if (!loading && pins.length === 0) {
-    body = (
-      <EmptyState
-        icon={<PlaceOutlinedIcon />}
-        title="No locations on this day"
-        description="Pins appear when the employee marks attendance or moves while the tracker runs."
-      />
-    );
-  } else if (pins.length > 0) {
-    let map = <MapSkeleton height="100%" />;
-    if (apiKey) {
-      map = (
-        <Suspense fallback={<MapSkeleton height="100%" />}>
-          <LocationsMap
-            apiKey={apiKey}
-            pins={pins}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-          />
-        </Suspense>
-      );
-    } else if (!config.loading) {
-      map = <MapKeyNotSet />;
-    }
-    body = (
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Box
-            role="region"
-            aria-label={t('Map of the day’s locations')}
-            sx={{ height: MAP_HEIGHT, borderRadius: 1, overflow: 'hidden' }}
-          >
-            {map}
-          </Box>
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <LocationList pins={pins} selectedId={selectedId} onSelect={setSelectedId} />
-        </Grid>
-      </Grid>
-    );
-  }
 
   return (
     <Box sx={panel}>
@@ -99,7 +42,17 @@ export function EmployeeLocationsPanel({ employeeId }: Readonly<{ employeeId: st
           slotProps={{ textField: { size: 'small' } }}
         />
       </Flex>
-      {body}
+      {/* Keyed by day, so picking another day closes the pin that was open. */}
+      <LocationsView
+        key={format(day, 'yyyy-MM-dd')}
+        pins={data?.employeeLocations ?? []}
+        loading={loading}
+        error={error}
+        emptyTitle="No locations on this day"
+        mapLabel="Map of the day’s locations"
+        formatWhen={formatTime}
+        connect
+      />
     </Box>
   );
 }

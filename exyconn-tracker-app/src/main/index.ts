@@ -32,6 +32,7 @@ import { PORTAL_GRAPHQL_URL } from './portal-client';
 import { installMainCrashHandlers } from './crash-handlers';
 import { setLogUser } from './logger';
 import { handleTrusted, installNavigationGuards, isAppUrl } from './web-security';
+import { openLocationSettings } from './trackers/permissions';
 
 /**
  * This app's Windows AppUserModelID. Kept identical to `appId` in electron-builder.yml, which
@@ -335,6 +336,7 @@ function registerIpc(ctrl: TrackerController): void {
     updater.install();
   });
   handleTrusted(IPC.openPrivacy, () => shell.openExternal('https://portal.exyconn.com/me/tracker'));
+  handleTrusted(IPC.openLocationSettings, () => openLocationSettings());
 }
 
 /**
@@ -359,6 +361,12 @@ function lockDownPermissions(): void {
 
 // First, so an error anywhere after this reaches Tech > Logs.
 installMainCrashHandlers();
+// Before `app` is ready, or Chromium has already picked its features. On Windows, location is
+// read from Windows Location Services rather than Google's network lookup, which fails
+// without an API key (see location-bridge.ts). Nothing else in the app sets `enable-features`.
+if (process.platform === 'win32') {
+  app.commandLine.appendSwitch('enable-features', 'WinrtGeolocationImplementation');
+}
 // Before any window exists: no pop-ups, no navigation off the app's own pages.
 installNavigationGuards();
 

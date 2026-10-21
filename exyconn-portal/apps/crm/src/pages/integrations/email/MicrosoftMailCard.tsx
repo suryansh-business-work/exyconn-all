@@ -10,9 +10,11 @@ const TEXT: MailProviderText = {
   empty: 'No Microsoft mailbox connected yet.',
   loading: 'Loading the Microsoft mailboxes',
   loadError: 'Could not load the Microsoft mailboxes.',
+  unavailable:
+    'Microsoft mailbox connections are not switched on yet. Ask your platform administrator to set them up in Tech > Environment Variables > Email accounts (OAuth).',
 };
 
-/** The Microsoft (Outlook / Microsoft 365) mailboxes the CRM sends from. */
+/** The company's Microsoft (Outlook / Microsoft 365) mailboxes the CRM sends from. */
 export function MicrosoftMailCard({ ready }: Readonly<{ ready: boolean }>) {
   const actions = useMicrosoftMailActions();
   const { data, loading, error, refetch } = useMicrosoftMailAccountsQuery({

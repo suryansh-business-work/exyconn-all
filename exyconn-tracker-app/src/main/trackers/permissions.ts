@@ -70,3 +70,18 @@ export async function requestPermission(kind: PermissionKind): Promise<void> {
     'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
   );
 }
+
+/** Each OS's own page for location access. Linux desktops have no common one. */
+const LOCATION_SETTINGS_URLS: Partial<Record<NodeJS.Platform, string>> = {
+  win32: 'ms-settings:privacy-location',
+  darwin: 'x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices',
+};
+
+/** Opens the system settings page where the employee switches location access on. */
+export async function openLocationSettings(): Promise<void> {
+  const url = LOCATION_SETTINGS_URLS[process.platform];
+  if (url === undefined) {
+    throw new Error('This system has no location settings page to open.');
+  }
+  await shell.openExternal(url);
+}

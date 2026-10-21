@@ -1,6 +1,12 @@
-import { useFormatters, useT } from '@exyconn/i18n';
+import { useT } from '@exyconn/i18n';
 import { Box, List, ListItemButton, ListItemText } from '@/components/ui';
-import { KIND_LABEL, SOURCE_LABEL, type LocationPin } from './locations.types';
+import {
+  KIND_LABEL,
+  KIND_TONE,
+  SOURCE_LABEL,
+  type FormatPinTime,
+  type LocationPin,
+} from './locations.types';
 
 const BADGE = 28;
 
@@ -8,12 +14,17 @@ interface LocationListProps {
   pins: readonly LocationPin[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  formatWhen: FormatPinTime;
 }
 
-/** The day's pins as a list beside the map, numbered as the markers are. */
-export function LocationList({ pins, selectedId, onSelect }: Readonly<LocationListProps>) {
+/** The pins as a list beside the map, numbered and coloured as the markers are. */
+export function LocationList({
+  pins,
+  selectedId,
+  onSelect,
+  formatWhen,
+}: Readonly<LocationListProps>) {
   const t = useT();
-  const { formatTime } = useFormatters();
   return (
     // Every row is a button, so the scrolled list is reachable by keyboard as it is.
     <Box sx={{ maxHeight: { md: 360 }, overflowY: 'auto' }}>
@@ -34,15 +45,15 @@ export function LocationList({ pins, selectedId, onSelect }: Readonly<LocationLi
                 display: 'grid',
                 placeItems: 'center',
                 borderRadius: '50%',
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
+                bgcolor: `${KIND_TONE[pin.kind]}.main`,
+                color: `${KIND_TONE[pin.kind]}.contrastText`,
                 typography: 'caption',
               }}
             >
               {index + 1}
             </Box>
             <ListItemText
-              primary={formatTime(pin.capturedAt)}
+              primary={formatWhen(pin.capturedAt)}
               secondary={`${t(KIND_LABEL[pin.kind])} · ${t(SOURCE_LABEL[pin.source])}`}
             />
           </ListItemButton>

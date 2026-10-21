@@ -6,12 +6,12 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { useTestMicrosoftMailConfigMutation } from '@exyconn/shell/graphql/generated';
 
-/** Where the CRM connects, turns on and disconnects its Microsoft mailboxes. */
+/** Where a company's CRM connects, turns on and disconnects its Microsoft mailboxes. */
 const CRM_EMAIL_INTEGRATIONS_PATH = '/integrations/email';
 
 /**
- * How many mailboxes the CRM has connected through the Entra app, a link to manage them in the
- * CRM, and a Test that reads every enabled mailbox's address.
+ * How many mailboxes every company's CRM has connected through the Entra app, a link to manage
+ * this company's in the CRM, and a Test that reads each of this company's enabled mailboxes.
  */
 export function MicrosoftMailConnection({ accountCount }: Readonly<{ accountCount: number }>) {
   const t = useT();
@@ -33,7 +33,9 @@ export function MicrosoftMailConnection({ accountCount }: Readonly<{ accountCoun
     <Flex direction="column" spacing={1.5} sx={{ mb: 2 }}>
       <Alert severity={hasAccounts ? 'success' : 'info'}>
         {hasAccounts
-          ? t('{count} Microsoft mailboxes connected in the CRM.', { count: accountCount })
+          ? t('{count} Microsoft mailboxes connected across every company’s CRM.', {
+              count: accountCount,
+            })
           : t(
               'No Microsoft mailbox connected yet. Save the app, then connect mailboxes in the CRM.',
             )}

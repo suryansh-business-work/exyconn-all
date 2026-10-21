@@ -81,7 +81,7 @@ describe('the Entra app (Tech)', () => {
 
   it('tests every enabled mailbox', async () => {
     await saveApp();
-    await connectMailbox(SALES);
+    await connectMailbox(operatorId, SALES);
     fakeMicrosoft({ [SALES]: {} });
 
     await expect(Mutation.testMicrosoftMailConfig(null, {}, superAdmin())).resolves.toBe(
@@ -98,7 +98,7 @@ describe('the Entra app (Tech)', () => {
 
 describe('the mailboxes (CRM)', () => {
   it('lists the connected mailboxes without their tokens', async () => {
-    const id = await connectMailbox(SALES);
+    const id = await connectMailbox(operatorId, SALES);
 
     const listed = (await asOperator(Query.microsoftMailAccounts, {}, sales())) as Array<
       Record<string, unknown>
@@ -153,7 +153,7 @@ describe('the mailboxes (CRM)', () => {
   });
 
   it('turns a mailbox off and on, auditing each', async () => {
-    const id = await connectMailbox(SALES);
+    const id = await connectMailbox(operatorId, SALES);
 
     const off = await asOperator(
       Mutation.setMicrosoftMailAccountEnabled,
@@ -171,7 +171,7 @@ describe('the mailboxes (CRM)', () => {
   });
 
   it('disconnects a mailbox and audits it', async () => {
-    const id = await connectMailbox(SALES);
+    const id = await connectMailbox(operatorId, SALES);
 
     await expect(
       asOperator(Mutation.disconnectMicrosoftMailAccount, { id }, sales()),
@@ -186,17 +186,26 @@ describe('the mailboxes (CRM)', () => {
     });
   });
 
-  it("is refused in a customer company's CRM", async () => {
+  it('is refused to a caller acting in no company', async () => {
+    await expect(
+      codeOf(runAsPlatform(() => Promise.resolve(Query.microsoftMailAccounts(null, {}, sales())))),
+    ).resolves.toBe('FORBIDDEN');
+  });
+
+  it("keeps another company away from the operator's mailboxes", async () => {
+    const id = await connectMailbox(operatorId, SALES);
     const customer = await runAsPlatform(() =>
       OrganizationModel.create({ name: 'Customer', slug: 'customer', currency: 'USD' }),
     );
+    const asCustomer = (resolve: Resolver, args: Record<string, unknown>) =>
+      runForOrganization(customer._id.toHexString(), () =>
+        Promise.resolve(resolve(null, args, sales())),
+      );
 
-    await expect(
-      codeOf(
-        runForOrganization(customer._id.toHexString(), () =>
-          Promise.resolve(Query.microsoftMailAccounts(null, {}, sales())),
-        ),
-      ),
-    ).resolves.toBe('FORBIDDEN');
+    await expect(asCustomer(Query.microsoftMailAccounts, {})).resolves.toHaveLength(0);
+    await expect(codeOf(asCustomer(Mutation.disconnectMicrosoftMailAccount, { id }))).resolves.toBe(
+      'NOT_FOUND',
+    );
+    expect(await MicrosoftMailAccountModel.countDocuments()).toBe(1);
   });
 });

@@ -56,7 +56,9 @@ describe('ActiveFilterChips', () => {
     renderWithProviders(
       <ActiveFilterChips
         properties={[vip]}
-        groups={[{ id: 'g', conditions: [{ id: 'c', property: 'vip', op: CrmOp.Eq, values: ['true'] }] }]}
+        groups={[
+          { id: 'g', conditions: [{ id: 'c', property: 'vip', op: CrmOp.Eq, values: ['true'] }] },
+        ]}
         onRemove={vi.fn()}
       />,
       { messages: { Yes: 'Oui' } },
@@ -69,7 +71,11 @@ describe('PresenceChips', () => {
   it('shows one toggle per Yes/No check, on when every group requires it', async () => {
     const onApply = vi.fn();
     renderWithProviders(
-      <PresenceChips properties={[STAGE, HAS_EMAIL, HAS_PHONE]} groups={[GROUPS[1]]} onApply={onApply} />,
+      <PresenceChips
+        properties={[STAGE, HAS_EMAIL, HAS_PHONE]}
+        groups={[GROUPS[1]]}
+        onApply={onApply}
+      />,
     );
     const email = screen.getByRole('button', { name: 'Has email' });
     const phone = screen.getByRole('button', { name: 'Has phone' });

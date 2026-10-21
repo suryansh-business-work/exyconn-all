@@ -12,7 +12,10 @@ const rowsOf = (count: number, from = 0) =>
   Array.from({ length: count }, (_unused, index) => ({ id: `r-${from + index}` }));
 
 /** A client whose search answers each page in turn under the given result key. */
-function clientAnswering(key: string, pages: Array<{ rows: { id: string }[]; totalCount: number }>) {
+function clientAnswering(
+  key: string,
+  pages: Array<{ rows: { id: string }[]; totalCount: number }>,
+) {
   const query = vi.fn();
   for (const page of pages) {
     query.mockResolvedValueOnce({ data: { [key]: page } });
@@ -67,7 +70,10 @@ describe('fetchAllRecords', () => {
     const query = vi.fn((options: { variables: { query: { page: number } } }) =>
       Promise.resolve({
         data: {
-          searchLeads: { rows: rowsOf(200, options.variables.query.page * 200), totalCount: 90_000 },
+          searchLeads: {
+            rows: rowsOf(200, options.variables.query.page * 200),
+            totalCount: 90_000,
+          },
         },
       }),
     );

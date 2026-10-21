@@ -57,6 +57,8 @@ describe('ColdEmailDraftForm', () => {
           goal: 'A free checkout audit',
           tone: 'FRIENDLY',
           readWebsite: false,
+          // Every new draft is written with four versions in one AI run.
+          variantCount: 4,
         },
       },
     });
@@ -67,6 +69,24 @@ describe('ColdEmailDraftForm', () => {
     expect(screen.getAllByLabelText('What we are offering').at(-1)).toHaveValue(
       'A free checkout audit',
     );
+  });
+
+  it('says how many versions one run writes, and shows the AI at work while it does', async () => {
+    gql.create.mockReturnValue(new Promise(() => undefined));
+    renderForm();
+    expect(
+      screen.getByText('Generating writes 4 versions with the AI in one run and spends AI budget.'),
+    ).toBeInTheDocument();
+
+    await fillField('What we are offering', 'A free checkout audit');
+    await press('Generate');
+
+    expect(
+      await screen.findByRole('progressbar', { name: 'Writing the versions' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('The AI is writing 4 versions. This can take up to a minute.'),
+    ).toBeInTheDocument();
   });
 
   it('offers to read the website through Firecrawl only when it is set up and they have one', async () => {

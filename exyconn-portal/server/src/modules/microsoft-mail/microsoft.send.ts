@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { badRequest } from '../../utils/errors';
-import { assertOperatorCrm, checkedRecipients, type SendCrmEmailInput } from '../gmail/gmail.crm';
+import { assertCompanyCrm, checkedRecipients, type SendCrmEmailInput } from '../gmail/gmail.crm';
 import { keepRecord, type EmailRecord } from '../gmail/gmail.sync';
 import { graph, refreshMailbox, type MicrosoftMailbox } from './microsoft.client';
 import { enabledMicrosoftMailboxes, noteMicrosoftOutcome } from './microsoft.accounts';
@@ -26,7 +26,7 @@ async function sendingMicrosoftMailbox(accountId: string): Promise<MicrosoftMail
  * so every Microsoft send is its own conversation in the CRM.
  */
 export async function sendMicrosoftCrmEmail(input: SendCrmEmailInput, sentByName: string) {
-  await assertOperatorCrm();
+  assertCompanyCrm();
   const { to, cc, subject } = checkedRecipients(input);
   const mailbox = await sendingMicrosoftMailbox(input.fromAccountId);
   try {

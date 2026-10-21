@@ -11,12 +11,18 @@ import {
 } from '@exyconn/ui';
 import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
 import type { AttendanceStatus, TrackerLocationInput, Workday } from '@shared/types';
-import { ATTENDANCE_OPTIONS, humanize, trackerErrorText } from '@exyconn/tracker-core';
+import {
+  ATTENDANCE_OPTIONS,
+  humanize,
+  isLocationUnavailable,
+  trackerErrorText,
+} from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
 import usePendingAction from '../hooks/usePendingAction';
 import { run } from '../run';
 import LocationMapDialog from './LocationMapDialog';
+import OpenLocationSettingsButton from './OpenLocationSettingsButton';
 
 interface Props {
   workday: Workday | null;
@@ -41,6 +47,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
   const { pending, error, perform, clearError } = usePendingAction<'locate' | 'mark'>();
   const busy = pending !== null;
   const errorText = error === null ? null : trackerErrorText(error, workday, t);
+  const locationOff = error !== null && isLocationUnavailable(error);
   useAnnounce(errorText, 'assertive');
 
   // Null until the portal has said what today is — a loader, not a gap that later jumps in.
@@ -122,7 +129,14 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
         onChange={(event) => setNote(event.target.value)}
       />
       {errorText !== null && fix === null && (
-        <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
+        <Alert
+          severity="error"
+          variant="outlined"
+          sx={{ borderRadius: `${TRACKER_RADIUS}px` }}
+          action={
+            locationOff ? <OpenLocationSettingsButton size="small" color="inherit" /> : undefined
+          }
+        >
           {errorText}
         </Alert>
       )}

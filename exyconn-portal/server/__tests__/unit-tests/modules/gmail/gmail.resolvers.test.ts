@@ -168,20 +168,39 @@ describe('the Tech Gmail client', () => {
 });
 
 describe('the CRM Gmail accounts', () => {
-  it('are refused outside the operator’s own CRM', async () => {
-    const customer = await runAsPlatform(() =>
-      OrganizationModel.create({ name: 'Customer', slug: 'customer', currency: 'USD' }),
-    );
-    const asCustomer = <T>(work: () => Promise<T>) =>
-      runForOrganization(customer._id.toHexString(), work);
+  it('are refused to a caller acting in no company', async () => {
+    const asPlatform = (resolve: Resolver, args: Record<string, unknown>) =>
+      runAsPlatform(() => Promise.resolve(resolve(null, args, ctx)));
 
-    await expect(codeOf(asCustomer(async () => Query.gmailAccounts(null, {}, ctx)))).resolves.toBe(
+    await expect(codeOf(asPlatform(Query.gmailAccounts, {}))).resolves.toBe('FORBIDDEN');
+    await expect(codeOf(asPlatform(Mutation.startGmailConnect, { returnTo: 'x' }))).resolves.toBe(
       'FORBIDDEN',
     );
+    await expect(asPlatform(Query.crmGmailReady, {})).resolves.toBe(false);
+  });
+
+  it('keep each company to its own accounts: another company neither sees nor changes them', async () => {
+    await saveClient();
+    const id = await connectAccount(operatorId, SALES);
+    const other = await runAsPlatform(() =>
+      OrganizationModel.create({ name: 'Other', slug: 'other', currency: 'USD' }),
+    );
+    const asOther = (resolve: Resolver, args: Record<string, unknown>) =>
+      runForOrganization(other._id.toHexString(), () => Promise.resolve(resolve(null, args, ctx)));
+
+    await expect(asOther(Query.gmailAccounts, {})).resolves.toHaveLength(0);
+    await expect(asOther(Query.crmGmailReady, {})).resolves.toBe(false);
     await expect(
-      codeOf(asCustomer(async () => Mutation.startGmailConnect(null, { returnTo: 'x' }, ctx))),
-    ).resolves.toBe('FORBIDDEN');
-    await expect(asCustomer(async () => Query.crmGmailReady(null, {}, ctx))).resolves.toBe(false);
+      codeOf(asOther(Mutation.setGmailAccountEnabled, { id, enabled: false })),
+    ).resolves.toBe('NOT_FOUND');
+    await expect(codeOf(asOther(Mutation.disconnectGmailAccount, { id }))).resolves.toBe(
+      'NOT_FOUND',
+    );
+
+    const owned = (await asOperator(() =>
+      Promise.resolve(Query.gmailAccounts(null, {}, ctx)),
+    )) as Array<Record<string, unknown>>;
+    expect(owned).toEqual([expect.objectContaining({ id, enabled: true })]);
   });
 
   it('lists the accounts without tokens, and says whether the client is ready', async () => {
@@ -189,7 +208,7 @@ describe('the CRM Gmail accounts', () => {
       false,
     );
     await saveClient();
-    const id = await connectAccount(SALES);
+    const id = await connectAccount(operatorId, SALES);
 
     const accounts = (await asOperator(async () => Query.gmailAccounts(null, {}, ctx))) as Array<
       Record<string, unknown>
@@ -205,11 +224,11 @@ describe('the CRM Gmail accounts', () => {
     await saveClient();
     await expect(asOperator(async () => Query.crmGmailReady(null, {}, ctx))).resolves.toBe(false);
 
-    await connectAccount(SALES);
+    await connectAccount(operatorId, SALES);
     await expect(asOperator(async () => Query.crmGmailReady(null, {}, ctx))).resolves.toBe(true);
   });
 
-  it('starts a connection that remembers the person and the operator company', async () => {
+  it('starts a connection that remembers the person and their company', async () => {
     await saveClient();
 
     const url = (await asOperator(async () =>
@@ -228,7 +247,7 @@ describe('the CRM Gmail accounts', () => {
 
   it('turns an account on and off and disconnects it, auditing each change', async () => {
     await saveClient();
-    const id = await connectAccount(SALES);
+    const id = await connectAccount(operatorId, SALES);
 
     const off = (await asOperator(async () =>
       Mutation.setGmailAccountEnabled(null, { id, enabled: false }, ctx),

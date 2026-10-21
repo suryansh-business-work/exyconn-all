@@ -14,11 +14,12 @@ import { onTrusted } from './web-security';
  * in Info.plist and, under the hardened runtime, the
  * `com.apple.security.personal-information.location` entitlement (both in electron-builder.yml
  * and build/entitlements.mac.plist), and Location Services switched on for the app in System
- * Settings > Privacy & Security. On Windows (Electron 33 / Chromium 130) Chromium's provider is
- * used: Windows' "Location services" and "Let desktop apps access your location" must be on,
- * and where Chromium falls back to Google's network location web service it needs a
- * GOOGLE_API_KEY in the main process environment (Electron's environment-variables docs) —
- * without one that lookup fails and the employee sees the "location access is off" message.
+ * Settings > Privacy & Security. On Windows (Electron 33 / Chromium 130) Chromium's default
+ * provider is Google's network location web service, which fails without a GOOGLE_API_KEY —
+ * so main switches on Chromium's Windows provider instead (`WinrtGeolocationImplementation`
+ * in index.ts, before the app is ready), which reads Windows Location Services. Windows'
+ * "Location services" and "Let desktop apps access your location" must then be on; Settings
+ * in the app opens that page (`openLocationSettings` in trackers/permissions.ts).
  *
  * The renderer is granted the `geolocation` permission for the app's own pages only
  * (lockDownPermissions in index.ts). A hidden window still answers, which matters because the

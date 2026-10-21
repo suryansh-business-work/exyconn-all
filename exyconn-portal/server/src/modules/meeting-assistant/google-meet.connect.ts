@@ -18,8 +18,13 @@ import { MA_AUDIT_MODULE } from './ma.enums';
 import type { MaActor } from './ma.access';
 
 export const GOOGLE_MEET_CALLBACK_PATH = '/oauth/google-meet';
-/** Read-only access to the person's Meet conference records, transcripts and participants. */
-const SCOPES = 'openid email https://www.googleapis.com/auth/meetings.space.readonly';
+/** Read-only access to the person's calendar events, for the Meeting Assistant calendar. */
+export const GOOGLE_CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events.readonly';
+/**
+ * Read-only access to the person's Meet conference records, transcripts and participants, and
+ * to their calendar events.
+ */
+const SCOPES = `openid email https://www.googleapis.com/auth/meetings.space.readonly ${GOOGLE_CALENDAR_SCOPE}`;
 const PORTAL_ORIGINS: ReadonlySet<string> = new Set(env.corsOrigins);
 
 const redirectUri = () => `${env.apiPublicUrl}${GOOGLE_MEET_CALLBACK_PATH}/callback`;
@@ -87,10 +92,11 @@ async function finish(state: PendingConnect, code: string): Promise<string> {
     throw new Error('Google did not grant offline access. Try Connect again.');
   }
   const email = verifiedEmailOf(tokens.id_token, client.clientId);
+  const scopes = (tokens.scope ?? '').split(' ').filter(Boolean);
   await runForOrganization(state.organizationId, async () => {
     await MaGoogleConnectionModel.updateOne(
       { userId: state.userId },
-      { $set: { email, refreshToken: seal(tokens.refresh_token ?? ''), lastError: '' } },
+      { $set: { email, refreshToken: seal(tokens.refresh_token ?? ''), scopes, lastError: '' } },
       { upsert: true },
     );
     await recordAudit(

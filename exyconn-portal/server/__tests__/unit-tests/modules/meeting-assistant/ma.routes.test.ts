@@ -18,7 +18,7 @@ import {
   MaReleaseModel,
 } from '../../../../src/modules/meeting-assistant/models';
 import { openAiClient } from '../../../../src/utils/openai';
-import { githubActions } from '../../../../src/utils/github';
+import * as releaseStore from '../../../../src/modules/meeting-assistant/releases.store';
 import { signToken, verifyToken } from '../../../../src/utils/jwt';
 import { open } from '../../../../src/utils/secretBox';
 import { readGoogleConfig } from '../../../../src/modules/auth/google/google-sign-in.config';
@@ -41,9 +41,6 @@ jest.mock('../../../../src/utils/openai', () => ({
   ...jest.requireActual('../../../../src/utils/openai'),
   openAiClient: { transcribe: jest.fn() },
 }));
-jest.mock('../../../../src/utils/github', () => ({
-  githubActions: { isRepoReleaseAsset: jest.fn(), openReleaseAsset: jest.fn() },
-}));
 jest.mock('../../../../src/modules/auth/google/google-sign-in.config', () => ({
   readGoogleConfig: jest.fn(),
 }));
@@ -54,7 +51,6 @@ jest.mock('../../../../src/modules/auth/google/google-sign-in.oauth', () => ({
 }));
 
 const transcribe = openAiClient.transcribe as jest.Mock;
-const openAsset = githubActions.openReleaseAsset as jest.Mock;
 const exchange = exchangeForTokens as jest.Mock;
 
 const organizationId = useTestOrganization();
@@ -97,13 +93,27 @@ afterEach(() => {
 });
 
 describe('the module entry point', () => {
-  it('exposes every resolver of the three schemas', () => {
+  it('exposes every resolver of the module', () => {
     expect(Object.keys(meetingAssistantResolvers.Query)).toEqual(
-      expect.arrayContaining(['maMeeting', 'maNotes', 'maSettings']),
+      expect.arrayContaining([
+        'maMeeting',
+        'maNotes',
+        'maSettings',
+        'maAvailableModels',
+        'maReleaseOverview',
+        'maReleaseSettings',
+      ]),
     );
     expect(Object.keys(meetingAssistantResolvers.Mutation)).toEqual(
-      expect.arrayContaining(['maStartSession', 'maUpdateNotes', 'maRegisterRelease']),
+      expect.arrayContaining([
+        'maStartSession',
+        'maUpdateNotes',
+        'maApproveRelease',
+        'maStartExtensionBuild',
+        'maUpdateReleaseSettings',
+      ]),
     );
+    expect(meetingAssistantResolvers.Mutation).not.toHaveProperty('maRegisterRelease');
   });
 });
 
@@ -326,7 +336,11 @@ describe('GET /download', () => {
     expect((await download(recordingLink(meetingId, 'TAB'))).status).toBe(404);
   });
 
-  it('streams a release ZIP with its checksum, and answers 502 when GitHub fails', async () => {
+  it('streams a stored release ZIP with its checksum, and answers 502 when it is missing', async () => {
+    const fileId = await releaseStore.saveReleaseZip('ext.zip', Buffer.from('zip'), {
+      version: '1.0.0',
+      sha256: 'c'.repeat(64),
+    });
     const release = await runAsPlatform(() =>
       MaReleaseModel.create({
         version: '1.0.0',
@@ -337,7 +351,7 @@ describe('GET /download', () => {
         artifactName: 'ext"1.0.0.zip',
         artifactSize: 3,
         sha256: 'c'.repeat(64),
-        assetUrl: 'https://api.github.com/repos/o/r/releases/assets/1',
+        fileId,
       }),
     );
     const link = signedDownloadUrl({
@@ -346,10 +360,9 @@ describe('GET /download', () => {
       userId: actor.id,
       organizationId,
     }).url;
-    openAsset.mockResolvedValueOnce(new Response('zip'));
 
     const ok = await download(link).responseType('blob');
-    openAsset.mockRejectedValueOnce(new Error('GitHub down'));
+    await releaseStore.deleteReleaseZip(fileId);
     const failed = await download(link);
 
     expect(ok.status).toBe(200);
@@ -385,7 +398,33 @@ describe('Google Meet connect callback', () => {
     const connection = await MaGoogleConnectionModel.findOne({ userId: actor.id }).lean();
     expect(connection?.email).toBe('asha@gmail.com');
     expect(open(connection?.refreshToken ?? '')).toBe('refresh-1');
+    expect(connection?.scopes).toEqual([]);
     expect((await callback({ state, code: 'again' })).status).toBe(400);
+  });
+
+  it('stores the scopes Google granted, and replaces them on a reconnect', async () => {
+    const meet = 'https://www.googleapis.com/auth/meetings.space.readonly';
+    const calendar = 'https://www.googleapis.com/auth/calendar.events.readonly';
+    (verifiedEmailOf as jest.Mock).mockReturnValue('asha@gmail.com');
+    exchange.mockResolvedValueOnce({
+      refresh_token: 'refresh-1',
+      id_token: 'id-token',
+      scope: `openid  ${meet} ${calendar}`,
+    });
+    await callback({ state: await startConnect(), code: 'first' });
+    const first = await MaGoogleConnectionModel.findOne({ userId: actor.id }).lean();
+    exchange.mockResolvedValueOnce({
+      refresh_token: 'refresh-2',
+      id_token: 'id-token',
+      scope: meet,
+    });
+    await callback({ state: await startConnect(), code: 'second' });
+    const second = await MaGoogleConnectionModel.findOne({ userId: actor.id }).lean();
+
+    expect(first?.scopes).toEqual(['openid', meet, calendar]);
+    expect(second?.scopes).toEqual([meet]);
+    expect(open(second?.refreshToken ?? '')).toBe('refresh-2');
+    expect(await MaGoogleConnectionModel.countDocuments()).toBe(1);
   });
 
   it('returns with the reason when consent was cancelled or offline access was not granted', async () => {

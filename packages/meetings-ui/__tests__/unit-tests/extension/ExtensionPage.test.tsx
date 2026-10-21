@@ -7,11 +7,13 @@ import {
   useMaLatestReleaseQuery,
   useMaMyExtensionSessionsQuery,
   useMaReleaseDownloadLinkMutation,
+  useMaReleaseOverviewQuery,
   useMaReleasesQuery,
   useMaRevokeExtensionSessionMutation,
   useMaStartGoogleConnectMutation,
 } from '@exyconn/shell/graphql/generated';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { copyToClipboard } from '@exyconn/shell/utils/clipboard';
 import { ExtensionPage } from '../../../src/extension/ExtensionPage';
 import { STARTED, makeRelease } from '../fixtures';
 import { mutationTuple, queryResult, renderWithProviders, stubLocationAssign } from '../test-utils';
@@ -26,7 +28,9 @@ vi.mock('@exyconn/shell/graphql/generated', async (orig) => ({
   useMaGoogleConnectionQuery: vi.fn(),
   useMaStartGoogleConnectMutation: vi.fn(),
   useMaDisconnectGoogleMutation: vi.fn(),
+  useMaReleaseOverviewQuery: vi.fn(),
 }));
+vi.mock('@exyconn/shell/utils/clipboard', () => ({ copyToClipboard: vi.fn() }));
 
 const run = { link: vi.fn(), revoke: vi.fn(), connect: vi.fn(), disconnect: vi.fn() };
 const latestRefetch = vi.fn();
@@ -90,6 +94,11 @@ beforeEach(() => {
   vi.mocked(useMaStartGoogleConnectMutation).mockReturnValue(mutationTuple(run.connect) as never);
   vi.mocked(useMaDisconnectGoogleMutation).mockReturnValue(mutationTuple(run.disconnect) as never);
   connection();
+  vi.mocked(useMaReleaseOverviewQuery).mockReturnValue(
+    queryResult({
+      maReleaseOverview: { releaseManager: false, registered: 0, awaitingApproval: 0 },
+    }) as never,
+  );
 });
 
 afterEach(() => {
@@ -106,7 +115,8 @@ describe('ExtensionPage — the release', () => {
     expect(screen.getByText('Current version').nextElementSibling).toHaveTextContent('1.4.0');
     expect(screen.getByText('Chrome 120 or later')).toBeInTheDocument();
     expect(screen.getByText('f'.repeat(64))).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Install from Chrome Web Store' })).toBeDisabled();
+    expect(screen.queryByText('Install from Chrome Web Store')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Download extension (.zip)' })).toBeEnabled();
   });
 
   it('links the store button to the real listing once there is one', () => {
@@ -119,6 +129,14 @@ describe('ExtensionPage — the release', () => {
       'href',
       storeUrl,
     );
+  });
+
+  it('keeps the download off for a build that is not downloadable', () => {
+    vi.mocked(useMaLatestReleaseQuery).mockReturnValue(
+      queryResult({ maLatestRelease: makeRelease({ downloadable: false }) }) as never,
+    );
+    renderWithProviders(<ExtensionPage />);
+    expect(screen.getByRole('button', { name: 'Download extension (.zip)' })).toBeDisabled();
   });
 
   it('downloads the internal ZIP through a short-lived link and gives its checksum', async () => {
@@ -134,7 +152,7 @@ describe('ExtensionPage — the release', () => {
       },
     });
     renderWithProviders(<ExtensionPage />);
-    await userEvent.click(screen.getByRole('button', { name: 'Download internal ZIP' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Download extension (.zip)' }));
     expect(run.link).toHaveBeenCalledWith({ variables: { id: 'release-1' } });
     expect(assign).toHaveBeenCalledWith('https://files.example.com/x.zip');
     expect(await screen.findByText('Downloading x.zip. Its SHA-256 is abc')).toBeInTheDocument();
@@ -144,25 +162,37 @@ describe('ExtensionPage — the release', () => {
     const assign = stubLocationAssign();
     run.link.mockRejectedValueOnce(new Error('Release withdrawn'));
     renderWithProviders(<ExtensionPage />);
-    await userEvent.click(screen.getByRole('button', { name: 'Download internal ZIP' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Download extension (.zip)' }));
     expect(await screen.findByText('Release withdrawn')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Download internal ZIP' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Download extension (.zip)' }));
     expect(assign).not.toHaveBeenCalled();
   });
 
-  it('walks through installing an unpacked extension, with the address as copyable text', async () => {
-    const user = userEvent.setup();
+  it('lists the install steps in order, with the extensions address as text', () => {
     renderWithProviders(<ExtensionPage />);
-    await user.click(screen.getByRole('button', { name: 'Installation guide' }));
-    const dialog = await screen.findByRole('dialog');
+    const steps = screen.getAllByRole('listitem');
+    expect(steps).toHaveLength(5);
+    expect(steps[0]).toHaveTextContent(/^Unzip the downloaded file/);
+    expect(steps[1]).toHaveTextContent('In Chrome, open chrome://extensions');
+    expect(steps[3]).toHaveTextContent('Click "Load unpacked"');
+    expect(screen.queryByRole('link', { name: /chrome:\/\// })).not.toBeInTheDocument();
+    expect(screen.getByText(/^To update: download the new file/)).toHaveTextContent(
+      'reload arrow on the extension in chrome://extensions',
+    );
+  });
+
+  it('copies the extensions address, and says when the browser refuses', async () => {
+    const user = userEvent.setup();
+    vi.mocked(copyToClipboard).mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+    renderWithProviders(<ExtensionPage />);
+    const copy = screen.getByRole('button', { name: 'Copy chrome://extensions' });
+    await user.click(copy);
+    expect(copyToClipboard).toHaveBeenCalledWith('chrome://extensions');
+    expect(await screen.findByText('Address copied')).toBeInTheDocument();
+    await user.click(copy);
     expect(
-      within(dialog).getByText(/cannot install a ZIP or CRX file in one click/),
+      await screen.findByText('Could not copy the address. Type it into the address bar instead.'),
     ).toBeInTheDocument();
-    expect(within(dialog).getByText('Open chrome://extensions in Chrome.')).toBeInTheDocument();
-    expect(within(dialog).queryByRole('link')).not.toBeInTheDocument();
-    expect(within(dialog).getAllByRole('listitem')).toHaveLength(6);
-    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
-    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
   it('shows the changelog of every release', async () => {
@@ -227,7 +257,8 @@ describe('ExtensionPage — the release', () => {
       queryResult({ maLatestRelease: null }) as never,
     );
     const first = renderWithProviders(<ExtensionPage />);
-    expect(screen.getByText('No release available yet')).toBeInTheDocument();
+    expect(screen.getByText('The extension is not available yet')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Open Releases' })).not.toBeInTheDocument();
     first.unmount();
     vi.mocked(useMaLatestReleaseQuery).mockReturnValue(
       queryResult(undefined, { loading: true }) as never,
@@ -308,6 +339,10 @@ describe('ExtensionPage — signed-in browsers', () => {
 describe('ExtensionPage — Google Meet connection', () => {
   it('starts the Google sign-in and comes back to this page', async () => {
     const assign = stubLocationAssign();
+    renderWithProviders(<ExtensionPage />);
+    expect(screen.getByText('Not connected')).toBeInTheDocument();
+    expect(screen.getByText('Connect your Google account')).toBeInTheDocument();
+    cleanup();
     run.connect.mockResolvedValue({
       data: { maStartGoogleConnect: 'https://accounts.google.com/o/oauth2' },
     });
@@ -338,7 +373,9 @@ describe('ExtensionPage — Google Meet connection', () => {
       lastError: 'Token expired once',
     });
     renderWithProviders(<ExtensionPage />);
-    expect(screen.getByText(/^Connected as asha@example.com since /)).toBeInTheDocument();
+    expect(screen.getByText('Connected')).toBeInTheDocument();
+    expect(screen.getByText('asha@example.com')).toBeInTheDocument();
+    expect(screen.getByText(/^Connected since /)).toBeInTheDocument();
     expect(screen.getByText('Token expired once')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Disconnect' }));
     await user.click(
@@ -352,11 +389,14 @@ describe('ExtensionPage — Google Meet connection', () => {
     const user = userEvent.setup();
     connection({ connected: true });
     renderWithProviders(<ExtensionPage />);
-    expect(screen.getByText('Connected as your Google account')).toBeInTheDocument();
+    expect(screen.getByText('your Google account')).toBeInTheDocument();
+    expect(
+      screen.getByText('Meet transcripts and participants are imported after each call.'),
+    ).toBeInTheDocument();
     cleanup();
     connection({ connected: true, connectedAt: STARTED });
     renderWithProviders(<ExtensionPage />);
-    expect(screen.getByText(/^Connected as your Google account since /)).toBeInTheDocument();
+    expect(screen.getByText(/^Connected since /)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Disconnect' }));
     await user.click(
       within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel' }),

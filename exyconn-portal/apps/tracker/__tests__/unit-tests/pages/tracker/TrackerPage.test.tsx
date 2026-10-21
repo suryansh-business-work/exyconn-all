@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { DocumentNode } from 'graphql';
 import { skipToken } from '@apollo/client/react';
 import {
+  EmployeeLocationsBetweenDocument,
   TrackerCalendarDocument,
   TrackerDayDocument,
   type TrackerCalendarQuery,
@@ -175,6 +176,22 @@ describe('TrackerPage', () => {
     expect(view().timezone).toBe('Asia/Kolkata');
     expect(view().formatTime).toBe(formatTime);
     expect(view().formatDateTime).toBe(formatDateTime);
+  });
+
+  it("maps the picked employee's location pins for the whole month on screen", () => {
+    renderPage('/tracker?employee=u1&month=2026-02');
+    expect(screen.getByRole('heading', { name: 'Locations' })).toBeInTheDocument();
+    expect(callsFor(EmployeeLocationsBetweenDocument).at(-1)).toEqual(
+      expect.objectContaining({
+        variables: { employeeId: 'u1', from: '2026-02-01', to: '2026-02-28' },
+      }),
+    );
+  });
+
+  it('shows no locations until an employee is picked', () => {
+    renderPage('/tracker?month=2026-01');
+    expect(screen.queryByRole('heading', { name: 'Locations' })).toBeNull();
+    expect(callsFor(EmployeeLocationsBetweenDocument)).toHaveLength(0);
   });
 
   it('skips the day query while no day is picked', () => {

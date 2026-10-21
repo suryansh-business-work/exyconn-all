@@ -1,8 +1,15 @@
 import { MockedProvider } from '@apollo/client/testing/react';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
-import { MaLanguage, MaReleaseChannel, MaSummaryStyle } from '@exyconn/shell/graphql/generated';
+import {
+  MaAvailableModelsDocument,
+  MaLanguage,
+  MaModelPurpose,
+  MaReleaseChannel,
+  MaSummaryStyle,
+} from '@exyconn/shell/graphql/generated';
 import { MeetingSettingsForm } from './meeting-settings.form';
 import type { MeetingSettingsRow } from './meeting-settings.types';
 
@@ -36,9 +43,19 @@ const SETTINGS: MeetingSettingsRow = {
   updatedAt: null,
 };
 
-const mount = () =>
+const models = (purpose: MaModelPurpose, list: string[]): MockLink.MockedResponse => ({
+  request: { query: MaAvailableModelsDocument, variables: { purpose } },
+  result: { data: { maAvailableModels: list } },
+});
+
+const MODELS = [
+  models(MaModelPurpose.Analysis, ['gpt-4o', 'gpt-4o-mini']),
+  models(MaModelPurpose.Transcription, ['gpt-4o-transcribe', 'whisper-1']),
+];
+
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
-    <MockedProvider mocks={[]}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <MeetingSettingsForm settings={SETTINGS} />
@@ -81,6 +98,29 @@ describe('MeetingSettingsForm', () => {
     cy.contains('button', 'Save settings').click();
     cy.contains('The analysis model is required').should('be.visible');
     cy.contains('The transcription model is required').should('be.visible');
+  });
+
+  it('suggests the models the key can use, and keeps a name typed by hand', () => {
+    mount(MODELS);
+    cy.get('input[name="transcriptionModel"]').clear().type('whis');
+    cy.contains('li[role="option"]', 'whisper-1').click();
+    cy.get('input[name="transcriptionModel"]').should('have.value', 'whisper-1');
+    cy.get('input[name="analysisModel"]').clear().type('ft:gpt-4o:acme::x1');
+    cy.contains('li[role="option"]', 'Use "ft:gpt-4o:acme::x1"').should('be.visible');
+    cy.get('input[name="analysisModel"]').should('have.value', 'ft:gpt-4o:acme::x1');
+  });
+
+  it('rejects a model name with spaces', () => {
+    mount(MODELS);
+    cy.get('input[name="analysisModel"]').clear().type('gpt 4o').blur();
+    cy.contains('button', 'Save settings').click();
+    cy.contains('Use letters, digits and . _ : / - only, with no spaces').should('be.visible');
+  });
+
+  it('still takes a typed name when the model list cannot be read', () => {
+    mount();
+    cy.contains('You can still type a name.').should('be.visible');
+    cy.get('input[name="analysisModel"]').clear().type('gpt-4.1').should('have.value', 'gpt-4.1');
   });
 
   it('puts every value back on Cancel', () => {

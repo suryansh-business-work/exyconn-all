@@ -31,7 +31,10 @@ describe('CustomFieldsSection', () => {
   it('lists one input per property under a heading', () => {
     renderWithProviders(
       <CustomFieldsHarness
-        properties={[customDef({ key: 'a', label: 'Alpha' }), customDef({ key: 'b', label: 'Beta' })]}
+        properties={[
+          customDef({ key: 'a', label: 'Alpha' }),
+          customDef({ key: 'b', label: 'Beta' }),
+        ]}
         onSubmit={vi.fn()}
       />,
     );
@@ -103,18 +106,19 @@ describe('CustomFieldInput: dropdown and Yes/No', () => {
     const onSubmit = vi.fn();
     renderWithProviders(
       <CustomFieldsHarness
-        properties={[customDef({ key: 'tier', label: 'Tier', type: CrmPropertyType.Enum, options: OPTIONS })]}
+        properties={[
+          customDef({ key: 'tier', label: 'Tier', type: CrmPropertyType.Enum, options: OPTIONS }),
+        ]}
         onSubmit={onSubmit}
       />,
     );
     await userEvent.click(screen.getByRole('combobox', { name: 'Tier' }));
     const list = screen.getByRole('listbox');
-    expect(within(list).getAllByRole('option').map((option) => option.textContent)).toEqual([
-      'Not set',
-      'Alpha',
-      'Beta',
-      'Gamma',
-    ]);
+    expect(
+      within(list)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Not set', 'Alpha', 'Beta', 'Gamma']);
     await userEvent.click(within(list).getByRole('option', { name: 'Beta' }));
     await save();
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ tier: 'B' }));
@@ -124,7 +128,9 @@ describe('CustomFieldInput: dropdown and Yes/No', () => {
     const onSubmit = vi.fn();
     renderWithProviders(
       <CustomFieldsHarness
-        properties={[customDef({ key: 'vip', label: 'VIP', type: CrmPropertyType.Boolean, required: true })]}
+        properties={[
+          customDef({ key: 'vip', label: 'VIP', type: CrmPropertyType.Boolean, required: true }),
+        ]}
         initial={{ vip: '' }}
         onSubmit={onSubmit}
       />,
@@ -133,10 +139,11 @@ describe('CustomFieldInput: dropdown and Yes/No', () => {
     expect(await screen.findByText('This field is required')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('combobox', { name: /VIP/ }));
     const list = screen.getByRole('listbox');
-    expect(within(list).getAllByRole('option').map((option) => option.textContent)).toEqual([
-      'Yes',
-      'No',
-    ]);
+    expect(
+      within(list)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Yes', 'No']);
     await userEvent.click(within(list).getByRole('option', { name: 'No' }));
     await save();
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ vip: 'false' }));
@@ -148,7 +155,9 @@ describe('CustomFieldInput: radio and checkboxes', () => {
     const onSubmit = vi.fn();
     renderWithProviders(
       <CustomFieldsHarness
-        properties={[customDef({ key: 'size', label: 'Size', type: CrmPropertyType.Radio, options: OPTIONS })]}
+        properties={[
+          customDef({ key: 'size', label: 'Size', type: CrmPropertyType.Radio, options: OPTIONS }),
+        ]}
         onSubmit={onSubmit}
       />,
     );
@@ -194,19 +203,28 @@ describe('CustomFieldInput: radio and checkboxes', () => {
   it('starts with nothing ticked when the value is missing', () => {
     renderWithProviders(
       <CustomFieldsHarness
-        properties={[customDef({ key: 'tags', label: 'Interests', type: CrmPropertyType.MultiSelect, options: OPTIONS })]}
+        properties={[
+          customDef({
+            key: 'tags',
+            label: 'Interests',
+            type: CrmPropertyType.MultiSelect,
+            options: OPTIONS,
+          }),
+        ]}
         onSubmit={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole('checkbox').filter((box) => (box as HTMLInputElement).checked)).toEqual(
-      [],
-    );
+    expect(
+      screen.getAllByRole('checkbox').filter((box) => (box as HTMLInputElement).checked),
+    ).toEqual([]);
   });
 
   it('shows an unset radio group with nothing chosen', () => {
     renderWithProviders(
       <CustomFieldsHarness
-        properties={[customDef({ key: 'size', label: 'Size', type: CrmPropertyType.Radio, options: OPTIONS })]}
+        properties={[
+          customDef({ key: 'size', label: 'Size', type: CrmPropertyType.Radio, options: OPTIONS }),
+        ]}
         onSubmit={vi.fn()}
       />,
     );
@@ -217,7 +235,12 @@ describe('CustomFieldInput: radio and checkboxes', () => {
 });
 
 describe('CustomFieldInput: date', () => {
-  const DAY = customDef({ key: 'renewal', label: 'Renewal', type: CrmPropertyType.Date, description: 'Contract end' });
+  const DAY = customDef({
+    key: 'renewal',
+    label: 'Renewal',
+    type: CrmPropertyType.Date,
+    description: 'Contract end',
+  });
 
   it('keeps the picked calendar day as yyyy-MM-dd', async () => {
     const onSubmit = vi.fn();
@@ -234,7 +257,11 @@ describe('CustomFieldInput: date', () => {
   it('treats a half-typed or cleared date as not set', async () => {
     const onSubmit = vi.fn();
     renderWithProviders(
-      <CustomFieldsHarness properties={[DAY]} initial={{ renewal: '2026-01-02' }} onSubmit={onSubmit} />,
+      <CustomFieldsHarness
+        properties={[DAY]}
+        initial={{ renewal: '2026-01-02' }}
+        onSubmit={onSubmit}
+      />,
     );
     const input = screen.getByLabelText('Renewal');
     expect(input).toHaveAttribute('data-value', new Date(2026, 0, 2).toDateString());
@@ -258,7 +285,11 @@ describe('CustomFieldInput: date', () => {
 
   it('marks a required date and reports it missing', async () => {
     renderWithProviders(
-      <CustomFieldsHarness properties={[{ ...DAY, required: true }]} initial={{ renewal: '' }} onSubmit={vi.fn()} />,
+      <CustomFieldsHarness
+        properties={[{ ...DAY, required: true }]}
+        initial={{ renewal: '' }}
+        onSubmit={vi.fn()}
+      />,
     );
     expect(screen.getByLabelText('Renewal')).toHaveAttribute('aria-required', 'true');
     fireEvent.blur(screen.getByLabelText('Renewal'));
@@ -268,7 +299,12 @@ describe('CustomFieldInput: date', () => {
 });
 
 describe('CustomFieldInput: file', () => {
-  const FILE = customDef({ key: 'contract', label: 'Contract', type: CrmPropertyType.File, description: 'PDF please' });
+  const FILE = customDef({
+    key: 'contract',
+    label: 'Contract',
+    type: CrmPropertyType.File,
+    description: 'PDF please',
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -276,7 +312,11 @@ describe('CustomFieldInput: file', () => {
   });
 
   it('uploads a picked file and keeps its address', async () => {
-    upload.send.mockResolvedValue({ url: 'https://cdn.io/x/Deal%20terms.pdf', name: 'a', contentType: '' });
+    upload.send.mockResolvedValue({
+      url: 'https://cdn.io/x/Deal%20terms.pdf',
+      name: 'a',
+      contentType: '',
+    });
     const onSubmit = vi.fn();
     renderWithProviders(<CustomFieldsHarness properties={[FILE]} onSubmit={onSubmit} />);
     expect(screen.getByRole('button', { name: 'Upload file' })).toBeInTheDocument();
@@ -300,7 +340,11 @@ describe('CustomFieldInput: file', () => {
   it('removes the stored file', async () => {
     const onSubmit = vi.fn();
     renderWithProviders(
-      <CustomFieldsHarness properties={[FILE]} initial={{ contract: 'https://cdn.io/a.pdf' }} onSubmit={onSubmit} />,
+      <CustomFieldsHarness
+        properties={[FILE]}
+        initial={{ contract: 'https://cdn.io/a.pdf' }}
+        onSubmit={onSubmit}
+      />,
     );
     await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
     expect(screen.queryByRole('link')).not.toBeInTheDocument();

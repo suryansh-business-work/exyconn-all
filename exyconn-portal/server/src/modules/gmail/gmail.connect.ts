@@ -36,7 +36,10 @@ export const readGmailConfig = () =>
     ).lean<GmailConfigDocument>(),
   );
 
-/** What Tech sees: never a secret or a token, only whether they are there. */
+/**
+ * What Tech sees: never a secret or a token, only whether they are there. The account count
+ * spans every company (Tech is the platform's staff); no address is shown.
+ */
 export async function presentGmailConfig(doc: GmailConfigDocument) {
   const accountCount = await runAsPlatform(() => GmailAccountModel.countDocuments());
   return {
@@ -119,7 +122,7 @@ export interface ConnectActor {
 
 /**
  * Google's consent page for one more mailbox (or the same one again, to renew its token);
- * the callback stores its refresh token as a GmailAccount.
+ * the callback stores its refresh token as a GmailAccount of the actor's company.
  */
 export async function startGmailConnect(returnTo: string, actor: ConnectActor): Promise<string> {
   const config = await readGmailConfig();
@@ -159,22 +162,33 @@ export async function startGmailConnect(returnTo: string, actor: ConnectActor): 
 export const takeGmailState = (nonce: string) =>
   runAsPlatform(() => GmailOAuthStateModel.findOneAndDelete({ nonce }).lean());
 
-/** The callback's work: trade the code, keep the refresh token sealed on the mailbox's row. */
+/**
+ * The callback's work: trade the code, keep the refresh token sealed on the mailbox's row, in
+ * the company that started the connection (the callback itself has no session).
+ */
 export async function finishGmailConnect(
-  state: { codeVerifier: string; updatedByName?: string | null },
+  state: { codeVerifier: string; updatedByName?: string | null; organizationId?: string | null },
   code: string,
 ): Promise<string> {
+  if (!state.organizationId) {
+    throw new Error('This Gmail connection was not started from a company. Connect again.');
+  }
   const config = await readGmailConfig();
   const tokens = await exchangeForTokens(config, code, state.codeVerifier, gmailRedirectUri());
   if (!tokens.refresh_token || !tokens.id_token) {
     throw new Error('Google did not grant offline access. Try Connect again.');
   }
   const email = verifiedEmailOf(tokens.id_token, config.clientId);
-  await saveConnectedAccount(email, seal(tokens.refresh_token), state.updatedByName ?? '');
+  await saveConnectedAccount(
+    state.organizationId,
+    email,
+    seal(tokens.refresh_token),
+    state.updatedByName ?? '',
+  );
   return email;
 }
 
-/** Proves every enabled account by reading each mailbox's own address. */
+/** Proves every enabled account of the caller's company by reading each mailbox's own address. */
 export async function testGmail(): Promise<string> {
   const mailboxes = await enabledMailboxes();
   if (mailboxes.length === 0) {

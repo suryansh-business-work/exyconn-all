@@ -69,3 +69,25 @@ describe('GmailPanel connection', () => {
     expect(propsOf('GmailConnection').config).toBe(config);
   });
 });
+
+describe('GmailPanel switched off', () => {
+  const OFF =
+    /Gmail connections are switched off\. Every company’s Connect Gmail account button stays disabled/;
+
+  it('warns that every CRM’s Connect button is off while the client is switched off', () => {
+    resetHarness();
+    gql.query.mockReturnValue({
+      data: { gmailConfig: { ...config, enabled: false } },
+      refetch: vi.fn(),
+    });
+    renderWithProviders(<GmailPanel />);
+    expect(screen.getByText(OFF)).toBeInTheDocument();
+  });
+
+  it('says nothing of the kind once it is on', () => {
+    resetHarness();
+    gql.query.mockReturnValue({ data: { gmailConfig: config }, refetch: vi.fn() });
+    renderWithProviders(<GmailPanel />);
+    expect(screen.queryByText(OFF)).toBeNull();
+  });
+});

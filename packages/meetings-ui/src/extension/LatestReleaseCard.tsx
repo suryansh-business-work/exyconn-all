@@ -4,7 +4,6 @@ import ExtensionIcon from '@mui/icons-material/Extension';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { IconBubble } from '@exyconn/shell/components/dashboard/IconBubble';
-import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
@@ -12,18 +11,18 @@ import { useMaLatestReleaseQuery } from '@exyconn/shell/graphql/generated';
 import { color } from '@exyconn/ui';
 import { LoadError } from '../lib/LoadError';
 import { ChangelogDialog } from './ChangelogDialog';
-import { InstallGuideDialog } from './InstallGuideDialog';
+import { DownloadSection } from './DownloadSection';
+import { NoReleaseState } from './NoReleaseState';
 import { ReleaseActions } from './ReleaseActions';
 import { ReleaseFacts } from './ReleaseFacts';
 
-/** The newest release for the company's channel, with every way to install it. */
+/** The newest release for the company's channel: download it, install it, or learn why there is none. */
 export function LatestReleaseCard() {
   const t = useT();
   const notify = useNotify();
   const { data, loading, error, refetch } = useMaLatestReleaseQuery({
     notifyOnNetworkStatusChange: true,
   });
-  const [guide, setGuide] = useState(false);
   const [changelog, setChangelog] = useState(false);
   const release = data?.maLatestRelease;
 
@@ -50,10 +49,10 @@ export function LatestReleaseCard() {
   } else if (release) {
     body = (
       <>
+        <DownloadSection release={release} />
         <ReleaseFacts release={release} />
         <ReleaseActions
           release={release}
-          onGuide={() => setGuide(true)}
           onChangelog={() => setChangelog(true)}
           onCheckUpdates={checkUpdates}
           checking={loading}
@@ -61,13 +60,7 @@ export function LatestReleaseCard() {
       </>
     );
   } else {
-    body = (
-      <EmptyState
-        icon={<ExtensionIcon />}
-        title="No release available yet"
-        description="A release appears here once CI builds the extension and it is approved for your channel."
-      />
-    );
+    body = <NoReleaseState />;
   }
 
   return (
@@ -81,7 +74,6 @@ export function LatestReleaseCard() {
         </Text>
       </Flex>
       {body}
-      <InstallGuideDialog open={guide} onClose={() => setGuide(false)} />
       <ChangelogDialog open={changelog} onClose={() => setChangelog(false)} />
     </Box>
   );

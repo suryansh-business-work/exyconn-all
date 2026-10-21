@@ -20,7 +20,9 @@ const TIER = property({ key: 'tier', label: 'Tier', builtIn: false });
 
 function renderGate() {
   const children = vi.fn((custom: unknown[]) => <p>Form with {custom.length} custom</p>);
-  renderWithProviders(<CustomPropertiesGate object={CrmObject.Lead}>{children}</CustomPropertiesGate>);
+  renderWithProviders(
+    <CustomPropertiesGate object={CrmObject.Lead}>{children}</CustomPropertiesGate>,
+  );
   return children;
 }
 
@@ -59,7 +61,11 @@ describe('CustomPropertiesGate', () => {
   });
 
   it('keeps the form on cached properties when a refresh fails or is running', () => {
-    mocked.schema.mockReturnValue({ ...objectSchema([TIER]), error: new Error('x'), loading: true });
+    mocked.schema.mockReturnValue({
+      ...objectSchema([TIER]),
+      error: new Error('x'),
+      loading: true,
+    });
     renderGate();
     expect(screen.getByText('Form with 1 custom')).toBeInTheDocument();
     expect(mocked.logError).toHaveBeenCalledTimes(1);

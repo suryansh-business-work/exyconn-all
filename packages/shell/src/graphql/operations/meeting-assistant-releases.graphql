@@ -1,0 +1,47 @@
+query MaReleaseOverview {
+  maReleaseOverview {
+    releaseManager
+    registered
+    awaitingApproval
+  }
+}
+
+fragment MaReleaseSettingsFields on MaReleaseSettings {
+  allowedRepository
+  slackChannelId
+  slackChannelName
+  notifyOnNewBuild
+  slackConfigured
+  updatedByName
+  updatedAt
+}
+
+query MaReleaseSettings {
+  maReleaseSettings {
+    ...MaReleaseSettingsFields
+  }
+}
+
+query MaReleaseSlackChannels {
+  maReleaseSlackChannels {
+    id
+    name
+    isPrivate
+  }
+}
+
+mutation MaUpdateReleaseSettings($input: MaReleaseSettingsInput!) {
+  maUpdateReleaseSettings(input: $input) {
+    ...MaReleaseSettingsFields
+  }
+}
+
+mutation MaApproveRelease($id: ID!, $channel: MaReleaseChannel!) {
+  maApproveRelease(id: $id, channel: $channel) {
+    ...MaReleaseFields
+  }
+}
+
+mutation MaStartExtensionBuild($channel: MaReleaseChannel!) {
+  maStartExtensionBuild(channel: $channel)
+}

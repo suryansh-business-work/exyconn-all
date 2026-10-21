@@ -9,6 +9,7 @@ import AppPreferencesCard from '../components/AppPreferencesCard';
 import SignOutButton from '../components/SignOutButton';
 import TimezonePicker from '../components/TimezonePicker';
 import WorkArrangementCard from '../components/WorkArrangementCard';
+import LocationCard from '../components/LocationCard';
 import useAppVersion from '../hooks/useAppVersion';
 import useUpdateState from '../hooks/useUpdateState';
 import { buildSettingRows } from '@exyconn/tracker-core';
@@ -63,6 +64,8 @@ export default function SettingsScreen({
       <AppPreferencesCard preferences={preferences} settings={settings} update={update} />
 
       <WorkArrangementCard workProfile={workProfile} />
+
+      <LocationCard />
 
       <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6" component="h2">

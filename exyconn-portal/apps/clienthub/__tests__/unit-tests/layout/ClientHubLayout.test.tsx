@@ -59,8 +59,11 @@ describe('ClientHubLayout', () => {
 
   it('shows the brand, the company and the signed-in contact around the current page', () => {
     renderLayout();
-    expect(screen.getAllByText('Client Hub').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Acme Ltd').length).toBeGreaterThan(0);
+    // The company sits in the top bar once, not in each sidebar drawer.
+    const bar = within(screen.getByRole('banner'));
+    expect(bar.getByText('Client Hub')).toBeInTheDocument();
+    expect(bar.getByText('Acme Ltd')).toHaveAttribute('title', 'Acme Ltd');
+    expect(screen.getAllByText('Acme Ltd')).toHaveLength(1);
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument();
     expect(screen.getByText('Overview body')).toBeInTheDocument();
     expect(screen.getAllByRole('img').length).toBeGreaterThan(0);
@@ -130,7 +133,7 @@ describe('ClientHubLayout', () => {
   it("names the client when the contact's company is blank", () => {
     gql.useClientHubMeQuery.mockReturnValue(me('', 'Acme Holdings'));
     renderLayout();
-    expect(screen.getAllByText('Acme Holdings').length).toBeGreaterThan(0);
+    expect(within(screen.getByRole('banner')).getByText('Acme Holdings')).toBeInTheDocument();
   });
 
   it('renders the frame before the contact is known', () => {

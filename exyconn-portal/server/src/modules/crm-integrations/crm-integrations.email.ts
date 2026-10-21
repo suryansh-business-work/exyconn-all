@@ -1,4 +1,3 @@
-import { platformOperatorOrganizationId } from '../../lib/platformAccess';
 import { currentOrganizationId } from '../../lib/tenant';
 import { ConfigurationError } from '../../utils/errors';
 import { enabledMailboxes } from '../gmail/gmail.accounts';
@@ -30,18 +29,12 @@ async function mailboxesOrNone<T>(read: () => Promise<T[]>): Promise<T[]> {
   }
 }
 
-/** Whether the caller's company is the platform operator, the only one whose CRM sends mail. */
-async function isOperatorCrm(): Promise<boolean> {
-  const operator = await platformOperatorOrganizationId();
-  return Boolean(operator) && currentOrganizationId() === operator;
-}
-
 /**
- * Every mailbox a CRM email may go from — Gmail and Microsoft, enabled and connected — or none
- * outside the operator's CRM.
+ * Every mailbox the caller's company may send a CRM email from — Gmail and Microsoft, enabled
+ * and connected. A caller acting in no company (a platform administrator) has none.
  */
 export async function crmEmailSenders(): Promise<CrmEmailSender[]> {
-  if (!(await isOperatorCrm())) {
+  if (currentOrganizationId() === null) {
     return [];
   }
   const [gmail, microsoft] = await Promise.all([

@@ -195,6 +195,10 @@ export const env = Object.freeze({
      * base64 (4/3 larger) in JSON. The decoded WAV is capped at 8 MB separately.
      */
     audioBodyLimit: process.env.MEET_ASSISTANT_AUDIO_LIMIT ?? '12mb',
+    /** AI › Meeting Assistant › Releases, linked from the "new build for QA" Slack post. */
+    releasesUrl:
+      process.env.MEET_ASSISTANT_RELEASES_URL ??
+      'https://ai.exyconn.com/ai/meeting-assistant/releases',
   },
   /** Download page for the desktop tracker, used as the CTA in the access-granted email. */
   trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://employee.exyconn.com/me/tracker',

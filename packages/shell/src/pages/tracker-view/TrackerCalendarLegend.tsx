@@ -1,9 +1,13 @@
 import { useT } from '@exyconn/i18n';
 import { MARK_MEANINGS, MARK_ORDER, MARK_WORDS } from '@exyconn/tracker-core';
-import { Box, Text } from '@/components/ui';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Box, IconButton, Text, Tooltip } from '@/components/ui';
 import { STATUS_ICONS, useStatusColors } from './tracker.status';
 
-/** What each tile colour means, drawn exactly as the tiles draw it, above the calendar. */
+/**
+ * What each tile colour means, drawn exactly as the tiles draw it, above the calendar. Each
+ * tile names its mark; the info button explains it on hover or keyboard focus.
+ */
 export function TrackerCalendarLegend() {
   const t = useT();
   const colors = useStatusColors();
@@ -44,14 +48,18 @@ export function TrackerCalendarLegend() {
             <Box aria-hidden sx={{ display: 'flex', fontSize: 20, color: hue }}>
               {STATUS_ICONS[mark]}
             </Box>
-            <Box sx={{ minWidth: 0 }}>
-              <Text size="sm" weight="semibold">
-                {t(MARK_WORDS[mark])}
-              </Text>
-              <Text size="caption" color="text.secondary">
-                {t(MARK_MEANINGS[mark])}
-              </Text>
-            </Box>
+            <Text size="sm" weight="semibold" sx={{ flex: 1, minWidth: 0 }}>
+              {t(MARK_WORDS[mark])}
+            </Text>
+            <Tooltip title={t(MARK_MEANINGS[mark])} describeChild>
+              <IconButton
+                size="small"
+                aria-label={t('What {mark} means', { mark: t(MARK_WORDS[mark]) })}
+                sx={{ color: hue }}
+              >
+                <InfoOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Box>
         );
       })}

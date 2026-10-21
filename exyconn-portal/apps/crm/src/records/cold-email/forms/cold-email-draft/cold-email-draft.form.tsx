@@ -15,17 +15,19 @@ import {
   useCreateColdEmailDraftMutation,
   useFirecrawlReadyQuery,
 } from '@exyconn/shell/graphql/generated';
+import { AiWritingProgress } from '../../AiWritingProgress';
 import { useToneOptions } from '../../coldEmailTones';
 import { readGoal, rememberGoal } from '../../goalMemory';
 import {
   coldEmailDraftSchema,
+  DRAFT_VARIANT_COUNT,
   type ColdEmailDraftTarget,
   type ColdEmailDraftValues,
 } from './cold-email-draft.types';
 
 interface ColdEmailDraftFormProps {
   target: ColdEmailDraftTarget;
-  /** The new draft's id, once the first version is written. */
+  /** The new draft's id, once its first versions are written. */
   onCreated: (draftId: string) => void;
   onCancel: () => void;
 }
@@ -70,6 +72,7 @@ export function ColdEmailDraftForm({
             goal: values.goal,
             tone: values.tone,
             readWebsite: canReadWebsite && values.readWebsite,
+            variantCount: DRAFT_VARIANT_COUNT,
           },
         },
       });
@@ -135,8 +138,11 @@ export function ColdEmailDraftForm({
         </Text>
       )}
       <Text component="p" size="caption" color="text.secondary">
-        {t('Generating writes one version with the AI and spends AI budget.')}
+        {t('Generating writes {count} versions with the AI in one run and spends AI budget.', {
+          count: DRAFT_VARIANT_COUNT,
+        })}
       </Text>
+      {methods.formState.isSubmitting && <AiWritingProgress count={DRAFT_VARIANT_COUNT} />}
     </EntityForm>
   );
 }

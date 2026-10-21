@@ -70,6 +70,16 @@ describe('SettingsScreen', () => {
     expect(text).toContain('Support: help@acme.test');
   });
 
+  it('checks location access when it opens, and shows the answer', async () => {
+    const getLocation = vi.fn(() => Promise.reject(new Error('off')));
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    await open(trackerState('idle'), BRANDING, { getLocation });
+
+    expect(getLocation).toHaveBeenCalledTimes(1);
+    expect(document.body.textContent).toContain('Location');
+    expect(document.body.textContent).toContain('No location could be read.');
+  });
+
   it('opens the employee’s own data in the portal', async () => {
     const openPrivacy = vi.fn(() => Promise.resolve());
     await open(trackerState('idle'), BRANDING, { openPrivacy });

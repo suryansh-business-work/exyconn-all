@@ -34,7 +34,7 @@ const suite = mailConnectionSuite({
   mutation: gql.test,
   resultKey: 'testGmailConfig',
   logger,
-  connected: '3 Gmail accounts connected in the CRM.',
+  connected: '3 Gmail accounts connected across every company’s CRM.',
   none: 'No Gmail account connected yet. Save the client, then connect accounts in the CRM.',
   manageLabel: 'Manage accounts in the CRM',
   crmPath: '/integrations/email',

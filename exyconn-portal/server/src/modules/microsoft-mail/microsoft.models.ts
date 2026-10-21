@@ -22,8 +22,9 @@ const microsoftMailConfigSchema = new Schema(
 );
 
 /**
- * One Microsoft mailbox connected to the operator's CRM. The refresh token is sealed
- * (utils/secretBox) and never leaves the server; connecting the same mailbox again replaces it.
+ * One Microsoft mailbox connected to a company's CRM, company-scoped like GmailAccount (one
+ * row per address per company). The refresh token is sealed (utils/secretBox) and never
+ * leaves the server; connecting the same mailbox again replaces it.
  */
 const microsoftMailAccountSchema = new Schema(
   {

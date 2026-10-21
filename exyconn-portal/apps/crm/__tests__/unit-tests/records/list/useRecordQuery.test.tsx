@@ -14,16 +14,26 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
 }));
 
 const HOT = crmView();
-const MINE = crmView({ id: 'view-2', name: 'Mine', search: '', groups: [], sorts: [], columns: [] });
+const MINE = crmView({
+  id: 'view-2',
+  name: 'Mine',
+  search: '',
+  groups: [],
+  sorts: [],
+  columns: [],
+});
 
 function answered(list = [HOT, MINE]) {
   return { data: { crmViews: list }, loading: false, error: undefined, refetch: views.refetch };
 }
 
 function renderQuery(route = '/leads') {
-  return renderHookWithProviders(() => ({ ...useRecordQuery(CrmObject.Lead), url: useCurrentUrl() }), {
-    route,
-  });
+  return renderHookWithProviders(
+    () => ({ ...useRecordQuery(CrmObject.Lead), url: useCurrentUrl() }),
+    {
+      route,
+    },
+  );
 }
 
 describe('useRecordQuery', () => {
@@ -52,13 +62,23 @@ describe('useRecordQuery', () => {
   });
 
   it('waits for the views before deciding about the view in the URL', () => {
-    views.result.mockReturnValue({ data: undefined, loading: true, error: undefined, refetch: views.refetch });
+    views.result.mockReturnValue({
+      data: undefined,
+      loading: true,
+      error: undefined,
+      refetch: views.refetch,
+    });
     const { result, rerender } = renderQuery('/leads?view=view-1');
     expect(result.current.viewsLoading).toBe(true);
     expect(result.current.url).toBe('/leads?view=view-1');
     expect(result.current.query).toEqual(EMPTY_QUERY);
 
-    views.result.mockReturnValue({ data: { crmViews: [HOT] }, loading: true, error: undefined, refetch: views.refetch });
+    views.result.mockReturnValue({
+      data: { crmViews: [HOT] },
+      loading: true,
+      error: undefined,
+      refetch: views.refetch,
+    });
     rerender();
     expect(result.current.query.search).toBe('acme');
   });
@@ -80,7 +100,9 @@ describe('useRecordQuery', () => {
 
     act(() => result.current.apply({ sorts: [{ property: 'email', dir: SortDir.Desc }] }, true));
     expect(result.current.gridKey).toBe(2);
-    expect(result.current.queryRef.current.sorts).toEqual([{ property: 'email', dir: SortDir.Desc }]);
+    expect(result.current.queryRef.current.sorts).toEqual([
+      { property: 'email', dir: SortDir.Desc },
+    ]);
 
     act(() => result.current.apply({ columns: ['name'] }));
     expect(result.current.refreshSignal).toBe(1);
@@ -120,7 +142,12 @@ describe('useRecordQuery', () => {
   });
 
   it('has no views while the query has not answered', () => {
-    views.result.mockReturnValue({ data: undefined, loading: false, error: new Error('x'), refetch: views.refetch });
+    views.result.mockReturnValue({
+      data: undefined,
+      loading: false,
+      error: new Error('x'),
+      refetch: views.refetch,
+    });
     const { result } = renderQuery();
     expect(result.current.views).toEqual([]);
     expect(result.current.viewsError).toEqual(new Error('x'));

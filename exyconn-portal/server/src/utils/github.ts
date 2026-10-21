@@ -189,45 +189,23 @@ class GithubActions {
     return config;
   }
 
-  /** Whether a URL is a release asset of the configured repository (API form). */
-  async isRepoReleaseAsset(assetUrl: string): Promise<boolean> {
+  /** Asks GitHub to run a workflow of the repository (by its file name) with the given inputs. */
+  async dispatchWorkflow(
+    workflowFile: string,
+    ref: string,
+    inputs: Record<string, string>,
+  ): Promise<void> {
     const config = await this.getActiveConfig();
-    return assetUrl.startsWith(
-      `${GITHUB_API_URL}/repos/${config.owner}/${config.repo}/releases/assets/`,
-    );
-  }
-
-  /**
-   * Opens one release asset's bytes, for the portal to stream on (the repository may be
-   * private, so the browser is never sent to GitHub). Fetch drops the Authorization header on
-   * GitHub's cross-origin redirect to its storage, which needs none.
-   */
-  async openReleaseAsset(assetUrl: string): Promise<Response> {
-    const config = await this.getActiveConfig();
-    if (!(await this.isRepoReleaseAsset(assetUrl))) {
-      throw new Error('Not a release asset of the configured repository.');
-    }
-    const response = await fetch(assetUrl, {
-      headers: {
-        Authorization: `Bearer ${config.token}`,
-        Accept: 'application/octet-stream',
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-    });
-    if (!response.ok || !response.body) {
-      throw new Error(`GitHub asset download failed (${response.status})`);
-    }
-    return response;
-  }
-
-  /** Asks GitHub to run the tracker workflow with the given inputs. */
-  async dispatchTrackerBuild(ref: string, inputs: Record<string, string>): Promise<void> {
-    const config = await this.getActiveConfig();
-    await this.request(config, `/actions/workflows/${TRACKER_WORKFLOW_FILE}/dispatches`, {
+    await this.request(config, `/actions/workflows/${workflowFile}/dispatches`, {
       method: 'POST',
       body: JSON.stringify({ ref, inputs }),
     });
-    logger.info({ inputs }, `Tracker build dispatched on ${ref}`);
+    logger.info({ inputs }, `${workflowFile} dispatched on ${ref}`);
+  }
+
+  /** Asks GitHub to run the tracker workflow with the given inputs. */
+  dispatchTrackerBuild(ref: string, inputs: Record<string, string>): Promise<void> {
+    return this.dispatchWorkflow(TRACKER_WORKFLOW_FILE, ref, inputs);
   }
 
   /** The most recent runs of the tracker workflow, newest first. */

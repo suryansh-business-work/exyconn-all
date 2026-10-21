@@ -55,7 +55,12 @@ vi.mock('../../../../src/records/schema', async (importOriginal) => ({
   useObjectSchema: () => mocked.schema(),
 }));
 
-const EMAIL = property({ key: 'email', label: 'Email', type: CrmPropertyType.Email, required: true });
+const EMAIL = property({
+  key: 'email',
+  label: 'Email',
+  type: CrmPropertyType.Email,
+  required: true,
+});
 const TIER = property({ key: 'tier', label: 'Tier', builtIn: false });
 const HIDDEN = property({ key: 'hasEmail', label: 'Has email', importable: false });
 

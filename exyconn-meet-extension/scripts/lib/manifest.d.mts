@@ -11,6 +11,7 @@ export interface Manifest {
 }
 export declare function buildManifest(input: {
   version: string;
+  versionName?: string;
   apiUrl: string;
   key?: string;
 }): Manifest;

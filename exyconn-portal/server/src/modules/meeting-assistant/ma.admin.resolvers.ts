@@ -6,9 +6,9 @@ import { runAsPlatform } from '../../lib/tenant';
 import {
   assertCompanyEditor,
   assertMaUser,
+  assertSettingsReader,
   editableMeeting,
   readableMeeting,
-  seesCompany,
 } from './ma.access';
 import { recordMaActivity } from './ma.activity';
 import {
@@ -25,12 +25,11 @@ import {
   assertReleaseManager,
   downloadableRelease,
   isDownloadable,
-  registerRelease,
   setReleaseStatus,
   visibleReleases,
-  type RegisterReleaseInput,
   type ReleaseStatusInput,
 } from './releases.service';
+import { announcePublished } from './releases.notify';
 import { signedDownloadUrl } from './download-links';
 import { chunkBase64, recordingTracks } from './recording.store';
 import {
@@ -43,7 +42,7 @@ import {
 type Ctx = GraphQLContext;
 const STREAMS: ReadonlySet<string> = new Set(['TAB', 'MIC']);
 
-const presentRelease = (release: MaReleaseDocument & { _id: unknown }) => ({
+export const presentRelease = (release: MaReleaseDocument & { _id: unknown }) => ({
   ...release,
   id: String(release._id),
   downloadable: isDownloadable(release),
@@ -62,10 +61,7 @@ function checkedStream(stream: string): string {
 
 export const maAdminQueries = {
   maSettings: async (_p: unknown, _a: unknown, ctx: Ctx) => {
-    await assertMaUser(ctx);
-    if (!(await seesCompany(ctx))) {
-      await assertCompanyEditor(ctx);
-    }
+    await assertSettingsReader(ctx);
     return settingsView();
   },
   maExtensionContext: async (_p: unknown, _a: unknown, ctx: Ctx) => {
@@ -258,12 +254,6 @@ export const maAdminMutations = {
       sha256: '',
     };
   },
-  maRegisterRelease: async (_p: unknown, { input }: { input: RegisterReleaseInput }, ctx: Ctx) => {
-    const user = await assertReleaseManager(ctx);
-    return presentRelease(
-      await registerRelease({ ...input, builtAt: new Date(input.builtAt) }, user.email),
-    );
-  },
   maSetReleaseStatus: async (
     _p: unknown,
     args: { id: string; input: ReleaseStatusInput },
@@ -273,7 +263,11 @@ export const maAdminMutations = {
     if (args.input.note.trim() === '') {
       badRequest('Say why the status changes.');
     }
-    return presentRelease(await setReleaseStatus(args.id, args.input, user.email));
+    const release = await setReleaseStatus(args.id, args.input, user.email);
+    if (release.status === 'PUBLISHED') {
+      announcePublished(release);
+    }
+    return presentRelease(release);
   },
   maReleaseDownloadLink: async (_p: unknown, { id }: { id: string }, ctx: Ctx) => {
     const actor = await assertMaUser(ctx);

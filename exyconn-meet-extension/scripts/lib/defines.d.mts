@@ -4,5 +4,8 @@ export interface ModeConfig {
 }
 export declare const MODES: Record<string, ModeConfig>;
 export declare const PACKAGE_VERSION: string;
+export declare const BUILD_NUMBER: number;
+export declare const BUILD_VERSION: string;
+export declare const BUILD_VERSION_NAME: string | undefined;
 export declare function modeConfig(mode: string): ModeConfig;
 export declare function defineConstants(mode: string): Record<string, string>;

@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHook, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { usePwaUpdate } from '@/pwa/usePwaUpdate';
-import { PwaUpdateBanner } from '@/pwa/PwaUpdateBanner';
-import { renderWithProviders } from '../test-utils';
 
 /** A service worker the test moves through its states. */
 class FakeWorker extends EventTarget {
@@ -18,6 +15,7 @@ class FakeWorker extends EventTarget {
 class FakeRegistration extends EventTarget {
   waiting: FakeWorker | null = null;
   installing: FakeWorker | null = null;
+  readonly update = vi.fn<() => Promise<void>>(() => Promise.resolve());
   found(worker: FakeWorker | null) {
     this.installing = worker;
     this.dispatchEvent(new Event('updatefound'));
@@ -27,6 +25,14 @@ class FakeRegistration extends EventTarget {
 class FakeContainer extends EventTarget {
   controller: object | null = null;
   readonly register = vi.fn<(url: string) => Promise<FakeRegistration>>();
+}
+
+const FIFTEEN_MINUTES = 15 * 60_000;
+
+/** Sets what the tab reports as its visibility and announces the change. */
+function setVisibility(state: DocumentVisibilityState) {
+  Object.defineProperty(document, 'visibilityState', { configurable: true, value: state });
+  document.dispatchEvent(new Event('visibilitychange'));
 }
 
 let container: FakeContainer;
@@ -57,6 +63,8 @@ describe('usePwaUpdate', () => {
   });
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.useRealTimers();
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
   });
 
   it('does nothing where there is no service worker support, and apply just reloads', () => {
@@ -148,25 +156,71 @@ describe('usePwaUpdate', () => {
 
     expect(result.current.ready).toBe(false);
   });
-});
 
-describe('PwaUpdateBanner', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
+  it('asks the server for a newer build every fifteen minutes while the tab is open', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    stubServiceWorker();
+    const { unmount } = await renderRegistered();
+    expect(registration.update).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(FIFTEEN_MINUTES - 1);
+    expect(registration.update).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(registration.update).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(FIFTEEN_MINUTES);
+    expect(registration.update).toHaveBeenCalledTimes(2);
+
+    unmount();
+    vi.advanceTimersByTime(FIFTEEN_MINUTES * 2);
+    expect(registration.update).toHaveBeenCalledTimes(2);
   });
 
-  it('announces a waiting build and applies it from the Reload button', async () => {
-    const worker = new FakeWorker();
-    const reg = new FakeRegistration();
-    reg.waiting = worker;
-    const sw = new FakeContainer();
-    sw.register.mockResolvedValue(reg);
-    vi.stubGlobal('navigator', { ...globalThis.navigator, serviceWorker: sw });
+  it('checks again when the tab comes back into view, not when it is hidden', async () => {
+    stubServiceWorker();
+    const { unmount } = await renderRegistered();
 
-    renderWithProviders(<PwaUpdateBanner />);
+    setVisibility('hidden');
+    expect(registration.update).not.toHaveBeenCalled();
+    setVisibility('visible');
+    expect(registration.update).toHaveBeenCalledTimes(1);
 
-    expect(await screen.findByText('A new version of this portal is ready.')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Reload' }));
-    expect(worker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' });
+    unmount();
+    setVisibility('visible');
+    expect(registration.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('shrugs off a failed check and tries again on the next one', async () => {
+    registration.update.mockRejectedValueOnce(new Error('offline'));
+    stubServiceWorker();
+    const { result } = await renderRegistered();
+
+    await act(async () => {
+      setVisibility('visible');
+      await Promise.resolve();
+    });
+    setVisibility('visible');
+
+    expect(registration.update).toHaveBeenCalledTimes(2);
+    expect(result.current.ready).toBe(false);
+  });
+
+  it('starts no checks for a registration that settles after unmount', async () => {
+    let resolve: (value: FakeRegistration) => void = () => undefined;
+    container.register.mockReturnValue(
+      new Promise((done) => {
+        resolve = done;
+      }),
+    );
+    stubServiceWorker();
+    const { unmount } = renderHook(() => usePwaUpdate());
+
+    unmount();
+    await act(async () => {
+      resolve(registration);
+      await Promise.resolve();
+    });
+    setVisibility('visible');
+
+    expect(registration.update).not.toHaveBeenCalled();
   });
 });

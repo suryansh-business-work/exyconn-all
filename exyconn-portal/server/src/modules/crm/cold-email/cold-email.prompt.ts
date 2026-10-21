@@ -21,6 +21,23 @@ const replySchema = z.object({
 
 export type ColdEmailText = z.infer<typeof replySchema>;
 
+/** The answer to a prompt for several versions at once; single items are checked one by one. */
+const batchSchema = z.object({ versions: z.array(z.unknown()).min(1) });
+
+/**
+ * The angles a batch of versions is spread over, so they are not the same email reworded.
+ * Configuration, not business data; a batch uses the first `count` of them.
+ */
+const ANGLES = [
+  'opens with something specific about them from the context',
+  'opens with a problem a business like theirs is likely to face',
+  'leads with what we are offering and the outcome it brings',
+  'is the shortest, built around one simple question',
+] as const;
+
+/** The most versions one AI call writes. */
+export const MAX_BATCH = ANGLES.length;
+
 export interface ColdEmailPromptInput {
   /** Who and what the record is, and what we know about their business. */
   context: string;
@@ -32,9 +49,23 @@ export interface ColdEmailPromptInput {
   /** What this version should do differently from the earlier ones. */
   instruction: string;
   earlierSubjects: string[];
+  /** How many versions to write in this one call, 1 to MAX_BATCH; one when left out. */
+  count?: number;
 }
 
-/** The prompt for one version of the email; the model answers with JSON only. */
+function answerFormat(count: number): string[] {
+  const one = '{"subject": "...", "body": "..."}';
+  if (count === 1) {
+    return [`Answer with JSON only, exactly {"versions": [${one}]}, and nothing else.`];
+  }
+  return [
+    `Write ${count} clearly different versions of it. Each version:`,
+    ...ANGLES.slice(0, count).map((angle, index) => `- Version ${index + 1} ${angle}.`),
+    `Answer with JSON only, exactly {"versions": [${one}, ...]} with ${count} items, and nothing else.`,
+  ];
+}
+
+/** The prompt for one or more versions of the email; the model answers with JSON only. */
 export function coldEmailPrompt(input: ColdEmailPromptInput): string {
   const lines = [
     `Write a cold email from ${input.senderName} at ${input.organizationName} to ${input.recipientName}.`,
@@ -47,7 +78,7 @@ export function coldEmailPrompt(input: ColdEmailPromptInput): string {
     '- No invented facts, numbers, clients or results; use only what the context says.',
     `- No placeholders such as [Name] or {{company}}: use the real names given here, and sign off as ${input.senderName}.`,
     `- Tone: ${TONE_INSTRUCTION[input.tone]}`,
-    'Answer with JSON only, exactly {"subject": "...", "body": "..."}, and nothing else.',
+    ...answerFormat(input.count ?? 1),
     '',
     `What we are offering: ${input.goal}`,
   ];
@@ -63,26 +94,38 @@ export function coldEmailPrompt(input: ColdEmailPromptInput): string {
   return lines.join('\n');
 }
 
-/**
- * The model's answer as a subject and body, or null when it is not the JSON asked for, is out
- * of bounds, or still carries a placeholder. Code fences around the JSON are tolerated.
- */
-export function parseColdEmail(response: string): ColdEmailText | null {
-  const start = response.indexOf('{');
-  const end = response.lastIndexOf('}');
-  if (start < 0 || end <= start) {
-    return null;
-  }
-  let raw: unknown;
-  try {
-    raw = JSON.parse(response.slice(start, end + 1));
-  } catch {
-    return null;
-  }
+/** One version as a subject and body, or null when it is out of bounds or carries a placeholder. */
+function parseVersion(raw: unknown): ColdEmailText | null {
   const parsed = replySchema.safeParse(raw);
   if (!parsed.success) {
     return null;
   }
   const { subject, body } = parsed.data;
   return PLACEHOLDER.test(subject) || PLACEHOLDER.test(body) ? null : parsed.data;
+}
+
+/**
+ * The usable versions in the model's answer: an empty list when it is not the JSON asked for;
+ * a version that is out of bounds or still carries a placeholder is left out. Code fences
+ * around the JSON are tolerated.
+ */
+export function parseColdEmails(response: string): ColdEmailText[] {
+  const start = response.indexOf('{');
+  const end = response.lastIndexOf('}');
+  if (start < 0 || end <= start) {
+    return [];
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(response.slice(start, end + 1));
+  } catch {
+    return [];
+  }
+  const parsed = batchSchema.safeParse(raw);
+  if (!parsed.success) {
+    return [];
+  }
+  return parsed.data.versions
+    .map(parseVersion)
+    .filter((version): version is ColdEmailText => version !== null);
 }

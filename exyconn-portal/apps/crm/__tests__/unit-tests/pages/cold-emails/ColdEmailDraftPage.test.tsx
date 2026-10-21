@@ -1,18 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  ColdEmailStatus,
-  ColdEmailTone,
-  CrmTimelineObject,
-  type ColdEmailDraftFieldsFragment,
-  type ColdEmailVariantFieldsFragment,
-} from '@exyconn/shell/graphql/generated';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { ColdEmailDraftPage } from '../../../../src/pages/cold-emails';
 import { useCommsDock } from '../../../../src/records/comms/commsStore';
 import { renderWithProviders } from '../../test-utils';
 import { resetDock } from '../../records/comms/comms-fixtures';
+import { draft, variant } from '../../records/cold-email/cold-email-fixtures';
 
 const gql = vi.hoisted(() => ({
   draft: vi.fn(),
@@ -28,38 +22,6 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useUpdateColdEmailVariantMutation: () => [gql.updateVariant, { loading: false }],
   useAddColdEmailVariantMutation: () => [gql.addVariant, { loading: false }],
 }));
-
-const variant = (
-  id: string,
-  overrides: Partial<ColdEmailVariantFieldsFragment> = {},
-): ColdEmailVariantFieldsFragment => ({
-  id,
-  subject: `Subject ${id}`,
-  body: `Body ${id}`,
-  instruction: '',
-  tone: ColdEmailTone.Friendly,
-  costUsd: 0.0012,
-  createdAt: '2026-10-19T10:00:00.000Z',
-  sentAt: null,
-  sentMessageId: '',
-  ...overrides,
-});
-
-const draft = (variants: ColdEmailVariantFieldsFragment[]): ColdEmailDraftFieldsFragment => ({
-  id: 'draft-1',
-  object: CrmTimelineObject.Company,
-  recordId: 'co-1',
-  recordName: 'Acme',
-  toEmail: 'hello@acme.com',
-  status: ColdEmailStatus.Draft,
-  variantCount: variants.length,
-  createdByName: 'Asha',
-  updatedAt: '2026-10-19T10:00:00.000Z',
-  goal: 'A checkout audit',
-  tone: ColdEmailTone.Friendly,
-  createdAt: '2026-10-19T09:00:00.000Z',
-  variants,
-});
 
 const renderPage = () =>
   renderWithProviders(<ColdEmailDraftPage />, {
@@ -158,5 +120,30 @@ describe('ColdEmailDraftPage', () => {
     expect(screen.getByText('Network down')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('holds the place while the draft loads', () => {
+    gql.draft.mockReturnValue({ data: undefined });
+    renderPage();
+    expect(screen.getByLabelText('Loading the cold email')).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('edits a version in a side panel over the page', async () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1'), variant('v2')]) } });
+    renderPage();
+
+    const [newest] = screen.getAllByRole('article');
+    await userEvent.click(within(newest).getByRole('button', { name: 'Edit' }));
+
+    const heading = await screen.findByRole('heading', { name: 'Edit version' });
+    expect(
+      within(heading.closest<HTMLElement>('.MuiDrawer-paper')!).getByDisplayValue('Subject v2'),
+    ).toBeInTheDocument();
+  });
+
+  it('offers to rewrite the draft from the latest data', () => {
+    gql.draft.mockReturnValue({ data: { coldEmailDraft: draft([variant('v1')]) } });
+    renderPage();
+    expect(screen.getByRole('button', { name: 'Rewrite based on latest data' })).toBeEnabled();
   });
 });

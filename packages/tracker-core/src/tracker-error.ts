@@ -1,4 +1,4 @@
-import { LOCATION_UNAVAILABLE_MESSAGE } from './location';
+import { isLocationUnavailable, LOCATION_UNAVAILABLE_MESSAGE } from './location';
 import { offDayMessage } from './off-day';
 import type { Translate } from './translate';
 import type { Workday } from './types';
@@ -14,7 +14,7 @@ export function trackerErrorText(
   workday: Pick<Workday, 'offReason' | 'offLabel'> | null,
   t: Translate,
 ): string {
-  if (message === LOCATION_UNAVAILABLE_MESSAGE) {
+  if (isLocationUnavailable(message)) {
     return t(LOCATION_UNAVAILABLE_MESSAGE);
   }
   return (workday === null ? null : offDayMessage(workday, t)) ?? message;

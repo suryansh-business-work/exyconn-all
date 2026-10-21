@@ -15,16 +15,30 @@ vi.mock('@/graphql/generated', async (importOriginal) => ({
 
 interface MapStubProps {
   apiKey: string;
+  pins: readonly { capturedAt: string }[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  formatWhen: (value: string) => string;
+  connect: boolean;
 }
 
 // The map has its own test; here it only shows what it was handed.
 vi.mock('@/pages/UserDetails/employee-locations/LocationsMap', () => ({
-  default: ({ apiKey, selectedId, onSelect }: Readonly<MapStubProps>) => (
-    <button type="button" onClick={() => onSelect(null)}>
-      {`map ${apiKey} ${selectedId ?? 'none'}`}
-    </button>
+  default: ({
+    apiKey,
+    pins,
+    selectedId,
+    onSelect,
+    formatWhen,
+    connect,
+  }: Readonly<MapStubProps>) => (
+    <>
+      <button type="button" onClick={() => onSelect(null)}>
+        {`map ${apiKey} ${selectedId ?? 'none'}`}
+      </button>
+      <p>{`route ${connect ? 'joined' : 'apart'}`}</p>
+      <p>{`first pin ${formatWhen(pins[0].capturedAt)}`}</p>
+    </>
   ),
 }));
 
@@ -61,7 +75,7 @@ describe('EmployeeLocationsPanel', () => {
       date: `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`,
     });
     // No pins yet, so the Maps key is not even asked for.
-    expect(vi.mocked(useGoogleMapsClientConfigQuery).mock.lastCall?.[0]).toEqual({ skip: true });
+    expect(useGoogleMapsClientConfigQuery).not.toHaveBeenCalled();
     expect(screen.getByText('Loading the map').closest('[role="status"]')).toBeInTheDocument();
   });
 
@@ -77,7 +91,7 @@ describe('EmployeeLocationsPanel', () => {
 
   it('shows the pins on the map and in the list, kept in step', async () => {
     show(queryResult({ employeeLocations: [MORNING, NOON] }), withKey);
-    expect(vi.mocked(useGoogleMapsClientConfigQuery).mock.lastCall?.[0]).toEqual({ skip: false });
+    expect(useGoogleMapsClientConfigQuery).toHaveBeenCalled();
     const region = screen.getByRole('region', { name: 'Map of the day’s locations' });
     expect(await screen.findByRole('button', { name: 'map maps-key none' })).toBeInTheDocument();
     expect(region).toBeInTheDocument();
@@ -86,6 +100,13 @@ describe('EmployeeLocationsPanel', () => {
     expect(screen.getByRole('button', { name: 'map maps-key pin-2' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'map maps-key pin-2' }));
     expect(screen.getByRole('button', { name: 'map maps-key none' })).toBeInTheDocument();
+  });
+
+  it("joins the day's pins into a route and writes each pin's time of day", async () => {
+    show(queryResult({ employeeLocations: [MORNING, NOON] }), withKey);
+    expect(await screen.findByText('route joined')).toBeInTheDocument();
+    // A day's pins carry the time alone; the date is the one picked above.
+    expect(screen.getByText(/^first pin \d{1,2}:\d{2}(\s?[AP]M)?$/i)).toBeInTheDocument();
   });
 
   it('holds the map while the key loads, then says when Tech has not set one', () => {
@@ -102,15 +123,13 @@ describe('EmployeeLocationsPanel', () => {
     expect(screen.getByText('The map needs a Maps JavaScript key')).toBeInTheDocument();
   });
 
-  it('reads another day when one is picked, clearing the open pin, and ignores a half-typed day', async () => {
+  it('reads another day when one is picked, and ignores a half-typed day', () => {
     show(queryResult({ employeeLocations: [MORNING, NOON] }), withKey);
-    await userEvent.click(screen.getByText('Moved · Computer location'));
     fireEvent.change(dayInput(), { target: { value: '06/10/2026' } });
     expect(vi.mocked(useEmployeeLocationsQuery).mock.lastCall?.[0]?.variables).toEqual({
       employeeId: 'emp-1',
       date: '2026-06-10',
     });
-    expect(await screen.findByRole('button', { name: 'map maps-key none' })).toBeInTheDocument();
 
     fireEvent.change(dayInput(), { target: { value: '99/99/2026' } });
     expect(vi.mocked(useEmployeeLocationsQuery).mock.lastCall?.[0]?.variables?.date).toBe(

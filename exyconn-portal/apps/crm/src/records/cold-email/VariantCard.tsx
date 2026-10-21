@@ -6,7 +6,7 @@ import { useFormatters, useT } from '@exyconn/i18n';
 import { Box, Button, Chip, Flex, Stack, Text, lineHeight } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import type { ColdEmailVariantFieldsFragment } from '@exyconn/shell/graphql/generated';
-import { useToneLabel } from '../../records/cold-email';
+import { useToneLabel } from './coldEmailTones';
 
 /** Lines of the message shown before "Show all". */
 const PREVIEW_LINES = 6;
