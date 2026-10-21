@@ -48,6 +48,7 @@ describe('Meeting Assistant navigation', () => {
     expect(pages.map((page) => page.path)).toEqual([
       '/ai/meeting-assistant',
       '/ai/meeting-assistant/meetings',
+      '/ai/meeting-assistant/calendar',
       '/ai/meeting-assistant/transcripts',
       '/ai/meeting-assistant/notes',
       '/ai/meeting-assistant/actions',

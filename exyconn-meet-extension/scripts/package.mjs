@@ -1,7 +1,7 @@
 /**
  * Packages the verified build into artifacts/:
- *   chrome-meeting-assistant-v<version>.zip        internal channel (keeps the manifest `key`)
- *   chrome-meeting-assistant-v<version>-store.zip  Chrome Web Store (no `key`)
+ *   chrome-meeting-assistant-v<build version>.zip        internal channel (keeps the manifest `key`)
+ *   chrome-meeting-assistant-v<build version>-store.zip  Chrome Web Store (no `key`)
  * each with a .sha256 file, plus release.json. Zips are deterministic (sorted entries, fixed
  * timestamps), with manifest.json at the zip root.
  */
@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { listFiles } from './lib/files.mjs';
 import { MIN_CHROME_VERSION, storeManifest } from './lib/manifest.mjs';
-import { PACKAGE_VERSION } from './lib/defines.mjs';
+import { BUILD_NUMBER, BUILD_VERSION } from './lib/defines.mjs';
 import { ARTIFACTS_DIR, OUT_DIR } from './lib/paths.mjs';
 import { createZip } from './lib/zip.mjs';
 
@@ -20,9 +20,9 @@ if (!existsSync(join(OUT_DIR, 'manifest.json'))) {
 }
 
 const manifest = JSON.parse(readFileSync(join(OUT_DIR, 'manifest.json'), 'utf8'));
-if (manifest.version !== PACKAGE_VERSION) {
+if (manifest.version !== BUILD_VERSION) {
   console.error(
-    `The build is ${manifest.version} but package.json says ${PACKAGE_VERSION}. Rebuild first.`,
+    `The build is ${manifest.version} but this package run is ${BUILD_VERSION}. Rebuild with the same EXTENSION_BUILD_NUMBER first.`,
   );
   process.exit(1);
 }
@@ -39,10 +39,10 @@ const files = listFiles(OUT_DIR)
   .map((path) => ({ path, data: readFileSync(join(OUT_DIR, path)) }));
 
 const channels = [
-  { channel: 'internal', name: `chrome-meeting-assistant-v${PACKAGE_VERSION}.zip`, manifest },
+  { channel: 'internal', name: `chrome-meeting-assistant-v${BUILD_VERSION}.zip`, manifest },
   {
     channel: 'store',
-    name: `chrome-meeting-assistant-v${PACKAGE_VERSION}-store.zip`,
+    name: `chrome-meeting-assistant-v${BUILD_VERSION}-store.zip`,
     manifest: storeManifest(manifest),
   },
 ];
@@ -60,11 +60,13 @@ const written = channels.map(({ channel, name, manifest: channelManifest }) => {
 });
 
 const release = {
-  version: PACKAGE_VERSION,
-  buildNumber: Number.parseInt(process.env.GITHUB_RUN_NUMBER ?? '0', 10),
+  version: BUILD_VERSION,
+  buildNumber: BUILD_NUMBER,
   commitSha: commitSha(),
   builtAt: new Date().toISOString(),
   minChromeVersion: MIN_CHROME_VERSION,
+  // The channel a portal "Build new release" asked for; the portal's sync registers it there.
+  releaseChannel: process.env.RELEASE_CHANNEL || 'INTERNAL',
   files: written,
 };
 writeFileSync(join(ARTIFACTS_DIR, 'release.json'), `${JSON.stringify(release, null, 2)}\n`);

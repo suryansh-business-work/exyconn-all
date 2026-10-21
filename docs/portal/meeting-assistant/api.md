@@ -13,7 +13,8 @@ operations: `packages/shell/src/graphql/operations/meeting-assistant.graphql` (p
 - `scope: MINE` (default) — meetings in the caller's `viewerIds`; `scope: ALL` — the AI role or
   ADMIN through the `MeetingAssistant` permission module.
 - Changes to a meeting: its owner, or a company editor (`MeetingAssistant` EDIT).
-- Releases: `maRegisterRelease`, `maSetReleaseStatus` — platform-operator ADMINs
+- Releases: `maSetReleaseStatus`, `maApproveRelease`, `maStartExtensionBuild`,
+  `maReleaseSettings`/`maUpdateReleaseSettings`, `maReleaseSlackChannels` — platform-operator ADMINs
   (`MaExtensionRelease`); everyone else only lists/downloads approved releases.
 - Extension tokens may only call: `maExtensionContext`, `maStartSession`, `maRecordConsent`,
   `maHeartbeat`, `maRecordParticipantEvents`, `maFinalizeSession`, `maMeeting`, `maFollowUp`,
@@ -55,6 +56,6 @@ AI › Meeting Assistant › Settings (`MaSettings`).
 
 ## Repository secrets and variables (release workflow)
 
-`MEET_EXTENSION_REGISTER_API_KEY` (secret), `PORTAL_API_URL` and `MEET_EXTENSION_PUBLIC_KEY`
-(variables), and optionally `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN`,
+No secret for the portal: the build is uploaded with the run's OIDC token. `PORTAL_API_URL` and
+`MEET_EXTENSION_PUBLIC_KEY` (variables), and optionally `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN`,
 `CWS_PUBLISHER_ID`, `CWS_ITEM_ID` (secrets) for Chrome Web Store uploads.

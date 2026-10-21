@@ -39,16 +39,16 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'GoogleSignInConfig',
   'GoogleSignInState',
   'GoogleSignInTicket',
-  // The Google client the operator's CRM Gmail connects through (Tech > Environment Variables >
-  // Gmail), the mailboxes connected with it (CRM > Connect Gmail), and a connection in
-  // progress. The messages they sync (CrmEmailMessage) are CRM data and stay company-scoped.
+  // The Google client every company's CRM Gmail connects through (Tech > Environment
+  // Variables > Email accounts (OAuth)), and a connection in progress (read by Google's
+  // callback before any company is in scope; it records the company). The mailboxes
+  // themselves (GmailAccount) and the messages they sync (CrmEmailMessage) are each
+  // company's own CRM data and stay company-scoped.
   'GmailConfig',
-  'GmailAccount',
   'GmailOAuthState',
-  // The same for Microsoft (Outlook / Microsoft 365): the Entra app, the operator CRM's
-  // connected mailboxes and a connection in progress.
+  // The same for Microsoft (Outlook / Microsoft 365): the Entra app and a connection in
+  // progress. MicrosoftMailAccount is company-scoped like GmailAccount.
   'MicrosoftMailConfig',
-  'MicrosoftMailAccount',
   'MicrosoftOAuthState',
   'TrackerBuildSettings',
   // The AI calling bot demo (demos.exyconn.com/calling-bot-demo): its settings and its calls
@@ -103,8 +103,10 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'PasswordResetToken',
   // The Meeting Assistant Chrome extension: Exyconn ships one build for every company (each
   // picks its channel), and a Google Meet connection in progress is read by the OAuth callback
-  // before any company is known.
+  // before any company is known. How builds reach the portal (the CI repository, Slack) is
+  // install-wide too.
   'MaExtensionRelease',
+  'MaReleaseSettings',
   'MaGoogleOAuthState',
 ]);
 

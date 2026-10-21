@@ -141,6 +141,11 @@ class SlackNotifier {
     return result.user ? toMember(result.user) : null;
   }
 
+  /** Whether an active Slack config exists — asked before offering channels, without throwing. */
+  async isConfigured(): Promise<boolean> {
+    return Boolean(await SlackConfigModel.exists({ isActive: true }));
+  }
+
   /** The active config's signing secret, or '' when none is stored. */
   async signingSecret(): Promise<string> {
     const config = await SlackConfigModel.findOne({ isActive: true })

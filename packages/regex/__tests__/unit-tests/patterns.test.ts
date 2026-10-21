@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AI_MODEL_ID,
   CHROME_EXTENSION_REDIRECT,
   CODE,
   DOMAIN,
   EMAIL,
   FINANCIAL_YEAR,
   GITHUB_NAME,
+  GITHUB_REPOSITORY,
   GOOGLE_MEET_CODE,
   GSTIN,
   GST_STATE_CODE,
@@ -195,6 +197,32 @@ const CASES: ReadonlyArray<{
     pattern: REPORT_REFERENCE,
     valid: ['EXY-4KQ7W2', 'EXY-ABCDEF'],
     invalid: ['', 'exy-4kq7w2', 'EXY-4KQ7W', 'EXY-4KQ0W2', 'EXY-4KQ1W2'],
+  },
+  {
+    name: 'AI_MODEL_ID',
+    pattern: AI_MODEL_ID,
+    valid: [
+      'gpt-4o',
+      'gpt-4o-transcribe',
+      'ft:gpt-4o-mini:acme::abc123',
+      'models/gemini-1.5',
+      'o3_mini',
+    ],
+    invalid: ['', 'gpt 4o', ' gpt-4o', 'gpt-4o\n', 'gpt@4o', 'gpt-4o?'],
+  },
+  {
+    name: 'GITHUB_REPOSITORY',
+    pattern: GITHUB_REPOSITORY,
+    valid: ['acme/portal', 'my.org/repo_name-2', 'a/b'],
+    invalid: [
+      '',
+      'acme',
+      'acme/',
+      '/portal',
+      'acme/portal/extra',
+      'acme portal/x',
+      `${'a'.repeat(101)}/x`,
+    ],
   },
 ];
 

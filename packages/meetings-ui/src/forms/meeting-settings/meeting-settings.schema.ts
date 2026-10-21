@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DOMAIN, EMAIL } from '@exyconn/regex';
+import { AI_MODEL_ID, DOMAIN, EMAIL } from '@exyconn/regex';
 import { MaLanguage, MaReleaseChannel, MaSummaryStyle } from '@exyconn/shell/graphql/generated';
 import type { MeetingSettingsInput, MeetingSettingsRow } from './meeting-settings.types';
 
@@ -20,6 +20,15 @@ const whole = (min: number, max: number, message: string) =>
     .int('Enter a whole number')
     .min(min, message)
     .max(max, message);
+
+/** A model id: required, at most 100 characters, no spaces (a custom name is fine). */
+const modelName = (required: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, required)
+    .max(100, 'Keep it under 100 characters')
+    .regex(AI_MODEL_ID, 'Use letters, digits and . _ : / - only, with no spaces');
 
 export const meetingSettingsSchema = z.object({
   enabled: z.boolean(),
@@ -62,16 +71,8 @@ export const meetingSettingsSchema = z.object({
       (list) => list.every((domain) => DOMAIN.test(domain)),
       'Enter domains like example.com',
     ),
-  analysisModel: z
-    .string()
-    .trim()
-    .min(1, 'The analysis model is required')
-    .max(100, 'Keep it under 100 characters'),
-  transcriptionModel: z
-    .string()
-    .trim()
-    .min(1, 'The transcription model is required')
-    .max(100, 'Keep it under 100 characters'),
+  analysisModel: modelName('The analysis model is required'),
+  transcriptionModel: modelName('The transcription model is required'),
   diarization: z.boolean(),
   monthlyBudgetUsd: z.coerce
     .number({ message: 'Enter a number' })

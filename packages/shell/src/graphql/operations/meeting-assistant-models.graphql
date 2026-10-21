@@ -1,0 +1,3 @@
+query MaAvailableModels($purpose: MaModelPurpose!) {
+  maAvailableModels(purpose: $purpose)
+}

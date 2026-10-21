@@ -338,3 +338,12 @@ export const GOOGLE_MEET_CODE = /^\/([a-z]{3}-[a-z]{4}-[a-z]{3})(?:$|[/?#])/;
  * here (with `error=access_denied` on Cancel) only when the address matches.
  */
 export const CHROME_EXTENSION_REDIRECT = /^https:\/\/[a-p]{32}\.chromiumapp\.org\//;
+
+/**
+ * An AI model's id as the provider names it: letters, digits and `._:/-`, e.g. `gpt-4o`,
+ * `gpt-4o-transcribe` or a fine-tune `ft:gpt-4o-mini:acme::abc123`. No spaces.
+ */
+export const AI_MODEL_ID = /^[\w.:/-]+$/;
+
+/** A GitHub repository as `owner/name`, e.g. `acme/portal`: letters, digits, `.`, `_` and `-`. */
+export const GITHUB_REPOSITORY = /^[\w.-]{1,100}\/[\w.-]{1,100}$/;

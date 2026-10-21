@@ -49,6 +49,40 @@ describe('dispatchTrackerBuild', () => {
   });
 });
 
+describe('dispatchWorkflow', () => {
+  it('dispatches the named workflow on the ref with its inputs, and logs it', async () => {
+    active(config);
+    const info = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    await githubActions.dispatchWorkflow('meet-extension-release.yml', 'main', {
+      channel: 'BETA',
+    });
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`${REPO}/actions/workflows/meet-extension-release.yml/dispatches`);
+    expect(JSON.parse(init.body as string)).toEqual({ ref: 'main', inputs: { channel: 'BETA' } });
+    expect(info).toHaveBeenCalledWith(
+      { inputs: { channel: 'BETA' } },
+      'meet-extension-release.yml dispatched on main',
+    );
+  });
+
+  it('refuses without a GitHub configuration and passes on a failed dispatch', async () => {
+    active(null);
+    await expect(githubActions.dispatchWorkflow('x.yml', 'main', {})).rejects.toBeInstanceOf(
+      ConfigurationError,
+    );
+    jest.restoreAllMocks();
+    fetchMock = stubGithub();
+    active(config);
+    fetchMock.mockResolvedValue(new Response('Workflow not found', { status: 404 }));
+    await expect(githubActions.dispatchWorkflow('x.yml', 'main', {})).rejects.toThrow(
+      'GitHub /actions/workflows/x.yml/dispatches failed (404): Workflow not found',
+    );
+  });
+});
+
 describe('listTrackerRuns', () => {
   it('lists runs newest first, with an empty branch when GitHub has none', async () => {
     active(config);

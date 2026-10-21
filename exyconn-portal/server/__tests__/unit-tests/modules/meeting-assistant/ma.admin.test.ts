@@ -7,8 +7,10 @@ import {
 import {
   channelsFor,
   openReleaseArtifact,
+  registerRelease,
   type RegisterReleaseInput,
 } from '../../../../src/modules/meeting-assistant/releases.service';
+import { announcePublished } from '../../../../src/modules/meeting-assistant/releases.notify';
 import {
   DOWNLOAD_LINK_TTL_MS,
   readDownloadToken,
@@ -25,7 +27,6 @@ import {
 } from '../../../../src/modules/meeting-assistant/models';
 import type { MaSettingsInput } from '../../../../src/modules/meeting-assistant/settings.service';
 import { readGoogleConfig } from '../../../../src/modules/auth/google/google-sign-in.config';
-import { githubActions } from '../../../../src/utils/github';
 import { OrganizationModel } from '../../../../src/modules/organizations';
 import { invalidatePlatformOperatorCache } from '../../../../src/lib/platformAccess';
 import { runAsPlatform } from '../../../../src/lib/tenant';
@@ -39,20 +40,19 @@ import { ctxOf, seedAccount, seedMeeting, wavOf } from './ma.fixtures';
 jest.mock('../../../../src/config/env', () =>
   jest.requireActual('./ma.env').envTrustingExtension(),
 );
-jest.mock('../../../../src/utils/github', () => ({
-  githubActions: { isRepoReleaseAsset: jest.fn(), openReleaseAsset: jest.fn() },
+jest.mock('../../../../src/modules/meeting-assistant/releases.notify', () => ({
+  announcePublished: jest.fn(),
 }));
 jest.mock('../../../../src/modules/auth/google/google-sign-in.config', () => ({
   readGoogleConfig: jest.fn(),
 }));
 
-const isRepoAsset = githubActions.isRepoReleaseAsset as jest.Mock;
-const openAsset = githubActions.openReleaseAsset as jest.Mock;
 const googleConfig = readGoogleConfig as jest.Mock;
 
 const organizationId = useTestOrganization();
 const PORTAL = 'http://localhost:1001';
 const SHA = 'a'.repeat(64);
+const FILE_ID = new Types.ObjectId();
 
 let employee: MaActor;
 let manager: MaActor;
@@ -69,16 +69,18 @@ const release = (overrides: Partial<RegisterReleaseInput> = {}): RegisterRelease
   artifactName: 'meet-extension-1.2.3.zip',
   artifactSize: 1024,
   sha256: SHA.toUpperCase(),
-  assetUrl: 'https://api.github.com/repos/exyconn/all/releases/assets/1',
-  releaseUrl: '',
+  fileId: FILE_ID,
   buildRunUrl: '',
   releaseNotes: 'Notes',
   minChromeVersion: '120',
   ...overrides,
 });
 
-const register = (input: RegisterReleaseInput) =>
-  maAdminMutations.maRegisterRelease(null, { input }, asManager);
+/** Registers a build as an upload from CI does, presented as the resolvers present it. */
+const register = async (input: RegisterReleaseInput) => {
+  const created = await registerRelease(input, 'GitHub Actions (ci)', 'Uploaded by run 1');
+  return { ...created, id: (created._id as Types.ObjectId).toHexString() };
+};
 
 const moveTo = (id: string, status: string, extra: Record<string, unknown> = {}) =>
   maAdminMutations.maSetReleaseStatus(
@@ -97,7 +99,6 @@ async function approvedRelease(overrides: Partial<RegisterReleaseInput> = {}) {
 const tokenOf = (url: string) => new URL(url).searchParams.get('token') ?? '';
 
 beforeEach(async () => {
-  isRepoAsset.mockResolvedValue(true);
   googleConfig.mockResolvedValue({ clientId: 'client-id', clientSecret: 'client-secret' });
   await runAsPlatform(() =>
     OrganizationModel.updateOne({ _id: organizationId }, { $set: { isPlatformOperator: true } }),
@@ -379,22 +380,38 @@ describe('signed download links', () => {
 });
 
 describe('extension releases', () => {
-  it('registers a build once per checksum, normalising it', async () => {
+  it('registers a build as waiting for QA, normalising its checksum and commit', async () => {
     const first = await register(release());
-    const again = await register(release());
 
-    expect(again.id).toBe(first.id);
     expect(first).toMatchObject({
       sha256: SHA,
       commitSha: 'abcdef1',
       status: 'QA_PENDING',
-      downloadable: false,
+      publisherName: 'GitHub Actions (ci)',
+      fileId: FILE_ID,
     });
-    expect(await codeOf(register(release({ sha256: 'b'.repeat(64) })))).toBe('BAD_USER_INPUT');
+    expect(first.statusHistory).toEqual([
+      expect.objectContaining({
+        status: 'QA_PENDING',
+        byName: 'GitHub Actions (ci)',
+        note: 'Uploaded by run 1',
+      }),
+    ]);
+  });
+
+  it('never registers a version twice, even on another channel or with other bytes', async () => {
+    await runAsPlatform(() => MaReleaseModel.init());
+    await register(release());
+
+    const again = await registerRelease(release({ channel: 'BETA', sha256: 'b'.repeat(64) }), 'ci', '')
+      .then(() => null)
+      .catch((error: unknown) => error);
+
+    expect(again).toMatchObject({ code: 11000 });
     expect(await runAsPlatform(() => MaReleaseModel.countDocuments())).toBe(1);
   });
 
-  it('refuses a bad version, checksum, commit, artifact or asset, and anyone but a manager', async () => {
+  it('refuses a bad version, checksum, commit or artifact', async () => {
     const refused = [
       release({ version: '1.2.3.4.5' }),
       release({ version: '1.70000' }),
@@ -405,12 +422,7 @@ describe('extension releases', () => {
     ];
     const codes = await Promise.all(refused.map((input) => codeOf(register(input))));
     expect(codes).toEqual(refused.map(() => 'BAD_USER_INPUT'));
-
-    isRepoAsset.mockResolvedValue(false);
-    expect(await codeOf(register(release()))).toBe('BAD_USER_INPUT');
-    expect(
-      await codeOf(maAdminMutations.maRegisterRelease(null, { input: release() }, asEmployee)),
-    ).toBe('FORBIDDEN');
+    expect(await runAsPlatform(() => MaReleaseModel.countDocuments())).toBe(0);
   });
 
   it('moves only along the release flow and publishes only with a store listing', async () => {
@@ -423,6 +435,15 @@ describe('extension releases', () => {
     expect(await codeOf(moveTo(new Types.ObjectId().toHexString(), 'DEPRECATED'))).toBe(
       'NOT_FOUND',
     );
+    expect(
+      await codeOf(
+        maAdminMutations.maSetReleaseStatus(
+          null,
+          { id: created.id, input: { status: 'DEPRECATED', note: 'No' } },
+          asEmployee,
+        ),
+      ),
+    ).toBe('FORBIDDEN');
     await moveTo(created.id, 'READY_FOR_INTERNAL_TESTING');
     await moveTo(created.id, 'INTERNAL_RELEASED');
     await moveTo(created.id, 'READY_FOR_STORE_SUBMISSION');
@@ -431,6 +452,7 @@ describe('extension releases', () => {
       await codeOf(moveTo(created.id, 'PUBLISHED', { storeUrl: 'https://example.com/item' })),
     ).toBe('BAD_USER_INPUT');
 
+    expect(announcePublished).not.toHaveBeenCalled();
     const published = await moveTo(created.id, 'PUBLISHED', {
       storeUrl: ' https://chromewebstore.google.com/detail/abc ',
       storeItemId: ' abc ',
@@ -450,6 +472,10 @@ describe('extension releases', () => {
       'SUBMITTED_FOR_REVIEW',
       'PUBLISHED',
     ]);
+    expect(announcePublished).toHaveBeenCalledTimes(1);
+    expect(announcePublished).toHaveBeenCalledWith(
+      expect.objectContaining({ version: '1.2.3', status: 'PUBLISHED' }),
+    );
   });
 
   it('shows a company only approved builds on its channel, and managers everything', async () => {
@@ -476,7 +502,6 @@ describe('extension releases', () => {
   it('links an approved build for download and counts each download', async () => {
     const approved = await approvedRelease();
     const draft = await register(release({ version: '2.0.0' }));
-    openAsset.mockResolvedValue({ body: 'zip-bytes' });
 
     const link = await maAdminMutations.maReleaseDownloadLink(
       null,
@@ -490,8 +515,8 @@ describe('extension releases', () => {
       kind: 'release',
       id: approved.id,
     });
-    expect(opened.response).toEqual({ body: 'zip-bytes' });
-    expect(openAsset).toHaveBeenCalledWith(release().assetUrl);
+    expect(opened.fileId).toEqual(FILE_ID);
+    expect(opened.version).toBe('1.2.3');
     expect(
       (await runAsPlatform(() => MaReleaseModel.findById(approved.id).lean()))?.downloadCount,
     ).toBe(1);

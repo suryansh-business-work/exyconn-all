@@ -30,10 +30,14 @@ const MEETINGS = { scope: 'ALL', basePath: '/ai/meeting-assistant' } as const;
 - `TranscriptsPage`, `ParticipantsPage`, `LogsPage` — server-paged searches across meetings.
 - `ActionChecklistPage` / `ActionChecklist` — completion tiles, complete/reopen in place, bulk status and
   priority, add/edit/delete, evidence, comments and history.
-- `ExtensionPage` — the newest release, install guide (unpacked load), changelog, signed-in browsers,
-  Google Meet connection.
+- `ExtensionPage` — the newest release's "Download extension (.zip)" button with the numbered
+  install steps under it, changelog, signed-in browsers, Google Meet connection. With no release it
+  says why: a plain note for people, the next step (approve, import, build) for release managers.
 - `ConnectExtensionPage` — the extension's PKCE consent screen (`/me/meetings/connect-extension`).
 - `MeetingSettingsPage`, `ReleasesPage` — AI portal only; releases behind `ProtectedRoute` for ADMIN.
+  Releases offers "Approve and publish" on a waiting build (choosing the channel), "Build new
+  release" (dispatches the extension workflow) and "Release settings" (the repository CI may
+  upload from, and the Slack channel releases are announced in).
 
 ## Conventions
 

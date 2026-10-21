@@ -11,6 +11,7 @@ import { FormSection } from '@exyconn/shell/components/form/FormSection';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { MaLanguage, MaReleaseChannel, MaSummaryStyle } from '@exyconn/shell/graphql/generated';
 import { LIMITS, REMINDER_INTERVALS } from './meeting-settings.schema';
+import { ModelFields } from './meeting-settings.models';
 
 /** Enum options with their words translated. */
 function useEnumOptions() {
@@ -89,16 +90,7 @@ export function NotesSection() {
         helperText="0 keeps them until the meeting is deleted"
         slotProps={{ htmlInput: LIMITS.audioRetentionDays }}
       />
-      <RhfTextField
-        name="analysisModel"
-        label="Analysis model"
-        helperText="The AI model that writes the notes and action items, e.g. gpt-4o."
-      />
-      <RhfTextField
-        name="transcriptionModel"
-        label="Transcription model"
-        helperText="The AI model that turns call audio into text, e.g. gpt-4o-transcribe."
-      />
+      <ModelFields />
     </FormSection>
   );
 }

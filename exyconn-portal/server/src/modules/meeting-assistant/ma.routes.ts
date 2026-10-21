@@ -1,6 +1,4 @@
 import express, { Router, type Request, type Response } from 'express';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
 import { env } from '../../config/env';
 import { runForOrganization, runForOrganizationOf } from '../../lib/tenant';
 import { createLimiter } from '../../lib/rateLimiter';
@@ -19,6 +17,8 @@ import {
 import { AudioRejection, transcribeChunk } from './transcription.service';
 import { readDownloadToken, MA_DOWNLOAD_PATH } from './download-links';
 import { openReleaseArtifact } from './releases.service';
+import { streamReleaseZip } from './releases.store';
+import { addReleaseUploadRoute } from './releases.upload';
 import { streamMergedWav } from './recording.store';
 import { MaMeetingModel } from './models';
 
@@ -177,13 +177,13 @@ async function audioEndpoint(req: Request, res: Response): Promise<void> {
 }
 
 async function sendRelease(id: string, res: Response): Promise<void> {
-  const { release, response } = await openReleaseArtifact(id);
+  const release = await openReleaseArtifact(id);
   res.set({
     'Content-Type': 'application/zip',
     'Content-Disposition': `attachment; filename="${release.artifactName.replaceAll('"', '')}"`,
     'X-Checksum-SHA256': release.sha256,
   });
-  await pipeline(Readable.fromWeb(response.body as never), res);
+  await streamReleaseZip(release.fileId, res);
 }
 
 async function sendRecording(id: string, stream: string, res: Response): Promise<void> {
@@ -225,7 +225,7 @@ async function downloadEndpoint(req: Request, res: Response): Promise<void> {
   }
 }
 
-/** The extension's REST endpoints and the assistant's signed downloads. */
+/** The extension's REST endpoints, CI's build upload and the assistant's signed downloads. */
 export function meetAssistantRouter(): Router {
   const router = Router();
   const small = express.json({ limit: '16kb' });
@@ -252,6 +252,7 @@ export function meetAssistantRouter(): Router {
       }
     });
   });
+  addReleaseUploadRoute(router);
   router.get(MA_DOWNLOAD_PATH.replace(MA_REST_PATH, ''), (req, res) => {
     downloadEndpoint(req, res).catch((error: unknown) => logger.error({ err: error }, 'download'));
   });

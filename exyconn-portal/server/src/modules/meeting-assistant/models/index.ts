@@ -9,5 +9,6 @@ export * from './job.model';
 export * from './settings.model';
 export * from './extension-session.model';
 export * from './release.model';
+export * from './release-settings.model';
 export * from './google.model';
 export * from './event.model';

@@ -46,7 +46,11 @@ describe('App', () => {
 
   it('puts the overview, the jobs register and the prompt library on their routes', () => {
     render(<App />);
-    expect(routes().slice(0, 3).map((route) => [route.path, route.element.type])).toEqual([
+    expect(
+      routes()
+        .slice(0, 3)
+        .map((route) => [route.path, route.element.type]),
+    ).toEqual([
       ['/ai', AiOverviewPage],
       ['/ai/jobs', AiPage],
       ['/ai/prompts', PromptLibraryPage],
@@ -63,6 +67,7 @@ describe('App', () => {
     ).toEqual([
       ['/ai/meeting-assistant', meetings.MeetingDashboardPage, company],
       ['/ai/meeting-assistant/meetings', meetings.MeetingsListPage, company],
+      ['/ai/meeting-assistant/calendar', meetings.MeetingCalendarPage, company],
       ['/ai/meeting-assistant/meetings/:id/:tab?', meetings.MeetingDetailPage, company],
       ['/ai/meeting-assistant/transcripts', meetings.TranscriptsPage, company],
       ['/ai/meeting-assistant/notes', meetings.MeetingsListPage, { ...company, notesOnly: true }],
@@ -78,7 +83,10 @@ describe('App', () => {
   it('keeps the extension releases to administrators', () => {
     render(<App />);
     const releases = routes().find((route) => route.path === '/ai/meeting-assistant/releases');
-    const guard = releases?.element as ReactElement<{ requiredRole: string; children: ReactElement }>;
+    const guard = releases?.element as ReactElement<{
+      requiredRole: string;
+      children: ReactElement;
+    }>;
     expect(guard.props.requiredRole).toBe(ROLES.ADMIN);
     expect(guard.props.children.type).toBe(meetings.ReleasesPage);
   });

@@ -43,12 +43,19 @@ keys; the bundle holds no API keys of any kind.
 
 `pnpm package` writes to `artifacts/`:
 
-- `chrome-meeting-assistant-v<version>.zip` — internal channel (keeps `key` if set)
-- `chrome-meeting-assistant-v<version>-store.zip` — Chrome Web Store (no `key`)
-- a `.sha256` per zip and `release.json` (`version`, `buildNumber` = `GITHUB_RUN_NUMBER`,
+- `chrome-meeting-assistant-v<build version>.zip` — internal channel (keeps `key` if set)
+- `chrome-meeting-assistant-v<build version>-store.zip` — Chrome Web Store (no `key`)
+- a `.sha256` per zip and `release.json` (`version`, `buildNumber` = `EXTENSION_BUILD_NUMBER`,
   `commitSha` = `GITHUB_SHA` or `git rev-parse HEAD`, `builtAt`, `files[]`)
 
 Zips are deterministic: sorted entries, fixed 1980-01-01 timestamps, Node built-ins only.
+
+The build version is `package.json`'s version plus `EXTENSION_BUILD_NUMBER` as Chrome's fourth
+part: CI sets it to the workflow's run number, so build 57 of 1.2.0 is manifest `version`
+`1.2.0.57` (`version_name` "1.2.0 (build 57)"). Local builds leave it unset and keep the plain
+package version. Every push to `main` (and every "Build new release" in AI › Meeting Assistant ›
+Releases) builds one and uploads it to the portal (see docs/portal/meeting-assistant/releases.md);
+bump `package.json` only for a notable change.
 
 ## Permissions
 

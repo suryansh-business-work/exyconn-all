@@ -16,8 +16,9 @@ export const MIN_CHROME_VERSION = '116';
  * The Manifest V3 for one build. Host access is limited to Google Meet and the API origin of
  * the mode. `key` (a PUBLIC key, optional) pins the extension id for internal unpacked
  * installs; the Chrome Web Store package is made without it (scripts/package.mjs).
+ * `versionName` (optional) is the friendlier version Chrome shows, e.g. "1.2.0 (build 57)".
  */
-export function buildManifest({ version, apiUrl, key }) {
+export function buildManifest({ version, versionName, apiUrl, key }) {
   const icons = Object.fromEntries(
     ICON_SIZES.map((size) => [String(size), `icons/icon-${size}.png`]),
   );
@@ -27,6 +28,7 @@ export function buildManifest({ version, apiUrl, key }) {
     description:
       'Reminds you when Google Meet transcription is off and, with consent, turns your meetings into notes and action items in Exyconn.',
     version,
+    ...(versionName ? { version_name: versionName } : {}),
     minimum_chrome_version: MIN_CHROME_VERSION,
     icons,
     action: {

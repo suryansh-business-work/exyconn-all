@@ -57,6 +57,8 @@ export interface GoogleTokens {
   access_token?: string;
   refresh_token?: string;
   expires_in?: number;
+  /** The space-separated scopes Google actually granted. */
+  scope?: string;
 }
 
 /** Trades an authorisation code for Google's tokens; a refusal throws with Google's reason. */

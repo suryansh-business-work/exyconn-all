@@ -41,9 +41,20 @@ describe('meetingSettingsSchema', () => {
   });
 
   it('requires both model names', () => {
-    expect(errorsFor({ analysisModel: ' ', transcriptionModel: '' })).toEqual([
-      'analysisModel',
-      'transcriptionModel',
-    ]);
+    expect(new Set(errorsFor({ analysisModel: ' ', transcriptionModel: '' }))).toEqual(
+      new Set(['analysisModel', 'transcriptionModel']),
+    );
+  });
+
+  it('takes any model id without spaces, a custom fine-tune too, and trims it', () => {
+    const parsed = meetingSettingsSchema.parse({
+      ...valid(),
+      analysisModel: ' ft:gpt-4o-mini:acme::abc123 ',
+      transcriptionModel: 'gpt-4o-transcribe',
+    });
+    expect(parsed.analysisModel).toBe('ft:gpt-4o-mini:acme::abc123');
+    expect(errorsFor({ analysisModel: 'gpt 4o' })).toEqual(['analysisModel']);
+    expect(errorsFor({ transcriptionModel: 'whisper?' })).toEqual(['transcriptionModel']);
+    expect(errorsFor({ analysisModel: 'g'.repeat(101) })).toEqual(['analysisModel']);
   });
 });

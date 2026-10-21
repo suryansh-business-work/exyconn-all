@@ -26,13 +26,16 @@ interface FileDoc {
   metadata: { seq: number; durationMs: number };
 }
 
-const bucket = () => {
+/** A GridFS bucket on the API's database: where the assistant keeps files it stores itself. */
+export function gridFsBucket(bucketName: string): mongoose.mongo.GridFSBucket {
   const db = mongoose.connection.db;
   if (!db) {
     throw new Error('The database is not connected.');
   }
-  return new mongoose.mongo.GridFSBucket(db, { bucketName: BUCKET });
-};
+  return new mongoose.mongo.GridFSBucket(db, { bucketName });
+}
+
+const bucket = () => gridFsBucket(BUCKET);
 
 /** The company in scope; refusing a platform scope, which owns no recordings. */
 function organization(): string {

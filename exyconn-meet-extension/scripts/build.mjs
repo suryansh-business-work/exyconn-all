@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import react from '@vitejs/plugin-react';
 import { build } from 'vite';
-import { PACKAGE_VERSION, defineConstants, modeConfig } from './lib/defines.mjs';
+import { BUILD_VERSION, BUILD_VERSION_NAME, defineConstants, modeConfig } from './lib/defines.mjs';
 import { ICON_SIZES, buildManifest } from './lib/manifest.mjs';
 import { BUILD_INFO, OUT_DIR, SRC_DIR, UI_SRC } from './lib/paths.mjs';
 import { renderIcon } from './lib/png.mjs';
@@ -111,8 +111,13 @@ for (const size of ICON_SIZES) {
 }
 
 const key = process.env.MEET_EXTENSION_PUBLIC_KEY?.trim() || undefined;
-const manifest = buildManifest({ version: PACKAGE_VERSION, apiUrl, key });
+const manifest = buildManifest({
+  version: BUILD_VERSION,
+  versionName: BUILD_VERSION_NAME,
+  apiUrl,
+  key,
+});
 writeFileSync(join(OUT_DIR, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-writeFileSync(BUILD_INFO, `${JSON.stringify({ mode, version: PACKAGE_VERSION }, null, 2)}\n`);
+writeFileSync(BUILD_INFO, `${JSON.stringify({ mode, version: BUILD_VERSION }, null, 2)}\n`);
 
-console.log(`Built Exyconn Meeting Assistant ${PACKAGE_VERSION} (${mode}) into ${OUT_DIR}`);
+console.log(`Built Exyconn Meeting Assistant ${BUILD_VERSION} (${mode}) into ${OUT_DIR}`);

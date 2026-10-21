@@ -167,22 +167,6 @@ export const maAdminTypeDefs = gql`
     sha256: String!
   }
 
-  input MaRegisterReleaseInput {
-    version: String!
-    channel: MaReleaseChannel!
-    buildNumber: Int!
-    commitSha: String!
-    builtAt: DateTime!
-    artifactName: String!
-    artifactSize: Int!
-    sha256: String!
-    assetUrl: String!
-    releaseUrl: String!
-    buildRunUrl: String!
-    releaseNotes: String!
-    minChromeVersion: String!
-  }
-
   input MaReleaseStatusInput {
     status: MaReleaseStatus!
     note: String!
@@ -211,7 +195,6 @@ export const maAdminTypeDefs = gql`
     maDisconnectGoogle: Boolean!
     "Fetches the official Google Meet transcript and participants again."
     maImportOfficialTranscript(meetingId: ID!): MaMeeting!
-    maRegisterRelease(input: MaRegisterReleaseInput!): MaRelease!
     maSetReleaseStatus(id: ID!, input: MaReleaseStatusInput!): MaRelease!
     maReleaseDownloadLink(id: ID!): MaDownloadLink!
   }

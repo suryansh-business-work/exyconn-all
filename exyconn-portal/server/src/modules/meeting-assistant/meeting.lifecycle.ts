@@ -8,7 +8,7 @@ import type { CaptureState, TranscriptionState } from './ma.enums';
 import type { MaActor } from './ma.access';
 
 /** Google Meet's own code shape (the same as @exyconn/regex GOOGLE_MEET_CODE). */
-const MEET_CODE = /^[a-z]{3}-[a-z]{4}-[a-z]{3}$/;
+export const MEET_CODE = /^[a-z]{3}-[a-z]{4}-[a-z]{3}$/;
 const MEET_ORIGIN = 'https://meet.google.com/';
 /** A call left and rejoined within this long is the same session, not a new meeting. */
 export const RECONNECT_WINDOW_MS = 15 * 60_000;

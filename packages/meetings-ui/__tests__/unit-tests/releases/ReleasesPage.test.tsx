@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
+  MaReleaseChannel,
   MaReleaseStatus,
+  useMaApproveReleaseMutation,
   useMaReleaseDownloadLinkMutation,
   useMaReleasesQuery,
   useMaSetReleaseStatusMutation,
@@ -16,13 +18,17 @@ vi.mock('@exyconn/shell/graphql/generated', async (orig) => ({
   useMaReleasesQuery: vi.fn(),
   useMaSetReleaseStatusMutation: vi.fn(),
   useMaReleaseDownloadLinkMutation: vi.fn(),
+  useMaApproveReleaseMutation: vi.fn(),
 }));
 
 const setStatus = vi.fn();
 const link = vi.fn();
+const approve = vi.fn();
 
 beforeEach(() => {
   setStatus.mockReset().mockResolvedValue({ data: {} });
+  approve.mockReset().mockResolvedValue({ data: {} });
+  vi.mocked(useMaApproveReleaseMutation).mockReturnValue(mutationTuple(approve) as never);
   link.mockReset().mockResolvedValue({
     data: {
       maReleaseDownloadLink: {
@@ -61,7 +67,7 @@ const rowOf = (version: string) => screen.getByText(version).closest('tr') as HT
 describe('ReleasesPage', () => {
   it('lists every build CI registered, with every field', () => {
     renderWithProviders(<ReleasesPage />);
-    expect(screen.getByText(/registered by CI/)).toBeInTheDocument();
+    expect(screen.getByText(/^Every merge to main builds a new version/)).toBeInTheDocument();
     const row = rowOf('1.4.0');
     expect(within(row).getByText('a1b2c3d4e5f6')).toBeInTheDocument();
     expect(within(row).getByText('2.0 KB')).toBeInTheDocument();
@@ -82,6 +88,70 @@ describe('ReleasesPage', () => {
     expect(
       within(old).queryByRole('button', { name: 'Deprecate this build' }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Approve and publish this build' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('approves a build waiting for review on the channel chosen, Stable first', async () => {
+    const user = userEvent.setup();
+    vi.mocked(useMaReleasesQuery).mockReturnValue(
+      queryResult({
+        maReleases: [
+          makeRelease({ id: 'qa', version: '1.5.0', status: MaReleaseStatus.QaPending }),
+          makeRelease({
+            id: 'testing',
+            version: '1.4.9',
+            status: MaReleaseStatus.ReadyForInternalTesting,
+          }),
+        ],
+      }) as never,
+    );
+    renderWithProviders(<ReleasesPage />);
+    expect(
+      within(rowOf('1.4.9')).getByRole('button', { name: 'Approve and publish this build' }),
+    ).toBeInTheDocument();
+    await user.click(
+      within(rowOf('1.5.0')).getByRole('button', { name: 'Approve and publish this build' }),
+    );
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Approve version 1.5.0')).toBeInTheDocument();
+    const channel = within(dialog).getByRole('combobox', { name: /^Release channel/ });
+    expect(channel).toHaveTextContent('Stable');
+    await user.click(channel);
+    await user.click(await screen.findByRole('option', { name: 'Beta' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Approve and publish' }));
+    expect(approve).toHaveBeenCalledWith({
+      variables: { id: 'qa', channel: MaReleaseChannel.Beta },
+    });
+    expect(vi.mocked(useMaApproveReleaseMutation).mock.lastCall?.[0]).toEqual({
+      refetchQueries: ['MaLatestRelease', 'MaReleaseOverview'],
+    });
+    expect(await screen.findByText('Version 1.5.0 can now be downloaded')).toBeInTheDocument();
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('keeps the approval open when the server refuses it, and cancels', async () => {
+    const user = userEvent.setup();
+    approve.mockRejectedValue(new Error('Only a build waiting for approval can be approved'));
+    vi.mocked(useMaReleasesQuery).mockReturnValue(
+      queryResult({
+        maReleases: [makeRelease({ status: MaReleaseStatus.QaPending })],
+      }) as never,
+    );
+    renderWithProviders(<ReleasesPage />);
+    await user.click(screen.getByRole('button', { name: 'Approve and publish this build' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Approve and publish' }));
+    expect(approve).toHaveBeenCalledWith({
+      variables: { id: 'release-1', channel: MaReleaseChannel.Stable },
+    });
+    expect(
+      await screen.findByText('Only a build waiting for approval can be approved'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
   it('downloads a build', async () => {
