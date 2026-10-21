@@ -17,4 +17,6 @@ export interface ContractFormValues {
   documentUrl: string;
   /** The contract's text as rich-text HTML; '' until it is drafted. */
   content: string;
+  /** The Legal › Groups group it belongs to; '' when ungrouped. */
+  groupId: string;
 }

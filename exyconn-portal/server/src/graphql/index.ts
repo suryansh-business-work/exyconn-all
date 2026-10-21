@@ -63,7 +63,13 @@ import {
   marketingMetricsTypeDefs,
   marketingMetricsResolvers,
 } from '../modules/marketing';
-import { legalTypeDefs, legalResolvers, policyTypeDefs, policyResolvers } from '../modules/legal';
+import {
+  legalTypeDefs,
+  legalGroupTypeDefs,
+  legalResolvers,
+  policyTypeDefs,
+  policyResolvers,
+} from '../modules/legal';
 import { searchTypeDefs, searchResolvers } from '../modules/search';
 // Imported for its side effect: every module's records become findable from the search box.
 import '../modules/search/providers';
@@ -288,6 +294,7 @@ export const typeDefs = [
   campaignStudioTypeDefs,
   marketingMetricsTypeDefs,
   legalTypeDefs,
+  legalGroupTypeDefs,
   aiTypeDefs,
   ...meetingAssistantTypeDefs,
   crmTypeDefs,

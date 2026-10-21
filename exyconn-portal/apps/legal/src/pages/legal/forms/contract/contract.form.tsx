@@ -15,10 +15,12 @@ import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   ContractType,
   ContractStatus,
+  LegalItemKind,
   useCreateContractMutation,
   useGetContractBodyQuery,
   useUpdateContractMutation,
 } from '@exyconn/shell/graphql/generated';
+import { LegalGroupField } from '@exyconn/shell/components/legal';
 import { BodyGate } from '../BodyGate';
 import { ContractDocumentField } from './ContractDocumentField';
 import { legalBody } from '../body.schema';
@@ -43,6 +45,8 @@ const schema = z.object({
   // before there is a PDF of it — but a signature request refuses to go out without one.
   documentUrl: z.string().trim(),
   content: legalBody,
+  // '' leaves it ungrouped.
+  groupId: z.string(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -55,6 +59,7 @@ const toInitial = (row: ContractRow | null, content: string): ContractFormValues
   status: row?.status ?? ContractStatus.Draft,
   documentUrl: row?.documentUrl ?? '',
   content,
+  groupId: row?.groupId ?? '',
 });
 
 interface ContractFormProps {
@@ -129,6 +134,7 @@ function ContractFields({
         options={enumOptions(Object.values(ContractStatus))}
         helperText="Draft while negotiating; it turns Active once signed."
       />
+      <LegalGroupField kind={LegalItemKind.Contract} />
       <RhfRichText
         name="content"
         label="Contract text"

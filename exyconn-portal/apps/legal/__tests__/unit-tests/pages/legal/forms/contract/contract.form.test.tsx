@@ -119,6 +119,7 @@ describe('ContractForm', () => {
           status: ContractStatus.Draft,
           documentUrl: 'https://cdn.example.com/msa.pdf',
           content: '<p>Terms</p>',
+          groupId: '',
         },
       },
     });
@@ -154,6 +155,7 @@ describe('ContractForm', () => {
           status: row.status,
           documentUrl: row.documentUrl,
           content: '<p>Body</p>',
+          groupId: '',
         },
       },
     });

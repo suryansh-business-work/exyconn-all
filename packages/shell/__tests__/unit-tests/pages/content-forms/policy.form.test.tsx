@@ -60,14 +60,25 @@ const policy: PolicyRow = {
   approvedByName: '',
   approvedOn: null,
   publishedAt: null,
+  groupId: null,
   updatedAt: '2026-04-01T00:00:00.000Z',
   acknowledgedCount: 0,
 };
 
-function renderForm(initial: PolicyRow | null, categories?: readonly PolicyCategory[]) {
+function renderForm(
+  initial: PolicyRow | null,
+  categories?: readonly PolicyCategory[],
+  grouping?: boolean,
+) {
   const onDone = vi.fn();
   renderWithProviders(
-    <PolicyForm initial={initial} onDone={onDone} onCancel={vi.fn()} categories={categories} />,
+    <PolicyForm
+      initial={initial}
+      onDone={onDone}
+      onCancel={vi.fn()}
+      categories={categories}
+      grouping={grouping}
+    />,
   );
   return onDone;
 }
@@ -93,6 +104,16 @@ describe('PolicyForm', () => {
     expect(screen.getByRole('combobox', { name: /^Category/ })).toHaveTextContent('General');
     expect(screen.getByRole('combobox', { name: /^Audience/ })).toHaveTextContent('All Staff');
     expect(screen.getByRole('combobox', { name: /^Classification/ })).toHaveTextContent('Internal');
+  });
+
+  it('offers a group when the screen asks for one', () => {
+    renderForm(null, undefined, true);
+    expect(screen.getByRole('combobox', { name: 'Group' })).toBeInTheDocument();
+  });
+
+  it('leaves the group out unless the screen asks for it', () => {
+    renderForm(null);
+    expect(screen.queryByRole('combobox', { name: 'Group' })).not.toBeInTheDocument();
   });
 
   it("starts as the screen's first kind when General is not offered", () => {
@@ -170,6 +191,7 @@ describe('PolicyForm', () => {
           owner: '',
           classification: PolicyClassification.Internal,
           nextReviewOn: '',
+          groupId: '',
         },
       },
     });
@@ -196,6 +218,7 @@ describe('PolicyForm', () => {
           owner: 'IT',
           classification: PolicyClassification.Public,
           nextReviewOn: '',
+          groupId: '',
         },
       },
     });

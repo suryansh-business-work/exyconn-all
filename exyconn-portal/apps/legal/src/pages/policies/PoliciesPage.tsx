@@ -89,7 +89,7 @@ export function PoliciesPage() {
       statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
-        <PolicyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+        <PolicyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} grouping />
       )}
       permissionModule="Policy"
       columnDefs={POLICY_COLUMNS}

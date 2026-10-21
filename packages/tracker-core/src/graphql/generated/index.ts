@@ -1094,6 +1094,7 @@ export type ContractInput = {
   documentUrl: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
+  groupId: InputMaybe<Scalars['ID']['input']>;
   party: Scalars['String']['input'];
   status: ContractStatus;
   title: Scalars['String']['input'];
@@ -2424,14 +2425,32 @@ export type LeaveStatus =
   | 'PENDING'
   | 'REJECTED';
 
+export type LegalAssignmentItemInput = {
+  itemId: Scalars['ID']['input'];
+  kind: LegalItemKind;
+};
+
 export type LegalDocumentInput = {
   category: DocumentCategory;
   content: InputMaybe<Scalars['String']['input']>;
   fileUrl: InputMaybe<Scalars['String']['input']>;
+  groupId: InputMaybe<Scalars['ID']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
   title: Scalars['String']['input'];
 };
+
+export type LegalGroupInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  kind: LegalItemKind;
+  name: Scalars['String']['input'];
+};
+
+/** The registers Legal keeps: each can be grouped and handed to employees. */
+export type LegalItemKind =
+  | 'CONTRACT'
+  | 'DOCUMENT'
+  | 'POLICY';
 
 export type LicenceBillingCycle =
   | 'MONTHLY'
@@ -3247,6 +3266,7 @@ export type PolicyInput = {
   category: InputMaybe<PolicyCategory>;
   classification: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  groupId: InputMaybe<Scalars['ID']['input']>;
   nextReviewOn: InputMaybe<Scalars['DateTime']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement: InputMaybe<Scalars['Boolean']['input']>;

@@ -3192,6 +3192,8 @@ export type Contract = {
   documentUrl: Scalars['String']['output'];
   effectiveDate: Scalars['DateTime']['output'];
   expiryDate: Scalars['DateTime']['output'];
+  /** The group it belongs to; null when ungrouped. */
+  groupId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
   party: Scalars['String']['output'];
   sentAt?: Maybe<Scalars['DateTime']['output']>;
@@ -3208,6 +3210,7 @@ export type ContractInput = {
   documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
+  groupId?: InputMaybe<Scalars['ID']['input']>;
   party: Scalars['String']['input'];
   status: ContractStatus;
   title: Scalars['String']['input'];
@@ -6882,6 +6885,39 @@ export enum LeaveStatus {
   Rejected = 'REJECTED'
 }
 
+/** A contract, policy or document that can be handed to an employee, with its group. */
+export type LegalAssignable = {
+  __typename?: 'LegalAssignable';
+  groupId?: Maybe<Scalars['ID']['output']>;
+  groupName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  kind: LegalItemKind;
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** One item handed to one employee, and who handed it over. */
+export type LegalAssignment = {
+  __typename?: 'LegalAssignment';
+  assignedAt: Scalars['DateTime']['output'];
+  assignedByName: Scalars['String']['output'];
+  /** The attached file (a contract's document, a document's file). Empty when there is none. */
+  fileUrl: Scalars['String']['output'];
+  groupName?: Maybe<Scalars['String']['output']>;
+  /** True when the item has text written in the portal to read. */
+  hasBody: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  itemId: Scalars['ID']['output'];
+  kind: LegalItemKind;
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type LegalAssignmentItemInput = {
+  itemId: Scalars['ID']['input'];
+  kind: LegalItemKind;
+};
+
 export type LegalDocument = {
   __typename?: 'LegalDocument';
   category: DocumentCategory;
@@ -6889,6 +6925,8 @@ export type LegalDocument = {
   content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   fileUrl?: Maybe<Scalars['String']['output']>;
+  /** The group it belongs to; null when ungrouped. */
+  groupId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
   owner?: Maybe<Scalars['String']['output']>;
   status: DocumentStatus;
@@ -6900,6 +6938,7 @@ export type LegalDocumentInput = {
   category: DocumentCategory;
   content?: InputMaybe<Scalars['String']['input']>;
   fileUrl?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['ID']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
   title: Scalars['String']['input'];
@@ -6910,6 +6949,30 @@ export type LegalDocumentPage = {
   rows: Array<LegalDocument>;
   totalCount: Scalars['Int']['output'];
 };
+
+/** A named set of contracts, policies or documents, e.g. Part Time Employee Contracts. */
+export type LegalGroup = {
+  __typename?: 'LegalGroup';
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: LegalItemKind;
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type LegalGroupInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  kind: LegalItemKind;
+  name: Scalars['String']['input'];
+};
+
+/** The registers Legal keeps: each can be grouped and handed to employees. */
+export enum LegalItemKind {
+  Contract = 'CONTRACT',
+  Document = 'DOCUMENT',
+  Policy = 'POLICY'
+}
 
 /** A software subscription IT pays for: a pot of seats that renews on a date. */
 export type Licence = {
@@ -8231,6 +8294,8 @@ export type Mutation = {
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
+  /** HR or LEGAL: hands these items to an employee. Already-held items are left as they are. */
+  assignLegalItems: Array<LegalAssignment>;
   /** Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN). */
   assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
@@ -8370,6 +8435,7 @@ export type Mutation = {
   createLeavePolicy: LeavePolicy;
   createLeaveRequest: LeaveRequest;
   createLegalDocument: LegalDocument;
+  createLegalGroup: LegalGroup;
   createLicence: Licence;
   createLocation: Location;
   createManagementReview: ManagementReview;
@@ -8545,6 +8611,8 @@ export type Mutation = {
   deleteLeavePolicy: Scalars['Boolean']['output'];
   deleteLeaveRequest: Scalars['Boolean']['output'];
   deleteLegalDocument: Scalars['Boolean']['output'];
+  /** Deletes the group; its members stay, ungrouped. */
+  deleteLegalGroup: Scalars['Boolean']['output'];
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteManagementReview: Scalars['Boolean']['output'];
@@ -9135,6 +9203,8 @@ export type Mutation = {
    */
   translateMissing: Array<Translation>;
   triageWebsiteSubmission: WebsiteSubmission;
+  /** HR or LEGAL: takes one item back. */
+  unassignLegalItem: Scalars['Boolean']['output'];
   unpublishCmsPage: CmsPage;
   unshareWithClient: Scalars['Boolean']['output'];
   /**
@@ -9224,6 +9294,7 @@ export type Mutation = {
   updateLeavePolicy: LeavePolicy;
   updateLeaveRequest: LeaveRequest;
   updateLegalDocument: LegalDocument;
+  updateLegalGroup: LegalGroup;
   updateLicence: Licence;
   updateLocation: Location;
   updateManagementReview: ManagementReview;
@@ -9407,6 +9478,12 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationArchivePolicyArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignLegalItemsArgs = {
+  items: Array<LegalAssignmentItemInput>;
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -9946,6 +10023,11 @@ export type MutationCreateLeaveRequestArgs = {
 
 export type MutationCreateLegalDocumentArgs = {
   input: LegalDocumentInput;
+};
+
+
+export type MutationCreateLegalGroupArgs = {
+  input: LegalGroupInput;
 };
 
 
@@ -10698,6 +10780,11 @@ export type MutationDeleteLeaveRequestArgs = {
 
 
 export type MutationDeleteLegalDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteLegalGroupArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -12287,6 +12374,11 @@ export type MutationTriageWebsiteSubmissionArgs = {
 };
 
 
+export type MutationUnassignLegalItemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUnpublishCmsPageArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12773,6 +12865,12 @@ export type MutationUpdateLeaveRequestArgs = {
 export type MutationUpdateLegalDocumentArgs = {
   id: Scalars['ID']['input'];
   input: LegalDocumentInput;
+};
+
+
+export type MutationUpdateLegalGroupArgs = {
+  id: Scalars['ID']['input'];
+  input: LegalGroupInput;
 };
 
 
@@ -14104,6 +14202,8 @@ export type Policy = {
   category: PolicyCategory;
   classification: PolicyClassification;
   effectiveDate: Scalars['DateTime']['output'];
+  /** The group it belongs to; null when ungrouped. */
+  groupId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
   /** When this has to be read again and confirmed as still right. */
   nextReviewOn?: Maybe<Scalars['DateTime']['output']>;
@@ -14171,6 +14271,7 @@ export type PolicyInput = {
   category?: InputMaybe<PolicyCategory>;
   classification?: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  groupId?: InputMaybe<Scalars['ID']['input']>;
   nextReviewOn?: InputMaybe<Scalars['DateTime']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement?: InputMaybe<Scalars['Boolean']['input']>;
@@ -15035,6 +15136,8 @@ export type Query = {
   employeeEarnings: TrackerEarnings;
   /** One employee's balances for a year, every type their country offers filled in. HR. */
   employeeLeaveBalances: Array<LeaveBalance>;
+  /** HR or LEGAL: what one employee has been handed. */
+  employeeLegalAssignments: Array<LegalAssignment>;
   /** HR, ADMIN or the employee's manager: their location pins on one local day, oldest first. */
   employeeLocations: Array<TrackerLocation>;
   /**
@@ -15096,6 +15199,7 @@ export type Query = {
   getLeavePolicy: LeavePolicy;
   getLeaveRequest: LeaveRequest;
   getLegalDocument: LegalDocument;
+  getLegalGroup: LegalGroup;
   getLicence: Licence;
   getLocation: Location;
   getManagementReview: ManagementReview;
@@ -15170,6 +15274,8 @@ export type Query = {
   leadsByCampaign: Scalars['Int']['output'];
   /** HR/ADMIN: a specific employee's leave requests. */
   leaveRequestsByEmployee: Array<LeaveRequest>;
+  /** HR or LEGAL: everything that can be handed to an employee, with its group. */
+  legalAssignables: Array<LegalAssignable>;
   /** The licences this employee holds a seat on. */
   licenceSeatsFor: Array<EmployeeLicenceSeat>;
   /** SUPPORT/ADMIN: the active snippets the reply composer offers. */
@@ -15368,6 +15474,8 @@ export type Query = {
   listLegalDocuments: Array<LegalDocument>;
   listLegalDocumentsPaged: LegalDocumentPage;
   listLegalDocumentsStats: TableStats;
+  /** LEGAL: every group, of every kind. */
+  listLegalGroups: Array<LegalGroup>;
   listLicences: Array<Licence>;
   listLicencesPaged: LicencePage;
   listLicencesStats: TableStats;
@@ -15590,6 +15698,10 @@ export type Query = {
   myLeaveBalances: Array<LeaveBalance>;
   /** Self-service: the signed-in user's own leave requests. */
   myLeaveRequests: Array<LeaveRequest>;
+  /** The text of one item the signed-in person has been handed, as rich-text HTML. */
+  myLegalAssignmentBody: Scalars['String']['output'];
+  /** The contracts, policies and documents the signed-in person has been handed. */
+  myLegalAssignments: Array<LegalAssignment>;
   /** The signed-in user's manager, if one is set. */
   myManager?: Maybe<EmployeeOption>;
   /** Whether two-factor authentication is on for this account. */
@@ -16300,6 +16412,11 @@ export type QueryEmployeeLeaveBalancesArgs = {
 };
 
 
+export type QueryEmployeeLegalAssignmentsArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
 export type QueryEmployeeLocationsArgs = {
   date: Scalars['String']['input'];
   employeeId: Scalars['ID']['input'];
@@ -16562,6 +16679,11 @@ export type QueryGetLeaveRequestArgs = {
 
 
 export type QueryGetLegalDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetLegalGroupArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -17413,6 +17535,11 @@ export type QueryMeetingTrackingArgs = {
 
 export type QueryMyApprovalsArgs = {
   kind?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMyLegalAssignmentBodyArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -26608,7 +26735,7 @@ export type ListItPoliciesPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListItPoliciesPagedQuery = { __typename?: 'Query', listItPoliciesPaged: { __typename?: 'PolicyPage', totalCount: number, rows: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number }> } };
+export type ListItPoliciesPagedQuery = { __typename?: 'Query', listItPoliciesPaged: { __typename?: 'PolicyPage', totalCount: number, rows: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, groupId?: string | null, updatedAt: string, acknowledgedCount: number }> } };
 
 export type ItDisableLeaverAccountMutationVariables = Exact<{
   employeeId: Scalars['ID']['input'];
@@ -26617,17 +26744,87 @@ export type ItDisableLeaverAccountMutationVariables = Exact<{
 
 export type ItDisableLeaverAccountMutation = { __typename?: 'Mutation', itDisableLeaverAccount: { __typename?: 'User', id: string, isActive: boolean } };
 
+export type LegalGroupFieldsFragment = { __typename?: 'LegalGroup', id: string, name: string, kind: LegalItemKind, description: string };
+
+export type LegalAssignmentFieldsFragment = { __typename?: 'LegalAssignment', id: string, kind: LegalItemKind, itemId: string, title: string, status: string, groupName?: string | null, fileUrl: string, hasBody: boolean, assignedByName: string, assignedAt: string };
+
+export type ListLegalGroupsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListLegalGroupsQuery = { __typename?: 'Query', listLegalGroups: Array<{ __typename?: 'LegalGroup', id: string, name: string, kind: LegalItemKind, description: string }> };
+
+export type CreateLegalGroupMutationVariables = Exact<{
+  input: LegalGroupInput;
+}>;
+
+
+export type CreateLegalGroupMutation = { __typename?: 'Mutation', createLegalGroup: { __typename?: 'LegalGroup', id: string, name: string, kind: LegalItemKind, description: string } };
+
+export type UpdateLegalGroupMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: LegalGroupInput;
+}>;
+
+
+export type UpdateLegalGroupMutation = { __typename?: 'Mutation', updateLegalGroup: { __typename?: 'LegalGroup', id: string, name: string, kind: LegalItemKind, description: string } };
+
+export type DeleteLegalGroupMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteLegalGroupMutation = { __typename?: 'Mutation', deleteLegalGroup: boolean };
+
+export type LegalAssignablesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LegalAssignablesQuery = { __typename?: 'Query', legalAssignables: Array<{ __typename?: 'LegalAssignable', id: string, kind: LegalItemKind, title: string, status: string, groupId?: string | null, groupName?: string | null }> };
+
+export type EmployeeLegalAssignmentsQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type EmployeeLegalAssignmentsQuery = { __typename?: 'Query', employeeLegalAssignments: Array<{ __typename?: 'LegalAssignment', id: string, kind: LegalItemKind, itemId: string, title: string, status: string, groupName?: string | null, fileUrl: string, hasBody: boolean, assignedByName: string, assignedAt: string }> };
+
+export type MyLegalAssignmentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyLegalAssignmentsQuery = { __typename?: 'Query', myLegalAssignments: Array<{ __typename?: 'LegalAssignment', id: string, kind: LegalItemKind, itemId: string, title: string, status: string, groupName?: string | null, fileUrl: string, hasBody: boolean, assignedByName: string, assignedAt: string }> };
+
+export type MyLegalAssignmentBodyQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type MyLegalAssignmentBodyQuery = { __typename?: 'Query', myLegalAssignmentBody: string };
+
+export type AssignLegalItemsMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  items: Array<LegalAssignmentItemInput> | LegalAssignmentItemInput;
+}>;
+
+
+export type AssignLegalItemsMutation = { __typename?: 'Mutation', assignLegalItems: Array<{ __typename?: 'LegalAssignment', id: string, kind: LegalItemKind, itemId: string, title: string, status: string, groupName?: string | null, fileUrl: string, hasBody: boolean, assignedByName: string, assignedAt: string }> };
+
+export type UnassignLegalItemMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UnassignLegalItemMutation = { __typename?: 'Mutation', unassignLegalItem: boolean };
+
 export type ListContractsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListContractsQuery = { __typename?: 'Query', listContracts: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, documentUrl: string, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> };
+export type ListContractsQuery = { __typename?: 'Query', listContracts: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, documentUrl: string, groupId?: string | null, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> };
 
 export type ListContractsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListContractsPagedQuery = { __typename?: 'Query', listContractsPaged: { __typename?: 'ContractPage', totalCount: number, rows: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, documentUrl: string, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> } };
+export type ListContractsPagedQuery = { __typename?: 'Query', listContractsPaged: { __typename?: 'ContractPage', totalCount: number, rows: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, documentUrl: string, groupId?: string | null, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> } };
 
 export type ListContractsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -26707,14 +26904,14 @@ export type SignContractWithTokenMutation = { __typename?: 'Mutation', signContr
 export type ListLegalDocumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListLegalDocumentsQuery = { __typename?: 'Query', listLegalDocuments: Array<{ __typename?: 'LegalDocument', id: string, title: string, category: DocumentCategory, owner?: string | null, fileUrl?: string | null, status: DocumentStatus }> };
+export type ListLegalDocumentsQuery = { __typename?: 'Query', listLegalDocuments: Array<{ __typename?: 'LegalDocument', id: string, title: string, category: DocumentCategory, owner?: string | null, fileUrl?: string | null, status: DocumentStatus, groupId?: string | null }> };
 
 export type ListLegalDocumentsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListLegalDocumentsPagedQuery = { __typename?: 'Query', listLegalDocumentsPaged: { __typename?: 'LegalDocumentPage', totalCount: number, rows: Array<{ __typename?: 'LegalDocument', id: string, title: string, category: DocumentCategory, owner?: string | null, fileUrl?: string | null, status: DocumentStatus }> } };
+export type ListLegalDocumentsPagedQuery = { __typename?: 'Query', listLegalDocumentsPaged: { __typename?: 'LegalDocumentPage', totalCount: number, rows: Array<{ __typename?: 'LegalDocument', id: string, title: string, category: DocumentCategory, owner?: string | null, fileUrl?: string | null, status: DocumentStatus, groupId?: string | null }> } };
 
 export type ListLegalDocumentsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -28272,21 +28469,21 @@ export type CanExportQueryVariables = Exact<{
 
 export type CanExportQuery = { __typename?: 'Query', canExport: boolean };
 
-export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number };
+export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, groupId?: string | null, updatedAt: string, acknowledgedCount: number };
 
 export type MyPolicyFieldsFragment = { __typename?: 'MyPolicy', id: string, title: string, slug: string, summary: string, body: string, version: number, effectiveDate: string, requiresAcknowledgement: boolean, acknowledged: boolean, acknowledgedAt?: string | null };
 
 export type ListPoliciesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListPoliciesQuery = { __typename?: 'Query', listPolicies: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number }> };
+export type ListPoliciesQuery = { __typename?: 'Query', listPolicies: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, groupId?: string | null, updatedAt: string, acknowledgedCount: number }> };
 
 export type ListPoliciesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListPoliciesPagedQuery = { __typename?: 'Query', listPoliciesPaged: { __typename?: 'PolicyPage', totalCount: number, rows: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number }> } };
+export type ListPoliciesPagedQuery = { __typename?: 'Query', listPoliciesPaged: { __typename?: 'PolicyPage', totalCount: number, rows: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, category: PolicyCategory, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, groupId?: string | null, updatedAt: string, acknowledgedCount: number }> } };
 
 export type ListPoliciesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -32900,6 +33097,28 @@ export const ItCostSummaryFieldsFragmentDoc = gql`
   }
 }
     `;
+export const LegalGroupFieldsFragmentDoc = gql`
+    fragment LegalGroupFields on LegalGroup {
+  id
+  name
+  kind
+  description
+}
+    `;
+export const LegalAssignmentFieldsFragmentDoc = gql`
+    fragment LegalAssignmentFields on LegalAssignment {
+  id
+  kind
+  itemId
+  title
+  status
+  groupName
+  fileUrl
+  hasBody
+  assignedByName
+  assignedAt
+}
+    `;
 export const LicenceFieldsFragmentDoc = gql`
     fragment LicenceFields on Licence {
   id
@@ -33516,6 +33735,7 @@ export const PolicyFieldsFragmentDoc = gql`
   approvedByName
   approvedOn
   publishedAt
+  groupId
   updatedAt
   acknowledgedCount
 }
@@ -59894,6 +60114,374 @@ export function useItDisableLeaverAccountMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<ItDisableLeaverAccountMutation, ItDisableLeaverAccountMutationVariables>(ItDisableLeaverAccountDocument, options);
       }
 export type ItDisableLeaverAccountMutationHookResult = ReturnType<typeof useItDisableLeaverAccountMutation>;
+export const ListLegalGroupsDocument = gql`
+    query ListLegalGroups {
+  listLegalGroups {
+    ...LegalGroupFields
+  }
+}
+    ${LegalGroupFieldsFragmentDoc}`;
+
+/**
+ * __useListLegalGroupsQuery__
+ *
+ * To run a query within a React component, call `useListLegalGroupsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLegalGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLegalGroupsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListLegalGroupsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>(ListLegalGroupsDocument, options);
+      }
+export function useListLegalGroupsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>(ListLegalGroupsDocument, options);
+        }
+// @ts-ignore
+export function useListLegalGroupsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>;
+// @ts-ignore
+export function useListLegalGroupsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListLegalGroupsQuery | undefined, ListLegalGroupsQueryVariables>;
+export function useListLegalGroupsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListLegalGroupsQuery, ListLegalGroupsQueryVariables>(ListLegalGroupsDocument, options);
+        }
+export type ListLegalGroupsQueryHookResult = ReturnType<typeof useListLegalGroupsQuery>;
+export type ListLegalGroupsLazyQueryHookResult = ReturnType<typeof useListLegalGroupsLazyQuery>;
+export type ListLegalGroupsSuspenseQueryHookResult = ReturnType<typeof useListLegalGroupsSuspenseQuery>;
+export const CreateLegalGroupDocument = gql`
+    mutation CreateLegalGroup($input: LegalGroupInput!) {
+  createLegalGroup(input: $input) {
+    ...LegalGroupFields
+  }
+}
+    ${LegalGroupFieldsFragmentDoc}`;
+
+/**
+ * __useCreateLegalGroupMutation__
+ *
+ * To run a mutation, you first call `useCreateLegalGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateLegalGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createLegalGroupMutation, { data, loading, error }] = useCreateLegalGroupMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateLegalGroupMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateLegalGroupMutation, CreateLegalGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateLegalGroupMutation, CreateLegalGroupMutationVariables>(CreateLegalGroupDocument, options);
+      }
+export type CreateLegalGroupMutationHookResult = ReturnType<typeof useCreateLegalGroupMutation>;
+export const UpdateLegalGroupDocument = gql`
+    mutation UpdateLegalGroup($id: ID!, $input: LegalGroupInput!) {
+  updateLegalGroup(id: $id, input: $input) {
+    ...LegalGroupFields
+  }
+}
+    ${LegalGroupFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateLegalGroupMutation__
+ *
+ * To run a mutation, you first call `useUpdateLegalGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateLegalGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateLegalGroupMutation, { data, loading, error }] = useUpdateLegalGroupMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateLegalGroupMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateLegalGroupMutation, UpdateLegalGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateLegalGroupMutation, UpdateLegalGroupMutationVariables>(UpdateLegalGroupDocument, options);
+      }
+export type UpdateLegalGroupMutationHookResult = ReturnType<typeof useUpdateLegalGroupMutation>;
+export const DeleteLegalGroupDocument = gql`
+    mutation DeleteLegalGroup($id: ID!) {
+  deleteLegalGroup(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteLegalGroupMutation__
+ *
+ * To run a mutation, you first call `useDeleteLegalGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteLegalGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteLegalGroupMutation, { data, loading, error }] = useDeleteLegalGroupMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteLegalGroupMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteLegalGroupMutation, DeleteLegalGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteLegalGroupMutation, DeleteLegalGroupMutationVariables>(DeleteLegalGroupDocument, options);
+      }
+export type DeleteLegalGroupMutationHookResult = ReturnType<typeof useDeleteLegalGroupMutation>;
+export const LegalAssignablesDocument = gql`
+    query LegalAssignables {
+  legalAssignables {
+    id
+    kind
+    title
+    status
+    groupId
+    groupName
+  }
+}
+    `;
+
+/**
+ * __useLegalAssignablesQuery__
+ *
+ * To run a query within a React component, call `useLegalAssignablesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLegalAssignablesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLegalAssignablesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLegalAssignablesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<LegalAssignablesQuery, LegalAssignablesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<LegalAssignablesQuery, LegalAssignablesQueryVariables>(LegalAssignablesDocument, options);
+      }
+export function useLegalAssignablesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<LegalAssignablesQuery, LegalAssignablesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<LegalAssignablesQuery, LegalAssignablesQueryVariables>(LegalAssignablesDocument, options);
+        }
+// @ts-ignore
+export function useLegalAssignablesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<LegalAssignablesQuery, LegalAssignablesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<LegalAssignablesQuery, LegalAssignablesQueryVariables>;
+// @ts-ignore
+export function useLegalAssignablesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<LegalAssignablesQuery, LegalAssignablesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<LegalAssignablesQuery | undefined, LegalAssignablesQueryVariables>;
+export function useLegalAssignablesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<LegalAssignablesQuery, LegalAssignablesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<LegalAssignablesQuery, LegalAssignablesQueryVariables>(LegalAssignablesDocument, options);
+        }
+export type LegalAssignablesQueryHookResult = ReturnType<typeof useLegalAssignablesQuery>;
+export type LegalAssignablesLazyQueryHookResult = ReturnType<typeof useLegalAssignablesLazyQuery>;
+export type LegalAssignablesSuspenseQueryHookResult = ReturnType<typeof useLegalAssignablesSuspenseQuery>;
+export const EmployeeLegalAssignmentsDocument = gql`
+    query EmployeeLegalAssignments($userId: ID!) {
+  employeeLegalAssignments(userId: $userId) {
+    ...LegalAssignmentFields
+  }
+}
+    ${LegalAssignmentFieldsFragmentDoc}`;
+
+/**
+ * __useEmployeeLegalAssignmentsQuery__
+ *
+ * To run a query within a React component, call `useEmployeeLegalAssignmentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmployeeLegalAssignmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmployeeLegalAssignmentsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useEmployeeLegalAssignmentsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables> & ({ variables: EmployeeLegalAssignmentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>(EmployeeLegalAssignmentsDocument, options);
+      }
+export function useEmployeeLegalAssignmentsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>(EmployeeLegalAssignmentsDocument, options);
+        }
+// @ts-ignore
+export function useEmployeeLegalAssignmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>;
+// @ts-ignore
+export function useEmployeeLegalAssignmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeeLegalAssignmentsQuery | undefined, EmployeeLegalAssignmentsQueryVariables>;
+export function useEmployeeLegalAssignmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmployeeLegalAssignmentsQuery, EmployeeLegalAssignmentsQueryVariables>(EmployeeLegalAssignmentsDocument, options);
+        }
+export type EmployeeLegalAssignmentsQueryHookResult = ReturnType<typeof useEmployeeLegalAssignmentsQuery>;
+export type EmployeeLegalAssignmentsLazyQueryHookResult = ReturnType<typeof useEmployeeLegalAssignmentsLazyQuery>;
+export type EmployeeLegalAssignmentsSuspenseQueryHookResult = ReturnType<typeof useEmployeeLegalAssignmentsSuspenseQuery>;
+export const MyLegalAssignmentsDocument = gql`
+    query MyLegalAssignments {
+  myLegalAssignments {
+    ...LegalAssignmentFields
+  }
+}
+    ${LegalAssignmentFieldsFragmentDoc}`;
+
+/**
+ * __useMyLegalAssignmentsQuery__
+ *
+ * To run a query within a React component, call `useMyLegalAssignmentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyLegalAssignmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyLegalAssignmentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyLegalAssignmentsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>(MyLegalAssignmentsDocument, options);
+      }
+export function useMyLegalAssignmentsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>(MyLegalAssignmentsDocument, options);
+        }
+// @ts-ignore
+export function useMyLegalAssignmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>;
+// @ts-ignore
+export function useMyLegalAssignmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyLegalAssignmentsQuery | undefined, MyLegalAssignmentsQueryVariables>;
+export function useMyLegalAssignmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyLegalAssignmentsQuery, MyLegalAssignmentsQueryVariables>(MyLegalAssignmentsDocument, options);
+        }
+export type MyLegalAssignmentsQueryHookResult = ReturnType<typeof useMyLegalAssignmentsQuery>;
+export type MyLegalAssignmentsLazyQueryHookResult = ReturnType<typeof useMyLegalAssignmentsLazyQuery>;
+export type MyLegalAssignmentsSuspenseQueryHookResult = ReturnType<typeof useMyLegalAssignmentsSuspenseQuery>;
+export const MyLegalAssignmentBodyDocument = gql`
+    query MyLegalAssignmentBody($id: ID!) {
+  myLegalAssignmentBody(id: $id)
+}
+    `;
+
+/**
+ * __useMyLegalAssignmentBodyQuery__
+ *
+ * To run a query within a React component, call `useMyLegalAssignmentBodyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyLegalAssignmentBodyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyLegalAssignmentBodyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useMyLegalAssignmentBodyQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables> & ({ variables: MyLegalAssignmentBodyQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>(MyLegalAssignmentBodyDocument, options);
+      }
+export function useMyLegalAssignmentBodyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>(MyLegalAssignmentBodyDocument, options);
+        }
+// @ts-ignore
+export function useMyLegalAssignmentBodySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>;
+// @ts-ignore
+export function useMyLegalAssignmentBodySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyLegalAssignmentBodyQuery | undefined, MyLegalAssignmentBodyQueryVariables>;
+export function useMyLegalAssignmentBodySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyLegalAssignmentBodyQuery, MyLegalAssignmentBodyQueryVariables>(MyLegalAssignmentBodyDocument, options);
+        }
+export type MyLegalAssignmentBodyQueryHookResult = ReturnType<typeof useMyLegalAssignmentBodyQuery>;
+export type MyLegalAssignmentBodyLazyQueryHookResult = ReturnType<typeof useMyLegalAssignmentBodyLazyQuery>;
+export type MyLegalAssignmentBodySuspenseQueryHookResult = ReturnType<typeof useMyLegalAssignmentBodySuspenseQuery>;
+export const AssignLegalItemsDocument = gql`
+    mutation AssignLegalItems($userId: ID!, $items: [LegalAssignmentItemInput!]!) {
+  assignLegalItems(userId: $userId, items: $items) {
+    ...LegalAssignmentFields
+  }
+}
+    ${LegalAssignmentFieldsFragmentDoc}`;
+
+/**
+ * __useAssignLegalItemsMutation__
+ *
+ * To run a mutation, you first call `useAssignLegalItemsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignLegalItemsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignLegalItemsMutation, { data, loading, error }] = useAssignLegalItemsMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      items: // value for 'items'
+ *   },
+ * });
+ */
+export function useAssignLegalItemsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AssignLegalItemsMutation, AssignLegalItemsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AssignLegalItemsMutation, AssignLegalItemsMutationVariables>(AssignLegalItemsDocument, options);
+      }
+export type AssignLegalItemsMutationHookResult = ReturnType<typeof useAssignLegalItemsMutation>;
+export const UnassignLegalItemDocument = gql`
+    mutation UnassignLegalItem($id: ID!) {
+  unassignLegalItem(id: $id)
+}
+    `;
+
+/**
+ * __useUnassignLegalItemMutation__
+ *
+ * To run a mutation, you first call `useUnassignLegalItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnassignLegalItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unassignLegalItemMutation, { data, loading, error }] = useUnassignLegalItemMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUnassignLegalItemMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UnassignLegalItemMutation, UnassignLegalItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UnassignLegalItemMutation, UnassignLegalItemMutationVariables>(UnassignLegalItemDocument, options);
+      }
+export type UnassignLegalItemMutationHookResult = ReturnType<typeof useUnassignLegalItemMutation>;
 export const ListContractsDocument = gql`
     query ListContracts {
   listContracts {
@@ -59905,6 +60493,7 @@ export const ListContractsDocument = gql`
     expiryDate
     status
     documentUrl
+    groupId
     sentAt
     signedBy
     signedAt
@@ -59960,6 +60549,7 @@ export const ListContractsPagedDocument = gql`
       expiryDate
       status
       documentUrl
+      groupId
       sentAt
       signedBy
       signedAt
@@ -60401,6 +60991,7 @@ export const ListLegalDocumentsDocument = gql`
     owner
     fileUrl
     status
+    groupId
   }
 }
     `;
@@ -60451,6 +61042,7 @@ export const ListLegalDocumentsPagedDocument = gql`
       owner
       fileUrl
       status
+      groupId
     }
   }
 }

@@ -66,6 +66,8 @@ const policySchema = new Schema(
     approvedOn: { type: Date, default: null },
     publishedAt: { type: Date, default: null },
     updatedBy: { type: String, default: '', trim: true },
+    /** The group this belongs to (see legal-group.model.ts); null when ungrouped. */
+    groupId: { type: String, default: null },
   },
   { timestamps: true },
 );

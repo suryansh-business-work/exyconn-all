@@ -26,6 +26,8 @@ export const legalTypeDefs = gql`
     documentUrl: String!
     "The contract's text as rich-text HTML. Null on contracts saved before it existed."
     content: String
+    "The group it belongs to; null when ungrouped."
+    groupId: ID
     sentAt: DateTime
     signedBy: String
     signedAt: DateTime
@@ -84,6 +86,7 @@ export const legalTypeDefs = gql`
     status: ContractStatus!
     documentUrl: String
     content: String
+    groupId: ID
   }
 
   type ContractPage {
@@ -112,6 +115,8 @@ export const legalTypeDefs = gql`
     "The document's text as rich-text HTML. Null on documents saved before it existed."
     content: String
     status: DocumentStatus!
+    "The group it belongs to; null when ungrouped."
+    groupId: ID
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -123,6 +128,7 @@ export const legalTypeDefs = gql`
     fileUrl: String
     content: String
     status: DocumentStatus!
+    groupId: ID
   }
 
   type LegalDocumentPage {

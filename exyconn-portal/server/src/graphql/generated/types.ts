@@ -3191,6 +3191,8 @@ export type Contract = {
   documentUrl: Scalars['String']['output'];
   effectiveDate: Scalars['DateTime']['output'];
   expiryDate: Scalars['DateTime']['output'];
+  /** The group it belongs to; null when ungrouped. */
+  groupId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
   party: Scalars['String']['output'];
   sentAt?: Maybe<Scalars['DateTime']['output']>;
@@ -3207,6 +3209,7 @@ export type ContractInput = {
   documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
+  groupId?: InputMaybe<Scalars['ID']['input']>;
   party: Scalars['String']['input'];
   status: ContractStatus;
   title: Scalars['String']['input'];
@@ -6881,6 +6884,39 @@ export enum LeaveStatus {
   Rejected = 'REJECTED'
 }
 
+/** A contract, policy or document that can be handed to an employee, with its group. */
+export type LegalAssignable = {
+  __typename?: 'LegalAssignable';
+  groupId?: Maybe<Scalars['ID']['output']>;
+  groupName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  kind: LegalItemKind;
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** One item handed to one employee, and who handed it over. */
+export type LegalAssignment = {
+  __typename?: 'LegalAssignment';
+  assignedAt: Scalars['DateTime']['output'];
+  assignedByName: Scalars['String']['output'];
+  /** The attached file (a contract's document, a document's file). Empty when there is none. */
+  fileUrl: Scalars['String']['output'];
+  groupName?: Maybe<Scalars['String']['output']>;
+  /** True when the item has text written in the portal to read. */
+  hasBody: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  itemId: Scalars['ID']['output'];
+  kind: LegalItemKind;
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type LegalAssignmentItemInput = {
+  itemId: Scalars['ID']['input'];
+  kind: LegalItemKind;
+};
+
 export type LegalDocument = {
   __typename?: 'LegalDocument';
   category: DocumentCategory;
@@ -6888,6 +6924,8 @@ export type LegalDocument = {
   content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   fileUrl?: Maybe<Scalars['String']['output']>;
+  /** The group it belongs to; null when ungrouped. */
+  groupId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
   owner?: Maybe<Scalars['String']['output']>;
   status: DocumentStatus;
@@ -6899,6 +6937,7 @@ export type LegalDocumentInput = {
   category: DocumentCategory;
   content?: InputMaybe<Scalars['String']['input']>;
   fileUrl?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['ID']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
   title: Scalars['String']['input'];
@@ -6909,6 +6948,30 @@ export type LegalDocumentPage = {
   rows: Array<LegalDocument>;
   totalCount: Scalars['Int']['output'];
 };
+
+/** A named set of contracts, policies or documents, e.g. Part Time Employee Contracts. */
+export type LegalGroup = {
+  __typename?: 'LegalGroup';
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: LegalItemKind;
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type LegalGroupInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  kind: LegalItemKind;
+  name: Scalars['String']['input'];
+};
+
+/** The registers Legal keeps: each can be grouped and handed to employees. */
+export enum LegalItemKind {
+  Contract = 'CONTRACT',
+  Document = 'DOCUMENT',
+  Policy = 'POLICY'
+}
 
 /** A software subscription IT pays for: a pot of seats that renews on a date. */
 export type Licence = {
@@ -8230,6 +8293,8 @@ export type Mutation = {
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
+  /** HR or LEGAL: hands these items to an employee. Already-held items are left as they are. */
+  assignLegalItems: Array<LegalAssignment>;
   /** Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN). */
   assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
@@ -8369,6 +8434,7 @@ export type Mutation = {
   createLeavePolicy: LeavePolicy;
   createLeaveRequest: LeaveRequest;
   createLegalDocument: LegalDocument;
+  createLegalGroup: LegalGroup;
   createLicence: Licence;
   createLocation: Location;
   createManagementReview: ManagementReview;
@@ -8544,6 +8610,8 @@ export type Mutation = {
   deleteLeavePolicy: Scalars['Boolean']['output'];
   deleteLeaveRequest: Scalars['Boolean']['output'];
   deleteLegalDocument: Scalars['Boolean']['output'];
+  /** Deletes the group; its members stay, ungrouped. */
+  deleteLegalGroup: Scalars['Boolean']['output'];
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteManagementReview: Scalars['Boolean']['output'];
@@ -9134,6 +9202,8 @@ export type Mutation = {
    */
   translateMissing: Array<Translation>;
   triageWebsiteSubmission: WebsiteSubmission;
+  /** HR or LEGAL: takes one item back. */
+  unassignLegalItem: Scalars['Boolean']['output'];
   unpublishCmsPage: CmsPage;
   unshareWithClient: Scalars['Boolean']['output'];
   /**
@@ -9223,6 +9293,7 @@ export type Mutation = {
   updateLeavePolicy: LeavePolicy;
   updateLeaveRequest: LeaveRequest;
   updateLegalDocument: LegalDocument;
+  updateLegalGroup: LegalGroup;
   updateLicence: Licence;
   updateLocation: Location;
   updateManagementReview: ManagementReview;
@@ -9406,6 +9477,12 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationArchivePolicyArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignLegalItemsArgs = {
+  items: Array<LegalAssignmentItemInput>;
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -9945,6 +10022,11 @@ export type MutationCreateLeaveRequestArgs = {
 
 export type MutationCreateLegalDocumentArgs = {
   input: LegalDocumentInput;
+};
+
+
+export type MutationCreateLegalGroupArgs = {
+  input: LegalGroupInput;
 };
 
 
@@ -10697,6 +10779,11 @@ export type MutationDeleteLeaveRequestArgs = {
 
 
 export type MutationDeleteLegalDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteLegalGroupArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -12286,6 +12373,11 @@ export type MutationTriageWebsiteSubmissionArgs = {
 };
 
 
+export type MutationUnassignLegalItemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUnpublishCmsPageArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12772,6 +12864,12 @@ export type MutationUpdateLeaveRequestArgs = {
 export type MutationUpdateLegalDocumentArgs = {
   id: Scalars['ID']['input'];
   input: LegalDocumentInput;
+};
+
+
+export type MutationUpdateLegalGroupArgs = {
+  id: Scalars['ID']['input'];
+  input: LegalGroupInput;
 };
 
 
@@ -14103,6 +14201,8 @@ export type Policy = {
   category: PolicyCategory;
   classification: PolicyClassification;
   effectiveDate: Scalars['DateTime']['output'];
+  /** The group it belongs to; null when ungrouped. */
+  groupId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
   /** When this has to be read again and confirmed as still right. */
   nextReviewOn?: Maybe<Scalars['DateTime']['output']>;
@@ -14170,6 +14270,7 @@ export type PolicyInput = {
   category?: InputMaybe<PolicyCategory>;
   classification?: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  groupId?: InputMaybe<Scalars['ID']['input']>;
   nextReviewOn?: InputMaybe<Scalars['DateTime']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement?: InputMaybe<Scalars['Boolean']['input']>;
@@ -15034,6 +15135,8 @@ export type Query = {
   employeeEarnings: TrackerEarnings;
   /** One employee's balances for a year, every type their country offers filled in. HR. */
   employeeLeaveBalances: Array<LeaveBalance>;
+  /** HR or LEGAL: what one employee has been handed. */
+  employeeLegalAssignments: Array<LegalAssignment>;
   /** HR, ADMIN or the employee's manager: their location pins on one local day, oldest first. */
   employeeLocations: Array<TrackerLocation>;
   /**
@@ -15095,6 +15198,7 @@ export type Query = {
   getLeavePolicy: LeavePolicy;
   getLeaveRequest: LeaveRequest;
   getLegalDocument: LegalDocument;
+  getLegalGroup: LegalGroup;
   getLicence: Licence;
   getLocation: Location;
   getManagementReview: ManagementReview;
@@ -15169,6 +15273,8 @@ export type Query = {
   leadsByCampaign: Scalars['Int']['output'];
   /** HR/ADMIN: a specific employee's leave requests. */
   leaveRequestsByEmployee: Array<LeaveRequest>;
+  /** HR or LEGAL: everything that can be handed to an employee, with its group. */
+  legalAssignables: Array<LegalAssignable>;
   /** The licences this employee holds a seat on. */
   licenceSeatsFor: Array<EmployeeLicenceSeat>;
   /** SUPPORT/ADMIN: the active snippets the reply composer offers. */
@@ -15367,6 +15473,8 @@ export type Query = {
   listLegalDocuments: Array<LegalDocument>;
   listLegalDocumentsPaged: LegalDocumentPage;
   listLegalDocumentsStats: TableStats;
+  /** LEGAL: every group, of every kind. */
+  listLegalGroups: Array<LegalGroup>;
   listLicences: Array<Licence>;
   listLicencesPaged: LicencePage;
   listLicencesStats: TableStats;
@@ -15589,6 +15697,10 @@ export type Query = {
   myLeaveBalances: Array<LeaveBalance>;
   /** Self-service: the signed-in user's own leave requests. */
   myLeaveRequests: Array<LeaveRequest>;
+  /** The text of one item the signed-in person has been handed, as rich-text HTML. */
+  myLegalAssignmentBody: Scalars['String']['output'];
+  /** The contracts, policies and documents the signed-in person has been handed. */
+  myLegalAssignments: Array<LegalAssignment>;
   /** The signed-in user's manager, if one is set. */
   myManager?: Maybe<EmployeeOption>;
   /** Whether two-factor authentication is on for this account. */
@@ -16299,6 +16411,11 @@ export type QueryEmployeeLeaveBalancesArgs = {
 };
 
 
+export type QueryEmployeeLegalAssignmentsArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
 export type QueryEmployeeLocationsArgs = {
   date: Scalars['String']['input'];
   employeeId: Scalars['ID']['input'];
@@ -16561,6 +16678,11 @@ export type QueryGetLeaveRequestArgs = {
 
 
 export type QueryGetLegalDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetLegalGroupArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -17412,6 +17534,11 @@ export type QueryMeetingTrackingArgs = {
 
 export type QueryMyApprovalsArgs = {
   kind?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMyLegalAssignmentBodyArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -22789,9 +22916,15 @@ export type ResolversTypes = ResolversObject<{
   LeaveRequest: ResolverTypeWrapper<LeaveRequest>;
   LeaveRequestInput: LeaveRequestInput;
   LeaveStatus: LeaveStatus;
+  LegalAssignable: ResolverTypeWrapper<LegalAssignable>;
+  LegalAssignment: ResolverTypeWrapper<LegalAssignment>;
+  LegalAssignmentItemInput: LegalAssignmentItemInput;
   LegalDocument: ResolverTypeWrapper<LegalDocument>;
   LegalDocumentInput: LegalDocumentInput;
   LegalDocumentPage: ResolverTypeWrapper<LegalDocumentPage>;
+  LegalGroup: ResolverTypeWrapper<LegalGroup>;
+  LegalGroupInput: LegalGroupInput;
+  LegalItemKind: LegalItemKind;
   Licence: ResolverTypeWrapper<Licence>;
   LicenceBillingCycle: LicenceBillingCycle;
   LicenceInput: LicenceInput;
@@ -23866,9 +23999,14 @@ export type ResolversParentTypes = ResolversObject<{
   LeavePolicyPage: LeavePolicyPage;
   LeaveRequest: LeaveRequest;
   LeaveRequestInput: LeaveRequestInput;
+  LegalAssignable: LegalAssignable;
+  LegalAssignment: LegalAssignment;
+  LegalAssignmentItemInput: LegalAssignmentItemInput;
   LegalDocument: LegalDocument;
   LegalDocumentInput: LegalDocumentInput;
   LegalDocumentPage: LegalDocumentPage;
+  LegalGroup: LegalGroup;
+  LegalGroupInput: LegalGroupInput;
   Licence: Licence;
   LicenceInput: LicenceInput;
   LicencePage: LicencePage;
@@ -26063,6 +26201,7 @@ export type ContractResolvers<ContextType = GraphQLContext, ParentType extends R
   documentUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   expiryDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  groupId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   party?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sentAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -28083,11 +28222,36 @@ export type LeaveRequestResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LegalAssignableResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LegalAssignable'] = ResolversParentTypes['LegalAssignable']> = ResolversObject<{
+  groupId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  groupName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['LegalItemKind'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LegalAssignmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LegalAssignment'] = ResolversParentTypes['LegalAssignment']> = ResolversObject<{
+  assignedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  assignedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fileUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  groupName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasBody?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  itemId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['LegalItemKind'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LegalDocumentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LegalDocument'] = ResolversParentTypes['LegalDocument']> = ResolversObject<{
   category?: Resolver<ResolversTypes['DocumentCategory'], ParentType, ContextType>;
   content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   fileUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  groupId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   owner?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['DocumentStatus'], ParentType, ContextType>;
@@ -28099,6 +28263,16 @@ export type LegalDocumentResolvers<ContextType = GraphQLContext, ParentType exte
 export type LegalDocumentPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LegalDocumentPage'] = ResolversParentTypes['LegalDocumentPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['LegalDocument']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LegalGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LegalGroup'] = ResolversParentTypes['LegalGroup']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['LegalItemKind'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -28891,6 +29065,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   analyzeWebScrape?: Resolver<ResolversTypes['WebScrape'], ParentType, ContextType, RequireFields<MutationAnalyzeWebScrapeArgs, 'id' | 'instruction'>>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
+  assignLegalItems?: Resolver<Array<ResolversTypes['LegalAssignment']>, ParentType, ContextType, RequireFields<MutationAssignLegalItemsArgs, 'items' | 'userId'>>;
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'org' | 'page' | 'slug'>>;
@@ -28994,6 +29169,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationCreateLeavePolicyArgs, 'input'>>;
   createLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationCreateLeaveRequestArgs, 'input'>>;
   createLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationCreateLegalDocumentArgs, 'input'>>;
+  createLegalGroup?: Resolver<ResolversTypes['LegalGroup'], ParentType, ContextType, RequireFields<MutationCreateLegalGroupArgs, 'input'>>;
   createLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<MutationCreateLicenceArgs, 'input'>>;
   createLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationCreateLocationArgs, 'input'>>;
   createManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationCreateManagementReviewArgs, 'input'>>;
@@ -29140,6 +29316,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLeavePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeavePolicyArgs, 'id'>>;
   deleteLeaveRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeaveRequestArgs, 'id'>>;
   deleteLegalDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLegalDocumentArgs, 'id'>>;
+  deleteLegalGroup?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLegalGroupArgs, 'id'>>;
   deleteLicence?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLicenceArgs, 'id'>>;
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteManagementReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteManagementReviewArgs, 'id'>>;
@@ -29438,6 +29615,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   translateEverything?: Resolver<ResolversTypes['TranslationFill'], ParentType, ContextType, RequireFields<MutationTranslateEverythingArgs, 'locale'>>;
   translateMissing?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType, RequireFields<MutationTranslateMissingArgs, 'locale' | 'sources'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
+  unassignLegalItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnassignLegalItemArgs, 'id'>>;
   unpublishCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationUnpublishCmsPageArgs, 'id'>>;
   unshareWithClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnshareWithClientArgs, 'id'>>;
   unsubscribeFromMarketing?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromMarketingArgs, 'token'>>;
@@ -29520,6 +29698,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationUpdateLeavePolicyArgs, 'id' | 'input'>>;
   updateLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationUpdateLeaveRequestArgs, 'id' | 'input'>>;
   updateLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationUpdateLegalDocumentArgs, 'id' | 'input'>>;
+  updateLegalGroup?: Resolver<ResolversTypes['LegalGroup'], ParentType, ContextType, RequireFields<MutationUpdateLegalGroupArgs, 'id' | 'input'>>;
   updateLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<MutationUpdateLicenceArgs, 'id' | 'input'>>;
   updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
   updateManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationUpdateManagementReviewArgs, 'id' | 'input'>>;
@@ -30053,6 +30232,7 @@ export type PolicyResolvers<ContextType = GraphQLContext, ParentType extends Res
   category?: Resolver<ResolversTypes['PolicyCategory'], ParentType, ContextType>;
   classification?: Resolver<ResolversTypes['PolicyClassification'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  groupId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   nextReviewOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -30590,6 +30770,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   emailVerifierConfigs?: Resolver<Array<ResolversTypes['EmailVerifierConfig']>, ParentType, ContextType>;
   employeeEarnings?: Resolver<ResolversTypes['TrackerEarnings'], ParentType, ContextType, RequireFields<QueryEmployeeEarningsArgs, 'employeeId' | 'from' | 'to'>>;
   employeeLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType, RequireFields<QueryEmployeeLeaveBalancesArgs, 'employeeId' | 'year'>>;
+  employeeLegalAssignments?: Resolver<Array<ResolversTypes['LegalAssignment']>, ParentType, ContextType, RequireFields<QueryEmployeeLegalAssignmentsArgs, 'userId'>>;
   employeeLocations?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryEmployeeLocationsArgs, 'date' | 'employeeId'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
   firecrawlConfigs?: Resolver<Array<ResolversTypes['FirecrawlConfig']>, ParentType, ContextType>;
@@ -30645,6 +30826,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<QueryGetLeavePolicyArgs, 'id'>>;
   getLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<QueryGetLeaveRequestArgs, 'id'>>;
   getLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<QueryGetLegalDocumentArgs, 'id'>>;
+  getLegalGroup?: Resolver<ResolversTypes['LegalGroup'], ParentType, ContextType, RequireFields<QueryGetLegalGroupArgs, 'id'>>;
   getLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<QueryGetLicenceArgs, 'id'>>;
   getLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<QueryGetLocationArgs, 'id'>>;
   getManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<QueryGetManagementReviewArgs, 'id'>>;
@@ -30705,6 +30887,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   leadLocationSuggestions?: Resolver<Array<ResolversTypes['LeadLocationSuggestion']>, ParentType, ContextType, RequireFields<QueryLeadLocationSuggestionsArgs, 'input'>>;
   leadsByCampaign?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<QueryLeadsByCampaignArgs, 'campaignId'>>;
   leaveRequestsByEmployee?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType, RequireFields<QueryLeaveRequestsByEmployeeArgs, 'employeeId'>>;
+  legalAssignables?: Resolver<Array<ResolversTypes['LegalAssignable']>, ParentType, ContextType>;
   licenceSeatsFor?: Resolver<Array<ResolversTypes['EmployeeLicenceSeat']>, ParentType, ContextType, RequireFields<QueryLicenceSeatsForArgs, 'employeeId'>>;
   listActiveCannedReplies?: Resolver<Array<ResolversTypes['CannedReply']>, ParentType, ContextType>;
   listActivities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
@@ -30879,6 +31062,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listLegalDocuments?: Resolver<Array<ResolversTypes['LegalDocument']>, ParentType, ContextType>;
   listLegalDocumentsPaged?: Resolver<ResolversTypes['LegalDocumentPage'], ParentType, ContextType, RequireFields<QueryListLegalDocumentsPagedArgs, 'input'>>;
   listLegalDocumentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listLegalGroups?: Resolver<Array<ResolversTypes['LegalGroup']>, ParentType, ContextType>;
   listLicences?: Resolver<Array<ResolversTypes['Licence']>, ParentType, ContextType>;
   listLicencesPaged?: Resolver<ResolversTypes['LicencePage'], ParentType, ContextType, RequireFields<QueryListLicencesPagedArgs, 'input'>>;
   listLicencesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -31057,6 +31241,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myHolidays?: Resolver<Array<ResolversTypes['Holiday']>, ParentType, ContextType>;
   myLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType>;
   myLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
+  myLegalAssignmentBody?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryMyLegalAssignmentBodyArgs, 'id'>>;
+  myLegalAssignments?: Resolver<Array<ResolversTypes['LegalAssignment']>, ParentType, ContextType>;
   myManager?: Resolver<Maybe<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
   myMfaStatus?: Resolver<ResolversTypes['MfaStatus'], ParentType, ContextType>;
   myNotificationPreferences?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType>;
@@ -33740,8 +33926,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LeavePolicyOverride?: LeavePolicyOverrideResolvers<ContextType>;
   LeavePolicyPage?: LeavePolicyPageResolvers<ContextType>;
   LeaveRequest?: LeaveRequestResolvers<ContextType>;
+  LegalAssignable?: LegalAssignableResolvers<ContextType>;
+  LegalAssignment?: LegalAssignmentResolvers<ContextType>;
   LegalDocument?: LegalDocumentResolvers<ContextType>;
   LegalDocumentPage?: LegalDocumentPageResolvers<ContextType>;
+  LegalGroup?: LegalGroupResolvers<ContextType>;
   Licence?: LicenceResolvers<ContextType>;
   LicencePage?: LicencePageResolvers<ContextType>;
   LocaleBundle?: LocaleBundleResolvers<ContextType>;

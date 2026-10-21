@@ -27,6 +27,8 @@ const contractSchema = new Schema(
      * writes and downloads; what a counterparty signs is still the file at `documentUrl`.
      */
     content: { type: String, default: '', maxlength: LEGAL_BODY_MAX_CHARS },
+    /** The group this belongs to (see legal-group.model.ts); null when ungrouped. */
+    groupId: { type: String, default: null },
     // Set when a contract is signed from the Sign Board.
     signedBy: { type: String, trim: true, default: null },
     signedAt: { type: Date, default: null },

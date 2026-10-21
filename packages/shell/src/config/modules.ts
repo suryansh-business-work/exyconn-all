@@ -56,6 +56,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import FolderCopyIcon from '@mui/icons-material/FolderCopy';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
@@ -676,6 +677,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Sign Board',
         path: '/legal/sign',
         icon: HistoryEduIcon,
+      },
+      {
+        key: 'legal-groups',
+        label: 'Groups',
+        path: '/legal/groups',
+        icon: FolderCopyIcon,
       },
     ],
   },

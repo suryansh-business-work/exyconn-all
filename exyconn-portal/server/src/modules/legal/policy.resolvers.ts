@@ -3,6 +3,7 @@ import { PolicyAcknowledgementModel } from './policy-acknowledgement.model';
 import { policyAcknowledgementService } from './policy-acknowledgement.service';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
+import { withGroupCheck } from './legal-group.service';
 import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
@@ -30,6 +31,7 @@ interface PolicyInput {
   requiresAcknowledgement?: boolean;
   owner?: string;
   category?: string | null;
+  groupId?: string | null;
 }
 
 /** What the policy grids search, filter and sort on — Legal's and IT's alike. */
@@ -57,7 +59,10 @@ export const POLICY_TABLE = {
 };
 const POLICY_STATS = { countBy: ['status', 'audience', 'category'] };
 
-export const policiesService = createCrudService<PolicyInput>(PolicyModel as never, 'Policy');
+export const policiesService = withGroupCheck(
+  createCrudService<PolicyInput>(PolicyModel as never, 'Policy'),
+  'POLICY',
+);
 
 const policies = createCrudResolvers(policiesService, {
   name: 'Policy',
