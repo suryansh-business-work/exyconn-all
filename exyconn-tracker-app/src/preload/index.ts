@@ -3,6 +3,7 @@ import type { LogBatch } from '@exyconn/logger';
 import {
   IPC,
   type AppPreferences,
+  type AttendancePlace,
   type AttendanceStatus,
   type CaptureAnnouncement,
   type CaptureRequest,
@@ -50,13 +51,14 @@ const api = {
     ipcRenderer.invoke(IPC.acceptConsent, signedName),
   /**
    * Marks the employee in for today with the fix they confirmed on the map (from
-   * `getLocation`); resolves to the day as the portal now sees it.
+   * `getLocation`), or with the fallback they chose when none could be read; resolves to the
+   * day as the portal now sees it.
    */
   markAttendance: (
     status: AttendanceStatus,
     note: string | null,
-    location: TrackerLocationInput,
-  ): Promise<Workday> => ipcRenderer.invoke(IPC.markAttendance, status, note, location),
+    place: AttendancePlace,
+  ): Promise<Workday> => ipcRenderer.invoke(IPC.markAttendance, status, note, place),
   /** Chooses the project the next session books against; resolves to the project now in force. */
   setProject: (projectId: string): Promise<string> => ipcRenderer.invoke(IPC.setProject, projectId),
   setTask: (taskId: string): Promise<string> => ipcRenderer.invoke(IPC.setTask, taskId),

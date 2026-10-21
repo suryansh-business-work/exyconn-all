@@ -92,7 +92,26 @@ describe('portal client — the working day', () => {
     await expect(
       clientWith(nextToken()).markAttendance('PRESENT', null, LOCATION),
     ).resolves.toEqual(workday);
-    expect(sent().variables).toEqual({ status: 'PRESENT', note: null, location: LOCATION });
+    expect(sent().variables).toEqual({
+      status: 'PRESENT',
+      note: null,
+      location: LOCATION,
+      fallback: null,
+    });
+  });
+
+  it('marks attendance with a fallback and no location when none could be read', async () => {
+    const workday = { date: '2026-03-02', status: 'PRESENT', note: null };
+    respond(200, { data: { trackerMarkAttendance: workday } });
+    await expect(
+      clientWith(nextToken()).markAttendance('PRESENT', 'At home', 'PROFILE_ADDRESS'),
+    ).resolves.toEqual(workday);
+    expect(sent().variables).toEqual({
+      status: 'PRESENT',
+      note: 'At home',
+      location: null,
+      fallback: 'PROFILE_ADDRESS',
+    });
   });
 
   it('starts a session and answers its id', async () => {

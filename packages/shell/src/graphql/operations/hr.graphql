@@ -216,6 +216,8 @@ query ListAttendancePaged($input: TableQueryInput!) {
       date
       status
       note
+      locationFallback
+      manualLocation
       tracker {
         activeMs
         idleMs

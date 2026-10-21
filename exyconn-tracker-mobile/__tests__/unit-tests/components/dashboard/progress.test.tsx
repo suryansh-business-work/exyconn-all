@@ -24,6 +24,7 @@ const WORKDAY: Workday = {
   attendanceMarked: true,
   offReason: null,
   offLabel: null,
+  profileAddress: null,
 };
 
 const PROFILE: WorkProfile = {

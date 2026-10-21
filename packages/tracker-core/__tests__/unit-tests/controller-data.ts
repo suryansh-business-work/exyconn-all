@@ -11,6 +11,7 @@ export const WORKDAY: Workday = {
   attendanceMarked: true,
   offReason: null,
   offLabel: null,
+  profileAddress: null,
 };
 
 /** A confirmed attendance fix; coordinates are arbitrary test values. */

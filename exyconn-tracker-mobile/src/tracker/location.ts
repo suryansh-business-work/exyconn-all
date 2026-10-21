@@ -17,7 +17,7 @@ export const gpsLocation: LocationProvider = {
     const permission = await Location.requestForegroundPermissionsAsync();
     if (!permission.granted) {
       logger.warn('Location access refused', { status: permission.status });
-      throw new TrackerLocationError();
+      throw new TrackerLocationError(`Location permission ${permission.status}`);
     }
     const fix = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
     return {

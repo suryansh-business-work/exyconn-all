@@ -55,6 +55,7 @@ import type {
   TrackerProject,
   TrackerSettings,
   TrackerEarnings,
+  AttendancePlace,
   TrackerLocationInput,
   TrackerLocationPin,
   TrackerTask,
@@ -354,14 +355,16 @@ export function createPortalClient(config: PortalClientConfig) {
 
     /**
      * Marks the employee in for their own local day — the same record HR's page writes — and
-     * pins where they were. The portal refuses on their week off, a holiday or approved leave.
+     * pins where they were, or sends the fallback they chose when no fix could be read. The portal refuses on their week off, a holiday or approved leave.
      */
     async markAttendance(
       status: AttendanceStatus,
       note: string | null,
-      location: TrackerLocationInput,
+      place: AttendancePlace,
     ): Promise<Workday> {
-      return (await authed(TrackerMarkAttendanceDocument, { status, note, location }))
+      const fallback = typeof place === 'string' ? place : null;
+      const location = typeof place === 'string' ? null : place;
+      return (await authed(TrackerMarkAttendanceDocument, { status, note, location, fallback }))
         .trackerMarkAttendance;
     },
 

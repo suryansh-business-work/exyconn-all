@@ -155,6 +155,7 @@ const WORKDAY: Workday = {
   attendanceMarked: true,
   offReason: null,
   offLabel: null,
+  profileAddress: null,
 };
 
 const PROJECTS: TrackerProject[] = [{ id: 'p-global', name: 'Global Project', key: 'GLBL' }];

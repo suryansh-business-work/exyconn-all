@@ -137,6 +137,8 @@ export interface Workday {
   offReason: OffReason | null;
   /** The leave type's code (CL, EL) on leave, the holiday's name on a holiday, else null. */
   offLabel: string | null;
+  /** The address on the employee's record — offered when the device cannot read a location. */
+  profileAddress: string | null;
 }
 
 /** One project the employee may book time against. */
@@ -474,6 +476,12 @@ export interface ScreenshotPayload {
 export type LocationSource = 'GPS' | 'SYSTEM';
 
 /** One location fix, as each platform's `LocationProvider` reports it to the portal. */
+/** How to mark in when the device could not read a location. Mirrors the portal's enum. */
+export type AttendanceLocationFallback = 'PROFILE_ADDRESS' | 'NONE';
+
+/** Where a mark-in is placed: the confirmed device fix, or a fallback when none could be read. */
+export type AttendancePlace = TrackerLocationInput | AttendanceLocationFallback;
+
 export interface TrackerLocationInput {
   lat: number;
   lng: number;

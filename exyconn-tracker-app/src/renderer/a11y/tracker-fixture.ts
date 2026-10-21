@@ -148,6 +148,7 @@ export function trackerState(status: TrackerStatus): TrackerState {
       attendanceMarked: false,
       offReason: null,
       offLabel: null,
+      profileAddress: null,
     },
     projects: [{ id: 'p1', name: 'Global Project', key: 'GLOBAL' }],
     selectedProjectId: 'p1',

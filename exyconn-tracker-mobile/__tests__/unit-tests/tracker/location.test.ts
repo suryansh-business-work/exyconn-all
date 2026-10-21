@@ -1,4 +1,8 @@
-import { LOCATION_UNAVAILABLE_MESSAGE, TrackerLocationError } from '@exyconn/tracker-core';
+import {
+  LOCATION_DETAIL_MARK,
+  LOCATION_UNAVAILABLE_MESSAGE,
+  TrackerLocationError,
+} from '@exyconn/tracker-core';
 import { describe, expect, it, vi } from 'vitest';
 import * as Location from 'expo-location';
 import { gpsLocation } from '../../../src/tracker/location';
@@ -48,7 +52,9 @@ describe('gpsLocation', () => {
     const read = gpsLocation.current();
 
     await expect(read).rejects.toBeInstanceOf(TrackerLocationError);
-    await expect(read).rejects.toThrow(LOCATION_UNAVAILABLE_MESSAGE);
+    await expect(read).rejects.toThrow(
+      `${LOCATION_UNAVAILABLE_MESSAGE}${LOCATION_DETAIL_MARK}Location permission denied`,
+    );
     expect(Location.getCurrentPositionAsync).not.toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalledWith('Location access refused', { status: 'denied' });
   });

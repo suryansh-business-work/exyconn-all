@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { device, FROM, ME, signInAsTheEmployee, TO } from './resolverMocks';
 import { trackerResolvers } from '../../../../src/modules/tracker/tracker.resolvers';
+import { recordAudit } from '../../../../src/modules/audit';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { officeFix } from '../../../fixtures/location';
 
@@ -77,7 +78,36 @@ describe('what a device token may write', () => {
       'PRESENT',
       null,
       officeFix,
+      undefined,
     );
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it('audits a mark-in placed by a fallback instead of a device fix', async () => {
+    device.me.mockResolvedValue({ timezone: 'UTC' });
+    device.markAttendance.mockResolvedValue({ date: '2026-01-05', attendanceMarked: true });
+
+    await Mutation.trackerMarkAttendance(
+      null,
+      { status: 'PRESENT', note: null, fallback: 'PROFILE_ADDRESS' },
+      app,
+    );
+
+    expect(device.markAttendance).toHaveBeenCalledWith(
+      ME,
+      'UTC',
+      'PRESENT',
+      null,
+      undefined,
+      'PROFILE_ADDRESS',
+    );
+    expect(recordAudit).toHaveBeenCalledWith(app, {
+      action: 'UPDATE',
+      module: 'Attendance',
+      entityId: ME,
+      summary:
+        'Marked attendance for 2026-01-05 from the tracker without a device location (PROFILE_ADDRESS)',
+    });
   });
 
   it('keeps the device alive and answers the same payload as trackerMe', async () => {

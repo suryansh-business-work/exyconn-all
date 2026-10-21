@@ -9,7 +9,7 @@ interface Props {
 
 /**
  * Opens where location is switched on. Used by the settings location card and by
- * attendance's "location access is off" error, as on the desktop.
+ * attendance's location fallback sheet, as on the desktop.
  */
 export function OpenLocationSettingsButton({ tone = 'outlined' }: Readonly<Props>) {
   const t = useT();

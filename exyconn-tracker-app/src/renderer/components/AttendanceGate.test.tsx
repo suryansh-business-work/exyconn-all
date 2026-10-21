@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { TrackerLocationInput } from '@shared/types';
-import { LOCATION_UNAVAILABLE_MESSAGE } from '@exyconn/tracker-core';
+import { TrackerLocationError } from '@exyconn/tracker-core';
 import AttendanceGate from './AttendanceGate';
 import { trackerState } from '../a11y/tracker-fixture';
 import { cleanup, installDomShims, mount } from '../a11y/render-harness';
@@ -33,6 +33,20 @@ const FIX: TrackerLocationInput = {
   source: 'SYSTEM',
   capturedAt: '2026-09-14T04:00:00.000Z',
 };
+
+/** Chromium's words when this app is refused location — the reason the dialog shows. */
+const DENIED = 'Geolocation failed (code 1): User denied Geolocation';
+
+/** A made-up address on the employee's record. */
+const ADDRESS = '12 Example Road, Testville';
+
+/** No fix, as it crosses IPC: Electron's wrapper round the controller's location error. */
+const locationFails = (): Promise<TrackerLocationInput> =>
+  Promise.reject(
+    new Error(
+      `Error invoking remote method 'x': TrackerLocationError: ${new TrackerLocationError(DENIED).message}`,
+    ),
+  );
 
 /** The location dialog, while it is open. */
 const dialog = (): HTMLElement | null => document.querySelector('[role="dialog"]');
@@ -92,23 +106,96 @@ describe('AttendanceGate', () => {
     expect(document.querySelector('.MuiAlert-action')).toBeNull();
   });
 
-  it('offers the OS location settings when location access is off', async () => {
+  it('explains a location failure in a dialog, with the platform’s reason and the settings page', async () => {
     await mount(<AttendanceGate workday={unmarked} />, state);
     const openLocationSettings = vi.fn(() => Promise.resolve());
-    overrideTracker({
-      // As it crosses IPC: Electron's wrapper round the controller's sentence.
-      getLocation: () =>
-        Promise.reject(
-          new Error(`Error invoking remote method 'x': Error: ${LOCATION_UNAVAILABLE_MESSAGE}`),
-        ),
-      openLocationSettings,
-    });
+    const markAttendance = vi.fn();
+    overrideTracker({ getLocation: locationFails, openLocationSettings, markAttendance });
 
     await press(buttonNamed('Mark attendance'));
     await finish(() => undefined);
-    expect(errorText()).toContain(LOCATION_UNAVAILABLE_MESSAGE);
+    expect(dialog()?.querySelector('h2')?.textContent).toBe('Your location could not be read');
+    expect(dialog()?.textContent).toContain('The tracker is not allowed to use your location.');
+    expect(dialog()?.textContent).toContain(`Details: ${DENIED}`);
+    // The reason is in the dialog only — not again under the form behind it.
+    expect(errorText()).toBeUndefined();
     await press(buttonNamed('Open location settings'));
     expect(openLocationSettings).toHaveBeenCalledTimes(1);
+    expect(markAttendance).not.toHaveBeenCalled();
+  });
+
+  it('marks in at the profile address when the location cannot be read', async () => {
+    await mount(<AttendanceGate workday={{ ...unmarked!, profileAddress: ADDRESS }} />, state);
+    const marking = deferred();
+    const markAttendance = vi.fn(() => marking.promise);
+    overrideTracker({ getLocation: locationFails, markAttendance });
+    await press(buttonNamed('Mark attendance'));
+    await finish(() => undefined);
+    expect(dialog()?.textContent).toContain(ADDRESS);
+
+    await press(buttonNamed('Mark in at my profile address'));
+    expect(isLoading(buttonNamed('Mark in at my profile address'))).toBe(true);
+    expect(buttonNamed('Mark in without location').disabled).toBe(true);
+    expect(markAttendance).toHaveBeenCalledWith('PRESENT', null, 'PROFILE_ADDRESS');
+
+    await finish(marking.resolve);
+    await closed();
+  });
+
+  it('offers no profile address when HR has not added one, but still marks in without location', async () => {
+    await mount(<AttendanceGate workday={unmarked} />, state);
+    const markAttendance = vi.fn(() => Promise.resolve());
+    overrideTracker({ getLocation: locationFails, markAttendance });
+    await press(buttonNamed('Mark attendance'));
+    await finish(() => undefined);
+
+    expect(buttonNamed('Mark in at my profile address').disabled).toBe(true);
+    expect(dialog()?.textContent).toContain('There is no address on your employee record.');
+    await press(buttonNamed('Mark in without location'));
+    await finish(() => undefined);
+    expect(markAttendance).toHaveBeenCalledWith('PRESENT', null, 'NONE');
+    await closed();
+  });
+
+  it('keeps the fallback dialog open with the portal’s reason when the mark is refused', async () => {
+    await mount(<AttendanceGate workday={unmarked} />, state);
+    overrideTracker({
+      getLocation: locationFails,
+      markAttendance: () => Promise.reject(new Error('Your tracker access has been revoked.')),
+    });
+    await press(buttonNamed('Mark attendance'));
+    await finish(() => undefined);
+    await press(buttonNamed('Mark in without location'));
+    await finish(() => undefined);
+
+    expect(dialog()?.querySelector('.MuiAlert-colorError')?.textContent).toBe(
+      'Your tracker access has been revoked.',
+    );
+    await press(buttonNamed('Cancel'));
+    await finish(() => undefined);
+    await closed();
+    expect(errorText()).toBeUndefined();
+  });
+
+  it('reads the location again on Try again, and shows the map once it is read', async () => {
+    await mount(<AttendanceGate workday={unmarked} />, state);
+    const getLocation = vi
+      .fn<() => Promise<TrackerLocationInput>>()
+      .mockImplementationOnce(locationFails)
+      .mockResolvedValue(FIX);
+    overrideTracker({ getLocation });
+    await press(buttonNamed('Mark attendance'));
+    await finish(() => undefined);
+
+    await press(buttonNamed('Try again'));
+    await finish(() => undefined);
+    // The map opens while the fallback dialog may still be fading out.
+    await vi.waitFor(() =>
+      expect(
+        [...document.querySelectorAll('[role="dialog"] h2')].map((title) => title.textContent),
+      ).toContain('Your location'),
+    );
+    expect(getLocation).toHaveBeenCalledTimes(2);
   });
 
   it('spins on confirm until the portal answers, then closes the map', async () => {

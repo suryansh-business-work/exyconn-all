@@ -28,6 +28,7 @@ function workday(overrides: Partial<Workday> = {}): Workday {
     attendanceMarked: false,
     offReason: null,
     offLabel: null,
+    profileAddress: null,
     ...overrides,
   };
 }
@@ -100,6 +101,7 @@ describe('AttendanceGate', () => {
           attendanceMarked: true,
           offReason: null,
           offLabel: null,
+          profileAddress: null,
           attendanceStatus: 'HALF_DAY',
           attendanceNote: 'dentist at 4',
         })}

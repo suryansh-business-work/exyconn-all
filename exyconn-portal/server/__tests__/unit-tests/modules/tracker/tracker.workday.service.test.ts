@@ -179,7 +179,18 @@ describe('today’s workday', () => {
       attendanceMarked: false,
       offReason: null,
       offLabel: null,
+      profileAddress: null,
     });
+  });
+
+  it('offers the address on the employee’s record, trimmed, and nothing for a blank one', async () => {
+    freezeClock('2026-09-04T12:00:00.000Z');
+    await expect(
+      trackerWorkdayService.workday(ME, { address: '  12 Example Road  ' }, 'UTC'),
+    ).resolves.toMatchObject({ profileAddress: '12 Example Road' });
+    await expect(
+      trackerWorkdayService.workday(ME, { address: '   ' }, 'UTC'),
+    ).resolves.toMatchObject({ profileAddress: null });
   });
 
   it('says why today is off: the week off, or the leave type', async () => {

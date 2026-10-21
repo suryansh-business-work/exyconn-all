@@ -10,19 +10,14 @@ import {
   Typography,
 } from '@exyconn/ui';
 import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
-import type { AttendanceStatus, TrackerLocationInput, Workday } from '@shared/types';
-import {
-  ATTENDANCE_OPTIONS,
-  humanize,
-  isLocationUnavailable,
-  trackerErrorText,
-} from '@exyconn/tracker-core';
+import type { AttendanceStatus, Workday } from '@shared/types';
+import { ATTENDANCE_OPTIONS, humanize, trackerErrorText } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
-import usePendingAction from '../hooks/usePendingAction';
+import useAttendanceMark from '../hooks/useAttendanceMark';
 import { run } from '../run';
+import LocationFallbackDialog from './LocationFallbackDialog';
 import LocationMapDialog from './LocationMapDialog';
-import OpenLocationSettingsButton from './OpenLocationSettingsButton';
 
 interface Props {
   workday: Workday | null;
@@ -37,17 +32,20 @@ interface Props {
  * arrives here already done.
  *
  * Where they are is pinned with it: the location is read first and shown on a map, and the
- * mark is only sent once they confirm that is where they are working from.
+ * mark is only sent once they confirm that is where they are working from. When no location
+ * can be read, a dialog says why and lets them mark in anyway — at their profile address, or
+ * without a location — so a location problem never blocks the day.
  */
 export default function AttendanceGate({ workday }: Readonly<Props>): ReactElement {
   const t = useT();
   const [status, setStatus] = useState<AttendanceStatus>('PRESENT');
   const [note, setNote] = useState('');
-  const [fix, setFix] = useState<TrackerLocationInput | null>(null);
-  const { pending, error, perform, clearError } = usePendingAction<'locate' | 'mark'>();
+  const { fix, failure, pending, marking, error, locate, mark, cancel, retry } = useAttendanceMark(
+    status,
+    note,
+  );
   const busy = pending !== null;
   const errorText = error === null ? null : trackerErrorText(error, workday, t);
-  const locationOff = error !== null && isLocationUnavailable(error);
   useAnnounce(errorText, 'assertive');
 
   // Null until the portal has said what today is — a loader, not a gap that later jumps in.
@@ -79,29 +77,6 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
     );
   }
 
-  const locate = (): Promise<boolean> =>
-    perform(
-      'locate',
-      async () => setFix(await globalThis.tracker.getLocation()),
-      t('Could not read your location.'),
-    );
-
-  const mark = async (confirmed: TrackerLocationInput): Promise<void> => {
-    const marked = await perform(
-      'mark',
-      () => globalThis.tracker.markAttendance(status, note.trim() || null, confirmed),
-      t('Could not mark your attendance.'),
-    );
-    if (marked) {
-      setFix(null);
-    }
-  };
-
-  const cancel = (): void => {
-    setFix(null);
-    clearError();
-  };
-
   return (
     <Stack spacing={1.25}>
       <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
@@ -128,15 +103,8 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
         disabled={busy}
         onChange={(event) => setNote(event.target.value)}
       />
-      {errorText !== null && fix === null && (
-        <Alert
-          severity="error"
-          variant="outlined"
-          sx={{ borderRadius: `${TRACKER_RADIUS}px` }}
-          action={
-            locationOff ? <OpenLocationSettingsButton size="small" color="inherit" /> : undefined
-          }
-        >
+      {errorText !== null && fix === null && failure === null && (
+        <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {errorText}
         </Alert>
       )}
@@ -149,6 +117,15 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
       >
         {t('Mark attendance')}
       </Button>
+      <LocationFallbackDialog
+        failure={failure}
+        profileAddress={workday.profileAddress}
+        marking={marking}
+        error={errorText}
+        onRetry={retry}
+        onFallback={(fallback) => run(() => mark(fallback))}
+        onClose={cancel}
+      />
       <LocationMapDialog
         location={fix}
         title={t('Your location')}

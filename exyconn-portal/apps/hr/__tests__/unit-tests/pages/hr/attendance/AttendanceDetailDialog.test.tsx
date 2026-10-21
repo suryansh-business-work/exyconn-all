@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AttendanceDetailDialog } from '../../../../../src/pages/hr/attendance/AttendanceDetailDialog';
+import { AttendanceLocationFallback } from '@exyconn/shell/graphql/generated';
 import { renderWithProviders } from '../../../test-utils';
 import { emptyDay, trackedDay } from './attendance-fixture';
 
@@ -50,6 +51,35 @@ describe('AttendanceDetailDialog', () => {
       ['Website', '5h 0m', '—', '2'],
       ['No project', '1h 30m', '45m', '1'],
     ]);
+  });
+
+  it('says nothing about location when the tracker pinned the mark-in', () => {
+    renderWithProviders(<AttendanceDetailDialog entry={trackedDay} onClose={vi.fn()} />);
+    expect(screen.queryByText(/^Marked in /)).not.toBeInTheDocument();
+  });
+
+  it('flags a mark-in at the profile address, naming it', () => {
+    const entry = {
+      ...trackedDay,
+      locationFallback: AttendanceLocationFallback.ProfileAddress,
+      manualLocation: '12 Example Road',
+    };
+    renderWithProviders(<AttendanceDetailDialog entry={entry} onClose={vi.fn()} />);
+    expect(
+      screen.getByText('Marked in at the profile address: 12 Example Road'),
+    ).toBeInTheDocument();
+  });
+
+  it('flags a profile-address mark-in whose address was not kept with a dash', () => {
+    const entry = { ...trackedDay, locationFallback: AttendanceLocationFallback.ProfileAddress };
+    renderWithProviders(<AttendanceDetailDialog entry={entry} onClose={vi.fn()} />);
+    expect(screen.getByText('Marked in at the profile address: —')).toBeInTheDocument();
+  });
+
+  it('flags a mark-in without a location', () => {
+    const entry = { ...trackedDay, locationFallback: AttendanceLocationFallback.None };
+    renderWithProviders(<AttendanceDetailDialog entry={entry} onClose={vi.fn()} />);
+    expect(screen.getByText('Marked in without a location')).toBeInTheDocument();
   });
 
   it('writes dashes for a day nothing was tracked or filled in', () => {

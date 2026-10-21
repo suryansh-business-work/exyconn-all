@@ -14,12 +14,24 @@ export const hrTypeDefs = gql`
     HALF_DAY
   }
 
+  "How a tracker mark-in was placed when no location could be read."
+  enum AttendanceLocationFallback {
+    "At the address on the employee's record."
+    PROFILE_ADDRESS
+    "Without any location."
+    NONE
+  }
+
   type Attendance {
     id: ID!
     employeeId: String!
     date: DateTime!
     status: AttendanceStatus!
     note: String
+    "Set when a tracker could not read a location: the employee marked in at their profile address, or without one."
+    locationFallback: AttendanceLocationFallback
+    "The profile address the employee marked in at, when locationFallback is PROFILE_ADDRESS."
+    manualLocation: String
     createdAt: DateTime!
     updatedAt: DateTime!
   }

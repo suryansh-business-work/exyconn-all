@@ -23,6 +23,7 @@ const WORKDAY: Workday = {
   attendanceMarked: true,
   offReason: null,
   offLabel: null,
+  profileAddress: null,
 };
 
 describe('dayFigures', () => {
