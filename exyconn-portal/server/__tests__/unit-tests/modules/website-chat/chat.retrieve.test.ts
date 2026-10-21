@@ -137,15 +137,15 @@ describe('knowledgeFor', () => {
     expect(reads).toBe(2);
     clock.mockReturnValue(start + 59_999);
     await knowledgeFor('pricing', 12000, ORG, embedder);
-    expect(find.mock.calls.length).toBe(reads);
+    expect(find.mock.calls).toHaveLength(reads);
 
     await knowledgeFor('pricing', 12000, 'org-2', embedder);
-    expect(find.mock.calls.length).toBe(reads * 2);
+    expect(find.mock.calls).toHaveLength(reads * 2);
     await knowledgeFor('pricing', 12000, 'org-2', { ...embedder, model: 'other' });
-    expect(find.mock.calls.length).toBe(reads * 3);
+    expect(find.mock.calls).toHaveLength(reads * 3);
     clock.mockReturnValue(start + 200_000);
     await knowledgeFor('pricing', 12000, 'org-2', { ...embedder, model: 'other' });
-    expect(find.mock.calls.length).toBe(reads * 4);
+    expect(find.mock.calls).toHaveLength(reads * 4);
   });
 
   it('serves the cached rows until the cache is forgotten', async () => {

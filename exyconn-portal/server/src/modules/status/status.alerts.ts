@@ -5,6 +5,7 @@ import { notifyStatusSubscribers } from './status.subscribers';
 import { slackNotifier } from '../../utils/slack';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 
 export type IncidentChange = 'OPENED' | 'RESOLVED';
 
@@ -42,9 +43,11 @@ async function alertSlack(change: IncidentChange, monitor: AlertedMonitor, reaso
     .select('statusAlertChannels')
     .lean();
   const text = slackText(change, monitor, reason);
-  for (const channel of settings?.statusAlertChannels ?? []) {
-    await slackNotifier.sendMessage(text, channel);
-  }
+  await Promise.all(
+    (settings?.statusAlertChannels ?? []).map((channel) =>
+      slackNotifier.sendMessage(text, channel),
+    ),
+  );
 }
 
 /** Emails everyone who holds the Tech role and still has an active account. */
@@ -54,9 +57,10 @@ async function alertTechTeam(change: IncidentChange, monitor: AlertedMonitor, re
     .lean();
   const subject = `[Status] ${headline(change, monitor)}`;
   const message = emailBody(change, monitor, reason);
-  for (const member of team) {
-    await mailer.sendCustomEmail({ name: member.name, email: member.email, subject, message });
-  }
+  // One email after another, so a large team does not open a burst of SMTP connections.
+  await inSequence(team, (member) =>
+    mailer.sendCustomEmail({ name: member.name, email: member.email, subject, message }),
+  );
 }
 
 /** Tells everyone who asked the status page to keep them posted. */

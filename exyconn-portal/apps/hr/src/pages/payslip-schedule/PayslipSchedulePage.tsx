@@ -1,5 +1,4 @@
-import { format } from 'date-fns';
-import { useT } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import { Alert, Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -22,6 +21,7 @@ function LastRun({
   };
 }>) {
   const t = useT();
+  const { formatDateTime } = useFormatters();
   if (!schedule.lastRunAt) {
     return (
       <Text size="sm" color="text.secondary">
@@ -32,7 +32,7 @@ function LastRun({
   return (
     <Flex direction="column" spacing={1}>
       <DetailRow label={t('Last run')}>
-        <Text size="sm">{format(new Date(schedule.lastRunAt), 'PPpp')}</Text>
+        <Text size="sm">{formatDateTime(schedule.lastRunAt)}</Text>
       </DetailRow>
       <DetailRow label={t('Sent for')}>
         <Text size="sm">{schedule.lastRunPeriod}</Text>

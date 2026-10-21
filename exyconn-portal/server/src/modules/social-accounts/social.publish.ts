@@ -153,19 +153,24 @@ export async function deletePost(id: string): Promise<boolean> {
 }
 
 /**
+ * Claims and publishes due posts one after another until none is left. Sequential on purpose:
+ * each claim pops the queue in schedule order, and the networks rate-limit publishing.
+ */
+async function publishFrom(now: Date, published: number): Promise<number> {
+  const claimed = await SocialMediaPostModel.findOneAndUpdate(
+    { status: 'SCHEDULED', scheduledAt: { $lte: now } },
+    { $set: { status: 'PUBLISHING' } },
+    { new: true, sort: { scheduledAt: 1 } },
+  ).lean();
+  if (!claimed) return published;
+  await deliver(String(claimed._id));
+  return publishFrom(now, published + 1);
+}
+
+/**
  * Publishes every scheduled post that is due. Each is claimed (SCHEDULED → PUBLISHING) in one
  * atomic step first, so two servers ticking at once never publish the same post twice.
  */
-export async function publishDuePosts(now = new Date()): Promise<number> {
-  let published = 0;
-  for (;;) {
-    const claimed = await SocialMediaPostModel.findOneAndUpdate(
-      { status: 'SCHEDULED', scheduledAt: { $lte: now } },
-      { $set: { status: 'PUBLISHING' } },
-      { new: true, sort: { scheduledAt: 1 } },
-    ).lean();
-    if (!claimed) return published;
-    await deliver(String(claimed._id));
-    published += 1;
-  }
+export function publishDuePosts(now = new Date()): Promise<number> {
+  return publishFrom(now, 0);
 }

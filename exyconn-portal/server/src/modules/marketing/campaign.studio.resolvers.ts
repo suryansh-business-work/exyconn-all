@@ -225,7 +225,7 @@ export const campaignStudioResolvers = {
         scheduledAt: scheduledAt ?? new Date(),
         scheduledAudienceListId: audienceListId,
         scheduleDispatchedAt: null,
-        sendingRevisionId: String(revision._id),
+        sendingRevisionId: revision._id.toHexString(),
         sendState: 'QUEUED',
         cancelRequestedAt: null,
       });

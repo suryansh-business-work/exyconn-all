@@ -68,16 +68,19 @@ async function moveStatus(
     { ...filter, _id: { $in: rows.map((row) => row._id) } },
     { status },
   );
-  for (const row of rows) {
-    await recordSystemAudit({
-      action: 'UPDATE',
-      module: 'Invoice',
-      entityId: row._id,
-      entityLabel: row.number,
-      summary: `Overdue sweep set Invoice ${row.number} to ${status}`,
-      changes: { status: { from: row.status, to: status } },
-    });
-  }
+  // Independent inserts, one audit row per invoice; recordSystemAudit never throws.
+  await Promise.all(
+    rows.map((row) =>
+      recordSystemAudit({
+        action: 'UPDATE',
+        module: 'Invoice',
+        entityId: row._id,
+        entityLabel: row.number,
+        summary: `Overdue sweep set Invoice ${row.number} to ${status}`,
+        changes: { status: { from: row.status, to: status } },
+      }),
+    ),
+  );
   return result.modifiedCount;
 }
 

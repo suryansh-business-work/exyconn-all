@@ -18,7 +18,10 @@ const RESULT = {
 };
 
 beforeEach(() => {
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    configurable: true,
+  });
 });
 
 afterEach(() => {

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { openAiClient } from '../../utils/openai';
+import { inSequence } from '../../utils/inSequence';
 import { ChatKnowledgeModel } from './models';
 
 /** Words that say nothing about what a question is after. */
@@ -115,8 +116,11 @@ export async function embedStaleKnowledge(embedder: Embedder): Promise<number> {
   const stale = rows.filter(
     (row) => row.embeddedHash !== hashOf(row.title, row.content, embedder.model),
   );
-  for (let start = 0; start < stale.length; start += EMBED_BATCH) {
-    const batch = stale.slice(start, start + EMBED_BATCH);
+  const batches = Array.from({ length: Math.ceil(stale.length / EMBED_BATCH) }, (_, index) =>
+    stale.slice(index * EMBED_BATCH, (index + 1) * EMBED_BATCH),
+  );
+  // One batch after another: the embeddings API rate-limits requests per key.
+  await inSequence(batches, async (batch) => {
     const vectors = await openAiClient.embed(embedder.apiKey, embedder.model, batch.map(textOf));
     await ChatKnowledgeModel.bulkWrite(
       batch.map((row, index) => ({
@@ -129,7 +133,7 @@ export async function embedStaleKnowledge(embedder: Embedder): Promise<number> {
         },
       })),
     );
-  }
+  });
   if (stale.length > 0) {
     forgetKnowledgeCache();
   }

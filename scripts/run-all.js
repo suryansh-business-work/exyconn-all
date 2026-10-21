@@ -105,14 +105,16 @@ function isPortOpen(port) {
   });
 }
 
+// Recursive rather than a loop: each probe must finish (and pause) before the next one starts.
 async function waitForService(service, deadline) {
-  while (Date.now() < deadline) {
-    if (await isPortOpen(service.port)) {
-      return true;
-    }
-    await delay(PROBE_INTERVAL_MS);
+  if (Date.now() >= deadline) {
+    return false;
   }
-  return false;
+  if (await isPortOpen(service.port)) {
+    return true;
+  }
+  await delay(PROBE_INTERVAL_MS);
+  return waitForService(service, deadline);
 }
 
 const HEADERS = ['SERVICE', 'PACKAGE', 'URL', 'PORT', 'STATUS'];

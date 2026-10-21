@@ -4,6 +4,8 @@ import { legalCustomResolvers } from './legal.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
+import { withGroupCheck } from './legal-group.service';
+import { legalGroupResolvers } from './legal-group.resolvers';
 // Imported for its side effect: the module registers what it wants chased.
 import './legal.reminders';
 
@@ -18,6 +20,7 @@ interface ContractInput {
   documentUrl?: string;
   /** The contract's text as rich-text HTML. */
   content?: string;
+  groupId?: string | null;
 }
 
 interface LegalDocumentInput {
@@ -28,9 +31,13 @@ interface LegalDocumentInput {
   /** The document's text as rich-text HTML. */
   content?: string;
   status: string;
+  groupId?: string | null;
 }
 
-export const legalService = createCrudService<ContractInput>(ContractModel as never, 'Contract');
+export const legalService = withGroupCheck(
+  createCrudService<ContractInput>(ContractModel as never, 'Contract'),
+  'CONTRACT',
+);
 const contractResolvers = createCrudResolvers(legalService, {
   name: 'Contract',
   roles: [ROLES.LEGAL],
@@ -43,9 +50,9 @@ const contractResolvers = createCrudResolvers(legalService, {
   stats: { countBy: ['status', 'signedBy'] },
 });
 
-export const documentService = createCrudService<LegalDocumentInput>(
-  LegalDocumentModel as never,
-  'LegalDocument',
+export const documentService = withGroupCheck(
+  createCrudService<LegalDocumentInput>(LegalDocumentModel as never, 'LegalDocument'),
+  'DOCUMENT',
 );
 const documentResolvers = createCrudResolvers(documentService, {
   name: 'LegalDocument',
@@ -69,14 +76,17 @@ export const legalResolvers = {
     ...contractResolvers.Query,
     ...documentResolvers.Query,
     ...legalCustomResolvers.Query,
+    ...legalGroupResolvers.Query,
   },
   Mutation: {
     ...contractResolvers.Mutation,
     ...documentResolvers.Mutation,
     ...legalCustomResolvers.Mutation,
+    ...legalGroupResolvers.Mutation,
   },
 };
 
 export { legalTypeDefs } from './legal.typeDefs';
+export { legalGroupTypeDefs } from './legal-group.typeDefs';
 export { policyTypeDefs } from './policy.typeDefs';
 export { policyResolvers, policiesService } from './policy.resolvers';

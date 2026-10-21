@@ -17,6 +17,7 @@ fragment PolicyFields on Policy {
   approvedByName
   approvedOn
   publishedAt
+  groupId
   updatedAt
   acknowledgedCount
 }

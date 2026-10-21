@@ -26,6 +26,11 @@ export interface TrackerSettingsInput {
   weeklyDigestEnabled?: boolean;
   /** Local hour, 0-23. */
   digestHour?: number;
+  employeeDailyReportEnabled?: boolean;
+  employeeWeeklyReportEnabled?: boolean;
+  employeeMonthlyReportEnabled?: boolean;
+  /** Local hour, 0-23, in each employee's own zone. */
+  employeeReportHour?: number;
   /** Announce each capture out loud on the employee's machine (shutter + notification sound). */
   captureSoundEnabled?: boolean;
   webcamEnabled?: boolean;

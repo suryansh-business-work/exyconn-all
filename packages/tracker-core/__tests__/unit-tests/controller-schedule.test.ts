@@ -28,13 +28,13 @@ describe('TrackerController portal poll', () => {
 
     await vi.advanceTimersByTimeAsync(POLL);
     expect(setup.portal.heartbeat).toHaveBeenCalledTimes(1);
-    expect(setup.states.length).toBe(quiet);
+    expect(setup.states).toHaveLength(quiet);
 
     vi.mocked(setup.portal.heartbeat).mockResolvedValue(
       me({ settings: { ...ENGINE_SETTINGS, webcamEnabled: true } }),
     );
     await vi.advanceTimersByTimeAsync(POLL);
-    expect(setup.states.length).toBe(quiet + 1);
+    expect(setup.states).toHaveLength(quiet + 1);
     expect(setup.latest().permissions).toEqual({ camera: true });
   });
 

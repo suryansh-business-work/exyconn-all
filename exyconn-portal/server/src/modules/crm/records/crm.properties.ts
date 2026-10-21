@@ -1,6 +1,7 @@
 import type { HydratedDocument } from 'mongoose';
 import { recordAudit } from '../../audit';
 import { badRequest, notFound } from '../../../utils/errors';
+import { inSequence } from '../../../utils/inSequence';
 import type { GraphQLContext } from '../../../middleware/auth';
 import { CrmPropertyModel, type CrmPropertyDocument } from './crm-property.model';
 import {
@@ -138,12 +139,13 @@ export async function createProperties(ctx: GraphQLContext, input: CrmProperties
 
   const created: HydratedDocument<CrmPropertyDocument>[] = [];
   try {
-    for (const object of objects) {
+    // One type at a time, so a failure leaves `created` naming exactly the rows to roll back.
+    await inSequence(objects, async (object) => {
       const order = await CrmPropertyModel.countDocuments({ object });
       created.push(
         await CrmPropertyModel.create({ object, key, type: input.type, options, order, ...text }),
       );
-    }
+    });
   } catch (error) {
     await CrmPropertyModel.deleteMany({ _id: { $in: created.map((row) => row._id) } });
     if ((error as { code?: number }).code === DUPLICATE_KEY) {
@@ -152,15 +154,17 @@ export async function createProperties(ctx: GraphQLContext, input: CrmProperties
     throw error;
   }
 
-  for (const row of created) {
-    await recordAudit(ctx, {
-      action: 'CREATE',
-      module: AUDIT_MODULE,
-      entityId: row._id,
-      entityLabel: row.label,
-      summary: `Added the ${OBJECT_DEFS[row.object].module} property "${row.label}" (${row.type})`,
-    });
-  }
+  await Promise.all(
+    created.map((row) =>
+      recordAudit(ctx, {
+        action: 'CREATE',
+        module: AUDIT_MODULE,
+        entityId: row._id,
+        entityLabel: row.label,
+        summary: `Added the ${OBJECT_DEFS[row.object].module} property "${row.label}" (${row.type})`,
+      }),
+    ),
+  );
   return created.map((row) => present(row.toObject() as unknown as PropertyRow));
 }
 

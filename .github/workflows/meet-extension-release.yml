@@ -1,0 +1,141 @@
+name: Meeting Assistant Extension Release
+
+# Builds the Exyconn Meeting Assistant Chrome extension, validates its manifest and bundle,
+# packages a deterministic ZIP (+ SHA-256) for internal installs and one for the Chrome Web
+# Store, publishes both on a GitHub Release tagged meet-extension-v<version>, and registers
+# the build with the portal (AI › Meeting Assistant › Releases), where it starts as
+# QA_PENDING. Nothing is ever offered to users until a release manager approves it there.
+#
+# A version is built once: if its tag already exists the run stops, so a published version is
+# never replaced with different bytes — bump exyconn-meet-extension/package.json instead.
+#
+# The Chrome Web Store steps run only on a manual dispatch that asks for them, and only when
+# the store credentials are configured; submitting for review is a separate, explicit choice.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'exyconn-meet-extension/**'
+      - '.github/workflows/meet-extension-release.yml'
+      - '.github/scripts/register-meet-extension.mjs'
+      - '.github/scripts/cws-publish.mjs'
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Release channel the build is registered on'
+        type: choice
+        options: [INTERNAL, BETA, STABLE]
+        default: INTERNAL
+      store_upload:
+        description: 'Upload the store package to the Chrome Web Store (needs CWS_* secrets)'
+        type: boolean
+        default: false
+      store_submit:
+        description: 'Also submit it for Chrome Web Store review (only with store_upload)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: meet-extension-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build, verify and release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      # Optional PUBLIC key that pins the internal build's extension id; never a private key.
+      MEET_EXTENSION_PUBLIC_KEY: ${{ vars.MEET_EXTENSION_PUBLIC_KEY }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Read version
+        id: app
+        run: echo "version=$(node -p "require('./exyconn-meet-extension/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Stop if this version was already released
+        id: exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "meet-extension-v${{ steps.app.outputs.version }}" >/dev/null 2>&1; then
+            echo "::notice::meet-extension-v${{ steps.app.outputs.version }} already exists. Bump exyconn-meet-extension/package.json to release again."
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Quality checks
+        if: steps.exists.outputs.released == 'false'
+        run: |
+          pnpm --filter @exyconn/meet-extension run typecheck
+          pnpm --filter @exyconn/meet-extension run lint
+          pnpm --filter @exyconn/meet-extension run test:coverage
+      - name: Build, validate the manifest and scan the bundle
+        if: steps.exists.outputs.released == 'false'
+        run: |
+          pnpm --filter @exyconn/meet-extension run build:production
+          pnpm --filter @exyconn/meet-extension run verify
+      - name: Package ZIPs and checksums
+        if: steps.exists.outputs.released == 'false'
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+        run: pnpm --filter @exyconn/meet-extension run package
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: steps.exists.outputs.released == 'false'
+        with:
+          name: meet-extension-${{ steps.app.outputs.version }}
+          path: exyconn-meet-extension/artifacts/*
+          if-no-files-found: error
+      - name: Create GitHub Release
+        id: gh_release
+        if: steps.exists.outputs.released == 'false'
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: meet-extension-v${{ steps.app.outputs.version }}
+          name: Exyconn Meeting Assistant ${{ steps.app.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          files: exyconn-meet-extension/artifacts/*
+          # The desktop tracker's updater reads the repository's latest release: never this one.
+          make_latest: false
+      - name: Register with the portal
+        if: steps.exists.outputs.released == 'false'
+        env:
+          PORTAL_API_URL: ${{ vars.PORTAL_API_URL || 'https://portal-server.exyconn.com' }}
+          MEET_EXTENSION_REGISTER_API_KEY: ${{ secrets.MEET_EXTENSION_REGISTER_API_KEY }}
+          RELEASE_ASSETS: ${{ steps.gh_release.outputs.assets }}
+          RELEASE_URL: ${{ steps.gh_release.outputs.url }}
+          RELEASE_CHANNEL: ${{ inputs.channel || 'INTERNAL' }}
+          BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$MEET_EXTENSION_REGISTER_API_KEY" ]; then
+            echo "::warning::MEET_EXTENSION_REGISTER_API_KEY is not set, so the build was released on GitHub but not registered in the portal. Create an ADMIN API key in the operator company (Integrations) and add it as a repository secret."
+            exit 0
+          fi
+          node .github/scripts/register-meet-extension.mjs
+      - name: Chrome Web Store upload
+        if: steps.exists.outputs.released == 'false' && inputs.store_upload
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          CWS_ITEM_ID: ${{ secrets.CWS_ITEM_ID }}
+          CWS_ZIP: exyconn-meet-extension/artifacts/chrome-meeting-assistant-v${{ steps.app.outputs.version }}-store.zip
+          CWS_SUBMIT: ${{ inputs.store_submit && 'true' || 'false' }}
+        run: |
+          if [ -z "$CWS_CLIENT_ID" ] || [ -z "$CWS_ITEM_ID" ]; then
+            echo "::warning::Chrome Web Store credentials are not configured; the store package is on the GitHub Release for a manual upload."
+            exit 0
+          fi
+          node .github/scripts/cws-publish.mjs

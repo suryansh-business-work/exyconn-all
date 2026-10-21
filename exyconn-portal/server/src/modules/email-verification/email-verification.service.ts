@@ -1,6 +1,7 @@
 import { badRequest } from '../../utils/errors';
 import { isEmailAddress } from '../../utils/emailAddress';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 import {
   EmailVerificationBatchModel,
@@ -63,12 +64,14 @@ interface Checked {
   batchId?: string;
 }
 
-async function store(email: string, result: CheckResult, checked: Checked) {
+function store(email: string, result: CheckResult, checked: Checked) {
   return EmailVerificationModel.findOneAndUpdate(
     { email },
     { ...result, ...checked, batchId: checked.batchId ?? '', email, checkedAt: new Date() },
     { upsert: true, new: true, setDefaultsOnInsert: true },
-  ).lean();
+  )
+    .lean()
+    .exec();
 }
 
 /** Checks one address now and keeps the result. Throws when the verifier cannot be reached. */
@@ -172,16 +175,18 @@ export async function runBatchPass(): Promise<number> {
   const next = batch.emails.slice(batch.processed, batch.processed + PASS_SIZE);
   const proxy = await activeProxy();
   const counts = { verified: 0, risky: 0, invalid: 0, unknown: 0 };
-  for (let at = 0; at < next.length; at += PARALLEL) {
-    const statuses = await Promise.all(
-      next
-        .slice(at, at + PARALLEL)
-        .map((email) => checkInBatch(email, String(batch._id), batch.createdBy, proxy)),
-    );
-    statuses.forEach((status) => {
-      counts[COUNT_FIELD[status]] += 1;
-    });
-  }
+  const chunks = Array.from({ length: Math.ceil(next.length / PARALLEL) }, (_, index) =>
+    next.slice(index * PARALLEL, (index + 1) * PARALLEL),
+  );
+  // Chunk after chunk: no more than PARALLEL mail servers are probed at once.
+  const statuses = await inSequence(chunks, (chunk) =>
+    Promise.all(
+      chunk.map((email) => checkInBatch(email, String(batch._id), batch.createdBy, proxy)),
+    ),
+  );
+  statuses.flat().forEach((status) => {
+    counts[COUNT_FIELD[status]] += 1;
+  });
   const processed = batch.processed + next.length;
   const finished = processed >= batch.emails.length;
   await EmailVerificationBatchModel.updateOne(

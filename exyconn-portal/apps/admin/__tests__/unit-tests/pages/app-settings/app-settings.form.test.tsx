@@ -42,7 +42,7 @@ describe('AppSettingsForm', () => {
   it('re-renders the preview as soon as another time format is picked', async () => {
     const user = userEvent.setup();
     renderWithProviders(<AppSettingsForm initial={appSettings()} />);
-    await pick(user, /Time format/, /^hh:mm a/);
+    await pick(user, /Time format/, /\(hh:mm a\)$/);
     expect(preview().textContent).toMatch(/\d{2}:\d{2} [AP]M$/);
   });
 

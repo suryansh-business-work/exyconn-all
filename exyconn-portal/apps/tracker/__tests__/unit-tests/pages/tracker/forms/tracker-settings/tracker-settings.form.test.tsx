@@ -74,6 +74,20 @@ describe('TrackerSettingsForm', () => {
     expect(field('Interval (minutes)')).toHaveValue(15);
   });
 
+  it("saves the employees' own reports and the hour they go out", async () => {
+    renderWithProviders(<TrackerSettingsForm initial={settingsRow()} />);
+    await userEvent.click(field('Email each employee their week (Sundays, with PDF)'));
+    fireEvent.change(field('Send at'), { target: { value: '18' } });
+    await save();
+    await waitFor(() => expect(gql.update).toHaveBeenCalledTimes(1));
+    expect(gql.update.mock.calls[0][0].variables.input).toMatchObject({
+      employeeDailyReportEnabled: false,
+      employeeWeeklyReportEnabled: true,
+      employeeMonthlyReportEnabled: false,
+      employeeReportHour: 18,
+    });
+  });
+
   it("reads a cleared default as each device's own timezone", async () => {
     renderWithProviders(<TrackerSettingsForm initial={settingsRow()} />);
     await userEvent.clear(timezone());

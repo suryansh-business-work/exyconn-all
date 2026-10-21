@@ -11,6 +11,9 @@ import { TransactionsPage } from './pages/payments/TransactionsPage';
 import { PaymentReturnPage } from './pages/payments/PaymentReturnPage';
 import { SupportPage } from './pages/support/SupportPage';
 import { ProjectsPage } from './pages/projects/ProjectsPage';
+import { LinksPage } from './pages/links/LinksPage';
+import { CommunicationsPage } from './pages/communications/CommunicationsPage';
+import { DocumentsPage } from './pages/documents/DocumentsPage';
 import { PATHS } from './paths';
 
 /** One page behind its own boundary: a failing screen never takes the hub down. */
@@ -42,6 +45,9 @@ export function App() {
           <Route path="/payments/return" element={page(<PaymentReturnPage />)} />
           <Route path="/support" element={page(<SupportPage />)} />
           <Route path="/projects" element={page(<ProjectsPage />)} />
+          <Route path="/documents" element={page(<DocumentsPage />)} />
+          <Route path="/communications" element={page(<CommunicationsPage />)} />
+          <Route path="/links" element={page(<LinksPage />)} />
         </Route>
       }
     >

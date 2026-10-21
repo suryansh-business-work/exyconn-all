@@ -29,7 +29,10 @@ const PHONE_FIELDS = [
  * Calling bot list. Each missing field gets its schema default, an empty string.
  */
 export async function backfillPhoneFields(): Promise<void> {
-  for (const field of PHONE_FIELDS) {
-    await CallingBotConfigModel.updateMany({ [field]: null }, { $set: { [field]: '' } });
-  }
+  // Each update fills a different field, so they run side by side.
+  await Promise.all(
+    PHONE_FIELDS.map((field) =>
+      CallingBotConfigModel.updateMany({ [field]: null }, { $set: { [field]: '' } }),
+    ),
+  );
 }

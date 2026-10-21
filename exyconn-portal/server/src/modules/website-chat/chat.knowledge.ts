@@ -76,10 +76,14 @@ function rowsOf(title: string, url: string, text: string): KnowledgeRow[] {
 async function crawl(urls: string[]): Promise<KnowledgeRow[]> {
   const rows: KnowledgeRow[] = [];
   const queue = [...urls];
-  const worker = async () => {
-    for (let url = queue.shift(); url !== undefined; url = queue.shift()) {
-      rows.push(...(await pageRows(url)));
+  // Each worker reads one page after another, so no more than CONCURRENCY are fetched at once.
+  const worker = async (): Promise<void> => {
+    const url = queue.shift();
+    if (url === undefined) {
+      return;
     }
+    rows.push(...(await pageRows(url)));
+    await worker();
   };
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   return rows;

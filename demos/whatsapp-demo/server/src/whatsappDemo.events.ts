@@ -165,12 +165,14 @@ export async function storeActorEvents(actor: EventActor, events: StoredEvent[])
     return 0;
   }
   const stored = await insertNew(own);
-  for (const sessionId of new Set(stored.map((event) => event.sessionId))) {
-    await foldSession(
-      actor,
-      stored.filter((event) => event.sessionId === sessionId),
-    );
-  }
+  await Promise.all(
+    [...new Set(stored.map((event) => event.sessionId))].map((sessionId) =>
+      foldSession(
+        actor,
+        stored.filter((event) => event.sessionId === sessionId),
+      ),
+    ),
+  );
   return stored.length;
 }
 

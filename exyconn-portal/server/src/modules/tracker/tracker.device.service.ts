@@ -18,6 +18,7 @@ import { trackerLocationService, type LocationInput } from './tracker.location.s
 import { policyAcknowledgementService } from '../legal/policy-acknowledgement.service';
 import { assertWorkspaceOpen } from '../auth/workspace-status';
 import { organizationOf, runForOrganizationOf } from '../../lib/tenant';
+import { inSequence } from '../../utils/inSequence';
 import {
   TrackerAccessModel,
   TrackerDeviceModel,
@@ -504,7 +505,9 @@ class TrackerDeviceService {
 
     const settings = await getTrackerSettings();
 
-    for (const interval of intervals) {
+    // One interval at a time: a retried batch can repeat a startedAt (or an app's window), and
+    // two upserts of the same key in flight together race the unique index (E11000).
+    await inSequence(intervals, async (interval) => {
       await TrackerIntervalModel.updateOne(
         { sessionId, startedAt: interval.startedAt },
         {
@@ -524,7 +527,7 @@ class TrackerDeviceService {
       );
 
       await this.syncWindowUsage(userId, sessionId, interval, settings.trackWindowTitles);
-    }
+    });
 
     await this.rollUpSession(sessionId);
     return TrackerIntervalModel.countDocuments({ sessionId });
@@ -539,7 +542,8 @@ class TrackerDeviceService {
   ): Promise<void> {
     const windows = (interval.windows ?? []).slice(0, TRACKER_LIMITS.maxWindowUsagePerInterval);
 
-    for (const usage of windows) {
+    // Sequential for the same reason: with titles off, every window of one app shares a key.
+    await inSequence(windows, async (usage) => {
       // Honour the portal's privacy switch server-side too: if titles are off, they are
       // never stored, even if an older client still sends them.
       const windowTitle = trackTitles ? (usage.windowTitle ?? '') : '';
@@ -562,7 +566,7 @@ class TrackerDeviceService {
         },
         { upsert: true },
       );
-    }
+    });
   }
 
   /** Recomputes a session's totals from its intervals, so day views need no aggregation. */

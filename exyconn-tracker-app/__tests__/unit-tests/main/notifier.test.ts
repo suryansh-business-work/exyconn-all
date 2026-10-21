@@ -15,7 +15,7 @@ vi.mock('electron', () => ({
 }));
 vi.mock('../../../src/main/toast', () => ({ heroToastXml }));
 
-import { notifyScreenshotCaptured } from '../../../src/main/notifier';
+import { notificationsOnScreen, notifyScreenshotCaptured } from '../../../src/main/notifier';
 
 const realPlatform = process.platform;
 const setPlatform = (value: NodeJS.Platform) =>
@@ -126,16 +126,18 @@ describe('notifyScreenshotCaptured', () => {
     expect(heroToastXml).not.toHaveBeenCalled();
   });
 
-  it('forgets a notification once the OS closes it or fails to show it', () => {
+  it('holds a notification until the OS closes it or fails to show it, then lets it go', () => {
+    const before = notificationsOnScreen();
     notifyScreenshotCaptured(ONE, STATS, { silent: false, onOpen: vi.fn() });
+    const closed = lastShown().events;
+    notifyScreenshotCaptured(ONE, STATS, { silent: false, onOpen: vi.fn() });
+    const failed = lastShown().events;
+    expect(notificationsOnScreen()).toBe(before + 2);
 
-    const { events } = lastShown();
-    expect(events.has('close')).toBe(true);
-    expect(events.has('failed')).toBe(true);
-    expect(() => {
-      events.get('close')?.();
-      events.get('failed')?.();
-    }).not.toThrow();
+    closed.get('close')?.();
+    expect(notificationsOnScreen()).toBe(before + 1);
+    failed.get('failed')?.();
+    expect(notificationsOnScreen()).toBe(before);
   });
 
   it('skips quietly when notifications are unsupported or broken', () => {

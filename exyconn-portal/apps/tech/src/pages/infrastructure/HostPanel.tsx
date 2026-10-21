@@ -1,5 +1,4 @@
-import { format } from 'date-fns';
-import { useT } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import DnsIcon from '@mui/icons-material/Dns';
 import MemoryIcon from '@mui/icons-material/Memory';
 import StorageIcon from '@mui/icons-material/Storage';
@@ -21,6 +20,7 @@ const POLL_MS = 30_000;
  */
 export function HostPanel() {
   const t = useT();
+  const { formatDateTime } = useFormatters();
   const { data, loading, error } = useInfrastructureOverviewQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: POLL_MS,
@@ -94,7 +94,7 @@ export function HostPanel() {
               { label: t('Docker root'), value: docker.dockerRootDir || '—' },
               {
                 label: t('Host clock'),
-                value: docker.serverTime ? format(new Date(docker.serverTime), 'PPpp') : '—',
+                value: docker.serverTime ? formatDateTime(docker.serverTime) : '—',
               },
             ]}
           />
@@ -114,7 +114,7 @@ export function HostPanel() {
               { label: t('Node'), value: runtime.nodeVersion },
               { label: t('Platform'), value: `${runtime.platform}/${runtime.arch}` },
               { label: t('Uptime'), value: formatDuration(runtime.processUptimeSeconds) },
-              { label: t('Started'), value: format(new Date(runtime.startedAt), 'PPpp') },
+              { label: t('Started'), value: formatDateTime(runtime.startedAt) },
               { label: t('Resident memory'), value: formatBytes(runtime.rssBytes) },
               {
                 label: t('Heap'),

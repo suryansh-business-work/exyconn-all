@@ -14,6 +14,7 @@ import { CaptureFields } from './capture-fields';
 import { CaptureSoundFields } from './capture-sound';
 import { ConsentDisclosureFields } from './consent-disclosure';
 import { DigestScheduleFields } from './digest-schedule';
+import { EmployeeReportFields } from './employee-reports';
 import { AutoStartScheduleFields } from './auto-start-schedule';
 import {
   toInitial,
@@ -84,6 +85,7 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
       ) : null}
       <AutoStartScheduleFields />
       <DigestScheduleFields />
+      <EmployeeReportFields />
       <ConsentDisclosureFields />
     </EntityForm>
   );

@@ -22,6 +22,17 @@ describe('cutting a streamed reply into sentences', () => {
     expect(buffer.rest()).toBe('next');
   });
 
+  it('cuts after a run of marks, and keeps a long run of marks with no space linear', () => {
+    const buffer = new SentenceBuffer();
+    expect(buffer.push('Wait... what?! "Really?!" Ok')).toEqual([
+      'Wait...',
+      'what?!',
+      '"Really?!"',
+    ]);
+    expect(buffer.push('.'.repeat(100_000))).toEqual([]);
+    expect(buffer.rest()).toBe(`Ok${'.'.repeat(100_000)}`);
+  });
+
   it('drops empty pieces such as a blank line', () => {
     expect(new SentenceBuffer().push('\n\n')).toEqual([]);
   });

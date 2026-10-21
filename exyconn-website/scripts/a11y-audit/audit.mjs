@@ -68,17 +68,20 @@ export async function settle(page) {
 
 const TAB_KEY = { key: "Tab", code: "Tab", windowsVirtualKeyCode: 9 };
 
+/** Recursive, not parallel: each Tab press moves focus on from where the previous one left it. */
+async function collectStops(page, remaining, stops) {
+  if (remaining === 0) {
+    return stops;
+  }
+  await page.call("Input.dispatchKeyEvent", { type: "keyDown", ...TAB_KEY });
+  await page.call("Input.dispatchKeyEvent", { type: "keyUp", ...TAB_KEY });
+  const snapshot = await page.evaluate(`(${focusSnapshot})()`);
+  return collectStops(page, remaining - 1, snapshot ? [...stops, snapshot] : stops);
+}
+
 /** Presses Tab `count` times; returns the stops whose focus cannot be seen or is covered. */
 export async function tabThrough(page, count) {
-  const stops = [];
-  for (let index = 0; index < count; index += 1) {
-    await page.call("Input.dispatchKeyEvent", { type: "keyDown", ...TAB_KEY });
-    await page.call("Input.dispatchKeyEvent", { type: "keyUp", ...TAB_KEY });
-    const snapshot = await page.evaluate(`(${focusSnapshot})()`);
-    if (snapshot) {
-      stops.push(snapshot);
-    }
-  }
+  const stops = await collectStops(page, count, []);
   return stops.filter((stop) => !stop.indicator || stop.obscured);
 }
 
@@ -156,7 +159,7 @@ export function summarise(results, reflows) {
  * axe-core is not a dependency of this package; it is read from the workspace's
  * `@exyconn/ui` install (which ships it for the portal's Cypress checks).
  */
-async function readAxeSource() {
+function readAxeSource() {
   const requireFromUi = createRequire(
     new URL("../../../exyconn-portal/ui/package.json", import.meta.url)
   );
@@ -185,14 +188,17 @@ export async function main(args) {
   const results = [];
   const reflows = [];
   try {
-    for (const path of pages) {
+    // One page at a time (its viewports and themes in parallel), so Chrome holds a bounded
+    // number of tabs and the progress lines come out in page order.
+    await pages.reduce(async (previous, path) => {
+      await previous;
       const runs = VIEWPORTS.flatMap((viewport) =>
         THEMES.map((theme) => auditOne(browser, run, path, viewport, theme))
       );
       results.push(...(await Promise.all(runs)));
       reflows.push(await reflow(browser, run, path));
       console.log(`audited ${path}`);
-    }
+    }, Promise.resolve());
   } finally {
     await browser.close();
   }

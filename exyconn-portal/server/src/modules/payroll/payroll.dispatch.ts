@@ -10,6 +10,7 @@ import { payslipFilename } from './payslip.lines';
 import { notFound } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { env } from '../../config/env';
+import { inSequence } from '../../utils/inSequence';
 
 /** A payslip rendered and ready to hand over — to a download or to an email. */
 export interface RenderedPayslip {
@@ -143,6 +144,23 @@ async function mailPayslip(payslip: RenderedPayslip, triggeredBy: string): Promi
   });
 }
 
+type DispatchOutcome = 'sent' | 'failed' | 'skipped';
+
+/** Renders and emails one payslip; a failure is logged and counted, never thrown. */
+async function dispatchOne(slip: SlipRow, triggeredBy: string): Promise<DispatchOutcome> {
+  try {
+    const payslip = await render(slip);
+    if (!payslip.employeeEmail) {
+      return 'skipped';
+    }
+    await mailPayslip(payslip, triggeredBy);
+    return 'sent';
+  } catch (error) {
+    logger.error(error, `Payslip email for employee ${slip.employeeId} failed`);
+    return 'failed';
+  }
+}
+
 /**
  * Emails every payslip of one month, each with its own PDF attached.
  *
@@ -156,24 +174,12 @@ export async function dispatchSalarySlips(
   triggeredBy: string,
 ): Promise<PayrollDispatchResult> {
   const slips = (await SalarySlipModel.find({ month, year }).lean()) as unknown as SlipRow[];
-  let sent = 0;
-  let failed = 0;
-  let skipped = 0;
-
-  for (const slip of slips) {
-    try {
-      const payslip = await render(slip);
-      if (!payslip.employeeEmail) {
-        skipped += 1;
-        continue;
-      }
-      await mailPayslip(payslip, triggeredBy);
-      sent += 1;
-    } catch (error) {
-      failed += 1;
-      logger.error(error, `Payslip email for employee ${slip.employeeId} failed`);
-    }
-  }
+  // One payslip at a time: each renders a PDF in memory and sends one email, so running them
+  // together would hold every PDF at once and burst the SMTP relay.
+  const outcomes = await inSequence(slips, (slip) => dispatchOne(slip, triggeredBy));
+  const sent = outcomes.filter((outcome) => outcome === 'sent').length;
+  const failed = outcomes.filter((outcome) => outcome === 'failed').length;
+  const skipped = outcomes.filter((outcome) => outcome === 'skipped').length;
 
   logger.info(
     `Payslip dispatch for ${month}/${year}: ${sent} sent, ${failed} failed, ${skipped} skipped`,

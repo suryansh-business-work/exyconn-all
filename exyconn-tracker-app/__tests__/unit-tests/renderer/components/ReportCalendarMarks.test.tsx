@@ -52,12 +52,12 @@ describe('ReportCalendar marks', () => {
   it('says each mark aloud, with the off day’s own name when it has one', async () => {
     await mountCalendar();
     expect(cell('7')?.getAttribute('aria-label')).toBe(
-      'Mon 7 Sep, 1h 0m tracked, high activity, below expected hours',
+      'Mon 7 Sep, 1h 0m tracked, high activity, Short',
     );
-    expect(cell('8')?.getAttribute('aria-label')).toBe('Tue 8 Sep, below expected hours');
-    expect(cell('9')?.getAttribute('aria-label')).toBe('Wed 9 Sep, on leave (CL)');
-    expect(cell('10')?.getAttribute('aria-label')).toBe('Thu 10 Sep, holiday (Onam)');
-    expect(cell('13')?.getAttribute('aria-label')).toBe('Sun 13 Sep, week off');
+    expect(cell('8')?.getAttribute('aria-label')).toBe('Tue 8 Sep, Short');
+    expect(cell('9')?.getAttribute('aria-label')).toBe('Wed 9 Sep, Leave (CL)');
+    expect(cell('10')?.getAttribute('aria-label')).toBe('Thu 10 Sep, Holiday (Onam)');
+    expect(cell('13')?.getAttribute('aria-label')).toBe('Sun 13 Sep, Week off');
   });
 
   it('captions an off day with its name, and the week off as such, in place of the dot', async () => {
@@ -72,7 +72,7 @@ describe('ReportCalendar marks', () => {
     await mountCalendar();
     const ring = (day: string) => getComputedStyle(cell(day) as HTMLElement).boxShadow;
     expect(ring('8')).toMatch(/^inset 0 0 0 2px /);
-    expect(ring('13')).toMatch(/^inset 0 0 0 1px /);
+    expect(ring('13')).toMatch(/^inset 0 0 0 2px /);
     expect(new Set([ring('8'), ring('9'), ring('10'), ring('13')]).size).toBe(4);
     expect(ring('15')).toBe('');
   });
@@ -80,6 +80,13 @@ describe('ReportCalendar marks', () => {
   it('keys the rings in a legend, in order', async () => {
     await mountCalendar();
     const items = [...document.querySelectorAll('ul > li')].map((item) => item.textContent);
-    expect(items).toEqual(['Short', 'Leave', 'Holiday', 'Week off']);
+    expect(items).toEqual([
+      'Completed',
+      'Short',
+      'Leave',
+      'Holiday',
+      'Week off',
+      'Off Computer Work',
+    ]);
   });
 });

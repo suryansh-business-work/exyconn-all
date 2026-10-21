@@ -1,4 +1,5 @@
-// Pure helpers that cluster pdf.js text items into spreadsheet rows and cells.
+// Pure helpers that cluster pdf.js text items into spreadsheet rows and cells, and write the workbook.
+import { Workbook } from 'exceljs';
 
 /** Accent colors shared by the tool's page components. */
 export const TOOL_COLOR = '#22c55e';
@@ -97,4 +98,16 @@ export const downloadBlob = (blob: Blob, fileName: string) => {
   a.download = fileName;
   a.click();
   URL.revokeObjectURL(a.href);
+};
+
+/** One worksheet per PDF page, written as an .xlsx buffer. */
+export const buildWorkbookBuffer = (pages: string[][][]): Promise<ArrayBuffer> => {
+  const workbook = new Workbook();
+  pages.forEach((rows, index) => {
+    const sheet = workbook.addWorksheet(`Page ${index + 1}`);
+    for (const row of rows) {
+      sheet.addRow(row);
+    }
+  });
+  return workbook.xlsx.writeBuffer();
 };

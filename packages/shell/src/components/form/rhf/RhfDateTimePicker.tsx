@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useI18n } from '@exyconn/i18n';
 import { useFieldCopy } from './useFieldCopy';
 import { DateTimePicker } from '@/components/ui';
 import { toDate } from '@/utils/date';
@@ -25,6 +26,8 @@ export function RhfDateTimePicker({
 }: Readonly<RhfDateTimePickerProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
+  // A 12- or 24-hour clock, as the reader's time format says (PortalPickers sets the rest).
+  const { timeFormat } = useI18n().settings;
   return (
     <Controller
       name={name}
@@ -33,6 +36,7 @@ export function RhfDateTimePicker({
         <DateTimePicker
           label={copy(label)}
           value={toDate(field.value)}
+          ampm={timeFormat.includes('a')}
           maxDateTime={maxDateTime}
           // MUIX fires onChange for every section typed, so a half-entered value arrives
           // as an Invalid Date — toISOString() throws RangeError on one and took the

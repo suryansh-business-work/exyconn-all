@@ -1,5 +1,9 @@
-/** Where a spoken sentence ends: . ! ? or the Devanagari danda, before a space; or a line break. */
-const BOUNDARY = /[.!?।]+["')\]]?\s|\n/;
+/**
+ * Where a spoken sentence ends: . ! ? or the Devanagari danda, before a space; or a line break.
+ * Only the last mark of a run (`?!`, `...`) is matched — the cut lands at the same place, and a
+ * single mark keeps the search linear.
+ */
+const BOUNDARY = /[.!?।]["')\]]?\s|\n/;
 
 /** A clause this long is spoken without waiting for its full stop, at the last space. */
 const MAX_PENDING = 140;

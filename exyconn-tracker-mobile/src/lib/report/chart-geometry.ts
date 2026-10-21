@@ -143,6 +143,6 @@ export function areaPath(points: readonly Point[], baseline: number): string {
     return '';
   }
   const first = points[0];
-  const last = points[points.length - 1];
+  const [last] = points.slice(-1);
   return `${linePath(points)} L${last.x} ${baseline} L${first.x} ${baseline} Z`;
 }

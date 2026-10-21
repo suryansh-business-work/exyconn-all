@@ -73,6 +73,7 @@ describe('trackerSettingsSchema', () => {
     ['autoStartHour', -1, 23, 24],
     ['autoStopHour', -1, 23, 24],
     ['digestHour', -1, 23, 24],
+    ['employeeReportHour', -1, 23, 24],
   ])('holds %s between its bounds', (field, below, top, above) => {
     expect(errorsFor({ ...valid(), [field]: below }, field)).toHaveLength(1);
     expect(errorsFor({ ...valid(), [field]: top }, field)).toEqual([]);

@@ -74,18 +74,26 @@ async function dispatch(campaign: CampaignDoc): Promise<void> {
   }
 }
 
-/** Sends every campaign whose scheduled moment has arrived, a bounded number per tick. */
-export async function dispatchScheduledCampaigns(): Promise<number> {
-  let dispatched = 0;
-  while (dispatched < MAX_PER_TICK) {
-    const campaign = await claimDue(new Date());
-    if (!campaign) {
-      return dispatched;
-    }
-    await dispatch(campaign);
-    dispatched += 1;
+/**
+ * Claims and sends due campaigns one after another until none is left or the per-tick cap is
+ * reached. Sequential on purpose: each claim pops the queue atomically, and one campaign's
+ * mail run finishing before the next starts keeps SMTP sending throttled.
+ */
+async function dispatchFrom(dispatched: number): Promise<number> {
+  if (dispatched >= MAX_PER_TICK) {
+    return dispatched;
   }
-  return dispatched;
+  const campaign = await claimDue(new Date());
+  if (!campaign) {
+    return dispatched;
+  }
+  await dispatch(campaign);
+  return dispatchFrom(dispatched + 1);
+}
+
+/** Sends every campaign whose scheduled moment has arrived, a bounded number per tick. */
+export function dispatchScheduledCampaigns(): Promise<number> {
+  return dispatchFrom(0);
 }
 
 /**

@@ -5,6 +5,7 @@ import { SitemapResult } from '../types';
 import SummaryStats from './SummaryStats';
 import SitemapListItem from './SitemapListItem';
 import CheckedLocations from './CheckedLocations';
+import { copyText } from '../../../shared/utils/clipboard';
 
 interface SitemapResultsProps {
   result: SitemapResult;
@@ -14,14 +15,14 @@ const SitemapResults: React.FC<SitemapResultsProps> = ({ result }) => {
   const [copiedItem, setCopiedItem] = React.useState<string | null>(null);
 
   const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopiedItem(id);
     setTimeout(() => setCopiedItem(null), 2000);
   };
 
   const handleCopyAllUrls = () => {
     const urls = result.sitemapsFound.map((s) => s.url).join('\n');
-    navigator.clipboard.writeText(urls);
+    copyText(urls);
     setCopiedItem('all-urls');
     setTimeout(() => setCopiedItem(null), 2000);
   };

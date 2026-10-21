@@ -32,7 +32,7 @@ export interface LocalePreference {
   locale: string;
   /** The zone every date and time is rendered in. */
   timezone: string;
-  /** Patterns, straight from the workspace's settings. */
+  /** date-fns patterns: the person's own pick, else the workspace default. */
   dateFormat: string;
   timeFormat: string;
   /** The company's own money, as an ISO 4217 code. */
@@ -96,8 +96,8 @@ export function useLocalePreference(): LocalePreference {
       defaultTimezone: settings?.timezone,
       deviceTimezone: deviceTimezone(),
     }),
-    dateFormat: settings?.dateFormat ?? 'dd MMM yyyy',
-    timeFormat: settings?.timeFormat ?? 'hh:mm a',
+    dateFormat: me?.dateFormat || settings?.dateFormat || DEFAULT_FORMAT_SETTINGS.dateFormat,
+    timeFormat: me?.timeFormat || settings?.timeFormat || DEFAULT_FORMAT_SETTINGS.timeFormat,
     // The company's own money (ISO 4217). Empty until its settings land, or for a platform
     // administrator, who belongs to no company.
     currency: settings?.currency || DEFAULT_FORMAT_SETTINGS.currency,

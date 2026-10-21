@@ -33,6 +33,8 @@
       "@exyconn/crud/*": ["../crud/src/*"],
       "@exyconn/tabber": ["../tabber/src/index.ts"],
       "@exyconn/tabber/*": ["../tabber/src/*"],
+      "@exyconn/meetings-ui": ["../meetings-ui/src/index.ts"],
+      "@exyconn/meetings-ui/*": ["../meetings-ui/src/*"],
       "@exyconn/kanban": ["../kanban/src/index.ts"]
     },
     "types": ["vitest/globals", "@testing-library/jest-dom/vitest"]

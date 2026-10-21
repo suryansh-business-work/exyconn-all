@@ -1,0 +1,17 @@
+{
+  "extends": "@exyconn/config/tsconfig.app.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2021",
+      "ES2022.Array",
+      "ES2022.Error",
+      "ES2022.Intl",
+      "ES2023.Array",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": ["chrome", "vitest/globals", "@testing-library/jest-dom/vitest"]
+  },
+  "include": ["src", "__tests__", "scripts", "codegen.ts", "vitest.config.ts", "vite.config.ts", "cypress.config.ts"],
+  "exclude": ["**/*.cy.ts", "**/*.cy.tsx"]
+}

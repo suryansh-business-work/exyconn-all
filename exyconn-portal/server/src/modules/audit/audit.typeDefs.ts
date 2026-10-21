@@ -39,5 +39,7 @@ export const auditTypeDefs = gql`
   extend type Query {
     listAuditLogsPaged(input: TableQueryInput!): AuditLogPage!
     listAuditLogsStats: TableStats!
+    "What one person did, newest first: their own, or anyone's for ADMIN and HR."
+    listUserActivityPaged(userId: ID!, input: TableQueryInput!): AuditLogPage!
   }
 `;

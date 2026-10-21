@@ -1,7 +1,8 @@
+import type { HydratedDocument } from 'mongoose';
 import { ProductModel } from './products.model';
 import { SupplierModel } from './supplier.model';
 import { StockMovementModel } from './stock-movement.model';
-import { PurchaseOrderModel } from './purchase-order.model';
+import { PurchaseOrderModel, type PurchaseOrderDocument } from './purchase-order.model';
 import {
   movingAverageCost,
   orderTotal,
@@ -16,6 +17,7 @@ import { emitWebhookBestEffort } from '../integrations';
 import { assertPermission } from '../../lib/permissions';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId } from '../../utils/serialize';
+import { inSequence } from '../../utils/inSequence';
 import type { GraphQLContext } from '../../middleware/auth';
 
 const productsRoles = [ROLES.PRODUCTS];
@@ -133,6 +135,53 @@ interface ReceiptLineInput {
   quantity: number;
 }
 
+/** Books one receipt line: the product's stock and average cost, its movement, the line's count. */
+async function receiveLine(
+  order: HydratedDocument<PurchaseOrderDocument>,
+  receipt: ReceiptLineInput,
+  recordedBy: string,
+): Promise<void> {
+  if (receipt.quantity <= 0) {
+    badRequest('A received quantity must be more than zero.');
+  }
+  const ordered = order.lines.find((line) => line.productId === receipt.productId);
+  if (!ordered) {
+    badRequest('That product is not on this order.');
+  }
+
+  const product = await ProductModel.findById(receipt.productId);
+  if (!product) {
+    notFound('Product');
+  }
+
+  const stockAfter = product.stock + receipt.quantity;
+  product.averageCost = movingAverageCost(
+    product.stock,
+    product.averageCost,
+    receipt.quantity,
+    ordered.unitCost,
+  );
+  product.stock = stockAfter;
+  await product.save();
+
+  await StockMovementModel.create({
+    productId: receipt.productId,
+    productName: ordered.productName,
+    reason: 'RECEIPT',
+    quantity: receipt.quantity,
+    stockAfter,
+    unitCost: ordered.unitCost,
+    supplierId: order.supplierId,
+    supplierName: order.supplierName,
+    purchaseOrderId: order._id.toHexString(),
+    purchaseOrderNumber: order.number,
+    reference: order.number,
+    recordedBy,
+  });
+
+  ordered.receivedQuantity += receipt.quantity;
+}
+
 /**
  * Books goods in against an order.
  *
@@ -158,47 +207,9 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
     badRequest('Say what arrived — a receipt with no lines changes nothing.');
   }
 
-  for (const receipt of lines) {
-    if (receipt.quantity <= 0) {
-      badRequest('A received quantity must be more than zero.');
-    }
-    const ordered = order.lines.find((line) => line.productId === receipt.productId);
-    if (!ordered) {
-      badRequest('That product is not on this order.');
-    }
-
-    const product = await ProductModel.findById(receipt.productId);
-    if (!product) {
-      notFound('Product');
-    }
-
-    const stockAfter = product.stock + receipt.quantity;
-    product.averageCost = movingAverageCost(
-      product.stock,
-      product.averageCost,
-      receipt.quantity,
-      ordered.unitCost,
-    );
-    product.stock = stockAfter;
-    await product.save();
-
-    await StockMovementModel.create({
-      productId: receipt.productId,
-      productName: ordered.productName,
-      reason: 'RECEIPT',
-      quantity: receipt.quantity,
-      stockAfter,
-      unitCost: ordered.unitCost,
-      supplierId: order.supplierId,
-      supplierName: order.supplierName,
-      purchaseOrderId: order._id.toHexString(),
-      purchaseOrderNumber: order.number,
-      reference: order.number,
-      recordedBy: ctx.user?.email ?? '',
-    });
-
-    ordered.receivedQuantity += receipt.quantity;
-  }
+  // Line after line: two lines for one product must each read the stock the other saved.
+  const recordedBy = ctx.user?.email ?? '';
+  await inSequence(lines, (receipt) => receiveLine(order, receipt, recordedBy));
 
   const now = new Date();
   const statusBefore = order.status;

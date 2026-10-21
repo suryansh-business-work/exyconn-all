@@ -151,7 +151,7 @@ describe('ocr-pdf', () => {
   });
 
   it('copies the text, then downloads it under the PDF name', async () => {
-    const writeText = vi.fn();
+    const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
     const { container } = render(<OcrPdf />);
     await load(container, 'scan.pdf');

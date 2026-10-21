@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { HTTP_URL, PHONE } from '@exyconn/regex';
-import { isValidLocale, isValidTimezone } from '@exyconn/i18n';
+import { isDateFormat, isTimeFormat, isValidLocale, isValidTimezone } from '@exyconn/i18n';
 
 /** The API refuses a longer bio (see server profile-details.ts); the form says so first. */
 export const BRIEF_MAX_LENGTH = 600;
@@ -30,4 +30,6 @@ export const profileSchema = z.object({
     .string()
     .refine((v) => v === '' || isValidTimezone(v), 'Choose a timezone from the list'),
   locale: z.string().refine((v) => v === '' || isValidLocale(v), 'Choose a language'),
+  dateFormat: z.string().refine((v) => v === '' || isDateFormat(v), 'Choose a date format'),
+  timeFormat: z.string().refine((v) => v === '' || isTimeFormat(v), 'Choose a time format'),
 });

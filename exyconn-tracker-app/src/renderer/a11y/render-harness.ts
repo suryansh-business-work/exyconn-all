@@ -38,11 +38,28 @@ export function cleanup(): void {
   document.body.innerHTML = '';
 }
 
-/** Lets every mocked IPC promise, and the render it triggers, settle. */
-export async function settle(): Promise<void> {
-  for (let pass = 0; pass < 5; pass += 1) {
-    await act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+/**
+ * Runs `work` inside an async `act()`, so the renders and effects it starts land before this
+ * resolves — the same as `act(async () => work())`, without an async callback that awaits
+ * nothing.
+ */
+export async function actAsync(work: () => unknown): Promise<void> {
+  await act(() => {
+    work();
+    return Promise.resolve();
+  });
+}
+
+/**
+ * Lets every mocked IPC promise, and the render it triggers, settle. Pass after pass, each
+ * waiting on the one before, because a settled promise often schedules the next.
+ */
+export async function settle(passes = 5): Promise<void> {
+  if (passes === 0) {
+    return;
   }
+  await act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  await settle(passes - 1);
 }
 
 export async function mount(element: ReactElement, state: TrackerState): Promise<void> {
@@ -51,7 +68,7 @@ export async function mount(element: ReactElement, state: TrackerState): Promise
   container.id = 'root';
   document.body.append(container);
   root = createRoot(container);
-  await act(async () => root?.render(element));
+  await actAsync(() => root?.render(element));
   await settle();
 }
 
@@ -60,7 +77,7 @@ export async function click(selector: string): Promise<HTMLElement | null> {
   const target = document.querySelector<HTMLElement>(selector);
   expect(target, selector).not.toBeNull();
   target?.focus();
-  await act(async () => target?.click());
+  await actAsync(() => target?.click());
   await settle();
   return target;
 }
@@ -68,8 +85,6 @@ export async function click(selector: string): Promise<HTMLElement | null> {
 /** Presses a key on whatever has focus, the way a keyboard user would. */
 export async function press(key: string): Promise<void> {
   const target = document.activeElement ?? document.body;
-  await act(async () => {
-    target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
-  });
+  await actAsync(() => target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true })));
   await settle();
 }

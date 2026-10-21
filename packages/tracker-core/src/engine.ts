@@ -241,7 +241,7 @@ export class TrackerEngine {
     }
     this.deps.input.stop();
     if (this.sessionId) {
-      await this.flushInterval(Date.now());
+      this.flushInterval(Date.now());
       // Stopping is the moment the day's last bucket exists, so it goes up now rather than
       // waiting out an interval the employee is no longer around for.
       await this.sync();
@@ -290,7 +290,7 @@ export class TrackerEngine {
 
     const idleFor = this.deps.idleSeconds();
     if (this.autoPauseDue(idleFor)) {
-      await this.autoPause(now);
+      this.autoPause(now);
       return;
     }
     const isIdle = idleFor >= this.settings.idleThresholdSeconds;
@@ -314,7 +314,7 @@ export class TrackerEngine {
     }
 
     if (now - this.intervalStartedAt >= this.settings.intervalMinutes * 60_000) {
-      await this.flushInterval(now);
+      this.flushInterval(now);
       this.beginInterval(now);
     }
 
@@ -360,8 +360,8 @@ export class TrackerEngine {
    * work, so this costs the employee nothing — it stops a session left running over lunch
    * from screenshotting an empty desk.
    */
-  private async autoPause(now: number): Promise<void> {
-    await this.closeIntervalForSync(now);
+  private autoPause(now: number): void {
+    this.closeIntervalForSync(now);
     this.pause();
     this.hooks.onAutoPaused(this.settings.idleAutoPauseMinutes);
   }
@@ -387,11 +387,11 @@ export class TrackerEngine {
    * Flushes the outbox right now, ahead of the cadence. Used when the app is shutting down
    * or signing out — the moments where waiting for the next tick would strand queued work.
    */
-  async syncNow(): Promise<SyncOutcome> {
+  syncNow(): Promise<SyncOutcome> {
     // The activity bucket accrues in memory and is only enqueued when the interval timer
     // fires — every 10 minutes by default. Closing it first is what stops a sign-out early in
     // a session from leaving the minutes worked so far behind.
-    await this.closeIntervalForSync(Date.now());
+    this.closeIntervalForSync(Date.now());
     return this.sync();
   }
 
@@ -402,11 +402,11 @@ export class TrackerEngine {
    * schedule must survive a flush untouched — otherwise anything that triggers one becomes a
    * way to postpone being screenshotted.
    */
-  private async closeIntervalForSync(now: number): Promise<void> {
+  private closeIntervalForSync(now: number): void {
     if (this.status !== 'tracking') {
       return;
     }
-    await this.flushInterval(now);
+    this.flushInterval(now);
     this.intervalStartedAt = now;
     this.intervalActiveMs = 0;
     this.intervalIdleMs = 0;
@@ -417,7 +417,10 @@ export class TrackerEngine {
     let preview: string | undefined;
     let previewMimeType: string | undefined;
 
-    for (const capture of captures) {
+    // One capture after another: each waits on the single webcam, and a capture is queued
+    // before the next one is composed, so a failure part-way keeps the ones already done.
+    await captures.reduce<Promise<void>>(async (previous, capture) => {
+      await previous;
       const image = await this.withWebcam(capture);
       if (preview === undefined) {
         preview = image;
@@ -432,7 +435,7 @@ export class TrackerEngine {
         blurred: capture.blurred,
       });
       this.screenshotCount += 1;
-    }
+    }, Promise.resolve());
 
     // Never capture the employee's screen without telling them. The shell turns this into the
     // OS notification (showing them the shot itself, webcam photo and all) and the camera
@@ -467,7 +470,7 @@ export class TrackerEngine {
     return composed ?? capture.image;
   }
 
-  private async flushInterval(now: number): Promise<void> {
+  private flushInterval(now: number): void {
     if (!this.sessionId || this.intervalActiveMs + this.intervalIdleMs === 0) {
       return;
     }

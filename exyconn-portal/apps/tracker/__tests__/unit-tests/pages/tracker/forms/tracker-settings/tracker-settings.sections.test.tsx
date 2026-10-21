@@ -67,6 +67,35 @@ describe('Tracker settings sections', () => {
     expect(field('Send at')).toBeInTheDocument();
   });
 
+  it("hides the employees' report hour until one of their reports is on", async () => {
+    renderWithProviders(<TrackerSettingsForm initial={settingsRow()} />);
+    const own = "Read in each employee's own timezone, e.g. 8 pm.";
+    expect(screen.queryByText(own)).not.toBeInTheDocument();
+    expect(screen.getByText(/^Sent to every employee with tracker access/)).toBeInTheDocument();
+    for (const label of [
+      'Email each employee their day',
+      'Email each employee their week (Sundays, with PDF)',
+      'Email each employee their month (last day, with PDF)',
+    ]) {
+      await userEvent.click(field(label));
+      expect(field('Send at')).toHaveValue('20');
+      expect(screen.getByText(own)).toBeInTheDocument();
+      await userEvent.click(field(label));
+      expect(screen.queryByLabelText('Send at')).not.toBeInTheDocument();
+    }
+  });
+
+  it('opens on the saved employee reports with their hour', () => {
+    renderWithProviders(
+      <TrackerSettingsForm
+        initial={settingsRow({ employeeMonthlyReportEnabled: true, employeeReportHour: 7 })}
+      />,
+    );
+    expect(field('Email each employee their month (last day, with PDF)')).toBeChecked();
+    expect(field('Email each employee their day')).not.toBeChecked();
+    expect(field('Send at')).toHaveValue('7');
+  });
+
   it("offers Legal's policies, marking the ones that are signed, and the text fallback", async () => {
     renderWithProviders(<TrackerSettingsForm initial={settingsRow()} />);
     expect(field(CONSENT)).toHaveValue('<p>We track activity during work hours.</p>');

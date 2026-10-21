@@ -112,6 +112,28 @@ const trackerSettingsSchema = new Schema(
       min: 0,
       max: 23,
     },
+    employeeDailyReportEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.employeeDailyReportEnabled,
+    },
+    employeeWeeklyReportEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.employeeWeeklyReportEnabled,
+    },
+    employeeMonthlyReportEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.employeeMonthlyReportEnabled,
+    },
+    employeeReportHour: {
+      type: Number,
+      required: true,
+      default: TRACKER_DEFAULTS.employeeReportHour,
+      min: 0,
+      max: 23,
+    },
     /**
      * Run state, not configuration: the local date each digest last went out, so a restart
      * or a second app instance cannot mail the same summary twice. Not exposed in the

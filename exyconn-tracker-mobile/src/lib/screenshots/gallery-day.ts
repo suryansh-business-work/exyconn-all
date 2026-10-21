@@ -14,8 +14,8 @@ export interface DayRange {
   endISO: string;
 }
 
-/** Route params as expo-router hands them over: a value, a repeated value, or nothing. */
-type Param = string | string[] | undefined;
+/** A route param as expo-router hands it over: a value or a repeated value (or, absent, nothing). */
+type Param = string | string[];
 
 export interface GalleryParams {
   capturedAt?: Param;
@@ -32,7 +32,7 @@ export function galleryRoute(range: DayRange): {
 }
 
 /** The first value of a route param, or '' when it is absent. */
-export function firstParam(value: Param): string {
+export function firstParam(value?: Param): string {
   if (Array.isArray(value)) {
     return value[0] ?? '';
   }

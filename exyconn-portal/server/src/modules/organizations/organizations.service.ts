@@ -15,6 +15,7 @@ import {
 import { provisionOrganization } from './organization.provision';
 import { adminService } from '../admin/admin.service';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 
 export interface OrganizationInput {
   name: string;
@@ -99,6 +100,11 @@ function validate(input: Partial<OrganizationInput>): void {
   if (input.website !== undefined && input.website !== '' && !isWebAddress(input.website)) {
     badRequest('The website must be a web address (http or https).');
   }
+  validateLengths(input);
+}
+
+/** Refuses any free-text detail longer than its limit. */
+function validateLengths(input: Partial<OrganizationInput>): void {
   for (const [field, limit] of Object.entries(DETAIL_LIMITS)) {
     const value = (input as Record<string, unknown>)[field];
     if (typeof value === 'string' && value.length > limit) {
@@ -180,14 +186,17 @@ class OrganizationService {
   async inviteMembers(organizationId: string, members: OrganizationMemberInput[]) {
     if (members.length === 0) badRequest('Add at least one person to invite.');
     const seen = new Set<string>();
-    const added = [];
+    const unique: OrganizationMemberInput[] = [];
     for (const member of members) {
       const email = member.email.toLowerCase().trim();
       if (!seen.has(email)) {
         seen.add(email);
-        added.push(await this.addMember(organizationId, { ...member, email }));
+        unique.push({ ...member, email });
       }
     }
+    // One at a time, in the order listed: the first refusal stops the invite before anyone
+    // after it is added, and each account write sees the ones before it.
+    const added = await inSequence(unique, (member) => this.addMember(organizationId, member));
     return added;
   }
 

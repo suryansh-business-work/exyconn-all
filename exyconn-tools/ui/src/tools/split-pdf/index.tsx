@@ -21,6 +21,7 @@ import Download from '@mui/icons-material/Download';
 import { PDFDocument } from 'pdf-lib';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
+import { forEachInSequence } from '../../shared/utils/sequence';
 
 const formatSize = (b: number) =>
   b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
@@ -89,7 +90,8 @@ export default function SplitPdf() {
       const groups: number[][] =
         mode === 'all' ? Array.from({ length: pageCount }, (_, i) => [i + 1]) : parseRanges(customRange, pageCount);
       const out: { name: string; data: Uint8Array }[] = [];
-      for (const group of groups) {
+      // In sequence: each part loads its own copy of the source, so only one is held in memory at a time.
+      await forEachInSequence(groups, async (group) => {
         const newDoc = await PDFDocument.create();
         const src = await PDFDocument.load(srcBytes);
         const pages = await newDoc.copyPages(
@@ -99,7 +101,7 @@ export default function SplitPdf() {
         pages.forEach((p) => newDoc.addPage(p));
         const label = group.length === 1 ? `page-${group[0]}` : `pages-${group[0]}-${group.at(-1)}`;
         out.push({ name: `${label}.pdf`, data: await newDoc.save() });
-      }
+      });
       setResults(out);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Split failed.');

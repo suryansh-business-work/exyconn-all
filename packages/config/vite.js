@@ -17,6 +17,7 @@ const shellPublic = packageUrl("../shell/public");
 const loginSrc = packageUrl("../login/src");
 const crudSrc = packageUrl("../crud/src");
 const tabberSrc = packageUrl("../tabber/src");
+const meetingsUiSrc = packageUrl("../meetings-ui/src");
 
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap";
@@ -294,6 +295,8 @@ export function portalViteConfig(app) {
         { find: /^@exyconn\/crud\/(.*)$/, replacement: `${crudSrc}/$1` },
         { find: /^@exyconn\/tabber$/, replacement: `${tabberSrc}/index.ts` },
         { find: /^@exyconn\/tabber\/(.*)$/, replacement: `${tabberSrc}/$1` },
+        { find: /^@exyconn\/meetings-ui$/, replacement: `${meetingsUiSrc}/index.ts` },
+        { find: /^@exyconn\/meetings-ui\/(.*)$/, replacement: `${meetingsUiSrc}/$1` },
         { find: /^@exyconn\/login$/, replacement: `${loginSrc}/index.ts` },
         { find: /^@exyconn\/ui$/, replacement: `${uiSrc}/index.ts` },
         { find: /^@exyconn\/ui\/(.*)$/, replacement: `${uiSrc}/$1` },

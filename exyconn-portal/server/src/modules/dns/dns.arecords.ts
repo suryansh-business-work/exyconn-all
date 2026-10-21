@@ -1,5 +1,6 @@
 import { isIPv4 } from 'node:net';
 import { badRequest } from '../../utils/errors';
+import { inSequence } from '../../utils/inSequence';
 import { cloudflareClient } from './cloudflare.client';
 import { authorityOf, type DnsAuthority } from './dns.service';
 import { godaddyClient } from './godaddy.client';
@@ -84,9 +85,10 @@ export async function setARecord(host: string, ip: string, ttl: number): Promise
     } else {
       await cloudflareClient.createRecord(cloudflareZone.id, payload);
     }
-    for (const record of extra) {
-      await cloudflareClient.deleteRecord(cloudflareZone.id, record.id);
-    }
+    // One delete at a time: Cloudflare rate-limits record writes.
+    await inSequence(extra, (record) =>
+      cloudflareClient.deleteRecord(cloudflareZone.id, record.id),
+    );
   } else {
     badRequest(`${where.zone}'s DNS is served by another provider; change the record there.`);
   }

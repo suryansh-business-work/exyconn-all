@@ -18,7 +18,7 @@ let blobTexts: string[];
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-10-10T10:00:00Z'));
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockResolvedValue(undefined) }, configurable: true });
   downloads = [];
   blobTexts = [];
   const create = document.createElement.bind(document);

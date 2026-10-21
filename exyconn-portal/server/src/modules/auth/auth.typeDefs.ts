@@ -49,6 +49,10 @@ export const authTypeDefs = gql`
     timezone: String
     "The language the portal is shown to this person in. Empty string follows the default."
     locale: String
+    "This person's date pattern, from the offered list. Empty string follows the workspace's."
+    dateFormat: String
+    "This person's time pattern, from the offered list. Empty string follows the workspace's."
+    timeFormat: String
     "A few lines about the person. Empty string clears it."
     brief: String
     "A number colleagues can reach the person on. Empty string clears it."

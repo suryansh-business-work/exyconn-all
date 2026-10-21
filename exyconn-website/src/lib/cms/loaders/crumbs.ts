@@ -8,9 +8,8 @@ export const crumbsOf = (props: Readonly<Record<string, unknown>>): Crumb[] =>
   Array.isArray(props.crumbs) ? (props.crumbs as Crumb[]) : [];
 
 /** A list page's breadcrumb JSON-LD, from the same crumbs its band shows. */
-export const crumbsLoader: PageLoader = async ({ props, siteUrl }) => ({
-  jsonLd: [breadcrumbJsonLd(crumbsOf(props), siteUrl)],
-});
+export const crumbsLoader: PageLoader = ({ props, siteUrl }) =>
+  Promise.resolve({ jsonLd: [breadcrumbJsonLd(crumbsOf(props), siteUrl)] });
 
 /** A detail page's trail: the component's crumbs, then the item itself. */
 export const itemCrumbs = (props: Readonly<Record<string, unknown>>, title: string): Crumb[] => [

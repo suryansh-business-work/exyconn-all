@@ -16,6 +16,7 @@ import PptxGenJS from 'pptxgenjs';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
 import { fitContain, SLIDE_16X9 } from './utils';
+import { forEachInSequence, pageNumbers } from '../../shared/utils/sequence';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
@@ -71,13 +72,14 @@ export default function PdfToPowerpoint() {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const pptx = new PptxGenJS();
       pptx.layout = 'LAYOUT_16x9';
-      for (let i = 1; i <= pdf.numPages; i++) {
+      // In sequence: one page canvas at a time, and slides are added in page order.
+      await forEachInSequence(pageNumbers(pdf.numPages), async (i) => {
         setProgress({ current: i, total: pdf.numPages });
         const page = await pdf.getPage(i);
         const { dataUrl, width, height } = await renderPageToDataUrl(page);
         const box = fitContain(width, height, SLIDE_16X9.w, SLIDE_16X9.h);
         pptx.addSlide().addImage({ data: dataUrl, ...box });
-      }
+      });
       await pptx.writeFile({ fileName: `${file.name.replace(/\.pdf$/i, '')}.pptx` });
       setDone(true);
     } catch {

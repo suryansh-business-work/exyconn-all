@@ -11,6 +11,7 @@ import {
   SignBoardPage,
 } from '../../src/pages/legal';
 import { PoliciesPage } from '../../src/pages/policies';
+import { LegalGroupsPage } from '../../src/pages/groups';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -64,6 +65,7 @@ describe('App', () => {
       ['/legal/documents', DocumentsPage],
       ['/legal/contracts', ContractsPage],
       ['/legal/sign', SignBoardPage],
+      ['/legal/groups/:tab?', LegalGroupsPage],
     ]);
   });
 });

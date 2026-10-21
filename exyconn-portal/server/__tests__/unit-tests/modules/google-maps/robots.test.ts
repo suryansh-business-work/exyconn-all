@@ -58,6 +58,19 @@ describe('robotsAllows', () => {
     expect(robotsAllows(txt, AGENT, '/anything')).toBe(true);
   });
 
+  it('cuts a comment at its first # in one pass, even after a long run of them', () => {
+    const txt = `User-agent: *\nDisallow: /private${'#'.repeat(50_000)} note`;
+    expect(robotsAllows(txt, AGENT, '/private/page')).toBe(false);
+    expect(robotsAllows(txt, AGENT, '/public')).toBe(true);
+  });
+
+  it('keeps a # that a later carriage return on the same line puts out of reach', () => {
+    // As `/#.*$/` did: `.` stops at the \r, so only a # after the last line break starts a comment.
+    const txt = 'User-agent: *\nDisallow: /a#b\r/c#d';
+    expect(robotsAllows(txt, AGENT, '/a#b\r/c')).toBe(false);
+    expect(robotsAllows(txt, AGENT, '/a')).toBe(true);
+  });
+
   it('reads a wildcard rule only up to the *, erring towards staying out', () => {
     const txt = 'User-agent: *\nDisallow: /*.pdf\nAllow: *';
     expect(robotsAllows(txt, AGENT, '/brochure.html')).toBe(false);

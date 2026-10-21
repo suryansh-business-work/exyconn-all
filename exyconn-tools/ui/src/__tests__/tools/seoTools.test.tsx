@@ -19,7 +19,7 @@ import WebsiteTrafficChecker from '../../tools/website-traffic-checker';
 import { sentJsonOf } from '../helpers/requests';
 
 beforeEach(() => {
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockResolvedValue(undefined) }, configurable: true });
 });
 
 afterEach(() => {
@@ -203,7 +203,7 @@ describe('keyword-rank-checker', () => {
     typeInto('Website URL', '   ');
     const calls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length;
     pressEnter('Website URL');
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBe(calls);
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(calls);
   });
 
   it('shows the working state', async () => {
@@ -291,7 +291,7 @@ describe('backlink-checker', () => {
     );
     pressEnter('URL');
     await waitFor(() => expect(screen.queryByText('Partner')).not.toBeInTheDocument());
-    expect(screen.getAllByText('0 (0%)').length).toBe(3);
+    expect(screen.getAllByText('0 (0%)')).toHaveLength(3);
   });
 
   it('shows errors and the working state', async () => {
@@ -459,7 +459,7 @@ describe('website-traffic-checker', () => {
     expect(screen.getByText('Astro')).toBeInTheDocument();
     expect(screen.getByText('Meta text')).toBeInTheDocument();
     expect(screen.getByText('twitter.com')).toBeInTheDocument();
-    expect(screen.getAllByText('a.test').length).toBe(2);
+    expect(screen.getAllByText('a.test')).toHaveLength(2);
     expect(screen.getByText('Words: 700')).toBeInTheDocument();
   });
 
@@ -783,7 +783,7 @@ describe('serp-simulator', () => {
     typeInto('Page Title', 't'.repeat(70));
     typeInto('Meta Description', 'd'.repeat(170));
     typeInto('URL', 'https://example.org');
-    expect(screen.getAllByText(/\.\.\.$/).length).toBe(2);
+    expect(screen.getAllByText(/\.\.\.$/)).toHaveLength(2);
     fireEvent.click(screen.getByRole('button', { name: 'Preview SERP' }));
     expect(await screen.findByText('Description is 10 chars over')).toBeInTheDocument();
 

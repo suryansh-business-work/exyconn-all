@@ -93,14 +93,16 @@ export async function subscribeApp(accessToken: string): Promise<string[]> {
       'the token is not granted whatsapp_business_management for any WhatsApp Business Account',
     );
   }
-  for (const account of accounts) {
-    await postJson(
-      PROVIDER,
-      `${GRAPH}/${encodeURIComponent(account)}/subscribed_apps`,
-      {},
-      accessToken,
-    );
-  }
+  await Promise.all(
+    accounts.map((account) =>
+      postJson(
+        PROVIDER,
+        `${GRAPH}/${encodeURIComponent(account)}/subscribed_apps`,
+        {},
+        accessToken,
+      ),
+    ),
+  );
   return accounts;
 }
 

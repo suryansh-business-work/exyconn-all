@@ -19,6 +19,11 @@ const PREVIEW_WIDTH = 480;
  */
 const onScreen = new Set<Notification>();
 
+/** How many notifications are still held for the OS — none once every toast is done with. */
+export function notificationsOnScreen(): number {
+  return onScreen.size;
+}
+
 /** Shows a notification and keeps it referenced until the OS is finished with it. */
 function present(notification: Notification): void {
   onScreen.add(notification);

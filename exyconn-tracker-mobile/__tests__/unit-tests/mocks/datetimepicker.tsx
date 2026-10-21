@@ -3,8 +3,9 @@ import { vi } from 'vitest';
 /**
  * `@react-native-community/datetimepicker`. The inline (iOS) picker is a text box holding the
  * ISO value: `fireEvent.change(box, { target: { value: iso } })` picks a date, an empty value
- * dismisses. The Android dialog is `DateTimePickerAndroid.open`, a spy: call the `onChange`
- * it was given to play the dialog.
+ * dismisses. As in the library, a pick goes to `onValueChange` when given (else the deprecated
+ * `onChange`) and a dismissal to `onDismiss` (else `onChange`). The Android dialog is
+ * `DateTimePickerAndroid.open`, a spy: call the listener it was given to play the dialog.
  */
 export interface DateTimePickerEvent {
   type: 'set' | 'dismissed' | 'neutralButtonPressed';
@@ -18,6 +19,8 @@ interface Props {
   minimumDate?: Date;
   maximumDate?: Date;
   onChange?: (event: DateTimePickerEvent, date?: Date) => void;
+  onValueChange?: (event: Pick<DateTimePickerEvent, 'nativeEvent'>, date: Date) => void;
+  onDismiss?: () => void;
 }
 
 function eventFor(value: string): [DateTimePickerEvent, Date | undefined] {
@@ -28,13 +31,28 @@ function eventFor(value: string): [DateTimePickerEvent, Date | undefined] {
   return [{ type: 'set', nativeEvent: { timestamp: date.getTime() } }, date];
 }
 
-export default function DateTimePicker({ value, mode, onChange }: Readonly<Props>) {
+function deliver(value: string, props: Readonly<Props>): void {
+  const [event, date] = eventFor(value);
+  if (date === undefined) {
+    if (props.onDismiss) {
+      props.onDismiss();
+    } else {
+      props.onChange?.(event);
+    }
+  } else if (props.onValueChange) {
+    props.onValueChange(event, date);
+  } else {
+    props.onChange?.(event, date);
+  }
+}
+
+export default function DateTimePicker(props: Readonly<Props>) {
   return (
     <input
-      aria-label={`date-time-picker-${mode ?? 'date'}`}
+      aria-label={`date-time-picker-${props.mode ?? 'date'}`}
       data-testid="date-time-picker"
-      defaultValue={value.toISOString()}
-      onChange={(event) => onChange?.(...eventFor(event.target.value))}
+      defaultValue={props.value.toISOString()}
+      onChange={(event) => deliver(event.target.value, props)}
     />
   );
 }

@@ -1,4 +1,4 @@
-import { amber, emerald, neutral, red, slate } from './colors.tokens';
+import { amber, azure, blue, emerald, neutral, orange, red, slate, violet } from './colors.tokens';
 
 /**
  * The trackers' (desktop and phone) own colour roles. Named for what they mean, and kept here
@@ -22,3 +22,30 @@ export const trackerTabBar = { light: slate[950], dark: neutral[700] } as const;
 
 /** A selected tab, segment, chip or calendar day — the design system's own selection ink. */
 export { selectedInk as trackerSelected } from './selection.token';
+
+/**
+ * A calendar day's status hue, per mode — the tile's border, icon and tint on the portal, the
+ * desktop and the phone alike. Keyed by tracker-core's `DayMark`. The light shades are each
+ * mode's status inks (3:1 and better on the surface); the dark ones lift for the dark ground.
+ */
+export const trackerDayStatus = {
+  light: {
+    COMPLETED: emerald[900],
+    SHORT: red[950],
+    LEAVE: blue[700],
+    HOLIDAY: violet[500],
+    WEEK_OFF: neutral[500],
+    OFF_COMPUTER: orange[800],
+  },
+  dark: {
+    COMPLETED: emerald[300],
+    SHORT: red[300],
+    LEAVE: azure[300],
+    HOLIDAY: violet[300],
+    WEEK_OFF: neutral[300],
+    OFF_COMPUTER: amber[300],
+  },
+} as const;
+
+/** A status hue's tile tint: the hue at about 12%, so text on it keeps the page's contrast. */
+export const TRACKER_STATUS_TINT_ALPHA = '1f';

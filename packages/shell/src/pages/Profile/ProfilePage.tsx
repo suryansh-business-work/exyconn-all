@@ -5,6 +5,7 @@ import { useAuth } from '@/auth/AuthContext';
 import { useMeQuery } from '@/graphql/generated';
 import { ProfileSummaryCard } from './ProfileSummaryCard';
 import { ProfileForm } from './forms/profile';
+import { MyLegalPanel } from './MyLegalPanel';
 
 /** Self-service profile page: how colleagues see you on the left, what you can change on the right. */
 export function ProfilePage() {
@@ -34,6 +35,9 @@ export function ProfilePage() {
             </Heading>
             <ProfileForm />
           </Box>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <MyLegalPanel />
         </Grid>
       </Grid>
     </Box>

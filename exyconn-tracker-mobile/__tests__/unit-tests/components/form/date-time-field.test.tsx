@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   DateTimePickerAndroid,
   type AndroidNativeProps,
-  type DateTimePickerEvent,
+  type DateTimePickerChangeEvent,
 } from '@react-native-community/datetimepicker';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { formatDateTime } from '@exyconn/tracker-core';
@@ -51,11 +51,7 @@ function androidCall(index: number): AndroidNativeProps {
   return call[0];
 }
 
-const SET: DateTimePickerEvent = { type: 'set', nativeEvent: { timestamp: 0, utcOffset: 0 } };
-const DISMISSED: DateTimePickerEvent = {
-  type: 'dismissed',
-  nativeEvent: { timestamp: 0, utcOffset: 0 },
-};
+const SET: DateTimePickerChangeEvent = { nativeEvent: { timestamp: 0, utcOffset: 0 } };
 
 describe('DateTimeField', () => {
   it('says nothing is chosen yet', () => {
@@ -103,31 +99,28 @@ describe('DateTimeField', () => {
     expect(date.minimumDate).toBe(MIN);
 
     const day = new Date('2026-10-06T00:00:00.000Z');
-    act(() => date.onChange?.(SET, day));
+    act(() => date.onValueChange?.(SET, day));
     const time = androidCall(1);
     expect(time.mode).toBe('time');
     expect(time.value).toBe(day);
 
-    act(() => time.onChange?.(SET, new Date('2026-10-06T05:15:00.000Z')));
+    act(() => time.onValueChange?.(SET, new Date('2026-10-06T05:15:00.000Z')));
     expect(screen.getByText(formatDateTime('2026-10-06T05:15:00.000Z', ZONE))).toBeInTheDocument();
   });
 
-  it('on Android stops when the date dialog is dismissed', () => {
+  it('on Android listens only for a pick, so dismissing either dialog changes nothing', () => {
     Platform.OS = 'android';
     renderWithProviders(<Harness />);
     fireEvent.click(screen.getByRole('button', { name: 'Started: not set' }));
-    act(() => androidCall(0).onChange?.(DISMISSED));
+    const date = androidCall(0);
+    expect(date.onChange).toBeUndefined();
+    expect(date.onDismiss).toBeUndefined();
     expect(DateTimePickerAndroid.open).toHaveBeenCalledTimes(1);
-    act(() => androidCall(0).onChange?.(SET));
-    expect(DateTimePickerAndroid.open).toHaveBeenCalledTimes(1);
-  });
 
-  it('on Android keeps the value when the time dialog is dismissed', () => {
-    Platform.OS = 'android';
-    renderWithProviders(<Harness />);
-    fireEvent.click(screen.getByRole('button', { name: 'Started: not set' }));
-    act(() => androidCall(0).onChange?.(SET, new Date('2026-10-06T00:00:00.000Z')));
-    act(() => androidCall(1).onChange?.(DISMISSED, new Date('2026-10-06T05:15:00.000Z')));
+    act(() => date.onValueChange?.(SET, new Date('2026-10-06T00:00:00.000Z')));
+    const time = androidCall(1);
+    expect(time.onChange).toBeUndefined();
+    expect(time.onDismiss).toBeUndefined();
     expect(screen.getByText('Choose a date and time')).toBeInTheDocument();
   });
 

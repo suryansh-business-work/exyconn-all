@@ -11,10 +11,12 @@ import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   DocumentCategory,
   DocumentStatus,
+  LegalItemKind,
   useCreateLegalDocumentMutation,
   useGetLegalDocumentBodyQuery,
   useUpdateLegalDocumentMutation,
 } from '@exyconn/shell/graphql/generated';
+import { LegalGroupField } from '@exyconn/shell/components/legal';
 import { BodyGate } from '../BodyGate';
 import { legalBody } from '../body.schema';
 import type { LegalDocumentRow } from './document.types';
@@ -33,6 +35,8 @@ const schema = z.object({
   ]),
   status: z.enum(DocumentStatus),
   content: legalBody,
+  // '' leaves it ungrouped.
+  groupId: z.string(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -41,6 +45,7 @@ const toInput = (values: Values) => ({
   ...values,
   owner: values.owner || null,
   fileUrl: values.fileUrl || null,
+  groupId: values.groupId || null,
 });
 
 const toInitial = (row: LegalDocumentRow | null, content: string): Values => ({
@@ -50,6 +55,7 @@ const toInitial = (row: LegalDocumentRow | null, content: string): Values => ({
   fileUrl: row?.fileUrl ?? '',
   status: row?.status ?? DocumentStatus.Draft,
   content,
+  groupId: row?.groupId ?? '',
 });
 
 interface DocumentFormProps {
@@ -118,6 +124,7 @@ function DocumentFields({
         options={enumOptions(Object.values(DocumentStatus))}
         helperText="Draft while it is being written; Active once it is in force."
       />
+      <LegalGroupField kind={LegalItemKind.Document} />
       <RhfRichText
         name="content"
         label="Document"

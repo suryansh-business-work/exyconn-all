@@ -1,5 +1,3 @@
-import type { Minor } from './money';
-
 /** Where a charge is reported. Payroll and recruitment come from roles; the rest from inputs. */
 export const COST_SECTIONS = [
   'payroll',
@@ -32,8 +30,8 @@ export interface Charge {
   label: string;
   month: number;
   kind: ChargeKind;
-  amount: Minor;
-  tax: Minor;
+  amount: number;
+  tax: number;
   /** Optional add-ons are reported apart from the main totals. */
   optional: boolean;
   /** Marked "requires professional review": counted, and listed as uncertain. */
@@ -52,8 +50,8 @@ export function charge(
   meta: ChargeMeta,
   month: number,
   kind: ChargeKind,
-  amount: Minor,
-  tax: Minor = 0,
+  amount: number,
+  tax = 0,
 ): Charge[] {
   if (amount === 0 && tax === 0) {
     return [];

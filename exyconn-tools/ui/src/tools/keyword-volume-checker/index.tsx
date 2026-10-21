@@ -23,12 +23,24 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
+import { copyText } from '../../shared/utils/clipboard';
 
 interface SuggestionResult {
   keyword: string;
   wordCount: number;
   charCount: number;
 }
+
+/** The suggestions for one keyword; an unsuccessful answer contributes none. */
+const fetchSuggestions = async (keyword: string): Promise<SuggestionResult[]> => {
+  const res = await fetch(APIs.seoTools.keywordSuggest, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ keyword }),
+  });
+  const data = await res.json();
+  return data.success && data.data.keywords ? data.data.keywords : [];
+};
 
 const KeywordVolumeChecker: React.FC = () => {
   const [keywords, setKeywords] = useState('');
@@ -46,16 +58,9 @@ const KeywordVolumeChecker: React.FC = () => {
     setError(null);
     setResults([]);
     try {
-      const allResults: SuggestionResult[] = [];
-      for (const kw of kwList.slice(0, 5)) {
-        const res = await fetch(APIs.seoTools.keywordSuggest, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keyword: kw }),
-        });
-        const data = await res.json();
-        if (data.success && data.data.keywords) allResults.push(...data.data.keywords);
-      }
+      // The keywords are independent: look them up together; results keep the keyword order.
+      const perKeyword = await Promise.all(kwList.slice(0, 5).map(fetchSuggestions));
+      const allResults = perKeyword.flat();
       const seen = new Set<string>();
       setResults(
         allResults.filter((r) => {
@@ -72,7 +77,7 @@ const KeywordVolumeChecker: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(results.map((r) => r.keyword).join('\n'));
+    copyText(results.map((r) => r.keyword).join('\n'));
     flashCopied();
   };
 

@@ -1,5 +1,13 @@
 import { useMemo } from 'react';
-import { countryOptions, endonymOf, timezoneOptions, useI18n } from '@exyconn/i18n';
+import { format } from 'date-fns';
+import {
+  DATE_FORMATS,
+  TIME_FORMATS,
+  countryOptions,
+  endonymOf,
+  timezoneOptions,
+  useI18n,
+} from '@exyconn/i18n';
 import type { SelectOption } from '@/components/form/rhf';
 import { useLocaleOptionsQuery } from '@/graphql/generated';
 
@@ -34,6 +42,23 @@ export function useLanguageOptions(includeDefault = true): SelectOption[] {
     }));
     return includeDefault ? [WORKSPACE_DEFAULT_OPTION, ...options] : options;
   }, [data, includeDefault]);
+}
+
+/** Each pattern labelled with "now" written through it, so the choice reads as a date. */
+function patternOptions(patterns: readonly string[], includeDefault: boolean): SelectOption[] {
+  const now = new Date();
+  const options = patterns.map((value) => ({ value, label: `${format(now, value)}  (${value})` }));
+  return includeDefault ? [WORKSPACE_DEFAULT_OPTION, ...options] : options;
+}
+
+/** The date patterns (date-fns, ISO 8601 first) a workspace or a person may pick. */
+export function useDateFormatOptions(includeDefault = true): SelectOption[] {
+  return useMemo(() => patternOptions(DATE_FORMATS, includeDefault), [includeDefault]);
+}
+
+/** The time patterns a workspace or a person may pick. */
+export function useTimeFormatOptions(includeDefault = true): SelectOption[] {
+  return useMemo(() => patternOptions(TIME_FORMATS, includeDefault), [includeDefault]);
 }
 
 /**

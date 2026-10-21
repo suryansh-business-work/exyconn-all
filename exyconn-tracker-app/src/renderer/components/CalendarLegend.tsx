@@ -1,16 +1,11 @@
 import type { ReactElement } from 'react';
 import { Box, Stack, Typography, useTheme } from '@exyconn/ui';
-import type { DayMark } from '@exyconn/tracker-core';
+import { MARK_ORDER, MARK_WORDS } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
 import { markRing } from './TrackedDay';
 
-/** Every ring the calendar draws, in the order the legend lists them. */
-const LEGEND: ReadonlyArray<{ mark: DayMark; label: string }> = [
-  { mark: 'SHORT', label: 'Short' },
-  { mark: 'LEAVE', label: 'Leave' },
-  { mark: 'HOLIDAY', label: 'Holiday' },
-  { mark: 'WEEK_OFF', label: 'Week off' },
-];
+/** Every ring the calendar draws, in the order every tracker surface lists them. */
+const LEGEND = MARK_ORDER.map((mark) => ({ mark, label: MARK_WORDS[mark] }));
 
 /** What each ring on the report calendar means, each drawn exactly as the grid draws it. */
 export default function CalendarLegend(): ReactElement {

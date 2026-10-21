@@ -12,10 +12,12 @@ import {
 import { EntityForm } from '@/components/form/EntityForm';
 import { useEntitySave } from '@/components/form/useEntitySave';
 import { enumOptions } from '@/utils/enumOptions';
+import { LegalGroupField } from '@/components/legal';
 import {
   PolicyAudience,
   PolicyCategory,
   PolicyClassification,
+  LegalItemKind,
   useCreatePolicyMutation,
   useUpdatePolicyMutation,
 } from '@/graphql/generated';
@@ -43,6 +45,8 @@ const schema = z.object({
   classification: z.enum(PolicyClassification),
   /** Empty means nobody has promised to look at it again — allowed, and worth seeing. */
   nextReviewOn: z.string(),
+  // '' leaves it ungrouped.
+  groupId: z.string(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -64,6 +68,7 @@ const toInitial = (row: PolicyRow | null, fallback: PolicyCategory): Values => (
   owner: row?.owner ?? '',
   classification: row?.classification ?? PolicyClassification.Internal,
   nextReviewOn: row?.nextReviewOn ?? '',
+  groupId: row?.groupId ?? '',
 });
 
 interface Props {
@@ -72,6 +77,8 @@ interface Props {
   onCancel: () => void;
   /** The kinds this screen maintains. IT passes IT and SECURITY; Legal offers them all. */
   categories?: readonly PolicyCategory[];
+  /** Offers Legal's policy groups. Legal sets it; IT, which cannot read them, does not. */
+  grouping?: boolean;
 }
 
 /**
@@ -86,6 +93,7 @@ export function PolicyForm({
   onDone,
   onCancel,
   categories = ALL_CATEGORIES,
+  grouping = false,
 }: Readonly<Props>) {
   const [createPolicy] = useCreatePolicyMutation();
   const [updatePolicy] = useUpdatePolicyMutation();
@@ -171,6 +179,7 @@ export function PolicyForm({
         label="Next review"
         helperText="Optional. When it must be read again and confirmed still right."
       />
+      {grouping && <LegalGroupField kind={LegalItemKind.Policy} />}
       <RhfSwitch name="requiresAcknowledgement" label="Staff must read and sign this" />
     </EntityForm>
   );

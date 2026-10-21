@@ -56,6 +56,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import FolderCopyIcon from '@mui/icons-material/FolderCopy';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
@@ -102,6 +103,11 @@ import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import PaletteIcon from '@mui/icons-material/Palette';
 import PublicIcon from '@mui/icons-material/Public';
 import SettingsIcon from '@mui/icons-material/Settings';
+import VideoCallIcon from '@mui/icons-material/VideoCall';
+import ExtensionIcon from '@mui/icons-material/Extension';
+import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import WebIcon from '@mui/icons-material/Web';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import PermMediaIcon from '@mui/icons-material/PermMedia';
@@ -161,6 +167,34 @@ export interface ModuleDefinition {
   scopedPrefix?: string;
   children?: ModuleChild[];
 }
+
+/** Where the AI portal's Meeting Assistant pages live. */
+const MA = '/ai/meeting-assistant';
+
+/** The AI portal's Meeting Assistant pages: one sidebar section, the company's whole view. */
+const MEETING_ASSISTANT_NAV: ModuleChild[] = [
+  { key: 'ma-dashboard', label: 'Dashboard', path: MA, icon: DashboardIcon },
+  { key: 'ma-meetings', label: 'All Meetings', path: `${MA}/meetings`, icon: VideoCallIcon },
+  {
+    key: 'ma-transcripts',
+    label: 'Transcripts',
+    path: `${MA}/transcripts`,
+    icon: RecordVoiceOverIcon,
+  },
+  { key: 'ma-notes', label: 'AI Notes', path: `${MA}/notes`, icon: AutoAwesomeIcon },
+  { key: 'ma-actions', label: 'Action Checklist', path: `${MA}/actions`, icon: TaskAltIcon },
+  { key: 'ma-participants', label: 'Participants', path: `${MA}/participants`, icon: GroupsIcon },
+  { key: 'ma-extension', label: 'Chrome Extension', path: `${MA}/extension`, icon: ExtensionIcon },
+  { key: 'ma-settings', label: 'Settings', path: `${MA}/settings`, icon: SettingsIcon },
+  { key: 'ma-logs', label: 'Logs', path: `${MA}/logs`, icon: HistoryIcon },
+  {
+    key: 'ma-releases',
+    label: 'Releases',
+    path: `${MA}/releases`,
+    icon: NewReleasesIcon,
+    role: ROLES.ADMIN,
+  },
+].map((child) => ({ ...child, group: 'Meeting Assistant' as const }));
 
 /**
  * Single source of truth for the portal's modules, ordered to the role model.
@@ -330,6 +364,27 @@ export const MODULES: ModuleDefinition[] = [
         group: 'My record',
       },
       { key: 'me-exit', label: 'Exit', path: '/me/exit', icon: LogoutIcon, group: 'My record' },
+      {
+        key: 'me-meetings',
+        label: 'Meetings',
+        path: '/me/meetings',
+        icon: VideoCallIcon,
+        group: 'My meetings',
+      },
+      {
+        key: 'me-meeting-actions',
+        label: 'Action items',
+        path: '/me/meetings/actions',
+        icon: TaskAltIcon,
+        group: 'My meetings',
+      },
+      {
+        key: 'me-meeting-extension',
+        label: 'Chrome extension',
+        path: '/me/meetings/extension',
+        icon: ExtensionIcon,
+        group: 'My meetings',
+      },
     ],
   },
   {
@@ -622,6 +677,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Sign Board',
         path: '/legal/sign',
         icon: HistoryEduIcon,
+      },
+      {
+        key: 'legal-groups',
+        label: 'Groups',
+        path: '/legal/groups',
+        icon: FolderCopyIcon,
       },
     ],
   },
@@ -934,18 +995,18 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Configuration',
       },
       {
-        key: 'admin-app-settings',
-        label: 'App Settings',
-        path: '/admin/settings',
-        icon: TuneIcon,
-        group: 'Configuration',
-      },
-      {
         key: 'admin-localization',
         label: 'Localization',
         path: '/admin/localization',
         icon: TranslateIcon,
         group: 'Configuration',
+      },
+      {
+        key: 'admin-app-settings',
+        label: 'Settings',
+        path: '/admin/settings',
+        icon: TuneIcon,
+        group: 'System',
       },
       {
         key: 'admin-audit',
@@ -1159,6 +1220,7 @@ export const MODULES: ModuleDefinition[] = [
         path: '/ai/prompts',
         icon: AutoAwesomeIcon,
       },
+      ...MEETING_ASSISTANT_NAV,
     ],
   },
   {

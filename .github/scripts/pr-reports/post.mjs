@@ -98,9 +98,8 @@ async function upsertComment(number) {
 
 if (process.env.GITHUB_TOKEN && process.env.GITHUB_EVENT_PATH) {
   try {
-    for (const number of await pullRequestNumbers()) {
-      await upsertComment(number);
-    }
+    const numbers = await pullRequestNumbers();
+    await Promise.all(numbers.map((number) => upsertComment(number)));
   } catch (error) {
     console.log(
       `::warning::Could not post the quality report on the pull request: ${error.message}`,

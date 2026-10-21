@@ -4,6 +4,7 @@ import { FileDownload } from '@mui/icons-material';
 import { Business } from '../../types';
 import BusinessListItem from './BusinessListItem';
 import BusinessDetails from './BusinessDetails';
+import { copyText } from '../../../../shared/utils/clipboard';
 
 interface BusinessListProps {
   businesses: Business[];
@@ -17,7 +18,7 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, selectedBusines
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleCopy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 1500);
   };

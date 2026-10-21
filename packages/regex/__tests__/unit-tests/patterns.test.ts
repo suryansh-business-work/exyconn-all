@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CHROME_EXTENSION_REDIRECT,
   CODE,
   DOMAIN,
   EMAIL,
   FINANCIAL_YEAR,
   GITHUB_NAME,
+  GOOGLE_MEET_CODE,
   GSTIN,
   GST_STATE_CODE,
   HEX_COLOR,
@@ -145,10 +147,42 @@ const CASES: ReadonlyArray<{
     invalid: ['', '2026', '2026-2027', '26-27'],
   },
   {
+    name: 'GOOGLE_MEET_CODE',
+    pattern: GOOGLE_MEET_CODE,
+    valid: ['/abc-defg-hij', '/abc-defg-hij/', '/abc-defg-hij?authuser=0', '/abc-defg-hij#x'],
+    invalid: [
+      '',
+      '/',
+      '/landing',
+      '/new',
+      '/ABC-DEFG-HIJ',
+      '/abc-defg-hijk',
+      '/abcd-efg-hij',
+      'abc-defg-hij',
+    ],
+  },
+  {
     name: 'GSTIN',
     pattern: GSTIN,
     valid: ['27AAPFU0939F1ZV', '29ABCDE1234F1Z5'],
     invalid: ['', '27aapfu0939f1zv', '27AAPFU0939F0ZV', '27AAPFU0939F1XV', '27AAPFU0939F1Z'],
+  },
+  {
+    name: 'CHROME_EXTENSION_REDIRECT',
+    pattern: CHROME_EXTENSION_REDIRECT,
+    valid: [
+      'https://abcdefghijklmnopabcdefghijklmnop.chromiumapp.org/',
+      'https://pppppppppppppppppppppppppppppppp.chromiumapp.org/callback?x=1',
+    ],
+    invalid: [
+      '',
+      'https://abcdefghijklmnopabcdefghijklmnop.chromiumapp.org',
+      'http://abcdefghijklmnopabcdefghijklmnop.chromiumapp.org/',
+      'https://abcdefghijklmnopabcdefghijklmnoq.chromiumapp.org/',
+      'https://abcdefghijklmnop.chromiumapp.org/',
+      'https://abcdefghijklmnopabcdefghijklmnop.chromiumapp.org.evil.com/',
+      'https://evil.com/abcdefghijklmnopabcdefghijklmnop.chromiumapp.org/',
+    ],
   },
   {
     name: 'GST_STATE_CODE',
@@ -171,5 +205,11 @@ describe.each(CASES)('$name', ({ pattern, valid, invalid }) => {
 
   it.each(invalid)('rejects %j', (value) => {
     expect(pattern.test(value)).toBe(false);
+  });
+});
+
+describe('GOOGLE_MEET_CODE capture', () => {
+  it('captures the meeting code from a call path', () => {
+    expect(GOOGLE_MEET_CODE.exec('/abc-defg-hij/details')?.[1]).toBe('abc-defg-hij');
   });
 });

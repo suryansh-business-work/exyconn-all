@@ -2,7 +2,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { format, isValid, parse } from 'date-fns';
 import { useFieldCopy } from './useFieldCopy';
 import { TimePicker } from '@/components/ui';
-import { useSettings } from '@/hooks/useSettings';
+import { useI18n } from '@exyconn/i18n';
 import { cellText } from '../../../utils/cellText';
 
 interface RhfTimePickerProps {
@@ -41,8 +41,8 @@ export function RhfTimePicker({
 }: Readonly<RhfTimePickerProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
-  const { settings } = useSettings();
-  const ampm = settings.timeFormat.includes('a');
+  const { timeFormat } = useI18n().settings;
+  const ampm = timeFormat.includes('a');
   const views = hoursOnly ? (['hours'] as const) : (['hours', 'minutes'] as const);
   return (
     <Controller

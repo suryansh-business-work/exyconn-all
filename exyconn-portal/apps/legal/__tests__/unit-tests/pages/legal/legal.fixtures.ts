@@ -23,6 +23,7 @@ export function contractRow(overrides: Partial<ContractRow> = {}): ContractRow {
     expiryDate: '2027-01-01T00:00:00.000Z',
     status: ContractStatus.Active,
     documentUrl: 'https://cdn.example.com/msa.pdf',
+    groupId: null,
     sentAt: null,
     signedBy: null,
     signedAt: null,
@@ -40,6 +41,7 @@ export function documentRow(overrides: Partial<LegalDocumentRow> = {}): LegalDoc
     owner: 'Legal team',
     fileUrl: 'https://cdn.example.com/dpa.pdf',
     status: DocumentStatus.Final,
+    groupId: null,
     ...overrides,
   };
 }

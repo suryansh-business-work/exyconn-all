@@ -1,9 +1,7 @@
-import type { Minor } from "@exyconn/gcc-cost";
-
 export interface Bar {
   key: string;
   label: string;
-  value: Minor;
+  value: number;
 }
 
 /**
@@ -17,7 +15,7 @@ export function BarList({
   tone = "light",
 }: Readonly<{
   bars: readonly Bar[];
-  format: (minor: Minor) => string;
+  format: (minor: number) => string;
   empty: string;
   tone?: "light" | "night";
 }>) {

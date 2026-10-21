@@ -1,8 +1,17 @@
 import type { ReactElement } from 'react';
 import { createContext, useContext } from 'react';
-import { Box, PickerDay, Tooltip, trackerActivity, useTheme, type Theme } from '@exyconn/ui';
-import type { PickerDayProps } from '@exyconn/ui';
 import {
+  Box,
+  PickerDay,
+  Tooltip,
+  trackerActivity,
+  trackerDayStatus,
+  useTheme,
+  type PickerDayProps,
+  type Theme,
+} from '@exyconn/ui';
+import {
+  MARK_WORDS,
   formatDayLabel,
   formatHoursMinutes,
   type ActivityLevel,
@@ -24,35 +33,19 @@ export interface TrackedDate {
  */
 export const TrackedDatesContext = createContext<ReadonlyMap<string, TrackedDate>>(new Map());
 
-/** Leave, holidays, week offs and finished days short of the contract, by `yyyy-MM-dd` key. */
+/** Each day's status (completed, short, leave, holiday, week off, off-computer), by `yyyy-MM-dd` key. */
 export const DayMarksContext = createContext<ReadonlyMap<string, DayMark>>(new Map());
 
 /** What an off day is called — the leave code (CL, EL) or the holiday's name — by date key. */
 export const DayLabelsContext = createContext<ReadonlyMap<string, string>>(new Map());
 
-/** What a mark adds to the day's name, so the ring is heard as well as seen. */
-const MARK_WORDS: Readonly<Record<DayMark, string>> = {
-  SHORT: 'below expected hours',
-  LEAVE: 'on leave',
-  HOLIDAY: 'holiday',
-  WEEK_OFF: 'week off',
-};
-
 /**
- * The ring a marked day wears (also drawn by the legend): red when short, the accent for
- * leave, grey for a holiday, and a grey hairline for a week off.
+ * The ring a marked day wears (also drawn by the legend), in the shared tracker status hues the
+ * phone and the portal use too: green completed, red short, blue leave, purple holiday, grey
+ * week off, amber off-computer work.
  */
 export function markRing(mark: DayMark, theme: Theme): string {
-  if (mark === 'WEEK_OFF') {
-    return `inset 0 0 0 1px ${theme.palette.text.secondary}`;
-  }
-  let color = theme.palette.text.secondary;
-  if (mark === 'SHORT') {
-    color = theme.palette.error.main;
-  } else if (mark === 'LEAVE') {
-    color = theme.palette.info.main;
-  }
-  return `inset 0 0 0 2px ${color}`;
+  return `inset 0 0 0 2px ${trackerDayStatus[theme.palette.mode][mark]}`;
 }
 
 interface FooterProps {

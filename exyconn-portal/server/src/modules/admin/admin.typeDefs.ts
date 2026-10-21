@@ -121,6 +121,10 @@ export const adminTypeDefs = gql`
     """
     timezone: String
     locale: String
+    "The person's own date pattern (date-fns); null follows the workspace's."
+    dateFormat: String
+    "The person's own time pattern (date-fns); null follows the workspace's."
+    timeFormat: String
     """
     ISO 3166-1 alpha-2 country the person is employed in, which decides their leave quotas
     and holidays. Null follows the company's country. Set by HR only.

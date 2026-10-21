@@ -20,6 +20,8 @@ const documentSchema = new Schema(
     // The document itself, written in the portal's rich-text editor, as HTML.
     content: { type: String, default: '', maxlength: LEGAL_BODY_MAX_CHARS },
     status: { type: String, enum: DOCUMENT_STATUSES, required: true, default: 'DRAFT' },
+    /** The group this belongs to (see legal-group.model.ts); null when ungrouped. */
+    groupId: { type: String, default: null },
   },
   { timestamps: true },
 );

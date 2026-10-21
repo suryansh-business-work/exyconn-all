@@ -1,0 +1,14 @@
+{
+  "development": {
+    "apiUrl": "http://localhost:4004",
+    "portalUrl": "http://localhost:4021"
+  },
+  "staging": {
+    "apiUrl": "https://portal-server.exyconn.com",
+    "portalUrl": "https://employee.exyconn.com"
+  },
+  "production": {
+    "apiUrl": "https://portal-server.exyconn.com",
+    "portalUrl": "https://employee.exyconn.com"
+  }
+}

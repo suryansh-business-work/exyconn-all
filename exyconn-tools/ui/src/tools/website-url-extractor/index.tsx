@@ -7,6 +7,7 @@ import { APIs } from '../../shared/config/apis';
 import { ExtractionResult, ExtractedUrl } from './types';
 import ExtractorInputSection from './ExtractorInputSection';
 import UrlResultsTable from './UrlResultsTable';
+import { copyText } from '../../shared/utils/clipboard';
 
 const WebsiteUrlExtractor: React.FC = () => {
   const [websiteUrl, setWebsiteUrl] = useState('');
@@ -38,7 +39,7 @@ const WebsiteUrlExtractor: React.FC = () => {
 
   const handleCopyAll = (urls: ExtractedUrl[]) => {
     const text = urls.map((u) => u.url).join('\n');
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopied(true);
   };
 

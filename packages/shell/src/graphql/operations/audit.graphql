@@ -57,3 +57,12 @@ query ListFinanceChangeLogStats {
     ...AuditLogStats
   }
 }
+
+query ListUserActivityPaged($userId: ID!, $input: TableQueryInput!) {
+  listUserActivityPaged(userId: $userId, input: $input) {
+    totalCount
+    rows {
+      ...AuditLogRow
+    }
+  }
+}

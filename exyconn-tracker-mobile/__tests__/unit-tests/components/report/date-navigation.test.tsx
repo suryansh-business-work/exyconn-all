@@ -80,15 +80,15 @@ describe('JumpToDate (Android)', () => {
     const [[options]] = vi.mocked(DateTimePickerAndroid.open).mock.calls;
     const picked = new Date(2026, 0, 9);
     act(() => {
-      options.onChange?.(
-        { type: 'set', nativeEvent: { timestamp: picked.getTime(), utcOffset: 0 } },
+      options.onValueChange?.(
+        { nativeEvent: { timestamp: picked.getTime(), utcOffset: 0 } },
         picked,
       );
     });
     expect(onSelect).toHaveBeenCalledWith(picked);
   });
 
-  it('keeps the day when the dialog reports no date, or is cancelled', () => {
+  it('keeps the day when the dialog reports no date, and does not listen for a cancel', () => {
     Platform.OS = 'android';
     const onSelect = vi.fn();
     renderWithProviders(<JumpToDate selected={SELECTED} maxDate={TODAY} onSelect={onSelect} />);
@@ -96,11 +96,15 @@ describe('JumpToDate (Android)', () => {
 
     const [[options]] = vi.mocked(DateTimePickerAndroid.open).mock.calls;
     act(() => {
-      options.onChange?.({ type: 'set', nativeEvent: { timestamp: 0, utcOffset: 0 } });
-      options.onChange?.({ type: 'dismissed', nativeEvent: { timestamp: 0, utcOffset: 0 } });
+      options.onValueChange?.(
+        { nativeEvent: { timestamp: Number.NaN, utcOffset: 0 } },
+        new Date(Number.NaN),
+      );
     });
 
     expect(onSelect).not.toHaveBeenCalled();
+    expect(options.onChange).toBeUndefined();
+    expect(options.onDismiss).toBeUndefined();
   });
 });
 

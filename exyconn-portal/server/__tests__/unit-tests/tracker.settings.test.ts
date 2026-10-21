@@ -109,4 +109,42 @@ describe('tracker settings', () => {
     await updateTrackerSettings({ screenshotQuality: 0 });
     await expect(getTrackerSettings()).resolves.toMatchObject({ screenshotQuality: 0 });
   });
+
+  it('sends every employee report at 20:00 by default, even to a document that predates them', async () => {
+    await TrackerSettingsModel.collection.insertOne({ key: 'global', intervalMinutes: 10 });
+
+    await expect(getTrackerSettings()).resolves.toMatchObject({
+      employeeDailyReportEnabled: true,
+      employeeWeeklyReportEnabled: true,
+      employeeMonthlyReportEnabled: true,
+      employeeReportHour: 20,
+    });
+  });
+
+  it('round-trips the employee report switches and hour', async () => {
+    await updateTrackerSettings({
+      employeeDailyReportEnabled: false,
+      employeeWeeklyReportEnabled: false,
+      employeeMonthlyReportEnabled: false,
+      employeeReportHour: 0,
+    });
+
+    await expect(getTrackerSettings()).resolves.toMatchObject({
+      employeeDailyReportEnabled: false,
+      employeeWeeklyReportEnabled: false,
+      employeeMonthlyReportEnabled: false,
+      employeeReportHour: 0,
+    });
+  });
+
+  it('holds the employee report hour to 0–23', () => {
+    const at = (employeeReportHour: number) =>
+      new TrackerSettingsModel({ key: 'global', employeeReportHour }).validateSync()?.errors
+        .employeeReportHour;
+
+    expect(at(0)).toBeUndefined();
+    expect(at(23)).toBeUndefined();
+    expect(at(24)).toBeDefined();
+    expect(at(-1)).toBeDefined();
+  });
 });

@@ -7,6 +7,7 @@ import { JobCompanyModel } from '../website/models/job-company.model';
 import { JobModel } from '../website/models/job.model';
 import { NavLinkModel } from '../website/models/nav-link.model';
 import { runOnce } from '../../lib/migrations';
+import { inSequence } from '../../utils/inSequence';
 import {
   CmsDesignSystemModel,
   CmsFragmentModel,
@@ -69,9 +70,10 @@ async function published(siteId: string, html: string, css: string, selfId?: str
 }
 
 async function seedFragments(seed: CmsSiteSeed, siteId: string, done: Set<string>) {
-  for (const fragment of seed.fragments) {
+  // In order: a fragment can embed one seeded before it, so each reads the ids written so far.
+  await inSequence(seed.fragments, async (fragment) => {
     const key = `fragment:${fragment.key}`;
-    if (done.has(key)) continue;
+    if (done.has(key)) return;
     const ids = await fragmentIds(siteId);
     const html = withFragmentIds(fragment.html, ids);
     const row = await CmsFragmentModel.create({
@@ -86,33 +88,44 @@ async function seedFragments(seed: CmsSiteSeed, siteId: string, done: Set<string
     });
     done.add(key);
     logger.info(`CMS fragment ${fragment.key} seeded (${row._id.toHexString()})`);
-  }
+  });
 }
 
 async function seedPages(seed: CmsSiteSeed, siteId: string, done: Set<string>) {
   const ids = await fragmentIds(siteId);
-  for (const page of seed.pages) {
-    const key = `page:${page.key}`;
-    if (done.has(key) || (await CmsPageModel.exists({ siteId, path: page.path }))) {
-      done.add(key);
-      continue;
-    }
-    const html = withFragmentIds(page.html, ids);
-    await CmsPageModel.create({
-      siteId,
-      path: page.path,
-      kind: page.kind,
-      title: page.title,
-      layout: page.layout,
-      seo: page.seo,
-      seedKey: page.key,
-      draft: { projectData: null, html, css: page.css },
-      status: 'PUBLISHED',
-      published: await published(siteId, html, page.css),
-      updatedByName: 'Seed',
-    });
+  // Every seeded page has its own path and only reads fragments, so they are seeded side by side.
+  const keys = await Promise.all(seed.pages.map((page) => seedPage(page, siteId, ids, done)));
+  for (const key of keys) {
     done.add(key);
   }
+}
+
+/** Inserts one seeded page unless it was seeded before or its path is taken; returns its key. */
+async function seedPage(
+  page: CmsSiteSeed['pages'][number],
+  siteId: string,
+  ids: Map<string, string>,
+  done: ReadonlySet<string>,
+): Promise<string> {
+  const key = `page:${page.key}`;
+  if (done.has(key) || (await CmsPageModel.exists({ siteId, path: page.path }))) {
+    return key;
+  }
+  const html = withFragmentIds(page.html, ids);
+  await CmsPageModel.create({
+    siteId,
+    path: page.path,
+    kind: page.kind,
+    title: page.title,
+    layout: page.layout,
+    seo: page.seo,
+    seedKey: page.key,
+    draft: { projectData: null, html, css: page.css },
+    status: 'PUBLISHED',
+    published: await published(siteId, html, page.css),
+    updatedByName: 'Seed',
+  });
+  return key;
 }
 
 /**
@@ -149,13 +162,17 @@ async function seedSite(seed: CmsSiteSeed): Promise<void> {
  * logo as their link preview. A page whose image an editor set is left alone.
  */
 async function backfillSeedShareImages(seed: CmsSiteSeed): Promise<void> {
-  for (const page of seed.pages) {
-    if (page.seo.ogImageUrl === '') continue;
-    await CmsPageModel.updateMany(
-      { seedKey: page.key, 'seo.ogImageUrl': { $in: ['', null] } },
-      { $set: { 'seo.ogImageUrl': page.seo.ogImageUrl } },
-    );
-  }
+  // Each update touches only the pages of one seed key, so they run side by side.
+  await Promise.all(
+    seed.pages
+      .filter((page) => page.seo.ogImageUrl !== '')
+      .map((page) =>
+        CmsPageModel.updateMany(
+          { seedKey: page.key, 'seo.ogImageUrl': { $in: ['', null] } },
+          { $set: { 'seo.ogImageUrl': page.seo.ogImageUrl } },
+        ),
+      ),
+  );
 }
 
 /** Files every website record from before the CMS under the default site. */
@@ -164,16 +181,12 @@ async function assignDefaultSite(): Promise<void> {
   if (!site) return;
   const siteId = String(site._id);
   const unassigned = { siteId: { $in: ['', null] } };
-  for (const model of [
-    BlogPostModel,
-    CaseStudyModel,
-    JobModel,
-    JobCompanyModel,
-    GigModel,
-    NavLinkModel,
-  ]) {
-    await (model as typeof BlogPostModel).updateMany(unassigned, { siteId });
-  }
+  // Each model is its own collection, so they are filed side by side.
+  await Promise.all(
+    [BlogPostModel, CaseStudyModel, JobModel, JobCompanyModel, GigModel, NavLinkModel].map(
+      (model) => (model as typeof BlogPostModel).updateMany(unassigned, { siteId }),
+    ),
+  );
 }
 
 /**

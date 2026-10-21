@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Types } from 'mongoose';
 import { CampaignSendModel } from './campaign-send.model';
 import { CampaignClickModel } from './campaign-click.model';
 import { CampaignModel } from './marketing.model';
@@ -38,7 +39,7 @@ interface SendRow {
   sentAt: Date;
   revisionId?: string;
   sources?: RecipientSourceRef[];
-  organizationId?: unknown;
+  organizationId?: Types.ObjectId;
 }
 
 /**
@@ -53,7 +54,7 @@ async function withSend(token: string, work: (send: SendRow) => Promise<void>): 
       .lean<SendRow>(),
   );
   if (send?.organizationId) {
-    await runForOrganization(String(send.organizationId), () => work(send));
+    await runForOrganization(send.organizationId.toHexString(), () => work(send));
   }
 }
 

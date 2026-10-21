@@ -10,15 +10,17 @@ import { logger } from '../../utils/logger';
  * something they decided against.
  */
 export async function ensureSupportSlaPolicies(): Promise<number> {
-  let created = 0;
-  for (const policy of DEFAULT_SLA_POLICIES) {
-    const result = await SupportSlaPolicyModel.updateOne(
-      { priority: policy.priority },
-      { $setOnInsert: policy },
-      { upsert: true },
-    );
-    created += result.upsertedCount ?? 0;
-  }
+  // Each default has its own priority, so the upserts touch different rows.
+  const results = await Promise.all(
+    DEFAULT_SLA_POLICIES.map((policy) =>
+      SupportSlaPolicyModel.updateOne(
+        { priority: policy.priority },
+        { $setOnInsert: policy },
+        { upsert: true },
+      ),
+    ),
+  );
+  const created = results.reduce((total, result) => total + (result.upsertedCount ?? 0), 0);
   if (created > 0) {
     logger.info(`Seeded ${created} support SLA policy/policies`);
   }

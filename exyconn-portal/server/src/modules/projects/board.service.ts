@@ -2,6 +2,7 @@ import { isValidObjectId } from 'mongoose';
 import { BoardColumnModel, TaskActivityModel, TaskCommentModel, TaskModel } from './board.model';
 import { stringOf } from '../../utils/serialize';
 import { stripTags } from '../../utils/textTrim';
+import { inSequence } from '../../utils/inSequence';
 import { ProjectModel } from './projects.model';
 import { notifyAssignment, notifyComment, notifyTicketDone } from './projects.notify';
 import { badRequest, notFound } from '../../utils/errors';
@@ -318,12 +319,13 @@ export const boardService = {
     const doc = await TaskModel.findByIdAndUpdate(id, patch, { new: true }).lean();
     if (!doc) notFound('Task');
 
-    for (const change of changesBetween(before, doc)) {
-      await record(id, actor, change.field, change.from, change.to);
-    }
-    for (const change of attachmentChanges(before.attachments, doc.attachments)) {
-      await record(id, actor, ATTACHMENT_FIELD, change.from, change.to);
-    }
+    // In order: the history lists the changes in the order the rows were written.
+    await inSequence(changesBetween(before, doc), (change) =>
+      record(id, actor, change.field, change.from, change.to),
+    );
+    await inSequence(attachmentChanges(before.attachments, doc.attachments), (change) =>
+      record(id, actor, ATTACHMENT_FIELD, change.from, change.to),
+    );
     // Only a change of hands is news: the previous holder is passed so that re-saving a
     // ticket's labels does not re-announce an assignment made last week.
     await notifyAssignment(doc, actor, before.assigneeId ?? '');
@@ -402,9 +404,10 @@ export const boardService = {
       authorName: author.name,
       attachments: attachments.map((file) => ({ ...file, uploadedByName: author.name })),
     });
-    for (const file of attachments) {
-      await record(taskId, author, ATTACHMENT_FIELD, '', file.name);
-    }
+    // In order: the history lists the files in the order they were attached.
+    await inSequence(attachments, (file) =>
+      record(taskId, author, ATTACHMENT_FIELD, '', file.name),
+    );
     await notifyComment(task, author);
     return created.toObject();
   },

@@ -122,38 +122,36 @@ const TICKETS = [
   },
 ];
 
-/** Idempotently seeds company-wide + per-employee demo data for the workspace views. */
-export async function seedEmployeeData(): Promise<void> {
-  for (const d of DEPARTMENTS) {
-    await DepartmentModel.updateOne({ name: d.name }, { $setOnInsert: d }, { upsert: true });
-  }
-  for (const p of POSITIONS) {
-    await PositionModel.updateOne(
-      { name: p.name, department: p.department },
-      { $setOnInsert: p },
+/** One person's salary structure, last three payslips and starter tickets. */
+async function seedUserData(employeeId: string, currency: string): Promise<void> {
+  // Each payslip is a different month, so its own row: they are written side by side.
+  const slips = [1, 2, 3].map((offset) => {
+    const d = new Date(YEAR, new Date().getMonth() - offset, 28);
+    return SalarySlipModel.updateOne(
+      { employeeId, year: d.getFullYear(), month: d.getMonth() + 1 },
+      {
+        $setOnInsert: {
+          employeeId,
+          year: d.getFullYear(),
+          month: d.getMonth() + 1,
+          currency,
+          gross: GROSS,
+          deductions: STRUCTURE.deductions,
+          net: NET,
+          status: 'PAID',
+          issuedDate: d,
+        },
+      },
       { upsert: true },
     );
-  }
-
-  if ((await PolicyModel.estimatedDocumentCount()) === 0) {
-    await PolicyModel.insertMany(POLICIES);
-    logger.info(`Seeded ${POLICIES.length} policies`);
-  }
-
-  for (const h of HOLIDAYS) {
-    await HolidayModel.updateOne(
-      { name: h.name, date: new Date(YEAR, h.month, h.day) },
-      { $setOnInsert: { name: h.name, date: new Date(YEAR, h.month, h.day), type: h.type } },
-      { upsert: true },
-    );
-  }
-
-  const { currency } = await companyProfile();
-  const users = await UserModel.find().select('_id').lean();
-  for (const user of users) {
-    const employeeId = user._id.toString();
-
-    await SalaryStructureModel.updateOne(
+  });
+  const tickets = SupportTicketModel.countDocuments({ employeeId }).then(async (count) => {
+    if (count === 0) {
+      await SupportTicketModel.insertMany(TICKETS.map((t) => ({ ...t, employeeId })));
+    }
+  });
+  await Promise.all([
+    SalaryStructureModel.updateOne(
       { employeeId },
       {
         $setOnInsert: {
@@ -164,32 +162,48 @@ export async function seedEmployeeData(): Promise<void> {
         },
       },
       { upsert: true },
-    );
+    ),
+    ...slips,
+    tickets,
+  ]);
+}
 
-    for (let offset = 1; offset <= 3; offset++) {
-      const d = new Date(YEAR, new Date().getMonth() - offset, 28);
-      await SalarySlipModel.updateOne(
-        { employeeId, year: d.getFullYear(), month: d.getMonth() + 1 },
-        {
-          $setOnInsert: {
-            employeeId,
-            year: d.getFullYear(),
-            month: d.getMonth() + 1,
-            currency,
-            gross: GROSS,
-            deductions: STRUCTURE.deductions,
-            net: NET,
-            status: 'PAID',
-            issuedDate: d,
-          },
-        },
+/** Idempotently seeds company-wide + per-employee demo data for the workspace views. */
+export async function seedEmployeeData(): Promise<void> {
+  // Every department, position and holiday has its own key, so the upserts run side by side.
+  await Promise.all(
+    DEPARTMENTS.map((d) =>
+      DepartmentModel.updateOne({ name: d.name }, { $setOnInsert: d }, { upsert: true }),
+    ),
+  );
+  await Promise.all(
+    POSITIONS.map((p) =>
+      PositionModel.updateOne(
+        { name: p.name, department: p.department },
+        { $setOnInsert: p },
         { upsert: true },
-      );
-    }
+      ),
+    ),
+  );
 
-    if ((await SupportTicketModel.countDocuments({ employeeId })) === 0) {
-      await SupportTicketModel.insertMany(TICKETS.map((t) => ({ ...t, employeeId })));
-    }
+  if ((await PolicyModel.estimatedDocumentCount()) === 0) {
+    await PolicyModel.insertMany(POLICIES);
+    logger.info(`Seeded ${POLICIES.length} policies`);
   }
+
+  await Promise.all(
+    HOLIDAYS.map((h) =>
+      HolidayModel.updateOne(
+        { name: h.name, date: new Date(YEAR, h.month, h.day) },
+        { $setOnInsert: { name: h.name, date: new Date(YEAR, h.month, h.day), type: h.type } },
+        { upsert: true },
+      ),
+    ),
+  );
+
+  const { currency } = await companyProfile();
+  const users = await UserModel.find().select('_id').lean();
+  // Every row below is keyed by the person, so the people are seeded side by side.
+  await Promise.all(users.map((user) => seedUserData(user._id.toString(), currency)));
   logger.info(`Seeded workspace data for ${users.length} user(s)`);
 }

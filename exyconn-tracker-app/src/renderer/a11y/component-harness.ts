@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { expect } from 'vitest';
-import { settle } from './render-harness';
+import { actAsync, settle } from './render-harness';
 
 /**
  * Helpers for tests of one component's loading and error states: render it against a
@@ -25,12 +25,12 @@ export async function render(element: ReactElement): Promise<void> {
   const container = document.createElement('div');
   document.body.append(container);
   root = createRoot(container);
-  await act(async () => root?.render(element));
+  await actAsync(() => root?.render(element));
 }
 
 /** Re-renders the mounted root with new props. */
 export async function rerender(element: ReactElement): Promise<void> {
-  await act(async () => root?.render(element));
+  await actAsync(() => root?.render(element));
 }
 
 /** Lets pending promises, and the render they trigger, settle. */
@@ -61,7 +61,7 @@ export function button(name: string): HTMLButtonElement {
 
 /** Clicks and settles. */
 export async function click(target: HTMLElement): Promise<void> {
-  await act(async () => target.click());
+  await actAsync(() => target.click());
   await flush();
 }
 
@@ -111,12 +111,12 @@ export function buttonNamed(label: string): HTMLButtonElement {
 
 /** Clicks `button` without waiting for what it started — the loader is what is under test. */
 export async function press(button: HTMLElement): Promise<void> {
-  await act(async () => button.click());
+  await actAsync(() => button.click());
 }
 
 /** Settles `pending` one way or the other, then lets the render it causes land. */
 export async function finish(run: () => void): Promise<void> {
-  await act(async () => run());
+  await actAsync(run);
   await settle();
 }
 
@@ -141,19 +141,19 @@ export async function choose(label: string, option: string): Promise<void> {
       }),
   );
   expect(field, label).toBeDefined();
-  await act(async () => {
-    field?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 }));
-  });
+  await actAsync(() =>
+    field?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 })),
+  );
   const item = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(
     (entry) => entry.textContent === option,
   );
   expect(item, option).toBeDefined();
-  await act(async () => item?.click());
+  await actAsync(() => item?.click());
 }
 
 /** Types into a React-controlled input the way a keystroke would, so `onChange` fires. */
 export async function typeInto(input: HTMLInputElement, value: string): Promise<void> {
-  await act(async () => {
+  await actAsync(() => {
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, value);
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });

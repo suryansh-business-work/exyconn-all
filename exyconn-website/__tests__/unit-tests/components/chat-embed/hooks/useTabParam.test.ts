@@ -39,6 +39,6 @@ describe("useTabParam", () => {
     const url = new URL(globalThis.location.href);
     expect(url.searchParams.get("tab")).toBe("knowledge");
     expect(url.searchParams.get("site")).toBe("WEBSITE");
-    expect(globalThis.history.length).toBe(before);
+    expect(globalThis.history).toHaveLength(before);
   });
 });

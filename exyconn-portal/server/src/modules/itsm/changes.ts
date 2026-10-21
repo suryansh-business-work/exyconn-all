@@ -81,11 +81,13 @@ export const itChangeResolvers = {
   Query: crud.Query,
   Mutation: {
     ...crud.Mutation,
-    createItChange: async (p: unknown, args: { input: ChangeInput }, ctx: GraphQLContext) => {
-      assertTransition(args.input, null);
-      const input = { ...withImplementedAt(args.input, null), requestedById: ctx.user?.id ?? '' };
-      return crud.Mutation.createItChange(p, { input } as never, ctx);
-    },
+    createItChange: (p: unknown, args: { input: ChangeInput }, ctx: GraphQLContext) =>
+      // Inside the chain so a refused transition rejects the returned promise.
+      Promise.resolve().then(() => {
+        assertTransition(args.input, null);
+        const input = { ...withImplementedAt(args.input, null), requestedById: ctx.user?.id ?? '' };
+        return crud.Mutation.createItChange(p, { input } as never, ctx);
+      }),
     updateItChange: async (
       p: unknown,
       args: { id: string; input: ChangeInput },

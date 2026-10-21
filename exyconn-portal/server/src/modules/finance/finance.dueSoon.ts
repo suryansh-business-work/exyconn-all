@@ -7,6 +7,7 @@ import { recordSystemAudit } from '../audit';
 import { companyProfile } from '../../lib/company';
 import { formatAmount } from '../../utils/money';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 
 /** How far ahead of the due date the "due soon" reminder goes out. */
 export const DUE_SOON_DAYS = 3;
@@ -39,41 +40,59 @@ export async function remindDueSoonInvoices(now = new Date()): Promise<number> {
     companyProfile(),
   ]);
 
-  let sent = 0;
-  for (const row of owing) {
-    const to = addresses.get(row.clientId);
-    const id = String(row._id);
-    if (!to || !(await claimReminder(RECEIVABLES_SOURCE, `invoice-due-soon:${id}`, 1))) {
-      continue;
-    }
-    try {
-      await emailer.send({
-        template: 'invoice-due-soon',
-        to,
-        variables: {
-          clientName: row.clientName || 'there',
-          invoiceNumber: row.number,
-          balanceDue: formatAmount(
-            row.amount - (row.amountPaid ?? 0),
-            row.currency,
-            profile.locale,
-          ),
-          dueDate: row.dueDate.toISOString().slice(0, 10),
-          payUrl: invoicePayUrl(id),
-        },
-        triggeredBy: 'Invoice due-soon reminder',
-      });
-      sent += 1;
-      await recordSystemAudit({
-        action: 'UPDATE',
-        module: 'Invoice',
-        entityId: id,
-        entityLabel: row.number,
-        summary: `Sent the due-soon reminder for Invoice ${row.number} to ${to}`,
-      });
-    } catch (error) {
-      logger.error(error, `Due-soon reminder for invoice ${row.number} could not be sent`);
-    }
+  // One reminder at a time: each claim, send and audit row completes before the next invoice,
+  // which keeps the SMTP send rate bounded and the audit trail in send order.
+  const outcomes = await inSequence(owing, (row) =>
+    remindDueSoon(row, addresses.get(row.clientId), profile.locale),
+  );
+  return outcomes.filter(Boolean).length;
+}
+
+type DueSoonRow = {
+  _id: unknown;
+  number: string;
+  clientId: string;
+  clientName?: string | null;
+  currency: string;
+  amount: number;
+  amountPaid?: number | null;
+  dueDate: Date;
+};
+
+/** Claims, sends and audits one due-soon reminder; true when the email went out. */
+async function remindDueSoon(
+  row: DueSoonRow,
+  to: string | undefined,
+  locale: string,
+): Promise<boolean> {
+  const id = String(row._id);
+  if (!to || !(await claimReminder(RECEIVABLES_SOURCE, `invoice-due-soon:${id}`, 1))) {
+    return false;
+  }
+  let sent = false;
+  try {
+    await emailer.send({
+      template: 'invoice-due-soon',
+      to,
+      variables: {
+        clientName: row.clientName || 'there',
+        invoiceNumber: row.number,
+        balanceDue: formatAmount(row.amount - (row.amountPaid ?? 0), row.currency, locale),
+        dueDate: row.dueDate.toISOString().slice(0, 10),
+        payUrl: invoicePayUrl(id),
+      },
+      triggeredBy: 'Invoice due-soon reminder',
+    });
+    sent = true;
+    await recordSystemAudit({
+      action: 'UPDATE',
+      module: 'Invoice',
+      entityId: id,
+      entityLabel: row.number,
+      summary: `Sent the due-soon reminder for Invoice ${row.number} to ${to}`,
+    });
+  } catch (error) {
+    logger.error(error, `Due-soon reminder for invoice ${row.number} could not be sent`);
   }
   return sent;
 }

@@ -24,22 +24,20 @@ const TICK_MS = 30_000;
 /** Chats one pass handles per company; the rest wait for the next tick. */
 const BATCH = 50;
 
-async function deliverDue(chatId: string, sender: Sender): Promise<number> {
-  let delivered = 0;
-  for (;;) {
-    const doc = await WhatsappChatModel.findById(chatId).lean();
-    const chat = doc ? toRecord(doc) : null;
-    const now = Date.now();
-    const push = chat?.pending.reduce<PendingPush | undefined>(
-      (earliest, p) => (p.at <= now && (!earliest || p.at < earliest.at) ? p : earliest),
-      undefined,
-    );
-    if (!chat || !push) {
-      return delivered;
-    }
-    await converse(chat, { kind: 'push', push }, sender);
-    delivered += 1;
+// Recursive rather than a loop: each push reloads the chat the previous push just changed.
+async function deliverDue(chatId: string, sender: Sender, delivered = 0): Promise<number> {
+  const doc = await WhatsappChatModel.findById(chatId).lean();
+  const chat = doc ? toRecord(doc) : null;
+  const now = Date.now();
+  const push = chat?.pending.reduce<PendingPush | undefined>(
+    (earliest, p) => (p.at <= now && (!earliest || p.at < earliest.at) ? p : earliest),
+    undefined,
+  );
+  if (!chat || !push) {
+    return delivered;
   }
+  await converse(chat, { kind: 'push', push }, sender);
+  return deliverDue(chatId, sender, delivered + 1);
 }
 
 /** One pass for the company in scope. */
@@ -52,11 +50,12 @@ export async function deliverReminders(): Promise<void> {
     .select('_id waId')
     .limit(BATCH)
     .lean();
-  let delivered = 0;
-  for (const chat of due) {
+  // One chat after another, as before, so a pass never sends a burst to the provider at once.
+  const delivered = await due.reduce<Promise<number>>(async (previous, chat) => {
+    const total = await previous;
     const key = `${currentOrganizationId() ?? ''}:${chat.waId}`;
-    delivered += await inTurn(key, () => deliverDue(String(chat._id), sender));
-  }
+    return total + (await inTurn(key, () => deliverDue(String(chat._id), sender)));
+  }, Promise.resolve(0));
   recordJobRun(JOB_KEYS.whatsappReminders, `Delivered ${delivered} WhatsApp reminders`);
 }
 

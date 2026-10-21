@@ -1,0 +1,106 @@
+{
+  "ipv4": [
+    {
+      "cidr": "0.0.0.0/8",
+      "purpose": "\"this\" network, unspecified"
+    },
+    {
+      "cidr": "10.0.0.0/8",
+      "purpose": "private"
+    },
+    {
+      "cidr": "100.64.0.0/10",
+      "purpose": "carrier-grade NAT"
+    },
+    {
+      "cidr": "127.0.0.0/8",
+      "purpose": "loopback"
+    },
+    {
+      "cidr": "169.254.0.0/16",
+      "purpose": "link-local, cloud metadata"
+    },
+    {
+      "cidr": "172.16.0.0/12",
+      "purpose": "private, Docker's default bridge networks"
+    },
+    {
+      "cidr": "192.0.0.0/24",
+      "purpose": "IETF protocol assignments"
+    },
+    {
+      "cidr": "192.0.2.0/24",
+      "purpose": "documentation"
+    },
+    {
+      "cidr": "192.88.99.0/24",
+      "purpose": "6to4 relay anycast"
+    },
+    {
+      "cidr": "192.168.0.0/16",
+      "purpose": "private"
+    },
+    {
+      "cidr": "198.18.0.0/15",
+      "purpose": "benchmarking"
+    },
+    {
+      "cidr": "198.51.100.0/24",
+      "purpose": "documentation"
+    },
+    {
+      "cidr": "203.0.113.0/24",
+      "purpose": "documentation"
+    },
+    {
+      "cidr": "224.0.0.0/4",
+      "purpose": "multicast"
+    },
+    {
+      "cidr": "240.0.0.0/4",
+      "purpose": "reserved, broadcast"
+    }
+  ],
+  "ipv6": [
+    {
+      "cidr": "::/128",
+      "purpose": "unspecified"
+    },
+    {
+      "cidr": "::1/128",
+      "purpose": "loopback"
+    },
+    {
+      "cidr": "::/96",
+      "purpose": "IPv4-compatible (deprecated)"
+    },
+    {
+      "cidr": "64:ff9b::/96",
+      "purpose": "NAT64"
+    },
+    {
+      "cidr": "100::/64",
+      "purpose": "discard"
+    },
+    {
+      "cidr": "2001:db8::/32",
+      "purpose": "documentation"
+    },
+    {
+      "cidr": "2002::/16",
+      "purpose": "6to4 — embeds an IPv4 address"
+    },
+    {
+      "cidr": "fc00::/7",
+      "purpose": "unique local"
+    },
+    {
+      "cidr": "fe80::/10",
+      "purpose": "link-local"
+    },
+    {
+      "cidr": "ff00::/8",
+      "purpose": "multicast"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Platform, Pressable } from 'react-native';
 import DateTimePicker, {
   DateTimePickerAndroid,
-  type DateTimePickerEvent,
+  type DateTimePickerChangeEvent,
 } from '@react-native-community/datetimepicker';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
@@ -28,8 +28,9 @@ export function JumpToDate({ selected, maxDate, onSelect }: Readonly<Props>) {
   const [iosOpen, setIosOpen] = useState(false);
   const label = formatDayLabel(selected);
 
-  const commit = (event: DateTimePickerEvent, date: Date | undefined): void => {
-    if (event.type === 'set' && date !== undefined && !Number.isNaN(date.getTime())) {
+  /** Only a picked day is listened for: a dismissed dialog or calendar changes nothing. */
+  const commit = (_event: DateTimePickerChangeEvent, date: Date): void => {
+    if (!Number.isNaN(date.getTime())) {
       setIosOpen(false);
       onSelect(date);
     }
@@ -41,7 +42,7 @@ export function JumpToDate({ selected, maxDate, onSelect }: Readonly<Props>) {
         value: selected,
         mode: 'date',
         maximumDate: maxDate,
-        onChange: commit,
+        onValueChange: commit,
       });
       return;
     }
@@ -77,7 +78,7 @@ export function JumpToDate({ selected, maxDate, onSelect }: Readonly<Props>) {
           mode="date"
           display="inline"
           maximumDate={maxDate}
-          onChange={commit}
+          onValueChange={commit}
         />
       ) : null}
     </YStack>

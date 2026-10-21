@@ -17,11 +17,8 @@ export type TrackerDeviceRow = TrackerDevicesQuery['trackerDevices'][number];
 export type TrackerSettingsRow = TrackerSettingsQuery['trackerSettings'];
 export type MyTrackerAccessData = MyTrackerAccessQuery['myTrackerAccess'];
 
-/**
- * How the calendar labels a day: on leave, a holiday, the employee's week off, or a finished
- * day that fell short. The same marks tracker-core's `dayMarksOf` draws on the trackers.
- */
-export type TrackerDayMark = 'LEAVE' | 'HOLIDAY' | 'WEEK_OFF' | 'SHORT';
+/** A calendar day's status — tracker-core's `DayMark`, the same on the portal and the trackers. */
+export type { DayMark as TrackerDayMark } from '@exyconn/tracker-core';
 
 /** A formatter that turns an ISO date-time string into a localized label. */
 export type DateTimeFormatter = (value: string) => string;

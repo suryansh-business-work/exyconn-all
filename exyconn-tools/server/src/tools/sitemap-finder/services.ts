@@ -1,6 +1,7 @@
 import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
 import { XMLParser } from "fast-xml-parser";
+import { forEachInSequence } from "../../shared/sequence";
 
 export interface SitemapInfo {
   url: string;
@@ -278,10 +279,11 @@ async function parseSitemapIndex(
       ? sitemapEntries
       : [sitemapEntries];
 
-    for (const entry of entries) {
+    // In sequence: the shared visited set must see each sitemap before the next is fetched.
+    await forEachInSequence(entries, async (entry) => {
       const loc = entry?.loc;
       if (!loc || visitedUrls.has(loc)) {
-        continue;
+        return;
       }
 
       visitedUrls.add(loc);
@@ -301,7 +303,7 @@ async function parseSitemapIndex(
       } else {
         sitemaps.push(failedSitemap(loc, entry?.lastmod));
       }
-    }
+    });
   } catch (error) {
     console.error("Error parsing sitemap index:", error);
   }
@@ -309,10 +311,7 @@ async function parseSitemapIndex(
   return sitemaps;
 }
 
-async function parseRobotsTxt(
-  robotsTxtContent: string,
-  _baseUrl: string,
-): Promise<string[]> {
+function parseRobotsTxt(robotsTxtContent: string): string[] {
   const sitemapUrls: string[] = [];
   const lines = robotsTxtContent.split("\n");
 
@@ -336,8 +335,9 @@ async function scanRobotsSitemaps(
   checkedLocations: string[],
   found: SitemapInfo[],
 ): Promise<void> {
-  for (const sitemapUrl of sitemapUrls) {
-    if (ctx.visitedUrls.has(sitemapUrl)) continue;
+  // In sequence: duplicates are skipped through the shared visited set, and results keep robots.txt order.
+  await forEachInSequence(sitemapUrls, async (sitemapUrl) => {
+    if (ctx.visitedUrls.has(sitemapUrl)) return;
     ctx.visitedUrls.add(sitemapUrl);
     checkedLocations.push(sitemapUrl);
 
@@ -348,7 +348,7 @@ async function scanRobotsSitemaps(
     } else {
       found.push(failedSitemap(sitemapUrl));
     }
-  }
+  });
 }
 
 /** HTML answers that are not real sitemaps (like soft 404 pages). */
@@ -367,21 +367,22 @@ async function scanCommonPaths(
   checkedLocations: string[],
   found: SitemapInfo[],
 ): Promise<void> {
-  for (const path of COMMON_SITEMAP_PATHS) {
+  // In sequence: a sitemap index found on one path marks nested sitemaps visited before the next probe.
+  await forEachInSequence(COMMON_SITEMAP_PATHS, async (path) => {
     const sitemapUrl = `${ctx.baseUrl}${path}`;
 
-    if (ctx.visitedUrls.has(sitemapUrl)) continue;
+    if (ctx.visitedUrls.has(sitemapUrl)) return;
     ctx.visitedUrls.add(sitemapUrl);
     checkedLocations.push(sitemapUrl);
 
     const result = await fetchWithTimeout(sitemapUrl);
-    if (result?.status !== 200) continue;
+    if (result?.status !== 200) return;
 
     const type = detectSitemapType(result.data, sitemapUrl);
-    if (type === "html" && isSoftNotFoundPage(result.data)) continue;
+    if (type === "html" && isSoftNotFoundPage(result.data)) return;
 
     await recordSitemap(sitemapUrl, result, type, ctx, 1, found);
-  }
+  });
 }
 
 export async function findSitemaps(
@@ -412,7 +413,7 @@ export async function findSitemaps(
       robotsTxtExists = true;
       robotsTxtUrl = robotsUrl;
 
-      const sitemapUrls = await parseRobotsTxt(robotsResult.data, baseUrl);
+      const sitemapUrls = parseRobotsTxt(robotsResult.data);
       await scanRobotsSitemaps(
         sitemapUrls,
         ctx,

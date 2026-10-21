@@ -117,6 +117,32 @@ const TEMPLATES = [
         </mj-text>`),
   },
   {
+    key: 'tracker-hours-report',
+    name: 'Tracker hours report — to the employee (daily / weekly / monthly)',
+    description:
+      "An employee's own tracked hours for the day, week or month: expected, logged, active, off-computer and idle time, the deficit and what the hours earn. Sent by the employee report schedule in the evening; the week and month carry the PDF report. {{rows}} is a finished table body.",
+    subject: 'Your hours {{periodLabel}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your hours {{periodLabel}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}}, here is how {{periodLabel}} went.</mj-text>
+        <mj-table font-size="14px" color="#0b0a12">
+          <tr><td style="padding:4px 0;color:#64748b;">Expected</td><td style="padding:4px 0;text-align:right;"><strong>{{expected}}</strong></td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Logged (active + off computer)</td><td style="padding:4px 0;text-align:right;"><strong>{{logged}}</strong></td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Active</td><td style="padding:4px 0;text-align:right;">{{active}}</td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Off Computer Work</td><td style="padding:4px 0;text-align:right;">{{offComputer}}</td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Idle (not counted)</td><td style="padding:4px 0;text-align:right;">{{idle}}</td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Deficit so far</td><td style="padding:4px 0;text-align:right;"><strong>{{deficit}}</strong></td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;">Earnings</td><td style="padding:4px 0;text-align:right;">{{earnings}}</td></tr>
+        </mj-table>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-table font-size="13px" color="#0b0a12">
+          {{rows}}
+        </mj-table>
+        <mj-text font-size="13px" color="#94a3b8">
+          Idle time is the tracker running with no keyboard, mouse or system activity; it is never counted as worked time.
+          Open My Tracker in the portal for the full calendar.
+        </mj-text>`),
+  },
+  {
     key: 'policy-acknowledged',
     name: 'Policy signed — confirmation',
     description:
@@ -437,6 +463,48 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
         </mj-text>`),
   },
   {
+    key: 'client-hub-shared',
+    name: 'Client hub — something shared with you',
+    description:
+      'Sent to every client hub contact when staff add a link, or share a contract, document or policy, and tick "Email the client". {{itemKind}} is link, contract, document or policy; {{note}} is the optional note; {{hubUrl}} opens that section of the hub.',
+    subject: 'New in your client hub: {{title}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">We shared a {{itemKind}} with you</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          {{companyName}} added <strong>{{title}}</strong> to the client hub for {{clientName}}.
+        </mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{note}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">Open the client hub</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          Sign in with this email address — we send you a one-time code, no password needed.
+        </mj-text>`),
+  },
+  {
+    key: 'client-hub-communication',
+    name: 'Client hub — communication logged',
+    description:
+      'Sent to every client hub contact when staff log a call, email, meeting or message with the client and tick "Email the client". Sent once per entry. {{subject}} and {{summary}} are what was logged.',
+    subject: '{{subject}} — added to your communication log',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">{{subject}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          {{companyName}} added this to the communication log for {{clientName}}:
+        </mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{summary}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">See the full log</mj-button>`),
+  },
+  {
+    key: 'client-message',
+    name: 'Client — message from staff',
+    description:
+      'Sent from Admin › Clients › client › Email client to the addresses the client has on file. {{message}} is the text written in the portal; the send is also filed in the client’s communication log.',
+    subject: '{{subject}}',
+    mjml: shell(`        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{message}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">— {{senderName}}, {{companyName}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">Open the client hub</mj-button>`),
+  },
+  {
     key: 'website-chat-code',
     name: 'Website chat — sign-in code',
     description:
@@ -500,6 +568,25 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
           This is an indicative planning estimate, not a quotation. Questions? Visit {{websiteUrl}}.
         </mj-text>`),
   },
+  {
+    key: 'meeting-assistant-summary',
+    name: 'Meeting Assistant — meeting summary',
+    description:
+      'Sent by the Meeting Assistant after a Google Meet call once its AI notes are ready (or approved). {{discussionPoints}}, {{decisions}} and {{actionItems}} are finished HTML lists built from the notes; {{meetingUrl}} opens the meeting in the portal.',
+    subject: 'Meeting notes: {{meetingTitle}} ({{meetingDate}})',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">{{meetingTitle}}</mj-text>
+        <mj-text font-size="13px" color="#64748b">{{meetingDate}} · {{duration}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Summary</strong><br />{{executiveSummary}}</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Key discussion points</strong>{{discussionPoints}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Decisions</strong>{{decisions}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px"><strong>Action items</strong>{{actionItems}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{meetingUrl}}" padding="24px 0 8px">Open the meeting</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          These notes were written by AI from the meeting transcript. Owners and deadlines marked
+          "to confirm" were not stated clearly — check them before relying on them.
+        </mj-text>`),
+  },
 ];
 
 /**
@@ -507,25 +594,24 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
  * an existing row is somebody's edit and is left exactly as it is.
  */
 export async function ensureEmailDefaults(): Promise<void> {
-  let created = 0;
-
-  for (const fragment of FRAGMENTS) {
-    const result = await EmailFragmentModel.updateOne(
-      { key: fragment.key },
-      { $setOnInsert: fragment },
-      { upsert: true },
-    );
-    created += result.upsertedCount;
-  }
-
-  for (const template of TEMPLATES) {
-    const result = await EmailTemplateModel.updateOne(
-      { key: template.key },
-      { $setOnInsert: { ...template, isActive: true } },
-      { upsert: true },
-    );
-    created += result.upsertedCount;
-  }
+  // Every fragment and template has its own key, so the upserts never touch the same row.
+  const results = await Promise.all([
+    ...FRAGMENTS.map((fragment) =>
+      EmailFragmentModel.updateOne(
+        { key: fragment.key },
+        { $setOnInsert: fragment },
+        { upsert: true },
+      ),
+    ),
+    ...TEMPLATES.map((template) =>
+      EmailTemplateModel.updateOne(
+        { key: template.key },
+        { $setOnInsert: { ...template, isActive: true } },
+        { upsert: true },
+      ),
+    ),
+  ]);
+  const created = results.reduce((sum, result) => sum + result.upsertedCount, 0);
 
   // The chase gained a "Pay now" link; an untouched copy of the first version gets it too.
   const upgraded = await EmailTemplateModel.updateOne(

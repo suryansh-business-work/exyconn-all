@@ -1,3 +1,4 @@
+import { DEFAULT_FORMAT_SETTINGS, formatDateTime } from '@exyconn/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -62,7 +63,9 @@ describe('TrackerBuildPage', () => {
     ).toBeInTheDocument();
     const staging = screen.getByText('staging').closest('tr') as HTMLElement;
     expect(within(staging).getByText('IN PROGRESS')).toBeInTheDocument();
-    expect(within(staging).getByText(new Date(STARTED).toLocaleString())).toBeInTheDocument();
+    expect(
+      within(staging).getByText(formatDateTime(STARTED, DEFAULT_FORMAT_SETTINGS)),
+    ).toBeInTheDocument();
     const link = within(staging).getByRole('link', { name: 'Open on GitHub' });
     expect(link).toHaveAttribute('href', 'https://github.example/runs/2');
     expect(link).toHaveAttribute('target', '_blank');

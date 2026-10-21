@@ -14,6 +14,8 @@ import { CLIENT_PASS_HEADER, contactForPass, type ClientHubContact } from '../mo
 import { OrganizationModel } from '../modules/organizations/organization.model';
 import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
 import { sessionIsLive } from '../modules/auth/session.service';
+import { extensionMayRun } from '../modules/meeting-assistant/extension.fields';
+import { extensionSessionIsLive } from '../modules/meeting-assistant/extension.auth';
 
 export interface GraphQLContext {
   user: TokenPayload | null;
@@ -112,6 +114,9 @@ async function currentHolder(decoded: TokenPayload, token: string, req: Request)
   if (decoded.deviceId && !(await deviceHolds(decoded, decoded.deviceId, token, req))) {
     return null;
   }
+  if (decoded.esid && !(await extensionHolds(decoded.id, decoded.esid, req))) {
+    return null;
+  }
   // A portal token stands only while its session does, so signing one device out does not
   // have to retire every token the person holds. Tokens issued before sessions existed carry
   // no `sid` and keep working until they expire, seven days at the outside.
@@ -134,6 +139,18 @@ async function deviceHolds(
     return false;
   }
   return deviceTokenIsLive(decoded.id, deviceId, token);
+}
+
+/**
+ * A Meeting Assistant extension token stands only on its live session row, and only for the
+ * extension's own operations (see modules/meeting-assistant/extension.fields).
+ */
+async function extensionHolds(userId: string, sessionId: string, req: Request): Promise<boolean> {
+  const body = req.body as { query?: unknown } | undefined;
+  if (!extensionMayRun(body?.query ?? req.query?.query)) {
+    return false;
+  }
+  return extensionSessionIsLive(sessionId, userId);
 }
 
 /**

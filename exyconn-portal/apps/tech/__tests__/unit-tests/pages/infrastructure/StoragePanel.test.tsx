@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
-import { format } from 'date-fns';
+import { DEFAULT_FORMAT_SETTINGS, formatDate } from '@exyconn/i18n';
 import { formatBytes } from '@exyconn/shell/utils/file';
 import { StoragePanel } from '../../../../src/pages/infrastructure/StoragePanel';
 import { renderWithProviders } from '../../test-utils';
@@ -94,7 +94,7 @@ describe('StoragePanel', () => {
     );
     expect(screen.getByTestId('img-1-sizeBytes')).toHaveTextContent('300.0 MB');
     expect(screen.getByTestId('img-1-createdAt')).toHaveTextContent(
-      format(new Date('2026-09-30T12:00:00.000Z'), 'PP'),
+      formatDate(new Date('2026-09-30T12:00:00.000Z'), DEFAULT_FORMAT_SETTINGS),
     );
     expect(screen.getByTestId('img-1-containers')).toHaveTextContent('1 container');
     expect(screen.getByTestId('img-2-repoTags')).toHaveTextContent('<untagged>');

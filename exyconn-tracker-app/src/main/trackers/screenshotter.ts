@@ -50,17 +50,14 @@ function encode(
 }
 
 export class Screenshotter {
-  async capture(settings: TrackerSettings): Promise<Capture[]> {
-    const displays = screen.getAllDisplays();
-    const results: Capture[] = [];
-
-    for (const display of displays) {
+  capture(settings: TrackerSettings): Promise<Capture[]> {
+    // One display at a time, as before: each getSources call renders every screen at native
+    // size, so capturing them together would multiply the memory peak.
+    return screen.getAllDisplays().reduce<Promise<Capture[]>>(async (previous, display) => {
+      const results = await previous;
       const capture = await this.captureDisplay(display, settings);
-      if (capture) {
-        results.push(capture);
-      }
-    }
-    return results;
+      return capture ? [...results, capture] : results;
+    }, Promise.resolve([]));
   }
 
   private async captureDisplay(

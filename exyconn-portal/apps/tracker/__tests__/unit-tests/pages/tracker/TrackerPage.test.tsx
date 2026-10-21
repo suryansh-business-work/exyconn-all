@@ -130,6 +130,17 @@ describe('TrackerPage', () => {
     expect(view().day).toBeUndefined();
     expect(view().dayLabel).toBe('');
     expect(view().monthLabel).toBe('January 2026');
+    expect(screen.queryByText('Expected this month')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Download PDF report' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Download XLSX' })).toBeNull();
+  });
+
+  it("sums up the picked employee's month with the report downloads beside it", () => {
+    renderPage('/tracker?employee=u1&month=2026-01');
+    expect(screen.getByText('Expected this month')).toBeInTheDocument();
+    expect(screen.getByText('Idle this month')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Download PDF report' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Download XLSX' })).toBeEnabled();
   });
 
   it("reads the employee's month in the workspace timezone and the picked day", () => {

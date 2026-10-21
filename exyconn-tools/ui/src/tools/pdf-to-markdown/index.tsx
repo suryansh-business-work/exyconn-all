@@ -6,6 +6,7 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import FileUploadArea from './FileUploadArea';
 import MarkdownOutput from './MarkdownOutput';
+import { copyText } from '../../shared/utils/clipboard';
 
 const PdfToMarkdown: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -56,7 +57,7 @@ const PdfToMarkdown: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(markdown);
+    copyText(markdown);
     setCopied(true);
   };
 

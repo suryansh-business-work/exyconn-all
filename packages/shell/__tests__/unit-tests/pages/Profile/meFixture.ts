@@ -13,6 +13,8 @@ export function me(patch: Partial<ProfileMe> = {}): ProfileMe {
     avatarUrl: null,
     timezone: 'Asia/Kolkata',
     locale: 'en-IN',
+    dateFormat: null,
+    timeFormat: null,
     organizationId: 'org-1',
     department: 'Engineering',
     designation: 'Staff Engineer',

@@ -468,25 +468,23 @@ describe('analytics and AI', () => {
   });
 
   it('lists posts, and the calendar within a sane range', async () => {
-    expect(((await Q.socialMediaPosts(null, { limit: 10 }, marketing())) as unknown[]).length).toBe(
+    expect((await Q.socialMediaPosts(null, { limit: 10 }, marketing())) as unknown[]).toHaveLength(
       3,
     );
     expect(
-      (
-        (await Q.socialMediaPosts(
-          null,
-          { status: 'SCHEDULED', limit: 10 },
-          marketing(),
-        )) as unknown[]
-      ).length,
-    ).toBe(1);
+      (await Q.socialMediaPosts(
+        null,
+        { status: 'SCHEDULED', limit: 10 },
+        marketing(),
+      )) as unknown[],
+    ).toHaveLength(1);
     const from = new Date(Date.now() - 24 * HOUR);
     const to = new Date(Date.now() + 24 * HOUR);
-    expect(((await Q.socialCalendar(null, { from, to }, marketing())) as unknown[]).length).toBe(3);
+    expect((await Q.socialCalendar(null, { from, to }, marketing())) as unknown[]).toHaveLength(3);
     await expect(Q.socialCalendar(null, { from: to, to: from }, marketing())).rejects.toThrow(
       'range',
     );
-    expect(((await Q.socialNetworkRules(null, {}, marketing())) as unknown[]).length).toBe(6);
+    expect((await Q.socialNetworkRules(null, {}, marketing())) as unknown[]).toHaveLength(6);
   });
 
   it('asks the AI with the posts, and refuses a bad request', async () => {

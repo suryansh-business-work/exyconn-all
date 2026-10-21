@@ -27,6 +27,18 @@ import {
 } from './pages/employee';
 import { NotificationsPage } from '@exyconn/shell/pages/Notifications';
 import { ApprovalsPage } from '@exyconn/shell/pages/Approvals';
+import {
+  ActionChecklistPage,
+  ConnectExtensionPage,
+  ExtensionPage,
+  LogsPage,
+  MeetingDashboardPage,
+  MeetingDetailPage,
+  MeetingsListPage,
+} from '@exyconn/meetings-ui';
+
+/** Where the Meeting Assistant lives in this app; it covers the viewer's own meetings here. */
+const MEETINGS = { scope: 'MINE', basePath: '/me/meetings' } as const;
 
 /** My Workspace micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -55,6 +67,16 @@ export function App() {
       <Route path="/me/onboarding" element={<MyOnboardingPage />} />
       <Route path="/me/documents" element={<DocumentsPage />} />
       <Route path="/me/exit" element={<MyExitPage />} />
+      <Route path="/me/meetings" element={<MeetingDashboardPage {...MEETINGS} />} />
+      <Route path="/me/meetings/meetings" element={<MeetingsListPage {...MEETINGS} />} />
+      <Route path="/me/meetings/meetings/:id/:tab?" element={<MeetingDetailPage {...MEETINGS} />} />
+      <Route path="/me/meetings/actions" element={<ActionChecklistPage {...MEETINGS} />} />
+      <Route path="/me/meetings/extension" element={<ExtensionPage />} />
+      <Route path="/me/meetings/logs" element={<LogsPage {...MEETINGS} />} />
+      <Route
+        path="/me/meetings/connect-extension"
+        element={<ConnectExtensionPage homePath="/me/meetings" />}
+      />
     </PortalApp>
   );
 }

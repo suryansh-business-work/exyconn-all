@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { DATE_FORMATS, TIME_FORMATS } from '@exyconn/i18n';
 import {
-  DATE_FORMATS,
-  TIME_FORMATS,
   appSettingsSchema,
   isTimezone,
   toAppSettingsValues,

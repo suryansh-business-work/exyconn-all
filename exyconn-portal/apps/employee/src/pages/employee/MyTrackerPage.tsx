@@ -17,6 +17,8 @@ import { useTrackerMonth } from '@exyconn/shell/pages/tracker-view/useTrackerMon
 import { buildTrackerMonth } from '@exyconn/shell/pages/tracker-view/buildTrackerMonth';
 import { TrackerView } from '@exyconn/shell/pages/tracker-view/TrackerView';
 import { useMonthTarget } from '@exyconn/shell/pages/tracker-view/useMonthTarget';
+import { TrackerTargetSummary } from '@exyconn/shell/pages/tracker-view/TrackerTargetSummary';
+import { MyHoursReportButton } from './MyHoursReportButton';
 import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
 import { MyTrackerAccessBanner } from './MyTrackerAccessBanner';
 import { MyOffComputerTime } from './MyOffComputerTime';
@@ -60,6 +62,14 @@ export function MyTrackerPage() {
         formatDate={formatDate}
       />
       <MyWorkArrangementCard />
+      <TrackerTargetSummary
+        target={target.target}
+        workHoursPerDay={target.workHoursPerDay}
+        workDays={target.workDays}
+        loading={expectedQuery.loading}
+        error={expectedQuery.error}
+        actions={<MyHoursReportButton range={month.range} timezone={settings.timezone} />}
+      />
       <TrackerView
         monthLabel={month.monthLabel}
         onPrev={month.prev}

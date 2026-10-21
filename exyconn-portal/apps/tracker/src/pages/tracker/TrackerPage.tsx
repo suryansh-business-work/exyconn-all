@@ -18,7 +18,8 @@ import {
 import { useTrackerMonth } from '@exyconn/shell/pages/tracker-view/useTrackerMonth';
 import { buildTrackerMonth } from '@exyconn/shell/pages/tracker-view/buildTrackerMonth';
 import { TrackerEmployeePicker } from './TrackerEmployeePicker';
-import { TrackerTargetSummary } from './TrackerTargetSummary';
+import { TrackerTargetSummary } from '@exyconn/shell/pages/tracker-view/TrackerTargetSummary';
+import { TrackerReportButtons } from './TrackerReportButtons';
 import { useTrackerTarget } from './useTrackerTarget';
 import { useHoursReportDownload } from './useHoursReportDownload';
 import { TrackerView } from '@exyconn/shell/pages/tracker-view/TrackerView';
@@ -108,10 +109,7 @@ export function TrackerPage() {
           workDays={target.workDays}
           loading={target.loading}
           error={target.error}
-          downloading={report.downloading}
-          onDownload={() => {
-            report.download().catch((error: unknown) => console.error(error));
-          }}
+          actions={<TrackerReportButtons report={report} disabled={target.loading} />}
         />
       )}
       <TrackerView

@@ -20,7 +20,7 @@ const PLACES = [
 beforeEach(() => {
   localStorage.clear();
   writeSecret('google_places_api_key', 'places-key');
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockResolvedValue(undefined) }, configurable: true });
 });
 
 afterEach(() => {

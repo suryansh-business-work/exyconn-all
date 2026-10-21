@@ -151,7 +151,12 @@ async function main(): Promise<void> {
   const stop = () => {
     server.close();
     sockets.clients.forEach((client) => client.close(1001));
-    mongoose.disconnect().finally(() => process.exit(0));
+    mongoose
+      .disconnect()
+      .catch((error: unknown) =>
+        log.error('database disconnect failed', { error: errorText(error) }),
+      )
+      .finally(() => process.exit(0));
   };
   process.on('SIGTERM', stop);
   process.on('SIGINT', stop);

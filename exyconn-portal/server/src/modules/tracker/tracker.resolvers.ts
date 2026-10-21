@@ -92,7 +92,7 @@ function serializeDeviceState(state: DeviceState) {
 }
 
 /** Serializes the day payload (four independent lists) with `_id -> id`. */
-async function serializeDay(day: {
+function serializeDay(day: {
   intervals: LeanDoc[];
   screenshots: LeanDoc[];
   sessions: LeanDoc[];

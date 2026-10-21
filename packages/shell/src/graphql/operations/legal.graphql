@@ -8,6 +8,7 @@ query ListContracts {
     expiryDate
     status
     documentUrl
+    groupId
     sentAt
     signedBy
     signedAt
@@ -26,6 +27,7 @@ query ListContractsPaged($input: TableQueryInput!) {
       expiryDate
       status
       documentUrl
+      groupId
       sentAt
       signedBy
       signedAt
@@ -146,6 +148,7 @@ query ListLegalDocuments {
     owner
     fileUrl
     status
+    groupId
   }
 }
 
@@ -159,6 +162,7 @@ query ListLegalDocumentsPaged($input: TableQueryInput!) {
       owner
       fileUrl
       status
+      groupId
     }
   }
 }

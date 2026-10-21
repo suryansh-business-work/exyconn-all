@@ -27,6 +27,8 @@ export interface ExpectedRange {
 export interface WorkedDay {
   date: string;
   activeMs: number;
+  /** Tracker running with no keyboard, mouse or system activity past the idle threshold. */
+  idleMs?: number | null;
   /** Approved off-computer time, which counts towards the day like measured time does. */
   manualMs?: number | null;
 }
@@ -60,13 +62,31 @@ export interface MonthTarget {
   weekOffDates: ReadonlySet<string>;
   /** What to call each off day that has a name: the leave code (CL, EL) or the holiday's name. */
   offLabels: ReadonlyMap<string, string>;
+  /** Working days whose worked time (active plus off-computer) met the contracted time. */
+  completedDates: ReadonlySet<string>;
+  /** Days with approved off-computer work that are neither complete nor finished short. */
+  offComputerDates: ReadonlySet<string>;
+  /** Measured active time over the range — tracked activity, idle excluded. */
+  activeMs: number;
+  /** Idle time over the range: the tracker running with nothing happening. Never worked time. */
+  idleMs: number;
+  /** Approved off-computer work over the range. */
+  offComputerMs: number;
+  /** Worked time on days outside the working week, kept apart so it is never mistaken for a shortfall. */
+  weekOffWorkedMs: number;
 }
 
 /**
- * How a calendar marks a day: on leave, a holiday, the employee's week off, or a finished day
- * that fell short. A leave or holiday mark's label is in `MonthTarget.offLabels`.
+ * How a calendar marks a day — one status each, the same on the portal, desktop and phone:
+ *
+ * - COMPLETED: a working day whose worked time (active plus approved off-computer) met its hours.
+ * - SHORT: a finished working day below its hours.
+ * - LEAVE, HOLIDAY, WEEK_OFF: an off day (a week off keeps its mark even when work was done).
+ * - OFF_COMPUTER: approved off-computer work on a day not otherwise marked (e.g. still in progress).
+ *
+ * A leave or holiday mark's label is in `MonthTarget.offLabels`; an unmarked day is no data/future.
  */
-export type DayMark = 'LEAVE' | 'HOLIDAY' | 'WEEK_OFF' | 'SHORT';
+export type DayMark = 'COMPLETED' | 'SHORT' | 'LEAVE' | 'HOLIDAY' | 'WEEK_OFF' | 'OFF_COMPUTER';
 
 const MS_PER_HOUR = 3_600_000;
 
@@ -100,6 +120,7 @@ export function monthTarget(
 ): MonthTarget {
   const workedByDate = new Map(worked.map((day) => [day.date, day]));
   const shortDates = new Set<string>();
+  const completedDates = new Set<string>();
   const leaveDates = new Set<string>();
   const holidayDates = new Set<string>();
   const weekOffDates = new Set<string>();
@@ -118,20 +139,27 @@ export function monthTarget(
       offLabels.set(day.date, day.offLabel);
     }
     expectedMs += day.expectedMs;
+    const done = workedMsOf(workedByDate.get(day.date));
+    if (day.expectedMs > 0 && done >= day.expectedMs) {
+      completedDates.add(day.date);
+    }
     if (day.date < todayKey) {
       expectedSoFarMs += day.expectedMs;
-      if (workedMsOf(workedByDate.get(day.date)) < day.expectedMs) {
+      if (done < day.expectedMs) {
         shortDates.add(day.date);
       }
     }
   }
-  const workedMs = worked.reduce((sum, day) => sum + workedMsOf(day), 0);
   return {
     expectedMs,
     expectedSoFarMs,
-    workedMs,
-    deficitMs: workedMs - expectedSoFarMs,
+    ...workedTotals(worked, weekOffDates),
+    deficitMs: worked.reduce((sum, day) => sum + workedMsOf(day), 0) - expectedSoFarMs,
     shortDates,
+    completedDates,
+    offComputerDates: new Set(
+      worked.filter((day) => (day.manualMs ?? 0) > 0).map((day) => day.date),
+    ),
     leaveDates,
     leaveMs: leaveDates.size * contract.workHoursPerDay * MS_PER_HOUR,
     holidayDates,
@@ -140,20 +168,41 @@ export function monthTarget(
   };
 }
 
-/** Each marked day of the range, for a calendar to label. A day carries one mark at most. */
+/** The range's time split into what was worked, what was idle and what fell on a week off. */
+function workedTotals(worked: readonly WorkedDay[], weekOffDates: ReadonlySet<string>) {
+  let activeMs = 0;
+  let idleMs = 0;
+  let offComputerMs = 0;
+  let weekOffWorkedMs = 0;
+  for (const day of worked) {
+    activeMs += day.activeMs;
+    idleMs += day.idleMs ?? 0;
+    offComputerMs += day.manualMs ?? 0;
+    if (weekOffDates.has(day.date)) {
+      weekOffWorkedMs += workedMsOf(day);
+    }
+  }
+  return { workedMs: activeMs + offComputerMs, activeMs, idleMs, offComputerMs, weekOffWorkedMs };
+}
+
+/**
+ * Each marked day of the range, for a calendar to label — one mark a day, the stronger winning:
+ * leave, then holiday, then week off, then completed, then short, then off-computer work.
+ */
 export function dayMarksOf(target: MonthTarget): ReadonlyMap<string, DayMark> {
   const marks = new Map<string, DayMark>();
-  for (const date of target.shortDates) {
-    marks.set(date, 'SHORT');
-  }
-  for (const date of target.weekOffDates) {
-    marks.set(date, 'WEEK_OFF');
-  }
-  for (const date of target.holidayDates) {
-    marks.set(date, 'HOLIDAY');
-  }
-  for (const date of target.leaveDates) {
-    marks.set(date, 'LEAVE');
+  const layers: ReadonlyArray<[ReadonlySet<string>, DayMark]> = [
+    [target.offComputerDates, 'OFF_COMPUTER'],
+    [target.shortDates, 'SHORT'],
+    [target.completedDates, 'COMPLETED'],
+    [target.weekOffDates, 'WEEK_OFF'],
+    [target.holidayDates, 'HOLIDAY'],
+    [target.leaveDates, 'LEAVE'],
+  ];
+  for (const [dates, mark] of layers) {
+    for (const date of dates) {
+      marks.set(date, mark);
+    }
   }
   return marks;
 }

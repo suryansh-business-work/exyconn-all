@@ -21,6 +21,7 @@ import Download from '@mui/icons-material/Download';
 import { PDFDocument } from 'pdf-lib';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
+import { forEachInSequence } from '../../shared/utils/sequence';
 
 interface PdfFile {
   file: File;
@@ -74,12 +75,13 @@ export default function MergePdf() {
     setProcessing(true);
     try {
       const merged = await PDFDocument.create();
-      for (const f of files) {
+      // In sequence: pages are appended in the order the user arranged the files.
+      await forEachInSequence(files, async (f) => {
         const bytes = await f.file.arrayBuffer();
         const src = await PDFDocument.load(bytes);
         const pages = await merged.copyPages(src, src.getPageIndices());
         pages.forEach((p) => merged.addPage(p));
-      }
+      });
       setResult(await merged.save());
     } catch {
       setError('Failed to merge PDFs.');

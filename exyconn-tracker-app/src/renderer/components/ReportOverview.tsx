@@ -66,7 +66,7 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
   const { range, current, previous, columns, loading, error } = usePeriodInsights(length, timezone);
   useAnnounce(error, 'assertive');
   const first = range.current[0];
-  const last = range.current[range.current.length - 1];
+  const [last] = range.current.slice(-1);
   const middle = range.current[Math.floor(range.current.length / 2)];
 
   return (

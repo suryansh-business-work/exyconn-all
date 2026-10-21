@@ -66,15 +66,13 @@ export const itPurchaseResolvers = {
   Query: crud.Query,
   Mutation: {
     ...crud.Mutation,
-    createItPurchaseRequest: async (
-      p: unknown,
-      args: { input: PurchaseInput },
-      ctx: GraphQLContext,
-    ) => {
-      assertTransition(args.input.status, null);
-      const input = { ...args.input, requestedById: ctx.user?.id ?? '' };
-      return crud.Mutation.createItPurchaseRequest(p, { input } as never, ctx);
-    },
+    createItPurchaseRequest: (p: unknown, args: { input: PurchaseInput }, ctx: GraphQLContext) =>
+      // Inside the chain so a refused transition rejects the returned promise.
+      Promise.resolve().then(() => {
+        assertTransition(args.input.status, null);
+        const input = { ...args.input, requestedById: ctx.user?.id ?? '' };
+        return crud.Mutation.createItPurchaseRequest(p, { input } as never, ctx);
+      }),
     updateItPurchaseRequest: async (
       p: unknown,
       args: { id: string; input: PurchaseInput },

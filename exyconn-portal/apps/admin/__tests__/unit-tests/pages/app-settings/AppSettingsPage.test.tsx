@@ -15,7 +15,7 @@ describe('AppSettingsPage', () => {
         },
       ],
     });
-    expect(screen.getByRole('heading', { name: 'App Settings' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     expect(screen.getByText('Loading app settings')).toBeInTheDocument();
 
     expect(

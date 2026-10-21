@@ -8,7 +8,9 @@ import { EmployeeLeavePanel } from './EmployeeLeavePanel';
 import { EmployeeAttendancePanel } from './EmployeeAttendancePanel';
 import { EmployeeLeaveBalancePanel } from './EmployeeLeaveBalancePanel';
 import { EmployeeEarningsPanel } from './EmployeeEarningsPanel';
+import { EmployeeLegalPanel } from './EmployeeLegalPanel';
 import { EmployeeLocationsPanel } from './employee-locations';
+import { EmployeeActivityPanel } from './EmployeeActivityPanel';
 import { portalLogger } from '@/logging/portalLogger';
 import { DetailSkeleton } from '@/components/feedback/skeletons';
 
@@ -89,7 +91,13 @@ export function UserDetailsPage() {
               <EmployeeEarningsPanel employeeId={user.id} />
             </Grid>
             <Grid size={{ xs: 12 }}>
+              <EmployeeLegalPanel employeeId={user.id} />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
               <EmployeeLocationsPanel employeeId={user.id} />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <EmployeeActivityPanel employeeId={user.id} />
             </Grid>
           </Grid>
         </>

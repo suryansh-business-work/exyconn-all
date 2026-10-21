@@ -18,7 +18,7 @@ let downloads: string[];
 let blobParts: BlobPart[][];
 
 beforeEach(() => {
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockResolvedValue(undefined) }, configurable: true });
   downloads = [];
   blobParts = [];
   const create = document.createElement.bind(document);

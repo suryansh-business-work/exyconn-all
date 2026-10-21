@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { uploadImage, deleteImage } from '../../services/api';
 import ImagePreview from './ImagePreview';
 import DropZone from './DropZone';
+import { logFailure } from '../../utils/logFailure';
 
 interface ImageUploadProps {
   value: string;
@@ -71,7 +72,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) handleFileSelect(file);
+    if (file) handleFileSelect(file).catch(logFailure('Image upload failed'));
     e.target.value = '';
   };
 
@@ -79,7 +80,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files?.[0];
-    if (file) handleFileSelect(file);
+    if (file) handleFileSelect(file).catch(logFailure('Image upload failed'));
   };
 
   const handleDragOver = (e: React.DragEvent) => {

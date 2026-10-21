@@ -20,6 +20,8 @@ const SAVED_INPUT = {
   },
   timezone: 'Asia/Kolkata',
   locale: 'en-IN',
+  dateFormat: '',
+  timeFormat: '',
 };
 
 function showForm(

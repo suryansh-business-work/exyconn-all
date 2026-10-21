@@ -46,7 +46,7 @@ async function websiteText(website: string, readNow: boolean, actor: AiActor): P
     return (await webScraper.scrape(website, actor)).markdown;
   }
   const stored = await WebScrapeModel.findOne({
-    url: { $regex: `^https?://(www\\.)?${escapeRegex(host)}(/|$)`, $options: 'i' },
+    url: { $regex: String.raw`^https?://(www\.)?${escapeRegex(host)}(/|$)`, $options: 'i' },
   })
     .sort({ createdAt: -1 })
     .select('markdown')

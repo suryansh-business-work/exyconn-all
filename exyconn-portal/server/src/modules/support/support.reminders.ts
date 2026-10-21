@@ -3,6 +3,7 @@ import { registerReminderSource, dayKey } from '../reminders';
 import type { Reminder } from '../reminders';
 import { ROLES } from '../../constants/roles';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { minutesBetween, slaState } from './support.sla';
 import { applyEscalation, ticketLink } from './escalation';
 
@@ -105,16 +106,16 @@ function breachedReminder(ticket: WatchedTicket, now: Date): Reminder {
  * queue keeps moving, because the reminders that follow are the part a human still sees.
  */
 async function escalateBreached(breached: WatchedTicket[]): Promise<void> {
-  for (const ticket of breached) {
-    if ((ticket.escalationLevel ?? 0) > 0) {
-      continue;
-    }
+  const unraised = breached.filter((ticket) => (ticket.escalationLevel ?? 0) <= 0);
+  // One ticket at a time: each escalation writes the thread and notifies people, and a long
+  // queue must not turn into a burst of emails.
+  await inSequence(unraised, async (ticket) => {
     try {
       await applyEscalation(ticket, ESCALATION_REASON, SLA_ACTOR);
     } catch (error) {
       logger.error(error, `Automatic escalation of ticket ${String(ticket._id)} failed`);
     }
-  }
+  });
 }
 
 /**

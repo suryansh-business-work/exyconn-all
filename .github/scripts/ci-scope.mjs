@@ -44,7 +44,9 @@ const sh = (command) => execSync(command, { encoding: 'utf8' }).trim();
 function workspacePackages() {
   const patterns = readFileSync('pnpm-workspace.yaml', 'utf8')
     .split('\n')
-    .map((line) => /^\s*-\s*'?([^']+?)'?\s*$/.exec(line)?.[1])
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('-'))
+    .map((line) => line.slice(1).trim().replaceAll("'", ''))
     .filter(Boolean);
   const dirs = patterns.flatMap((pattern) => {
     if (!pattern.endsWith('/*')) {
@@ -110,7 +112,7 @@ function countFiles(dir, patterns) {
   const names = patterns.map((pattern) => `-name '${pattern}'`).join(' -o ');
   return Number(
     sh(
-      `find ${dir} \\( -path '*/node_modules' -o -path '*/dist' \\) -prune -o \\( ${names} \\) -type f -print 2>/dev/null | wc -l`,
+      String.raw`find ${dir} \( -path '*/node_modules' -o -path '*/dist' \) -prune -o \( ${names} \) -type f -print 2>/dev/null | wc -l`,
     ),
   );
 }
@@ -129,7 +131,10 @@ function balancedGroups(packages, weightOf, count) {
     names: [],
   }));
   for (const pkg of weighted) {
-    const lightest = groups.reduce((min, group) => (group.weight < min.weight ? group : min));
+    const lightest = groups.reduce(
+      (min, group) => (group.weight < min.weight ? group : min),
+      groups[0],
+    );
     lightest.weight += pkg.weight;
     lightest.names.push(pkg.name);
   }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormField, SubmitButton, inputClassName } from "../shared";
@@ -21,12 +21,19 @@ export function DemoCodeStep({ email, onVerified, onStartOver }: Readonly<DemoCo
   const {
     register,
     handleSubmit,
+    setFocus,
     formState: { errors, isSubmitting },
   } = useForm<DemoCodeValues>({
     resolver: zodResolver(demoCodeSchema),
     defaultValues: { code: "" },
     mode: "onTouched",
   });
+
+  // This step replaces the email step the visitor just submitted, whose button is gone: move
+  // focus to the code box so keyboard and screen-reader users land where they type next.
+  useEffect(() => {
+    setFocus("code");
+  }, [setFocus]);
 
   const onSubmit = async ({ code }: DemoCodeValues) => {
     setError("");
@@ -57,7 +64,6 @@ export function DemoCodeStep({ email, onVerified, onStartOver }: Readonly<DemoCo
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={6}
-          autoFocus
           aria-invalid={Boolean(errors.code) || Boolean(error)}
           className={`${inputClassName("blue", Boolean(errors.code) || Boolean(error))} text-center font-mono text-2xl tracking-[0.5em]`}
           {...register("code")}

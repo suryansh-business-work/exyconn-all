@@ -79,7 +79,7 @@ describe('ClientHubLayout', () => {
     expect(logos).toContain('https://cdn/dark.png');
   });
 
-  it('links the five sections and marks the one in view', () => {
+  it('links the eight sections and marks the one in view', () => {
     renderLayout();
     const nav = within(screen.getByRole('navigation', { name: 'Client hub sections' }));
     const links = nav.getAllByRole('link');
@@ -89,6 +89,9 @@ describe('ClientHubLayout', () => {
       'Transactions',
       'Support',
       'Projects',
+      'Contracts & documents',
+      'Communication log',
+      'Important links',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/dashboard',
@@ -96,6 +99,9 @@ describe('ClientHubLayout', () => {
       '/transactions',
       '/support',
       '/projects',
+      '/documents',
+      '/communications',
+      '/links',
     ]);
     expect(nav.getByRole('link', { name: 'Overview' })).toHaveAttribute('aria-current', 'page');
     expect(nav.getByRole('link', { name: 'Invoices' })).not.toHaveAttribute('aria-current');

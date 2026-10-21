@@ -1,7 +1,11 @@
 import { useT } from '@exyconn/i18n';
 import { InputAdornment, Text, TextField } from '@/components/ui';
-import { RhfTextField } from '@/components/form/rhf';
-import { LocalePreferenceFields } from '@/components/localization';
+import { RhfSelect, RhfTextField } from '@/components/form/rhf';
+import {
+  LocalePreferenceFields,
+  useDateFormatOptions,
+  useTimeFormatOptions,
+} from '@/components/localization';
 import { SOCIAL_NETWORKS } from '@/components/profile/SocialLinkButtons';
 import { BRIEF_MAX_LENGTH } from './profile.schema';
 
@@ -79,10 +83,24 @@ export function SocialLinkFields() {
 
 /** Where the person is and what language they read. */
 export function PreferenceFields() {
+  const dateFormats = useDateFormatOptions();
+  const timeFormats = useTimeFormatOptions();
   return (
     <>
       <SectionTitle>Preferences</SectionTitle>
       <LocalePreferenceFields />
+      <RhfSelect
+        name="dateFormat"
+        label="Date format"
+        options={dateFormats}
+        helperText="How dates read for you in every table, card and form. Leave it on the workspace default to follow Admin › Settings."
+      />
+      <RhfSelect
+        name="timeFormat"
+        label="Time format"
+        options={timeFormats}
+        helperText="12-hour with am/pm, or 24-hour. Leave it on the workspace default to follow Admin › Settings."
+      />
     </>
   );
 }

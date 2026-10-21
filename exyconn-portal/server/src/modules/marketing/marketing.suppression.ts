@@ -7,6 +7,7 @@ import {
 import { MarketingUnsubscribeTokenModel } from './unsubscribe-token.model';
 import { createLimiter } from '../../lib/rateLimiter';
 import { recordSystemAudit } from '../audit';
+import { inSequence } from '../../utils/inSequence';
 
 /** The audit log's module name for suppression rows — also what the CRUD resolvers log under. */
 export const SUPPRESSION_AUDIT_MODULE = 'MarketingSuppression';
@@ -94,8 +95,11 @@ export async function suppressMany(
   origin: SuppressionOrigin,
 ): Promise<void> {
   const unique = [...new Set(emails.map(normalize))];
-  for (let start = 0; start < unique.length; start += UPSERT_BATCH) {
-    const batch = unique.slice(start, start + UPSERT_BATCH);
+  const batches = Array.from({ length: Math.ceil(unique.length / UPSERT_BATCH) }, (_, index) =>
+    unique.slice(index * UPSERT_BATCH, (index + 1) * UPSERT_BATCH),
+  );
+  // Batch after batch, so no more than UPSERT_BATCH upserts are in flight at once.
+  await inSequence(batches, async (batch) => {
     const added = await Promise.all(
       batch.map(async (email) => ({
         email,
@@ -115,7 +119,7 @@ export async function suppressMany(
           }),
         ),
     );
-  }
+  });
 }
 
 /** Whether a write failed only because the rows it wanted to insert already exist. */

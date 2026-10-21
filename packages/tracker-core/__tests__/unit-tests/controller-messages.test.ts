@@ -77,13 +77,13 @@ describe('TrackerController messages', () => {
     const before = setup.states.length;
 
     await setup.controller.markMessagesRead('NOTICE');
-    expect(setup.states.length).toBe(before);
+    expect(setup.states).toHaveLength(before);
     expect(setup.controller.getState().unreadMessages).toBe(3);
 
     await setup.controller.markMessagesRead('CHAT');
     const cleared = setup.states.length;
     await setup.controller.markMessagesRead('CHAT');
-    expect(setup.states.length).toBe(cleared);
+    expect(setup.states).toHaveLength(cleared);
   });
 });
 

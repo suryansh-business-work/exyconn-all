@@ -734,6 +734,24 @@ export type CheckSeverity =
   | 'INFO'
   | 'WARNING';
 
+export type ClientCommunicationInput = {
+  details: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts about this entry. Sent at most once per entry. */
+  notify: InputMaybe<Scalars['Boolean']['input']>;
+  occurredAt: Scalars['DateTime']['input'];
+  participants: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  summary: InputMaybe<Scalars['String']['input']>;
+  type: ClientCommunicationType;
+};
+
+export type ClientCommunicationType =
+  | 'CALL'
+  | 'EMAIL'
+  | 'MEETING'
+  | 'MESSAGE'
+  | 'OTHER';
+
 export type ClientContactInput = {
   clientId: Scalars['ID']['input'];
   email: Scalars['String']['input'];
@@ -765,6 +783,29 @@ export type ClientInput = {
   taxId: InputMaybe<Scalars['String']['input']>;
   taxIdType: InputMaybe<ClientTaxIdType>;
 };
+
+export type ClientLinkInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  details: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts about the new link (create only). */
+  notify: InputMaybe<Scalars['Boolean']['input']>;
+  title: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type ClientShareInput = {
+  kind: ClientSharedKind;
+  note: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts. Sent at most once per shared record. */
+  notify: InputMaybe<Scalars['Boolean']['input']>;
+  refId: Scalars['ID']['input'];
+};
+
+/** A Legal record that can be shared with a client. */
+export type ClientSharedKind =
+  | 'CONTRACT'
+  | 'DOCUMENT'
+  | 'POLICY';
 
 export type ClientStatus =
   | 'ACTIVE'
@@ -1053,6 +1094,7 @@ export type ContractInput = {
   documentUrl: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
+  groupId: InputMaybe<Scalars['ID']['input']>;
   party: Scalars['String']['input'];
   status: ContractStatus;
   title: Scalars['String']['input'];
@@ -1463,6 +1505,13 @@ export type DraftCrmEmailInput = {
 export type EditorMode =
   | 'CODE'
   | 'VISUAL';
+
+export type EmailClientInput = {
+  message: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+  /** Addresses from clientEmailRecipients; any other address is refused. */
+  to: Array<Scalars['String']['input']>;
+};
 
 export type EmailConfigInput = {
   fromAddress: Scalars['String']['input'];
@@ -2376,14 +2425,32 @@ export type LeaveStatus =
   | 'PENDING'
   | 'REJECTED';
 
+export type LegalAssignmentItemInput = {
+  itemId: Scalars['ID']['input'];
+  kind: LegalItemKind;
+};
+
 export type LegalDocumentInput = {
   category: DocumentCategory;
   content: InputMaybe<Scalars['String']['input']>;
   fileUrl: InputMaybe<Scalars['String']['input']>;
+  groupId: InputMaybe<Scalars['ID']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
   title: Scalars['String']['input'];
 };
+
+export type LegalGroupInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  kind: LegalItemKind;
+  name: Scalars['String']['input'];
+};
+
+/** The registers Legal keeps: each can be grouped and handed to employees. */
+export type LegalItemKind =
+  | 'CONTRACT'
+  | 'DOCUMENT'
+  | 'POLICY';
 
 export type LicenceBillingCycle =
   | 'MONTHLY'
@@ -2433,6 +2500,249 @@ export type LoginPageInput = {
   backgroundImageUrl: Scalars['String']['input'];
   name: Scalars['String']['input'];
   tagline: Scalars['String']['input'];
+};
+
+export type MaActionItemInput = {
+  assignedTo: InputMaybe<Scalars['String']['input']>;
+  assignedUserId: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  dueDate: InputMaybe<Scalars['DateTime']['input']>;
+  priority: MaPriority;
+  status: MaActionStatus;
+  title: Scalars['String']['input'];
+};
+
+export type MaActionStatus =
+  | 'BLOCKED'
+  | 'CANCELLED'
+  | 'COMPLETED'
+  | 'IN_PROGRESS'
+  | 'PENDING';
+
+export type MaAuthorizeExtensionInput = {
+  codeChallenge: Scalars['String']['input'];
+  codeChallengeMethod: Scalars['String']['input'];
+  extensionId: Scalars['String']['input'];
+  redirectUri: Scalars['String']['input'];
+  state: Scalars['String']['input'];
+};
+
+export type MaBulkActionInput = {
+  ids: Array<Scalars['ID']['input']>;
+  priority: InputMaybe<MaPriority>;
+  status: InputMaybe<MaActionStatus>;
+};
+
+export type MaCaptureState =
+  | 'ERROR'
+  | 'IDLE'
+  | 'PAUSED'
+  | 'RECORDING'
+  | 'STOPPED';
+
+export type MaDashboardFilter = {
+  from: InputMaybe<Scalars['DateTime']['input']>;
+  language: InputMaybe<MaLanguage>;
+  ownerId: InputMaybe<Scalars['String']['input']>;
+  participantUserId: InputMaybe<Scalars['String']['input']>;
+  scope: InputMaybe<MaScope>;
+  status: InputMaybe<MaMeetingStatus>;
+  to: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type MaDeliveryStatus =
+  | 'FAILED'
+  | 'PENDING'
+  | 'SENT';
+
+export type MaEmailStatus =
+  | 'AWAITING_APPROVAL'
+  | 'FAILED'
+  | 'NOT_SENT'
+  | 'PARTIAL'
+  | 'QUEUED'
+  | 'SENT';
+
+export type MaEventLevel =
+  | 'ERROR'
+  | 'INFO'
+  | 'WARN';
+
+export type MaHeartbeatInput = {
+  captureState: MaCaptureState;
+  participantCount: Scalars['Int']['input'];
+  title: InputMaybe<Scalars['String']['input']>;
+  transcriptionState: MaTranscriptionState;
+};
+
+export type MaLanguage =
+  | 'AUTO'
+  | 'ENGLISH'
+  | 'HINDI'
+  | 'HINGLISH';
+
+export type MaMeetingStatus =
+  | 'ACTIVE'
+  | 'ENDED';
+
+export type MaNotesContentInput = {
+  agenda: Array<Scalars['String']['input']>;
+  blockers: Array<Scalars['String']['input']>;
+  discussionPoints: Array<Scalars['String']['input']>;
+  executiveSummary: Scalars['String']['input'];
+  followUps: Array<Scalars['String']['input']>;
+  nextTopics: Array<Scalars['String']['input']>;
+  openQuestions: Array<Scalars['String']['input']>;
+  overview: Scalars['String']['input'];
+  risks: Array<Scalars['String']['input']>;
+};
+
+/** A Meet participant event, as the extension saw it in the visible call UI. */
+export type MaParticipantEventInput = {
+  at: Scalars['DateTime']['input'];
+  displayName: Scalars['String']['input'];
+  event: MaParticipantStatus;
+  /** True for the signed-in extension user, whose identity is verified. */
+  isSelf: Scalars['Boolean']['input'];
+  key: Scalars['String']['input'];
+};
+
+export type MaParticipantSource =
+  | 'EXTENSION_USER'
+  | 'GOOGLE_MEET_API'
+  | 'MEET_UI';
+
+export type MaParticipantStatus =
+  | 'JOINED'
+  | 'LEFT'
+  | 'UNKNOWN';
+
+export type MaPriority =
+  | 'CRITICAL'
+  | 'HIGH'
+  | 'LOW'
+  | 'MEDIUM';
+
+export type MaRegisterReleaseInput = {
+  artifactName: Scalars['String']['input'];
+  artifactSize: Scalars['Int']['input'];
+  assetUrl: Scalars['String']['input'];
+  buildNumber: Scalars['Int']['input'];
+  buildRunUrl: Scalars['String']['input'];
+  builtAt: Scalars['DateTime']['input'];
+  channel: MaReleaseChannel;
+  commitSha: Scalars['String']['input'];
+  minChromeVersion: Scalars['String']['input'];
+  releaseNotes: Scalars['String']['input'];
+  releaseUrl: Scalars['String']['input'];
+  sha256: Scalars['String']['input'];
+  version: Scalars['String']['input'];
+};
+
+export type MaReleaseChannel =
+  | 'BETA'
+  | 'INTERNAL'
+  | 'STABLE';
+
+export type MaReleaseStatus =
+  | 'BUILDING'
+  | 'BUILD_FAILED'
+  | 'DEPRECATED'
+  | 'DRAFT'
+  | 'INTERNAL_RELEASED'
+  | 'IN_REVIEW'
+  | 'PUBLISHED'
+  | 'QA_PENDING'
+  | 'READY_FOR_INTERNAL_TESTING'
+  | 'READY_FOR_STORE_SUBMISSION'
+  | 'REJECTED'
+  | 'SUBMITTED_FOR_REVIEW';
+
+export type MaReleaseStatusInput = {
+  note: Scalars['String']['input'];
+  status: MaReleaseStatus;
+  storeItemId: InputMaybe<Scalars['String']['input']>;
+  storeUrl: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Which meetings a list covers: the caller's own, or the whole company (AI role). */
+export type MaScope =
+  | 'ALL'
+  | 'MINE';
+
+export type MaSettingsInput = {
+  allowedUserIds: Array<Scalars['String']['input']>;
+  analysisModel: Scalars['String']['input'];
+  audioRetentionDays: Scalars['Int']['input'];
+  autoEmail: Scalars['Boolean']['input'];
+  autoGenerateSummary: Scalars['Boolean']['input'];
+  defaultRecipients: Array<Scalars['String']['input']>;
+  diarization: Scalars['Boolean']['input'];
+  emailAllowedDomains: Array<Scalars['String']['input']>;
+  emailParticipants: Scalars['Boolean']['input'];
+  emailRequiresApproval: Scalars['Boolean']['input'];
+  enabled: Scalars['Boolean']['input'];
+  liveTranscript: Scalars['Boolean']['input'];
+  maxMeetingMinutes: Scalars['Int']['input'];
+  maxRemindersPerMeeting: Scalars['Int']['input'];
+  monthlyBudgetUsd: Scalars['Float']['input'];
+  participantTracking: Scalars['Boolean']['input'];
+  preferredLanguage: MaLanguage;
+  releaseChannel: MaReleaseChannel;
+  reminderIntervalMinutes: Scalars['Int']['input'];
+  remindersEnabled: Scalars['Boolean']['input'];
+  saveRecordings: Scalars['Boolean']['input'];
+  summaryStyle: MaSummaryStyle;
+  transcriptRetentionDays: Scalars['Int']['input'];
+  transcriptionModel: Scalars['String']['input'];
+};
+
+export type MaSpeakerInput = {
+  label: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  userId: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MaStartSessionInput = {
+  meetingCode: Scalars['String']['input'];
+  startedAt: Scalars['DateTime']['input'];
+  timezone: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type MaStepStatus =
+  | 'FAILED'
+  | 'NOT_STARTED'
+  | 'QUEUED'
+  | 'READY'
+  | 'RUNNING'
+  | 'SKIPPED';
+
+export type MaSummaryStyle =
+  | 'CLIENT'
+  | 'DETAILED'
+  | 'EXECUTIVE'
+  | 'PROJECT_REVIEW'
+  | 'SALES'
+  | 'SHORT'
+  | 'STANDUP'
+  | 'TECHNICAL';
+
+export type MaTranscriptSource =
+  | 'AI'
+  | 'GOOGLE_MEET';
+
+export type MaTranscriptionState =
+  | 'NOT_SUPPORTED'
+  | 'OFF'
+  | 'ON'
+  | 'PERMISSION_REQUIRED'
+  | 'UNKNOWN';
+
+export type MaUpdateMeetingInput = {
+  language: MaLanguage;
+  title: Scalars['String']['input'];
 };
 
 export type ManagementReviewActionInput = {
@@ -2956,6 +3266,7 @@ export type PolicyInput = {
   category: InputMaybe<PolicyCategory>;
   classification: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  groupId: InputMaybe<Scalars['ID']['input']>;
   nextReviewOn: InputMaybe<Scalars['DateTime']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement: InputMaybe<Scalars['Boolean']['input']>;
@@ -4017,6 +4328,10 @@ export type TrackerSettingsInput = {
   dailyDigestEnabled: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone: InputMaybe<Scalars['String']['input']>;
   digestHour: InputMaybe<Scalars['Int']['input']>;
+  employeeDailyReportEnabled: InputMaybe<Scalars['Boolean']['input']>;
+  employeeMonthlyReportEnabled: InputMaybe<Scalars['Boolean']['input']>;
+  employeeReportHour: InputMaybe<Scalars['Int']['input']>;
+  employeeWeeklyReportEnabled: InputMaybe<Scalars['Boolean']['input']>;
   idleAutoPauseMinutes: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes: InputMaybe<Scalars['Int']['input']>;
@@ -4059,6 +4374,8 @@ export type UpdateProfileInput = {
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
   brief: InputMaybe<Scalars['String']['input']>;
+  /** This person's date pattern, from the offered list. Empty string follows the workspace's. */
+  dateFormat: InputMaybe<Scalars['String']['input']>;
   /** The language the portal is shown to this person in. Empty string follows the default. */
   locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
@@ -4066,6 +4383,8 @@ export type UpdateProfileInput = {
   phone: InputMaybe<Scalars['String']['input']>;
   /** Replaces every shared profile at once; an empty address clears that one. */
   socialLinks: InputMaybe<UserSocialLinksInput>;
+  /** This person's time pattern, from the offered list. Empty string follows the workspace's. */
+  timeFormat: InputMaybe<Scalars['String']['input']>;
   /**
    * The zone every date and time is shown to this person in. Empty string clears the
    * choice and follows the workspace default again.

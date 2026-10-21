@@ -14,3 +14,5 @@ packages:
   - 'exyconn-website'
   - 'exyconn-tracker-app'
   - 'exyconn-tracker-mobile'
+  # The Meeting Assistant Chrome extension (Google Meet).
+  - 'exyconn-meet-extension'

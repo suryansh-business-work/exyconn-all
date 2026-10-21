@@ -6,7 +6,9 @@ export function fileStem(name: string): string {
     .replaceAll(/\p{M}/gu, "")
     .toLowerCase()
     .replaceAll(/[^a-z\d]+/g, "-")
-    .replaceAll(/^-+|-+$/g, "")
+    // Runs are one dash by now, so at most one comes off each end.
+    .replace(/^-/, "")
+    .replace(/-$/, "")
     .slice(0, 60);
   return stem || "gcc-estimate";
 }

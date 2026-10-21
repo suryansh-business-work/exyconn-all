@@ -86,12 +86,12 @@ export async function settleServerErrorLogs(): Promise<void> {
  * The write is not awaited: a response must not wait on, or be slowed by, its own logging.
  */
 export const serverErrorLogPlugin: ApolloServerPlugin<GraphQLContext> = {
-  async requestDidStart() {
-    return {
-      async didEncounterErrors({ errors, contextValue, operationName }) {
+  requestDidStart() {
+    return Promise.resolve({
+      didEncounterErrors({ errors, contextValue, operationName }) {
         const entries = foldRequestErrors(errors, operationName, contextValue.user !== null);
         if (entries.length === 0) {
-          return;
+          return Promise.resolve();
         }
         const write = recordServerErrors(entries, {
           user: contextValue.user,
@@ -103,7 +103,8 @@ export const serverErrorLogPlugin: ApolloServerPlugin<GraphQLContext> = {
           })
           .finally(() => pendingWrites.delete(write));
         pendingWrites.add(write);
+        return Promise.resolve();
       },
-    };
+    });
   },
 };

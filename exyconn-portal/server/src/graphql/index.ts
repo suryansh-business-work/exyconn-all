@@ -63,11 +63,18 @@ import {
   marketingMetricsTypeDefs,
   marketingMetricsResolvers,
 } from '../modules/marketing';
-import { legalTypeDefs, legalResolvers, policyTypeDefs, policyResolvers } from '../modules/legal';
+import {
+  legalTypeDefs,
+  legalGroupTypeDefs,
+  legalResolvers,
+  policyTypeDefs,
+  policyResolvers,
+} from '../modules/legal';
 import { searchTypeDefs, searchResolvers } from '../modules/search';
 // Imported for its side effect: every module's records become findable from the search box.
 import '../modules/search/providers';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
+import { meetingAssistantTypeDefs, meetingAssistantResolvers } from '../modules/meeting-assistant';
 import {
   crmEntitiesTypeDefs,
   crmProfileTypeDefs,
@@ -177,6 +184,8 @@ import {
 import {
   clientHubTypeDefs,
   clientHubResolvers,
+  clientRecordsTypeDefs,
+  clientRecordsResolvers,
   walletGatewayTypeDefs,
   walletGatewayResolvers,
 } from '../modules/clienthub';
@@ -285,7 +294,9 @@ export const typeDefs = [
   campaignStudioTypeDefs,
   marketingMetricsTypeDefs,
   legalTypeDefs,
+  legalGroupTypeDefs,
   aiTypeDefs,
+  ...meetingAssistantTypeDefs,
   crmTypeDefs,
   productsTypeDefs,
   projectsTypeDefs,
@@ -344,6 +355,7 @@ export const typeDefs = [
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
+  clientRecordsTypeDefs,
   walletGatewayTypeDefs,
   websiteChatTypeDefs,
   websiteChatLibraryTypeDefs,
@@ -394,6 +406,7 @@ export const resolvers = mergeResolvers([
   marketingMetricsResolvers,
   legalResolvers,
   aiResolvers,
+  meetingAssistantResolvers,
   productsResolvers,
   projectsResolvers,
   boardResolvers,
@@ -449,6 +462,7 @@ export const resolvers = mergeResolvers([
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,
+  clientRecordsResolvers,
   walletGatewayResolvers,
   websiteChatResolvers,
   websiteChatLibraryResolvers,

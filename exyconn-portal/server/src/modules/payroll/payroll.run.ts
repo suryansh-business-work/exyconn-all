@@ -6,6 +6,7 @@ import { notify } from '../notifications';
 import { ensurePayslipDocument } from '../documents';
 import { companyProfile } from '../../lib/company';
 import { badRequest } from '../../utils/errors';
+import { inSequence } from '../../utils/inSequence';
 import { payableMonthsInFinancialYear } from './payroll.compute';
 import { DEFAULT_RUN_FROM_DAY, readPayrollSettings } from './payroll-settings.model';
 import {
@@ -243,9 +244,9 @@ export async function runPayrollFor(month: number, year: number, employeeIds: st
   assertRunnable(picked, candidates);
 
   const ready = candidates.filter(isReady);
-  let totalNet = 0;
-  for (const candidate of ready) {
-    totalNet += await issueSlip(candidate, month, year);
-  }
+  // One slip at a time: a failure stops the run before any later employee's slip is written,
+  // exactly where it failed, rather than leaving an unpredictable subset issued.
+  const nets = await inSequence(ready, (candidate) => issueSlip(candidate, month, year));
+  const totalNet = nets.reduce((sum, net) => sum + net, 0);
   return { month, year, generated: ready.length, totalNet };
 }

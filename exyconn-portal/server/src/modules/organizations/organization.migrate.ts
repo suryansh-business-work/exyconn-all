@@ -7,6 +7,7 @@ import { ORGANIZATION_FIELD, PLATFORM_MODELS, runAsPlatform } from '../../lib/te
 import { ROLES } from '../../constants/roles';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 
 /** What the install ran as before it had companies: the workspace's own defaults. */
 const LEGACY_CURRENCY = 'INR';
@@ -60,19 +61,21 @@ export async function migrateLegacyDataIntoFirstOrganization(): Promise<void> {
   );
   logger.warn(`Migrating this install into its first organization: ${name}`);
 
-  let stamped = 0;
-  for (const [modelName, model] of Object.entries(mongoose.models)) {
-    if (PLATFORM_MODELS.has(modelName)) {
-      continue;
-    }
+  const tenantModels = Object.entries(mongoose.models).filter(
+    ([modelName]) => !PLATFORM_MODELS.has(modelName),
+  );
+  // One collection at a time: a one-off migration over every collection at boot, kept to a
+  // single bulk write in flight so it does not swamp the database while the server starts.
+  const counts = await inSequence(tenantModels, async ([, model]) => {
     // Straight to the driver: the models themselves now refuse a write with no organization,
     // and that refusal is exactly what this is satisfying.
     const result = await model.collection.updateMany(
       { [ORGANIZATION_FIELD]: { $exists: false } },
       { $set: { [ORGANIZATION_FIELD]: organization._id } },
     );
-    stamped += result.modifiedCount;
-  }
+    return result.modifiedCount;
+  });
+  const stamped = counts.reduce((sum, count) => sum + count, 0);
 
   // The bootstrap account administers the platform as well as this company.
   await runAsPlatform(() =>
@@ -83,12 +86,13 @@ export async function migrateLegacyDataIntoFirstOrganization(): Promise<void> {
   );
 
   // Unique indexes are per organization now, so the old platform-wide ones have to go.
-  for (const [modelName, model] of Object.entries(mongoose.models)) {
+  // One collection at a time, for the same reason: index builds are the heaviest step here.
+  await inSequence(Object.entries(mongoose.models), async ([modelName, model]) => {
     try {
       await model.syncIndexes();
     } catch (error) {
       logger.error(error, `Could not rebuild the indexes of ${modelName}`);
     }
-  }
+  });
   logger.warn(`Migrated ${stamped} records into ${name}, and rebuilt the indexes`);
 }

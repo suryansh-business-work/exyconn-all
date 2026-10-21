@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import { cellText, parseCsv, toCsv } from '@exyconn/csv';
 import { badRequest } from '../../utils/errors';
+import { trimLeading, trimTrailing } from '../../utils/textTrim';
 
 export type TableFileFormat = 'CSV' | 'XLSX';
 /** What one exported cell holds; XLSX keeps numbers and booleans typed, CSV writes them as text. */
@@ -57,11 +58,11 @@ export function exportCell(value: unknown): ExportCell {
 
 /** `Client list` on 16 Oct 2026 as XLSX → `client-list-2026-10-16.xlsx`. */
 export function fileNameFor(base: string, format: TableFileFormat, today = new Date()): string {
-  const slug = base
+  const dashed = base
     .trim()
     .toLowerCase()
-    .replaceAll(/[^\w-]+/g, '-')
-    .replaceAll(/(?:^-+)|(?:-+$)/g, '');
+    .replaceAll(/[^\w-]+/g, '-');
+  const slug = trimLeading(trimTrailing(dashed, '-'), '-');
   const stamp = today.toISOString().slice(0, 10);
   return `${slug || 'export'}-${stamp}.${EXTENSIONS[format]}`;
 }

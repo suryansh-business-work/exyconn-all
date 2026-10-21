@@ -1,10 +1,12 @@
+import { angleSpans } from './campaign.mjml';
 import { EmailConfigModel } from '../tech/email-config.model';
 
-/** `Name <address>` or a bare address, as the SMTP configuration stores it. */
-const ADDRESS_IN_ANGLES = /<([^>]+)>/;
-
-const addressOf = (from: string): string =>
-  (ADDRESS_IN_ANGLES.exec(from)?.[1] ?? from).trim().toLowerCase();
+/** The address in `Name <address>`, or a bare address whole, as the SMTP configuration stores it. */
+export function addressOf(from: string): string {
+  const first = angleSpans(from).next();
+  const address = first.done ? from : from.slice(first.value[0] + 1, first.value[1]);
+  return address.trim().toLowerCase();
+}
 
 /**
  * The sender addresses a campaign may use: the active SMTP configuration's from address, the

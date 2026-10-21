@@ -22,6 +22,7 @@ import { ListAlt, Search, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import { useCopiedFlag } from '../../shared/hooks/useCopiedFlag';
+import { copyText } from '../../shared/utils/clipboard';
 
 interface KeywordResult {
   keyword: string;
@@ -68,7 +69,7 @@ const SerpChecker: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(results.map((r) => r.keyword).join('\n'));
+    copyText(results.map((r) => r.keyword).join('\n'));
     flashCopied();
   };
 

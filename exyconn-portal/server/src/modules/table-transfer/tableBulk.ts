@@ -1,6 +1,7 @@
 import { GraphQLError, getNamedType, isObjectType, type GraphQLSchema } from 'graphql';
 import type { GraphQLContext } from '../../middleware/auth';
 import { badRequest } from '../../utils/errors';
+import { inSequence } from '../../utils/inSequence';
 import { registeredBulkTarget, type TableArchiver } from './registry';
 import { isPagedList, listTarget, runOperation } from './tableSchema';
 
@@ -96,7 +97,9 @@ async function deleteEach(
   ids: readonly string[],
 ): Promise<BulkResult> {
   const result: BulkResult = { succeeded: 0, failures: [] };
-  for (const id of ids) {
+  // One at a time, as a person deleting them would: a refusal that stops the whole action
+  // must stop it before the records after it are touched.
+  await inSequence(ids, async (id) => {
     try {
       await runOperation(schema, ctx, operation, { id });
       result.succeeded += 1;
@@ -109,7 +112,7 @@ async function deleteEach(
         result.failures.push(failureOf(id, graphqlError));
       }
     }
-  }
+  });
   return result;
 }
 

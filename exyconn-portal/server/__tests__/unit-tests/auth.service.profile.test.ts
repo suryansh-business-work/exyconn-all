@@ -70,6 +70,28 @@ describe('editing one s own profile', () => {
     );
   });
 
+  it('keeps an offered date and time pattern, and clears them with an empty string', async () => {
+    const user = await person();
+
+    expect(
+      await authService.updateProfile(user.id, { dateFormat: 'yyyy-MM-dd', timeFormat: 'HH:mm' }),
+    ).toMatchObject({ dateFormat: 'yyyy-MM-dd', timeFormat: 'HH:mm' });
+    expect(
+      await authService.updateProfile(user.id, { dateFormat: '', timeFormat: ' ' }),
+    ).toMatchObject({ dateFormat: null, timeFormat: null });
+  });
+
+  it('refuses a date or time pattern that is not on offer', async () => {
+    const user = await person();
+
+    await expect(authService.updateProfile(user.id, { dateFormat: 'yyyy' })).rejects.toThrow(
+      '"yyyy" is not one of the date formats on offer.',
+    );
+    await expect(authService.updateProfile(user.id, { timeFormat: 'H' })).rejects.toThrow(
+      '"H" is not one of the time formats on offer.',
+    );
+  });
+
   it('refuses to edit an account that does not exist', async () => {
     await expect(
       authService.updateProfile(new Types.ObjectId().toHexString(), { name: 'Ghost' }),

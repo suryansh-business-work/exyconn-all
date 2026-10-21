@@ -36,7 +36,7 @@ describe("palette", () => {
 
   it("never repeats a value under two names", () => {
     const values = Object.values(palette).flatMap((steps) => Object.values(steps));
-    expect(values.length).toBe(new Set(values).size);
+    expect(values).toHaveLength(new Set(values).size);
   });
 
   it("gives the browser chrome a literal brand colour", () => {

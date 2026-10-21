@@ -155,28 +155,26 @@ class SlackNotifier {
    */
   async listChannels(): Promise<SlackChannel[]> {
     const config = await this.getActiveConfig();
-    const channels: SlackChannel[] = [];
-    let cursor = '';
-
-    do {
-      const page = await this.call<ConversationsListResponse>(config, 'conversations.list', {
-        types: 'public_channel,private_channel',
-        exclude_archived: true,
-        limit: CHANNELS_PAGE_SIZE,
-        cursor: cursor || undefined,
-      });
-      for (const channel of page.channels ?? []) {
-        channels.push({
-          id: channel.id,
-          name: channel.name,
-          isPrivate: channel.is_private,
-          isMember: channel.is_member,
-        });
-      }
-      cursor = page.response_metadata?.next_cursor ?? '';
-    } while (cursor);
-
+    const channels = await this.channelsFrom(config, '');
     return channels.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  /** The page of channels at `cursor` and every page after it, read one after another. */
+  private async channelsFrom(config: SlackConfigDocument, cursor: string): Promise<SlackChannel[]> {
+    const page = await this.call<ConversationsListResponse>(config, 'conversations.list', {
+      types: 'public_channel,private_channel',
+      exclude_archived: true,
+      limit: CHANNELS_PAGE_SIZE,
+      cursor: cursor || undefined,
+    });
+    const channels: SlackChannel[] = (page.channels ?? []).map((channel) => ({
+      id: channel.id,
+      name: channel.name,
+      isPrivate: channel.is_private,
+      isMember: channel.is_member,
+    }));
+    const next = page.response_metadata?.next_cursor ?? '';
+    return next ? [...channels, ...(await this.channelsFrom(config, next))] : channels;
   }
 
   /**

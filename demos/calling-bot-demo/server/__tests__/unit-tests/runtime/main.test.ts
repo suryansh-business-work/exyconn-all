@@ -304,6 +304,19 @@ describe('the voice server', () => {
     });
     expect(handlers.get('SIGINT')).toBe(handlers.get('SIGTERM'));
   });
+
+  it('logs a failed database disconnect and still exits on shutdown', async () => {
+    mocks.mongoose.disconnect.mockRejectedValueOnce(new Error('socket closed'));
+    handlers.get('SIGINT')?.();
+    await vi.waitFor(() => {
+      expect(mocks.log.error).toHaveBeenCalledWith('database disconnect failed', {
+        error: 'socket closed',
+      });
+    });
+    await vi.waitFor(() => {
+      expect(process.exit).toHaveBeenCalledWith(0);
+    });
+  });
 });
 
 describe('the voice server failing to start', () => {

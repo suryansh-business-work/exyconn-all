@@ -40,6 +40,10 @@ const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: 'com.exyconn.tracker',
     versionCode: versionCode(version),
+    // No Android auto-backup: what the tracker records belongs on the portal, not in a cloud
+    // backup of the phone, and nothing it keeps on the device needs restoring.
+    // Must match android:allowBackup in modules/tracker-native's manifest, or the merge fails.
+    allowBackup: false,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: white,

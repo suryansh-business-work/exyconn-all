@@ -1,15 +1,12 @@
 import type { DayMark } from '@exyconn/tracker-core';
 import { useBrand } from '../theme/BrandProvider';
-import { useThemeColor } from '../theme/useThemeColor';
+import { trackerDayStatus } from '../theme/tokens';
 
 /**
- * The ring each calendar mark wears, as the desktop draws it: red for a short day, the accent
- * for leave, grey for a holiday, the hairline for the week off.
+ * The ring each calendar status wears, from the design system's shared tracker tokens — the
+ * same hues the desktop and the portal draw: green completed, red short, blue leave, purple
+ * holiday, grey week off, amber off-computer work.
  */
 export function useMarkColors(): Readonly<Record<DayMark, string>> {
-  const brand = useBrand();
-  const error = useThemeColor('error');
-  const muted = useThemeColor('muted');
-  const hairline = useThemeColor('hairline');
-  return { SHORT: error, LEAVE: brand.primary, HOLIDAY: muted, WEEK_OFF: hairline };
+  return trackerDayStatus[useBrand().scheme];
 }

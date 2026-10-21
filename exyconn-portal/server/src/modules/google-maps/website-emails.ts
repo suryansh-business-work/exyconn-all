@@ -1,6 +1,7 @@
 import { isEmailAddress } from '../../utils/emailAddress';
 import { logger } from '../../utils/logger';
 import { safeFetch, UnsafeUrlError } from '../../utils/safeFetch';
+import { inSequence } from '../../utils/inSequence';
 import { robotsAllows } from './robots';
 
 /**
@@ -205,8 +206,9 @@ export async function findWebsiteEmails(website: string): Promise<WebsiteEmailRe
     return result('UNREACHABLE', 'The website did not answer');
   }
   const found = new Set(emailsInHtml(home));
-  for (const page of contactPages(home, start).filter(allowed)) {
-    const html = await pageHtml(page);
+  // One page at a time: a polite crawler never hits a small site with parallel requests.
+  const pages = await inSequence(contactPages(home, start).filter(allowed), pageHtml);
+  for (const html of pages) {
     for (const email of html ? emailsInHtml(html) : []) {
       found.add(email);
     }

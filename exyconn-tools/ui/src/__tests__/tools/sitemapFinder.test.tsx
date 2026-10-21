@@ -42,7 +42,10 @@ let downloads: Array<{ name: string; type: string }>;
 let anchorClick: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    configurable: true,
+  });
   downloads = [];
   const create = document.createElement.bind(document);
   vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {

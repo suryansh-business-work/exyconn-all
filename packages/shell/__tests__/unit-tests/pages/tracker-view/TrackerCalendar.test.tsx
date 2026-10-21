@@ -84,13 +84,16 @@ describe('TrackerCalendar', () => {
     expect(dayButtons()[9]).toBeEnabled();
   });
 
-  it('outlines the selected day differently from the rest', () => {
+  it('outlines and presses the selected day, and no other', () => {
     renderCalendar('2026-03-10');
 
-    const border = (cell: HTMLElement) =>
-      getComputedStyle(cell.firstElementChild as Element).borderColor;
-    expect(border(dayButtons()[9])).not.toBe(border(dayButtons()[8]));
-    expect(border(dayButtons()[8])).toBe(border(dayButtons()[10]));
+    const outline = (cell: HTMLElement) =>
+      getComputedStyle(cell.firstElementChild as Element).outline;
+    expect(outline(dayButtons()[9])).not.toBe(outline(dayButtons()[8]));
+    expect(outline(dayButtons()[8])).toBe(outline(dayButtons()[10]));
+    expect(dayButtons().filter((cell) => cell.getAttribute('aria-pressed') === 'true')).toEqual([
+      dayButtons()[9],
+    ]);
   });
 
   it('labels short, leave and holiday days in words, and only days of the month', () => {

@@ -177,6 +177,16 @@ export const TRACKER_DEFAULTS = Object.freeze({
   /** Local hour (0-23) the digests are sent at, read in the workspace's own timezone. */
   digestHour: 9,
   /**
+   * Each employee's own hours report by email: their day every evening, their week on Sunday
+   * and their month on its last day (the week and month with the PDF attached). On by
+   * default, as the workspace asked for it; each can be switched off in Tracker settings.
+   */
+  employeeDailyReportEnabled: true,
+  employeeWeeklyReportEnabled: true,
+  employeeMonthlyReportEnabled: true,
+  /** Local hour (0-23) the employee reports go out at, read in each employee's own zone. */
+  employeeReportHour: 20,
+  /**
    * IANA zone (e.g. "Asia/Kolkata") every employee's tracker times are read in unless they
    * pick their own. Empty string means "no house default" — fall back to whatever zone the
    * employee's own machine reports. See tracker.timezone.ts for the resolution order.

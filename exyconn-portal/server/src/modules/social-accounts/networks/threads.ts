@@ -24,24 +24,25 @@ const FAILED_CONTAINER = new Set(['ERROR', 'EXPIRED']);
 
 const pause = (ms: number) => new Promise((resolve) => globalThis.setTimeout(resolve, ms));
 
-/** Waits until Threads has fetched and processed an image container, or says why it did not. */
-async function awaitContainer(account: NetworkAccount, id: string): Promise<void> {
-  for (let attempt = 0; attempt < CONTAINER_WAIT.attempts; attempt += 1) {
-    const body = await getJson(
-      'Threads',
-      endpoint(id, account, { fields: 'status,error_message' }),
-    );
-    const status = str(body.status);
-    if (status === 'FINISHED') return;
-    if (FAILED_CONTAINER.has(status)) {
-      throw new SocialProviderError(
-        'Threads',
-        str(body.error_message) || `the image container is ${status.toLowerCase()}`,
-      );
-    }
-    await pause(CONTAINER_WAIT.intervalMs);
+/**
+ * Waits until Threads has fetched and processed an image container, or says why it did not.
+ * Polls one check after another, a pause apart, up to the attempt limit.
+ */
+async function awaitContainer(account: NetworkAccount, id: string, attempt = 0): Promise<void> {
+  if (attempt >= CONTAINER_WAIT.attempts) {
+    throw new SocialProviderError('Threads', 'the image was not ready in time; try again');
   }
-  throw new SocialProviderError('Threads', 'the image was not ready in time; try again');
+  const body = await getJson('Threads', endpoint(id, account, { fields: 'status,error_message' }));
+  const status = str(body.status);
+  if (status === 'FINISHED') return;
+  if (FAILED_CONTAINER.has(status)) {
+    throw new SocialProviderError(
+      'Threads',
+      str(body.error_message) || `the image container is ${status.toLowerCase()}`,
+    );
+  }
+  await pause(CONTAINER_WAIT.intervalMs);
+  return awaitContainer(account, id, attempt + 1);
 }
 
 /** One post's numbers. Threads answers each metric as `{ name, values: [{ value }] }`. */

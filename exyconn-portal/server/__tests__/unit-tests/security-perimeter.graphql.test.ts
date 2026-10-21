@@ -30,6 +30,7 @@ const REPO = join(__dirname, '../../../..');
 const CLIENT_OPERATIONS = [
   'packages/shell/src/graphql/operations',
   'packages/tracker-core/src/graphql/operations',
+  'exyconn-meet-extension/src/graphql/operations',
 ];
 
 function graphqlFiles(dir: string): string[] {

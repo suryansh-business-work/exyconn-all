@@ -1,7 +1,7 @@
 import { ensureEmailDefaults } from '../../../../src/modules/email';
 import { EmailFragmentModel } from '../../../../src/modules/email/email-fragment.model';
 import { EmailTemplateModel } from '../../../../src/modules/email/email-template.model';
-import { fragmentsIn } from '../../../../src/modules/email/email.render';
+import { fragmentsIn, rawHtml } from '../../../../src/modules/email/email.render';
 import { logger } from '../../../../src/utils/logger';
 import { renderStoredTemplate } from '../../../../src/modules/email/email.service';
 
@@ -107,6 +107,46 @@ describe('the employee-email-code template', () => {
       'companyName',
       'expiresIn',
       'name',
+    ]);
+  });
+});
+
+describe('the tracker-hours-report template', () => {
+  it('is seeded and renders the employee report schedule’s figures', async () => {
+    await ensureEmailDefaults();
+
+    const rendered = await renderStoredTemplate('tracker-hours-report', {
+      name: 'Asha',
+      periodLabel: 'for January 2026',
+      expected: '176h 0m',
+      logged: '150h 30m',
+      active: '140h 0m',
+      offComputer: '10h 30m',
+      idle: '12h 0m',
+      deficit: '-25h 30m',
+      earnings: 'Salaried',
+      rows: rawHtml('<tr><td>2026-01-05</td></tr>'),
+    });
+
+    expect(rendered.subject).toBe('Your hours for January 2026');
+    expect(rendered.html).toContain('Hi Asha, here is how for January 2026 went.');
+    for (const figure of ['176h 0m', '150h 30m', '10h 30m', '-25h 30m', 'Salaried']) {
+      expect(rendered.html).toContain(figure);
+    }
+    // The day table is server-built markup and goes in as it is.
+    expect(rendered.html).toContain('<tr><td>2026-01-05</td></tr>');
+    // Exactly what tracker.employee-reports.ts sends.
+    expect([...new Set(rendered.variables)].sort((a, b) => a.localeCompare(b))).toEqual([
+      'active',
+      'deficit',
+      'earnings',
+      'expected',
+      'idle',
+      'logged',
+      'name',
+      'offComputer',
+      'periodLabel',
+      'rows',
     ]);
   });
 });

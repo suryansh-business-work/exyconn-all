@@ -1,6 +1,17 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { Box, Chip, FitFigure, Skeleton, Stack, Typography, fontWeight } from '@/components/ui';
+import {
+  Box,
+  Chip,
+  FitFigure,
+  IconButton,
+  Skeleton,
+  Stack,
+  Tooltip,
+  Typography,
+  fontWeight,
+} from '@/components/ui';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -24,6 +35,8 @@ export interface StatItem {
   /** The icon in the tile's pastel bubble. A neutral chart glyph stands in when none is given. */
   icon?: SvgIconComponent;
   series?: number[];
+  /** What the figure means, behind an (i) button beside it — for a figure that needs defining. */
+  info?: string;
 }
 
 interface StatCardProps extends StatItem {
@@ -43,6 +56,7 @@ export function StatCard({
   accent = color.orange[500],
   icon = InsightsOutlinedIcon,
   series,
+  info,
   loading = false,
 }: Readonly<StatCardProps>) {
   const t = useT();
@@ -51,13 +65,25 @@ export function StatCard({
     <Box sx={[panel, { height: '100%' }]}>
       <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <IconBubble icon={icon} accent={accent} />
-        {delta !== undefined && (
-          <Chip
-            color={up ? 'success' : 'error'}
-            icon={up ? <TrendingUpIcon /> : <TrendingDownIcon />}
-            label={`${Math.abs(delta)}%`}
-          />
-        )}
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+          {info && (
+            <Tooltip title={t(info)} describeChild>
+              <IconButton
+                size="small"
+                aria-label={t('About {label}', { label: t(label, labelValues) })}
+              >
+                <InfoOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+          {delta !== undefined && (
+            <Chip
+              color={up ? 'success' : 'error'}
+              icon={up ? <TrendingUpIcon /> : <TrendingDownIcon />}
+              label={`${Math.abs(delta)}%`}
+            />
+          )}
+        </Stack>
       </Stack>
       {/* Sized like a heading, but not one: four numbers as <h6> straight after the page's
           <h1> skipped every level between and made the outline read as a list of figures. */}

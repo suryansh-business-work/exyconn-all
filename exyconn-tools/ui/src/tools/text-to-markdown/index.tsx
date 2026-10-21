@@ -7,6 +7,7 @@ import { APIs } from '../../shared/config/apis';
 import { ConversionOptions } from './types';
 import TextInputPanel from './TextInputPanel';
 import MarkdownOutput from './MarkdownOutput';
+import { copyText } from '../../shared/utils/clipboard';
 
 const TextToMarkdown: React.FC = () => {
   const [content, setContent] = useState('');
@@ -44,7 +45,7 @@ const TextToMarkdown: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(markdown);
+    copyText(markdown);
     setCopied(true);
   };
 

@@ -22,9 +22,16 @@ const FALLBACK = {
  */
 export function useSettings() {
   const { data } = useAppSettingsQuery({ fetchPolicy: 'cache-first' });
-  const settings = data?.appSettings ?? FALLBACK;
-  const { locale, direction } = useI18n();
+  const { locale, direction, settings: reader } = useI18n();
   const formatters = useFormatters();
+  // The patterns and zone are the reader's own (their profile, else the workspace's), so a
+  // screen reading `settings.dateFormat` shows the same thing as the formatters.
+  const settings = {
+    ...(data?.appSettings ?? FALLBACK),
+    dateFormat: reader.dateFormat,
+    timeFormat: reader.timeFormat,
+    timezone: reader.timezone,
+  };
 
   return { settings, locale, direction, ...formatters };
 }

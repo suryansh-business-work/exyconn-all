@@ -1,0 +1,1 @@
+export { LegalGroupsPage } from './LegalGroupsPage';

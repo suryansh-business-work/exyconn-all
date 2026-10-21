@@ -9,6 +9,7 @@ import { formatAmount } from '../../utils/money';
 import { logger } from '../../utils/logger';
 import { recordSystemAudit } from '../audit';
 import { invoicePayUrl } from './invoice.payLink';
+import { inSequence } from '../../utils/inSequence';
 
 /**
  * How long after the due date the customer hears from us, in days.
@@ -146,27 +147,37 @@ export async function chaseOverdueInvoices(now = new Date()): Promise<number> {
     companyProfile(),
   ]);
 
-  let sent = 0;
-  for (const target of due) {
-    const to = addresses.get(target.clientId);
-    if (!to) {
-      continue;
-    }
-    const claimed = await claimReminder(
-      RECEIVABLES_SOURCE,
-      `invoice-dunning:${target.id}:${target.stage}`,
-      1,
-    );
-    if (claimed && (await sendChase(target, to, profile.locale))) {
-      sent += 1;
-      await recordSystemAudit({
-        action: 'UPDATE',
-        module: 'Invoice',
-        entityId: target.id,
-        entityLabel: target.number,
-        summary: `Sent the ${target.stage}-day overdue reminder for Invoice ${target.number} to ${to}`,
-      });
-    }
+  // One invoice at a time: each stage is claimed, sent and audited before the next, which
+  // keeps the SMTP send rate bounded and the audit trail in send order.
+  const outcomes = await inSequence(due, (target) =>
+    chaseOne(target, addresses.get(target.clientId), profile.locale),
+  );
+  return outcomes.filter(Boolean).length;
+}
+
+/** Claims, sends and audits one dunning stage; true when the letter went out. */
+async function chaseOne(
+  target: ChaseTarget,
+  to: string | undefined,
+  locale: string,
+): Promise<boolean> {
+  if (!to) {
+    return false;
   }
-  return sent;
+  const claimed = await claimReminder(
+    RECEIVABLES_SOURCE,
+    `invoice-dunning:${target.id}:${target.stage}`,
+    1,
+  );
+  if (!claimed || !(await sendChase(target, to, locale))) {
+    return false;
+  }
+  await recordSystemAudit({
+    action: 'UPDATE',
+    module: 'Invoice',
+    entityId: target.id,
+    entityLabel: target.number,
+    summary: `Sent the ${target.stage}-day overdue reminder for Invoice ${target.number} to ${to}`,
+  });
+  return true;
 }

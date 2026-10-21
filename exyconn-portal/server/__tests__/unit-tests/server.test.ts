@@ -35,6 +35,7 @@ jest.mock('../../src/modules/payroll', () => ({
 }));
 jest.mock('../../src/modules/onboarding', () => ({ ensureOnboardingDefaults: jest.fn() }));
 jest.mock('../../src/modules/tracker', () => ({
+  startEmployeeReports: jest.fn(),
   startTrackerDigest: jest.fn(),
   startTrackerRetention: jest.fn(),
 }));
@@ -49,6 +50,7 @@ jest.mock('../../src/modules/ai', () => ({
   ensureAiModelPrices: jest.fn(),
   startAiWorker: jest.fn(),
 }));
+jest.mock('../../src/modules/meeting-assistant', () => ({ startMeetingAssistantWorker: jest.fn() }));
 jest.mock('../../src/modules/logs', () => ({ backfillAppLogGroupUsers: jest.fn() }));
 jest.mock('../../src/modules/hr', () => ({ backfillPositionDefaults: jest.fn() }));
 jest.mock('../../src/lib/migrations', () => ({
@@ -116,6 +118,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/payroll', 'startPayrollDispatch'],
   ['../../src/modules/tracker', 'startTrackerRetention'],
   ['../../src/modules/tracker', 'startTrackerDigest'],
+  ['../../src/modules/tracker', 'startEmployeeReports'],
   ['../../src/modules/marketing', 'startCampaignSchedule'],
   ['../../src/modules/social-accounts', 'startSocialSchedule'],
   ['../../src/modules/finance', 'startRecurringInvoiceSchedule'],
@@ -126,6 +129,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/table-transfer', 'startTableBulkJobs'],
   ['../../src/modules/website-chat', 'startChatHandoff'],
   ['../../src/modules/ai', 'startAiWorker'],
+  ['../../src/modules/meeting-assistant', 'startMeetingAssistantWorker'],
   ['../../src/modules/reminders', 'startReminderSweep'],
   ['../../src/modules/crm/calendar/crm.reminder.email', 'startCrmReminderEmails'],
   ['../../src/modules/audit', 'startAuditRetention'],

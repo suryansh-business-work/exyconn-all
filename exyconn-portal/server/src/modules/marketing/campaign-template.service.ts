@@ -58,7 +58,7 @@ export async function saveTemplate(id: string | null, raw: unknown, actorName: s
         version: 1,
         updatedByName: actorName,
       });
-      await addVersion(String(created._id), 1, input, actorName);
+      await addVersion(created._id.toHexString(), 1, input, actorName);
       return created.toObject();
     }
     const updated = await CampaignTemplateModel.findByIdAndUpdate(
@@ -79,14 +79,16 @@ export async function saveTemplate(id: string | null, raw: unknown, actorName: s
   }
 }
 
-async function freeCopyName(name: string): Promise<string> {
-  for (let n = 1; n < 100; n += 1) {
-    const candidate = n === 1 ? `${name} (copy)` : `${name} (copy ${n})`;
-    if (!(await CampaignTemplateModel.exists({ name: candidate }))) {
-      return candidate;
-    }
+/** The first free copy name, tried in order: "(copy)", then "(copy 2)" up to "(copy 99)". */
+async function freeCopyName(name: string, n = 1): Promise<string> {
+  if (n >= 100) {
+    return badRequest('Too many copies of this template exist already.');
   }
-  return badRequest('Too many copies of this template exist already.');
+  const candidate = n === 1 ? `${name} (copy)` : `${name} (copy ${n})`;
+  if (await CampaignTemplateModel.exists({ name: candidate })) {
+    return freeCopyName(name, n + 1);
+  }
+  return candidate;
 }
 
 export async function duplicateTemplate(id: string, actorName: string) {

@@ -70,10 +70,7 @@ export const insightsController = async (req: Request, res: Response) => {
   }
 };
 
-export const generateSitemapController = async (
-  req: Request,
-  res: Response,
-) => {
+export const generateSitemapController = (req: Request, res: Response) => {
   try {
     const { urls, includeLastmod, defaultChangefreq, defaultPriority } =
       req.body;
@@ -92,7 +89,7 @@ export const generateSitemapController = async (
   }
 };
 
-export const generateIndexController = async (req: Request, res: Response) => {
+export const generateIndexController = (req: Request, res: Response) => {
   try {
     const { sitemaps } = req.body;
     const xml = generateSitemapIndex({ sitemaps });
@@ -105,7 +102,7 @@ export const generateIndexController = async (req: Request, res: Response) => {
   }
 };
 
-export const generateRobotsController = async (req: Request, res: Response) => {
+export const generateRobotsController = (req: Request, res: Response) => {
   try {
     const { sitemaps, userAgentRules, crawlDelay } = req.body;
     const content = generateRobotsTxt({ sitemaps, userAgentRules, crawlDelay });

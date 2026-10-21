@@ -8,7 +8,7 @@ import {
   ListClientsPagedDocument,
   ListClientsStatsDocument,
 } from '@exyconn/shell/graphql/generated';
-import { renderWithProviders } from '../../test-utils';
+import { renderWithProviders, useCurrentUrl } from '../../test-utils';
 import { dashboardProps, statValues, TABLE_INPUT, tableStats } from '../../crud-dashboard.stub';
 import { ClientsPage } from '../../../../src/pages/clients';
 import { ClientForm } from '../../../../src/pages/clients/forms/client';
@@ -89,6 +89,23 @@ describe('ClientsPage', () => {
     expect(form.props.initial).toBeNull();
     expect(form.props.onCancel).toBe(dashboardProps().crud?.close);
     expect(form.props.onDone).toBe(dashboardProps().crud?.onDone);
+  });
+
+  it('opens a client’s own page when their row is clicked', () => {
+    function Url() {
+      return <span data-testid="url">{useCurrentUrl()}</span>;
+    }
+    renderWithProviders(
+      <>
+        <ClientsPage />
+        <Url />
+      </>,
+      { mocks: [FULL_STATS], route: '/clients' },
+    );
+    act(() => {
+      dashboardProps().onRowClick?.(client());
+    });
+    expect(screen.getByTestId('url').textContent).toBe(`/clients/${client().id}`);
   });
 
   it('opens the edit form for the row the edit action was pressed on', () => {

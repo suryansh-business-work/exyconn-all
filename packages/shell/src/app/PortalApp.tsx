@@ -5,10 +5,10 @@ import '@fontsource-variable/inter';
 import '@fontsource-variable/outfit';
 import { ApolloProvider } from '@apollo/client/react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
 import { apolloClient } from '@/config/apolloClient';
 import { PortalI18nProvider } from '@/i18n/PortalI18nProvider';
 import { DirectionSync } from '@/i18n/DirectionSync';
+import { PortalPickers } from './PortalPickers';
 import { ColorModeProvider } from '@/theme/ColorModeContext';
 import { AuthProvider } from '@/auth/AuthContext';
 import type { Role } from '@/auth/roles';
@@ -83,7 +83,7 @@ export function PortalApp({
       <PortalI18nProvider>
         <DirectionSync />
         <ColorModeProvider>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <PortalPickers>
             <NotificationProvider>
               <ConfirmProvider>
                 <NetworkActivityBar />
@@ -120,7 +120,7 @@ export function PortalApp({
                 </BrowserRouter>
               </ConfirmProvider>
             </NotificationProvider>
-          </LocalizationProvider>
+          </PortalPickers>
         </ColorModeProvider>
       </PortalI18nProvider>
     </ApolloProvider>

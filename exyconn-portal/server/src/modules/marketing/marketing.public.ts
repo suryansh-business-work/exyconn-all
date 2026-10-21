@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import type { Types } from 'mongoose';
 import { MarketingUnsubscribeTokenModel } from './unsubscribe-token.model';
 import { MarketingPreferenceModel, PreferenceCategoryModel } from './preference.model';
 import { MarketingSuppressionModel } from './suppression.model';
@@ -42,12 +43,12 @@ export async function withRecipientToken<T>(
   const row = await runAsPlatform(() =>
     MarketingUnsubscribeTokenModel.findOne({ tokenHash: hashToken(token) })
       .select('email campaignId organizationId')
-      .lean<{ email: string; campaignId: string; organizationId?: unknown }>(),
+      .lean<{ email: string; campaignId: string; organizationId?: Types.ObjectId }>(),
   );
   if (!row?.organizationId) {
     return null;
   }
-  return runForOrganization(String(row.organizationId), () =>
+  return runForOrganization(row.organizationId.toHexString(), () =>
     work({ email: row.email, campaignId: row.campaignId }),
   );
 }
@@ -169,9 +170,15 @@ export async function unsubscribeByToken(token: string, caller: string): Promise
     logger.warn('Unsubscribe rate-limited');
     badRequest('Too many attempts. Try again shortly.');
   }
-  if (token === PREVIEW_TOKEN) {
-    return true;
+  const done = token === PREVIEW_TOKEN || (await unsubscribeRecipient(token));
+  if (!done) {
+    badRequest(INVALID_LINK);
   }
+  return done;
+}
+
+/** Suppresses the address a token names; false when the token is unknown. */
+async function unsubscribeRecipient(token: string): Promise<boolean> {
   const done = await withRecipientToken(token, async (recipient) => {
     await suppress(
       recipient.email,
@@ -185,8 +192,5 @@ export async function unsubscribeByToken(token: string, caller: string): Promise
     logger.info(`Unsubscribed ${maskEmail(recipient.email)} from marketing`);
     return true;
   });
-  if (!done) {
-    badRequest(INVALID_LINK);
-  }
-  return true;
+  return done ?? false;
 }

@@ -1,0 +1,78 @@
+fragment LegalGroupFields on LegalGroup {
+  id
+  name
+  kind
+  description
+}
+
+fragment LegalAssignmentFields on LegalAssignment {
+  id
+  kind
+  itemId
+  title
+  status
+  groupName
+  fileUrl
+  hasBody
+  assignedByName
+  assignedAt
+}
+
+query ListLegalGroups {
+  listLegalGroups {
+    ...LegalGroupFields
+  }
+}
+
+mutation CreateLegalGroup($input: LegalGroupInput!) {
+  createLegalGroup(input: $input) {
+    ...LegalGroupFields
+  }
+}
+
+mutation UpdateLegalGroup($id: ID!, $input: LegalGroupInput!) {
+  updateLegalGroup(id: $id, input: $input) {
+    ...LegalGroupFields
+  }
+}
+
+mutation DeleteLegalGroup($id: ID!) {
+  deleteLegalGroup(id: $id)
+}
+
+query LegalAssignables {
+  legalAssignables {
+    id
+    kind
+    title
+    status
+    groupId
+    groupName
+  }
+}
+
+query EmployeeLegalAssignments($userId: ID!) {
+  employeeLegalAssignments(userId: $userId) {
+    ...LegalAssignmentFields
+  }
+}
+
+query MyLegalAssignments {
+  myLegalAssignments {
+    ...LegalAssignmentFields
+  }
+}
+
+query MyLegalAssignmentBody($id: ID!) {
+  myLegalAssignmentBody(id: $id)
+}
+
+mutation AssignLegalItems($userId: ID!, $items: [LegalAssignmentItemInput!]!) {
+  assignLegalItems(userId: $userId, items: $items) {
+    ...LegalAssignmentFields
+  }
+}
+
+mutation UnassignLegalItem($id: ID!) {
+  unassignLegalItem(id: $id)
+}

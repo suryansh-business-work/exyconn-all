@@ -21,6 +21,7 @@ import {
 } from './marketing.suppression';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 
 /**
  * How many copies are in flight at once.
@@ -73,10 +74,12 @@ type QueuedRecipient = Pick<ResolvedRecipient, 'email' | 'sources'>;
  */
 async function syncCrmWithdrawals(excluded: readonly ResolvedRecipient[], campaignId: string) {
   const source = `campaign:${campaignId}`;
-  for (const reason of ['UNSUBSCRIBED', 'BOUNCED'] as const) {
+  // One reason after the other: an address keeps the first reason it is suppressed with, and
+  // each call already runs its own bounded batches of upserts.
+  await inSequence(['UNSUBSCRIBED', 'BOUNCED'] as const, async (reason) => {
     const emails = excluded.filter((row) => row.exclusion === reason).map((row) => row.email);
     await suppressMany(emails, reason, source, 'CRM');
-  }
+  });
 }
 
 /**
@@ -203,16 +206,29 @@ interface RunState {
   settings: RunSettings;
 }
 
-/** Sends a run's queued recipients in batches, stopping when the campaign is cancelled. */
-async function sendQueued(run: RunState, recipients: readonly QueuedRecipient[]): Promise<boolean> {
-  for (const batch of chunk(recipients, SEND_CONCURRENCY)) {
-    if (await cancelRequested(run.campaignId)) {
-      await cancelRemaining(run.runId);
-      return false;
-    }
-    await sendBatch(run, batch);
+/**
+ * Sends the batches from `index` on, one after another — at most SEND_CONCURRENCY copies in
+ * flight — checking before each whether the campaign was cancelled.
+ */
+async function sendBatchesFrom(
+  run: RunState,
+  batches: readonly QueuedRecipient[][],
+  index: number,
+): Promise<boolean> {
+  if (index >= batches.length) {
+    return true;
   }
-  return true;
+  if (await cancelRequested(run.campaignId)) {
+    await cancelRemaining(run.runId);
+    return false;
+  }
+  await sendBatch(run, batches[index]);
+  return sendBatchesFrom(run, batches, index + 1);
+}
+
+/** Sends a run's queued recipients in batches, stopping when the campaign is cancelled. */
+function sendQueued(run: RunState, recipients: readonly QueuedRecipient[]): Promise<boolean> {
+  return sendBatchesFrom(run, chunk(recipients, SEND_CONCURRENCY), 0);
 }
 
 /** A run's outcome, counted from its own rows. */
@@ -235,7 +251,7 @@ async function revisionFor(campaign: CampaignDoc) {
   }
   // Campaigns scheduled before revisions existed are frozen at the moment they go out.
   const revision = await createSendingRevision(campaign, SYSTEM_ACTOR);
-  campaign.sendingRevisionId = String(revision._id);
+  campaign.sendingRevisionId = revision._id.toHexString();
   return revision;
 }
 
@@ -276,7 +292,7 @@ export interface SendResult extends SendCounts {
  * address twice.
  */
 export async function runCampaignSend(campaign: CampaignDoc, origin: string): Promise<SendResult> {
-  const campaignId = String(campaign._id);
+  const campaignId = campaign._id.toHexString();
   const audienceListId = campaign.scheduledAudienceListId;
   const revision = await revisionFor(campaign);
   const audience = await loadAudienceShape(audienceListId);
@@ -289,14 +305,14 @@ export async function runCampaignSend(campaign: CampaignDoc, origin: string): Pr
   campaign.sendState = 'SENDING';
   await campaign.save();
 
-  const runId = new Types.ObjectId().toString();
+  const runId = new Types.ObjectId().toHexString();
   const deliverable = resolution.recipients.filter((row) => row.exclusion === null);
   await syncCrmWithdrawals(
     resolution.recipients.filter((row) => row.exclusion !== null),
     campaignId,
   );
   await queueRun(
-    { runId, campaignId, audienceListId, revisionId: String(revision._id) },
+    { runId, campaignId, audienceListId, revisionId: revision._id.toHexString() },
     resolution.recipients,
   );
   const settings = await runSettings(
@@ -333,7 +349,7 @@ export async function retryFailedCopies(
   campaign: CampaignDoc,
   origin: string,
 ): Promise<SendResult> {
-  const campaignId = String(campaign._id);
+  const campaignId = campaign._id.toHexString();
   const runId = await latestRunId(campaignId);
   if (!runId) {
     badRequest('This campaign has not been sent yet.');

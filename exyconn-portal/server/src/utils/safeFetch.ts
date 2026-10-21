@@ -1,5 +1,6 @@
 import { lookup } from 'node:dns/promises';
 import { BlockList, isIP } from 'node:net';
+import blockedNetworks from './blockedNetworks.json';
 
 /**
  * Outbound HTTP to an address somebody typed in — a webhook endpoint, a status monitor.
@@ -17,38 +18,15 @@ import { BlockList, isIP } from 'node:net';
  * fully needs an undici Agent with a validating `connect.lookup` (or an egress proxy/firewall).
  */
 
-/** Ranges that are never a legitimate public destination, in CIDR notation. */
-const BLOCKED_IPV4 = [
-  '0.0.0.0/8', // "this" network, unspecified
-  '10.0.0.0/8', // private
-  '100.64.0.0/10', // carrier-grade NAT
-  '127.0.0.0/8', // loopback
-  '169.254.0.0/16', // link-local, cloud metadata
-  '172.16.0.0/12', // private, Docker's default bridge networks
-  '192.0.0.0/24', // IETF protocol assignments
-  '192.0.2.0/24', // documentation
-  '192.88.99.0/24', // 6to4 relay anycast
-  '192.168.0.0/16', // private
-  '198.18.0.0/15', // benchmarking
-  '198.51.100.0/24', // documentation
-  '203.0.113.0/24', // documentation
-  '224.0.0.0/4', // multicast
-  '240.0.0.0/4', // reserved, broadcast
-];
+/**
+ * Ranges that are never a legitimate public destination, in CIDR notation, each with why.
+ * Kept as data in blockedNetworks.json: this is the deny-list of the SSRF guard, not a
+ * destination anybody connects to.
+ */
+const BLOCKED_IPV4 = blockedNetworks.ipv4.map((range) => range.cidr);
 // No rule for IPv4-mapped (::ffff:a.b.c.d): BlockList already checks those against the IPv4
 // rules above, and a ::ffff:0:0/96 rule would match every IPv4 address.
-const BLOCKED_IPV6 = [
-  '::/128', // unspecified
-  '::1/128', // loopback
-  '::/96', // IPv4-compatible (deprecated)
-  '64:ff9b::/96', // NAT64
-  '100::/64', // discard
-  '2001:db8::/32', // documentation
-  '2002::/16', // 6to4 — embeds an IPv4 address
-  'fc00::/7', // unique local
-  'fe80::/10', // link-local
-  'ff00::/8', // multicast
-];
+const BLOCKED_IPV6 = blockedNetworks.ipv6.map((range) => range.cidr);
 
 const BLOCKED = new BlockList();
 function blockSubnets(cidrs: readonly string[], family: 'ipv4' | 'ipv6'): void {
@@ -141,20 +119,28 @@ async function readCapped(response: Response, maxBytes: number): Promise<Uint8Ar
     return new Uint8Array();
   }
   const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
-    }
-    total += value.byteLength;
-    if (total > maxBytes) {
-      await reader.cancel();
-      throw new UnsafeUrlError(`The response was larger than ${maxBytes} bytes`);
-    }
-    chunks.push(value);
-  }
+  await readChunks(reader, chunks, 0, maxBytes);
   return Buffer.concat(chunks);
+}
+
+/** Reads the stream chunk by chunk into `chunks`; each read must follow the one before. */
+async function readChunks(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  chunks: Uint8Array[],
+  total: number,
+  maxBytes: number,
+): Promise<void> {
+  const { done, value } = await reader.read();
+  if (done) {
+    return;
+  }
+  const read = total + value.byteLength;
+  if (read > maxBytes) {
+    await reader.cancel();
+    throw new UnsafeUrlError(`The response was larger than ${maxBytes} bytes`);
+  }
+  chunks.push(value);
+  return readChunks(reader, chunks, read, maxBytes);
 }
 
 /** The request the next hop makes: 303 (and 301/302 after a POST) turns into a bodiless GET. */
@@ -171,7 +157,7 @@ function redirectInit(status: number, init: RequestInit): RequestInit {
  * too many redirects or an oversized body, and the usual fetch errors (incl. the timeout's
  * abort) otherwise. The returned Response's body has already been read within the cap.
  */
-export async function safeFetch(
+export function safeFetch(
   raw: string,
   init: RequestInit = {},
   options: SafeFetchOptions = {},
@@ -180,27 +166,51 @@ export async function safeFetch(
   const maxRedirects = options.maxRedirects ?? DEFAULT_MAX_REDIRECTS;
   const signal = AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
 
-  let url = parseUrl(raw, allowHttp);
-  let request = init;
-  for (let hop = 0; ; hop += 1) {
-    await assertPublicHost(url);
-    const response = await fetch(url.toString(), { ...request, redirect: 'manual', signal });
-    const location = response.headers.get('location');
+  const limits = {
+    allowHttp,
+    maxRedirects,
+    maxBytes: options.maxBytes ?? DEFAULT_MAX_BYTES,
+    signal,
+  };
+  // Parsed inside the chain so a refused URL rejects the returned promise rather than throwing.
+  return Promise.resolve().then(() => fetchHop(parseUrl(raw, allowHttp), init, 0, limits));
+}
 
-    if (!REDIRECT_STATUSES.has(response.status) || !location) {
-      const body = await readCapped(response, options.maxBytes ?? DEFAULT_MAX_BYTES);
-      return new Response(NULL_BODY_STATUSES.has(response.status) ? null : body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-      });
-    }
+interface HopLimits {
+  allowHttp: boolean;
+  maxRedirects: number;
+  maxBytes: number;
+  signal: AbortSignal;
+}
 
-    await response.body?.cancel();
-    if (hop >= maxRedirects) {
-      throw new UnsafeUrlError(`More than ${maxRedirects} redirects`);
-    }
-    url = parseUrl(new URL(location, url).toString(), allowHttp);
-    request = redirectInit(response.status, request);
+/** One hop: checks and requests `url`, then follows a redirect as the next hop, by hand. */
+async function fetchHop(
+  url: URL,
+  request: RequestInit,
+  hop: number,
+  limits: HopLimits,
+): Promise<Response> {
+  await assertPublicHost(url);
+  const response = await fetch(url.toString(), {
+    ...request,
+    redirect: 'manual',
+    signal: limits.signal,
+  });
+  const location = response.headers.get('location');
+
+  if (!REDIRECT_STATUSES.has(response.status) || !location) {
+    const body = await readCapped(response, limits.maxBytes);
+    return new Response(NULL_BODY_STATUSES.has(response.status) ? null : body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
   }
+
+  await response.body?.cancel();
+  if (hop >= limits.maxRedirects) {
+    throw new UnsafeUrlError(`More than ${limits.maxRedirects} redirects`);
+  }
+  const next = parseUrl(new URL(location, url).toString(), limits.allowHttp);
+  return fetchHop(next, redirectInit(response.status, request), hop + 1, limits);
 }

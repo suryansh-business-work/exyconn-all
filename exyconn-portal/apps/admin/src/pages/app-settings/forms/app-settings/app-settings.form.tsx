@@ -1,6 +1,5 @@
 import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -16,22 +15,14 @@ import {
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { AppSettingsDocument, useUpdateSettingsMutation } from '@exyconn/shell/graphql/generated';
+import { useDateFormatOptions, useTimeFormatOptions } from '@exyconn/shell/components/localization';
 import {
-  DATE_FORMATS,
-  TIME_FORMATS,
   appSettingsSchema,
   isTimezone,
   toAppSettingsValues,
   type AppSettingsFormValues,
   type AppSettingsRow,
 } from './app-settings.types';
-
-/** Each pattern is labelled with "now" rendered through it, so the choice reads as a date. */
-const patternOptions = (patterns: readonly string[]) =>
-  patterns.map((value) => ({ value, label: `${value}  —  ${format(new Date(), value)}` }));
-
-const DATE_FORMAT_OPTIONS = patternOptions(DATE_FORMATS);
-const TIME_FORMAT_OPTIONS = patternOptions(TIME_FORMATS);
 
 /**
  * The languages the default can be set to: the ones this workspace offers, plus English.
@@ -113,6 +104,8 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
   // saved with, and an Autocomplete whose value is missing from its own options renders blank.
   // Labelled with each zone's current offset, and memoised: the list is ~450 entries.
   const timezones = useMemo(() => timezoneOptions(initial.timezone), [initial.timezone]);
+  const dateFormats = useDateFormatOptions(false);
+  const timeFormats = useTimeFormatOptions(false);
 
   const onSubmit = async (values: AppSettingsFormValues) => {
     try {
@@ -141,13 +134,13 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
       <RhfSelect
         name="dateFormat"
         label="Date format"
-        options={DATE_FORMAT_OPTIONS}
-        helperText="How dates appear in grids, forms and emails."
+        options={dateFormats}
+        helperText="The default for everybody: how dates appear in tables, cards, forms and emails. People can pick their own on their profile."
       />
       <RhfSelect
         name="timeFormat"
         label="Time format"
-        options={TIME_FORMAT_OPTIONS}
+        options={timeFormats}
         helperText="12-hour with am/pm, or 24-hour."
       />
       <RhfAutocomplete

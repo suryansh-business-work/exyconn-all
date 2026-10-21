@@ -63,6 +63,8 @@ export const policyTypeDefs = gql`
     approvedByName: String!
     approvedOn: DateTime
     publishedAt: DateTime
+    "The group it belongs to; null when ungrouped."
+    groupId: ID
     updatedAt: DateTime!
     "How many people have signed the CURRENT version."
     acknowledgedCount: Int!
@@ -81,6 +83,7 @@ export const policyTypeDefs = gql`
     owner: String
     classification: PolicyClassification
     nextReviewOn: DateTime
+    groupId: ID
   }
 
   type PolicyPage {

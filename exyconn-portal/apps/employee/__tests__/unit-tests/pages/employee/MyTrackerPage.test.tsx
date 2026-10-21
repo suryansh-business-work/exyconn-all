@@ -25,9 +25,12 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useMyTrackerExpectedQuery: vi.fn(),
   useTrackerProjectOptionsQuery: vi.fn(),
 }));
-vi.mock('@exyconn/shell/components/work', async () => {
+vi.mock('@exyconn/shell/components/work', async (importOriginal) => {
   const { WorkArrangementStub } = await import('./helpers/stubs');
-  return { MyWorkArrangementCard: WorkArrangementStub };
+  return {
+    ...(await importOriginal<Record<string, unknown>>()),
+    MyWorkArrangementCard: WorkArrangementStub,
+  };
 });
 vi.mock('@exyconn/shell/pages/tracker-view/TrackerView', async () => {
   const { TrackerViewStub } = await import('./helpers/stubs');
@@ -143,6 +146,48 @@ describe('MyTrackerPage', () => {
     expect(screen.getByText(/^month February 2026/)).toBeInTheDocument();
   });
 
+  describe('month summary', () => {
+    it('sums up the month against the contract, with the PDF report beside it', () => {
+      mockQueries({ withData: true });
+      renderWithProviders(<MyTrackerPage />, { route: '/me/tracker?month=2026-03' });
+
+      for (const label of [
+        'Expected this month',
+        'Logged this month',
+        'Deficit so far',
+        'Leave this month',
+        'Idle this month',
+      ]) {
+        expect(screen.getByRole('button', { name: `About ${label}` })).toBeInTheDocument();
+      }
+      expect(screen.getByRole('button', { name: 'Download PDF report' })).toBeEnabled();
+      expect(screen.queryByRole('button', { name: /XLSX/ })).toBeNull();
+    });
+
+    it('holds placeholders while the contract loads', () => {
+      mockQueries({ withData: true });
+      vi.mocked(useMyTrackerExpectedQuery).mockReturnValue(queryResult({ loading: true }));
+      const { container } = renderWithProviders(<MyTrackerPage />, {
+        route: '/me/tracker?month=2026-03',
+      });
+
+      expect(container.querySelectorAll('.MuiSkeleton-root')).toHaveLength(5);
+    });
+
+    it('says the expected hours could not be loaded when the contract fails', () => {
+      mockQueries({ withData: true });
+      vi.mocked(useMyTrackerExpectedQuery).mockReturnValue(
+        queryResult({ error: new Error('boom') }),
+      );
+      renderWithProviders(<MyTrackerPage />, { route: '/me/tracker?month=2026-03' });
+
+      expect(
+        screen.getByText('Could not load the expected hours for this month.'),
+      ).toBeInTheDocument();
+      expect(screen.queryByText('Expected this month')).not.toBeInTheDocument();
+    });
+  });
+
   describe('day marks', () => {
     afterEach(() => {
       vi.useRealTimers();
@@ -178,6 +223,10 @@ describe('MyTrackerPage', () => {
         ),
       ).toBeInTheDocument();
       expect(screen.getByText('labels: 2026-03-03 EL, 2026-03-04 Holi')).toBeInTheDocument();
+      // The same contract sums up the month above the calendar: one 8h day expected.
+      expect(screen.getByText('Expected this month')).toBeInTheDocument();
+      expect(screen.getByText('8h 0m')).toBeInTheDocument();
+      expect(screen.getByText(/^8h a day on /)).toBeInTheDocument();
     });
 
     it('marks nothing until the contract has loaded', () => {

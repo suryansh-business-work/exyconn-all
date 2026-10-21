@@ -16,6 +16,7 @@ import { UserModel } from '../admin/user.model';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { createLimiter } from '../../lib/rateLimiter';
+import { inSequence } from '../../utils/inSequence';
 import type { TokenPayload } from '../../utils/jwt';
 
 export interface LogBreadcrumbInput {
@@ -295,9 +296,7 @@ export async function ingestLogBatch(batch: LogBatchInput, req: LogRequest): Pro
   }
   const user = await resolveUser(req, batch.user);
   // In order, so two entries of one new group never race each other's upsert.
-  for (const entry of batch.entries) {
-    await recordEntry(batch, entry, user, req);
-  }
+  await inSequence(batch.entries, (entry) => recordEntry(batch, entry, user, req));
   return true;
 }
 
@@ -306,9 +305,11 @@ export async function ingestLogBatch(batch: LogBatchInput, req: LogRequest): Pro
  * list those rows. Runs at boot; a no-op once no such group is left.
  */
 export async function backfillAppLogGroupUsers(): Promise<void> {
-  for (const field of ['lastUserName', 'lastUserEmail']) {
-    await AppLogGroupModel.updateMany({ [field]: { $exists: false } }, { $set: { [field]: '' } });
-  }
+  await Promise.all(
+    ['lastUserName', 'lastUserEmail'].map((field) =>
+      AppLogGroupModel.updateMany({ [field]: { $exists: false } }, { $set: { [field]: '' } }),
+    ),
+  );
 }
 
 /** How the API names itself in its own logs. */
@@ -349,9 +350,8 @@ export async function recordServerErrors(entries: LogEntryInput[], req: LogReque
   };
   try {
     const user = await resolveUser(req, null);
-    for (const entry of allowed) {
-      await recordEntry(batch, entry, user, req);
-    }
+    // In order, so two entries of one new group never race each other's upsert.
+    await inSequence(allowed, (entry) => recordEntry(batch, entry, user, req));
   } catch (error) {
     logger.error({ err: error }, 'Could not store a server error log');
   }

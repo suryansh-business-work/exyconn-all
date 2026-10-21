@@ -8,6 +8,7 @@ import GeneratorSettings from './GeneratorSettings';
 import BulkUrlInput from './BulkUrlInput';
 import UrlEntryList from './UrlEntryList';
 import GeneratedOutput from './GeneratedOutput';
+import { copyText } from '../../shared/utils/clipboard';
 
 const SitemapGenerator: React.FC = () => {
   const [urls, setUrls] = useState<UrlEntry[]>([{ id: '1', loc: '', changefreq: 'weekly', priority: 0.5 }]);
@@ -68,7 +69,7 @@ ${urlEntries}
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generatedXml);
+    copyText(generatedXml);
     setCopied(true);
   };
 

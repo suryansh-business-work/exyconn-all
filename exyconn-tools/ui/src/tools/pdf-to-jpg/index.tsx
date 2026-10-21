@@ -16,6 +16,7 @@ import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import * as pdfjsLib from 'pdfjs-dist';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
+import { forEachInSequence, pageNumbers } from '../../shared/utils/sequence';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
@@ -66,7 +67,8 @@ export default function PdfToJpg() {
       const buf = await file!.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
       const results: ConvertedImage[] = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
+      // In sequence: one full-size page canvas at a time, with progress per page.
+      await forEachInSequence(pageNumbers(pdf.numPages), async (i) => {
         setProgress(i);
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale });
@@ -77,7 +79,7 @@ export default function PdfToJpg() {
         await page.render({ canvas, canvasContext: ctx, viewport }).promise;
         const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', quality));
         results.push({ pageNum: i, url: URL.createObjectURL(blob), blob });
-      }
+      });
       setImages(results);
     } catch {
       setError('Failed to convert PDF.');

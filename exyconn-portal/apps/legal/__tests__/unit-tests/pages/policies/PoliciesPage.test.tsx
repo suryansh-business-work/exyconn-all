@@ -133,7 +133,12 @@ describe('PoliciesPage', () => {
     renderWithProviders(<PoliciesPage />);
     const form = dashboardProps().renderForm(ROW);
     expect(form.type).toBe(PolicyForm);
-    expect(form.props).toEqual({ initial: ROW, onCancel: crud.close, onDone: crud.onDone });
+    expect(form.props).toEqual({
+      initial: ROW,
+      onCancel: crud.close,
+      onDone: crud.onDone,
+      grouping: true,
+    });
   });
 
   it('hands the grid publish, edit and delete to their owners', () => {

@@ -230,7 +230,7 @@ export function missingValues(
     .filter((use) => use.fallback === null)
     .filter((use) => {
       const variable = definitionOf(use.key);
-      return variable !== undefined && variable.resolve(recipient, message).trim() === '';
+      return variable?.resolve(recipient, message).trim() === '';
     })
     .map((use) => use.key);
 }

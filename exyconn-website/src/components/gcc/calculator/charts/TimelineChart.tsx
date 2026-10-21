@@ -1,4 +1,4 @@
-import type { MonthTotals, Minor } from "@exyconn/gcc-cost";
+import type { MonthTotals } from "@exyconn/gcc-cost";
 import { RESULTS } from "../strings/results";
 
 const WIDTH = 640;
@@ -7,7 +7,7 @@ const PAD = 8;
 
 interface TimelineProps {
   months: readonly MonthTotals[];
-  format: (minor: Minor) => string;
+  format: (minor: number) => string;
   locale: string;
 }
 

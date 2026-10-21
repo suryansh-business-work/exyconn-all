@@ -1,13 +1,9 @@
-import { ROLES } from '../../constants/roles';
-import { runForOrganization } from '../../lib/tenant';
-import { assertPermission } from '../../lib/permissions';
-import { unauthenticated } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
-import type { PermissionAction } from '../permissions/permission.model';
 import { recordAudit } from '../audit';
-import { requestClientHubCode, verifyClientHubCode, type ClientHubContact } from './clienthub.auth';
+import { requestClientHubCode, verifyClientHubCode } from './clienthub.auth';
+import { asContact, clientStaffGuard } from './clienthub.scope';
 import { clientHubService } from './clienthub.service';
 import { contactsService, type ClientContactInput } from './contacts.service';
 import { ownAttempt, paymentOptions, startPayment } from './payments/checkout.service';
@@ -20,6 +16,7 @@ import type { PaymentGateway } from './payments/attempt.model';
 import { auditGateway, hasValue, hintOf, techGuard } from './payments/gateway.access';
 
 export { clientHubTypeDefs } from './clienthub.typeDefs';
+export { clientRecordsTypeDefs, clientRecordsResolvers } from './records';
 export { walletGatewayTypeDefs } from './payments/wallets.typeDefs';
 export { walletGatewayResolvers } from './payments/wallets.resolvers';
 export { CLIENT_PASS_HEADER, contactForPass, type ClientHubContact } from './clienthub.auth';
@@ -27,22 +24,8 @@ export { CLIENT_PASS_HEADER, contactForPass, type ClientHubContact } from './cli
 type Id = { id: string };
 type Paged = { input: TableQueryInput };
 
-/**
- * Runs client hub work for the signed-in contact, inside their client's company. The request
- * context itself carries no company (see middleware/auth), so nothing else a contact can reach
- * ever sees company data.
- */
-function asContact<T>(ctx: GraphQLContext, work: (contact: ClientHubContact) => Promise<T>) {
-  const contact = ctx.clientContact;
-  if (!contact) {
-    unauthenticated('Sign in to the client hub.');
-  }
-  return runForOrganization(contact.organizationId, () => work(contact));
-}
-
 /** Giving and taking client hub access is an administrator's call, on the Clients module. */
-const contactsGuard = (ctx: GraphQLContext, action: PermissionAction) =>
-  assertPermission(ctx, 'Client', [ROLES.ADMIN], action);
+const contactsGuard = clientStaffGuard;
 
 export const clientHubResolvers = {
   Query: {

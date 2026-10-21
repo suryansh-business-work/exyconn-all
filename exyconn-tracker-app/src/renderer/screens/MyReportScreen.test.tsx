@@ -59,6 +59,6 @@ describe('MyReportScreen', () => {
     }
     const calls = getDay.mock.calls.length;
     await click(first);
-    expect(getDay.mock.calls.length).toBe(calls + 1);
+    expect(getDay.mock.calls).toHaveLength(calls + 1);
   });
 });

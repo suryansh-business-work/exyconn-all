@@ -12,11 +12,17 @@ vi.mock('@/graphql/generated', async (importOriginal) => ({
 
 type QueryResult = ReturnType<typeof useAppSettingsQuery>;
 
-function setup(data: QueryResult['data'], locale = 'en') {
+type ReaderSettings = { dateFormat?: string; timeFormat?: string; timezone?: string };
+
+function setup(data: QueryResult['data'], locale = 'en', reader: ReaderSettings = {}) {
   vi.mocked(useAppSettingsQuery).mockReturnValue({ data } as QueryResult);
   return renderHook(() => useSettings(), {
     wrapper: ({ children }: Readonly<{ children: ReactNode }>) => (
-      <I18nProvider locale={locale} messages={{}} settings={{ timezone: 'UTC', currency: 'USD' }}>
+      <I18nProvider
+        locale={locale}
+        messages={{}}
+        settings={{ timezone: 'UTC', currency: 'USD', ...reader }}
+      >
         {children}
       </I18nProvider>
     ),
@@ -42,9 +48,22 @@ describe('useSettings', () => {
   });
 
   it("uses the workspace's own settings once they load", () => {
+    const appSettings = {
+      dateFormat: 'yyyy-MM-dd',
+      timeFormat: 'HH:mm',
+      timezone: 'Asia/Kolkata',
+      autoTranslate: false,
+    };
+    const reader = { dateFormat: 'yyyy-MM-dd', timeFormat: 'HH:mm', timezone: 'Asia/Kolkata' };
+    const { settings } = setup({ appSettings } as QueryResult['data'], 'en', reader);
+    expect(settings).toEqual(appSettings);
+  });
+
+  it("puts the reader's own patterns and zone over the workspace's", () => {
     const appSettings = { dateFormat: 'yyyy-MM-dd', timeFormat: 'HH:mm', timezone: 'Asia/Kolkata' };
-    const { settings } = setup({ appSettings } as QueryResult['data']);
-    expect(settings).toBe(appSettings);
+    const reader = { dateFormat: 'dd/MM/yyyy', timeFormat: 'hh:mm a', timezone: 'Europe/London' };
+    const { settings } = setup({ appSettings } as QueryResult['data'], 'en', reader);
+    expect(settings).toEqual(reader);
   });
 
   it('carries the locale, direction and formatters of the current language', () => {

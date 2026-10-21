@@ -1,5 +1,4 @@
-import { format } from 'date-fns';
-import { useT } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import { Alert, Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
@@ -33,6 +32,7 @@ export function ContainerDetailDialog({
   onClose,
 }: Readonly<ContainerDetailDialogProps>) {
   const t = useT();
+  const { formatDateTime } = useFormatters();
   const { data, loading, error } = useDockerContainerDetailQuery({
     variables: { id: containerId ?? '' },
     skip: !containerId,
@@ -81,7 +81,7 @@ export function ContainerDetailDialog({
             </Text>
           </DetailRow>
           <DetailRow label={t('Created')}>
-            <Text size="sm">{format(new Date(detail.createdAt), 'PPpp')}</Text>
+            <Text size="sm">{formatDateTime(detail.createdAt)}</Text>
           </DetailRow>
           <DetailRow label={t('Uptime')}>
             <Text size="sm">{formatDuration(uptimeSeconds(detail.startedAt))}</Text>

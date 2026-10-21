@@ -15,7 +15,10 @@ let downloads: string[];
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-10-10T10:00:00Z'));
-  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
+  Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    configurable: true,
+  });
   downloads = [];
   const create = document.createElement.bind(document);
   vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
@@ -245,7 +248,7 @@ describe('robots-sitemap-generator', () => {
     fireEvent.click(chipDeletes[0]);
 
     const userAgentBoxes = screen.getAllByRole('combobox');
-    expect(userAgentBoxes.length).toBe(2);
+    expect(userAgentBoxes).toHaveLength(2);
     const ruleDeletes = deletes().filter((icon) => !icon.closest('button')?.hasAttribute('disabled'));
     fireEvent.click(ruleDeletes.at(-1)?.closest('button') as HTMLElement);
     await waitFor(() => expect(screen.getAllByRole('combobox')).toHaveLength(1));

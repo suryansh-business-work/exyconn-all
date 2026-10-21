@@ -16,6 +16,7 @@ import {
 import { ContentCopy, CheckCircle, Download } from '@mui/icons-material';
 import { toText } from '../../utils/toText';
 import { useCopiedFlag } from '../../hooks/useCopiedFlag';
+import { copyText } from '../../utils/clipboard';
 
 interface ResultDisplayProps {
   title: string;
@@ -44,7 +45,7 @@ const DomainResultDisplay: React.FC<ResultDisplayProps> = ({ title, icon, data, 
   if (!data) return null;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    copyText(JSON.stringify(data, null, 2));
     flashCopied();
   };
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useT } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -23,11 +23,12 @@ export function TrackerBuildPage() {
   const t = useT();
   const [starting, setStarting] = useState(false);
   /** Which installers a run produced is decided inside the run, so the list reports the run itself. */
+  const { formatDateTime } = useFormatters();
   const columns = useMemo<Column<TrackerBuildRow>[]>(
     () => [
       { key: 'branch', label: 'Branch' },
       { key: 'status', label: 'Outcome', render: (r) => <StatusChip value={buildOutcome(r)} /> },
-      { key: 'startedAt', label: 'Started', render: (r) => new Date(r.startedAt).toLocaleString() },
+      { key: 'startedAt', label: 'Started', render: (r) => formatDateTime(r.startedAt) },
       {
         key: 'url',
         label: 'Run',
@@ -38,7 +39,7 @@ export function TrackerBuildPage() {
         ),
       },
     ],
-    [t],
+    [t, formatDateTime],
   );
   const builds = useListTrackerBuildsQuery({ fetchPolicy: 'cache-and-network' });
   const settings = useTrackerBuildSettingsQuery({ fetchPolicy: 'cache-and-network' });

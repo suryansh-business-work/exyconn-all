@@ -40,6 +40,12 @@ describe('fileNameFor', () => {
     expect(fileNameFor('--Q4 / leads--', 'CSV', today)).toBe('q4-leads-2026-10-16.csv');
   });
 
+  it('trims long runs of dashes at both ends without touching the inner ones', () => {
+    const dashes = '-'.repeat(20_000);
+    expect(fileNameFor(`${dashes}a--b${dashes}`, 'CSV', today)).toBe('a--b-2026-10-16.csv');
+    expect(fileNameFor(dashes, 'CSV', today)).toBe('export-2026-10-16.csv');
+  });
+
   it('falls back to "export" when nothing of the name survives', () => {
     expect(fileNameFor(' ** ', 'CSV', today)).toBe('export-2026-10-16.csv');
   });

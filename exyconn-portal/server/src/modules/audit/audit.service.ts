@@ -22,6 +22,7 @@ const AUDIT_TABLE_CONFIG: TableConfig = {
 };
 registerTable('listAuditLogsPaged', AUDIT_TABLE_CONFIG);
 registerTable('listFinanceChangeLogPaged', AUDIT_TABLE_CONFIG);
+registerTable('listUserActivityPaged', AUDIT_TABLE_CONFIG);
 
 const AUDIT_STATS_CONFIG: StatsConfig = { countBy: ['action', 'module'] };
 

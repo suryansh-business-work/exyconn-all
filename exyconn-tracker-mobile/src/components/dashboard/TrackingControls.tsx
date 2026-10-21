@@ -12,7 +12,13 @@ type ControlAction = 'start' | 'pause' | 'resume' | 'stop';
 /** What each button does, and the sentence shown when it fails without saying why. */
 const ACTIONS: Readonly<Record<ControlAction, { run: () => Promise<unknown>; failed: string }>> = {
   start: { run: () => tracker.start(), failed: 'Could not start tracking.' },
-  pause: { run: async () => tracker.pause(), failed: 'Could not pause tracking.' },
+  pause: {
+    run: () => {
+      tracker.pause();
+      return Promise.resolve();
+    },
+    failed: 'Could not pause tracking.',
+  },
   // Not tracker.resume(): on Android the screen-capture grant the session needs may be gone.
   resume: { run: () => resumeTracking(), failed: 'Could not resume tracking.' },
   stop: { run: () => tracker.stop(), failed: 'Could not stop tracking.' },

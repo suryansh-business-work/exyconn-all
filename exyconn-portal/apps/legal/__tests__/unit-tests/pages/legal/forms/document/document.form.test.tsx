@@ -97,6 +97,7 @@ describe('DocumentForm', () => {
           fileUrl: null,
           status: DocumentStatus.Draft,
           content: '',
+          groupId: null,
         },
       },
     });
@@ -120,6 +121,7 @@ describe('DocumentForm', () => {
       fileUrl: 'https://cdn.example.com/dpa.pdf',
       status: DocumentStatus.Draft,
       content: '<p>Clauses</p>',
+      groupId: null,
     });
   });
 
@@ -153,6 +155,7 @@ describe('DocumentForm', () => {
           fileUrl: null,
           status: DocumentStatus.Final,
           content: '<p>Clauses</p>',
+          groupId: null,
         },
       },
     });

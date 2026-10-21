@@ -42,10 +42,9 @@ export function DateTimeField<T extends FieldValues>({
   const value = iso === '' ? new Date() : new Date(iso);
   const chosen = iso === '' ? t('not set') : formatDateTime(iso, timezone);
 
-  function commit(next: Date | undefined): void {
-    if (next !== undefined) {
-      field.onChange(next.toISOString());
-    }
+  /** Only a picked value is listened for: a dismissed dialog or wheel changes nothing. */
+  function commit(next: Date): void {
+    field.onChange(next.toISOString());
   }
 
   function openPicker(): void {
@@ -59,14 +58,11 @@ export function DateTimeField<T extends FieldValues>({
       mode: 'date',
       maximumDate,
       minimumDate,
-      onChange: (event, date) => {
-        if (event.type !== 'set' || date === undefined) {
-          return;
-        }
+      onValueChange: (_event, date) => {
         DateTimePickerAndroid.open({
           value: date,
           mode: 'time',
-          onChange: (timeEvent, time) => commit(timeEvent.type === 'set' ? time : undefined),
+          onValueChange: (_timeEvent, time) => commit(time),
         });
       },
     });
@@ -100,7 +96,7 @@ export function DateTimeField<T extends FieldValues>({
           display="inline"
           maximumDate={maximumDate}
           minimumDate={minimumDate}
-          onChange={(_event, date) => commit(date)}
+          onValueChange={(_event, date) => commit(date)}
         />
       ) : null}
     </FieldFrame>

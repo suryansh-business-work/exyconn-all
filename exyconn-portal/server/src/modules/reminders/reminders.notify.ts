@@ -2,6 +2,7 @@ import { ReminderLogModel } from './reminder-log.model';
 import { UserModel } from '../admin/user.model';
 import { deliver } from '../notifications/delivery';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import type { Role } from '../../constants/roles';
 
 /** One thing worth chasing, as a source describes it. */
@@ -87,9 +88,8 @@ export async function sendReminder(source: string, reminder: Reminder): Promise<
 
 /** Sends a batch and reports how many people were told. */
 export async function sendReminders(source: string, reminders: Reminder[]): Promise<number> {
-  let sent = 0;
-  for (const reminder of reminders) {
-    sent += await sendReminder(source, reminder);
-  }
-  return sent;
+  // One at a time: each claim upserts the uniquely keyed log, and two parallel upserts of
+  // one key can fail with a duplicate-key error instead of the second being refused.
+  const counts = await inSequence(reminders, (reminder) => sendReminder(source, reminder));
+  return counts.reduce((sum, count) => sum + count, 0);
 }

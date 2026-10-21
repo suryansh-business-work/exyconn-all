@@ -67,17 +67,18 @@ const canned = createCrudResolvers(cannedReplyService, {
 });
 
 /** Who wrote it last. Resolved once on write so an article reads without a join, years on. */
-async function stampAuthor(ctx: GraphQLContext, input: KbArticleInput) {
+function stampAuthor(ctx: GraphQLContext, input: KbArticleInput) {
   assertCategoryInScope(deskScope(ctx), input.category);
   const user = assertRole(ctx, DESK_ROLES);
   return { ...input, updatedById: user.id, updatedByName: ctx.user?.email ?? '' };
 }
 
-const createKbArticle = async (p: unknown, args: never, ctx: GraphQLContext) => {
-  const { input } = args as unknown as { input: KbArticleInput };
-  const stamped = { input: await stampAuthor(ctx, input) } as unknown as never;
-  return articles.Mutation.createKbArticle(p, stamped, ctx);
-};
+/** A refused scope or role rejects the returned promise rather than throwing, as before. */
+const createKbArticle = (p: unknown, args: never, ctx: GraphQLContext) =>
+  Promise.resolve(args as unknown as { input: KbArticleInput }).then(({ input }) => {
+    const stamped = { input: stampAuthor(ctx, input) } as unknown as never;
+    return articles.Mutation.createKbArticle(p, stamped, ctx);
+  });
 
 /** IT may only change the articles filed under IT, whatever the edit moves them to. */
 async function assertArticleInScope(ctx: GraphQLContext, id: string) {
@@ -92,7 +93,7 @@ async function assertArticleInScope(ctx: GraphQLContext, id: string) {
 const updateKbArticle = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: KbArticleInput };
   await assertArticleInScope(ctx, id);
-  const stamped = { id, input: await stampAuthor(ctx, input) } as unknown as never;
+  const stamped = { id, input: stampAuthor(ctx, input) } as unknown as never;
   return articles.Mutation.updateKbArticle(p, stamped, ctx);
 };
 

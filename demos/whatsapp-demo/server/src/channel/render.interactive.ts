@@ -33,15 +33,16 @@ function row(option: RenderedOption, register: Register): Row {
 
 /** Sections cut so no message carries more than the ten rows WhatsApp allows. */
 function chunk(sections: Section[]): Section[][] {
-  const pages: Section[][] = [[]];
+  let page: Section[] = [];
+  const pages: Section[][] = [page];
   let used = 0;
   for (const section of sections) {
     for (let i = 0; i < section.rows.length; i += 1) {
       if (used === LIMITS.listRows) {
-        pages.push([]);
+        page = [];
+        pages.push(page);
         used = 0;
       }
-      const page = pages[pages.length - 1];
       const last = page.at(-1);
       if (last?.title === section.title && i > 0) {
         last.rows.push(section.rows[i]);
@@ -51,7 +52,7 @@ function chunk(sections: Section[]): Section[][] {
       used += 1;
     }
   }
-  return pages.filter((page) => page.length > 0);
+  return pages.filter((filled) => filled.length > 0);
 }
 
 function listPayloads(content: Omit<List, 'type'>, register: Register): WaPayload[] {

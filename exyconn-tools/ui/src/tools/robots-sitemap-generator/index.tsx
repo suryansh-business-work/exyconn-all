@@ -7,6 +7,7 @@ import { UserAgentRule } from './types';
 import SitemapUrlsSection from './SitemapUrlsSection';
 import UserAgentRulesSection from './UserAgentRulesSection';
 import GeneratedOutput from './GeneratedOutput';
+import { copyText } from '../../shared/utils/clipboard';
 
 const RobotsSitemapGenerator: React.FC = () => {
   const [sitemaps, setSitemaps] = useState<string[]>(['']);
@@ -62,7 +63,7 @@ const RobotsSitemapGenerator: React.FC = () => {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generatedTxt);
+    copyText(generatedTxt);
     setCopied(true);
   };
 

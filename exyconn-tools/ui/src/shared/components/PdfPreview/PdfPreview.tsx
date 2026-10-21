@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Paper, IconButton, Skeleton } from '@mui/material';
 import { NavigateBefore, NavigateNext, PictureAsPdf } from '@mui/icons-material';
 import * as pdfjsLib from 'pdfjs-dist';
+import { logFailure } from '../../utils/logFailure';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
@@ -32,7 +33,7 @@ interface PageCanvasProps {
 const PageCanvas: React.FC<Readonly<PageCanvasProps>> = ({ doc, pageNumber, maxHeight }) => {
   const draw = useCallback(
     (canvas: HTMLCanvasElement | null) => {
-      if (canvas) drawPage(canvas, doc, pageNumber, maxHeight);
+      if (canvas) drawPage(canvas, doc, pageNumber, maxHeight).catch(logFailure('PDF page render failed'));
     },
     [doc, pageNumber, maxHeight]
   );
