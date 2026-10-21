@@ -46,8 +46,11 @@ async function signingKey(kid: string): Promise<KeyObject> {
   return key;
 }
 
-/** Only these events run on a branch the way a merge does: a push, or a manual run of it. */
-const RUN_EVENTS: ReadonlySet<string> = new Set(['push', 'workflow_dispatch']);
+/**
+ * The ways the release workflow runs: after a successful deploy of main (`workflow_run`), or
+ * by hand from the portal's "Build new release" (`workflow_dispatch`).
+ */
+const RUN_EVENTS: ReadonlySet<string> = new Set(['workflow_run', 'workflow_dispatch']);
 
 export interface OidcExpectation {
   audience: string;

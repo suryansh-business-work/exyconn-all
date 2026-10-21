@@ -11,7 +11,7 @@ stored version are refused (HTTP 409).
 
 ## Pipeline (`.github/workflows/meet-extension-release.yml`)
 
-Every push to `main`, or a manual dispatch (also from **Build new release** on the Releases page,
+Every successful deploy of `main` (the workflow waits for Build & Deploy), or a manual dispatch (also from **Build new release** on the Releases page,
 through the GitHub config in Tech that Tracker Build uses):
 
 1. Quality checks — typecheck, lint, unit tests with the coverage gate.
@@ -26,8 +26,8 @@ through the GitHub config in Tech that Tracker Build uses):
    server verifies the RS256 signature against GitHub's JWKS (cached an hour), `iss`
    `https://token.actions.githubusercontent.com`, `aud` = its `API_PUBLIC_URL`, `repository` =
    Release settings › GitHub repository (seeded `suryansh-business-work/exyconn-all`), `ref`
-   `refs/heads/main`, `workflow_ref` = this workflow on main, `event_name` push or
-   workflow_dispatch. It checks the ZIP (≤ 10 MB, `PK\x03\x04`, size and SHA-256 as release.json
+   `refs/heads/main`, `workflow_ref` = this workflow on main, `event_name` workflow_run (after a
+   successful deploy) or workflow_dispatch. It checks the ZIP (≤ 10 MB, `PK\x03\x04`, size and SHA-256 as release.json
    says), stores it in the `ma_extension_releases` GridFS bucket, registers it as **QA_PENDING**,
    writes an audit row in the operator company and (if asked) posts to Slack. 10 uploads per IP
    per hour. A failed upload fails the run. Nothing is published as a GitHub Release.

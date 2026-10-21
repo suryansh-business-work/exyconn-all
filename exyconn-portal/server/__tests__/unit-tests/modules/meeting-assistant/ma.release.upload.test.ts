@@ -45,7 +45,7 @@ app.use(MA_REST_PATH, meetAssistantRouter());
 const CLAIMS: GithubRunClaims = {
   repository: 'acme/portal',
   ref: 'refs/heads/main',
-  event_name: 'push',
+  event_name: 'workflow_run',
   workflow_ref: 'acme/portal/.github/workflows/meet-extension-release.yml@refs/heads/main',
   sha: 'abcdef1234567890abcdef1234567890abcdef12',
   run_id: '987',
