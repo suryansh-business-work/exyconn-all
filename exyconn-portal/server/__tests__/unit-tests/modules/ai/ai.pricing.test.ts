@@ -64,8 +64,8 @@ describe('ensureAiModelPrices', () => {
 
     await ensureAiModelPrices();
 
-    expect(await AiModelPriceModel.countDocuments({ active: true })).toBe(7);
-    expect(info).toHaveBeenCalledWith('Seeded 7 AI model price(s)');
+    expect(await AiModelPriceModel.countDocuments({ active: true })).toBe(9);
+    expect(info).toHaveBeenCalledWith('Seeded 9 AI model price(s)');
   });
 
   it('never overwrites a corrected price and stays quiet when nothing was missing', async () => {
@@ -77,7 +77,7 @@ describe('ensureAiModelPrices', () => {
 
     const corrected = await AiModelPriceModel.findOne({ model: 'gpt-4o' }).lean();
     expect(corrected).toMatchObject({ inputPer1kUsd: 0.5, active: false });
-    expect(await AiModelPriceModel.countDocuments()).toBe(7);
+    expect(await AiModelPriceModel.countDocuments()).toBe(9);
     expect(info).not.toHaveBeenCalled();
   });
 
