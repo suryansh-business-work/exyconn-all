@@ -1,0 +1,185 @@
+# Client links, communication log and shared Legal records — staff (Admin > Clients > client)
+# and the client hub (x-client-pass). See server modules/clienthub/records.
+
+fragment ClientLinkFields on ClientLink {
+  id
+  clientId
+  title
+  url
+  description
+  details
+  createdByName
+  createdAt
+}
+
+fragment ClientCommunicationFields on ClientCommunication {
+  id
+  clientId
+  type
+  occurredAt
+  subject
+  summary
+  details
+  participants
+  loggedByName
+  notifiedAt
+}
+
+fragment ClientSharedItemFields on ClientSharedItem {
+  id
+  kind
+  refId
+  title
+  status
+  fileUrl
+  hasContent
+  note
+  sharedByName
+  sharedAt
+  effectiveDate
+  expiryDate
+  signedAt
+  signedBy
+}
+
+query ClientDetail($id: ID!) {
+  getClient(id: $id) {
+    id
+    name
+    email
+    phone
+    company
+    status
+    country
+    currency
+    taxId
+    taxIdLabel
+    city
+    region
+    postalCode
+    billingAddress
+    createdAt
+  }
+}
+
+query ClientSummary($clientId: ID!) {
+  clientSummary(clientId: $clientId) {
+    contacts
+    invoices
+    openInvoices
+    payments
+    tickets
+    openTickets
+    projects
+    links
+    communications
+    sharedItems
+  }
+}
+
+query ClientLinks($clientId: ID!) {
+  clientLinks(clientId: $clientId) {
+    ...ClientLinkFields
+  }
+}
+
+mutation CreateClientLink($clientId: ID!, $input: ClientLinkInput!) {
+  createClientLink(clientId: $clientId, input: $input) {
+    ...ClientLinkFields
+  }
+}
+
+mutation UpdateClientLink($id: ID!, $input: ClientLinkInput!) {
+  updateClientLink(id: $id, input: $input) {
+    ...ClientLinkFields
+  }
+}
+
+mutation DeleteClientLink($id: ID!) {
+  deleteClientLink(id: $id)
+}
+
+query ListClientCommunicationsPaged($input: TableQueryInput!) {
+  listClientCommunicationsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ClientCommunicationFields
+    }
+  }
+}
+
+mutation CreateClientCommunication($clientId: ID!, $input: ClientCommunicationInput!) {
+  createClientCommunication(clientId: $clientId, input: $input) {
+    ...ClientCommunicationFields
+  }
+}
+
+mutation UpdateClientCommunication($id: ID!, $input: ClientCommunicationInput!) {
+  updateClientCommunication(id: $id, input: $input) {
+    ...ClientCommunicationFields
+  }
+}
+
+mutation DeleteClientCommunication($id: ID!) {
+  deleteClientCommunication(id: $id)
+}
+
+query ClientSharedItems($clientId: ID!) {
+  clientSharedItems(clientId: $clientId) {
+    ...ClientSharedItemFields
+  }
+}
+
+query ClientShareOptions($kind: ClientSharedKind!) {
+  clientShareOptions(kind: $kind) {
+    id
+    title
+    status
+  }
+}
+
+mutation ShareWithClient($clientId: ID!, $input: ClientShareInput!) {
+  shareWithClient(clientId: $clientId, input: $input) {
+    ...ClientSharedItemFields
+  }
+}
+
+mutation UnshareWithClient($id: ID!) {
+  unshareWithClient(id: $id)
+}
+
+query ClientEmailRecipients($clientId: ID!) {
+  clientEmailRecipients(clientId: $clientId) {
+    name
+    email
+  }
+}
+
+mutation EmailClient($clientId: ID!, $input: EmailClientInput!) {
+  emailClient(clientId: $clientId, input: $input)
+}
+
+query ClientHubLinks {
+  clientHubLinks {
+    ...ClientLinkFields
+  }
+}
+
+query ClientHubCommunications($input: TableQueryInput!) {
+  clientHubCommunications(input: $input) {
+    totalCount
+    rows {
+      ...ClientCommunicationFields
+    }
+  }
+}
+
+query ClientHubSharedItems {
+  clientHubSharedItems {
+    ...ClientSharedItemFields
+  }
+}
+
+query ClientHubSharedContent($id: ID!) {
+  clientHubSharedContent(id: $id)
+}

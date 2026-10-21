@@ -463,6 +463,48 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
         </mj-text>`),
   },
   {
+    key: 'client-hub-shared',
+    name: 'Client hub — something shared with you',
+    description:
+      'Sent to every client hub contact when staff add a link, or share a contract, document or policy, and tick "Email the client". {{itemKind}} is link, contract, document or policy; {{note}} is the optional note; {{hubUrl}} opens that section of the hub.',
+    subject: 'New in your client hub: {{title}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">We shared a {{itemKind}} with you</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          {{companyName}} added <strong>{{title}}</strong> to the client hub for {{clientName}}.
+        </mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{note}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">Open the client hub</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          Sign in with this email address — we send you a one-time code, no password needed.
+        </mj-text>`),
+  },
+  {
+    key: 'client-hub-communication',
+    name: 'Client hub — communication logged',
+    description:
+      'Sent to every client hub contact when staff log a call, email, meeting or message with the client and tick "Email the client". Sent once per entry. {{subject}} and {{summary}} are what was logged.',
+    subject: '{{subject}} — added to your communication log',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">{{subject}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          {{companyName}} added this to the communication log for {{clientName}}:
+        </mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{summary}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">See the full log</mj-button>`),
+  },
+  {
+    key: 'client-message',
+    name: 'Client — message from staff',
+    description:
+      'Sent from Admin › Clients › client › Email client to the addresses the client has on file. {{message}} is the text written in the portal; the send is also filed in the client’s communication log.',
+    subject: '{{subject}}',
+    mjml: shell(`        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{message}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">— {{senderName}}, {{companyName}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">Open the client hub</mj-button>`),
+  },
+  {
     key: 'website-chat-code',
     name: 'Website chat — sign-in code',
     description:

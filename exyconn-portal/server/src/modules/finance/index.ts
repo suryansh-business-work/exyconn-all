@@ -45,7 +45,8 @@ const crud = createCrudResolvers(financeService, {
   roles: financeRoles,
   table: {
     searchFields: ['number', 'clientName', 'currency'],
-    filterFields: ['number', 'clientName', 'currency', 'status'],
+    // clientId: Admin › Clients › client lists one client's invoices.
+    filterFields: ['number', 'clientId', 'clientName', 'currency', 'status'],
     sortFields: [
       'number',
       'clientName',

@@ -734,6 +734,24 @@ export type CheckSeverity =
   | 'INFO'
   | 'WARNING';
 
+export type ClientCommunicationInput = {
+  details: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts about this entry. Sent at most once per entry. */
+  notify: InputMaybe<Scalars['Boolean']['input']>;
+  occurredAt: Scalars['DateTime']['input'];
+  participants: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  summary: InputMaybe<Scalars['String']['input']>;
+  type: ClientCommunicationType;
+};
+
+export type ClientCommunicationType =
+  | 'CALL'
+  | 'EMAIL'
+  | 'MEETING'
+  | 'MESSAGE'
+  | 'OTHER';
+
 export type ClientContactInput = {
   clientId: Scalars['ID']['input'];
   email: Scalars['String']['input'];
@@ -765,6 +783,29 @@ export type ClientInput = {
   taxId: InputMaybe<Scalars['String']['input']>;
   taxIdType: InputMaybe<ClientTaxIdType>;
 };
+
+export type ClientLinkInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  details: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts about the new link (create only). */
+  notify: InputMaybe<Scalars['Boolean']['input']>;
+  title: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type ClientShareInput = {
+  kind: ClientSharedKind;
+  note: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts. Sent at most once per shared record. */
+  notify: InputMaybe<Scalars['Boolean']['input']>;
+  refId: Scalars['ID']['input'];
+};
+
+/** A Legal record that can be shared with a client. */
+export type ClientSharedKind =
+  | 'CONTRACT'
+  | 'DOCUMENT'
+  | 'POLICY';
 
 export type ClientStatus =
   | 'ACTIVE'
@@ -1463,6 +1504,13 @@ export type DraftCrmEmailInput = {
 export type EditorMode =
   | 'CODE'
   | 'VISUAL';
+
+export type EmailClientInput = {
+  message: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+  /** Addresses from clientEmailRecipients; any other address is refused. */
+  to: Array<Scalars['String']['input']>;
+};
 
 export type EmailConfigInput = {
   fromAddress: Scalars['String']['input'];

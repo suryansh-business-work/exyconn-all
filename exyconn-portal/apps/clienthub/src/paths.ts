@@ -6,4 +6,7 @@ export const PATHS = {
   paymentReturn: '/payments/return',
   support: '/support',
   projects: '/projects',
+  links: '/links',
+  communications: '/communications',
+  documents: '/documents',
 } as const;

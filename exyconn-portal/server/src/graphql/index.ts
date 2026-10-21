@@ -178,6 +178,8 @@ import {
 import {
   clientHubTypeDefs,
   clientHubResolvers,
+  clientRecordsTypeDefs,
+  clientRecordsResolvers,
   walletGatewayTypeDefs,
   walletGatewayResolvers,
 } from '../modules/clienthub';
@@ -346,6 +348,7 @@ export const typeDefs = [
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
+  clientRecordsTypeDefs,
   walletGatewayTypeDefs,
   websiteChatTypeDefs,
   websiteChatLibraryTypeDefs,
@@ -452,6 +455,7 @@ export const resolvers = mergeResolvers([
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,
+  clientRecordsResolvers,
   walletGatewayResolvers,
   websiteChatResolvers,
   websiteChatLibraryResolvers,

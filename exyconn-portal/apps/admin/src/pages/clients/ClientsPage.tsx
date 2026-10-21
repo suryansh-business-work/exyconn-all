@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import {
@@ -16,6 +17,7 @@ import { ClientForm, type ClientRow } from './forms/client';
 import { CLIENT_COLUMNS, type PagedClientRow, type ClientsGridContext } from './clients-grid';
 import { color } from '@exyconn/shell/components/ui';
 import { ClientHubAccessDialog } from './hub-access/ClientHubAccessDialog';
+import { clientPath } from './detail/client-detail.paths';
 
 /** How many countries the clients are in; clients with no country recorded are not one. */
 const countryCount = (stats: TableStatsShape | undefined): number =>
@@ -31,6 +33,7 @@ export function ClientsPage() {
     loading: statsLoading,
     refetch: refetchStats,
   } = useListClientsStatsQuery();
+  const navigate = useNavigate();
   const [deleteClient] = useDeleteClientMutation();
   const [hubAccessFor, setHubAccessFor] = useState<PagedClientRow | null>(null);
   const crud = useCrudResource<ClientRow, PagedClientRow>({
@@ -86,6 +89,7 @@ export function ClientsPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search clients…"
+      onRowClick={(row) => navigate(clientPath(row.id))}
       extraDialogs={
         <ClientHubAccessDialog client={hubAccessFor} onClose={() => setHubAccessFor(null)} />
       }

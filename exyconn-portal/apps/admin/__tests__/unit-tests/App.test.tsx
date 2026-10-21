@@ -11,7 +11,7 @@ import { AnalyticsPage } from '../../src/pages/analytics';
 import { AppSettingsPage } from '../../src/pages/app-settings';
 import { AuditLogPage } from '../../src/pages/audit';
 import { BrandingPage } from '../../src/pages/branding';
-import { ClientsPage } from '../../src/pages/clients';
+import { ClientDetailPage, ClientsPage } from '../../src/pages/clients';
 import { SystemHealthPage } from '../../src/pages/health';
 import { OrganizationsPage } from '../../src/pages/organizations';
 
@@ -69,6 +69,7 @@ describe('App', () => {
       '/admin/health',
       '/admin/users/:id',
       '/clients',
+      '/clients/:id/:tab?',
     ]);
   });
 
@@ -82,6 +83,7 @@ describe('App', () => {
     expect(elementAt('/admin/health')?.type).toBe(SystemHealthPage);
     expect(elementAt('/admin/users/:id')?.type).toBe(UserDetailsPage);
     expect(elementAt('/clients')?.type).toBe(ClientsPage);
+    expect(elementAt('/clients/:id/:tab?')?.type).toBe(ClientDetailPage);
   });
 
   it('keeps the organizations console behind SUPER_ADMIN, not a company ADMIN', () => {

@@ -8,7 +8,7 @@ import { AnalyticsPage } from './pages/analytics';
 import { BrandingPage } from './pages/branding';
 import { AppSettingsPage } from './pages/app-settings';
 import { LocalizationPage } from './pages/localization';
-import { ClientsPage } from './pages/clients';
+import { ClientsPage, ClientDetailPage } from './pages/clients';
 import { OrganizationsPage } from './pages/organizations';
 import { ProtectedRoute } from '@exyconn/shell/routes/ProtectedRoute';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
@@ -42,6 +42,7 @@ export function App() {
       <Route path="/admin/health" element={<SystemHealthPage />} />
       <Route path="/admin/users/:id" element={<UserDetailsPage />} />
       <Route path="/clients" element={<ClientsPage />} />
+      <Route path="/clients/:id/:tab?" element={<ClientDetailPage />} />
     </PortalApp>
   );
 }

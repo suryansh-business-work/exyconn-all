@@ -2051,6 +2051,49 @@ export type Client = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** A call, email, meeting or message with a client; the client reads the same log. */
+export type ClientCommunication = {
+  __typename?: 'ClientCommunication';
+  clientId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  details: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  loggedByName: Scalars['String']['output'];
+  /** When the client's hub contacts were emailed about it; null when they were not. */
+  notifiedAt?: Maybe<Scalars['DateTime']['output']>;
+  occurredAt: Scalars['DateTime']['output'];
+  /** Who took part, as written by whoever logged it. */
+  participants: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  type: ClientCommunicationType;
+};
+
+export type ClientCommunicationInput = {
+  details?: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts about this entry. Sent at most once per entry. */
+  notify?: InputMaybe<Scalars['Boolean']['input']>;
+  occurredAt: Scalars['DateTime']['input'];
+  participants?: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  summary?: InputMaybe<Scalars['String']['input']>;
+  type: ClientCommunicationType;
+};
+
+export type ClientCommunicationPage = {
+  __typename?: 'ClientCommunicationPage';
+  rows: Array<ClientCommunication>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ClientCommunicationType {
+  Call = 'CALL',
+  Email = 'EMAIL',
+  Meeting = 'MEETING',
+  Message = 'MESSAGE',
+  Other = 'OTHER'
+}
+
 /** A person at a client who may sign in to the client hub with an emailed code. */
 export type ClientContact = {
   __typename?: 'ClientContact';
@@ -2068,6 +2111,13 @@ export type ClientContactInput = {
   clientId: Scalars['ID']['input'];
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
+};
+
+/** An address on file for a client: their own, or a hub contact's. */
+export type ClientEmailRecipient = {
+  __typename?: 'ClientEmailRecipient';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type ClientHubCheckout = {
@@ -2154,6 +2204,29 @@ export type ClientInput = {
   taxIdType?: InputMaybe<ClientTaxIdType>;
 };
 
+/** An important link kept for a client and shown in their client hub. */
+export type ClientLink = {
+  __typename?: 'ClientLink';
+  clientId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  details: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ClientLinkInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  details?: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts about the new link (create only). */
+  notify?: InputMaybe<Scalars['Boolean']['input']>;
+  title: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
 export type ClientPage = {
   __typename?: 'ClientPage';
   rows: Array<Client>;
@@ -2171,11 +2244,74 @@ export type ClientProjectOption = {
   name: Scalars['String']['output'];
 };
 
+export type ClientShareInput = {
+  kind: ClientSharedKind;
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Email the client's hub contacts. Sent at most once per shared record. */
+  notify?: InputMaybe<Scalars['Boolean']['input']>;
+  refId: Scalars['ID']['input'];
+};
+
+/** A Legal record the share picker offers. */
+export type ClientShareOption = {
+  __typename?: 'ClientShareOption';
+  id: Scalars['ID']['output'];
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** A contract, document or policy shared with a client, read live from Legal. */
+export type ClientSharedItem = {
+  __typename?: 'ClientSharedItem';
+  effectiveDate?: Maybe<Scalars['DateTime']['output']>;
+  expiryDate?: Maybe<Scalars['DateTime']['output']>;
+  /** The file to open; empty when there is none. */
+  fileUrl: Scalars['String']['output'];
+  /** Whether the record has written text the client hub can show. */
+  hasContent: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  kind: ClientSharedKind;
+  note: Scalars['String']['output'];
+  notifiedAt?: Maybe<Scalars['DateTime']['output']>;
+  refId: Scalars['String']['output'];
+  sharedAt: Scalars['DateTime']['output'];
+  sharedByName: Scalars['String']['output'];
+  /** Contracts: when the counterparty last signed, and the name they signed with. */
+  signedAt?: Maybe<Scalars['DateTime']['output']>;
+  signedBy?: Maybe<Scalars['String']['output']>;
+  /** The record's own status (a contract's ACTIVE, a policy's PUBLISHED…); REMOVED when deleted. */
+  status: Scalars['String']['output'];
+  /** The record's title now; empty when it was deleted in Legal. */
+  title: Scalars['String']['output'];
+};
+
+/** A Legal record that can be shared with a client. */
+export enum ClientSharedKind {
+  Contract = 'CONTRACT',
+  Document = 'DOCUMENT',
+  Policy = 'POLICY'
+}
+
 export enum ClientStatus {
   Active = 'ACTIVE',
   Inactive = 'INACTIVE',
   Prospect = 'PROSPECT'
 }
+
+/** How much sits under each tab of a client's page. */
+export type ClientSummary = {
+  __typename?: 'ClientSummary';
+  communications: Scalars['Int']['output'];
+  contacts: Scalars['Int']['output'];
+  invoices: Scalars['Int']['output'];
+  links: Scalars['Int']['output'];
+  openInvoices: Scalars['Int']['output'];
+  openTickets: Scalars['Int']['output'];
+  payments: Scalars['Int']['output'];
+  projects: Scalars['Int']['output'];
+  sharedItems: Scalars['Int']['output'];
+  tickets: Scalars['Int']['output'];
+};
 
 /** What the public customer form sends. Every field is re-validated on the server. */
 export type ClientSupportTicketInput = {
@@ -4207,6 +4343,13 @@ export enum EditorMode {
   Code = 'CODE',
   Visual = 'VISUAL'
 }
+
+export type EmailClientInput = {
+  message: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+  /** Addresses from clientEmailRecipients; any other address is refused. */
+  to: Array<Scalars['String']['input']>;
+};
 
 export type EmailConfig = {
   __typename?: 'EmailConfig';
@@ -8148,6 +8291,8 @@ export type Mutation = {
   createCannedReply: CannedReply;
   createCaseStudy: CaseStudy;
   createClient: Client;
+  createClientCommunication: ClientCommunication;
+  createClientLink: ClientLink;
   /**
    * Unauthenticated — anybody who buys from us must be able to ask for help without an
    * account. Rate-limited per address; returns only the ticket's reference.
@@ -8336,7 +8481,9 @@ export type Mutation = {
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
+  deleteClientCommunication: Scalars['Boolean']['output'];
   deleteClientContact: Scalars['Boolean']['output'];
+  deleteClientLink: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
   deleteCmsAsset: Scalars['Boolean']['output'];
   deleteCmsDesignSystem: Scalars['Boolean']['output'];
@@ -8474,6 +8621,8 @@ export type Mutation = {
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
+  /** Emails the client and files it in their communication log. Returns how many were sent. */
+  emailClient: Scalars['Int']['output'];
   /** Public. Emails the estimate as a PDF; fails with EMAIL_UNAVAILABLE unless it was sent. */
   emailGccEstimate: GccEmailResult;
   /** Calls off a delegation. Only whoever arranged it may. */
@@ -8826,6 +8975,8 @@ export type Mutation = {
   shareSocialPost: SocialPost;
   /** Notifies the people chosen. Returns how many were told. */
   shareTask: Scalars['Int']['output'];
+  /** Shares a Legal record with the client; sharing it again only updates the note. */
+  shareWithClient: ClientSharedItem;
   /**
    * LEGAL: sign our own side. The signer is the account making the request, not a name typed
    * into a field; their drawn signature and the document's hash are recorded with it.
@@ -8984,6 +9135,7 @@ export type Mutation = {
   translateMissing: Array<Translation>;
   triageWebsiteSubmission: WebsiteSubmission;
   unpublishCmsPage: CmsPage;
+  unshareWithClient: Scalars['Boolean']['output'];
   /**
    * Public: honours the unsubscribe link in a campaign email. Idempotent — the link is
    * clicked twice, forwarded and prefetched, and none of that is an error worth showing.
@@ -9010,6 +9162,8 @@ export type Mutation = {
   updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
   updateClient: Client;
+  updateClientCommunication: ClientCommunication;
+  updateClientLink: ClientLink;
   updateCloudflareConfig: CloudflareConfig;
   updateCmsAssetAlt: CmsAsset;
   updateCmsDesignSystem: CmsDesignSystem;
@@ -9460,6 +9614,18 @@ export type MutationCreateCaseStudyArgs = {
 
 export type MutationCreateClientArgs = {
   input: ClientInput;
+};
+
+
+export type MutationCreateClientCommunicationArgs = {
+  clientId: Scalars['ID']['input'];
+  input: ClientCommunicationInput;
+};
+
+
+export type MutationCreateClientLinkArgs = {
+  clientId: Scalars['ID']['input'];
+  input: ClientLinkInput;
 };
 
 
@@ -10229,7 +10395,17 @@ export type MutationDeleteClientArgs = {
 };
 
 
+export type MutationDeleteClientCommunicationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteClientContactArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteClientLinkArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -10863,6 +11039,12 @@ export type MutationDuplicateCmsPageArgs = {
 
 export type MutationDuplicateWhatsappWorkflowArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationEmailClientArgs = {
+  clientId: Scalars['ID']['input'];
+  input: EmailClientInput;
 };
 
 
@@ -11793,6 +11975,12 @@ export type MutationShareTaskArgs = {
 };
 
 
+export type MutationShareWithClientArgs = {
+  clientId: Scalars['ID']['input'];
+  input: ClientShareInput;
+};
+
+
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
   signatureImage: Scalars['String']['input'];
@@ -12103,6 +12291,11 @@ export type MutationUnpublishCmsPageArgs = {
 };
 
 
+export type MutationUnshareWithClientArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUnsubscribeFromMarketingArgs = {
   token: Scalars['String']['input'];
 };
@@ -12216,6 +12409,18 @@ export type MutationUpdateCaseStudyArgs = {
 export type MutationUpdateClientArgs = {
   id: Scalars['ID']['input'];
   input: ClientInput;
+};
+
+
+export type MutationUpdateClientCommunicationArgs = {
+  id: Scalars['ID']['input'];
+  input: ClientCommunicationInput;
+};
+
+
+export type MutationUpdateClientLinkArgs = {
+  id: Scalars['ID']['input'];
+  input: ClientLinkInput;
 };
 
 
@@ -14715,9 +14920,13 @@ export type Query = {
   canExport: Scalars['Boolean']['output'];
   /** Admin > Clients: who at a client has client hub access. */
   clientContacts: Array<ClientContact>;
+  clientEmailRecipients: Array<ClientEmailRecipient>;
+  clientHubCommunications: ClientCommunicationPage;
   /** The invoice PDF as base64. */
   clientHubInvoicePdf: Scalars['String']['output'];
   clientHubInvoices: InvoicePage;
+  /** The signed-in client hub contact's own client's links. */
+  clientHubLinks: Array<ClientLink>;
   /** The signed-in client hub contact (pass in x-client-pass). */
   clientHubMe: ClientHubMe;
   clientHubPaymentAttempt: PaymentAttempt;
@@ -14725,10 +14934,19 @@ export type Query = {
   clientHubPayments: PaymentPage;
   clientHubProjects: Array<ClientHubProject>;
   clientHubReminders: Array<ClientHubReminder>;
+  /** A shared record's text as sanitised HTML. */
+  clientHubSharedContent: Scalars['String']['output'];
+  clientHubSharedItems: Array<ClientSharedItem>;
   clientHubTicketReplies: Array<SupportReply>;
   clientHubTickets: SupportTicketPage;
+  clientLinks: Array<ClientLink>;
   /** Every project, for the Clients form's project picker. */
   clientProjectOptions: Array<ClientProjectOption>;
+  /** Legal records of one kind that may be shared with a client (up to 200, latest first). */
+  clientShareOptions: Array<ClientShareOption>;
+  clientSharedItems: Array<ClientSharedItem>;
+  /** Admin > Clients > client: counts for each tab. */
+  clientSummary: ClientSummary;
   /**
    * Unauthenticated — a customer follows their ticket with the reference they were given
    * and the address they raised it from. Null unless both match.
@@ -15014,6 +15232,8 @@ export type Query = {
   listCaseStudies: Array<CaseStudy>;
   listCaseStudiesPaged: CaseStudyPage;
   listCaseStudiesStats: TableStats;
+  /** Every client's communication log; filter on clientId for one client. */
+  listClientCommunicationsPaged: ClientCommunicationPage;
   listClients: Array<Client>;
   listClientsPaged: ClientPage;
   listClientsStats: TableStats;
@@ -15812,6 +16032,16 @@ export type QueryClientContactsArgs = {
 };
 
 
+export type QueryClientEmailRecipientsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubCommunicationsArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryClientHubInvoicePdfArgs = {
   id: Scalars['ID']['input'];
 };
@@ -15832,6 +16062,11 @@ export type QueryClientHubPaymentsArgs = {
 };
 
 
+export type QueryClientHubSharedContentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryClientHubTicketRepliesArgs = {
   ticketId: Scalars['ID']['input'];
 };
@@ -15839,6 +16074,26 @@ export type QueryClientHubTicketRepliesArgs = {
 
 export type QueryClientHubTicketsArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryClientLinksArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientShareOptionsArgs = {
+  kind: ClientSharedKind;
+};
+
+
+export type QueryClientSharedItemsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientSummaryArgs = {
+  clientId: Scalars['ID']['input'];
 };
 
 
@@ -16621,6 +16876,11 @@ export type QueryListCannedRepliesPagedArgs = {
 
 
 export type QueryListCaseStudiesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListClientCommunicationsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -22097,8 +22357,13 @@ export type ResolversTypes = ResolversObject<{
   CaseStudyPage: ResolverTypeWrapper<CaseStudyPage>;
   CheckSeverity: CheckSeverity;
   Client: ResolverTypeWrapper<Client>;
+  ClientCommunication: ResolverTypeWrapper<ClientCommunication>;
+  ClientCommunicationInput: ClientCommunicationInput;
+  ClientCommunicationPage: ResolverTypeWrapper<ClientCommunicationPage>;
+  ClientCommunicationType: ClientCommunicationType;
   ClientContact: ResolverTypeWrapper<ClientContact>;
   ClientContactInput: ClientContactInput;
+  ClientEmailRecipient: ResolverTypeWrapper<ClientEmailRecipient>;
   ClientHubCheckout: ResolverTypeWrapper<ClientHubCheckout>;
   ClientHubMe: ResolverTypeWrapper<ClientHubMe>;
   ClientHubPaymentOptions: ResolverTypeWrapper<ClientHubPaymentOptions>;
@@ -22107,9 +22372,16 @@ export type ResolversTypes = ResolversObject<{
   ClientHubSignIn: ResolverTypeWrapper<ClientHubSignIn>;
   ClientHubTicketInput: ClientHubTicketInput;
   ClientInput: ClientInput;
+  ClientLink: ResolverTypeWrapper<ClientLink>;
+  ClientLinkInput: ClientLinkInput;
   ClientPage: ResolverTypeWrapper<ClientPage>;
   ClientProjectOption: ResolverTypeWrapper<ClientProjectOption>;
+  ClientShareInput: ClientShareInput;
+  ClientShareOption: ResolverTypeWrapper<ClientShareOption>;
+  ClientSharedItem: ResolverTypeWrapper<ClientSharedItem>;
+  ClientSharedKind: ClientSharedKind;
   ClientStatus: ClientStatus;
+  ClientSummary: ResolverTypeWrapper<ClientSummary>;
   ClientSupportTicketInput: ClientSupportTicketInput;
   ClientTaxIdType: ClientTaxIdType;
   ClientTicketStatus: ResolverTypeWrapper<ClientTicketStatus>;
@@ -22289,6 +22561,7 @@ export type ResolversTypes = ResolversObject<{
   DocumentStatus: DocumentStatus;
   DraftCrmEmailInput: DraftCrmEmailInput;
   EditorMode: EditorMode;
+  EmailClientInput: EmailClientInput;
   EmailConfig: ResolverTypeWrapper<EmailConfig>;
   EmailConfigInput: EmailConfigInput;
   EmailDashboard: ResolverTypeWrapper<EmailDashboard>;
@@ -23245,8 +23518,12 @@ export type ResolversParentTypes = ResolversObject<{
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: CaseStudyPage;
   Client: Client;
+  ClientCommunication: ClientCommunication;
+  ClientCommunicationInput: ClientCommunicationInput;
+  ClientCommunicationPage: ClientCommunicationPage;
   ClientContact: ClientContact;
   ClientContactInput: ClientContactInput;
+  ClientEmailRecipient: ClientEmailRecipient;
   ClientHubCheckout: ClientHubCheckout;
   ClientHubMe: ClientHubMe;
   ClientHubPaymentOptions: ClientHubPaymentOptions;
@@ -23255,8 +23532,14 @@ export type ResolversParentTypes = ResolversObject<{
   ClientHubSignIn: ClientHubSignIn;
   ClientHubTicketInput: ClientHubTicketInput;
   ClientInput: ClientInput;
+  ClientLink: ClientLink;
+  ClientLinkInput: ClientLinkInput;
   ClientPage: ClientPage;
   ClientProjectOption: ClientProjectOption;
+  ClientShareInput: ClientShareInput;
+  ClientShareOption: ClientShareOption;
+  ClientSharedItem: ClientSharedItem;
+  ClientSummary: ClientSummary;
   ClientSupportTicketInput: ClientSupportTicketInput;
   ClientTicketStatus: ClientTicketStatus;
   CloudflareConfig: CloudflareConfig;
@@ -23400,6 +23683,7 @@ export type ResolversParentTypes = ResolversObject<{
   DockerImage: DockerImage;
   DockerStorage: DockerStorage;
   DraftCrmEmailInput: DraftCrmEmailInput;
+  EmailClientInput: EmailClientInput;
   EmailConfig: EmailConfig;
   EmailConfigInput: EmailConfigInput;
   EmailDashboard: EmailDashboard;
@@ -25124,6 +25408,27 @@ export type ClientResolvers<ContextType = GraphQLContext, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ClientCommunicationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientCommunication'] = ResolversParentTypes['ClientCommunication']> = ResolversObject<{
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  details?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  loggedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notifiedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  occurredAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  participants?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ClientCommunicationType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientCommunicationPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientCommunicationPage'] = ResolversParentTypes['ClientCommunicationPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ClientCommunication']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ClientContactResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientContact'] = ResolversParentTypes['ClientContact']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -25133,6 +25438,12 @@ export type ClientContactResolvers<ContextType = GraphQLContext, ParentType exte
   lastSignInAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   signInCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientEmailRecipientResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientEmailRecipient'] = ResolversParentTypes['ClientEmailRecipient']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -25189,6 +25500,19 @@ export type ClientHubSignInResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ClientLinkResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientLink'] = ResolversParentTypes['ClientLink']> = ResolversObject<{
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  details?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ClientPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientPage'] = ResolversParentTypes['ClientPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Client']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -25201,6 +25525,46 @@ export type ClientProjectOptionResolvers<ContextType = GraphQLContext, ParentTyp
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientShareOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientShareOption'] = ResolversParentTypes['ClientShareOption']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientSharedItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientSharedItem'] = ResolversParentTypes['ClientSharedItem']> = ResolversObject<{
+  effectiveDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  expiryDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  fileUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasContent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['ClientSharedKind'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notifiedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  refId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sharedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  sharedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientSummary'] = ResolversParentTypes['ClientSummary']> = ResolversObject<{
+  communications?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  contacts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  invoices?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  links?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openInvoices?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openTickets?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  payments?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  projects?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sharedItems?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tickets?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -28566,6 +28930,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationCreateCannedReplyArgs, 'input'>>;
   createCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationCreateCaseStudyArgs, 'input'>>;
   createClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationCreateClientArgs, 'input'>>;
+  createClientCommunication?: Resolver<ResolversTypes['ClientCommunication'], ParentType, ContextType, RequireFields<MutationCreateClientCommunicationArgs, 'clientId' | 'input'>>;
+  createClientLink?: Resolver<ResolversTypes['ClientLink'], ParentType, ContextType, RequireFields<MutationCreateClientLinkArgs, 'clientId' | 'input'>>;
   createClientSupportTicket?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationCreateClientSupportTicketArgs, 'input'>>;
   createCloudflareConfig?: Resolver<ResolversTypes['CloudflareConfig'], ParentType, ContextType, RequireFields<MutationCreateCloudflareConfigArgs, 'input'>>;
   createCmsDesignSystem?: Resolver<ResolversTypes['CmsDesignSystem'], ParentType, ContextType, RequireFields<MutationCreateCmsDesignSystemArgs, 'input'>>;
@@ -28713,7 +29079,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
+  deleteClientCommunication?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientCommunicationArgs, 'id'>>;
   deleteClientContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientContactArgs, 'id'>>;
+  deleteClientLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientLinkArgs, 'id'>>;
   deleteCloudflareConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCloudflareConfigArgs, 'id'>>;
   deleteCmsAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsAssetArgs, 'id'>>;
   deleteCmsDesignSystem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsDesignSystemArgs, 'id'>>;
@@ -28841,6 +29209,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   duplicateCampaignTemplate?: Resolver<ResolversTypes['CampaignTemplate'], ParentType, ContextType, RequireFields<MutationDuplicateCampaignTemplateArgs, 'id'>>;
   duplicateCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationDuplicateCmsPageArgs, 'id' | 'path'>>;
   duplicateWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDuplicateWhatsappWorkflowArgs, 'id'>>;
+  emailClient?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationEmailClientArgs, 'clientId' | 'input'>>;
   emailGccEstimate?: Resolver<ResolversTypes['GccEmailResult'], ParentType, ContextType, RequireFields<MutationEmailGccEstimateArgs, 'captcha' | 'input'>>;
   endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
@@ -29006,6 +29375,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setWhatsappDemoVisitorBlocked?: Resolver<ResolversTypes['WhatsappDemoVisitor'], ParentType, ContextType, RequireFields<MutationSetWhatsappDemoVisitorBlockedArgs, 'blocked' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
   shareTask?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationShareTaskArgs, 'id' | 'recipientIds'>>;
+  shareWithClient?: Resolver<ResolversTypes['ClientSharedItem'], ParentType, ContextType, RequireFields<MutationShareWithClientArgs, 'clientId' | 'input'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signatureImage'>>;
   signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signatureImage' | 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
@@ -29069,6 +29439,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   translateMissing?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType, RequireFields<MutationTranslateMissingArgs, 'locale' | 'sources'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
   unpublishCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationUnpublishCmsPageArgs, 'id'>>;
+  unshareWithClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnshareWithClientArgs, 'id'>>;
   unsubscribeFromMarketing?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromMarketingArgs, 'token'>>;
   unsubscribeFromStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromStatusArgs, 'token'>>;
   unsubscribeNewsletter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeNewsletterArgs, 'token'>>;
@@ -29089,6 +29460,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationUpdateCannedReplyArgs, 'id' | 'input'>>;
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
   updateClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationUpdateClientArgs, 'id' | 'input'>>;
+  updateClientCommunication?: Resolver<ResolversTypes['ClientCommunication'], ParentType, ContextType, RequireFields<MutationUpdateClientCommunicationArgs, 'id' | 'input'>>;
+  updateClientLink?: Resolver<ResolversTypes['ClientLink'], ParentType, ContextType, RequireFields<MutationUpdateClientLinkArgs, 'id' | 'input'>>;
   updateCloudflareConfig?: Resolver<ResolversTypes['CloudflareConfig'], ParentType, ContextType, RequireFields<MutationUpdateCloudflareConfigArgs, 'id' | 'input'>>;
   updateCmsAssetAlt?: Resolver<ResolversTypes['CmsAsset'], ParentType, ContextType, RequireFields<MutationUpdateCmsAssetAltArgs, 'alt' | 'id'>>;
   updateCmsDesignSystem?: Resolver<ResolversTypes['CmsDesignSystem'], ParentType, ContextType, RequireFields<MutationUpdateCmsDesignSystemArgs, 'id' | 'input'>>;
@@ -30146,17 +30519,26 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   campaignTopLinks?: Resolver<Array<ResolversTypes['CampaignLinkStat']>, ParentType, ContextType, RequireFields<QueryCampaignTopLinksArgs, 'campaignId'>>;
   canExport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCanExportArgs, 'module'>>;
   clientContacts?: Resolver<Array<ResolversTypes['ClientContact']>, ParentType, ContextType, RequireFields<QueryClientContactsArgs, 'clientId'>>;
+  clientEmailRecipients?: Resolver<Array<ResolversTypes['ClientEmailRecipient']>, ParentType, ContextType, RequireFields<QueryClientEmailRecipientsArgs, 'clientId'>>;
+  clientHubCommunications?: Resolver<ResolversTypes['ClientCommunicationPage'], ParentType, ContextType, RequireFields<QueryClientHubCommunicationsArgs, 'input'>>;
   clientHubInvoicePdf?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubInvoicePdfArgs, 'id'>>;
   clientHubInvoices?: Resolver<ResolversTypes['InvoicePage'], ParentType, ContextType, RequireFields<QueryClientHubInvoicesArgs, 'input'>>;
+  clientHubLinks?: Resolver<Array<ResolversTypes['ClientLink']>, ParentType, ContextType>;
   clientHubMe?: Resolver<ResolversTypes['ClientHubMe'], ParentType, ContextType>;
   clientHubPaymentAttempt?: Resolver<ResolversTypes['PaymentAttempt'], ParentType, ContextType, RequireFields<QueryClientHubPaymentAttemptArgs, 'id'>>;
   clientHubPaymentOptions?: Resolver<ResolversTypes['ClientHubPaymentOptions'], ParentType, ContextType>;
   clientHubPayments?: Resolver<ResolversTypes['PaymentPage'], ParentType, ContextType, RequireFields<QueryClientHubPaymentsArgs, 'input'>>;
   clientHubProjects?: Resolver<Array<ResolversTypes['ClientHubProject']>, ParentType, ContextType>;
   clientHubReminders?: Resolver<Array<ResolversTypes['ClientHubReminder']>, ParentType, ContextType>;
+  clientHubSharedContent?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubSharedContentArgs, 'id'>>;
+  clientHubSharedItems?: Resolver<Array<ResolversTypes['ClientSharedItem']>, ParentType, ContextType>;
   clientHubTicketReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryClientHubTicketRepliesArgs, 'ticketId'>>;
   clientHubTickets?: Resolver<ResolversTypes['SupportTicketPage'], ParentType, ContextType, RequireFields<QueryClientHubTicketsArgs, 'input'>>;
+  clientLinks?: Resolver<Array<ResolversTypes['ClientLink']>, ParentType, ContextType, RequireFields<QueryClientLinksArgs, 'clientId'>>;
   clientProjectOptions?: Resolver<Array<ResolversTypes['ClientProjectOption']>, ParentType, ContextType>;
+  clientShareOptions?: Resolver<Array<ResolversTypes['ClientShareOption']>, ParentType, ContextType, RequireFields<QueryClientShareOptionsArgs, 'kind'>>;
+  clientSharedItems?: Resolver<Array<ResolversTypes['ClientSharedItem']>, ParentType, ContextType, RequireFields<QueryClientSharedItemsArgs, 'clientId'>>;
+  clientSummary?: Resolver<ResolversTypes['ClientSummary'], ParentType, ContextType, RequireFields<QueryClientSummaryArgs, 'clientId'>>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
   cmsAssets?: Resolver<ResolversTypes['CmsAssetPage'], ParentType, ContextType, RequireFields<QueryCmsAssetsArgs, 'page' | 'pageSize' | 'siteId'>>;
   cmsComponents?: Resolver<Array<ResolversTypes['CmsComponentDef']>, ParentType, ContextType>;
@@ -30375,6 +30757,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listCaseStudies?: Resolver<Array<ResolversTypes['CaseStudy']>, ParentType, ContextType>;
   listCaseStudiesPaged?: Resolver<ResolversTypes['CaseStudyPage'], ParentType, ContextType, RequireFields<QueryListCaseStudiesPagedArgs, 'input'>>;
   listCaseStudiesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listClientCommunicationsPaged?: Resolver<ResolversTypes['ClientCommunicationPage'], ParentType, ContextType, RequireFields<QueryListClientCommunicationsPagedArgs, 'input'>>;
   listClients?: Resolver<Array<ResolversTypes['Client']>, ParentType, ContextType>;
   listClientsPaged?: Resolver<ResolversTypes['ClientPage'], ParentType, ContextType, RequireFields<QueryListClientsPagedArgs, 'input'>>;
   listClientsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -33110,15 +33493,22 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CaseStudy?: CaseStudyResolvers<ContextType>;
   CaseStudyPage?: CaseStudyPageResolvers<ContextType>;
   Client?: ClientResolvers<ContextType>;
+  ClientCommunication?: ClientCommunicationResolvers<ContextType>;
+  ClientCommunicationPage?: ClientCommunicationPageResolvers<ContextType>;
   ClientContact?: ClientContactResolvers<ContextType>;
+  ClientEmailRecipient?: ClientEmailRecipientResolvers<ContextType>;
   ClientHubCheckout?: ClientHubCheckoutResolvers<ContextType>;
   ClientHubMe?: ClientHubMeResolvers<ContextType>;
   ClientHubPaymentOptions?: ClientHubPaymentOptionsResolvers<ContextType>;
   ClientHubProject?: ClientHubProjectResolvers<ContextType>;
   ClientHubReminder?: ClientHubReminderResolvers<ContextType>;
   ClientHubSignIn?: ClientHubSignInResolvers<ContextType>;
+  ClientLink?: ClientLinkResolvers<ContextType>;
   ClientPage?: ClientPageResolvers<ContextType>;
   ClientProjectOption?: ClientProjectOptionResolvers<ContextType>;
+  ClientShareOption?: ClientShareOptionResolvers<ContextType>;
+  ClientSharedItem?: ClientSharedItemResolvers<ContextType>;
+  ClientSummary?: ClientSummaryResolvers<ContextType>;
   ClientTicketStatus?: ClientTicketStatusResolvers<ContextType>;
   CloudflareConfig?: CloudflareConfigResolvers<ContextType>;
   CloudflareZone?: CloudflareZoneResolvers<ContextType>;
