@@ -128,12 +128,16 @@ export async function translateMissing(
 /** Every batch, CONCURRENCY at a time, each merged into the catalogue as it lands. */
 async function runBatches(language: string, batches: string[][], inFlight: Set<string>) {
   let next = 0;
-  const worker = async () => {
-    while (next < batches.length) {
-      const batch = batches[next];
-      next += 1;
-      await sendBatch(language, batch, inFlight);
+  // Each worker takes the next unsent batch when its last one lands, so at most CONCURRENCY
+  // requests are in flight at once.
+  const worker = async (): Promise<void> => {
+    if (next >= batches.length) {
+      return;
     }
+    const batch = batches[next];
+    next += 1;
+    await sendBatch(language, batch, inFlight);
+    return worker();
   };
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, batches.length) }, worker));
 }

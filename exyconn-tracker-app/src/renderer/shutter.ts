@@ -31,16 +31,15 @@ function warnUnplayable(cause: unknown): void {
 
 /**
  * Rewinds and starts the sound, so two captures close together are both audible instead of
- * the second being swallowed by the first still playing. A synchronous throw is warned here;
- * the returned promise carries a later refusal to the caller.
+ * the second being swallowed by the first still playing. A synchronous throw and a later
+ * refusal are both warned, never thrown.
  */
-function rewindAndPlay(audio: HTMLAudioElement): Promise<void> | undefined {
+function rewindAndPlay(audio: HTMLAudioElement): void {
   try {
     audio.currentTime = 0;
-    return audio.play();
+    audio.play().catch(warnUnplayable);
   } catch (cause: unknown) {
     warnUnplayable(cause);
-    return undefined;
   }
 }
 
@@ -57,5 +56,5 @@ export function playShutter(): void {
   if (audio === null) {
     return;
   }
-  rewindAndPlay(audio)?.catch(warnUnplayable);
+  rewindAndPlay(audio);
 }

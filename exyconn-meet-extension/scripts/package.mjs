@@ -5,7 +5,6 @@
  * each with a .sha256 file, plus release.json. Zips are deterministic (sorted entries, fixed
  * timestamps), with manifest.json at the zip root.
  */
-import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -30,18 +29,9 @@ if (manifest.version !== PACKAGE_VERSION) {
 
 const sha256 = (data) => createHash('sha256').update(data).digest('hex');
 
+/** The commit a release is built from: CI names it; a local package is marked as such. */
 function commitSha() {
-  if (process.env.GITHUB_SHA) {
-    return process.env.GITHUB_SHA;
-  }
-  try {
-    return execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: PACKAGE_DIR,
-      encoding: 'utf8',
-    }).trim();
-  } catch {
-    return 'unknown';
-  }
+  return process.env.GITHUB_SHA ?? 'local';
 }
 
 const files = listFiles(OUT_DIR)

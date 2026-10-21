@@ -1,6 +1,6 @@
 import type { GraphQLContext } from '../../middleware/auth';
 import { recordAudit, type AuditAction } from '../audit';
-import { logMaEvent, type EventInput } from './events.service';
+import { logMaEvent, type EventDetails, type MeetingRef } from './events.service';
 import { MA_AUDIT_MODULE } from './ma.enums';
 import type { MaActor } from './ma.access';
 
@@ -8,8 +8,8 @@ export interface ActivityInput {
   type: string;
   action: AuditAction;
   summary: string;
-  meeting?: EventInput['meeting'];
-  details?: EventInput['details'];
+  meeting?: MeetingRef | null;
+  details?: EventDetails;
 }
 
 /**

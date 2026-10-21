@@ -12,7 +12,10 @@ export const SYSTEM_EVENT_ACTOR: EventActor = Object.freeze({
   name: 'Meeting Assistant',
 });
 
-type MeetingRef = Pick<MaMeetingDocument, 'title' | 'viewerIds'> & { _id: unknown };
+export type MeetingRef = Pick<MaMeetingDocument, 'title' | 'viewerIds'> & { _id: unknown };
+
+/** Ids, counts, codes — never audio, transcript text, tokens or addresses' contents. */
+export type EventDetails = Record<string, string | number | boolean | null>;
 
 export interface EventInput {
   type: string;
@@ -20,8 +23,7 @@ export interface EventInput {
   level?: MaEventLevel;
   meeting?: MeetingRef | null;
   actor?: EventActor;
-  /** Ids, counts, codes — never audio, transcript text, tokens or addresses' contents. */
-  details?: Record<string, string | number | boolean | null>;
+  details?: EventDetails;
 }
 
 /**

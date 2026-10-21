@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto';
 import type { OpenAiConfigDocument } from '../modules/tech/openai-config.model';
 
 const OPENAI_API_URL = 'https://api.openai.com';
@@ -258,20 +259,29 @@ const pause = (ms: number) => new Promise((resolve) => globalThis.setTimeout(res
  * Runs an OpenAI call again after a rate limit or a server fault, with exponential backoff
  * and jitter. Anything else — a rejected key, a bad request, a timeout — fails at once.
  */
-export async function withOpenAiRetry<T>(
+export function withOpenAiRetry<T>(
   call: () => Promise<T>,
   policy: RetryPolicy = DEFAULT_RETRY,
 ): Promise<T> {
-  for (let attempt = 1; ; attempt += 1) {
-    try {
-      return await call();
-    } catch (error) {
-      const retryable = error instanceof OpenAiError && error.retryable;
-      if (!retryable || attempt >= policy.attempts) {
-        throw error;
-      }
-      const jitter = Math.random() * policy.baseDelayMs;
-      await pause(policy.baseDelayMs * 2 ** (attempt - 1) + jitter);
+  return attemptCall(call, policy, 1);
+}
+
+/** One attempt; on a retryable failure it waits (doubling, with jitter) and tries the next. */
+async function attemptCall<T>(
+  call: () => Promise<T>,
+  policy: RetryPolicy,
+  attempt: number,
+): Promise<T> {
+  try {
+    return await call();
+  } catch (error) {
+    const retryable = error instanceof OpenAiError && error.retryable;
+    if (!retryable || attempt >= policy.attempts) {
+      throw error;
     }
+    // Jitter only spreads retries out; it needs no secrecy, but crypto costs nothing here.
+    const jitter = randomInt(0, Math.max(1, policy.baseDelayMs));
+    await pause(policy.baseDelayMs * 2 ** (attempt - 1) + jitter);
+    return attemptCall(call, policy, attempt + 1);
   }
 }

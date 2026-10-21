@@ -1,5 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useApolloClient } from '@apollo/client/react';
+import type { TypedDocumentNode } from '@apollo/client';
 import type { DocumentNode } from 'graphql';
 import { listFieldOf } from '@exyconn/crud/grid/usePagedFetcher';
 import type { GridFetcher, TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
@@ -23,13 +24,15 @@ export function useScopedFetcher<TQuery, TRow>(
   latest.current = { select, variables, presetFilters };
 
   return useMemo(() => {
+    // The generated documents are untyped; this names what each one returns.
+    const typed: TypedDocumentNode<TQuery, Record<string, unknown>> = document;
     const variablesFor = (input: TableQueryInput) => {
       const filters = [...(input.filters ?? []), ...latest.current.presetFilters];
       return { ...latest.current.variables, input: { ...input, filters } };
     };
     const fetchPage = async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
-      const result = await client.query<TQuery>({
-        query: document,
+      const result = await client.query({
+        query: typed,
         variables: variablesFor(input),
         fetchPolicy: 'network-only',
       });

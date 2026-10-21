@@ -201,7 +201,7 @@ async function saveResult(
     { $set: { status: 'DONE' } },
   );
   return saved.map((row) => ({
-    id: String(row._id),
+    id: row._id.toHexString(),
     startMs: row.startMs,
     endMs: row.endMs,
     text: row.text,

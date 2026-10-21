@@ -113,7 +113,7 @@ export async function startSession(actor: MaActor, raw: StartSessionInput): Prom
   const ended = await resumable(actor.id, input.meetingCode);
   let meeting: LeanMeeting;
   if (ended) {
-    await cancelQueuedJobs(String(ended._id));
+    await cancelQueuedJobs(ended._id.toHexString());
     ended.set({ status: 'ACTIVE', endedAt: null, lastHeartbeatAt: new Date() });
     await ended.save();
     meeting = ended.toObject() as LeanMeeting;

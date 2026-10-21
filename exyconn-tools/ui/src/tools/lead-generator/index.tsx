@@ -13,6 +13,7 @@ import BusinessList from './components/BusinessList';
 import NotificationSnackbars from './components/NotificationSnackbars';
 import { Business, PolygonCoordinates } from './types';
 import { useBusinessSearch } from './hooks/useBusinessSearch';
+import { logFailure } from '../../shared/utils/logFailure';
 
 const MAPS_KEY = 'google_maps_api_key';
 const PLACES_KEY = 'google_places_api_key';
@@ -78,7 +79,9 @@ const LeadGenerator: React.FC = () => {
       return;
     }
     setNeedsPlacesKey(false);
-    performSearch(polygonCoordinates, searchQuery, selectedTypes, maxResults);
+    performSearch(polygonCoordinates, searchQuery, selectedTypes, maxResults).catch(
+      logFailure('Lead search failed'),
+    );
   };
 
   return (

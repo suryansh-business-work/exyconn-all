@@ -121,8 +121,16 @@ function checked(input: ActionInput): void {
   }
 }
 
-const show = (value: unknown) =>
-  value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? '');
+/** A tracked field as history text: dates as YYYY-MM-DD, strings and numbers as they are. */
+function show(value: unknown): string {
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    return String(value);
+  }
+  return '';
+}
 
 export async function createAction(meeting: LeanMeeting, input: ActionInput, actor: MaActor) {
   checked(input);

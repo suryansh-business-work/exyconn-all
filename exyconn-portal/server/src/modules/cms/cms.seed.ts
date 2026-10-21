@@ -94,22 +94,24 @@ async function seedFragments(seed: CmsSiteSeed, siteId: string, done: Set<string
 async function seedPages(seed: CmsSiteSeed, siteId: string, done: Set<string>) {
   const ids = await fragmentIds(siteId);
   // Every seeded page has its own path and only reads fragments, so they are seeded side by side.
-  const keys = await Promise.all(seed.pages.map((page) => seedPage(page, siteId, ids, done)));
-  for (const key of keys) {
-    done.add(key);
+  await Promise.all(seed.pages.map((page) => seedPage(page, siteId, ids, done)));
+  for (const page of seed.pages) {
+    done.add(pageKey(page));
   }
 }
 
-/** Inserts one seeded page unless it was seeded before or its path is taken; returns its key. */
+/** The seed ledger key of one seeded page. */
+const pageKey = (page: CmsSiteSeed['pages'][number]) => `page:${page.key}`;
+
+/** Inserts one seeded page unless it was seeded before or its path is taken. */
 async function seedPage(
   page: CmsSiteSeed['pages'][number],
   siteId: string,
   ids: Map<string, string>,
   done: ReadonlySet<string>,
-): Promise<string> {
-  const key = `page:${page.key}`;
-  if (done.has(key) || (await CmsPageModel.exists({ siteId, path: page.path }))) {
-    return key;
+): Promise<void> {
+  if (done.has(pageKey(page)) || (await CmsPageModel.exists({ siteId, path: page.path }))) {
+    return;
   }
   const html = withFragmentIds(page.html, ids);
   await CmsPageModel.create({
@@ -125,7 +127,6 @@ async function seedPage(
     published: await published(siteId, html, page.css),
     updatedByName: 'Seed',
   });
-  return key;
 }
 
 /**

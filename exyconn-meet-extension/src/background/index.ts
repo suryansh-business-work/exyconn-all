@@ -15,16 +15,21 @@ import { onMessage } from './router';
 import { logTo } from '../services/logger';
 import { logger, registry } from './services';
 
-/** Keeps both token areas away from content scripts (session already is by default). */
-async function lockStorage(): Promise<void> {
-  await chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' });
-  await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' });
+/**
+ * Keeps both token areas away from content scripts (session already is by default). A module
+ * service worker cannot use top-level await, so the work is started here and its failure logged.
+ */
+function lockStorage(): void {
+  Promise.all([
+    chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' }),
+    chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' }),
+  ]).catch(report('Could not restrict extension storage'));
 }
 
 /** Logs a failure from a listener that has no one to answer. */
 const report = (task: string): ((error: unknown) => void) => logTo(logger, task, 'error');
 
-lockStorage().catch(report('Could not restrict extension storage'));
+lockStorage();
 
 chrome.runtime.onMessage.addListener(onMessage);
 
