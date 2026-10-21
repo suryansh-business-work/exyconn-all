@@ -28,7 +28,7 @@ async function chooseInvoice(label: string) {
 }
 
 const typeAmount = (value: string) =>
-  fireEvent.change(screen.getByLabelText('Amount'), { target: { value } });
+  fireEvent.change(screen.getByLabelText(/^Amount\s*\*?$/), { target: { value } });
 
 describe('PaymentForm', () => {
   beforeEach(() => {
@@ -77,7 +77,7 @@ describe('PaymentForm', () => {
 
     await chooseInvoice('INV-001 — ₹750.00 owing');
     typeAmount('250');
-    await userEvent.type(screen.getByLabelText('Reference'), 'UTR-77');
+    await userEvent.type(screen.getByLabelText(/^Reference\s*\*?$/), 'UTR-77');
     await userEvent.click(screen.getByRole('button', { name: 'Record' }));
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

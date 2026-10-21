@@ -31,8 +31,11 @@ function setup() {
 const raise = () => userEvent.click(screen.getByRole('button', { name: 'Raise ticket' }));
 
 async function fillValid() {
-  await userEvent.type(screen.getByLabelText('Subject'), ' VPN drops ');
-  await userEvent.type(screen.getByLabelText('Description'), 'Disconnects every ten minutes.');
+  await userEvent.type(screen.getByLabelText(/^Subject\s*\*?$/), ' VPN drops ');
+  await userEvent.type(
+    screen.getByLabelText(/^Description\s*\*?$/),
+    'Disconnects every ten minutes.',
+  );
 }
 
 async function pickOption(field: RegExp, option: string) {
@@ -63,8 +66,8 @@ describe('SupportTicketForm', () => {
 
   it('asks for a fuller subject and description', async () => {
     setup();
-    await userEvent.type(screen.getByLabelText('Subject'), 'VP');
-    await userEvent.type(screen.getByLabelText('Description'), 'Broken');
+    await userEvent.type(screen.getByLabelText(/^Subject\s*\*?$/), 'VP');
+    await userEvent.type(screen.getByLabelText(/^Description\s*\*?$/), 'Broken');
     await raise();
 
     expect(await screen.findByText('Add a short subject')).toBeInTheDocument();
@@ -93,7 +96,7 @@ describe('SupportTicketForm', () => {
       },
     });
     expect(await screen.findByText('Support ticket raised')).toBeInTheDocument();
-    expect(screen.getByLabelText('Subject')).toHaveValue('');
+    expect(screen.getByLabelText(/^Subject\s*\*?$/)).toHaveValue('');
   });
 
   it('raises the picked category and priority with the uploaded files', async () => {

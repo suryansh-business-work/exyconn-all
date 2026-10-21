@@ -20,7 +20,7 @@ const onFile = (email: string) => ({
   data: { getClient: { id: 'client-1', name: 'Nimbus Ltd', email, company: 'Nimbus' } },
 });
 
-const recipient = () => screen.getByLabelText('Recipient email');
+const recipient = () => screen.getByLabelText(/^Recipient email\s*\*?$/);
 
 describe('SendInvoiceForm', () => {
   beforeEach(() => {
@@ -72,7 +72,10 @@ describe('SendInvoiceForm', () => {
     renderForm(<SendInvoiceForm invoice={invoiceRow()} onDone={onDone} onCancel={vi.fn()} />);
 
     await userEvent.type(recipient(), 'billing@nimbus.example');
-    await userEvent.type(screen.getByLabelText('Message (optional)'), 'Thanks for the work');
+    await userEvent.type(
+      screen.getByLabelText(/^Message \(optional\)\s*\*?$/),
+      'Thanks for the work',
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Send' }));
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

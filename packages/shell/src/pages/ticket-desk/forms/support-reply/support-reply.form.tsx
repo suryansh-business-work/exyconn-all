@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { RhfTextField, RhfSelect, type SelectOption } from '@/components/form/rhf';

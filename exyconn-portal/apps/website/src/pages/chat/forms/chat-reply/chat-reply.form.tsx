@@ -1,6 +1,6 @@
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import MicIcon from '@mui/icons-material/Mic';

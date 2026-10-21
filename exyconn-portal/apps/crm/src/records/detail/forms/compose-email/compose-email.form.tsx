@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useT } from '@exyconn/i18n';
 import { Link as RouterLink } from 'react-router-dom';

@@ -93,11 +93,11 @@ describe('PurchaseRequestForm', () => {
   it('removes a quote again', async () => {
     renderForm();
     await press('Add quote');
-    expect(screen.getByLabelText('Vendor')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Vendor\s*\*?$/)).toBeInTheDocument();
 
     await press('Remove quote');
 
-    expect(screen.queryByLabelText('Vendor')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Vendor\s*\*?$/)).not.toBeInTheDocument();
   });
 
   it('checks each quote before saving', async () => {

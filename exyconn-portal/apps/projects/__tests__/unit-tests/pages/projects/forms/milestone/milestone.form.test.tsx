@@ -106,7 +106,7 @@ describe('MilestoneForm', () => {
 
   it('updates an existing milestone by id with its new state', async () => {
     renderForm(milestoneRow({ id: 'milestone-4' }));
-    expect(screen.getByLabelText('Milestone')).toHaveValue('Go live');
+    expect(screen.getByLabelText(/^Milestone\s*\*?$/)).toHaveValue('Go live');
 
     await pickOption(/^State/, 'Hit');
     await press('Update');

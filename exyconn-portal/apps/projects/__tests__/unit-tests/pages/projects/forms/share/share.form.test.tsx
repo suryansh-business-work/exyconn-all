@@ -4,6 +4,15 @@ import { ShareForm } from '../../../../../../src/pages/projects/forms/share';
 import { renderWithProviders } from '../../../../test-utils';
 import { fill, press } from '../../../../helpers/form-helpers';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -38,8 +47,8 @@ describe('ShareForm', () => {
   it('starts with no name and a link that lasts thirty days', () => {
     renderForm();
 
-    expect(screen.getByLabelText(LABEL)).toHaveValue('');
-    expect(screen.getByLabelText(DAYS)).toHaveValue(30);
+    expect(screen.getByLabelText(labelled(LABEL))).toHaveValue('');
+    expect(screen.getByLabelText(labelled(DAYS))).toHaveValue(30);
     expect(screen.getByText('Between 1 and 365 days')).toBeInTheDocument();
   });
 
@@ -89,8 +98,8 @@ describe('ShareForm', () => {
     expect(gql.create).toHaveBeenCalledWith({
       variables: { projectId: 'proj-1', label: 'Acme weekly', expiresInDays: 365 },
     });
-    expect(screen.getByLabelText(LABEL)).toHaveValue('');
-    expect(screen.getByLabelText(DAYS)).toHaveValue(365);
+    expect(screen.getByLabelText(labelled(LABEL))).toHaveValue('');
+    expect(screen.getByLabelText(labelled(DAYS))).toHaveValue(365);
   });
 
   it('reports a link the server did not send back', async () => {

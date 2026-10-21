@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { HEX_COLOR, SLUG } from '@exyconn/regex';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';

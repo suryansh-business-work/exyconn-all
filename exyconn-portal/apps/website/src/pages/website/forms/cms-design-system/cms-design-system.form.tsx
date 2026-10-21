@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { Tabber } from '@exyconn/tabber';
 import { Box, Grid } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';

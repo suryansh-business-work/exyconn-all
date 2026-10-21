@@ -16,7 +16,8 @@ const changePassword = vi.fn();
 /** A made-up passphrase of a given length, built at runtime so no credential sits in source. */
 const phrase = (seed: string, length = 12) => seed.repeat(length).slice(0, length);
 
-const field = (label: string) => screen.getByLabelText(label);
+/** Every field here is required, so its label ends in the star. */
+const field = (label: string) => screen.getByLabelText(new RegExp(String.raw`^${label}\s*\*$`));
 
 async function enter(label: string, value: string) {
   if (!value) return;

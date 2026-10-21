@@ -1,5 +1,5 @@
 import { useForm, useFormContext, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';

@@ -14,7 +14,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useSetExpenseClaimStatusMutation: () => [gql.setStatus],
 }));
 
-const amountField = () => screen.getByLabelText('Approved amount');
+const amountField = () => screen.getByLabelText(/^Approved amount\s*\*?$/);
 
 async function approve(amount: string) {
   fireEvent.change(amountField(), { target: { value: amount } });

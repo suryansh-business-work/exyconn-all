@@ -44,13 +44,13 @@ function renderForm(initial: PerformanceReviewRow | null = null) {
 
 async function fillNewReview() {
   const user = userEvent.setup();
-  await user.type(screen.getByRole('combobox', { name: 'Employee' }), 'Asha');
+  await user.type(screen.getByRole('combobox', { name: /^Employee\s*\*?$/ }), 'Asha');
   await user.click(await screen.findByRole('option', { name: 'Asha Rao (asha@example.com)' }));
-  await user.type(screen.getByLabelText('Cycle'), ' FY26 H2 ');
-  await user.type(screen.getByLabelText('Self assessment'), 'Did well');
-  await user.type(screen.getByLabelText('Manager assessment'), 'Agreed');
-  await user.type(screen.getByLabelText('Competencies'), 'Craft');
-  await user.type(screen.getByLabelText('Action plan'), 'Mentor two people');
+  await user.type(screen.getByLabelText(/^Cycle\s*\*?$/), ' FY26 H2 ');
+  await user.type(screen.getByLabelText(/^Self assessment\s*\*?$/), 'Did well');
+  await user.type(screen.getByLabelText(/^Manager assessment\s*\*?$/), 'Agreed');
+  await user.type(screen.getByLabelText(/^Competencies\s*\*?$/), 'Craft');
+  await user.type(screen.getByLabelText(/^Action plan\s*\*?$/), 'Mentor two people');
 }
 
 describe('PerformanceReviewForm', () => {
@@ -88,13 +88,13 @@ describe('PerformanceReviewForm', () => {
   it('opens an existing review and updates it with a new score, rating and status', async () => {
     const { onDone } = renderForm(ROW);
 
-    expect(screen.getByRole('combobox', { name: 'Employee' })).toHaveValue(
+    expect(screen.getByRole('combobox', { name: /^Employee\s*\*?$/ })).toHaveValue(
       'Asha Rao (asha@example.com)',
     );
-    await userEvent.clear(screen.getByLabelText('Score (0-10)'));
-    await userEvent.type(screen.getByLabelText('Score (0-10)'), '9');
-    await userEvent.clear(screen.getByLabelText('Rating'));
-    await userEvent.type(screen.getByLabelText('Rating'), 'Outstanding');
+    await userEvent.clear(screen.getByLabelText(/^Score \(0-10\)\s*\*?$/));
+    await userEvent.type(screen.getByLabelText(/^Score \(0-10\)\s*\*?$/), '9');
+    await userEvent.clear(screen.getByLabelText(/^Rating\s*\*?$/));
+    await userEvent.type(screen.getByLabelText(/^Rating\s*\*?$/), 'Outstanding');
     await userEvent.click(screen.getByRole('combobox', { name: /Status/ }));
     await userEvent.click(
       within(screen.getByRole('listbox')).getByRole('option', { name: 'Manager Submitted' }),
@@ -145,7 +145,7 @@ describe('PerformanceReviewForm', () => {
   it('refuses a negative score', async () => {
     renderForm(ROW);
 
-    await userEvent.clear(screen.getByLabelText('Score (0-10)'));
+    await userEvent.clear(screen.getByLabelText(/^Score \(0-10\)\s*\*?$/));
     await userEvent.paste('-1');
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 

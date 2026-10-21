@@ -4,6 +4,15 @@ import userEvent from '@testing-library/user-event';
 import { TrackerNoticeForm } from '../../../../../../src/pages/tracker/forms/tracker-notice';
 import { renderWithProviders } from '../../../../test-utils';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ send: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -18,7 +27,7 @@ const EMPLOYEES = [
 const EVERYONE = 'every employee with tracker access';
 
 const fill = (label: string, value: string) =>
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 const press = (name: string) => userEvent.click(screen.getByRole('button', { name }));
 /** The snackbar's alert; the form's own info banner is an alert too, so it is picked by container. */
 const toast = () =>
@@ -87,8 +96,8 @@ describe('TrackerNoticeForm', () => {
       variables: { input: { title: 'Office closed', body: 'Friday is a holiday.', userIds: [] } },
     });
     expect(await toast()).toHaveTextContent('Notice sent to 12 employee(s)');
-    await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue(''));
-    expect(screen.getByLabelText('Message')).toHaveValue('');
+    await waitFor(() => expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue(''));
+    expect(screen.getByLabelText(/^Message\s*\*?$/)).toHaveValue('');
   });
 
   it('narrows the notice to the employees picked, and says how many', async () => {
@@ -116,7 +125,7 @@ describe('TrackerNoticeForm', () => {
     renderWithProviders(<TrackerNoticeForm employees={EMPLOYEES} />);
     await submitAndAnswer('Cancel');
     expect(gql.send).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('Title')).toHaveValue('Office closed');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Office closed');
   });
 
   it('reports zero recipients when the server answers without a count', async () => {
@@ -131,7 +140,7 @@ describe('TrackerNoticeForm', () => {
     renderWithProviders(<TrackerNoticeForm employees={EMPLOYEES} />);
     await submitAndAnswer('Send');
     expect(await toast()).toHaveTextContent('No employee has tracker access');
-    expect(screen.getByLabelText('Title')).toHaveValue('Office closed');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Office closed');
   });
 
   it('falls back to a plain message when the failure carries none', async () => {
@@ -145,6 +154,6 @@ describe('TrackerNoticeForm', () => {
     renderWithProviders(<TrackerNoticeForm employees={EMPLOYEES} />);
     fill('Title', 'Draft');
     await press('Cancel');
-    await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue(''));
+    await waitFor(() => expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue(''));
   });
 });

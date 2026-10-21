@@ -4,6 +4,15 @@ import { SendTestEmailForm } from '../../../../../../src/pages/environment-varia
 import { renderWithProviders } from '../../../../test-utils';
 import { doneOnce, expectMessages, fill, formCallbacks, press, toast } from '../form.helpers';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ send: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -36,7 +45,7 @@ describe('SendTestEmailForm', () => {
     expect(
       screen.getByText('Send a verification email using the “Transactional” SMTP configuration.'),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(RECIPIENT)).toHaveValue('');
+    expect(screen.getByLabelText(labelled(RECIPIENT))).toHaveValue('');
   });
 
   it('asks for a recipient, then for a valid address', async () => {
@@ -52,7 +61,7 @@ describe('SendTestEmailForm', () => {
 
   it('sends to the suggested recipient through this config', async () => {
     renderForm('admin@example.test');
-    expect(screen.getByLabelText(RECIPIENT)).toHaveValue('admin@example.test');
+    expect(screen.getByLabelText(labelled(RECIPIENT))).toHaveValue('admin@example.test');
     await press('Send test');
 
     await doneOnce(cb.onDone);

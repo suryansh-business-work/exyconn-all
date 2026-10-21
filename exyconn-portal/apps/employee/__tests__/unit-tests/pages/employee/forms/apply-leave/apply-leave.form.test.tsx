@@ -66,7 +66,7 @@ async function fillValid() {
   );
   fireEvent.change(pickerInput('fromDate'), { target: { value: '03/04/2026' } });
   fireEvent.change(pickerInput('toDate'), { target: { value: '03/06/2026' } });
-  await userEvent.type(screen.getByLabelText('Reason'), '  Family function ');
+  await userEvent.type(screen.getByLabelText(/^Reason\s*\*?$/), '  Family function ');
 }
 
 beforeEach(() => {
@@ -109,7 +109,7 @@ describe('ApplyLeaveForm', () => {
     expect(screen.getByText('To date is required')).toBeInTheDocument();
     expect(screen.getByText('Reason is required')).toBeInTheDocument();
 
-    await userEvent.type(screen.getByLabelText('Reason'), 'ab');
+    await userEvent.type(screen.getByLabelText(/^Reason\s*\*?$/), 'ab');
     await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
     expect(await screen.findByText('Add a brief reason')).toBeInTheDocument();
     expect(apply).not.toHaveBeenCalled();
@@ -165,7 +165,7 @@ describe('ApplyLeaveForm', () => {
       },
     });
     expect(await screen.findByText('Leave applied — pending approval')).toBeInTheDocument();
-    expect(screen.getByLabelText('Reason')).toHaveValue('');
+    expect(screen.getByLabelText(/^Reason\s*\*?$/)).toHaveValue('');
   });
 
   it('shows the server’s message when the application fails', async () => {

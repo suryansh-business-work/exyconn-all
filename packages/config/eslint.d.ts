@@ -7,10 +7,20 @@ export interface PortalEslintOptions {
   muiAllowed?: string[];
   /** Which accessibility rules apply: DOM (`web`, the default) or React Native (`native`). */
   platform?: "web" | "native";
+  /**
+   * Portal forms: the bare `@hookform/resolvers/zod` resolver is refused in favour of the
+   * shell's, which lets every field star and hint itself from the form's schema.
+   */
+  shellForms?: boolean;
 }
 
-export function muiGuard(uiImport?: string): {
-  paths: Array<{ name: string; message: string }>;
+/** Path of the shell's own form resolver, the one file allowed the bare one. */
+export const SHELL_ZOD_RESOLVER: string;
+export function muiGuard(
+  uiImport?: string,
+  shellForms?: boolean,
+): {
+  paths: Array<{ name: string; message: string; importNames?: string[] }>;
   patterns: Array<{ group: string[]; message: string }>;
 };
 export const baseRules: Linter.RulesRecord;

@@ -79,9 +79,9 @@ describe('IncidentForm', () => {
     expect(screen.getByText('Post-incident actions')).toBeInTheDocument();
     await press('Add action');
     await press('Add action');
-    expect(screen.getAllByLabelText('Action')).toHaveLength(2);
+    expect(screen.getAllByLabelText(/^Action\s*\*?$/)).toHaveLength(2);
     await userEvent.click(screen.getAllByRole('button', { name: 'Remove action' })[0]);
-    expect(screen.getAllByLabelText('Action')).toHaveLength(1);
+    expect(screen.getAllByLabelText(/^Action\s*\*?$/)).toHaveLength(1);
 
     fill('Action', 'Add a queue-depth alert');
     await press('Create');
@@ -113,8 +113,8 @@ describe('IncidentForm', () => {
 
   it('saves an edit with its existing actions', async () => {
     renderForm(incidentRow({ status: ItIncidentStatus.Resolved, rootCause: 'Expired cert' }));
-    expect(screen.getAllByLabelText('Action')).toHaveLength(2);
-    expect(screen.getByLabelText('Root cause (RCA)')).toHaveValue('Expired cert');
+    expect(screen.getAllByLabelText(/^Action\s*\*?$/)).toHaveLength(2);
+    expect(screen.getByLabelText(/^Root cause \(RCA\)\s*\*?$/)).toHaveValue('Expired cert');
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

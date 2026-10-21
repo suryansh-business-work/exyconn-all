@@ -21,7 +21,7 @@ const onCancel = vi.fn();
 const renderForm = (initial: ReturnType<typeof reviewRow> | null = null) =>
   renderWithProviders(<ReviewForm initial={initial} onDone={onDone} onCancel={onCancel} />);
 
-const actionInputs = () => screen.queryAllByLabelText('Action');
+const actionInputs = () => screen.queryAllByLabelText(/^Action\s*\*?$/);
 
 describe('ReviewForm', () => {
   beforeEach(() => {

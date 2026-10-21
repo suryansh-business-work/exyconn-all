@@ -139,7 +139,7 @@ describe('ActivityForm', () => {
     const row = activityRow({ id: 'activity-1', dueDate: due, done: true });
     const { onDone } = renderForm(row);
 
-    expect(screen.getByLabelText('Subject')).toHaveValue('Kick-off call');
+    expect(screen.getByLabelText(/^Subject\s*\*?$/)).toHaveValue('Kick-off call');
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

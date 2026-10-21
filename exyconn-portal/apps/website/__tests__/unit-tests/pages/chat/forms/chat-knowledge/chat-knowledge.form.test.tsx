@@ -10,6 +10,15 @@ import {
 import { renderWithProviders } from '../../../../test-utils';
 import { knowledgeRow } from '../../chat-fixtures';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -26,7 +35,7 @@ const renderForm = (initial: ChatKnowledgeRow | null = null) =>
   renderWithProviders(<ChatKnowledgeForm initial={initial} onDone={onDone} onCancel={onCancel} />);
 
 const fill = (label: string, value: string) =>
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 const click = (name: string) => userEvent.click(screen.getByRole('button', { name }));
 
 describe('ChatKnowledgeForm', () => {
@@ -40,10 +49,10 @@ describe('ChatKnowledgeForm', () => {
   it('opens a new custom entry empty and usable by the bot', () => {
     renderForm();
 
-    expect(screen.getByLabelText('Title')).toHaveValue('');
-    expect(screen.getByLabelText('Link (optional)')).toHaveValue('');
-    expect(screen.getByLabelText('Content')).toHaveValue('');
-    expect(screen.getByLabelText('The bot may use this')).toBeChecked();
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Link \(optional\)\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^Content\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^The bot may use this\s*\*?$/)).toBeChecked();
     expect(screen.queryByText(WARNING)).not.toBeInTheDocument();
   });
 
@@ -71,7 +80,7 @@ describe('ChatKnowledgeForm', () => {
     renderForm();
     fill('Title', '  Office hours  ');
     fill('Content', '  Mon–Fri, 9 to 6 IST.  ');
-    await userEvent.click(screen.getByLabelText('The bot may use this'));
+    await userEvent.click(screen.getByLabelText(/^The bot may use this\s*\*?$/));
     await click('Create');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -92,7 +101,7 @@ describe('ChatKnowledgeForm', () => {
     const row = knowledgeRow({ id: 'kn-7', source: WebsiteChatKnowledgeSource.Website });
     renderForm(row);
     expect(screen.getByText(WARNING)).toBeInTheDocument();
-    expect(screen.getByLabelText('Link (optional)')).toHaveValue(row.url);
+    expect(screen.getByLabelText(/^Link \(optional\)\s*\*?$/)).toHaveValue(row.url);
 
     await click('Update');
 

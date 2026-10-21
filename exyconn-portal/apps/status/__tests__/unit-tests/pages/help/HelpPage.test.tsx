@@ -31,8 +31,8 @@ describe('HelpPage', () => {
     const { raiseForm, checkForm } = renderHelp();
     expect(screen.getByRole('heading', { name: 'Get help' })).toBeInTheDocument();
     expect(screen.getByText('Follow a ticket')).toBeInTheDocument();
-    expect(within(raiseForm).getByLabelText('What is it about?')).toBeInTheDocument();
-    expect(within(checkForm).getByLabelText('Ticket reference')).toBeInTheDocument();
+    expect(within(raiseForm).getByLabelText(/^What is it about\?\s*\*?$/)).toBeInTheDocument();
+    expect(within(checkForm).getByLabelText(/^Ticket reference\s*\*?$/)).toBeInTheDocument();
   });
 
   it('hands over the reference once the ticket is raised, and comes back for another', async () => {
@@ -43,7 +43,7 @@ describe('HelpPage', () => {
     expect(screen.getByText(REFERENCE)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Ask about something else' }));
     expect(screen.getByText('Follow a ticket')).toBeInTheDocument();
-    expect(screen.getByLabelText('Your name')).toHaveValue('');
+    expect(screen.getByLabelText(/^Your name\s*\*?$/)).toHaveValue('');
   });
 
   it('goes back to the status page from the receipt', async () => {

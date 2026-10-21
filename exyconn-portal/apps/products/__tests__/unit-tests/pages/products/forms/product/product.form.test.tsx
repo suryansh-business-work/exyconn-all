@@ -104,8 +104,8 @@ describe('ProductForm', () => {
   it('edits without the opening stock and never sends a stock level', async () => {
     const { onDone } = renderForm(productRow({ id: 'product-1', reorderLevel: 8 }));
 
-    expect(screen.getByLabelText('Name')).toHaveValue('Widget');
-    expect(screen.queryByLabelText('Opening stock')).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^Name\s*\*?$/)).toHaveValue('Widget');
+    expect(screen.queryByLabelText(/^Opening stock\s*\*?$/)).not.toBeInTheDocument();
     await chooseOption('Status', 'Archived');
     await press('Update');
 

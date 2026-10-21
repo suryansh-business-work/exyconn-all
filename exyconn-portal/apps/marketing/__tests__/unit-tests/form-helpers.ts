@@ -2,9 +2,18 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 /** Types a whole value into the text field labelled `label`, as a paste would. */
 export function fill(label: string, value: string): void {
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 }
 
 /** Waits for a select's menu to finish closing, so the next select opens the only listbox. */

@@ -56,11 +56,11 @@ describe('EmployeeRequestForm', () => {
     const user = userEvent.setup();
     const { onDone } = renderForm();
 
-    await user.type(screen.getByRole('combobox', { name: 'Employee' }), 'Asha');
+    await user.type(screen.getByRole('combobox', { name: /^Employee\s*\*?$/ }), 'Asha');
     await user.click(await screen.findByRole('option', { name: 'Asha Rao (asha@example.com)' }));
     await choose(/^Type/, 'Travel');
-    await user.type(screen.getByLabelText('Subject'), ' Client visit ');
-    await user.type(screen.getByLabelText('Details'), 'Two days in Pune');
+    await user.type(screen.getByLabelText(/^Subject\s*\*?$/), ' Client visit ');
+    await user.type(screen.getByLabelText(/^Details\s*\*?$/), 'Two days in Pune');
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -89,10 +89,10 @@ describe('EmployeeRequestForm', () => {
   it('opens an existing request and records the decision on it', async () => {
     const { onDone } = renderForm(ROW);
 
-    expect(screen.getByLabelText('Decision note')).toHaveValue('Fine by me');
+    expect(screen.getByLabelText(/^Decision note\s*\*?$/)).toHaveValue('Fine by me');
     await choose(/^Status/, 'Rejected');
-    await userEvent.clear(screen.getByLabelText('Decision note'));
-    await userEvent.type(screen.getByLabelText('Decision note'), ' Team offsite that day ');
+    await userEvent.clear(screen.getByLabelText(/^Decision note\s*\*?$/));
+    await userEvent.type(screen.getByLabelText(/^Decision note\s*\*?$/), ' Team offsite that day ');
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -115,14 +115,14 @@ describe('EmployeeRequestForm', () => {
   it('opens a request with no decision note as an empty field', () => {
     renderForm({ ...ROW, decisionNote: null });
 
-    expect(screen.getByLabelText('Decision note')).toHaveValue('');
+    expect(screen.getByLabelText(/^Decision note\s*\*?$/)).toHaveValue('');
   });
 
   it('says which required fields are missing, treating spaces as empty', async () => {
     gql.users = undefined;
     renderForm();
 
-    await userEvent.type(screen.getByLabelText('Subject'), '   ');
+    await userEvent.type(screen.getByLabelText(/^Subject\s*\*?$/), '   ');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
 
     expect(await screen.findByText('Employee is required')).toBeInTheDocument();

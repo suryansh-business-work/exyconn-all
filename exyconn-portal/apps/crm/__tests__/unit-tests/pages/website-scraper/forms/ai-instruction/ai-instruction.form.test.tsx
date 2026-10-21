@@ -7,6 +7,15 @@ import {
 import { renderWithProviders } from '../../../../test-utils';
 import { fillField, press } from '../../../../form-helpers';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const LABEL = 'Instruction for the AI';
 
 function renderForm({ initialInstruction = '', busy = false } = {}) {
@@ -21,7 +30,7 @@ describe('AiInstructionForm', () => {
   it('starts from the default instruction for a page never sent to the AI', async () => {
     const onSubmit = renderForm();
 
-    expect(screen.getByLabelText(LABEL)).toHaveValue(DEFAULT_AI_INSTRUCTION);
+    expect(screen.getByLabelText(labelled(LABEL))).toHaveValue(DEFAULT_AI_INSTRUCTION);
     await press('Send to AI');
     expect(onSubmit).toHaveBeenCalledWith(DEFAULT_AI_INSTRUCTION);
   });
@@ -29,7 +38,7 @@ describe('AiInstructionForm', () => {
   it('starts from the last instruction sent for this page', () => {
     renderForm({ initialInstruction: 'List their prices' });
 
-    expect(screen.getByLabelText(LABEL)).toHaveValue('List their prices');
+    expect(screen.getByLabelText(labelled(LABEL))).toHaveValue('List their prices');
   });
 
   it('wants at least 3 characters', async () => {
@@ -64,6 +73,6 @@ describe('AiInstructionForm', () => {
     renderForm({ busy: true });
 
     expect(screen.getByRole('button', { name: 'Working…' })).toBeDisabled();
-    expect(screen.getByLabelText(LABEL)).toBeDisabled();
+    expect(screen.getByLabelText(labelled(LABEL))).toBeDisabled();
   });
 });

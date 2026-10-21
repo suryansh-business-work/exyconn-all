@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   RhfTextField,

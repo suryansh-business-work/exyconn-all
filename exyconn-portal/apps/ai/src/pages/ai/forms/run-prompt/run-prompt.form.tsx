@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfAutocomplete, RhfTextField } from '@exyconn/shell/components/form/rhf';

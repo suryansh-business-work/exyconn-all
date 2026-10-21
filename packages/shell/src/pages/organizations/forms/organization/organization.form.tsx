@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { EntityForm } from '@/components/form/EntityForm';
 import { useEntitySave } from '@/components/form/useEntitySave';
 import {

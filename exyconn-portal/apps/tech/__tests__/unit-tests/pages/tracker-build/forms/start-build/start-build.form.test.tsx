@@ -60,7 +60,7 @@ describe('StartBuildForm', () => {
 
   it('starts from the default branch and explains the phone builds', () => {
     renderForm();
-    expect(screen.getByLabelText('Branch')).toHaveValue('main');
+    expect(screen.getByLabelText(/^Branch\s*\*?$/)).toHaveValue('main');
     expect(screen.getByText(/Android produces an APK/)).toBeInTheDocument();
   });
 
@@ -73,7 +73,7 @@ describe('StartBuildForm', () => {
 
   it('requires a branch to build from', async () => {
     renderForm();
-    fireEvent.change(screen.getByLabelText('Branch'), { target: { value: '   ' } });
+    fireEvent.change(screen.getByLabelText(/^Branch\s*\*?$/), { target: { value: '   ' } });
     await clickStart();
     expect(await screen.findByText('Branch is required')).toBeInTheDocument();
   });
@@ -99,7 +99,7 @@ describe('StartBuildForm', () => {
   it('starts several installers off a chosen branch', async () => {
     renderForm();
     await pick('Windows — Installer (.exe)', 'Android — App package (.apk) + Play bundle (.aab)');
-    fireEvent.change(screen.getByLabelText('Branch'), { target: { value: ' staging ' } });
+    fireEvent.change(screen.getByLabelText(/^Branch\s*\*?$/), { target: { value: ' staging ' } });
     await clickStart();
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.start).toHaveBeenCalledWith({

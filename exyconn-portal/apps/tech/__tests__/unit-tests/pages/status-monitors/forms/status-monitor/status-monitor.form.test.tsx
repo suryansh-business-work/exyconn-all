@@ -6,6 +6,15 @@ import { StatusMonitorForm } from '../../../../../../src/pages/status-monitors/f
 import { renderWithProviders } from '../../../../test-utils';
 import { MONITOR } from './status-monitor.fixtures';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn(), notify: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -22,7 +31,7 @@ const onDone = vi.fn();
 const onCancel = vi.fn();
 
 const fill = (label: string, value: string) =>
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 
 const press = (name: string) => userEvent.click(screen.getByRole('button', { name }));
 
@@ -75,7 +84,7 @@ describe('StatusMonitorForm', () => {
     renderWithProviders(
       <StatusMonitorForm initial={MONITOR} onDone={onDone} onCancel={onCancel} />,
     );
-    expect(screen.getByLabelText('Service name')).toHaveValue('Tools API');
+    expect(screen.getByLabelText(/^Service name\s*\*?$/)).toHaveValue('Tools API');
     await userEvent.click(screen.getByRole('combobox', { name: /Category/ }));
     await userEvent.click(
       within(screen.getByRole('listbox')).getByRole('option', { name: 'Desktop App' }),

@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
-import { WorkflowForm, type WorkflowFormValues } from '../../../../../src/pages/workflows/forms/workflow';
+import {
+  WorkflowForm,
+  type WorkflowFormValues,
+} from '../../../../../src/pages/workflows/forms/workflow';
 import { renderWithProviders } from '../../../test-utils';
 import { fill, press } from '../../../helpers/form-helpers';
 
@@ -61,7 +64,7 @@ describe('WorkflowForm', () => {
   it('edits an existing workflow under its own wording', async () => {
     renderForm({ name: 'Bug triage', description: '' });
 
-    expect(screen.getByLabelText('Name')).toHaveValue('Bug triage');
+    expect(screen.getByLabelText(/^Name\s*\*?$/)).toHaveValue('Bug triage');
     await press('Save details');
     await press('Cancel');
 

@@ -39,8 +39,8 @@ function setup(patch: Partial<TeamReviewRow> = {}) {
   return { onCancel, onDone };
 }
 
-const assessment = () => screen.getByLabelText('Your assessment');
-const score = () => screen.getByLabelText('Score (optional)');
+const assessment = () => screen.getByLabelText(/^Your assessment\s*\*?$/);
+const score = () => screen.getByLabelText(/^Score \(optional\)\s*\*?$/);
 const submit = () => userEvent.click(screen.getByRole('button', { name: 'Submit assessment' }));
 
 beforeEach(() => {

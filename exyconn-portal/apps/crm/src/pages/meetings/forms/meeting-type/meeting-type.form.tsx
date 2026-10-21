@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { timezoneOptions } from '@exyconn/i18n';
 import { Divider } from '@exyconn/shell/components/ui';
 import { RhfAutocomplete, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';

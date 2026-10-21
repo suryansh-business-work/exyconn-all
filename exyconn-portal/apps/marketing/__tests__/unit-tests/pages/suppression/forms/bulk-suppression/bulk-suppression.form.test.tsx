@@ -135,7 +135,7 @@ describe('BulkSuppressionForm', () => {
     await userEvent.upload(fileInput, csv);
 
     await waitFor(() =>
-      expect(screen.getByLabelText('Addresses')).toHaveValue(
+      expect(screen.getByLabelText(/^Addresses\s*\*?$/)).toHaveValue(
         'name,email\nAda,ada@acme.io\nGrace,grace@navy.mil',
       ),
     );
@@ -156,7 +156,7 @@ describe('BulkSuppressionForm', () => {
 
     fireEvent.change(fileInput, { target: { files: [] } });
 
-    expect(screen.getByLabelText('Addresses')).toHaveValue('a@acme.io');
+    expect(screen.getByLabelText(/^Addresses\s*\*?$/)).toHaveValue('a@acme.io');
   });
 
   it('reports zero counts when the server answers without a result', async () => {

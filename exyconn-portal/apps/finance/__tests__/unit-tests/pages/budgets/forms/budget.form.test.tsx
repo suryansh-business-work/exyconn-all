@@ -18,7 +18,7 @@ const CENTRES = [
   { value: 'centre-2', label: 'MKT — Marketing' },
 ];
 
-const monthField = () => screen.getByLabelText('Month');
+const monthField = () => screen.getByLabelText(/^Month\s*\*?$/);
 
 describe('BudgetForm', () => {
   beforeEach(() => {
@@ -39,8 +39,10 @@ describe('BudgetForm', () => {
       within(screen.getByRole('listbox')).getByRole('option', { name: 'MKT — Marketing' }),
     );
     await userEvent.type(monthField(), '2026-04');
-    fireEvent.change(screen.getByLabelText('Budget amount'), { target: { value: '25000' } });
-    await userEvent.type(screen.getByLabelText('Note'), ' Launch ');
+    fireEvent.change(screen.getByLabelText(/^Budget amount\s*\*?$/), {
+      target: { value: '25000' },
+    });
+    await userEvent.type(screen.getByLabelText(/^Note\s*\*?$/), ' Launch ');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -99,7 +101,7 @@ describe('BudgetForm', () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText('Budget amount'), { target: { value: '-1' } });
+    fireEvent.change(screen.getByLabelText(/^Budget amount\s*\*?$/), { target: { value: '-1' } });
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
     expect(await screen.findByText('Must be ≥ 0')).toBeInTheDocument();

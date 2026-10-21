@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import SearchIcon from '@mui/icons-material/Search';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Stack } from '@exyconn/shell/components/ui';

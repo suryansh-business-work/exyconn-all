@@ -80,7 +80,7 @@ describe('OrganizationForm', () => {
 
   it('refuses a handle that is not URL-safe, or too long to file under', async () => {
     const { user } = mount();
-    const handle = screen.getByRole('textbox', { name: 'Handle' });
+    const handle = screen.getByRole('textbox', { name: /^Handle\s*\*?$/ });
     await user.type(handle, 'Acme Ltd!');
     await user.click(screen.getByRole('button', { name: 'Create' }));
     expect(await screen.findByText('Use lowercase letters, digits and dashes')).toBeInTheDocument();
@@ -92,8 +92,8 @@ describe('OrganizationForm', () => {
 
   it('refuses a malformed contact email and website, and an empty language', async () => {
     const { user } = mount();
-    await user.type(screen.getByRole('textbox', { name: 'Contact email' }), 'not-an-email');
-    await user.type(screen.getByRole('textbox', { name: 'Website' }), 'acme.example');
+    await user.type(screen.getByRole('textbox', { name: /^Contact email\s*\*?$/ }), 'not-an-email');
+    await user.type(screen.getByRole('textbox', { name: /^Website\s*\*?$/ }), 'acme.example');
     await user.clear(screen.getByRole('textbox', { name: /^Language/ }));
     await user.click(screen.getByRole('button', { name: 'Create' }));
     expect(await screen.findByText('Enter a valid email')).toBeInTheDocument();
@@ -119,9 +119,12 @@ describe('OrganizationForm', () => {
     hooks.invite.mockResolvedValue({ data: { inviteOrganizationMembers: [] } });
     const { user, onDone } = mount();
     await fillRequired(user);
-    await user.type(screen.getByRole('textbox', { name: 'Handle' }), 'fjord');
-    await user.type(screen.getByRole('textbox', { name: 'Website' }), 'https://fjord.example');
-    await user.type(screen.getByRole('textbox', { name: 'City' }), 'Bergen');
+    await user.type(screen.getByRole('textbox', { name: /^Handle\s*\*?$/ }), 'fjord');
+    await user.type(
+      screen.getByRole('textbox', { name: /^Website\s*\*?$/ }),
+      'https://fjord.example',
+    );
+    await user.type(screen.getByRole('textbox', { name: /^City\s*\*?$/ }), 'Bergen');
     await pick(user, /^Country/, 'Norway', 'Norway');
 
     await user.click(screen.getByRole('button', { name: 'Add a person' }));
@@ -184,12 +187,12 @@ describe('OrganizationForm', () => {
     hooks.update.mockResolvedValue({ data: { updateOrganization: organization() } });
     const row = organization();
     const { user, onDone } = mount(row);
-    const handle = screen.getByRole('textbox', { name: 'Handle' });
+    const handle = screen.getByRole('textbox', { name: /^Handle\s*\*?$/ });
     expect(handle).toHaveValue('acme');
     expect(handle).toBeDisabled();
     expect(screen.getByText(/Set when the company was created/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add a person' })).toBeNull();
-    expect(screen.getByRole('textbox', { name: 'City' })).toHaveValue('Oslo');
+    expect(screen.getByRole('textbox', { name: /^City\s*\*?$/ })).toHaveValue('Oslo');
 
     const name = screen.getByRole('textbox', { name: /^Company name/ });
     await user.clear(name);

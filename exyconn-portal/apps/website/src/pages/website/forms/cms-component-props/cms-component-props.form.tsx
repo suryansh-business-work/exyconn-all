@@ -1,5 +1,5 @@
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useT } from '@exyconn/i18n';
 import { ToggleButton, ToggleButtonGroup } from '@exyconn/shell/components/ui';
 import { RhfCodeEditor } from '@exyconn/shell/components/form/rhf';

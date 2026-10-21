@@ -2,7 +2,7 @@ import type { TypedDocumentNode } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useApolloClient } from '@apollo/client/react';
 import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Flex, Heading } from '@exyconn/shell/components/ui';

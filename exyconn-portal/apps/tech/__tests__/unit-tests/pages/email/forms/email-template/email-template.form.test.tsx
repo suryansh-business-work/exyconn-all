@@ -8,6 +8,15 @@ import {
 import { renderWithProviders } from '../../../../test-utils';
 import { notify, resetHarness } from '../../../environment-variables/panel.harness';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -63,7 +72,7 @@ describe('EmailTemplateForm', () => {
 
   it('keeps the key to lower-case letters, numbers and hyphens', async () => {
     renderForm(null);
-    await userEvent.type(screen.getByLabelText('Key'), 'Welcome Email');
+    await userEvent.type(screen.getByLabelText(/^Key\s*\*?$/), 'Welcome Email');
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
     expect(
       await screen.findByText('Lower-case letters, numbers and hyphens only'),
@@ -73,13 +82,13 @@ describe('EmailTemplateForm', () => {
   it('creates a template from trimmed values, active unless switched off', async () => {
     gql.create.mockResolvedValue({ data: {} });
     renderForm(null);
-    expect(screen.getByLabelText(ACTIVE)).toBeChecked();
-    await userEvent.type(screen.getByLabelText('Key'), 'welcome-email-v2');
-    await userEvent.type(screen.getByLabelText('Name'), ' Welcome ');
-    await userEvent.type(screen.getByLabelText('Description'), 'Sent on sign-up ');
-    await userEvent.type(screen.getByLabelText('Subject'), 'Hello there');
-    await userEvent.type(screen.getByLabelText('MJML'), '<mjml></mjml>');
-    await userEvent.click(screen.getByLabelText(ACTIVE));
+    expect(screen.getByLabelText(labelled(ACTIVE))).toBeChecked();
+    await userEvent.type(screen.getByLabelText(/^Key\s*\*?$/), 'welcome-email-v2');
+    await userEvent.type(screen.getByLabelText(/^Name\s*\*?$/), ' Welcome ');
+    await userEvent.type(screen.getByLabelText(/^Description\s*\*?$/), 'Sent on sign-up ');
+    await userEvent.type(screen.getByLabelText(/^Subject\s*\*?$/), 'Hello there');
+    await userEvent.type(screen.getByLabelText(/^MJML\s*\*?$/), '<mjml></mjml>');
+    await userEvent.click(screen.getByLabelText(labelled(ACTIVE)));
     await userEvent.click(screen.getByRole('button', { name: 'Create' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.create).toHaveBeenCalledWith({
@@ -105,9 +114,9 @@ describe('EmailTemplateForm', () => {
         'Code sends this template by its key. Renaming the key stops whatever sends it.',
       ),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Key')).toHaveValue('welcome');
-    await userEvent.clear(screen.getByLabelText('Subject'));
-    await userEvent.type(screen.getByLabelText('Subject'), 'Welcome to Exyconn');
+    expect(screen.getByLabelText(/^Key\s*\*?$/)).toHaveValue('welcome');
+    await userEvent.clear(screen.getByLabelText(/^Subject\s*\*?$/));
+    await userEvent.type(screen.getByLabelText(/^Subject\s*\*?$/), 'Welcome to Exyconn');
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.update).toHaveBeenCalledWith({

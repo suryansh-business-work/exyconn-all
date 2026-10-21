@@ -1,6 +1,6 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import {
   RhfTextField,

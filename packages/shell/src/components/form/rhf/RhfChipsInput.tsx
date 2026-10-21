@@ -1,11 +1,14 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useFieldCopy } from './useFieldCopy';
+import { useFieldMeta } from './useFieldMeta';
 import { Autocomplete, Chip, TextField } from '@/components/ui';
 
 interface RhfChipsInputProps {
   name: string;
   label: string;
   helperText?: string;
+  /** Marks the label with the required star; by default the schema decides. */
+  required?: boolean;
 }
 
 /**
@@ -13,8 +16,9 @@ interface RhfChipsInputProps {
  * and press Enter to add it. Unlike RhfMultiSelect there is no fixed option list, so
  * this is what open-ended lists (tags, skills, requirements, deliverables) use.
  */
-export function RhfChipsInput({ name, label, helperText }: Readonly<RhfChipsInputProps>) {
+export function RhfChipsInput({ name, label, helperText, required }: Readonly<RhfChipsInputProps>) {
   const { control } = useFormContext();
+  const meta = useFieldMeta(name, { required, helperText });
   const copy = useFieldCopy();
 
   return (
@@ -40,9 +44,10 @@ export function RhfChipsInput({ name, label, helperText }: Readonly<RhfChipsInpu
             <TextField
               {...params}
               label={copy(label)}
+              required={meta.required}
               error={Boolean(fieldState.error)}
               helperText={copy(
-                fieldState.error?.message ?? helperText ?? 'Type a value and press Enter',
+                fieldState.error?.message ?? meta.helperText ?? 'Type a value and press Enter',
               )}
             />
           )}

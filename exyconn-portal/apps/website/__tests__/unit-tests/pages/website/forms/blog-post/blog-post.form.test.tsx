@@ -123,8 +123,8 @@ describe('BlogPostForm', () => {
     const row = blogRow({ id: 'post-1', featured: true, tags: ['ai'] });
     const { onDone } = renderForm(row);
 
-    expect(screen.getByLabelText('Title')).toHaveValue('Scaling GraphQL');
-    expect(screen.getByLabelText('Author role')).toHaveValue('Engineer');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Scaling GraphQL');
+    expect(screen.getByLabelText(/^Author role\s*\*?$/)).toHaveValue('Engineer');
     await fillField('Title', 'Scaling GraphQL, again');
     await press('Update');
 

@@ -2,6 +2,7 @@ import { useController, useFormContext } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { RichTextEditor } from '@exyconn/rich-text';
 import { useImageKitUpload } from '@/hooks/useImageKitUpload';
+import { useFieldMeta } from './useFieldMeta';
 
 interface RhfRichTextProps {
   name: string;
@@ -32,6 +33,7 @@ export function RhfRichText({
   // This editor takes plain strings, so it translates them directly rather than as nodes.
   const t = useT();
   const { field, fieldState } = useController({ name, control });
+  const meta = useFieldMeta(name, { required, helperText });
   const uploadImage = useImageKitUpload(folder);
 
   return (
@@ -41,8 +43,8 @@ export function RhfRichText({
       onBlur={field.onBlur}
       uploadImage={uploadImage}
       label={t(label)}
-      required={required}
-      helperText={helperText ? t(helperText) : undefined}
+      required={meta.required}
+      helperText={meta.helperText ? t(meta.helperText) : undefined}
       error={fieldState.error?.message ? t(fieldState.error.message) : undefined}
       placeholder={placeholder}
       minHeight={minHeight}

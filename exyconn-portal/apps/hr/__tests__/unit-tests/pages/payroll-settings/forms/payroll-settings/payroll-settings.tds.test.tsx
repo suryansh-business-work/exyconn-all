@@ -49,7 +49,7 @@ describe('PayrollSettingsForm income tax', () => {
   it('asks for nothing more while income tax is not withheld', () => {
     renderForm(payrollSettings({ tdsMode: TdsMode.None }));
 
-    expect(screen.queryByLabelText('Company TDS rate (%)')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Company TDS rate \(%\)\s*\*?$/)).not.toBeInTheDocument();
     expect(screen.queryByText('Tax bands')).not.toBeInTheDocument();
   });
 
@@ -58,7 +58,7 @@ describe('PayrollSettingsForm income tax', () => {
 
     await chooseMode('A flat percentage of taxable pay');
 
-    expect(screen.getByLabelText('Company TDS rate (%)')).toHaveValue(10);
+    expect(screen.getByLabelText(/^Company TDS rate \(%\)\s*\*?$/)).toHaveValue(10);
     expect(screen.queryByText('Tax bands')).not.toBeInTheDocument();
     expect((await savedInput()).tdsMode).toBe(TdsMode.FlatPercent);
   });
@@ -68,11 +68,11 @@ describe('PayrollSettingsForm income tax', () => {
 
     await chooseMode('Tax bands (with a per-employee rate taking precedence)');
 
-    expect(screen.queryByLabelText('Company TDS rate (%)')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Company TDS rate \(%\)\s*\*?$/)).not.toBeInTheDocument();
     expect(screen.getByText('Tax bands')).toBeInTheDocument();
-    expect(screen.getByLabelText('Annual exemption')).toHaveValue(50000);
-    expect(screen.getByLabelText('Cess (%)')).toHaveValue(4);
-    expect(screen.getByLabelText('Financial year starts in month')).toHaveValue(4);
+    expect(screen.getByLabelText(/^Annual exemption\s*\*?$/)).toHaveValue(50000);
+    expect(screen.getByLabelText(/^Cess \(%\)\s*\*?$/)).toHaveValue(4);
+    expect(screen.getByLabelText(/^Financial year starts in month\s*\*?$/)).toHaveValue(4);
     expect(screen.getByRole('combobox', { name: /^Regime/ })).toHaveTextContent('New regime');
   });
 
@@ -105,13 +105,15 @@ describe('PayrollSettingsForm income tax', () => {
   it('lists each band, marking the last one as open-ended', () => {
     renderForm();
 
-    const upTo = screen.getAllByLabelText('Up to (annual)');
+    const upTo = screen.getAllByLabelText(/^Up to \(annual\)\s*\*?$/);
     expect(upTo).toHaveLength(2);
     expect(upTo[0]).toHaveValue(300000);
     expect(upTo[1]).toHaveValue(null);
     expect(screen.getAllByText('Empty = everything above')).toHaveLength(1);
     expect(
-      screen.getAllByLabelText('Rate (%)').map((input) => (input as HTMLInputElement).value),
+      screen
+        .getAllByLabelText(/^Rate \(%\)\s*\*?$/)
+        .map((input) => (input as HTMLInputElement).value),
     ).toEqual(['0', '5']);
   });
 
@@ -120,7 +122,7 @@ describe('PayrollSettingsForm income tax', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add band' }));
 
-    expect(screen.getAllByLabelText('Up to (annual)')).toHaveLength(3);
+    expect(screen.getAllByLabelText(/^Up to \(annual\)\s*\*?$/)).toHaveLength(3);
     expect((await savedInput()).tdsSlabs).toEqual([
       { upTo: 300000, percent: 0 },
       { upTo: null, percent: 5 },
@@ -140,9 +142,9 @@ describe('PayrollSettingsForm income tax', () => {
   it('refuses a negative band limit or a band rate over 100%', async () => {
     renderForm();
 
-    await userEvent.clear(screen.getAllByLabelText('Up to (annual)')[0]);
+    await userEvent.clear(screen.getAllByLabelText(/^Up to \(annual\)\s*\*?$/)[0]);
     await userEvent.paste('-1');
-    await userEvent.clear(screen.getAllByLabelText('Rate (%)')[1]);
+    await userEvent.clear(screen.getAllByLabelText(/^Rate \(%\)\s*\*?$/)[1]);
     await userEvent.paste('120');
     await userEvent.click(screen.getByRole('button', { name: 'Save deductions' }));
 

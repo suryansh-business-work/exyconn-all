@@ -11,6 +11,15 @@ import { renderWithProviders } from '../../../../../test-utils';
 import { click, fill, pickOption } from '../../../../../form.helpers';
 import { slaPolicyRow } from '../../../../../fixtures';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -39,9 +48,9 @@ describe('SlaPolicyForm', () => {
   it('opens a new policy at Medium: four hours to answer, a day to finish, active', () => {
     renderForm();
     expect(screen.getByRole('combobox', { name: /^Priority/ })).toHaveTextContent('Medium');
-    expect(screen.getByLabelText(FIRST)).toHaveValue(240);
-    expect(screen.getByLabelText(RESOLUTION)).toHaveValue(1440);
-    expect(screen.getByLabelText('Active')).toBeChecked();
+    expect(screen.getByLabelText(labelled(FIRST))).toHaveValue(240);
+    expect(screen.getByLabelText(labelled(RESOLUTION))).toHaveValue(1440);
+    expect(screen.getByLabelText(/^Active\s*\*?$/)).toBeChecked();
     expect(
       screen.getByText('How long a ticket may wait before somebody answers it.'),
     ).toBeInTheDocument();
@@ -52,7 +61,7 @@ describe('SlaPolicyForm', () => {
     await pickOption(/^Priority/, 'High');
     fill(FIRST, '30');
     fill(RESOLUTION, '480');
-    await userEvent.click(screen.getByLabelText('Active'));
+    await userEvent.click(screen.getByLabelText(/^Active\s*\*?$/));
     await click('Create');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -114,7 +123,7 @@ describe('SlaPolicyForm', () => {
   it('saves an existing policy back onto itself', async () => {
     renderForm(slaPolicyRow());
     expect(screen.getByRole('combobox', { name: /^Priority/ })).toHaveTextContent('High');
-    expect(screen.getByLabelText(FIRST)).toHaveValue(60);
+    expect(screen.getByLabelText(labelled(FIRST))).toHaveValue(60);
     await click('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

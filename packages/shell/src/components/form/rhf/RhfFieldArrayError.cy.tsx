@@ -1,5 +1,5 @@
 import { useFieldArray, useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { Button, Flex } from '@/components/ui';
 import { RhfFieldArrayError, RhfTextField } from './index';

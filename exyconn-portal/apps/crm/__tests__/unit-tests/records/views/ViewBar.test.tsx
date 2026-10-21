@@ -26,7 +26,13 @@ vi.mock('@exyconn/shell/logging/portalLogger', () => ({
 
 const MINE = crmView();
 const SHARED_MINE = crmView({ id: 'view-2', name: 'Team pipeline', shared: true });
-const THEIRS = crmView({ id: 'view-3', name: 'Ravi’s list', mine: false, shared: true, ownerName: 'Ravi' });
+const THEIRS = crmView({
+  id: 'view-3',
+  name: 'Ravi’s list',
+  mine: false,
+  shared: true,
+  ownerName: 'Ravi',
+});
 const ALL = [MINE, SHARED_MINE, THEIRS];
 
 function listOf(overrides: Partial<RecordQuery> = {}) {
@@ -60,8 +66,15 @@ describe('ViewBar', () => {
     const list = renderBar(listOf());
     const group = screen.getByRole('group', { name: 'Saved views' });
     const chips = within(group).getAllByRole('button', { pressed: false });
-    expect(within(group).getByRole('button', { name: 'All leads' })).toHaveAttribute('aria-pressed', 'true');
-    expect(chips.map((chip) => chip.textContent)).toEqual(['Hot leads', 'Team pipeline', 'Ravi’s list']);
+    expect(within(group).getByRole('button', { name: 'All leads' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(chips.map((chip) => chip.textContent)).toEqual([
+      'Hot leads',
+      'Team pipeline',
+      'Ravi’s list',
+    ]);
     expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Options for view/ })).not.toBeInTheDocument();
 
@@ -102,7 +115,9 @@ describe('ViewBar', () => {
     actions.saveOver.mockRejectedValue(failure);
     renderBar(listOf({ selectedView: MINE, viewId: 'view-1', dirty: true }));
     await userEvent.click(screen.getByRole('button', { name: 'Save view' }));
-    await waitFor(() => expect(actions.logError).toHaveBeenCalledWith('Saving a view failed', failure));
+    await waitFor(() =>
+      expect(actions.logError).toHaveBeenCalledWith('Saving a view failed', failure),
+    );
   });
 
   it('saves changes to someone else’s view as a new view', async () => {
@@ -112,10 +127,12 @@ describe('ViewBar', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Save as new view' });
     expect(actions.saveOver).not.toHaveBeenCalled();
 
-    await userEvent.type(within(dialog).getByLabelText('View name'), 'My copy');
+    await userEvent.type(within(dialog).getByLabelText(/^View name\s*\*?$/), 'My copy');
     await userEvent.click(within(dialog).getByRole('switch', { name: 'Share with the team' }));
     await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
-    await waitFor(() => expect(actions.saveAsNew).toHaveBeenCalledWith({ name: 'My copy', shared: true }));
+    await waitFor(() =>
+      expect(actions.saveAsNew).toHaveBeenCalledWith({ name: 'My copy', shared: true }),
+    );
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
@@ -124,11 +141,13 @@ describe('ViewBar', () => {
     renderBar(listOf());
     await userEvent.click(screen.getByRole('button', { name: 'Save as new view' }));
     const dialog = await screen.findByRole('dialog', { name: 'Save as new view' });
-    expect(within(dialog).getByText('Up to 60 characters, e.g. Hot leads this month')).toBeInTheDocument();
+    expect(
+      within(dialog).getByText('Up to 60 characters, e.g. Hot leads this month'),
+    ).toBeInTheDocument();
     await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
     expect(await within(dialog).findByText('Give the view a name')).toBeInTheDocument();
 
-    await userEvent.type(within(dialog).getByLabelText('View name'), 'Kept');
+    await userEvent.type(within(dialog).getByLabelText(/^View name\s*\*?$/), 'Kept');
     await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(actions.saveAsNew).toHaveBeenCalled());
     expect(screen.getByRole('dialog', { name: 'Save as new view' })).toBeInTheDocument();
@@ -145,9 +164,9 @@ describe('ViewBar', () => {
   });
 
   it('caps a view name at 60 characters', () => {
-    expect(saveViewSchema.safeParse({ name: 'x'.repeat(61), shared: false }).error?.issues[0].message).toBe(
-      'A view name is at most 60 characters',
-    );
+    expect(
+      saveViewSchema.safeParse({ name: 'x'.repeat(61), shared: false }).error?.issues[0].message,
+    ).toBe('A view name is at most 60 characters');
   });
 });
 
@@ -169,13 +188,16 @@ describe('ViewMenu', () => {
     const menu = await openMenu();
     await userEvent.click(within(menu).getByRole('menuitem', { name: 'Rename' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit view' });
-    const name = within(dialog).getByLabelText('View name');
+    const name = within(dialog).getByLabelText(/^View name\s*\*?$/);
     expect(name).toHaveValue('Hot leads');
     await userEvent.clear(name);
     await userEvent.type(name, 'Hotter leads');
     await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
     await waitFor(() =>
-      expect(actions.changeDetails).toHaveBeenCalledWith(MINE, { name: 'Hotter leads', shared: false }),
+      expect(actions.changeDetails).toHaveBeenCalledWith(MINE, {
+        name: 'Hotter leads',
+        shared: false,
+      }),
     );
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
@@ -214,15 +236,16 @@ describe('ViewMenu', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Options for view Hot leads' }));
     menu = await screen.findByRole('menu');
     await userEvent.click(within(menu).getByRole('menuitem', { name: 'Delete' }));
-    await waitFor(() => expect(actions.logError).toHaveBeenCalledWith('Deleting a view failed', failure));
+    await waitFor(() =>
+      expect(actions.logError).toHaveBeenCalledWith('Deleting a view failed', failure),
+    );
   });
 
   it('closes on Escape without doing anything', async () => {
     await openMenu();
-    expect(screen.getByRole('button', { name: 'Options for view Hot leads', hidden: true })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    );
+    expect(
+      screen.getByRole('button', { name: 'Options for view Hot leads', hidden: true }),
+    ).toHaveAttribute('aria-expanded', 'true');
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     expect(actions.changeDetails).not.toHaveBeenCalled();

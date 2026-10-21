@@ -54,7 +54,7 @@ describe('FirecrawlConfigForm', () => {
 
   it('starts on the hosted API and needs a label and a key for it', async () => {
     renderForm();
-    expect(screen.getByLabelText('Base URL')).toHaveValue(HOSTED);
+    expect(screen.getByLabelText(/^Base URL\s*\*?$/)).toHaveValue(HOSTED);
     expect(screen.getByText(/Leave empty for a self-hosted Firecrawl/)).toBeInTheDocument();
     await press('Create');
     await expectMessages(
@@ -111,7 +111,7 @@ describe('FirecrawlConfigForm', () => {
 
   it('keeps the stored key when an edit of the hosted API leaves it blank', async () => {
     renderForm(stored({ baseUrl: HOSTED, hasApiKey: true, apiKeyHint: 'Ab12' }));
-    expect(screen.getByLabelText('Base URL')).toHaveValue(HOSTED);
+    expect(screen.getByLabelText(/^Base URL\s*\*?$/)).toHaveValue(HOSTED);
     expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
     await press('Update');
     await doneOnce(cb.onDone);

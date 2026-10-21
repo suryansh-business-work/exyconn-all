@@ -55,7 +55,7 @@ describe('ScrapeUrlForm', () => {
   it('starts from the prefilled address but waits for the person to submit it', async () => {
     const onScrape = renderForm({ initialUrl: 'https://acme.com/about' });
 
-    expect(screen.getByLabelText('Website')).toHaveValue('https://acme.com/about');
+    expect(screen.getByLabelText(/^Website\s*\*?$/)).toHaveValue('https://acme.com/about');
     expect(onScrape).not.toHaveBeenCalled();
 
     await press('Scrape');
@@ -66,6 +66,6 @@ describe('ScrapeUrlForm', () => {
     renderForm({ scraping: true });
 
     expect(screen.getByRole('button', { name: 'Scraping…' })).toBeDisabled();
-    expect(screen.getByLabelText('Website')).toBeDisabled();
+    expect(screen.getByLabelText(/^Website\s*\*?$/)).toBeDisabled();
   });
 });

@@ -91,7 +91,7 @@ describe('ChangeForm', () => {
 
   it('saves an edit onto the change', async () => {
     renderForm(changeRow());
-    expect(screen.getByLabelText('Title')).toHaveValue('Upgrade Mongo');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Upgrade Mongo');
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

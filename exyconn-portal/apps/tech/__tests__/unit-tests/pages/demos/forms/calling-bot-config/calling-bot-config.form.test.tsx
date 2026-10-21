@@ -88,16 +88,16 @@ describe('CallingBotConfigForm — a new config', () => {
 
   it('starts from a fast model, Hindi and the free-tier voice, browser calls only', () => {
     renderForm();
-    expect(screen.getByLabelText('OpenAI model')).toHaveValue('gpt-4o-mini');
+    expect(screen.getByLabelText(/^OpenAI model\s*\*?$/)).toHaveValue('gpt-4o-mini');
     expect(screen.getByRole('combobox', { name: /^Language/ })).toHaveTextContent('Hindi');
     expect(screen.getByRole('combobox', { name: /^Voice model/ })).toHaveTextContent('bulbul:v2');
     expect(screen.getByRole('combobox', { name: VOICE })).toHaveTextContent('anushka');
-    expect(screen.getByLabelText('Longest call (seconds)')).toHaveValue(300);
+    expect(screen.getByLabelText(/^Longest call \(seconds\)\s*\*?$/)).toHaveValue(300);
     expect(screen.getByRole('combobox', { name: PROVIDER })).toHaveTextContent(
       'No phone calls (browser call only)',
     );
-    expect(screen.queryByLabelText('Vobiz Auth ID')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Twilio Account SID')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Vobiz Auth ID\s*\*?$/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Twilio Account SID\s*\*?$/)).not.toBeInTheDocument();
   });
 
   it('says what is missing instead of saving', async () => {
@@ -164,7 +164,7 @@ describe('CallingBotConfigForm — a new config', () => {
     renderForm();
     fill('Sarvam AI key', SARVAM);
     await press('Show Sarvam AI key');
-    expect(screen.getByLabelText('Sarvam AI key')).toHaveAttribute('type', 'text');
+    expect(screen.getByLabelText(/^Sarvam AI key\s*\*?$/)).toHaveAttribute('type', 'text');
     expect(gql.reveal).not.toHaveBeenCalled();
   });
 
@@ -204,7 +204,7 @@ describe('CallingBotConfigForm — a new config', () => {
     renderForm();
     await pickOption(PROVIDER, 'Twilio');
     expect(screen.getByRole('link', { name: 'console.twilio.com' })).toBeInTheDocument();
-    expect(screen.queryByLabelText('Vobiz Auth ID')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Vobiz Auth ID\s*\*?$/)).not.toBeInTheDocument();
     fill('Twilio Account SID', 'AC123');
     fill('Calling number', '4155550100');
     fillRequired();
@@ -231,8 +231,8 @@ describe('CallingBotConfigForm — editing a saved config', () => {
   it('folds the key guide away and keeps the saved keys when left blank', async () => {
     renderForm(configRow({ isActive: false }));
     expect(guide()).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByLabelText('Label')).toHaveValue('Clinic bot');
-    expect(screen.getByLabelText('Sarvam AI key')).toHaveValue('');
+    expect(screen.getByLabelText(/^Label\s*\*?$/)).toHaveValue('Clinic bot');
+    expect(screen.getByLabelText(/^Sarvam AI key\s*\*?$/)).toHaveValue('');
     expect(screen.getByRole('combobox', { name: /^Set as active/ })).toHaveTextContent('No');
     fill('Greeting', 'Hello from Smile Dental');
     await press('Update');
@@ -256,7 +256,9 @@ describe('CallingBotConfigForm — editing a saved config', () => {
     gql.reveal.mockResolvedValue({ data: { revealCallingBotSecret: 'saved-sarvam' } });
     renderForm(configRow());
     await press('Show Sarvam AI key');
-    await waitFor(() => expect(screen.getByLabelText('Sarvam AI key')).toHaveValue('saved-sarvam'));
+    await waitFor(() =>
+      expect(screen.getByLabelText(/^Sarvam AI key\s*\*?$/)).toHaveValue('saved-sarvam'),
+    );
     expect(gql.reveal).toHaveBeenCalledWith({
       variables: { id: 'cfg-1', secret: CallingBotSecret.SarvamApiKey },
     });
@@ -284,7 +286,7 @@ describe('CallingBotConfigForm — editing a saved config', () => {
     );
     await press('Show Twilio Auth Token');
     await waitFor(() =>
-      expect(screen.getByLabelText('Twilio Auth Token')).toHaveValue('saved-twilio'),
+      expect(screen.getByLabelText(/^Twilio Auth Token\s*\*?$/)).toHaveValue('saved-twilio'),
     );
     expect(gql.reveal).toHaveBeenCalledWith({
       variables: { id: 'cfg-1', secret: CallingBotSecret.TwilioAuthToken },

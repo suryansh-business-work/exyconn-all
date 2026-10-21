@@ -14,8 +14,21 @@ import tseslint from "typescript-eslint";
  * design system's own sources.
  */
 
-/** The `no-restricted-imports` option object that blocks direct MUI usage. */
-export function muiGuard(uiImport = "@exyconn/ui") {
+/** The shell's form resolver, which lets each field star and hint itself from the schema. */
+export const SHELL_ZOD_RESOLVER = "src/components/form/zodResolver.ts";
+
+const formsPath = {
+  name: "@hookform/resolvers/zod",
+  importNames: ["zodResolver"],
+  message:
+    "Use zodResolver from @exyconn/shell/components/form/zodResolver, so every field shows its required star and hint from the schema.",
+};
+
+/**
+ * The `no-restricted-imports` option object that blocks direct MUI usage — and, with
+ * `shellForms`, the bare Zod resolver in favour of the shell's.
+ */
+export function muiGuard(uiImport = "@exyconn/ui", shellForms = false) {
   const message = `Import MUI components from "${uiImport}" instead.`;
   const stylesMessage = `Import styling utilities from "${uiImport}/styles" instead.`;
   return {
@@ -28,6 +41,7 @@ export function muiGuard(uiImport = "@exyconn/ui") {
         name: "@mui/x-date-pickers",
         message: `Import MUIX pickers from "${uiImport}/pickers" instead.`,
       },
+      ...(shellForms ? [formsPath] : []),
     ],
     patterns: [
       { group: ["@mui/material/*"], message },
@@ -125,9 +139,19 @@ export function portalEslintConfig({
   uiImport = "@exyconn/ui",
   muiAllowed = [],
   platform = "web",
+  shellForms = false,
 } = {}) {
   const exemptions = muiAllowed.length
     ? [{ files: muiAllowed, rules: { "no-restricted-imports": "off" } }]
+    : [];
+  // The shell's own resolver is the one file that wraps the bare one.
+  const resolverHome = shellForms
+    ? [
+        {
+          files: [SHELL_ZOD_RESOLVER],
+          rules: { "no-restricted-imports": ["error", muiGuard(uiImport)] },
+        },
+      ]
     : [];
   return defineConfig([
     { ignores: ["dist/**", "node_modules/**", "src/graphql/generated/**"] },
@@ -146,10 +170,11 @@ export function portalEslintConfig({
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "warn",
         // Everything goes through the design system.
-        "no-restricted-imports": ["error", muiGuard(uiImport)],
+        "no-restricted-imports": ["error", muiGuard(uiImport, shellForms)],
       },
     },
     ...exemptions,
+    ...resolverHome,
     platform === "native" ? nativeA11y : webA11y,
   ]);
 }

@@ -2,16 +2,25 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 /** Types into the text field labelled `label`, replacing what was there. */
 export async function fillField(label: string, text: string): Promise<void> {
-  const field = screen.getByLabelText(label);
+  const field = screen.getByLabelText(labelled(label));
   await userEvent.clear(field);
   await userEvent.type(field, text);
 }
 
 /** Sets a number field the way a browser reports it: the raw text of the input. */
 export function setNumber(label: string, value: string): void {
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 }
 
 /** Opens the select labelled `label` and picks the option with the visible text `option`. */

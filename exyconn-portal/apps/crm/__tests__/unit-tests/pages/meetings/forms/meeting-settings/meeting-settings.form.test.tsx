@@ -142,7 +142,7 @@ describe('MeetingSettingsForm', () => {
 
     await press('Cancel');
 
-    expect(screen.getByLabelText('Booking page address')).toHaveValue('team');
+    expect(screen.getByLabelText(/^Booking page address\s*\*?$/)).toHaveValue('team');
     expect(screen.queryByText(/stops the old link working/)).not.toBeInTheDocument();
   });
 });

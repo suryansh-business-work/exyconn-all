@@ -19,7 +19,7 @@ function renderForm() {
   return userEvent.setup();
 }
 
-const replyField = () => screen.getByLabelText('Your reply');
+const replyField = () => screen.getByLabelText(/^Your reply\s*\*?$/);
 const sendButton = () => screen.getByRole('button', { name: 'Send reply' });
 
 describe('TicketReplyForm', () => {

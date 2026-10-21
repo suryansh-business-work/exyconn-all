@@ -53,7 +53,7 @@ describe('EmailVerifierConfigForm', () => {
 
   it('starts on the SOCKS5 port and asks only for a label', async () => {
     renderForm();
-    expect(screen.getByLabelText('Proxy port')).toHaveValue(1080);
+    expect(screen.getByLabelText(/^Proxy port\s*\*?$/)).toHaveValue(1080);
     expect(screen.getByText('Only if the proxy asks for one')).toBeInTheDocument();
     await press('Create');
     await expectMessages('Label is required');
@@ -119,9 +119,9 @@ describe('EmailVerifierConfigForm', () => {
 
   it('keeps the stored password when an edit leaves it blank', async () => {
     renderForm(stored());
-    expect(screen.getByLabelText('SOCKS5 proxy host')).toHaveValue('proxy.example.com');
-    expect(screen.getByLabelText('Proxy port')).toHaveValue(9050);
-    expect(screen.getByLabelText('Proxy username')).toHaveValue('checker');
+    expect(screen.getByLabelText(/^SOCKS5 proxy host\s*\*?$/)).toHaveValue('proxy.example.com');
+    expect(screen.getByLabelText(/^Proxy port\s*\*?$/)).toHaveValue(9050);
+    expect(screen.getByLabelText(/^Proxy username\s*\*?$/)).toHaveValue('checker');
     expect(
       screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
     ).toBeInTheDocument();

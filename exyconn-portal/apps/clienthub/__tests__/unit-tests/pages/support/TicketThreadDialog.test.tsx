@@ -76,14 +76,14 @@ describe('TicketThreadDialog', () => {
     renderWithProviders(<TicketThreadDialog ticket={TICKET} onClose={vi.fn()} />);
     expect(screen.getByText(TICKET.description)).toBeInTheDocument();
     expect(screen.queryByText(REPLY.body)).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Your reply')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Your reply\s*\*?$/)).toBeInTheDocument();
   });
 
   it('reloads the thread once the client has replied', async () => {
     reply.mockResolvedValue({ data: { clientHubReplyToTicket: REPLY } });
     const user = userEvent.setup();
     renderWithProviders(<TicketThreadDialog ticket={TICKET} onClose={vi.fn()} />);
-    await user.type(screen.getByLabelText('Your reply'), 'Thank you!');
+    await user.type(screen.getByLabelText(/^Your reply\s*\*?$/), 'Thank you!');
     await user.click(screen.getByRole('button', { name: 'Send reply' }));
     await waitFor(() => expect(refetch).toHaveBeenCalledTimes(1));
     expect(reply).toHaveBeenCalledWith({ variables: { ticketId: 't-1', body: 'Thank you!' } });

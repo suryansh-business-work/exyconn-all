@@ -3,7 +3,7 @@ import { fireEvent, render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { I18nProvider } from '@exyconn/i18n';
 import { RhfAutocomplete, RhfCurrencyField, useCompanyCurrency } from '@/components/form/rhf';
 import { renderWithProviders } from '../../../test-utils';

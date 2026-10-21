@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { currencyField } from '@exyconn/shell/utils/currencyField';
 import {

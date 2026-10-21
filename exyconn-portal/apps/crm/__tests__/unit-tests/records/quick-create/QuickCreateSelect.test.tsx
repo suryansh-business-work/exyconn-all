@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { QuickCreateSelect, type CreatedRecord } from '../../../../src/records/quick-create';
@@ -73,11 +73,11 @@ describe('QuickCreateSelect', () => {
     expect(screen.getByText('Who it is for')).toBeInTheDocument();
 
     const list = await openList();
-    expect(within(list).getAllByRole('option').map((option) => option.textContent)).toEqual([
-      'Create Company',
-      'None',
-      'Acme',
-    ]);
+    expect(
+      within(list)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Create Company', 'None', 'Acme']);
     await userEvent.click(within(list).getByRole('option', { name: 'Acme' }));
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
     await waitFor(() => expect(watch).toHaveBeenCalledWith({ companyId: 'c-1' }));

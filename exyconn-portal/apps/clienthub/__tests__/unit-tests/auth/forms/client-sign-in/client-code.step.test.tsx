@@ -28,7 +28,7 @@ function renderStep() {
   return userEvent.setup();
 }
 
-const codeField = () => screen.getByLabelText('Code from the email');
+const codeField = () => screen.getByLabelText(/^Code from the email\s*\*?$/);
 const signInButton = () => screen.getByRole('button', { name: 'Sign in' });
 
 describe('ClientCodeStep', () => {

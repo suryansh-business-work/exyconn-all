@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import type { Edge } from '@xyflow/react';
 import { WorkflowNodeKind } from '@exyconn/shell/graphql/generated';
 import { WorkflowInspector } from '../../../../../src/pages/workflows/editor/WorkflowInspector';
@@ -35,11 +34,16 @@ describe('WorkflowInspector', () => {
   });
 
   it('names the selected box with its kind and renames it', async () => {
-    renderInspector(flowNode('n-1', WorkflowNodeKind.Decision, { data: { kind: WorkflowNodeKind.Decision, label: 'Is it a bug?' } }), null);
+    renderInspector(
+      flowNode('n-1', WorkflowNodeKind.Decision, {
+        data: { kind: WorkflowNodeKind.Decision, label: 'Is it a bug?' },
+      }),
+      null,
+    );
 
     expect(screen.getByRole('heading', { name: 'Decision' })).toBeInTheDocument();
     expect(screen.getByText('A fork. Label each way out with its answer.')).toBeInTheDocument();
-    expect(screen.getByLabelText('Step name')).toHaveValue('Is it a bug?');
+    expect(screen.getByLabelText(/^Step name\s*\*?$/)).toHaveValue('Is it a bug?');
 
     fill('Step name', 'Reproducible?');
     await press('Apply');
@@ -60,15 +64,15 @@ describe('WorkflowInspector', () => {
   it('prefers the box when both a box and an arrow are selected', () => {
     renderInspector(flowNode('n-1'), flowEdge('e-1', 'a', 'b', 'Yes'));
 
-    expect(screen.getByLabelText('Step name')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Connection label')).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^Step name\s*\*?$/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Connection label\s*\*?$/)).not.toBeInTheDocument();
   });
 
   it('labels the selected arrow, starting from its words', async () => {
     renderInspector(null, flowEdge('e-1', 'a', 'b', 'Yes'));
 
     expect(screen.getByRole('heading', { name: 'Connection' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Connection label')).toHaveValue('Yes');
+    expect(screen.getByLabelText(/^Connection label\s*\*?$/)).toHaveValue('Yes');
 
     fill('Connection label', 'Approved');
     await press('Apply');
@@ -81,6 +85,6 @@ describe('WorkflowInspector', () => {
   it('starts an arrow whose label is not text from blank', () => {
     renderInspector(null, flowEdge('e-1', 'a', 'b'));
 
-    expect(screen.getByLabelText('Connection label')).toHaveValue('');
+    expect(screen.getByLabelText(/^Connection label\s*\*?$/)).toHaveValue('');
   });
 });

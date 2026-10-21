@@ -8,6 +8,15 @@ import {
 import { renderWithProviders } from '../../../../test-utils';
 import { REGIMES, payrollSettings } from '../../payroll-settings-fixture';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ save: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -29,7 +38,7 @@ function renderForm(initial: PayrollSettingsRow = payrollSettings()) {
 
 /** Replaces a number field's value in one go, so a "-" or "1." is never typed half-way. */
 async function retype(label: string, value: string) {
-  await userEvent.clear(screen.getByLabelText(label));
+  await userEvent.clear(screen.getByLabelText(labelled(label)));
   await userEvent.paste(value);
 }
 

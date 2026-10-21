@@ -37,7 +37,7 @@ const ROW: AiJobRow = {
   totalTokens: 0,
 };
 
-const model = () => screen.getByRole('combobox', { name: 'Model' });
+const model = () => screen.getByRole('combobox', { name: /^Model\s*\*?$/ });
 
 function renderForm(initial: AiJobRow | null = null) {
   const onDone = vi.fn();
@@ -59,8 +59,8 @@ describe('AiJobForm', () => {
     gql.createAiJob.mockResolvedValue({ data: { createAiJob: { id: 'job-2' } } });
     const { onDone } = renderForm();
     await waitFor(() => expect(model()).toHaveValue('gpt-4o'));
-    await user.type(screen.getByLabelText('Job name'), '  Digest  ');
-    await user.type(screen.getByLabelText('Prompt'), ' Summarise the week ');
+    await user.type(screen.getByLabelText(/^Job name\s*\*?$/), '  Digest  ');
+    await user.type(screen.getByLabelText(/^Prompt\s*\*?$/), ' Summarise the week ');
     await user.click(screen.getByRole('button', { name: 'Create' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.createAiJob).toHaveBeenCalledWith({
@@ -73,7 +73,7 @@ describe('AiJobForm', () => {
     const user = userEvent.setup();
     gql.models = { ...gql.models, defaultModel: '' };
     renderForm();
-    await user.type(screen.getByLabelText('Prompt'), 'ab');
+    await user.type(screen.getByLabelText(/^Prompt\s*\*?$/), 'ab');
     await user.click(screen.getByRole('button', { name: 'Create' }));
     expect(await screen.findByText('Name is required')).toBeInTheDocument();
     expect(screen.getByText('Pick the model to run this on')).toBeInTheDocument();
@@ -86,8 +86,8 @@ describe('AiJobForm', () => {
     gql.updateAiJob.mockResolvedValue({ data: { updateAiJob: { id: 'job-1' } } });
     const { onDone } = renderForm(ROW);
     expect(model()).toHaveValue('gpt-4o-mini');
-    await user.clear(screen.getByLabelText('Job name'));
-    await user.type(screen.getByLabelText('Job name'), 'Monday digest');
+    await user.clear(screen.getByLabelText(/^Job name\s*\*?$/));
+    await user.type(screen.getByLabelText(/^Job name\s*\*?$/), 'Monday digest');
     await user.click(screen.getByRole('button', { name: 'Update' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.updateAiJob).toHaveBeenCalledWith({

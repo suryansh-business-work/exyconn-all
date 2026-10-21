@@ -1,5 +1,6 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useFieldCopy } from './useFieldCopy';
+import { useFieldMeta } from './useFieldMeta';
 import { DatePicker } from '@/components/ui';
 import { toDate } from '@/utils/date';
 
@@ -22,6 +23,7 @@ export function RhfDatePicker({
   required,
 }: Readonly<RhfDatePickerProps>) {
   const { control } = useFormContext();
+  const meta = useFieldMeta(name, { required, helperText });
   const copy = useFieldCopy();
   return (
     <Controller
@@ -44,10 +46,10 @@ export function RhfDatePicker({
               // in tests and by label-less assistive queries.
               name,
               fullWidth: true,
-              required,
+              required: meta.required,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),
-              helperText: copy(fieldState.error?.message ?? helperText),
+              helperText: copy(fieldState.error?.message ?? meta.helperText),
             },
           }}
         />

@@ -1,5 +1,5 @@
 import { useForm, useFormContext, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';

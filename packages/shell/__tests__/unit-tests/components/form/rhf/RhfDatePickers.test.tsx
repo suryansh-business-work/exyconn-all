@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { RhfDatePicker, RhfDateTimePicker } from '@/components/form/rhf';
 import { renderWithProviders } from '../../../test-utils';
 import { FormHarness, formValues } from '../formHarness';

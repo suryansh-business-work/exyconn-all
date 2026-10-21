@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { z } from 'zod';
 import { RhfTextField, RhfSelect, RhfMultiSelect } from './index';
 

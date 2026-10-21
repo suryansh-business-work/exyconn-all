@@ -2,6 +2,15 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 /** A field's input by its name — date pickers are addressable as input[name="…"]. */
 export function inputNamed(name: string): HTMLInputElement {
   const input = document.querySelector<HTMLInputElement>(`input[name="${name}"]`);
@@ -13,7 +22,7 @@ export function inputNamed(name: string): HTMLInputElement {
 
 /** Types a whole value into the field with this label, as a paste would. */
 export function fill(label: string | RegExp, value: string) {
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value } });
 }
 
 /** Types a date into a picker the way a person does, MM/DD/YYYY. */

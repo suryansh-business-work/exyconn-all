@@ -60,7 +60,7 @@ async function pickType(name: string) {
 async function addChoice(label: string) {
   await press('Add choice');
   const rows = screen.getAllByRole('group', { name: /^Choice \d+$/ });
-  await userEvent.type(within(rows.at(-1) as HTMLElement).getByLabelText('Choice'), label);
+  await userEvent.type(within(rows.at(-1) as HTMLElement).getByLabelText(/^Choice\s*\*?$/), label);
 }
 
 describe('CrmPropertyForm: creating', () => {
@@ -74,23 +74,23 @@ describe('CrmPropertyForm: creating', () => {
     renderForm();
 
     await fillField('Label', 'Lead score (0-100)');
-    expect(screen.getByLabelText('Key')).toHaveValue('lead_score_0_100');
+    expect(screen.getByLabelText(/^Key\s*\*?$/)).toHaveValue('lead_score_0_100');
     expect(screen.getByText(AUTO_HINT)).toBeInTheDocument();
 
     await fillField('Key', 'score');
     await fillField('Label', 'Something else');
-    expect(screen.getByLabelText('Key')).toHaveValue('score');
+    expect(screen.getByLabelText(/^Key\s*\*?$/)).toHaveValue('score');
     expect(screen.getByText(FIXED_HINT)).toBeInTheDocument();
   });
 
   it('clears an "Enter a key" error as soon as the label fills the key in', async () => {
     renderForm();
 
-    await userEvent.click(screen.getByLabelText('Key'));
+    await userEvent.click(screen.getByLabelText(/^Key\s*\*?$/));
     await userEvent.tab();
     expect(await screen.findByText('Enter a key')).toBeInTheDocument();
 
-    await userEvent.type(screen.getByLabelText('Label'), 'Tier');
+    await userEvent.type(screen.getByLabelText(/^Label\s*\*?$/), 'Tier');
     await waitFor(() => expect(screen.queryByText('Enter a key')).not.toBeInTheDocument());
   });
 
@@ -98,7 +98,7 @@ describe('CrmPropertyForm: creating', () => {
     const { onDone } = renderForm(null, CrmObject.Contact);
     await fillField('Label', 'Region');
     await userEvent.click(checkbox('Leads'));
-    await userEvent.click(screen.getByLabelText('Help text'));
+    await userEvent.click(screen.getByLabelText(/^Help text\s*\*?$/));
     await userEvent.paste('Sales region');
     await userEvent.click(screen.getByRole('switch', { name: 'Required on every record' }));
 
@@ -180,7 +180,7 @@ describe('CrmPropertyForm: creating', () => {
     await addChoice('Gold tier');
     await addChoice('Silver');
     await addChoice('Bronze');
-    expect(within(choiceRow(1)).getByLabelText('Value')).toHaveValue('gold_tier');
+    expect(within(choiceRow(1)).getByLabelText(/^Value\s*\*?$/)).toHaveValue('gold_tier');
 
     const first = within(choiceRow(1));
     expect(first.getByRole('button', { name: 'Move choice 1 up' })).toBeDisabled();
@@ -188,9 +188,9 @@ describe('CrmPropertyForm: creating', () => {
     await userEvent.click(first.getByRole('button', { name: 'Move choice 1 down' }));
     await userEvent.click(within(choiceRow(3)).getByRole('button', { name: 'Move choice 3 up' }));
     await userEvent.click(within(choiceRow(3)).getByRole('button', { name: 'Remove choice 3' }));
-    await userEvent.clear(within(choiceRow(1)).getByLabelText('Value'));
-    await userEvent.type(within(choiceRow(1)).getByLabelText('Value'), 'ag');
-    await userEvent.type(within(choiceRow(1)).getByLabelText('Choice'), ' plus');
+    await userEvent.clear(within(choiceRow(1)).getByLabelText(/^Value\s*\*?$/));
+    await userEvent.type(within(choiceRow(1)).getByLabelText(/^Value\s*\*?$/), 'ag');
+    await userEvent.type(within(choiceRow(1)).getByLabelText(/^Choice\s*\*?$/), ' plus');
 
     await press('Create');
 
@@ -238,15 +238,15 @@ describe('CrmPropertyForm: editing', () => {
     });
     const { onDone } = renderForm(row, CrmObject.Lead);
 
-    expect(screen.getByLabelText('Key')).toBeDisabled();
+    expect(screen.getByLabelText(/^Key\s*\*?$/)).toBeDisabled();
     expect(screen.getByText(FIXED_HINT)).toBeInTheDocument();
-    expect(screen.getByLabelText('Type')).toHaveValue('Dropdown select');
-    expect(screen.getByLabelText('Type')).toBeDisabled();
-    expect(within(choiceRow(1)).getByLabelText('Value')).toBeDisabled();
+    expect(screen.getByLabelText(/^Type\s*\*?$/)).toHaveValue('Dropdown select');
+    expect(screen.getByLabelText(/^Type\s*\*?$/)).toBeDisabled();
+    expect(within(choiceRow(1)).getByLabelText(/^Value\s*\*?$/)).toBeDisabled();
     expect(screen.getByText('Saved choices keep their value')).toBeInTheDocument();
     expect(screen.queryByRole('checkbox', { name: 'Leads' })).not.toBeInTheDocument();
 
-    await userEvent.type(within(choiceRow(1)).getByLabelText('Choice'), ' plus');
+    await userEvent.type(within(choiceRow(1)).getByLabelText(/^Choice\s*\*?$/), ' plus');
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
@@ -270,7 +270,7 @@ describe('CrmPropertyForm: editing', () => {
   it('shows no choices for a type without them', () => {
     renderForm(propertyRow(), CrmObject.Lead);
 
-    expect(screen.getByLabelText('Type')).toHaveValue('Number');
+    expect(screen.getByLabelText(/^Type\s*\*?$/)).toHaveValue('Number');
     expect(screen.queryByRole('heading', { name: 'Choices' })).not.toBeInTheDocument();
   });
 

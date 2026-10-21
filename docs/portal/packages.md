@@ -18,7 +18,7 @@ Cypress alike.
 | `@exyconn/config/apps.json`         | `shell/config/apps.ts`, `@exyconn/config/vite` | The app registry: subdomain, dev port, page title and description for each micro-frontend.                                                                                                            |
 | `@exyconn/config/vite`              | every app's `vite.config.ts`                   | `portalViteConfig(appKey)` — React plugin, source aliases, React/MUI/Apollo dedupe, the dev port, the shared `<head>` injector and the Vitest defaults.                                               |
 | `@exyconn/config/tsconfig.app.json` | every app's `tsconfig.json`                    | Compiler options plus the `paths` that resolve `@exyconn/ui`, `@exyconn/shell`, `@exyconn/crud`, `@exyconn/login`, `@exyconn/tabber` and the shell's internal `@/`.                                   |
-| `@exyconn/config/eslint`            | every `eslint.config.js`                       | `portalEslintConfig()` — the rule set, including the guard that blocks direct `@mui/*` imports outside `@exyconn/ui` (`muiGuard(uiImport)` is exported for non-portal consumers such as the tracker). |
+| `@exyconn/config/eslint`            | every `eslint.config.js`                       | `portalEslintConfig()` — the rule set, including the guard that blocks direct `@mui/*` imports outside `@exyconn/ui` (`muiGuard(uiImport)` is exported for non-portal consumers such as the tracker). `{ shellForms: true }` (the shell and every portal app) also refuses the bare Zod resolver in favour of the shell's. |
 | `@exyconn/config/prettier.json`     | the `"prettier"` field of each `package.json`  | Formatting rules.                                                                                                                                                                                     |
 | `@exyconn/config/cypress`           | every `cypress.config.ts`                      | Component-testing config and the shared support file.                                                                                                                                                 |
 
@@ -130,6 +130,20 @@ validation off, the field stack and the Cancel/Save footer.
 
 A form that is not a create-or-update — sending a contract, marking attendance — keeps
 its own submit handler and still uses `EntityForm` for the frame.
+
+#### Required stars and hints come from the schema
+
+`zodResolver` is imported from `@exyconn/shell/components/form/zodResolver` (lint refuses the
+bare `@hookform/resolvers/zod` one in portal code). It remembers the schema, and every `Rhf*`
+field reads its own entry from it:
+
+- **Required star**: shown when the schema refuses an empty value. That means a string with
+  `.min(1)` or a format (`z.email()`, `.regex()`), an array with `.min(1)`, or an enum, number
+  or date that is not `.optional()`, `.nullable()` or `.default()`. `.or(z.literal(''))` makes it
+  optional.
+- **Hint**: the field's `.describe('…')` text, translated like any other hint.
+
+A `required` or `helperText` passed to the field still wins, so a form can override either.
 
 ---
 

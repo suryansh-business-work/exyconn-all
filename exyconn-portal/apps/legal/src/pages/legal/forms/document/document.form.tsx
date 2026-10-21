@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
 import { RhfRichText, RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';

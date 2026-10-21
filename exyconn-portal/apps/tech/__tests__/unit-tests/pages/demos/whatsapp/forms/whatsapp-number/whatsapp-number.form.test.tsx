@@ -67,10 +67,10 @@ describe('WhatsappNumberForm — first connection', () => {
   it('connects the number, then clears the credentials it sent', async () => {
     const user = userEvent.setup();
     renderWithProviders(<WhatsappNumberForm initial={null} />);
-    await user.type(screen.getByRole('textbox', { name: 'Phone number ID' }), '1234567890');
-    await user.type(screen.getByLabelText('Access token'), credential(24));
-    await user.type(screen.getByLabelText('App secret'), credential(16));
-    const verify = screen.getByRole('textbox', { name: 'Verify token' });
+    await user.type(screen.getByRole('textbox', { name: /^Phone number ID\s*\*?$/ }), '1234567890');
+    await user.type(screen.getByLabelText(/^Access token\s*\*?$/), credential(24));
+    await user.type(screen.getByLabelText(/^App secret\s*\*?$/), credential(16));
+    const verify = screen.getByRole('textbox', { name: /^Verify token\s*\*?$/ });
     await user.clear(verify);
     await user.type(verify, 'my-verify-token');
     await user.click(screen.getByRole('button', { name: 'Connect number' }));
@@ -89,9 +89,11 @@ describe('WhatsappNumberForm — first connection', () => {
       },
     });
     expect(await screen.findByText('WhatsApp number connected')).toBeInTheDocument();
-    expect(screen.getByLabelText('Access token')).toHaveValue('');
-    expect(screen.getByLabelText('App secret')).toHaveValue('');
-    expect(screen.getByRole('textbox', { name: 'Phone number ID' })).toHaveValue('1234567890');
+    expect(screen.getByLabelText(/^Access token\s*\*?$/)).toHaveValue('');
+    expect(screen.getByLabelText(/^App secret\s*\*?$/)).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: /^Phone number ID\s*\*?$/ })).toHaveValue(
+      '1234567890',
+    );
   });
 });
 
@@ -140,7 +142,7 @@ describe('WhatsappNumberForm — connected number', () => {
   it('puts the stored values back on Cancel', async () => {
     const user = userEvent.setup();
     renderWithProviders(<WhatsappNumberForm initial={channelRow()} />);
-    const display = screen.getByRole('textbox', { name: 'Phone number' });
+    const display = screen.getByRole('textbox', { name: /^Phone number\s*\*?$/ });
     await user.clear(display);
     await user.type(display, '+44 20 7946 0000');
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -153,8 +155,8 @@ describe('WhatsappNumberForm — Test and the eye buttons', () => {
     const user = userEvent.setup();
     api.test.mockResolvedValue({ data: { testWhatsappChannel: 'Meta knows +1 555 010 0000' } });
     renderWithProviders(<WhatsappNumberForm initial={null} />);
-    await user.type(screen.getByRole('textbox', { name: 'Phone number ID' }), '1234567890');
-    await user.type(screen.getByLabelText('Access token'), credential(24));
+    await user.type(screen.getByRole('textbox', { name: /^Phone number ID\s*\*?$/ }), '1234567890');
+    await user.type(screen.getByLabelText(/^Access token\s*\*?$/), credential(24));
     await user.click(screen.getByRole('button', { name: 'Test the Access token' }));
     expect(await screen.findByText('Meta knows +1 555 010 0000')).toBeInTheDocument();
     expect(api.test).toHaveBeenCalledWith({
@@ -181,7 +183,7 @@ describe('WhatsappNumberForm — Test and the eye buttons', () => {
     expect(api.revealOptions).toEqual({ fetchPolicy: 'no-cache' });
     await user.click(screen.getByRole('button', { name: 'Show App secret' }));
     await waitFor(() =>
-      expect(screen.getByLabelText('App secret')).toHaveValue('saved-app-secret'),
+      expect(screen.getByLabelText(/^App secret\s*\*?$/)).toHaveValue('saved-app-secret'),
     );
     expect(api.reveal).toHaveBeenCalledWith({
       variables: { secret: WhatsappChannelSecret.AppSecret },
@@ -194,7 +196,7 @@ describe('WhatsappNumberForm — Test and the eye buttons', () => {
     renderWithProviders(<WhatsappNumberForm initial={channelRow()} />);
     await user.click(screen.getByRole('button', { name: 'Show Access token' }));
     expect(await screen.findByRole('button', { name: 'Hide Access token' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Access token')).toHaveValue('');
+    expect(screen.getByLabelText(/^Access token\s*\*?$/)).toHaveValue('');
     expect(api.reveal).toHaveBeenCalledWith({
       variables: { secret: WhatsappChannelSecret.AccessToken },
     });

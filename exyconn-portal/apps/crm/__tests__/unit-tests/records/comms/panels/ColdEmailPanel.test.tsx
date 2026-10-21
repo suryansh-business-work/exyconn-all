@@ -41,12 +41,12 @@ describe('a cold email in the dock', () => {
     const onClose = vi.fn();
     renderWithProviders(<EmailPanel panel={COLD} onClose={onClose} />);
 
-    expect(screen.getByLabelText('To')).toHaveValue('hello@acme.com');
-    expect(screen.queryByLabelText('Cc')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Subject')).toHaveValue('Hi Acme');
-    expect(screen.getByLabelText('Message')).toHaveValue('Short note.');
+    expect(screen.getByLabelText(/^To\s*\*?$/)).toHaveValue('hello@acme.com');
+    expect(screen.queryByLabelText(/^Cc\s*\*?$/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^Subject\s*\*?$/)).toHaveValue('Hi Acme');
+    expect(screen.getByLabelText(/^Message\s*\*?$/)).toHaveValue('Short note.');
 
-    await userEvent.type(screen.getByLabelText('Message'), ' Thanks!');
+    await userEvent.type(screen.getByLabelText(/^Message\s*\*?$/), ' Thanks!');
     await userEvent.click(screen.getByRole('button', { name: 'Send' }));
 
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));

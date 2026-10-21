@@ -7,6 +7,15 @@ import { renderWithProviders } from '../../../../test-utils';
 import { press } from '../../../../form-helpers';
 import { bookedMeeting } from '../../book-fixtures';
 
+/** A field's label as written, or followed by the red star a required field adds. */
+function labelled(label: string | RegExp): RegExp {
+  if (label instanceof RegExp) {
+    return label;
+  }
+  const escaped = label.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+  return new RegExp(String.raw`^${escaped}\s*\*?$`);
+}
+
 const gql = vi.hoisted(() => ({ book: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -35,7 +44,7 @@ function renderForm() {
 
 /** Sets a field in one change, as a paste or autofill would. */
 function fill(label: string, text: string) {
-  fireEvent.change(screen.getByLabelText(label), { target: { value: text } });
+  fireEvent.change(screen.getByLabelText(labelled(label)), { target: { value: text } });
 }
 
 function fillDetails() {
@@ -85,11 +94,11 @@ describe('BookMeetingForm', () => {
 
   it('hides the guest list until asked, then invites the guests typed', async () => {
     const { onBooked } = renderForm();
-    expect(screen.queryByLabelText('Guest emails')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Guest emails\s*\*?$/)).not.toBeInTheDocument();
 
     await press('Add guests');
     expect(screen.queryByRole('button', { name: 'Add guests' })).not.toBeInTheDocument();
-    await userEvent.type(screen.getByLabelText('Guest emails'), 'ana@globex.com{Enter}');
+    await userEvent.type(screen.getByLabelText(/^Guest emails\s*\*?$/), 'ana@globex.com{Enter}');
     fillDetails();
     await press('Schedule Event');
 

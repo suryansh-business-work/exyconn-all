@@ -89,7 +89,7 @@ describe('WebsiteScraperPage', () => {
     expect(
       screen.getByRole('link', { name: 'Tech > Environment Variables > Firecrawl' }),
     ).toHaveAttribute('href', expect.stringContaining('/tech/environment-variables/firecrawl'));
-    expect(screen.queryByLabelText('Website')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Website\s*\*?$/)).not.toBeInTheDocument();
   });
 
   it('explains a failed check and retries it', async () => {
@@ -121,14 +121,14 @@ describe('WebsiteScraperPage', () => {
     mocks.ready = { data: { firecrawlReady: true }, loading: true, error: new Error('blip') };
     renderPage();
 
-    expect(screen.getByLabelText('Website')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Website\s*\*?$/)).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('prefills the address from ?url= and scrapes it on submit', async () => {
     renderPage('/tools/website-scraper?url=acme.com');
 
-    expect(screen.getByLabelText('Website')).toHaveValue('acme.com');
+    expect(screen.getByLabelText(/^Website\s*\*?$/)).toHaveValue('acme.com');
     await press('Scrape');
 
     expect(mocks.run).toHaveBeenCalledWith('acme.com');

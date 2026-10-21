@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { EMAIL } from '@exyconn/regex';
 import { useT } from '@exyconn/i18n';
 import { Alert, TextField } from '@exyconn/shell/components/ui';

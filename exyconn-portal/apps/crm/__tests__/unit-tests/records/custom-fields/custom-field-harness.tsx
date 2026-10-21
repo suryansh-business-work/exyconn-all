@@ -1,4 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CrmPropertyType } from '@exyconn/shell/graphql/generated';
@@ -16,7 +16,11 @@ interface HarnessProps {
 }
 
 /** A record form reduced to its custom properties, validated by their schema. */
-export function CustomFieldsHarness({ properties, initial = {}, onSubmit }: Readonly<HarnessProps>) {
+export function CustomFieldsHarness({
+  properties,
+  initial = {},
+  onSubmit,
+}: Readonly<HarnessProps>) {
   const schema = z.object({ custom: customFieldsSchema(properties) });
   const form = useForm<{ custom: CustomFormValues }>({
     resolver: zodResolver(schema),

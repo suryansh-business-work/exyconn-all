@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { SITE_PATH } from '@exyconn/regex';
 import { useT } from '@exyconn/i18n';

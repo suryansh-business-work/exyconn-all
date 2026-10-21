@@ -71,7 +71,7 @@ describe('RiskForm', () => {
 
   it('loads a saved risk and rates it as it stands', () => {
     renderForm(riskRow());
-    expect(screen.getByLabelText('Risk')).toHaveValue('Laptop theft');
+    expect(screen.getByLabelText(/^Risk\s*\*?$/)).toHaveValue('Laptop theft');
     expect(screen.getByText('Inherent rating 20 — Critical')).toBeInTheDocument();
     expect(screen.getByText('Residual rating 3 — Low')).toBeInTheDocument();
   });

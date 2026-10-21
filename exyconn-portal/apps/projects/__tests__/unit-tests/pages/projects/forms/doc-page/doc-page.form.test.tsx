@@ -22,8 +22,8 @@ describe('DocPageForm', () => {
   it('opens on the page’s title and body', () => {
     renderForm();
 
-    expect(screen.getByLabelText('Title')).toHaveValue('Runbook');
-    expect(screen.getByLabelText('Page')).toHaveValue('<p>Steps</p>');
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Runbook');
+    expect(screen.getByLabelText(/^Page\s*\*?$/)).toHaveValue('<p>Steps</p>');
     expect(screen.getByRole('button', { name: 'Save page' })).toBeInTheDocument();
   });
 
@@ -63,8 +63,8 @@ describe('DocPageForm', () => {
       />,
     );
 
-    await waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue('Decisions'));
-    expect(screen.getByLabelText('Page')).toHaveValue('<p>ADR</p>');
+    await waitFor(() => expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue('Decisions'));
+    expect(screen.getByLabelText(/^Page\s*\*?$/)).toHaveValue('<p>ADR</p>');
   });
 
   it('hands Cancel back without saving', async () => {

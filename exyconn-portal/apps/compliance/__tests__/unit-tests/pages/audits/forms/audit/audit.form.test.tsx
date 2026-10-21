@@ -65,7 +65,9 @@ describe('AuditForm', () => {
 
   it('writes the report onto the audit it was planned as', async () => {
     renderForm(auditRow());
-    expect(screen.getByLabelText('Conclusion')).toHaveValue('Effective with one minor finding');
+    expect(screen.getByLabelText(/^Conclusion\s*\*?$/)).toHaveValue(
+      'Effective with one minor finding',
+    );
     pickDate('performedOn', '10/06/2026');
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 

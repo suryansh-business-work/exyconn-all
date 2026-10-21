@@ -34,13 +34,13 @@ function setup(withCurrency = true) {
 }
 
 async function fillValid(receipt = '') {
-  await userEvent.type(screen.getByLabelText('Category'), 'Travel');
-  await userEvent.type(screen.getByLabelText('Description'), 'Cab to the client site');
-  await userEvent.clear(screen.getByLabelText('Amount'));
-  await userEvent.type(screen.getByLabelText('Amount'), '1250');
+  await userEvent.type(screen.getByLabelText(/^Category\s*\*?$/), 'Travel');
+  await userEvent.type(screen.getByLabelText(/^Description\s*\*?$/), 'Cab to the client site');
+  await userEvent.clear(screen.getByLabelText(/^Amount\s*\*?$/));
+  await userEvent.type(screen.getByLabelText(/^Amount\s*\*?$/), '1250');
   fireEvent.change(pickerInput('incurredOn'), { target: { value: '03/04/2026' } });
   if (receipt) {
-    await userEvent.type(screen.getByLabelText('Receipt link (optional)'), receipt);
+    await userEvent.type(screen.getByLabelText(/^Receipt link \(optional\)\s*\*?$/), receipt);
   }
 }
 
@@ -101,7 +101,7 @@ describe('ExpenseClaimForm', () => {
       },
     });
     expect(await screen.findByText('Expense claim submitted')).toBeInTheDocument();
-    expect(screen.getByLabelText('Category')).toHaveValue('');
+    expect(screen.getByLabelText(/^Category\s*\*?$/)).toHaveValue('');
   });
 
   it('sends the receipt link when one is given', async () => {

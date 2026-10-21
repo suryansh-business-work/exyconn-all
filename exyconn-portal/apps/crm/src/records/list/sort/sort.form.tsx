@@ -1,5 +1,5 @@
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import AddIcon from '@mui/icons-material/Add';
 import { useT } from '@exyconn/i18n';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';

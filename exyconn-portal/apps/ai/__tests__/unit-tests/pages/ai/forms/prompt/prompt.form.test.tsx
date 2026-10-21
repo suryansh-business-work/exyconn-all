@@ -62,9 +62,12 @@ describe('PromptForm', () => {
     const user = userEvent.setup();
     gql.createPrompt.mockResolvedValue({ data: { createPrompt: { id: 'prompt-2' } } });
     const { onDone } = renderForm();
-    await user.type(screen.getByLabelText('Prompt title'), ' Release notes ');
-    await user.type(screen.getByLabelText('Prompt'), 'Draft notes');
-    await user.type(screen.getByLabelText('Tags (comma separated)'), ' release , ,notes, ');
+    await user.type(screen.getByLabelText(/^Prompt title\s*\*?$/), ' Release notes ');
+    await user.type(screen.getByLabelText(/^Prompt\s*\*?$/), 'Draft notes');
+    await user.type(
+      screen.getByLabelText(/^Tags \(comma separated\)\s*\*?$/),
+      ' release , ,notes, ',
+    );
     await user.click(screen.getByRole('button', { name: 'Create' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.createPrompt).toHaveBeenCalledWith({
@@ -85,9 +88,9 @@ describe('PromptForm', () => {
     const user = userEvent.setup();
     gql.updatePrompt.mockResolvedValue({ data: { updatePrompt: { id: 'prompt-1' } } });
     const { onDone } = renderForm(ROW);
-    expect(screen.getByLabelText('Tags (comma separated)')).toHaveValue('weekly, team');
-    expect(screen.getByLabelText('Description (optional)')).toHaveValue('');
-    await user.type(screen.getByLabelText('Description (optional)'), 'Repo digest');
+    expect(screen.getByLabelText(/^Tags \(comma separated\)\s*\*?$/)).toHaveValue('weekly, team');
+    expect(screen.getByLabelText(/^Description \(optional\)\s*\*?$/)).toHaveValue('');
+    await user.type(screen.getByLabelText(/^Description \(optional\)\s*\*?$/), 'Repo digest');
     await user.click(screen.getByRole('button', { name: 'Update' }));
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.updatePrompt).toHaveBeenCalledWith({
@@ -107,9 +110,9 @@ describe('PromptForm', () => {
   it('says what is missing or too long before anything is sent', async () => {
     const user = userEvent.setup();
     renderForm();
-    await user.click(screen.getByLabelText('Description (optional)'));
+    await user.click(screen.getByLabelText(/^Description \(optional\)\s*\*?$/));
     await user.paste('d'.repeat(301));
-    await user.click(screen.getByLabelText('Tags (comma separated)'));
+    await user.click(screen.getByLabelText(/^Tags \(comma separated\)\s*\*?$/));
     await user.paste('t'.repeat(201));
     await user.click(screen.getByRole('button', { name: 'Create' }));
     expect(await screen.findByText('Title is required')).toBeInTheDocument();
@@ -127,13 +130,15 @@ describe('PromptForm', () => {
       task: { action: 'SUMMARISE', style: 'BRIEF' },
     });
     await user.click(screen.getByRole('button', { name: 'Describe this prompt' }));
-    expect(screen.getByLabelText('Description (optional)')).toHaveValue('Writes the weekly digest');
+    expect(screen.getByLabelText(/^Description \(optional\)\s*\*?$/)).toHaveValue(
+      'Writes the weekly digest',
+    );
   });
 
   it('hands the AI the prompt as it is being typed', async () => {
     const user = userEvent.setup();
     renderForm();
-    await user.type(screen.getByLabelText('Prompt'), 'Plan the sprint');
+    await user.type(screen.getByLabelText(/^Prompt\s*\*?$/), 'Plan the sprint');
     expect(gql.assist?.text).toBe('Plan the sprint');
   });
 

@@ -93,7 +93,7 @@ describe('CloudResourceForm', () => {
         expiresAt: '2027-03-01T00:00:00.000Z',
       }),
     );
-    expect(screen.getByLabelText('Name')).toHaveValue('exyconn.com');
+    expect(screen.getByLabelText(/^Name\s*\*?$/)).toHaveValue('exyconn.com');
     await press('Update');
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));

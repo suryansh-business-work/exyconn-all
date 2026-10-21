@@ -58,7 +58,7 @@ describe('RaiseTicketForm', () => {
     await submit();
 
     await waitFor(() => expect(onSubmitted).toHaveBeenCalledWith(REFERENCE));
-    expect(screen.getByLabelText('Your name')).toHaveValue('');
+    expect(screen.getByLabelText(/^Your name\s*\*?$/)).toHaveValue('');
   });
 
   it('keeps what was typed and says why when the ticket cannot be raised', async () => {
@@ -68,7 +68,7 @@ describe('RaiseTicketForm', () => {
 
     expect(await findSnackbar('Slow down a little')).toBeInTheDocument();
     expect(onSubmitted).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('Title')).toHaveValue(ticketInput.subject);
+    expect(screen.getByLabelText(/^Title\s*\*?$/)).toHaveValue(ticketInput.subject);
   });
 
   it('hands back an empty reference when the server answers without data', async () => {

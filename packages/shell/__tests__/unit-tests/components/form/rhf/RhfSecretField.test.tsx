@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@/components/form/zodResolver';
 import { RhfSecretField } from '@/components/form/rhf';
 import { renderWithProviders } from '../../../test-utils';
 import { FormHarness, formValues } from '../formHarness';
@@ -29,7 +29,7 @@ function renderField(props: Partial<FieldProps> = {}, apiKey = '') {
   );
 }
 
-const field = () => screen.getByLabelText('API key');
+const field = () => screen.getByLabelText(/^API key\s*\*?$/);
 
 describe('RhfSecretField', () => {
   it('hides what is typed until the eye shows it, and hides it again', async () => {
