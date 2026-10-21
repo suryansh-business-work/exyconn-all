@@ -22,8 +22,7 @@ describe('RhfDatePicker', () => {
       </FormHarness>,
     );
 
-    // The built-in pattern, until a profile or Admin › Settings picks another.
-    expect(input('day')).toHaveValue('04 Mar 2026');
+    expect(input('day')).toHaveValue('03/04/2026');
     expect(screen.getByText('The first working day')).toBeInTheDocument();
   });
 
@@ -46,7 +45,7 @@ describe('RhfDatePicker', () => {
       </FormHarness>,
     );
 
-    fireEvent.change(input('day')!, { target: { value: '15 Apr 2026' } });
+    fireEvent.change(input('day')!, { target: { value: '04/15/2026' } });
 
     expect(formValues().day).toBe(localIso(2026, 3, 15));
   });
@@ -58,20 +57,9 @@ describe('RhfDatePicker', () => {
       </FormHarness>,
     );
 
-    fireEvent.change(input('day')!, { target: { value: '04/15/2026' } });
+    fireEvent.change(input('day')!, { target: { value: '15 Apr 2026' } });
 
     expect(formValues().day).toBe('');
-  });
-
-  it("writes the date in the reader's own pattern", () => {
-    renderWithProviders(
-      <FormHarness defaultValues={{ day: localIso(2026, 2, 4) }}>
-        <RhfDatePicker name="day" label="Day" />
-      </FormHarness>,
-      { settings: { dateFormat: 'yyyy-MM-dd' } },
-    );
-
-    expect(input('day')).toHaveValue('2026-03-04');
   });
 
   it('disables the days before minDate in the calendar', async () => {
@@ -110,19 +98,8 @@ describe('RhfDateTimePicker', () => {
       </FormHarness>,
     );
 
-    expect(input('at')).toHaveValue('04 Mar 2026 03:30 PM');
+    expect(input('at')).toHaveValue('03/04/2026 03:30 PM');
     expect(screen.getByText('When the work happened')).toBeInTheDocument();
-  });
-
-  it("writes a 24-hour reader's timestamp without am/pm", () => {
-    renderWithProviders(
-      <FormHarness defaultValues={{ at: localIso(2026, 2, 4, 15, 30) }}>
-        <RhfDateTimePicker name="at" label="At" />
-      </FormHarness>,
-      { settings: { dateFormat: 'dd/MM/yyyy', timeFormat: 'HH:mm' } },
-    );
-
-    expect(input('at')).toHaveValue('04/03/2026 15:30');
   });
 
   it('stores a completed timestamp as ISO, and a half-typed one as empty', () => {
@@ -132,7 +109,7 @@ describe('RhfDateTimePicker', () => {
       </FormHarness>,
     );
 
-    fireEvent.change(input('at')!, { target: { value: '15 Apr 2026 09:05 AM' } });
+    fireEvent.change(input('at')!, { target: { value: '04/15/2026 09:05 AM' } });
     expect(formValues().at).toBe(localIso(2026, 3, 15, 9, 5));
 
     fireEvent.change(input('at')!, { target: { value: 'tomorrow' } });

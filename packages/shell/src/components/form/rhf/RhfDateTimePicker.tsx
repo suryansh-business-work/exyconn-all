@@ -26,8 +26,8 @@ export function RhfDateTimePicker({
 }: Readonly<RhfDateTimePickerProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
-  // Typed and shown in the reader's own formats (their profile, else Admin › Settings).
-  const { dateFormat, timeFormat } = useI18n().settings;
+  // A 12- or 24-hour clock, as the reader's time format says (PortalPickers sets the rest).
+  const { timeFormat } = useI18n().settings;
   return (
     <Controller
       name={name}
@@ -36,7 +36,6 @@ export function RhfDateTimePicker({
         <DateTimePicker
           label={copy(label)}
           value={toDate(field.value)}
-          format={`${dateFormat} ${timeFormat}`}
           ampm={timeFormat.includes('a')}
           maxDateTime={maxDateTime}
           // MUIX fires onChange for every section typed, so a half-entered value arrives
