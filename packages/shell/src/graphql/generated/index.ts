@@ -687,6 +687,10 @@ export type Attendance = {
   date: Scalars['DateTime']['output'];
   employeeId: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** Set when a tracker could not read a location: the employee marked in at their profile address, or without one. */
+  locationFallback?: Maybe<AttendanceLocationFallback>;
+  /** The profile address the employee marked in at, when locationFallback is PROFILE_ADDRESS. */
+  manualLocation?: Maybe<Scalars['String']['output']>;
   note?: Maybe<Scalars['String']['output']>;
   status: AttendanceStatus;
   updatedAt: Scalars['DateTime']['output'];
@@ -703,11 +707,23 @@ export type AttendanceEntry = {
   employeeId: Scalars['String']['output'];
   employeeName: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** Set when the tracker could not read a location and the employee marked in another way. */
+  locationFallback?: Maybe<AttendanceLocationFallback>;
+  /** The profile address marked in at, when locationFallback is PROFILE_ADDRESS. */
+  manualLocation?: Maybe<Scalars['String']['output']>;
   note?: Maybe<Scalars['String']['output']>;
   status: AttendanceStatus;
   tracker: AttendanceTrackerBrief;
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** How a tracker mark-in was placed when no location could be read. */
+export enum AttendanceLocationFallback {
+  /** Without any location. */
+  None = 'NONE',
+  /** At the address on the employee's record. */
+  ProfileAddress = 'PROFILE_ADDRESS'
+}
 
 export type AttendancePage = {
   __typename?: 'AttendancePage';
@@ -9262,8 +9278,9 @@ export type Mutation = {
   trackerHeartbeat: TrackerMe;
   trackerLogin: TrackerLoginPayload;
   /**
-   * Marks the caller in for their current local day, pinning where they were. Tracking cannot
-   * start until they have. Refused on their week off, a holiday or approved leave.
+   * Marks the caller in for their current local day, pinning where they were — or, when the
+   * device cannot read a location, at their profile address or without one (audited). Tracking
+   * cannot start until they have. Refused on their week off, a holiday or approved leave.
    */
   trackerMarkAttendance: TrackerWorkday;
   /**
@@ -12439,7 +12456,8 @@ export type MutationTrackerLoginArgs = {
 
 
 export type MutationTrackerMarkAttendanceArgs = {
-  location: TrackerLocationInput;
+  fallback?: InputMaybe<AttendanceLocationFallback>;
+  location?: InputMaybe<TrackerLocationInput>;
   note?: InputMaybe<Scalars['String']['input']>;
   status: AttendanceStatus;
 };
@@ -21281,6 +21299,8 @@ export type TrackerWorkday = {
   offLabel?: Maybe<Scalars['String']['output']>;
   /** Why today is off — week off, holiday or approved leave. Null on a working day; tracking is refused while set. */
   offReason?: Maybe<TrackerOffReason>;
+  /** The address on the employee's record, offered when the device cannot read a location. */
+  profileAddress?: Maybe<Scalars['String']['output']>;
   targetMs: Scalars['Float']['output'];
 };
 
@@ -26256,7 +26276,7 @@ export type ListAttendancePagedQueryVariables = Exact<{
 }>;
 
 
-export type ListAttendancePagedQuery = { __typename?: 'Query', listAttendancePaged: { __typename?: 'AttendancePage', totalCount: number, rows: Array<{ __typename?: 'AttendanceEntry', id: string, employeeId: string, employeeName: string, employeeEmail: string, designation?: string | null, department?: string | null, date: string, status: AttendanceStatus, note?: string | null, tracker: { __typename?: 'AttendanceTrackerBrief', activeMs: number, idleMs: number, manualMs: number, sessions: number, firstStartedAt?: string | null, lastEndedAt?: string | null, projects: Array<{ __typename?: 'AttendanceProjectTime', projectId: string, projectName: string, activeMs: number, manualMs: number, sessions: number }> } }> } };
+export type ListAttendancePagedQuery = { __typename?: 'Query', listAttendancePaged: { __typename?: 'AttendancePage', totalCount: number, rows: Array<{ __typename?: 'AttendanceEntry', id: string, employeeId: string, employeeName: string, employeeEmail: string, designation?: string | null, department?: string | null, date: string, status: AttendanceStatus, note?: string | null, locationFallback?: AttendanceLocationFallback | null, manualLocation?: string | null, tracker: { __typename?: 'AttendanceTrackerBrief', activeMs: number, idleMs: number, manualMs: number, sessions: number, firstStartedAt?: string | null, lastEndedAt?: string | null, projects: Array<{ __typename?: 'AttendanceProjectTime', projectId: string, projectName: string, activeMs: number, manualMs: number, sessions: number }> } }> } };
 
 export type ListHolidaysPagedQueryVariables = Exact<{
   input: TableQueryInput;
@@ -56409,6 +56429,8 @@ export const ListAttendancePagedDocument = gql`
       date
       status
       note
+      locationFallback
+      manualLocation
       tracker {
         activeMs
         idleMs

@@ -435,6 +435,8 @@ export const trackerTypeDefs = gql`
     offReason: TrackerOffReason
     "The leave type's code on leave, the holiday's name on a holiday, else null."
     offLabel: String
+    "The address on the employee's record, offered when the device cannot read a location."
+    profileAddress: String
   }
 
   "Where a location fix came from: the phone's GPS or the computer's location service."
@@ -955,13 +957,17 @@ export const trackerTypeDefs = gql`
     """
     trackerAcceptConsent(signedName: String): Boolean!
     """
-    Marks the caller in for their current local day, pinning where they were. Tracking cannot
-    start until they have. Refused on their week off, a holiday or approved leave.
+    Marks the caller in for their current local day, pinning where they were — or, when the
+    device cannot read a location, at their profile address or without one (audited). Tracking
+    cannot start until they have. Refused on their week off, a holiday or approved leave.
     """
     trackerMarkAttendance(
       status: AttendanceStatus!
       note: String
-      location: TrackerLocationInput!
+      "The confirmed device fix. Omitted only with a fallback."
+      location: TrackerLocationInput
+      "How to place the mark when the device could not read a location; never sent with one."
+      fallback: AttendanceLocationFallback
     ): TrackerWorkday!
     """
     Pins where the caller is while a tracking session is open. Answers false when the pin was

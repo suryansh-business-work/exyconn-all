@@ -1,5 +1,6 @@
 import { useT } from '@exyconn/i18n';
 import {
+  Alert,
   Divider,
   Stack,
   Table,
@@ -12,6 +13,7 @@ import {
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { DetailFact, DetailFactGrid } from '@exyconn/shell/components/data/DetailFact';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { AttendanceLocationFallback } from '@exyconn/shell/graphql/generated';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { activityPercent } from '@exyconn/shell/pages/tracker-view/tracker.format';
 import { durationOrDash, projectLabel, type AttendanceEntryRow } from './attendance-grid';
@@ -80,6 +82,19 @@ function TrackerFacts({ tracker }: Readonly<{ tracker: Tracker }>) {
   );
 }
 
+/** How the mark-in was placed when the tracker could not read a location; null when it could. */
+function fallbackText(entry: AttendanceEntryRow, t: ReturnType<typeof useT>): string | null {
+  if (entry.locationFallback === AttendanceLocationFallback.ProfileAddress) {
+    return t('Marked in at the profile address: {address}', {
+      address: entry.manualLocation ?? '—',
+    });
+  }
+  if (entry.locationFallback === AttendanceLocationFallback.None) {
+    return t('Marked in without a location');
+  }
+  return null;
+}
+
 /** One attendance day in brief: who, their status, and what the tracker saw them work on. */
 export function AttendanceDetailDialog({ entry, onClose }: Readonly<AttendanceDetailDialogProps>) {
   const t = useT();
@@ -88,6 +103,7 @@ export function AttendanceDetailDialog({ entry, onClose }: Readonly<AttendanceDe
   if (!entry) {
     return null;
   }
+  const fallback = fallbackText(entry, t);
 
   return (
     <CrudDialog open title={entry.employeeName} onClose={onClose}>
@@ -104,6 +120,11 @@ export function AttendanceDetailDialog({ entry, onClose }: Readonly<AttendanceDe
           <DetailFact label="Department">{entry.department ?? '—'}</DetailFact>
           <DetailFact label="Note">{entry.note ?? '—'}</DetailFact>
         </DetailFactGrid>
+        {fallback === null ? null : (
+          <Alert severity="warning" variant="outlined">
+            {fallback}
+          </Alert>
+        )}
         <Divider />
         <Text size="overline" color="text.secondary">
           {t('Tracker')}

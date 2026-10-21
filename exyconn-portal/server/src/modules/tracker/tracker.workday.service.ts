@@ -1,4 +1,4 @@
-import { AttendanceModel } from '../hr/attendance.model';
+import { AttendanceModel, type AttendanceLocationFallback } from '../hr/attendance.model';
 import { PolicyModel } from '../legal/policy.model';
 import { PolicyAcknowledgementModel } from '../legal/policy-acknowledgement.model';
 import { ProjectModel } from '../projects/projects.model';
@@ -22,6 +22,22 @@ export interface WorkProfileSource {
   workHoursPerDay?: number | null;
   workLocationNote?: string | null;
   workDays?: number[] | null;
+  /** HR's postal address for the employee — the place a mark-in falls back to. */
+  address?: string | null;
+}
+
+/** How a tracker mark-in was placed when no fix could be read; both null for a pinned mark. */
+export interface AttendancePlacement {
+  locationFallback: AttendanceLocationFallback | null;
+  manualLocation: string | null;
+}
+
+const NO_FALLBACK: AttendancePlacement = { locationFallback: null, manualLocation: null };
+
+/** The address on the employee's record, or null when HR has not filled it in. */
+export function profileAddressOf(user: Pick<WorkProfileSource, 'address'>): string | null {
+  const address = user.address?.trim();
+  return address ? address : null;
 }
 
 /**
@@ -92,10 +108,16 @@ class TrackerWorkdayService {
    * marking in from the desktop app and marking in from the employee portal are the same
    * record — one day cannot be attended twice.
    */
-  markAttendance(userId: string, date: Date, status: string, note?: string | null) {
+  markAttendance(
+    userId: string,
+    date: Date,
+    status: string,
+    note?: string | null,
+    placed: AttendancePlacement = NO_FALLBACK,
+  ) {
     return AttendanceModel.findOneAndUpdate(
       { employeeId: userId, date },
-      { employeeId: userId, date, status, note: note ?? null },
+      { employeeId: userId, date, status, note: note ?? null, ...placed },
       { new: true, upsert: true, setDefaultsOnInsert: true },
     ).lean();
   }
@@ -140,6 +162,7 @@ class TrackerWorkdayService {
       attendanceMarked: attendance !== null,
       offReason: offDay.offReason,
       offLabel: offDay.offLabel,
+      profileAddress: profileAddressOf(user),
     };
   }
 

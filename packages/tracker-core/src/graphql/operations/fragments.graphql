@@ -49,6 +49,7 @@ fragment WorkdayFields on TrackerWorkday {
   attendanceMarked
   offReason
   offLabel
+  profileAddress
 }
 
 fragment PresenceFields on TrackerPresenceState {

@@ -28,6 +28,7 @@ const UNMARKED: Workday = {
   attendanceMarked: false,
   offReason: null,
   offLabel: null,
+  profileAddress: null,
 };
 const MARKED: Workday = { ...UNMARKED, attendanceStatus: 'PRESENT', attendanceMarked: true };
 

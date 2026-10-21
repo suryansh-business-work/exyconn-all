@@ -40,6 +40,10 @@ export const attendanceTypeDefs = gql`
     date: DateTime!
     status: AttendanceStatus!
     note: String
+    "Set when the tracker could not read a location and the employee marked in another way."
+    locationFallback: AttendanceLocationFallback
+    "The profile address marked in at, when locationFallback is PROFILE_ADDRESS."
+    manualLocation: String
     tracker: AttendanceTrackerBrief!
     createdAt: DateTime!
     updatedAt: DateTime!

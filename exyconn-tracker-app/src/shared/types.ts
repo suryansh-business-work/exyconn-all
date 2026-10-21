@@ -15,6 +15,8 @@ import type {
 } from '@exyconn/tracker-core';
 
 export type {
+  AttendanceLocationFallback,
+  AttendancePlace,
   AttendanceStatus,
   AuthUser,
   Branding,

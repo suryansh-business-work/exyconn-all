@@ -4,13 +4,13 @@ import {
   IPC,
   type AppPreferences,
   type CaptureAnnouncement,
+  type AttendancePlace,
   type AttendanceStatus,
   type ManualEntryDraft,
   type PermissionKind,
   type PresenceStatus,
   type ReportExport,
   type ScreenshotsRange,
-  type TrackerLocationInput,
   type TrackerMessageKind,
   type TrackerState,
   type UpdateState,
@@ -256,8 +256,8 @@ function registerIpc(ctrl: TrackerController): void {
   handleTrusted(IPC.acceptConsent, (_e, signedName: string) => ctrl.acceptConsent(signedName));
   handleTrusted(
     IPC.markAttendance,
-    (_e, status: AttendanceStatus, note: string | null, location: TrackerLocationInput) =>
-      ctrl.markAttendance(status, note, location),
+    (_e, status: AttendanceStatus, note: string | null, place: AttendancePlace) =>
+      ctrl.markAttendance(status, note, place),
   );
   handleTrusted(IPC.setProject, (_e, projectId: string) => ctrl.setProject(projectId));
   handleTrusted(IPC.setTask, (_e, taskId: string) => ctrl.setTask(taskId));

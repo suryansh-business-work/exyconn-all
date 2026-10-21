@@ -13,18 +13,21 @@ export const LOCATION_POLL_MS = 5 * 60_000;
 export const LOCATION_MIN_MOVE_METRES = 200;
 
 /**
- * The sentence shown when no fix could be read — almost always location access switched off.
- * Shown through the UI's translator, which is keyed on this English.
+ * The marker every "no fix could be read" error starts with. The UI never shows it as it is:
+ * `locationFailureText` words the actual reason (see location-failure.ts).
  */
 export const LOCATION_UNAVAILABLE_MESSAGE =
   'Location access is off. Turn it on so the tracker can record where you are working.';
 
+/** Between the marker and the platform's own reason, in a location error's message. */
+export const LOCATION_DETAIL_MARK = ' Reason: ';
+
 /**
  * Whether a refused command's message is the location one. The desktop's errors cross IPC as
- * text, so the sentence itself is the signal; the phone passes `messageOf(cause, …)`.
+ * text, so the message itself is the signal; the phone passes `messageOf(cause, …)`.
  */
 export function isLocationUnavailable(message: string): boolean {
-  return message === LOCATION_UNAVAILABLE_MESSAGE;
+  return message.startsWith(LOCATION_UNAVAILABLE_MESSAGE);
 }
 
 /** How a platform reads where the device is. Rejects when location access is off. */
@@ -32,10 +35,17 @@ export interface LocationProvider {
   current(): Promise<TrackerLocationInput>;
 }
 
-/** No fix could be read. The message is `LOCATION_UNAVAILABLE_MESSAGE`, for the UI to translate. */
+/**
+ * No fix could be read. The message is the marker plus the platform's reason (never a
+ * coordinate), so the reason survives the desktop's IPC, where only the message crosses.
+ */
 export class TrackerLocationError extends Error {
-  constructor() {
-    super(LOCATION_UNAVAILABLE_MESSAGE);
+  constructor(detail = '') {
+    super(
+      detail === ''
+        ? LOCATION_UNAVAILABLE_MESSAGE
+        : LOCATION_UNAVAILABLE_MESSAGE + LOCATION_DETAIL_MARK + detail,
+    );
     this.name = 'TrackerLocationError';
   }
 }
@@ -76,7 +86,10 @@ export async function readLocation(provider: LocationProvider): Promise<TrackerL
   } catch (error) {
     // The platform's reason is logged; never a coordinate, which this path has none of anyway.
     console.error('Reading the device location failed', error);
-    throw new TrackerLocationError();
+    if (error instanceof TrackerLocationError) {
+      throw error;
+    }
+    throw new TrackerLocationError(error instanceof Error ? error.message : '');
   }
 }
 

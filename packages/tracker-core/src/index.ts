@@ -20,6 +20,7 @@ export * from './day-marks';
 export * from './foreground-usage';
 export * from './insights';
 export * from './location';
+export * from './location-failure';
 export * from './location-text';
 export * from './location-access';
 export * from './off-day';

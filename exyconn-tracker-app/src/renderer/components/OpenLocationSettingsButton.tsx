@@ -8,7 +8,7 @@ type Props = Pick<ButtonProps, 'variant' | 'size' | 'color' | 'fullWidth'>;
 
 /**
  * Opens the OS page where location access is switched on (main picks it per platform). Used
- * by the Settings location card and by attendance's "location access is off" error.
+ * by the Settings location card and by attendance's location fallback dialog.
  */
 export default function OpenLocationSettingsButton(props: Readonly<Props>): ReactElement {
   const t = useT();

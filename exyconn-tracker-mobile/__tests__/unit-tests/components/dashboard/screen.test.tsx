@@ -49,6 +49,7 @@ const WORKDAY = {
   attendanceMarked: true,
   offReason: null,
   offLabel: null,
+  profileAddress: null,
 };
 
 beforeEach(() => {

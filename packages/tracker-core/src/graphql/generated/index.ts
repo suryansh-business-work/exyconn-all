@@ -260,6 +260,13 @@ export type AssetStatus =
   | 'LOST'
   | 'RETIRED';
 
+/** How a tracker mark-in was placed when no location could be read. */
+export type AttendanceLocationFallback =
+  /** Without any location. */
+  | 'NONE'
+  /** At the address on the employee's record. */
+  | 'PROFILE_ADDRESS';
+
 export type AttendanceStatus =
   | 'ABSENT'
   | 'HALF_DAY'
@@ -4767,7 +4774,7 @@ export type TrackerSettingsFieldsFragment = { intervalMinutes: number, screensho
 
 export type BrandingFieldsFragment = { businessName: string, legalName: string, slogan: string, logoUrl: string, logoDarkUrl: string, appIconUrl: string, faviconUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, websiteUrl: string, copyrightText: string };
 
-export type WorkdayFieldsFragment = { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null };
+export type WorkdayFieldsFragment = { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null, profileAddress: string | null };
 
 export type PresenceFieldsFragment = { status: TrackerPresence, note: string, since: string | null };
 
@@ -4777,7 +4784,7 @@ export type ManualEntryFieldsFragment = { id: string, projectName: string, taskK
 
 export type TaskFieldsFragment = { id: string, key: string, title: string, assignedToMe: boolean };
 
-export type TrackerMeFieldsFragment = { consentRequired: boolean, timezone: string, locale: string, unreadMessages: number, user: { id: string, name: string, email: string }, settings: { intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number }, workProfile: { workingTime: WorkingTime, workingTimeNote: string, workLocation: WorkLocation, workLocationNote: string, workHoursPerDay: number, targetMs: number, workDays: Array<number> }, workday: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null }, projects: Array<{ id: string, name: string, key: string }>, consentPolicy: { id: string, title: string, slug: string, summary: string, body: string, version: number, requiresAcknowledgement: boolean, acknowledged: boolean } | null, presence: { status: TrackerPresence, note: string, since: string | null }, notices: Array<{ id: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt: string | null, createdAt: string }> };
+export type TrackerMeFieldsFragment = { consentRequired: boolean, timezone: string, locale: string, unreadMessages: number, user: { id: string, name: string, email: string }, settings: { intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number }, workProfile: { workingTime: WorkingTime, workingTimeNote: string, workLocation: WorkLocation, workLocationNote: string, workHoursPerDay: number, targetMs: number, workDays: Array<number> }, workday: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null, profileAddress: string | null }, projects: Array<{ id: string, name: string, key: string }>, consentPolicy: { id: string, title: string, slug: string, summary: string, body: string, version: number, requiresAcknowledgement: boolean, acknowledged: boolean } | null, presence: { status: TrackerPresence, note: string, since: string | null }, notices: Array<{ id: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt: string | null, createdAt: string }> };
 
 export type TrackerRecordLocationMutationVariables = Exact<{
   location: TrackerLocationInput;
@@ -4935,14 +4942,14 @@ export type PublicBrandingQuery = { publicBranding: { businessName: string, lega
 export type TrackerMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerMeQuery = { trackerMe: { consentRequired: boolean, timezone: string, locale: string, unreadMessages: number, user: { id: string, name: string, email: string }, settings: { intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number }, workProfile: { workingTime: WorkingTime, workingTimeNote: string, workLocation: WorkLocation, workLocationNote: string, workHoursPerDay: number, targetMs: number, workDays: Array<number> }, workday: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null }, projects: Array<{ id: string, name: string, key: string }>, consentPolicy: { id: string, title: string, slug: string, summary: string, body: string, version: number, requiresAcknowledgement: boolean, acknowledged: boolean } | null, presence: { status: TrackerPresence, note: string, since: string | null }, notices: Array<{ id: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt: string | null, createdAt: string }> } };
+export type TrackerMeQuery = { trackerMe: { consentRequired: boolean, timezone: string, locale: string, unreadMessages: number, user: { id: string, name: string, email: string }, settings: { intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number }, workProfile: { workingTime: WorkingTime, workingTimeNote: string, workLocation: WorkLocation, workLocationNote: string, workHoursPerDay: number, targetMs: number, workDays: Array<number> }, workday: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null, profileAddress: string | null }, projects: Array<{ id: string, name: string, key: string }>, consentPolicy: { id: string, title: string, slug: string, summary: string, body: string, version: number, requiresAcknowledgement: boolean, acknowledged: boolean } | null, presence: { status: TrackerPresence, note: string, since: string | null }, notices: Array<{ id: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt: string | null, createdAt: string }> } };
 
 export type TrackerHeartbeatMutationVariables = Exact<{
   device: TrackerDeviceInput;
 }>;
 
 
-export type TrackerHeartbeatMutation = { trackerHeartbeat: { consentRequired: boolean, timezone: string, locale: string, unreadMessages: number, user: { id: string, name: string, email: string }, settings: { intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number }, workProfile: { workingTime: WorkingTime, workingTimeNote: string, workLocation: WorkLocation, workLocationNote: string, workHoursPerDay: number, targetMs: number, workDays: Array<number> }, workday: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null }, projects: Array<{ id: string, name: string, key: string }>, consentPolicy: { id: string, title: string, slug: string, summary: string, body: string, version: number, requiresAcknowledgement: boolean, acknowledged: boolean } | null, presence: { status: TrackerPresence, note: string, since: string | null }, notices: Array<{ id: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt: string | null, createdAt: string }> } };
+export type TrackerHeartbeatMutation = { trackerHeartbeat: { consentRequired: boolean, timezone: string, locale: string, unreadMessages: number, user: { id: string, name: string, email: string }, settings: { intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number }, workProfile: { workingTime: WorkingTime, workingTimeNote: string, workLocation: WorkLocation, workLocationNote: string, workHoursPerDay: number, targetMs: number, workDays: Array<number> }, workday: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null, profileAddress: string | null }, projects: Array<{ id: string, name: string, key: string }>, consentPolicy: { id: string, title: string, slug: string, summary: string, body: string, version: number, requiresAcknowledgement: boolean, acknowledged: boolean } | null, presence: { status: TrackerPresence, note: string, since: string | null }, notices: Array<{ id: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt: string | null, createdAt: string }> } };
 
 export type TrackerSetTimezoneMutationVariables = Exact<{
   timezone: Scalars['String']['input'];
@@ -4961,11 +4968,12 @@ export type TrackerAcceptConsentMutation = { trackerAcceptConsent: boolean };
 export type TrackerMarkAttendanceMutationVariables = Exact<{
   status: AttendanceStatus;
   note: InputMaybe<Scalars['String']['input']>;
-  location: TrackerLocationInput;
+  location: InputMaybe<TrackerLocationInput>;
+  fallback: InputMaybe<AttendanceLocationFallback>;
 }>;
 
 
-export type TrackerMarkAttendanceMutation = { trackerMarkAttendance: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null } };
+export type TrackerMarkAttendanceMutation = { trackerMarkAttendance: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean, offReason: TrackerOffReason | null, offLabel: string | null, profileAddress: string | null } };
 
 export type TrackerTaskOptionsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -5104,6 +5112,7 @@ export const WorkdayFieldsFragmentDoc = new TypedDocumentString(`
   attendanceMarked
   offReason
   offLabel
+  profileAddress
 }
     `, {"fragmentName":"WorkdayFields"}) as unknown as TypedDocumentString<WorkdayFieldsFragment, unknown>;
 export const PresenceFieldsFragmentDoc = new TypedDocumentString(`
@@ -5201,6 +5210,7 @@ fragment WorkdayFields on TrackerWorkday {
   attendanceMarked
   offReason
   offLabel
+  profileAddress
 }
 fragment PresenceFields on TrackerPresenceState {
   status
@@ -5530,6 +5540,7 @@ fragment WorkdayFields on TrackerWorkday {
   attendanceMarked
   offReason
   offLabel
+  profileAddress
 }
 fragment PresenceFields on TrackerPresenceState {
   status
@@ -5627,6 +5638,7 @@ fragment WorkdayFields on TrackerWorkday {
   attendanceMarked
   offReason
   offLabel
+  profileAddress
 }
 fragment PresenceFields on TrackerPresenceState {
   status
@@ -5703,8 +5715,13 @@ export const TrackerAcceptConsentDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<TrackerAcceptConsentMutation, TrackerAcceptConsentMutationVariables>;
 export const TrackerMarkAttendanceDocument = new TypedDocumentString(`
-    mutation TrackerMarkAttendance($status: AttendanceStatus!, $note: String, $location: TrackerLocationInput!) {
-  trackerMarkAttendance(status: $status, note: $note, location: $location) {
+    mutation TrackerMarkAttendance($status: AttendanceStatus!, $note: String, $location: TrackerLocationInput, $fallback: AttendanceLocationFallback) {
+  trackerMarkAttendance(
+    status: $status
+    note: $note
+    location: $location
+    fallback: $fallback
+  ) {
     ...WorkdayFields
   }
 }
@@ -5717,6 +5734,7 @@ export const TrackerMarkAttendanceDocument = new TypedDocumentString(`
   attendanceMarked
   offReason
   offLabel
+  profileAddress
 }`) as unknown as TypedDocumentString<TrackerMarkAttendanceMutation, TrackerMarkAttendanceMutationVariables>;
 export const TrackerTaskOptionsDocument = new TypedDocumentString(`
     query TrackerTaskOptions($projectId: ID!) {

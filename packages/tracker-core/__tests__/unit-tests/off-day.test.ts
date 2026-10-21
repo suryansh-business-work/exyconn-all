@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TrackerOffDayError, offDayMessage } from '../../src/off-day';
 import { trackerErrorText } from '../../src/tracker-error';
-import { LOCATION_UNAVAILABLE_MESSAGE } from '../../src/location';
+import { TrackerLocationError } from '../../src/location';
 import { t } from './translator';
 
 describe('offDayMessage', () => {
@@ -58,12 +58,14 @@ describe('TrackerOffDayError', () => {
 describe('trackerErrorText', () => {
   const working = { offReason: null, offLabel: null };
 
-  it('translates the location-off sentence by its English key', () => {
+  it('words a location failure from the platform’s reason, translated by its English key', () => {
     const french = (source: string) =>
-      source === LOCATION_UNAVAILABLE_MESSAGE ? 'Localisation désactivée.' : source;
-    expect(trackerErrorText(LOCATION_UNAVAILABLE_MESSAGE, working, french)).toBe(
-      'Localisation désactivée.',
-    );
+      source === 'Reading your location took too long. Try again in a moment.'
+        ? 'Lecture trop longue.'
+        : source;
+    const message = new TrackerLocationError('Geolocation failed (code 3): Timeout expired')
+      .message;
+    expect(trackerErrorText(message, working, french)).toBe('Lecture trop longue.');
   });
 
   it('words a refusal on an off day from today’s workday', () => {

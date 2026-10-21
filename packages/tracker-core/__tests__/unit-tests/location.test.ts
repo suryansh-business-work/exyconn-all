@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   LOCATION_MIN_MOVE_METRES,
   LOCATION_POLL_MS,
+  LOCATION_DETAIL_MARK,
   LOCATION_UNAVAILABLE_MESSAGE,
   LocationPoller,
   TrackerLocationError,
@@ -80,8 +81,24 @@ describe('readLocation', () => {
     const read = readLocation({ current: () => Promise.reject(cause) });
 
     await expect(read).rejects.toBeInstanceOf(TrackerLocationError);
-    await expect(read).rejects.toThrow(LOCATION_UNAVAILABLE_MESSAGE);
+    await expect(read).rejects.toThrow(
+      `${LOCATION_UNAVAILABLE_MESSAGE}${LOCATION_DETAIL_MARK}permission denied`,
+    );
     expect(log).toHaveBeenCalledWith('Reading the device location failed', cause);
+  });
+
+  it('passes a platform’s own location error through with its reason', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const cause = new TrackerLocationError('Location permission denied');
+    await expect(readLocation({ current: () => Promise.reject(cause) })).rejects.toBe(cause);
+  });
+
+  it('keeps only the marker when the platform rejects with something that is not an Error', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const read = readLocation({ current: () => Promise.reject(new Error('')) });
+    await expect(read).rejects.toThrow(LOCATION_UNAVAILABLE_MESSAGE);
+    const bare = readLocation({ current: () => Promise.reject('nope') });
+    await expect(bare).rejects.toHaveProperty('message', LOCATION_UNAVAILABLE_MESSAGE);
   });
 
   it('names its error so logs can tell it apart', () => {
@@ -190,6 +207,7 @@ describe('LocationPoller', () => {
 describe('isLocationUnavailable', () => {
   it('recognises only the location sentence', () => {
     expect(isLocationUnavailable(LOCATION_UNAVAILABLE_MESSAGE)).toBe(true);
+    expect(isLocationUnavailable(new TrackerLocationError('code 1').message)).toBe(true);
     expect(isLocationUnavailable('Network down.')).toBe(false);
     expect(isLocationUnavailable('')).toBe(false);
   });

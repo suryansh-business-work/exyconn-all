@@ -24,6 +24,7 @@ import { trackerWorkdayService } from './tracker.workday.service';
 import { trackerMessageService, type NoticeInput } from './tracker.message.service';
 import { setPresence } from './tracker.presence.service';
 import type { LocationInput } from './tracker.location.service';
+import type { AttendanceLocationFallback } from '../hr/attendance.model';
 import type { ManualEntryStatus, PresenceStatus, TrackerMessageKind } from './tracker.constants';
 import {
   getTrackerSettings,
@@ -510,12 +511,39 @@ export const trackerResolvers = {
     /** Marks the caller in for their own local day — the device token decides whose day. */
     trackerMarkAttendance: async (
       _p: unknown,
-      { status, note, location }: { status: string; note?: string | null; location: LocationInput },
+      {
+        status,
+        note,
+        location,
+        fallback,
+      }: {
+        status: string;
+        note?: string | null;
+        location?: LocationInput | null;
+        fallback?: AttendanceLocationFallback | null;
+      },
       ctx: GraphQLContext,
     ) => {
       const { userId, deviceId } = await assertTrackerDevice(ctx);
       const state = await trackerDeviceService.me(userId, deviceId);
-      return trackerDeviceService.markAttendance(userId, state.timezone, status, note, location);
+      const workday = await trackerDeviceService.markAttendance(
+        userId,
+        state.timezone,
+        status,
+        note,
+        location,
+        fallback,
+      );
+      if (fallback) {
+        // Marking in without a device fix is an override HR has to be able to find later.
+        await recordAudit(ctx, {
+          action: 'UPDATE',
+          module: 'Attendance',
+          entityId: userId,
+          summary: `Marked attendance for ${workday.date} from the tracker without a device location (${fallback})`,
+        });
+      }
+      return workday;
     },
     /** Keep-alive: touches lastSeenAt and answers with the state the app should adopt. */
     trackerHeartbeat: async (

@@ -78,6 +78,18 @@ describe('TrackerController location', () => {
     await setup.controller.stop();
   });
 
+  it('marks in with a fallback and pins the first fix the tracking checks read', async () => {
+    const setup = await signedIn({ workday: { ...WORKDAY, attendanceMarked: false } });
+    await setup.controller.markAttendance('PRESENT', null, 'NONE');
+    expect(setup.portal.markAttendance).toHaveBeenCalledWith('PRESENT', null, 'NONE');
+    await setup.controller.start();
+
+    // No attendance pin to measure from, so the first fix while tracking is kept.
+    await vi.advanceTimersByTimeAsync(LOCATION_POLL_MS);
+    expect(setup.portal.recordLocation).toHaveBeenCalledWith(LOCATION);
+    await setup.controller.stop();
+  });
+
   it('stops polling on sign-out', async () => {
     const setup = await signedIn();
     await setup.controller.start();

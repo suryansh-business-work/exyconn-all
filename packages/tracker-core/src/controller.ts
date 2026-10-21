@@ -28,6 +28,7 @@ import type {
   TrackerMessageKind,
   TrackerProject,
   TrackerEarnings,
+  AttendancePlace,
   TrackerLocationInput,
   TrackerLocationPin,
   TrackerSettings,
@@ -502,18 +503,21 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
    *
    * The portal decides which day that is (from the zone it resolved for them) and upserts the
    * same record HR's own page writes — so somebody who marked in from the portal this morning
-   * is already marked in here. Where they are is pinned with it: `location` is the fix the
+   * is already marked in here. Where they are is pinned with it: `place` is the fix the
    * employee was shown and confirmed (from `readLocation`), sent as it is — never read again,
-   * so the saved pin is the one they saw. An off day is refused before anything is sent.
+   * so the saved pin is the one they saw — or, when no fix could be read, the fallback they
+   * chose (their profile address, or no location). An off day is refused before anything is sent.
    */
   async markAttendance(
     status: AttendanceStatus,
     note: string | null,
-    location: TrackerLocationInput,
+    place: AttendancePlace,
   ): Promise<Workday> {
     this.assertWorkingDay();
-    const workday = await this.deps.portal.markAttendance(status, note, location);
-    this.locations.remember(location);
+    const workday = await this.deps.portal.markAttendance(status, note, place);
+    if (typeof place !== 'string') {
+      this.locations.remember(place);
+    }
     this.adoptWorkday(workday);
     this.emit();
     return workday;

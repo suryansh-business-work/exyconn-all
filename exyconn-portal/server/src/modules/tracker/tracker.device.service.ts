@@ -10,7 +10,13 @@ import { hashToken } from './tracker.auth';
 import { TRACKER_LIMITS } from './tracker.constants';
 import { getTrackerSettings } from './tracker.settings.service';
 import { isValidTimezone, resolveEffectiveTimezone, zonedDayStartUtc } from './tracker.timezone';
-import { trackerWorkdayService } from './tracker.workday.service';
+import {
+  profileAddressOf,
+  trackerWorkdayService,
+  type AttendancePlacement,
+  type WorkProfileSource,
+} from './tracker.workday.service';
+import type { AttendanceLocationFallback } from '../hr/attendance.model';
 import { trackerMessageService } from './tracker.message.service';
 import { presenceOf } from './tracker.presence.service';
 import { assertWorkingDay } from './tracker.offday';
@@ -145,6 +151,39 @@ async function assertDeviceEnrollable(deviceId: string, grantedAt: Date): Promis
 }
 
 /** Desktop-tracker logic (singleton). */
+/**
+ * Where a mark-in is placed: the confirmed device pin, or — only when the device could not read
+ * one — a fallback. The profile address is read here, from HR's record, never from the client.
+ */
+async function placeAttendance(
+  userId: string,
+  timezone: string,
+  user: Pick<WorkProfileSource, 'address'>,
+  location: LocationInput | null | undefined,
+  fallback: AttendanceLocationFallback | null | undefined,
+): Promise<AttendancePlacement> {
+  if (location && fallback) {
+    badRequest('Send either a location or a fallback, not both.');
+  }
+  if (location) {
+    await trackerLocationService.recordAttendance(userId, timezone, location);
+    return { locationFallback: null, manualLocation: null };
+  }
+  if (fallback === 'NONE') {
+    return { locationFallback: 'NONE', manualLocation: null };
+  }
+  if (fallback !== 'PROFILE_ADDRESS') {
+    badRequest('Attendance needs a location, or a choice to mark in without one.');
+  }
+  const address = profileAddressOf(user);
+  if (address === null) {
+    badRequest(
+      'There is no address on your employee record. Ask HR to add one, or mark in without a location.',
+    );
+  }
+  return { locationFallback: 'PROFILE_ADDRESS', manualLocation: address };
+}
+
 class TrackerDeviceService {
   /**
    * Signs a device in and issues a non-expiring token bound to a device record.
@@ -362,24 +401,26 @@ class TrackerDeviceService {
     timezone: string,
     status: string,
     note: string | null | undefined,
-    location: LocationInput,
+    location: LocationInput | null | undefined,
+    fallback?: AttendanceLocationFallback | null,
   ) {
     const access = await TrackerAccessModel.findOne({ userId, isActive: true }).lean();
     if (!access) {
       forbidden('Your tracker access has been revoked.');
     }
     await assertWorkingDay(userId, timezone);
-    await trackerLocationService.recordAttendance(userId, timezone, location);
+    const user = await UserModel.findById(userId).lean();
+    if (!user) {
+      unauthenticated('Account no longer exists');
+    }
+    const placed = await placeAttendance(userId, timezone, user, location, fallback);
     await trackerWorkdayService.markAttendance(
       userId,
       zonedDayStartUtc(new Date(), timezone),
       status,
       note,
+      placed,
     );
-    const user = await UserModel.findById(userId).lean();
-    if (!user) {
-      unauthenticated('Account no longer exists');
-    }
     return trackerWorkdayService.workday(userId, user, timezone);
   }
 

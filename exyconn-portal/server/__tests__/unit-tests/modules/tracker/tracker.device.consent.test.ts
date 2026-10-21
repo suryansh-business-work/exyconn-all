@@ -206,6 +206,64 @@ describe('marking attendance from the app', () => {
     expect(await AttendanceModel.countDocuments()).toBe(0);
   });
 
+  it('marks in at the address on the employee’s record when no fix could be read', async () => {
+    const userId = await grantedEmployee();
+    await UserModel.updateOne({ _id: userId }, { address: ' 12 Example Road ' });
+
+    await trackerDeviceService.markAttendance(
+      userId,
+      'UTC',
+      'PRESENT',
+      null,
+      null,
+      'PROFILE_ADDRESS',
+    );
+
+    await expect(AttendanceModel.findOne({ employeeId: userId }).lean()).resolves.toMatchObject({
+      locationFallback: 'PROFILE_ADDRESS',
+      manualLocation: '12 Example Road',
+    });
+    expect(await TrackerLocationModel.countDocuments()).toBe(0);
+  });
+
+  it('marks in without a location when the employee chose to', async () => {
+    const userId = await grantedEmployee();
+
+    await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, null, 'NONE');
+
+    await expect(AttendanceModel.findOne({ employeeId: userId }).lean()).resolves.toMatchObject({
+      locationFallback: 'NONE',
+      manualLocation: null,
+    });
+  });
+
+  it('records no fallback on a mark with a device fix', async () => {
+    const userId = await grantedEmployee();
+
+    await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, officeFix);
+
+    await expect(AttendanceModel.findOne({ employeeId: userId }).lean()).resolves.toMatchObject({
+      locationFallback: null,
+      manualLocation: null,
+    });
+  });
+
+  it.each([
+    ['neither a fix nor a fallback', null, null],
+    ['both a fix and a fallback', officeFix, 'NONE' as const],
+    ['the profile address when HR has not added one', null, 'PROFILE_ADDRESS' as const],
+  ])('refuses %s, marking nothing', async (_case, location, fallback) => {
+    const userId = await grantedEmployee();
+
+    await expect(
+      codeOf(
+        trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', null, location, fallback),
+      ),
+    ).resolves.toBe('BAD_USER_INPUT');
+    expect(await AttendanceModel.countDocuments()).toBe(0);
+    expect(await TrackerLocationModel.countDocuments()).toBe(0);
+  });
+
   // A Wednesday, so the off days below are the only reason a day is off.
   const WEDNESDAY = '2026-01-07T10:00:00.000Z';
 

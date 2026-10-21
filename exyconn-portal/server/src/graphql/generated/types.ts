@@ -686,6 +686,10 @@ export type Attendance = {
   date: Scalars['DateTime']['output'];
   employeeId: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** Set when a tracker could not read a location: the employee marked in at their profile address, or without one. */
+  locationFallback?: Maybe<AttendanceLocationFallback>;
+  /** The profile address the employee marked in at, when locationFallback is PROFILE_ADDRESS. */
+  manualLocation?: Maybe<Scalars['String']['output']>;
   note?: Maybe<Scalars['String']['output']>;
   status: AttendanceStatus;
   updatedAt: Scalars['DateTime']['output'];
@@ -702,11 +706,23 @@ export type AttendanceEntry = {
   employeeId: Scalars['String']['output'];
   employeeName: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** Set when the tracker could not read a location and the employee marked in another way. */
+  locationFallback?: Maybe<AttendanceLocationFallback>;
+  /** The profile address marked in at, when locationFallback is PROFILE_ADDRESS. */
+  manualLocation?: Maybe<Scalars['String']['output']>;
   note?: Maybe<Scalars['String']['output']>;
   status: AttendanceStatus;
   tracker: AttendanceTrackerBrief;
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** How a tracker mark-in was placed when no location could be read. */
+export enum AttendanceLocationFallback {
+  /** Without any location. */
+  None = 'NONE',
+  /** At the address on the employee's record. */
+  ProfileAddress = 'PROFILE_ADDRESS'
+}
 
 export type AttendancePage = {
   __typename?: 'AttendancePage';
@@ -9261,8 +9277,9 @@ export type Mutation = {
   trackerHeartbeat: TrackerMe;
   trackerLogin: TrackerLoginPayload;
   /**
-   * Marks the caller in for their current local day, pinning where they were. Tracking cannot
-   * start until they have. Refused on their week off, a holiday or approved leave.
+   * Marks the caller in for their current local day, pinning where they were — or, when the
+   * device cannot read a location, at their profile address or without one (audited). Tracking
+   * cannot start until they have. Refused on their week off, a holiday or approved leave.
    */
   trackerMarkAttendance: TrackerWorkday;
   /**
@@ -12438,7 +12455,8 @@ export type MutationTrackerLoginArgs = {
 
 
 export type MutationTrackerMarkAttendanceArgs = {
-  location: TrackerLocationInput;
+  fallback?: InputMaybe<AttendanceLocationFallback>;
+  location?: InputMaybe<TrackerLocationInput>;
   note?: InputMaybe<Scalars['String']['input']>;
   status: AttendanceStatus;
 };
@@ -21280,6 +21298,8 @@ export type TrackerWorkday = {
   offLabel?: Maybe<Scalars['String']['output']>;
   /** Why today is off — week off, holiday or approved leave. Null on a working day; tracking is refused while set. */
   offReason?: Maybe<TrackerOffReason>;
+  /** The address on the employee's record, offered when the device cannot read a location. */
+  profileAddress?: Maybe<Scalars['String']['output']>;
   targetMs: Scalars['Float']['output'];
 };
 
@@ -22573,6 +22593,7 @@ export type ResolversTypes = ResolversObject<{
   AssetStatus: AssetStatus;
   Attendance: ResolverTypeWrapper<Attendance>;
   AttendanceEntry: ResolverTypeWrapper<AttendanceEntry>;
+  AttendanceLocationFallback: AttendanceLocationFallback;
   AttendancePage: ResolverTypeWrapper<AttendancePage>;
   AttendanceProjectTime: ResolverTypeWrapper<AttendanceProjectTime>;
   AttendanceStatus: AttendanceStatus;
@@ -25053,6 +25074,8 @@ export type AttendanceResolvers<ContextType = GraphQLContext, ParentType extends
   date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  locationFallback?: Resolver<Maybe<ResolversTypes['AttendanceLocationFallback']>, ParentType, ContextType>;
+  manualLocation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['AttendanceStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -25068,6 +25091,8 @@ export type AttendanceEntryResolvers<ContextType = GraphQLContext, ParentType ex
   employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   employeeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  locationFallback?: Resolver<Maybe<ResolversTypes['AttendanceLocationFallback']>, ParentType, ContextType>;
+  manualLocation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['AttendanceStatus'], ParentType, ContextType>;
   tracker?: Resolver<ResolversTypes['AttendanceTrackerBrief'], ParentType, ContextType>;
@@ -29875,7 +29900,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
-  trackerMarkAttendance?: Resolver<ResolversTypes['TrackerWorkday'], ParentType, ContextType, RequireFields<MutationTrackerMarkAttendanceArgs, 'location' | 'status'>>;
+  trackerMarkAttendance?: Resolver<ResolversTypes['TrackerWorkday'], ParentType, ContextType, RequireFields<MutationTrackerMarkAttendanceArgs, 'status'>>;
   trackerRecordLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTrackerRecordLocationArgs, 'location'>>;
   trackerSetTimezone?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationTrackerSetTimezoneArgs, 'timezone'>>;
   trackerStartSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStartSessionArgs, 'startedAt'>>;
@@ -33242,6 +33267,7 @@ export type TrackerWorkdayResolvers<ContextType = GraphQLContext, ParentType ext
   manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   offLabel?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   offReason?: Resolver<Maybe<ResolversTypes['TrackerOffReason']>, ParentType, ContextType>;
+  profileAddress?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   targetMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

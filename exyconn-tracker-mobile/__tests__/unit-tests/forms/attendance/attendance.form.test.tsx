@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import {
-  LOCATION_UNAVAILABLE_MESSAGE,
+  TrackerLocationError,
   type TrackerLocationInput,
   type Workday,
 } from '@exyconn/tracker-core';
@@ -26,6 +26,7 @@ const MARKED: Workday = {
   attendanceMarked: true,
   offReason: null,
   offLabel: null,
+  profileAddress: null,
 };
 
 const TODAY: Workday = { ...MARKED, attendanceStatus: null, attendanceMarked: false };
@@ -40,6 +41,14 @@ const PIN: TrackerLocationInput = {
 };
 
 const CONFIRM = 'Confirm & mark attendance';
+const PROFILE_ADDRESS = 'Mark in at my profile address';
+const WITHOUT_LOCATION = 'Mark in without location';
+
+/** expo-location's refusal, as the phone's provider words it. */
+const DENIED = 'Location permission denied';
+
+/** A made-up address on the employee's record. */
+const ADDRESS = '12 Example Road, Testville';
 
 function markAttendance(): void {
   fireEvent.click(screen.getByRole('button', { name: 'Mark attendance' }));
@@ -116,30 +125,83 @@ describe('AttendanceForm', () => {
     expect(tracker.markAttendance).not.toHaveBeenCalled();
   });
 
-  it('says location access is off when no fix can be read', async () => {
+  it('explains why no location could be read, with the platform’s reason and its settings', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const cause = new Error(LOCATION_UNAVAILABLE_MESSAGE);
+    const cause = new TrackerLocationError(DENIED);
     vi.mocked(tracker.readLocation).mockRejectedValue(cause);
     renderWithProviders(<AttendanceForm workday={TODAY} />);
     markAttendance();
-    expect(await screen.findByText(LOCATION_UNAVAILABLE_MESSAGE)).toBeInTheDocument();
+    expect(await screen.findByText('Your location could not be read')).toBeInTheDocument();
+    expect(
+      screen.getByText(/The tracker is not allowed to use your location\./),
+    ).toBeInTheDocument();
+    expect(screen.getByText(`Details: ${DENIED}`)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: CONFIRM })).toBeNull();
     expect(error).toHaveBeenCalledWith('Reading the location for attendance failed', cause);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open location settings' }));
+    expect(Linking.openSettings).toHaveBeenCalledTimes(1);
+    expect(tracker.markAttendance).not.toHaveBeenCalled();
   });
 
-  it('offers the location settings beside the error, and drops them on the next try', async () => {
+  it('marks in at the profile address when no location can be read', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(tracker.readLocation).mockRejectedValue(new TrackerLocationError(DENIED));
+    vi.mocked(tracker.markAttendance).mockResolvedValue(MARKED);
+    renderWithProviders(<AttendanceForm workday={{ ...TODAY, profileAddress: ADDRESS }} />);
+    markAttendance();
+    expect(await screen.findByText(ADDRESS)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: PROFILE_ADDRESS }));
+    await waitFor(() =>
+      expect(tracker.markAttendance).toHaveBeenCalledWith('PRESENT', null, 'PROFILE_ADDRESS'),
+    );
+    await waitFor(() => expect(screen.queryByText(ADDRESS)).toBeNull());
+  });
+
+  it('offers no profile address when HR has none, and marks in without location', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(tracker.readLocation).mockRejectedValue(new TrackerLocationError(DENIED));
+    vi.mocked(tracker.markAttendance).mockResolvedValue(MARKED);
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
+    markAttendance();
+    expect(
+      await screen.findByText('There is no address on your employee record. Ask HR to add one.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: PROFILE_ADDRESS })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    fireEvent.click(screen.getByRole('button', { name: WITHOUT_LOCATION }));
+    await waitFor(() =>
+      expect(tracker.markAttendance).toHaveBeenCalledWith('PRESENT', null, 'NONE'),
+    );
+  });
+
+  it('keeps the sheet open with the portal’s reason when the fallback is refused', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(tracker.readLocation).mockRejectedValue(new TrackerLocationError(DENIED));
+    vi.mocked(tracker.markAttendance).mockRejectedValue(
+      new Error('Your tracker access has been revoked.'),
+    );
+    renderWithProviders(<AttendanceForm workday={TODAY} />);
+    markAttendance();
+    fireEvent.click(await screen.findByRole('button', { name: WITHOUT_LOCATION }));
+    expect(await screen.findByText('Your tracker access has been revoked.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByText('Your location could not be read')).toBeNull());
+  });
+
+  it('reads again on Try again, and shows a failure that is not about location under the form', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.mocked(tracker.readLocation)
-      .mockRejectedValueOnce(new Error(LOCATION_UNAVAILABLE_MESSAGE))
+      .mockRejectedValueOnce(new TrackerLocationError(DENIED))
       .mockRejectedValueOnce(new Error('GPS timed out.'));
     renderWithProviders(<AttendanceForm workday={TODAY} />);
     markAttendance();
-    fireEvent.click(await screen.findByRole('button', { name: 'Open location settings' }));
-    expect(Linking.openSettings).toHaveBeenCalledTimes(1);
-
-    markAttendance();
+    fireEvent.click(await screen.findByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('GPS timed out.')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Open location settings' })).toBeNull();
+    expect(screen.queryByText('Your location could not be read')).toBeNull();
+    expect(tracker.readLocation).toHaveBeenCalledTimes(2);
   });
 
   it('falls back to a plain sentence when locating fails with no reason', async () => {
