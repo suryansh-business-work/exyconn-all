@@ -1,3 +1,5 @@
+import { trimTrailing } from '../../utils/textTrim';
+
 /**
  * Firecrawl's scrape endpoint (v2): one page, main content only, as markdown. Called from this
  * server with the active config's key, so the key never reaches a browser. A self-hosted
@@ -18,7 +20,7 @@ interface ScrapePayload {
 }
 
 /** The scrape endpoint of a Firecrawl install, whatever trailing slash the base URL carries. */
-export const scrapeUrlOf = (baseUrl: string) => `${baseUrl.replace(/\/+$/, '')}/v2/scrape`;
+export const scrapeUrlOf = (baseUrl: string) => `${trimTrailing(baseUrl, '/')}/v2/scrape`;
 
 export async function firecrawlScrape(
   baseUrl: string,

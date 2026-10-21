@@ -594,25 +594,24 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
  * an existing row is somebody's edit and is left exactly as it is.
  */
 export async function ensureEmailDefaults(): Promise<void> {
-  let created = 0;
-
-  for (const fragment of FRAGMENTS) {
-    const result = await EmailFragmentModel.updateOne(
-      { key: fragment.key },
-      { $setOnInsert: fragment },
-      { upsert: true },
-    );
-    created += result.upsertedCount;
-  }
-
-  for (const template of TEMPLATES) {
-    const result = await EmailTemplateModel.updateOne(
-      { key: template.key },
-      { $setOnInsert: { ...template, isActive: true } },
-      { upsert: true },
-    );
-    created += result.upsertedCount;
-  }
+  // Every fragment and template has its own key, so the upserts never touch the same row.
+  const results = await Promise.all([
+    ...FRAGMENTS.map((fragment) =>
+      EmailFragmentModel.updateOne(
+        { key: fragment.key },
+        { $setOnInsert: fragment },
+        { upsert: true },
+      ),
+    ),
+    ...TEMPLATES.map((template) =>
+      EmailTemplateModel.updateOne(
+        { key: template.key },
+        { $setOnInsert: { ...template, isActive: true } },
+        { upsert: true },
+      ),
+    ),
+  ]);
+  const created = results.reduce((sum, result) => sum + result.upsertedCount, 0);
 
   // The chase gained a "Pay now" link; an untouched copy of the first version gets it too.
   const upgraded = await EmailTemplateModel.updateOne(

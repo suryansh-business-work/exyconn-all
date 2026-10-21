@@ -37,9 +37,12 @@ const POSITION_DEFAULTS = { minSalary: 0, maxSalary: 0, headcount: 1, active: tr
  * `minSalary` and failed the whole ListDepartments response. A no-op once none is left.
  */
 export async function backfillPositionDefaults(): Promise<void> {
-  for (const [field, value] of Object.entries(POSITION_DEFAULTS)) {
-    await PositionModel.updateMany({ [field]: null }, { $set: { [field]: value } });
-  }
+  // Each update fills a different field, so they run side by side.
+  await Promise.all(
+    Object.entries(POSITION_DEFAULTS).map(([field, value]) =>
+      PositionModel.updateMany({ [field]: null }, { $set: { [field]: value } }),
+    ),
+  );
 }
 
 /** The department head's name for display; null when nobody is set. */
@@ -50,12 +53,12 @@ export async function headNameOf(headId?: string | null): Promise<string | null>
 }
 
 /** Active people holding a position, which is what its headcount is measured against. */
-export async function filledCount(position: { name: string; department: string }): Promise<number> {
+export function filledCount(position: { name: string; department: string }): Promise<number> {
   return UserModel.countDocuments({
     isActive: true,
     department: position.department,
     designation: position.name,
-  });
+  }).exec();
 }
 
 /** The department's current name, read before an update so a rename can be followed. */

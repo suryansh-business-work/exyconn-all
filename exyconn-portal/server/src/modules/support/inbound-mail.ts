@@ -114,7 +114,7 @@ function isHostable(file: InboundAttachment): boolean {
  * past its total — is skipped with a log line rather than stored.
  */
 async function hostAttachments(files: InboundAttachment[], uploadedBy: string) {
-  const hosted: AttachmentInput[] = [];
+  const allowed: InboundAttachment[] = [];
   let total = 0;
   for (const file of files) {
     if (!isHostable(file) || total + file.content.length > MAX_TOTAL_ATTACHMENT_BYTES) {
@@ -124,13 +124,20 @@ async function hostAttachments(files: InboundAttachment[], uploadedBy: string) {
       continue;
     }
     total += file.content.length;
-    const url = await imageUploader.uploadImage(
-      file.content.toString('base64'),
-      file.filename,
-      'support',
-    );
-    hosted.push({ url, name: file.filename, contentType: file.contentType });
+    allowed.push(file);
   }
+  // The uploads are independent of one another; the email's total is already bounded above.
+  const hosted: AttachmentInput[] = await Promise.all(
+    allowed.map(async (file) => ({
+      url: await imageUploader.uploadImage(
+        file.content.toString('base64'),
+        file.filename,
+        'support',
+      ),
+      name: file.filename,
+      contentType: file.contentType,
+    })),
+  );
   return toAttachments(hosted, uploadedBy);
 }
 

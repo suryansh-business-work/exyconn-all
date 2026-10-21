@@ -71,14 +71,17 @@ async function createInternalAudit(
   return crud.Mutation.createInternalAudit(_p, { input: completed } as never, ctx);
 }
 
-async function updateInternalAudit(
+function updateInternalAudit(
   _p: unknown,
   args: { id: string; input: InternalAuditInput },
   ctx: GraphQLContext,
 ) {
-  assertAuthenticated(ctx);
-  const completed = { id: args.id, input: withEvidence(args.input, ctx) };
-  return crud.Mutation.updateInternalAudit(_p, completed as never, ctx);
+  // Inside the chain so an unauthenticated caller gets a rejected promise, not a throw.
+  return Promise.resolve().then(() => {
+    assertAuthenticated(ctx);
+    const completed = { id: args.id, input: withEvidence(args.input, ctx) };
+    return crud.Mutation.updateInternalAudit(_p, completed as never, ctx);
+  });
 }
 
 export const auditResolvers = {

@@ -4,16 +4,19 @@ import type { Actor } from './board.service';
 
 /** Ids of a page and everything filed under it, however deep. */
 async function subtreeIds(rootId: string): Promise<string[]> {
-  const ids = [rootId];
-  let frontier = [rootId];
-  while (frontier.length > 0) {
-    const children = await DocPageModel.find({ parentId: { $in: frontier } })
-      .select('_id')
-      .lean();
-    frontier = children.map((child) => child._id.toString());
-    ids.push(...frontier);
+  return [rootId, ...(await descendantIds([rootId]))];
+}
+
+/** Ids below `frontier`, one level per query: each level is found from the one above it. */
+async function descendantIds(frontier: string[]): Promise<string[]> {
+  if (frontier.length === 0) {
+    return [];
   }
-  return ids;
+  const children = await DocPageModel.find({ parentId: { $in: frontier } })
+    .select('_id')
+    .lean();
+  const next = children.map((child) => child._id.toString());
+  return [...next, ...(await descendantIds(next))];
 }
 
 /** Rewrites `order` across one parent's children, optionally forcing one to an index. */

@@ -5,7 +5,12 @@ import { isValidTimezone } from '../../../utils/timezone';
 import { logger } from '../../../utils/logger';
 import { OrganizationModel } from '../../organizations/organization.model';
 import { BrandingModel } from '../../branding';
-import { contactByEmail, findOrCreateContact, logContactActivity } from '../contact.upsert';
+import {
+  contactByEmail,
+  findOrCreateContact,
+  logContactActivity,
+  type ContactRef,
+} from '../contact.upsert';
 import { systemOrigin } from '../crm.origin';
 import { MeetingBookingModel, MeetingTypeModel, type MeetingTypeDocument } from './meeting.models';
 import { meetingSettings, type MeetingSettings } from './meeting.settings';
@@ -216,15 +221,17 @@ async function fileOnContacts(type: MeetingTypeRow, booker: Booker, startAt: Dat
     notes,
   });
   const guests = await Promise.all(booker.guests.map(contactByEmail));
-  for (const guest of guests) {
-    if (guest && guest.id !== contact.id) {
-      await logContactActivity(guest, {
-        ...activity,
-        subject: `${type.title} with ${booker.name} (guest)`,
-        notes,
-      });
-    }
-  }
+  await Promise.all(
+    guests
+      .filter((guest): guest is ContactRef => guest !== null && guest.id !== contact.id)
+      .map((guest) =>
+        logContactActivity(guest, {
+          ...activity,
+          subject: `${type.title} with ${booker.name} (guest)`,
+          notes,
+        }),
+      ),
+  );
   return contact;
 }
 

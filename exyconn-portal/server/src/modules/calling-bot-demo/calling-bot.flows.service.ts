@@ -55,12 +55,15 @@ export async function saveScenarioFlow(id: string, flow: unknown) {
  * then (drawn in Tech), or that Tech deleted, is left alone.
  */
 export async function ensureCallingBotFlows(): Promise<void> {
-  for (const [key, graph] of Object.entries(SCENARIO_FLOWS)) {
-    await runOnce(`calling-bot-flow:${key}`, async () => {
-      await CallingBotScenarioModel.updateOne(
-        { key, $or: [{ flow: null }, { flow: { $exists: false } }] },
-        { flow: graph, callScript: toCallScript(graph) },
-      );
-    });
-  }
+  // Each example has its own ledger line and its own row, so they are filled side by side.
+  await Promise.all(
+    Object.entries(SCENARIO_FLOWS).map(([key, graph]) =>
+      runOnce(`calling-bot-flow:${key}`, async () => {
+        await CallingBotScenarioModel.updateOne(
+          { key, $or: [{ flow: null }, { flow: { $exists: false } }] },
+          { flow: graph, callScript: toCallScript(graph) },
+        );
+      }),
+    ),
+  );
 }

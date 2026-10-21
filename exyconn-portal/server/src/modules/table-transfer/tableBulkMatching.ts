@@ -100,14 +100,20 @@ export async function collectMatchingIds(
 ): Promise<string[]> {
   const query = matchingQuery(schema, list, variables);
   const ids = new Set<string>();
-  for (let page = 0; ids.size < max; page += 1) {
+  // Page after page: whether to read the next one depends on what this one returned.
+  const readFrom = async (page: number): Promise<void> => {
+    if (ids.size >= max) {
+      return;
+    }
     const result = await readPage(schema, ctx, query, variables, page, MATCHING_PAGE_SIZE);
     for (const row of result.rows) {
       ids.add(row.id);
     }
     if (result.rows.length === 0 || ids.size >= result.totalCount) {
-      break;
+      return;
     }
-  }
+    await readFrom(page + 1);
+  };
+  await readFrom(0);
   return [...ids].slice(0, max);
 }

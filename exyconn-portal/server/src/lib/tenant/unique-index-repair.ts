@@ -27,24 +27,39 @@ function isPlatformWide(index: IndexInfo, platformPaths: ReadonlySet<string>): b
  * the name is taken by a record it cannot see. Only the stray index goes — the scoped one the
  * schema declares is built by Mongoose as usual. Runs at boot; costs one listing per model.
  */
-export async function dropPlatformWideUniqueIndexes(): Promise<string[]> {
-  const dropped: string[] = [];
-  for (const [modelName, model] of Object.entries(mongoose.models)) {
-    if (PLATFORM_MODELS.has(modelName)) continue;
-    const platformPaths = PLATFORM_UNIQUE_PATHS.get(modelName) ?? new Set<string>();
-    let indexes: IndexInfo[];
-    try {
-      indexes = (await model.collection.indexes()) as IndexInfo[];
-    } catch {
-      // No collection yet: nothing has been written, so there is no stray index either.
-      continue;
-    }
-    for (const index of indexes.filter((row) => isPlatformWide(row, platformPaths))) {
-      const name = String(index.name);
-      await model.collection.dropIndex(name);
-      dropped.push(`${modelName}.${name}`);
-    }
+/** Drops one model's stray platform-wide unique indexes and names each one dropped. */
+async function dropStrayIndexes(
+  modelName: string,
+  model: mongoose.Model<unknown>,
+): Promise<string[]> {
+  const platformPaths = PLATFORM_UNIQUE_PATHS.get(modelName) ?? new Set<string>();
+  let indexes: IndexInfo[];
+  try {
+    indexes = (await model.collection.indexes()) as IndexInfo[];
+  } catch {
+    // No collection yet: nothing has been written, so there is no stray index either.
+    return [];
   }
+  // Each index is dropped by name, independently of the others.
+  return Promise.all(
+    indexes
+      .filter((row) => isPlatformWide(row, platformPaths))
+      .map(async (index) => {
+        const name = String(index.name);
+        await model.collection.dropIndex(name);
+        return `${modelName}.${name}`;
+      }),
+  );
+}
+
+export async function dropPlatformWideUniqueIndexes(): Promise<string[]> {
+  // Every model owns its own collection, so the models are repaired side by side.
+  const perModel = await Promise.all(
+    Object.entries(mongoose.models)
+      .filter(([modelName]) => !PLATFORM_MODELS.has(modelName))
+      .map(([modelName, model]) => dropStrayIndexes(modelName, model)),
+  );
+  const dropped = perModel.flat();
   if (dropped.length > 0) {
     logger.warn(`Dropped unique indexes that spanned every organization: ${dropped.join(', ')}`);
   }

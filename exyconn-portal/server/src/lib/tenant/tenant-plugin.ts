@@ -4,7 +4,7 @@ import { PLATFORM_UNIQUE_PATHS } from './platform-models';
 import { TenantScopeError, currentScope, requireScope } from './tenant-scope';
 
 /** What a path's own index declaration looks like: `index: true`, or options, or nothing. */
-type PathIndex = { unique?: boolean; sparse?: boolean } | boolean | null | undefined;
+type PathIndex = { unique?: boolean; sparse?: boolean } | boolean | null;
 
 /** The field every tenant record carries. */
 export const ORGANIZATION_FIELD = 'organizationId';

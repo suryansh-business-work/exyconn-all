@@ -24,30 +24,44 @@ interface PublishedFragment {
   css: string;
 }
 
+/**
+ * Loads one nesting level of fragments into `found`, then the level they use in turn — each
+ * level needs the one before it, so the levels are read one after another.
+ */
+async function collectFragments(
+  siteId: string,
+  wanted: string[],
+  depth: number,
+  found: Map<string, PublishedFragment>,
+): Promise<void> {
+  if (depth >= MAX_FRAGMENT_DEPTH || wanted.length === 0) {
+    return;
+  }
+  const ids = wanted.filter((id) => !found.has(id) && /^[a-f\d]{24}$/i.test(id));
+  const rows = await CmsFragmentModel.find({
+    _id: { $in: ids },
+    siteId,
+    published: { $ne: null },
+  })
+    .select('published')
+    .lean();
+  const next: string[] = [];
+  for (const row of rows) {
+    const fragment = {
+      id: String(row._id),
+      blocks: (row.published?.blocks ?? []) as CmsBlock[],
+      css: row.published?.css ?? '',
+    };
+    found.set(fragment.id, fragment);
+    next.push(...fragmentIdsOf(fragment.blocks));
+  }
+  await collectFragments(siteId, next, depth + 1, found);
+}
+
 /** The published fragments a block tree uses, and the ones they use in turn. */
 async function fragmentsFor(siteId: string, blocks: CmsBlock[]): Promise<PublishedFragment[]> {
   const found = new Map<string, PublishedFragment>();
-  let wanted = fragmentIdsOf(blocks);
-  for (let depth = 0; depth < MAX_FRAGMENT_DEPTH && wanted.length > 0; depth += 1) {
-    const ids = wanted.filter((id) => !found.has(id) && /^[a-f\d]{24}$/i.test(id));
-    const rows = await CmsFragmentModel.find({
-      _id: { $in: ids },
-      siteId,
-      published: { $ne: null },
-    })
-      .select('published')
-      .lean();
-    wanted = [];
-    for (const row of rows) {
-      const fragment = {
-        id: String(row._id),
-        blocks: (row.published?.blocks ?? []) as CmsBlock[],
-        css: row.published?.css ?? '',
-      };
-      found.set(fragment.id, fragment);
-      wanted.push(...fragmentIdsOf(fragment.blocks));
-    }
-  }
+  await collectFragments(siteId, fragmentIdsOf(blocks), 0, found);
   return [...found.values()];
 }
 

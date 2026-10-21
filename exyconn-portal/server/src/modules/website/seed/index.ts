@@ -32,18 +32,17 @@ async function seedCollection<T extends object>(
   label: string,
 ): Promise<void> {
   const writable = model as unknown as Model<T>;
-  let inserted = 0;
-
-  for (const fixture of fixtures) {
-    const result = await writable.updateOne(
-      { [naturalKey]: fixture[naturalKey] } as never,
-      { $setOnInsert: fixture },
-      { upsert: true },
-    );
-    if (result.upsertedCount > 0) {
-      inserted += 1;
-    }
-  }
+  // Every fixture has its own natural key, so the upserts never touch the same row.
+  const results = await Promise.all(
+    fixtures.map((fixture) =>
+      writable.updateOne(
+        { [naturalKey]: fixture[naturalKey] } as never,
+        { $setOnInsert: fixture },
+        { upsert: true },
+      ),
+    ),
+  );
+  const inserted = results.filter((result) => result.upsertedCount > 0).length;
 
   logger.info(
     `Website seed — ${label}: ${inserted} inserted, ${fixtures.length - inserted} existing`,

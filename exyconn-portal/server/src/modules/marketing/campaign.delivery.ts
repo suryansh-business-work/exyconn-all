@@ -95,8 +95,8 @@ export async function deliverCopy(
     recipientName: recipient.fullName || recipient.recordName,
     trackingTokenHash: tokenHash,
   };
-  let lastError = '';
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+  // Attempts run one after another: a retry only follows the pause after a failed attempt.
+  const send = async (attempt: number): Promise<CopyOutcome> => {
     try {
       await mailer.sendMarketingEmail({
         to: recipient.email,
@@ -109,13 +109,14 @@ export async function deliverCopy(
       });
       return { ...base, status: 'SENT', error: '', attempts: attempt };
     } catch (err) {
-      lastError = err instanceof Error ? err.message : 'Send failed';
+      const error = err instanceof Error ? err.message : 'Send failed';
       if (!isTransient(err) || attempt === MAX_ATTEMPTS) {
         logger.error({ err }, `Campaign "${settings.revision.campaignName}" copy failed`);
-        return { ...base, status: 'FAILED', error: lastError, attempts: attempt };
+        return { ...base, status: 'FAILED', error, attempts: attempt };
       }
       await wait(RETRY_DELAYS_MS[attempt - 1]);
+      return send(attempt + 1);
     }
-  }
-  return { ...base, status: 'FAILED', error: lastError, attempts: MAX_ATTEMPTS };
+  };
+  return send(1);
 }

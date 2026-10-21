@@ -7,7 +7,7 @@ import { str, type NetworkClient } from './network.types';
  * with a link shared as an article.
  */
 export const linkedin: NetworkClient = {
-  fetchPosts: async () => null,
+  fetchPosts: () => Promise.resolve(null),
   publish: async (account, post) => {
     const created = await postJson(
       'LinkedIn',

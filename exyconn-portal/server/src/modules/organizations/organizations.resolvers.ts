@@ -143,15 +143,18 @@ export const organizationsResolvers = {
     ) => {
       assertPlatformAdmin(ctx);
       const users = await organizationService.inviteMembers(organizationId, members);
-      for (const user of users) {
-        await recordAudit(ctx, {
-          action: 'CREATE',
-          module: ORGANIZATION_MODULE,
-          entityId: organizationId,
-          entityLabel: user.email,
-          summary: `Invited ${user.email} with ${user.roles.join(', ')}`,
-        });
-      }
+      // One independent audit row per invited person.
+      await Promise.all(
+        users.map((user) =>
+          recordAudit(ctx, {
+            action: 'CREATE',
+            module: ORGANIZATION_MODULE,
+            entityId: organizationId,
+            entityLabel: user.email,
+            summary: `Invited ${user.email} with ${user.roles.join(', ')}`,
+          }),
+        ),
+      );
       return withIds(users);
     },
   },

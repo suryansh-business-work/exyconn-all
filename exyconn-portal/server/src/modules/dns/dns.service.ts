@@ -1,5 +1,6 @@
 import { badRequest, notFound } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { requireSecret, withoutBlankSecret } from '../tech/tech.service';
 import { cloudflareClient, type CloudflareZone } from './cloudflare.client';
 import { CloudflareConfigModel } from './cloudflare-config.model';
@@ -221,7 +222,7 @@ export const dnsService = {
     );
     const failed: DnsMigrationResult['failed'] = [];
     // One at a time: Cloudflare rate-limits record writes, and a failure must name its record.
-    for (const record of missing) {
+    await inSequence(missing, async (record) => {
       try {
         await cloudflareClient.createRecord(zone.id, toCloudflarePayload(record.source));
       } catch (error) {
@@ -229,7 +230,7 @@ export const dnsService = {
         logger.warn({ domain, type: record.type, name: record.name }, 'DNS record copy failed');
         failed.push({ type: record.type, name: record.name, content: record.content, message });
       }
-    }
+    });
     return {
       created: missing.length - failed.length,
       alreadyPresent: records.filter((record) => record.status === 'MATCH').length,

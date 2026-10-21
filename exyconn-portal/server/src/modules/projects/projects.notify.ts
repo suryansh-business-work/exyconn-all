@@ -58,9 +58,9 @@ async function tell(
   recipients: string[],
   payload: { title: string; body: string; link: string },
 ): Promise<void> {
-  for (const employeeId of recipients) {
-    await notifyBestEffort(employeeId, { kind: KIND, ...payload });
-  }
+  await Promise.all(
+    recipients.map((employeeId) => notifyBestEffort(employeeId, { kind: KIND, ...payload })),
+  );
 }
 
 /**

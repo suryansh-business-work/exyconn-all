@@ -156,17 +156,26 @@ async function recordFailure(
   );
 }
 
+/**
+ * Claims and attempts due deliveries one after another until none is left or the per-tick cap
+ * is reached. Sequential on purpose: each claim pops the queue atomically, and the cap bounds
+ * how many outbound requests one tick makes.
+ */
+async function deliverFrom(now: Date, delivered: number): Promise<number> {
+  if (delivered >= MAX_PER_TICK) {
+    return delivered;
+  }
+  const delivery = await claimDue(now);
+  if (!delivery) {
+    return delivered;
+  }
+  await attempt(delivery);
+  return deliverFrom(now, delivered + 1);
+}
+
 /** Attempts every delivery whose moment has come, a bounded number per tick. */
 export async function deliverDueWebhooks(now: Date = new Date()): Promise<number> {
-  let delivered = 0;
-  while (delivered < MAX_PER_TICK) {
-    const delivery = await claimDue(now);
-    if (!delivery) {
-      break;
-    }
-    await attempt(delivery);
-    delivered += 1;
-  }
+  const delivered = await deliverFrom(now, 0);
   recordJobRun(JOB_KEYS.webhookDelivery, `${delivered} delivery attempt(s)`);
   return delivered;
 }

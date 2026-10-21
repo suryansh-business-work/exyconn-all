@@ -10,6 +10,7 @@ import { solvedCaptcha } from '../../../helpers';
 import { seedPlatformOperator } from '../../security-authz.operator';
 import { codeOf } from '../codeOf';
 import { gccEstimate, gccEstimateJson } from './gcc.fixtures';
+import { pdfFileName } from '../../../../src/modules/gcc/gcc.email';
 
 const visitor: GraphQLContext = { user: null, ip: '198.51.100.40' };
 
@@ -138,5 +139,23 @@ describe('the gcc-estimate email template', () => {
     expect(rendered.subject).toBe('GCC cost estimate: Pune GCC');
     expect(rendered.html).toContain('Standard<br />• Forecast total: INR 1,20,00,000');
     expect(rendered.html).toContain('For Monday');
+  });
+});
+
+describe('pdfFileName', () => {
+  it('slugs the name and trims dashes from both ends', () => {
+    expect(pdfFileName('  --Pune GCC (2026)!-- ')).toBe('pune-gcc-2026.pdf');
+  });
+
+  it('falls back to a default when nothing usable is left', () => {
+    expect(pdfFileName('!!! ---')).toBe('gcc-estimate.pdf');
+  });
+
+  it('cuts the slug to 60 characters before trimming a dash left at the cut', () => {
+    expect(pdfFileName(`${'a'.repeat(59)} b`)).toBe(`${'a'.repeat(59)}.pdf`);
+  });
+
+  it('handles a long run of separators', () => {
+    expect(pdfFileName(`x${'-'.repeat(50_000)}`)).toBe('x.pdf');
   });
 });

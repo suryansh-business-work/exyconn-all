@@ -4,6 +4,7 @@ import { CampaignModel } from './marketing.model';
 import { techTemplates } from './campaign-template.service';
 import { wrapLegacyBody } from './campaign.mjml';
 import { escapeHtml } from '../email/email.render';
+import { inSequence } from '../../utils/inSequence';
 
 /** An audience as releases before the builder stored it. */
 interface LegacyAudience {
@@ -52,13 +53,14 @@ export async function migrateLegacyAudiences(): Promise<void> {
   const legacy = await AudienceListModel.find({ recipientSource: { $exists: false } })
     .select('dynamicSegment segmentValue')
     .lean<LegacyAudience[]>({ strict: false } as never);
-  for (const audience of legacy) {
-    await AudienceListModel.updateOne(
+  // One row at a time, so a large backlog does not flood the connection pool at boot.
+  await inSequence(legacy, (audience) =>
+    AudienceListModel.updateOne(
       { _id: audience._id },
       { $set: fromSegment(audience), $unset: { dynamicSegment: 1, segmentValue: 1 } },
       { strict: false },
-    );
-  }
+    ).exec(),
+  );
 }
 
 /**
@@ -129,8 +131,9 @@ export async function migrateLegacyCampaigns(): Promise<void> {
   const legacy = await CampaignModel.find({ sendState: { $exists: false } })
     .select('subject body templateKey lastSentAt scheduledAt scheduleDispatchedAt')
     .lean<LegacyCampaign[]>();
-  for (const campaign of legacy) {
-    await CampaignModel.updateOne(
+  // One row at a time, so a large backlog does not flood the connection pool at boot.
+  await inSequence(legacy, async (campaign) =>
+    CampaignModel.updateOne(
       { _id: campaign._id },
       {
         $set: {
@@ -153,6 +156,6 @@ export async function migrateLegacyCampaigns(): Promise<void> {
           cancelRequestedAt: null,
         },
       },
-    );
-  }
+    ),
+  );
 }

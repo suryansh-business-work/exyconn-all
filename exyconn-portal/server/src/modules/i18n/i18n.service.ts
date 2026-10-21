@@ -2,6 +2,7 @@ import { AppSettingsModel } from '../admin/settings.model';
 import { currentOrganizationId } from '../../lib/tenant/tenant-scope';
 import { runAsPlatform } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { FALLBACK_LOCALE, canonicalLocale } from './locale.constants';
 import { TranslationModel, translationKey, type TranslationSource } from './translation.model';
 import { TRANSLATE_BATCH, machineTranslate } from './i18n.translate';
@@ -15,11 +16,11 @@ import { TRANSLATE_BATCH, machineTranslate } from './i18n.translate';
  * "no organization in scope", which took every public translation request down with it: the
  * website could neither load its words nor ask for new ones, and stayed in English.
  */
-export async function workspaceSettings() {
+export function workspaceSettings() {
   if (currentOrganizationId() === null) {
-    return null;
+    return Promise.resolve(null);
   }
-  return AppSettingsModel.findOne({ key: 'global' }).lean();
+  return AppSettingsModel.findOne({ key: 'global' }).lean().exec();
 }
 
 /** One string and what it reads as in a locale. */
@@ -98,10 +99,12 @@ export async function translateMissing(
   }
 
   const translated = await machineTranslate(canonical, missing.slice(0, TRANSLATE_BATCH));
-  const stored: TranslationEntry[] = [];
-  for (const entry of translated) {
-    stored.push(await upsertTranslation(canonical, entry.source, entry.text, 'AUTO', entry.model));
-  }
+  // Each entry is a different string, so its own row: they are stored side by side.
+  const stored = await Promise.all(
+    translated.map((entry) =>
+      upsertTranslation(canonical, entry.source, entry.text, 'AUTO', entry.model),
+    ),
+  );
   if (stored.length > 0) {
     logger.info({ locale: canonical, count: stored.length }, 'Machine-translated new strings');
   }
@@ -199,10 +202,13 @@ export async function fillLanguage(locale: string): Promise<LanguageFill> {
   const finished = (async () => {
     let stored = 0;
     try {
-      for (let start = 0; start < missing.length; start += TRANSLATE_BATCH) {
-        const batch = missing.slice(start, start + TRANSLATE_BATCH);
+      const batches = Array.from({ length: Math.ceil(missing.length / TRANSLATE_BATCH) }, (_, i) =>
+        missing.slice(i * TRANSLATE_BATCH, (i + 1) * TRANSLATE_BATCH),
+      );
+      // One batch at a time: the model is rate-limited, and a failure stops the fill part-way.
+      await inSequence(batches, async (batch) => {
         stored += (await translateMissing(canonical, batch)).length;
-      }
+      });
       logger.info({ locale: canonical, queued: missing.length, stored }, 'Filled a language');
       return stored;
     } catch (err) {

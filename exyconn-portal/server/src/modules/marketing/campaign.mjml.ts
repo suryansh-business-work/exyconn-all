@@ -121,10 +121,8 @@ export function tagProblems(mjml: string): MjmlIssue[] {
     if (top?.name === name) {
       open.pop();
     } else {
-      problems.push({
-        line,
-        message: `</${name}> does not close ${top ? `<${top.name}> (line ${top.line})` : 'any open tag'}.`,
-      });
+      const target = top ? `<${top.name}> (line ${top.line})` : 'any open tag';
+      problems.push({ line, message: `</${name}> does not close ${target}.` });
     }
   }
   for (const tag of open) {
@@ -161,6 +159,36 @@ export async function compileMjml(mjml: string): Promise<CompiledMjml> {
   }
 }
 
+/**
+ * The start and end index of every `<…>` span holding at least one character, left to right,
+ * as `/<([^>]+)>/g` would find them — but in linear time, where that regex rescans the rest of
+ * the text from every `<` that is never closed.
+ */
+export function* angleSpans(text: string): Generator<[number, number]> {
+  let open = text.indexOf('<');
+  while (open !== -1) {
+    const close = text.indexOf('>', open + 1);
+    if (close === -1) {
+      return;
+    }
+    if (close > open + 1) {
+      yield [open, close];
+    }
+    open = text.indexOf('<', close);
+  }
+}
+
+/** Drops every `<…>` tag, keeping the text between them. */
+function stripTags(html: string): string {
+  let text = '';
+  let from = 0;
+  for (const [open, close] of angleSpans(html)) {
+    text += html.slice(from, open);
+    from = close + 1;
+  }
+  return text + html.slice(from);
+}
+
 const ENTITIES: Readonly<Record<string, string>> = {
   '&nbsp;': ' ',
   '&amp;': '&',
@@ -175,13 +203,15 @@ const ENTITIES: Readonly<Record<string, string>> = {
  * everything else — styles, the hidden preheader, tags — is dropped.
  */
 export function htmlToText(html: string): string {
-  return html
-    .replaceAll(/<(style|head|title)[^>]*>[\s\S]*?<\/\1>/gi, '')
-    .replaceAll(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi, '')
-    .replaceAll(/<a\s[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, '$2 ($1)')
-    .replaceAll(/<br\s*\/?>/gi, '\n')
-    .replaceAll(/<\/(p|div|tr|h[1-6]|li|table)>/gi, '\n')
-    .replaceAll(/<[^>]+>/g, '')
+  const tagless = stripTags(
+    html
+      .replaceAll(/<(style|head|title)[^>]*>[\s\S]*?<\/\1>/gi, '')
+      .replaceAll(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi, '')
+      .replaceAll(/<a\s[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, '$2 ($1)')
+      .replaceAll(/<br\s*\/?>/gi, '\n')
+      .replaceAll(/<\/(p|div|tr|h[1-6]|li|table)>/gi, '\n'),
+  );
+  return tagless
     .replaceAll(/&[a-z#\d]+;/gi, (entity) => ENTITIES[entity] ?? ' ')
     .split('\n')
     .map((line) => line.replaceAll(/\s+/g, ' ').trim())

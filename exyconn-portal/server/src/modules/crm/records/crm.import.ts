@@ -1,5 +1,6 @@
 import { badRequest } from '../../../utils/errors';
 import { logger } from '../../../utils/logger';
+import { inSequence } from '../../../utils/inSequence';
 import { CompanyModel } from '../company.model';
 import { OBJECT_DEFS, type CrmObject, type PropertyDef } from './crm.objects';
 import { objectProperties } from './crm.schema';
@@ -234,8 +235,11 @@ export async function importRecords(input: ImportInput, owner: string): Promise<
       rows.map((r) => r.key),
     ),
   };
-  for (const row of rows) {
-    const outcome = await applyRow(plan, row).catch((error: unknown) => failure(row.row, error));
+  // One row at a time: a row's write must land before the next row looks for duplicates.
+  const outcomes = await inSequence(rows, (row) =>
+    applyRow(plan, row).catch((error: unknown) => failure(row.row, error)),
+  );
+  for (const outcome of outcomes) {
     if (typeof outcome === 'string') {
       result[outcome] += 1;
     } else {

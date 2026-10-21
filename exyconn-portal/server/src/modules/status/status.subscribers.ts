@@ -5,6 +5,7 @@ import { badRequest } from '../../utils/errors';
 import { isEmailAddress } from '../../utils/emailAddress';
 import { createLimiter } from '../../lib/rateLimiter';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { env } from '../../config/env';
 
 /** Templates the two subscriber emails are authored under, in Tech → Email. */
@@ -185,20 +186,22 @@ export async function notifyStatusSubscribers(notice: StatusNotice): Promise<num
     return 0;
   }
   const site = statusSiteOrigin();
-  let sent = 0;
-
-  for (const batch of chunk(subscribers, FANOUT_CHUNK)) {
+  // Chunk after chunk, so no more than FANOUT_CHUNK emails are in flight at once.
+  const sentPerChunk = await inSequence(chunk(subscribers, FANOUT_CHUNK), async (batch) => {
     const results = await Promise.allSettled(
       batch.map((subscriber) => sendNotice(subscriber, notice, site)),
     );
+    let delivered = 0;
     for (const result of results) {
       if (result.status === 'rejected') {
         logger.error({ err: result.reason }, 'Status notice to a subscriber failed');
       } else {
-        sent += 1;
+        delivered += 1;
       }
     }
-  }
+    return delivered;
+  });
+  const sent = sentPerChunk.reduce((total, delivered) => total + delivered, 0);
   logger.info(
     `Status notice "${notice.headline}" sent to ${sent}/${subscribers.length} subscribers`,
   );

@@ -373,10 +373,13 @@ async function placementFields(input: HrFields) {
     ],
     ['shift', asked.shiftCode, () => ShiftModel.exists({ code: asked.shiftCode })],
   ];
-  for (const [what, value, exists] of checks) {
-    if (value !== '' && !(await exists())) {
-      badRequest(`There is no ${what} "${value}". Add it to the master list first.`);
-    }
+  // Independent read-only lookups; the first missing one, in list order, is the one refused.
+  const found = await Promise.all(
+    checks.map(([, value, exists]) => (value === '' ? true : exists())),
+  );
+  const missing = checks.find((_, index) => !found[index]);
+  if (missing) {
+    badRequest(`There is no ${missing[0]} "${missing[1]}". Add it to the master list first.`);
   }
   return asked;
 }
@@ -538,28 +541,36 @@ class AdminService {
    * It is bounded twice — a visited set and a depth limit — so a cycle already in the
    * database, written before this guard existed, ends the walk instead of spinning on it.
    */
-  private async assertNoReportingCycle(employeeId: string, managerId: string): Promise<void> {
-    const chain: string[] = [];
-    const visited = new Set<string>();
-    let current: string | null = managerId;
+  private assertNoReportingCycle(employeeId: string, managerId: string): Promise<void> {
+    return this.climbReportingChain(employeeId, managerId, [], new Set<string>(), 0);
+  }
 
-    for (let step = 0; current && step < MAX_REPORTING_DEPTH; step += 1) {
-      if (!isValidObjectId(current) || visited.has(current)) {
-        return;
-      }
-      visited.add(current);
-      const link: ChainLink | null = await UserModel.findById(current)
-        .select('name managerId')
-        .lean();
-      if (!link) {
-        return;
-      }
-      chain.push(link.name);
-      if (link.managerId === employeeId) {
-        await this.refuseReportingCycle(employeeId, chain);
-      }
-      current = link.managerId ?? null;
+  /** One step of that walk: each step needs the manager the previous one read. */
+  private async climbReportingChain(
+    employeeId: string,
+    current: string | null,
+    chain: string[],
+    visited: Set<string>,
+    step: number,
+  ): Promise<void> {
+    if (!current || step >= MAX_REPORTING_DEPTH) {
+      return;
     }
+    if (!isValidObjectId(current) || visited.has(current)) {
+      return;
+    }
+    visited.add(current);
+    const link: ChainLink | null = await UserModel.findById(current)
+      .select('name managerId')
+      .lean();
+    if (!link) {
+      return;
+    }
+    chain.push(link.name);
+    if (link.managerId === employeeId) {
+      await this.refuseReportingCycle(employeeId, chain);
+    }
+    return this.climbReportingChain(employeeId, link.managerId ?? null, chain, visited, step + 1);
   }
 
   /** The refusal, naming everybody in the loop in the order they report through it. */
@@ -666,10 +677,10 @@ class AdminService {
     }
     // The mail server fetches each file to attach it, so only the portal's own CDN is allowed:
     // anything else would let a form make the server fetch an address of its choosing.
-    for (const file of attachments) {
-      if (!(await imageUploader.isOwnUrl(file.url))) {
-        badRequest(`"${file.name}" is not a file uploaded to the portal.`);
-      }
+    const own = await Promise.all(attachments.map((file) => imageUploader.isOwnUrl(file.url)));
+    const foreign = attachments.find((_, index) => !own[index]);
+    if (foreign) {
+      badRequest(`"${foreign.name}" is not a file uploaded to the portal.`);
     }
     await mailer.sendCustomEmail({
       name: user.name,

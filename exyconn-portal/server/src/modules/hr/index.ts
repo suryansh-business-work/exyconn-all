@@ -91,18 +91,17 @@ const departmentMutations = {
 /** Position writes refuse a salary band that is upside down. */
 const positionMutations = {
   ...positionResolvers.Mutation,
-  createPosition: async (p: unknown, args: InputArgs<PositionInput>, ctx: GraphQLContext) => {
-    assertSalaryBand(args.input);
-    return positionResolvers.Mutation.createPosition(p, args as never, ctx);
-  },
-  updatePosition: async (
-    p: unknown,
-    args: IdArgs & InputArgs<PositionInput>,
-    ctx: GraphQLContext,
-  ) => {
-    assertSalaryBand(args.input);
-    return positionResolvers.Mutation.updatePosition(p, args as never, ctx);
-  },
+  // Chained on a resolved promise so a refused band rejects, as an async resolver would.
+  createPosition: (p: unknown, args: InputArgs<PositionInput>, ctx: GraphQLContext) =>
+    Promise.resolve().then(() => {
+      assertSalaryBand(args.input);
+      return positionResolvers.Mutation.createPosition(p, args as never, ctx);
+    }),
+  updatePosition: (p: unknown, args: IdArgs & InputArgs<PositionInput>, ctx: GraphQLContext) =>
+    Promise.resolve().then(() => {
+      assertSalaryBand(args.input);
+      return positionResolvers.Mutation.updatePosition(p, args as never, ctx);
+    }),
 };
 
 /** Leave CRUD + departments/positions + self-service, per-employee views & dashboard. */

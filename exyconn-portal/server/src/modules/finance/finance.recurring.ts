@@ -201,34 +201,55 @@ async function claimDue(
   return claimed ? { id: candidate._id.toHexString(), schedule: claimed, issuedDate } : null;
 }
 
+type DueClaim = NonNullable<Awaited<ReturnType<typeof claimDue>>>;
+
+/** Writes and audits the invoice for one claimed period; true when it was raised. */
+async function raiseClaimed(claim: DueClaim): Promise<boolean> {
+  let raised = false;
+  try {
+    const invoice = await writeInvoice(claim.schedule, claim.issuedDate);
+    raised = true;
+    await auditRaised(recordSystemAudit, { id: claim.id, name: claim.schedule.name }, invoice, {
+      from: claim.issuedDate,
+      to: claim.schedule.nextRunAt,
+    });
+    logger.info(`Recurring invoice ${invoice.number} raised for "${claim.schedule.name}"`);
+  } catch (error) {
+    // The claim stands, so this period is not retried in a loop. It is a lost DRAFT, which
+    // "Run now" replays — never a second invoice to a client.
+    logger.error(error, `Recurring invoice for "${claim.schedule.name}" failed`);
+  }
+  return raised;
+}
+
+/**
+ * Claims and raises the next due period, then recurses until the tick's budget is spent or
+ * nothing is due. Strictly one claim at a time: each claim reads the schedule the previous
+ * one advanced, and the per-schedule catch-up cap depends on the claims before it.
+ */
+async function raiseDue(
+  now: Date,
+  raised: number,
+  perSchedule: Map<string, number>,
+): Promise<number> {
+  if (raised >= MAX_PER_TICK) {
+    return raised;
+  }
+  const claim = await claimDue(
+    now,
+    [...perSchedule].filter(([, count]) => count >= MAX_CATCHUP_PER_SCHEDULE).map(([id]) => id),
+  );
+  if (!claim) {
+    return raised;
+  }
+  perSchedule.set(claim.id, (perSchedule.get(claim.id) ?? 0) + 1);
+  const ok = await raiseClaimed(claim);
+  return raiseDue(now, ok ? raised + 1 : raised, perSchedule);
+}
+
 /** Raises an invoice for every period every retainer is owed, bounded per tick. */
 export async function generateDueInvoices(now: Date = new Date()): Promise<number> {
-  let raised = 0;
-  const perSchedule = new Map<string, number>();
-
-  while (raised < MAX_PER_TICK) {
-    const claim = await claimDue(
-      now,
-      [...perSchedule].filter(([, count]) => count >= MAX_CATCHUP_PER_SCHEDULE).map(([id]) => id),
-    );
-    if (!claim) {
-      break;
-    }
-    perSchedule.set(claim.id, (perSchedule.get(claim.id) ?? 0) + 1);
-    try {
-      const invoice = await writeInvoice(claim.schedule, claim.issuedDate);
-      raised += 1;
-      await auditRaised(recordSystemAudit, { id: claim.id, name: claim.schedule.name }, invoice, {
-        from: claim.issuedDate,
-        to: claim.schedule.nextRunAt,
-      });
-      logger.info(`Recurring invoice ${invoice.number} raised for "${claim.schedule.name}"`);
-    } catch (error) {
-      // The claim stands, so this period is not retried in a loop. It is a lost DRAFT, which
-      // "Run now" replays — never a second invoice to a client.
-      logger.error(error, `Recurring invoice for "${claim.schedule.name}" failed`);
-    }
-  }
+  const raised = await raiseDue(now, 0, new Map<string, number>());
   recordJobRun(JOB_KEYS.recurringInvoices, `${raised} invoice(s) raised`);
   return raised;
 }

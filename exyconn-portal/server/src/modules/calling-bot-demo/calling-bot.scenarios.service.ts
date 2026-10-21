@@ -2,6 +2,7 @@ import { isValidObjectId } from 'mongoose';
 import type { CallingBotScenarioRecord } from '@exyconn/calling-bot-demo-server';
 import { runOnce } from '../../lib/migrations';
 import { badRequest, notFound } from '../../utils/errors';
+import { inSequence } from '../../utils/inSequence';
 import { isDuplicateKey } from '../../../../../demos/whatsapp-demo/server/src/whatsappDemo.validation';
 import { CallingBotScenarioModel } from './calling-bot.models';
 import { SCENARIO_SEEDS, type ScenarioSeed } from './calling-bot.scenarios.seed';
@@ -37,16 +38,17 @@ async function seedScenario(seed: ScenarioSeed, index: number): Promise<void> {
  * still arrives. Run as the platform: the demo belongs to the install, not to a company.
  */
 export async function ensureCallingBotScenarios(): Promise<void> {
-  for (const [index, seed] of SCENARIO_SEEDS.entries()) {
-    try {
-      await runOnce(`calling-bot-scenario:${seed.key}`, () => seedScenario(seed, index));
-    } catch (error) {
-      // Two servers booting at once: the loser's insert hits the unique key; the winner's row stands.
-      if (!isDuplicateKey(error)) {
-        throw error;
-      }
-    }
-  }
+  // In order, stopping at the first real failure: a boot that cannot write must not keep seeding.
+  await inSequence(SCENARIO_SEEDS, (seed, index) =>
+    runOnce(`calling-bot-scenario:${seed.key}`, () => seedScenario(seed, index)).catch(
+      (error: unknown) => {
+        // Two servers booting at once: the loser's insert hits the unique key; the winner's row stands.
+        if (!isDuplicateKey(error)) {
+          throw error;
+        }
+      },
+    ),
+  );
   await ensureCallingBotFlows();
 }
 

@@ -55,17 +55,19 @@ async function repairModel(model: Model<unknown>, companyCurrency: string): Prom
     { $match: { currency: { $nin: supportedCurrencies() } } },
     { $group: { _id: '$currency', ids: { $push: '$_id' } } },
   ]);
-  let repaired = 0;
-  for (const group of groups) {
-    const currency = repairedCurrency(group._id, companyCurrency);
-    const result = await model.updateMany({ _id: { $in: group.ids } }, { $set: { currency } });
-    repaired += result.modifiedCount;
-    logger.info(
-      { model: model.modelName, from: group._id, to: currency, count: result.modifiedCount },
-      'Repaired stored currencies',
-    );
-  }
-  return repaired;
+  // Each group holds a disjoint set of ids, so the rewrites are independent.
+  const counts = await Promise.all(
+    groups.map(async (group) => {
+      const currency = repairedCurrency(group._id, companyCurrency);
+      const result = await model.updateMany({ _id: { $in: group.ids } }, { $set: { currency } });
+      logger.info(
+        { model: model.modelName, from: group._id, to: currency, count: result.modifiedCount },
+        'Repaired stored currencies',
+      );
+      return result.modifiedCount;
+    }),
+  );
+  return counts.reduce((sum, count) => sum + count, 0);
 }
 
 /**
@@ -83,9 +85,9 @@ export async function repairStoredCurrencies(): Promise<number> {
     logger.warn({ currency }, 'Organization currency is not ISO 4217; stored currencies left');
     return 0;
   }
-  let repaired = 0;
-  for (const model of MONEY_MODELS) {
-    repaired += await repairModel(model, companyCurrency);
-  }
-  return repaired;
+  // Different collections, so the repairs are independent.
+  const counts = await Promise.all(
+    MONEY_MODELS.map((model) => repairModel(model, companyCurrency)),
+  );
+  return counts.reduce((sum, count) => sum + count, 0);
 }

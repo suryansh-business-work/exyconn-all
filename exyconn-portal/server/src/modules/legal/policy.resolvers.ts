@@ -98,10 +98,12 @@ const scopedPolicyQueries = {
 
 /** Writes, refused when an IT-only caller reaches outside IT's categories. */
 const scopedPolicyMutations = {
-  createPolicy: async (p: unknown, args: InputArgs, ctx: GraphQLContext) => {
-    assertPolicyCategory(policyScope(ctx), args.input.category);
-    return policies.Mutation.createPolicy(p, args as never, ctx);
-  },
+  createPolicy: (p: unknown, args: InputArgs, ctx: GraphQLContext) =>
+    // Inside the chain so a refused category rejects the returned promise.
+    Promise.resolve().then(() => {
+      assertPolicyCategory(policyScope(ctx), args.input.category);
+      return policies.Mutation.createPolicy(p, args as never, ctx);
+    }),
   updatePolicy: async (p: unknown, args: IdArgs & InputArgs, ctx: GraphQLContext) => {
     const scope = policyScope(ctx);
     assertPolicyCategory(scope, args.input.category);

@@ -2,6 +2,7 @@ import { GraphQLError, type GraphQLSchema } from 'graphql';
 import { cellText } from '@exyconn/csv';
 import type { GraphQLContext } from '../../middleware/auth';
 import { badRequest } from '../../utils/errors';
+import { inSequence } from '../../utils/inSequence';
 import { recordAudit } from '../audit';
 import { importTarget, type ImportTarget, type ImportWrite } from './importTarget';
 import { CellError, rowInput } from './importValues';
@@ -156,14 +157,15 @@ export async function importRows(
 ): Promise<ImportResult> {
   const target = assertImportable(schema, args);
   const result: ImportResult = { created: 0, updated: 0, skipped: 0, issues: [] };
-  for (const [index, raw] of args.rows.entries()) {
-    const row = args.firstRowNumber + index;
-    let outcome: Outcome;
+  // Row after row: a later row's match must see what the rows before it created or updated.
+  const outcomes = await inSequence(args.rows, async (raw, index): Promise<Outcome> => {
     try {
-      outcome = await importRow(schema, ctx, target, args, cellsOf(raw));
+      return await importRow(schema, ctx, target, args, cellsOf(raw));
     } catch (error) {
-      outcome = rowIssue(error, row);
+      return rowIssue(error, args.firstRowNumber + index);
     }
+  });
+  for (const outcome of outcomes) {
     if (typeof outcome === 'string') {
       result[outcome] += 1;
     } else {

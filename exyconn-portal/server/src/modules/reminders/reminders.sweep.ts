@@ -2,6 +2,7 @@ import { reminderSources } from './reminders.registry';
 import { sendReminders } from './reminders.notify';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { registerBackgroundJob } from '../tech/jobs.registry';
 
@@ -23,7 +24,8 @@ export interface SweepResult {
 /** Runs every registered source once and delivers what they ask for. */
 export async function sweepReminders(now = new Date()): Promise<SweepResult> {
   const result: SweepResult = { sent: 0, failed: 0 };
-  for (const source of reminderSources()) {
+  // Source after source: their claims share one uniquely keyed log (see sendReminders).
+  await inSequence(reminderSources(), async (source) => {
     try {
       const due = await source.due(now);
       result.sent += await sendReminders(source.key, due);
@@ -31,7 +33,7 @@ export async function sweepReminders(now = new Date()): Promise<SweepResult> {
       result.failed += 1;
       logger.error(error, `Reminder source "${source.key}" failed`);
     }
-  }
+  });
   return result;
 }
 

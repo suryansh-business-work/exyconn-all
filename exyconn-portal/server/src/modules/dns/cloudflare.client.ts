@@ -102,20 +102,24 @@ class CloudflareClient {
   }
 
   async listRecords(zoneId: string): Promise<CloudflareRecord[]> {
-    const key = await this.activeKey();
-    const records: CloudflareRecord[] = [];
-    let page = 1;
-    let pages: number;
-    do {
-      const body = await this.request<CloudflareRecord[]>(
-        key,
-        `/zones/${zoneId}/dns_records?per_page=${RECORDS_PER_PAGE}&page=${page}`,
-      );
-      records.push(...body.result);
-      pages = body.result_info?.total_pages ?? 1;
-      page += 1;
-    } while (page <= pages);
-    return records;
+    return this.recordsFrom(await this.activeKey(), zoneId, 1);
+  }
+
+  /** This page of the zone's records and every page after it, fetched one page at a time. */
+  private async recordsFrom(
+    key: CloudflareKey,
+    zoneId: string,
+    page: number,
+  ): Promise<CloudflareRecord[]> {
+    const body = await this.request<CloudflareRecord[]>(
+      key,
+      `/zones/${zoneId}/dns_records?per_page=${RECORDS_PER_PAGE}&page=${page}`,
+    );
+    const pages = body.result_info?.total_pages ?? 1;
+    if (page + 1 > pages) {
+      return body.result;
+    }
+    return [...body.result, ...(await this.recordsFrom(key, zoneId, page + 1))];
   }
 
   /** The A records of one fully qualified host name in a zone. */

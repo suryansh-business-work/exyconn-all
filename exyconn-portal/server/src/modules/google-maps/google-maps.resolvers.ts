@@ -57,16 +57,18 @@ const leadImportDesk = async (ctx: GraphQLContext, merging: boolean) => {
 
 /** One audit row per company that got extra details: the field names, never the values. */
 async function auditMerges(ctx: GraphQLContext, result: LeadImportResult) {
-  for (const merge of result.merges) {
-    const fields = [...new Set(merge.added.map((extra) => extra.field))];
-    await recordAudit(ctx, {
-      action: 'UPDATE',
-      module: 'Company',
-      entityId: merge.companyId,
-      entityLabel: merge.name,
-      summary: `Added details from ${LEAD_SOURCE}: ${fields.join(', ')}`,
-    });
-  }
+  await Promise.all(
+    result.merges.map((merge) => {
+      const fields = [...new Set(merge.added.map((extra) => extra.field))];
+      return recordAudit(ctx, {
+        action: 'UPDATE',
+        module: 'Company',
+        entityId: merge.companyId,
+        entityLabel: merge.name,
+        summary: `Added details from ${LEAD_SOURCE}: ${fields.join(', ')}`,
+      });
+    }),
+  );
 }
 
 const importSummary = (result: LeadImportResult) => {

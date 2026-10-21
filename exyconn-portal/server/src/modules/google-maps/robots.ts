@@ -1,3 +1,5 @@
+import { cutAtFirst } from '../../utils/textTrim';
+
 /**
  * Just enough of robots.txt (RFC 9309) to be a polite visitor: the group for our user agent, or
  * the `*` group when there is none, and the longest matching Allow / Disallow rule wins (an Allow
@@ -21,7 +23,7 @@ function groupsOf(text: string): Group[] {
   let current: Group | null = null;
   let collectingAgents = false;
   for (const raw of text.split(/\r?\n/)) {
-    const line = raw.replace(/#.*$/, '').trim();
+    const line = cutAtFirst(raw, '#').trim();
     const colon = line.indexOf(':');
     if (colon <= 0) {
       continue;

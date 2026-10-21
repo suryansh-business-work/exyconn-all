@@ -25,6 +25,8 @@ interface ReminderFields {
 
 const crmRoles = [ROLES.CRM];
 
+const NO_ASSIGNEE = 'Choose who the reminder is for.';
+
 /** A time as an instant, or null when the input clears it. */
 function instantOf(value: Date | string | null | undefined): Date | null {
   if (value === null || value === undefined || value === '') {
@@ -38,15 +40,13 @@ function instantOf(value: Date | string | null | undefined): Date | null {
 }
 
 /** The person a reminder goes to: an active member of this company. */
-async function assigneeOf(
-  assigneeId: string | null | undefined,
-): Promise<{ id: string; name: string }> {
-  const id = assigneeId ?? '';
-  const user = isValidObjectId(id)
-    ? await UserModel.findOne({ _id: id, isActive: true }).select('name').lean()
-    : null;
+async function assigneeOf(id: string | null = ''): Promise<{ id: string; name: string }> {
+  if (id === null || !isValidObjectId(id)) {
+    badRequest(NO_ASSIGNEE);
+  }
+  const user = await UserModel.findOne({ _id: id, isActive: true }).select('name').lean();
   if (!user) {
-    badRequest('Choose who the reminder is for.');
+    badRequest(NO_ASSIGNEE);
   }
   return { id, name: user.name };
 }
@@ -75,12 +75,11 @@ async function armedFields(input: ReminderInput, at: Date, now: Date): Promise<R
 }
 
 /** The fields a create stores for its reminder, if it asked for one. */
-export async function reminderForCreate(
-  input: ReminderInput,
-  now = new Date(),
-): Promise<ReminderFields> {
+export function reminderForCreate(input: ReminderInput, now = new Date()): Promise<ReminderFields> {
   const at = instantOf(input.remindAt);
-  return at ? armedFields(input, at, now) : { remindAt: null, assigneeId: '', assigneeName: '' };
+  return at
+    ? armedFields(input, at, now)
+    : Promise.resolve({ remindAt: null, assigneeId: '', assigneeName: '' });
 }
 
 /**

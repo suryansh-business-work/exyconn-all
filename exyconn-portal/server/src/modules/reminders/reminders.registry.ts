@@ -26,8 +26,7 @@ const sources: ReminderSource[] = [];
  * one call in its own folder, and the sweep does not have to know every module exists.
  */
 export function registerReminderSource(source: ReminderSource): void {
-  const clash = sources.find((existing) => existing.key === source.key);
-  if (clash) {
+  if (sources.some((existing) => existing.key === source.key)) {
     throw new Error(`Two reminder sources are registered as "${source.key}"`);
   }
   sources.push(source);

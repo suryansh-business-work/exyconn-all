@@ -3,6 +3,7 @@ import { SocialAccountModel } from './social.models';
 import { SocialMediaPostModel } from './social-post.model';
 import { accessTokenOf } from './social.tokens';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 
 export interface SyncResult {
   accountId: string;
@@ -29,9 +30,10 @@ export async function syncAccount(accountId: string): Promise<SyncResult> {
     });
     const found = posts ?? [];
     // One upsert per post rather than a bulkWrite: bulkWrite goes around the tenant layer, so
-    // the posts it inserted carried no organization and were invisible to the company.
-    for (const post of found) {
-      await SocialMediaPostModel.updateOne(
+    // the posts it inserted carried no organization and were invisible to the company. One
+    // after another, so a post the network lists twice cannot race its own unique-index upsert.
+    await inSequence(found, (post) =>
+      SocialMediaPostModel.updateOne(
         { accountId, externalId: post.externalId },
         {
           $set: {
@@ -49,8 +51,8 @@ export async function syncAccount(accountId: string): Promise<SyncResult> {
           },
         },
         { upsert: true },
-      );
-    }
+      ).exec(),
+    );
     await SocialAccountModel.updateOne(
       { _id: accountId },
       { $set: { lastSyncedAt: new Date(), syncError: '' } },
@@ -69,10 +71,8 @@ export async function syncAccount(accountId: string): Promise<SyncResult> {
 /** Every account of the company in scope, one after another — the scheduled refresh. */
 export async function syncAllAccounts(): Promise<SyncResult[]> {
   const accounts = await SocialAccountModel.find().select('_id').lean();
-  const results: SyncResult[] = [];
-  for (const account of accounts) {
-    results.push(await syncAccount(String(account._id)));
-  }
+  // One account at a time: the networks rate-limit reads per app.
+  const results = await inSequence(accounts, (account) => syncAccount(String(account._id)));
   const failed = results.filter((result) => result.error);
   if (failed.length > 0) logger.warn({ failed }, 'Some social accounts could not be synced');
   return results;

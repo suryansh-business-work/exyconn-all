@@ -8,7 +8,13 @@ import { registerBackgroundJob } from '../tech/jobs.registry';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { logger } from '../../utils/logger';
 import { reasonOf } from '../../utils/errors';
-import { resolveBulk, runBulkChunk, type BulkAction, type BulkResult } from './tableBulk';
+import {
+  resolveBulk,
+  runBulkChunk,
+  type BulkAction,
+  type BulkResult,
+  type ResolvedBulk,
+} from './tableBulk';
 import { collectMatchingIds } from './tableBulkMatching';
 import { MAX_JOB_ROWS } from './tableBulkJob';
 import { TableBulkJobModel, type TableBulkJob } from './tableBulkJob.model';
@@ -29,8 +35,9 @@ let schema: GraphQLSchema | null = null;
 
 /** Hands the worker Apollo's schema once the server has built it. */
 export const tableBulkJobSchemaPlugin: ApolloServerPlugin<GraphQLContext> = {
-  serverWillStart: async (service) => {
+  serverWillStart: (service) => {
     schema = service.schema;
+    return Promise.resolve();
   },
 };
 
@@ -85,6 +92,28 @@ async function collect(jobSchema: GraphQLSchema, ctx: GraphQLContext, job: Table
   await job.save();
 }
 
+interface ChunkRun {
+  jobSchema: GraphQLSchema;
+  ctx: GraphQLContext;
+  bulk: ResolvedBulk;
+  job: TableBulkJob;
+}
+
+/**
+ * Acts on the job's next chunk and saves the cursor, then the one after, until every id is done
+ * or `deadline` has passed. Chunk after chunk: the saved cursor is what a restart resumes from.
+ */
+async function workChunks(run: Readonly<ChunkRun>, deadline: number): Promise<void> {
+  const { jobSchema, ctx, bulk, job } = run;
+  if (job.processed >= job.ids.length || Date.now() >= deadline) {
+    return;
+  }
+  const chunk = job.ids.slice(job.processed, job.processed + CHUNK_SIZE);
+  record(job, chunk.length, await runBulkChunk(jobSchema, ctx, bulk, chunk));
+  await job.save();
+  await workChunks(run, deadline);
+}
+
 /** One pass over a claimed job: chunks until it is done or its slice of time is up. */
 async function workOn(jobSchema: GraphQLSchema, job: TableBulkJob, sliceMs: number): Promise<void> {
   const ctx = await actorOf(job);
@@ -99,12 +128,7 @@ async function workOn(jobSchema: GraphQLSchema, job: TableBulkJob, sliceMs: numb
   if (!job.collected) {
     await collect(jobSchema, ctx, job);
   }
-  const deadline = Date.now() + sliceMs;
-  while (job.processed < job.ids.length && Date.now() < deadline) {
-    const chunk = job.ids.slice(job.processed, job.processed + CHUNK_SIZE);
-    record(job, chunk.length, await runBulkChunk(jobSchema, ctx, bulk, chunk));
-    await job.save();
-  }
+  await workChunks({ jobSchema, ctx, bulk, job }, Date.now() + sliceMs);
   if (job.processed >= job.ids.length) {
     await finish(job, null);
     return;

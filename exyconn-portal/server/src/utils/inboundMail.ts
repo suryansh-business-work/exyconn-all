@@ -2,6 +2,7 @@ import { ImapFlow } from 'imapflow';
 import { simpleParser, type ParsedMail } from 'mailparser';
 import { logger } from './logger';
 import { stripTags } from './textTrim';
+import { inSequence } from './inSequence';
 
 /** What the mailbox reader needs off the active Inbound Mail config. */
 export interface InboundMailCredentials {
@@ -167,8 +168,11 @@ class InboundMailbox {
     handle: (message: InboundMessage) => Promise<void>,
   ): Promise<InboundRunResult> {
     const result: InboundRunResult = { imported: 0, failed: 0 };
-    for (const raw of await readUnseen(client)) {
-      const ok = await this.importOne(client, config, raw, handle);
+    // One message at a time: they share one IMAP connection, which runs one command at a time.
+    const outcomes = await inSequence(await readUnseen(client), (raw) =>
+      this.importOne(client, config, raw, handle),
+    );
+    for (const ok of outcomes) {
       if (ok) {
         result.imported += 1;
       } else {

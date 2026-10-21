@@ -32,18 +32,11 @@ const byAddress = (emails: readonly string[]) => ({
   $or: [{ 'emails.address': { $in: emails } }, { email: { $in: emails } }],
 });
 
-/**
- * The contacts and companies behind each address, in two indexed queries for the whole page.
- * A suppression is the address's alone; the links are read live so they follow CRM edits.
- */
-export async function crmLinksFor(
-  emails: readonly string[],
-): Promise<Map<string, SuppressionLink[]>> {
-  const wanted = [...new Set(emails.map(normalizeEmail))];
-  const links = new Map<string, SuppressionLink[]>(wanted.map((email) => [email, []]));
-  if (wanted.length === 0) {
-    return links;
-  }
+/** Adds to `links` the contacts and companies behind each wanted address, in two indexed queries. */
+async function addCrmLinks(
+  links: Map<string, SuppressionLink[]>,
+  wanted: readonly string[],
+): Promise<void> {
   const [contacts, companies] = await Promise.all([
     ContactModel.find(byAddress(wanted)).select('name email emails').lean<CrmRow[]>(),
     CompanyModel.find({ 'emails.address': { $in: wanted } })
@@ -58,6 +51,20 @@ export async function crmLinksFor(
   };
   contacts.forEach(add('CONTACT'));
   companies.forEach(add('COMPANY'));
+}
+
+/**
+ * The contacts and companies behind each address, in two indexed queries for the whole page.
+ * A suppression is the address's alone; the links are read live so they follow CRM edits.
+ */
+export async function crmLinksFor(
+  emails: readonly string[],
+): Promise<Map<string, SuppressionLink[]>> {
+  const wanted = [...new Set(emails.map(normalizeEmail))];
+  const links = new Map<string, SuppressionLink[]>(wanted.map((email) => [email, []]));
+  if (wanted.length > 0) {
+    await addCrmLinks(links, wanted);
+  }
   return links;
 }
 

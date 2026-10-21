@@ -6,6 +6,7 @@ import { UserModel } from '../admin/user.model';
 import { emailer, rawHtml } from '../email';
 import { ROLES } from '../../constants/roles';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { TrackerIntervalModel, TrackerSettingsModel } from './models';
 import { trackerManualService } from './tracker.manual.service';
 import { getTrackerSettings } from './tracker.settings.service';
@@ -140,7 +141,8 @@ async function sendDigest(digest: Digest): Promise<void> {
     employeeCount: String(digest.rows.length),
   };
 
-  for (const recipient of recipients) {
+  // One email at a time, so a large management team does not burst the SMTP relay.
+  await inSequence(recipients, async (recipient) => {
     try {
       await emailer.send({
         template: 'tracker-digest',
@@ -151,7 +153,7 @@ async function sendDigest(digest: Digest): Promise<void> {
     } catch (error) {
       logger.error({ error, to: recipient.email }, 'Tracker digest send failed');
     }
-  }
+  });
 }
 
 /** The window the daily digest covers: the local day that has just ended. */

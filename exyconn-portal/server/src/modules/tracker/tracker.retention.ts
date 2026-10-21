@@ -1,6 +1,7 @@
 import { imageUploader } from '../../utils/imagekit';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { registerBackgroundJob } from '../tech/jobs.registry';
 import { TrackerScreenshotModel } from './models';
@@ -49,12 +50,13 @@ export async function purgeExpiredScreenshots(cutoff: Date): Promise<PurgeResult
   const result: PurgeResult = { deleted: 0, orphaned: 0, failed: 0 };
   const removable: unknown[] = [];
 
-  for (const shot of expired) {
+  // One delete at a time: up to a whole batch of calls to the image host's rate-limited API.
+  await inSequence(expired, async (shot) => {
     if (!shot.fileId) {
       // Captured before the file id was recorded: the row can go, the image cannot.
       removable.push(shot._id);
       result.orphaned += 1;
-      continue;
+      return;
     }
     try {
       await imageUploader.deleteFile(shot.fileId);
@@ -64,7 +66,7 @@ export async function purgeExpiredScreenshots(cutoff: Date): Promise<PurgeResult
       logger.error({ error, fileId: shot.fileId }, 'Screenshot image delete failed');
       result.failed += 1;
     }
-  }
+  });
 
   if (removable.length > 0) {
     await TrackerScreenshotModel.deleteMany({ _id: { $in: removable } });

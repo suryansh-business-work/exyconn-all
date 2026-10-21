@@ -1,6 +1,7 @@
 import { OrganizationModel } from './organization.model';
 import { runAsPlatform, runForOrganization } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 
 /**
  * Runs `work` once for every active company, each turn inside that company's own scope.
@@ -17,11 +18,13 @@ export async function forEachOrganization(
   const organizations = await runAsPlatform(() =>
     OrganizationModel.find({ status: 'ACTIVE' }).select('name').lean(),
   );
-  for (const organization of organizations) {
+  // One company at a time: the jobs run here (boot defaults, payslips, campaigns) were written
+  // for one install's load, and a company's turn must not overlap the next one's.
+  await inSequence(organizations, async (organization) => {
     try {
       await runForOrganization(String(organization._id), work);
     } catch (error) {
       logger.error(error, `${what} failed for ${organization.name}`);
     }
-  }
+  });
 }

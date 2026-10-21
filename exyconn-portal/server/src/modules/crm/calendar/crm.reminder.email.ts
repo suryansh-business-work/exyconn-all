@@ -46,7 +46,7 @@ export function reminderLink(reminder: Pick<DueReminder, 'relatedType' | 'relate
  * claim: two ticks or two processes racing cannot both match it, so a reminder goes out once
  * or not at all. A done task, an archived one or one that ran out of retries is never claimed.
  */
-async function claimNext(now: Date, failed: readonly unknown[]): Promise<DueReminder | null> {
+function claimNext(now: Date, failed: readonly unknown[]): Promise<DueReminder | null> {
   return ActivityModel.findOneAndUpdate(
     {
       _id: { $nin: failed },
@@ -59,7 +59,9 @@ async function claimNext(now: Date, failed: readonly unknown[]): Promise<DueRemi
     },
     { $set: { reminderSentAt: now } },
     { new: true, sort: { remindAt: 1 } },
-  ).lean<DueReminder>();
+  )
+    .lean<DueReminder>()
+    .exec();
 }
 
 /** Puts a failed reminder back in the queue for the next tick, one attempt used. */
@@ -106,26 +108,48 @@ async function send(reminder: DueReminder, clock: HouseClock): Promise<boolean> 
   return true;
 }
 
+/** Sends one claimed reminder; a failure hands it back for a later tick and counts nothing. */
+async function sendOrRelease(
+  reminder: DueReminder,
+  clock: HouseClock,
+  failed: unknown[],
+): Promise<number> {
+  try {
+    return (await send(reminder, clock)) ? 1 : 0;
+  } catch (error) {
+    logger.error(error, `CRM reminder ${String(reminder._id)} could not be emailed`);
+    failed.push(reminder._id);
+    await release(reminder);
+    return 0;
+  }
+}
+
+/**
+ * Claims and sends due reminders one after another until none is left or the tick's share is
+ * used. Sequential on purpose: each claim must skip the ones that just failed.
+ */
+async function dispatchFrom(
+  now: Date,
+  clock: HouseClock,
+  failed: unknown[],
+  taken: number,
+): Promise<number> {
+  if (taken >= MAX_PER_TICK) {
+    return 0;
+  }
+  const reminder = await claimNext(now, failed);
+  if (!reminder) {
+    return 0;
+  }
+  const sent = await sendOrRelease(reminder, clock, failed);
+  return sent + (await dispatchFrom(now, clock, failed, taken + 1));
+}
+
 /** Sends every reminder whose time has come for the company in scope; returns how many went. */
 export async function dispatchDueCrmReminders(now = new Date()): Promise<number> {
   const clock = await houseClock();
   // A reminder that failed is retried on the next tick, not again straight away in this one.
-  const failed: unknown[] = [];
-  let sent = 0;
-  for (let taken = 0; taken < MAX_PER_TICK; taken += 1) {
-    const reminder = await claimNext(now, failed);
-    if (!reminder) {
-      break;
-    }
-    try {
-      sent += (await send(reminder, clock)) ? 1 : 0;
-    } catch (error) {
-      logger.error(error, `CRM reminder ${String(reminder._id)} could not be emailed`);
-      failed.push(reminder._id);
-      await release(reminder);
-    }
-  }
-  return sent;
+  return dispatchFrom(now, clock, [], 0);
 }
 
 /** Starts the once-a-minute check that emails CRM reminders at their time. */

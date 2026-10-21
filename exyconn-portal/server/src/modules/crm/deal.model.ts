@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
-import { applyDealClosedHooks, CLOSED_DEAL_STAGES, dealClosedFields } from './crm.deal-closed';
+import { applyDealClosedHooks, dealClosedFields } from './crm.deal-closed';
 
 /** The pipeline, in the order a deal moves through it. */
 export const DEAL_STAGES = [
@@ -11,7 +11,7 @@ export const DEAL_STAGES = [
   'LOST',
 ] as const;
 
-export { CLOSED_DEAL_STAGES };
+export { CLOSED_DEAL_STAGES } from './crm.deal-closed';
 
 /**
  * An opportunity. Company and contact are stored as id plus name for the same

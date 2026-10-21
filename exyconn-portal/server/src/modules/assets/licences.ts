@@ -50,13 +50,16 @@ export const licencesResolvers = {
   Query: crud.Query,
   Mutation: {
     ...crud.Mutation,
-    createLicence: async (p: unknown, args: LicenceArgs, ctx: GraphQLContext) => {
-      assertSeatsFit(args.input);
-      return crud.Mutation.createLicence(p, args as never, ctx);
-    },
-    updateLicence: async (p: unknown, args: LicenceArgs & { id: string }, ctx: GraphQLContext) => {
-      assertSeatsFit(args.input);
-      return crud.Mutation.updateLicence(p, args as never, ctx);
-    },
+    createLicence: (p: unknown, args: LicenceArgs, ctx: GraphQLContext) =>
+      // Inside the chain so a refused input rejects the returned promise rather than throwing.
+      Promise.resolve().then(() => {
+        assertSeatsFit(args.input);
+        return crud.Mutation.createLicence(p, args as never, ctx);
+      }),
+    updateLicence: (p: unknown, args: LicenceArgs & { id: string }, ctx: GraphQLContext) =>
+      Promise.resolve().then(() => {
+        assertSeatsFit(args.input);
+        return crud.Mutation.updateLicence(p, args as never, ctx);
+      }),
   },
 };

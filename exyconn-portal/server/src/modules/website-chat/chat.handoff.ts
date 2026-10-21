@@ -1,6 +1,7 @@
 import { registerBackgroundJob } from '../tech/jobs.registry';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import { ChatMessageModel, ChatSessionModel } from './models';
 import { answerQuestion } from './chat.bot';
 import { postMessage } from './chat.messages';
@@ -53,13 +54,11 @@ export async function closeExpiredSessions(timeoutMinutes: number): Promise<numb
     .select('_id')
     .limit(BATCH)
     .lean();
-  for (const session of expired) {
-    await closeSession(
-      String(session._id),
-      'Session timeout',
-      `This chat ended after ${timeoutMinutes} minutes without a message. Start a new chat any time.`,
-    );
-  }
+  const notice = `This chat ended after ${timeoutMinutes} minutes without a message. Start a new chat any time.`;
+  // One chat at a time: closing may email a transcript, and a full batch must not burst SMTP.
+  await inSequence(expired, (session) =>
+    closeSession(String(session._id), 'Session timeout', notice),
+  );
   return expired.length;
 }
 
@@ -77,9 +76,8 @@ export async function sweepHandoffs(): Promise<void> {
     .select('_id')
     .limit(BATCH)
     .lean();
-  for (const session of due) {
-    await handOff(String(session._id), settings.handoffMessage);
-  }
+  // One chat at a time: each hand-off asks the AI provider, which rate-limits requests.
+  await inSequence(due, (session) => handOff(String(session._id), settings.handoffMessage));
   const closed = await closeExpiredSessions(settings.sessionTimeoutMinutes);
   recordJobRun(
     JOB_KEYS.websiteChatHandoff,

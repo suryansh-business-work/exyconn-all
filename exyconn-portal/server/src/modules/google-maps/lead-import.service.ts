@@ -4,6 +4,7 @@ import { ActivityModel } from '../crm/activity.model';
 import { CompanyModel } from '../crm/company.model';
 import { withPrimaries } from '../crm/crm.profile';
 import { logger } from '../../utils/logger';
+import { inSequence } from '../../utils/inSequence';
 import {
   companyMatcher,
   leadExtras,
@@ -261,13 +262,10 @@ export async function importLeads(
   const targets = mergeTargets(mergeInto);
   const matcher = await companyMatcher(rows);
   const run = new ImportRun(matcher, origin);
-  for (const row of rows) {
+  // Row after row: a company filed for one row is what a later duplicate row must match.
+  await inSequence(rows, (row) => {
     const match = matcher.match(row);
-    if (match) {
-      await run.settle(row, match, targets.get(row.placeId));
-    } else {
-      await run.create(row);
-    }
-  }
+    return match ? run.settle(row, match, targets.get(row.placeId)) : run.create(row);
+  });
   return run.result;
 }

@@ -8,6 +8,7 @@ import { runForOrganization } from '../../lib/tenant';
 import { isEmailAddress } from '../../utils/emailAddress';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { trimLeading, trimTrailing } from '../../utils/textTrim';
 import { assertCaptcha } from '../website/website.captcha';
 import { readEstimate } from './gcc.estimate';
 import { emailIpLimiter, emailRecipientLimiter } from './gcc.limits';
@@ -37,11 +38,11 @@ function unavailable(): never {
 
 /** The estimate's name as a file name: lowercase letters, digits and dashes. */
 export function pdfFileName(name: string): string {
-  const slug = name
+  const dashed = name
     .toLowerCase()
     .replaceAll(/[^a-z\d]+/g, '-')
-    .slice(0, MAX_FILE_NAME)
-    .replaceAll(/^-+|-+$/g, '');
+    .slice(0, MAX_FILE_NAME);
+  const slug = trimTrailing(trimLeading(dashed, '-'), '-');
   return `${slug || 'gcc-estimate'}.pdf`;
 }
 
