@@ -102,16 +102,19 @@ function DataTableStub(props: Readonly<TableProps>) {
               <td key={column.key}>{cellOf(column, row)}</td>
             ))}
             <td>
-              {actions?.map((action) => (
-                <button
-                  key={action.ariaLabel}
-                  type="button"
-                  aria-label={action.ariaLabel}
-                  onClick={() => action.onClick(row)}
-                >
-                  {action.tooltip}
-                </button>
-              ))}
+              {actions?.map((action) =>
+                // A control action renders itself; the tracker pages pass icon actions.
+                'render' in action ? null : (
+                  <button
+                    key={action.ariaLabel}
+                    type="button"
+                    aria-label={action.ariaLabel}
+                    onClick={() => action.onClick(row)}
+                  >
+                    {action.tooltip}
+                  </button>
+                ),
+              )}
               {onRowClick ? (
                 <button type="button" onClick={() => onRowClick(row)}>
                   {`Open ${row.id}`}

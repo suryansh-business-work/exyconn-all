@@ -1,7 +1,7 @@
 import { DataTableView, type DataTableViewProps } from './DataTableView';
 import { useDataTableBulk } from './useDataTableBulk';
 
-export type { RowAction } from './DataTableRowActions';
+export type { IconRowAction, RowAction } from './DataTableRowActions';
 export type { Column } from './DataTableView';
 
 interface DataTableProps<T extends { id: string }> extends Omit<DataTableViewProps<T>, 'bulk'> {

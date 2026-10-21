@@ -1,6 +1,6 @@
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import type { RowAction } from '@exyconn/shell/components/data/DataTable';
+import type { IconRowAction } from '@exyconn/shell/components/data/DataTable';
 
 const PENDING = 'PENDING';
 
@@ -13,7 +13,7 @@ interface Decidable {
 export function decisionActions<T extends Decidable>(
   onApprove: (row: T) => void,
   onReject: (row: T) => void,
-): RowAction<T>[] {
+): IconRowAction<T>[] {
   const decided = (row: T) => row.status !== PENDING;
   return [
     {
