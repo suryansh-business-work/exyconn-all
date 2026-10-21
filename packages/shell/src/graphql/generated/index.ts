@@ -2778,6 +2778,8 @@ export type ColdEmailDraft = {
   /** What we are offering, in the person's words; empty means an introduction to the company. */
   goal: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** The most versions one draft may hold; generating stops there. */
+  maxVariants: Scalars['Int']['output'];
   object: CrmTimelineObject;
   recordId: Scalars['ID']['output'];
   recordName: Scalars['String']['output'];
@@ -3336,6 +3338,8 @@ export type CreateColdEmailDraftInput = {
   recordId: Scalars['ID']['input'];
   toEmail: Scalars['String']['input'];
   tone: ColdEmailTone;
+  /** How many versions to write straight away, in one AI run: 1 to 4, default 4. */
+  variantCount?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type CreateUserInput = {
@@ -3595,9 +3599,9 @@ export type CrmEmailSenderOption = {
 
 export type CrmEmailStatus = {
   __typename?: 'CrmEmailStatus';
-  /** A Gmail mailbox is connected and enabled, and this is the operator's CRM. */
+  /** One of the company's Gmail mailboxes is connected and enabled. */
   gmail: Scalars['Boolean']['output'];
-  /** A Microsoft mailbox is connected and enabled, and this is the operator's CRM. */
+  /** One of the company's Microsoft mailboxes is connected and enabled. */
   microsoft: Scalars['Boolean']['output'];
 };
 
@@ -3976,7 +3980,7 @@ export type CrmTimelineItem = {
   status: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   title: Scalars['String']['output'];
-  /** Where to open it in the portals; empty when it has no page. */
+  /** Where to open it: a path inside the portal app that owns this kind; empty when it has no page. */
   url: Scalars['String']['output'];
 };
 
@@ -7197,6 +7201,55 @@ export type MaBulkActionInput = {
   status?: InputMaybe<MaActionStatus>;
 };
 
+export type MaCalendar = {
+  __typename?: 'MaCalendar';
+  events: Array<MaCalendarEvent>;
+  google: MaCalendarGoogleState;
+  googleError: Scalars['String']['output'];
+  meetings: Array<MaMeeting>;
+};
+
+/** Somebody invited to a Google Calendar event. responseStatus is Google's own value, e.g. accepted. */
+export type MaCalendarAttendee = {
+  __typename?: 'MaCalendarAttendee';
+  email?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  organizer: Scalars['Boolean']['output'];
+  responseStatus: Scalars['String']['output'];
+  self: Scalars['Boolean']['output'];
+};
+
+/** A Google Calendar event of the viewer's that has a Google Meet link. description is plain text. */
+export type MaCalendarEvent = {
+  __typename?: 'MaCalendarEvent';
+  allDay: Scalars['Boolean']['output'];
+  attendees: Array<MaCalendarAttendee>;
+  description: Scalars['String']['output'];
+  endsAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  meetUrl: Scalars['String']['output'];
+  meetingCode: Scalars['String']['output'];
+  /** The assistant meeting that recorded this call, when there is one. */
+  meetingId?: Maybe<Scalars['ID']['output']>;
+  organizerEmail?: Maybe<Scalars['String']['output']>;
+  organizerName?: Maybe<Scalars['String']['output']>;
+  startsAt: Scalars['DateTime']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** Whether the viewer's Google Meet events can be shown on the calendar. */
+export enum MaCalendarGoogleState {
+  Connected = 'CONNECTED',
+  /** The company has no Google sign-in client in Tech. */
+  NotConfigured = 'NOT_CONFIGURED',
+  /** The viewer has not connected Google Meet. */
+  NotConnected = 'NOT_CONNECTED',
+  /** The connection predates the calendar scope, or Google no longer accepts it. */
+  ReconnectRequired = 'RECONNECT_REQUIRED',
+  /** Google could not be read just now; googleError says why. */
+  Unavailable = 'UNAVAILABLE'
+}
+
 export enum MaCaptureState {
   Error = 'ERROR',
   Idle = 'IDLE',
@@ -7454,6 +7507,12 @@ export enum MaMeetingStatus {
   Ended = 'ENDED'
 }
 
+/** What a model is picked for: writing the notes (ANALYSIS) or speech to text (TRANSCRIPTION). */
+export enum MaModelPurpose {
+  Analysis = 'ANALYSIS',
+  Transcription = 'TRANSCRIPTION'
+}
+
 /** A meeting's notes: original is exactly what the model returned; content is the current version. */
 export type MaNotes = {
   __typename?: 'MaNotes';
@@ -7569,22 +7628,6 @@ export type MaRecordingTrack = {
   stream: Scalars['String']['output'];
 };
 
-export type MaRegisterReleaseInput = {
-  artifactName: Scalars['String']['input'];
-  artifactSize: Scalars['Int']['input'];
-  assetUrl: Scalars['String']['input'];
-  buildNumber: Scalars['Int']['input'];
-  buildRunUrl: Scalars['String']['input'];
-  builtAt: Scalars['DateTime']['input'];
-  channel: MaReleaseChannel;
-  commitSha: Scalars['String']['input'];
-  minChromeVersion: Scalars['String']['input'];
-  releaseNotes: Scalars['String']['input'];
-  releaseUrl: Scalars['String']['input'];
-  sha256: Scalars['String']['input'];
-  version: Scalars['String']['input'];
-};
-
 /** One build of the Chrome extension. Never exposes where the artifact is stored. */
 export type MaRelease = {
   __typename?: 'MaRelease';
@@ -7622,6 +7665,39 @@ export type MaReleaseEvent = {
   byName: Scalars['String']['output'];
   note: Scalars['String']['output'];
   status: MaReleaseStatus;
+};
+
+/** What the extension page needs to explain why there is nothing to download yet. */
+export type MaReleaseOverview = {
+  __typename?: 'MaReleaseOverview';
+  /** Builds waiting for a release manager's approval (0 for anyone but a release manager). */
+  awaitingApproval: Scalars['Int']['output'];
+  /** Builds uploaded to the portal (0 for anyone but a release manager). */
+  registered: Scalars['Int']['output'];
+  /** Whether the caller manages extension releases. */
+  releaseManager: Scalars['Boolean']['output'];
+};
+
+/** How builds reach the portal and where they are announced. Install-wide. */
+export type MaReleaseSettings = {
+  __typename?: 'MaReleaseSettings';
+  /** The owner/repo whose release workflow may upload builds (GitHub Actions OIDC, main only). */
+  allowedRepository: Scalars['String']['output'];
+  /** Also post when a new build arrives for QA. */
+  notifyOnNewBuild: Scalars['Boolean']['output'];
+  /** The Slack channel published builds are announced in; empty for none. */
+  slackChannelId: Scalars['String']['output'];
+  slackChannelName: Scalars['String']['output'];
+  /** Whether Tech has an active Slack config. */
+  slackConfigured: Scalars['Boolean']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  updatedByName: Scalars['String']['output'];
+};
+
+export type MaReleaseSettingsInput = {
+  allowedRepository: Scalars['String']['input'];
+  notifyOnNewBuild: Scalars['Boolean']['input'];
+  slackChannelId: Scalars['String']['input'];
 };
 
 export enum MaReleaseStatus {
@@ -8369,7 +8445,7 @@ export type Mutation = {
   createCmsFragment: CmsFragment;
   createCmsPage: CmsPage;
   createCmsSite: CmsSite;
-  /** Writes the first version with the AI from the record's business context; spends AI budget. */
+  /** Writes the first versions (4 by default) with the AI from the record's business context; spends AI budget. */
   createColdEmailDraft: ColdEmailDraft;
   createColumn: BoardColumn;
   createCompany: Company;
@@ -8728,6 +8804,8 @@ export type Mutation = {
   itRevokeAllAccess: Array<ItAccessRequest>;
   login: AuthPayload;
   maAddActionComment: MaActionItem;
+  /** Approves a build waiting for review, offers it on the channel and announces it in Slack. */
+  maApproveRelease: MaRelease;
   /** Issues a one-time code for the extension's PKCE sign-in; returns the URL to send the browser to. */
   maAuthorizeExtension: Scalars['String']['output'];
   maBulkUpdateActionItems: Scalars['Int']['output'];
@@ -8749,7 +8827,6 @@ export type Mutation = {
   maRecordingDownloadLink: MaDownloadLink;
   /** Queues a fresh analysis. Existing actions keep their ids, statuses and every edit. */
   maRegenerateNotes: MaMeeting;
-  maRegisterRelease: MaRelease;
   maReleaseDownloadLink: MaDownloadLink;
   maRetryEmailDelivery: MaEmailDelivery;
   maRevokeExtensionSession: Scalars['Boolean']['output'];
@@ -8757,6 +8834,8 @@ export type Mutation = {
   maSendSummaryEmail: MaMeeting;
   maSetActionStatus: MaActionItem;
   maSetReleaseStatus: MaRelease;
+  /** Starts the extension build workflow; the run uploads the build here for approval. */
+  maStartExtensionBuild: Scalars['Boolean']['output'];
   /** Returns Google's consent page for the Meet read-only scope. */
   maStartGoogleConnect: Scalars['String']['output'];
   /** Opens (or finds again, after a reload or reconnect) the caller's session for a call. */
@@ -8765,6 +8844,7 @@ export type Mutation = {
   maUpdateMeeting: MaMeeting;
   /** Saves edited notes. expectedVersion must match, so two editors never overwrite each other. */
   maUpdateNotes: MaNotes;
+  maUpdateReleaseSettings: MaReleaseSettings;
   maUpdateSettings: MaSettings;
   markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
@@ -8877,6 +8957,8 @@ export type Mutation = {
   revokeSession: Scalars['Boolean']['output'];
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
+  /** Writes fresh versions (up to 4, within the 10 per draft) from the record's latest data; spends AI budget. */
+  rewriteColdEmailDraft: ColdEmailDraft;
   /** Queues the job for the AI worker and answers at once. Poll the job for the result. */
   runAiJob: AiJob;
   /**
@@ -11228,6 +11310,12 @@ export type MutationMaAddActionCommentArgs = {
 };
 
 
+export type MutationMaApproveReleaseArgs = {
+  channel: MaReleaseChannel;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationMaAuthorizeExtensionArgs = {
   input: MaAuthorizeExtensionInput;
 };
@@ -11300,11 +11388,6 @@ export type MutationMaRegenerateNotesArgs = {
 };
 
 
-export type MutationMaRegisterReleaseArgs = {
-  input: MaRegisterReleaseInput;
-};
-
-
 export type MutationMaReleaseDownloadLinkArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11337,6 +11420,11 @@ export type MutationMaSetReleaseStatusArgs = {
 };
 
 
+export type MutationMaStartExtensionBuildArgs = {
+  channel: MaReleaseChannel;
+};
+
+
 export type MutationMaStartGoogleConnectArgs = {
   returnTo: Scalars['String']['input'];
 };
@@ -11363,6 +11451,11 @@ export type MutationMaUpdateNotesArgs = {
   content: MaNotesContentInput;
   expectedVersion: Scalars['Int']['input'];
   meetingId: Scalars['ID']['input'];
+};
+
+
+export type MutationMaUpdateReleaseSettingsArgs = {
+  input: MaReleaseSettingsInput;
 };
 
 
@@ -11629,6 +11722,12 @@ export type MutationRevokeTrackerAccessArgs = {
 
 export type MutationRevokeTrackerDeviceArgs = {
   deviceId: Scalars['String']['input'];
+};
+
+
+export type MutationRewriteColdEmailDraftArgs = {
+  id: Scalars['ID']['input'];
+  readWebsite?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -15098,11 +15197,11 @@ export type Query = {
   crmDashboard: CrmDashboard;
   /** The mailbox (Gmail or Microsoft) a new email to the record goes from by default; null when none is enabled. */
   crmEmailSender?: Maybe<Scalars['ID']['output']>;
-  /** Every Gmail and Microsoft mailbox a CRM email may go from; empty outside the operator's CRM. */
+  /** Every Gmail and Microsoft mailbox of the company a CRM email may go from. */
   crmEmailSenders: Array<CrmEmailSenderOption>;
   /** The record's Gmail threads across every enabled account, synced from Gmail first. */
   crmEmailThreads: Array<CrmEmailThread>;
-  /** Whether the CRM can email through Gmail (an enabled account, and this is the operator's CRM). */
+  /** Whether the company's CRM can email through Gmail (one of its accounts is enabled). */
   crmGmailReady: Scalars['Boolean']['output'];
   crmIntegrationStatus: CrmIntegrationStatus;
   crmObjectSchema: CrmObjectSchema;
@@ -15140,6 +15239,8 @@ export type Query = {
   employeeLegalAssignments: Array<LegalAssignment>;
   /** HR, ADMIN or the employee's manager: their location pins on one local day, oldest first. */
   employeeLocations: Array<TrackerLocation>;
+  /** HR, ADMIN or the employee's manager: their location pins from one local day to another (YYYY-MM-DD, both included, at most 31 days), oldest first. */
+  employeeLocationsBetween: Array<TrackerLocation>;
   /**
    * ONE employee's salary structure, looked up by the employee rather than by structure id.
    * Null until HR has set one up. This is what the employee record reads.
@@ -15626,6 +15727,10 @@ export type Query = {
   localeOptions: Array<LocaleOption>;
   maActionItemsPaged: MaActionItemPage;
   maActionStats: MaActionStats;
+  /** The models the platform's OpenAI key can use for a purpose, sorted (cached for 10 minutes). */
+  maAvailableModels: Array<Scalars['String']['output']>;
+  /** Meetings started in [from, to) that the scope covers, with the viewer's Meet events. At most 42 days. */
+  maCalendar: MaCalendar;
   maDashboard: MaDashboard;
   maDecisions: Array<MaDecision>;
   maEmailDeliveries: Array<MaEmailDelivery>;
@@ -15645,6 +15750,10 @@ export type Query = {
   maRecording: Array<MaRecordingTrack>;
   /** One saved chunk as a base64 string of a 16 kHz mono 16-bit PCM WAV file. */
   maRecordingChunkBase64: Scalars['String']['output'];
+  maReleaseOverview: MaReleaseOverview;
+  maReleaseSettings: MaReleaseSettings;
+  /** The Slack channels a release announcement can go to. */
+  maReleaseSlackChannels: Array<SlackChannel>;
   /** Releases the caller may see: every one for release managers, approved ones otherwise. */
   maReleases: Array<MaRelease>;
   maSettings: MaSettings;
@@ -15745,6 +15854,8 @@ export type Query = {
   myTrackerHoursReportPdf: TableFile;
   /** The caller's own location pins on one local day (YYYY-MM-DD), oldest first. */
   myTrackerLocations: Array<TrackerLocation>;
+  /** The caller's own location pins from one local day to another (YYYY-MM-DD, both included, at most 31 days), oldest first. */
+  myTrackerLocationsBetween: Array<TrackerLocation>;
   /** The caller's own off-computer entries in a range, any status. */
   myTrackerManualEntries: Array<TrackerManualEntry>;
   /**
@@ -16420,6 +16531,13 @@ export type QueryEmployeeLegalAssignmentsArgs = {
 export type QueryEmployeeLocationsArgs = {
   date: Scalars['String']['input'];
   employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryEmployeeLocationsBetweenArgs = {
+  employeeId: Scalars['ID']['input'];
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
 };
 
 
@@ -17427,6 +17545,18 @@ export type QueryMaActionStatsArgs = {
 };
 
 
+export type QueryMaAvailableModelsArgs = {
+  purpose: MaModelPurpose;
+};
+
+
+export type QueryMaCalendarArgs = {
+  from: Scalars['DateTime']['input'];
+  scope?: InputMaybe<MaScope>;
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryMaDashboardArgs = {
   filter?: InputMaybe<MaDashboardFilter>;
 };
@@ -17595,6 +17725,12 @@ export type QueryMyTrackerHoursReportPdfArgs = {
 
 export type QueryMyTrackerLocationsArgs = {
   date: Scalars['String']['input'];
+};
+
+
+export type QueryMyTrackerLocationsBetweenArgs = {
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
 };
 
 
@@ -24130,7 +24266,7 @@ export type ColdEmailVariantFieldsFragment = { __typename?: 'ColdEmailVariant', 
 
 export type ColdEmailDraftRowFieldsFragment = { __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string };
 
-export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
+export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
 
 export type ColdEmailDraftsQueryVariables = Exact<{
   input: TableQueryInput;
@@ -24144,14 +24280,14 @@ export type ColdEmailDraftQueryVariables = Exact<{
 }>;
 
 
-export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type CreateColdEmailDraftMutationVariables = Exact<{
   input: CreateColdEmailDraftInput;
 }>;
 
 
-export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type AddColdEmailVariantMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24160,7 +24296,15 @@ export type AddColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+
+export type RewriteColdEmailDraftMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  readWebsite?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type RewriteColdEmailDraftMutation = { __typename?: 'Mutation', rewriteColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type UpdateColdEmailVariantMutationVariables = Exact<{
   draftId: Scalars['ID']['input'];
@@ -24170,7 +24314,7 @@ export type UpdateColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type DeleteColdEmailVariantMutationVariables = Exact<{
   draftId: Scalars['ID']['input'];
@@ -24178,7 +24322,7 @@ export type DeleteColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type DeleteColdEmailDraftMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24192,7 +24336,7 @@ export type SendColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type CrmDashboardQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
@@ -27139,6 +27283,61 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
+
+export type MaCalendarQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  scope?: InputMaybe<MaScope>;
+}>;
+
+
+export type MaCalendarQuery = { __typename?: 'Query', maCalendar: { __typename?: 'MaCalendar', google: MaCalendarGoogleState, googleError: string, meetings: Array<{ __typename?: 'MaMeeting', id: string, meetingCode: string, title: string, ownerName: string, startedAt: string, endedAt?: string | null, status: MaMeetingStatus }>, events: Array<{ __typename?: 'MaCalendarEvent', id: string, title: string, startsAt: string, endsAt: string, allDay: boolean, meetingCode: string, meetUrl: string, organizerName?: string | null, organizerEmail?: string | null, description: string, meetingId?: string | null, attendees: Array<{ __typename?: 'MaCalendarAttendee', email?: string | null, name?: string | null, responseStatus: string, organizer: boolean, self: boolean }> }> } };
+
+export type MaAvailableModelsQueryVariables = Exact<{
+  purpose: MaModelPurpose;
+}>;
+
+
+export type MaAvailableModelsQuery = { __typename?: 'Query', maAvailableModels: Array<string> };
+
+export type MaReleaseOverviewQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MaReleaseOverviewQuery = { __typename?: 'Query', maReleaseOverview: { __typename?: 'MaReleaseOverview', releaseManager: boolean, registered: number, awaitingApproval: number } };
+
+export type MaReleaseSettingsFieldsFragment = { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null };
+
+export type MaReleaseSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MaReleaseSettingsQuery = { __typename?: 'Query', maReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null } };
+
+export type MaReleaseSlackChannelsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MaReleaseSlackChannelsQuery = { __typename?: 'Query', maReleaseSlackChannels: Array<{ __typename?: 'SlackChannel', id: string, name: string, isPrivate: boolean }> };
+
+export type MaUpdateReleaseSettingsMutationVariables = Exact<{
+  input: MaReleaseSettingsInput;
+}>;
+
+
+export type MaUpdateReleaseSettingsMutation = { __typename?: 'Mutation', maUpdateReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null } };
+
+export type MaApproveReleaseMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  channel: MaReleaseChannel;
+}>;
+
+
+export type MaApproveReleaseMutation = { __typename?: 'Mutation', maApproveRelease: { __typename?: 'MaRelease', id: string, version: string, channel: MaReleaseChannel, buildNumber: number, commitSha: string, builtAt: string, artifactName: string, artifactSize: number, sha256: string, releaseNotes: string, minChromeVersion: string, status: MaReleaseStatus, storeItemId: string, storeUrl: string, buildRunUrl: string, publisherName: string, downloadCount: number, downloadable: boolean, statusHistory: Array<{ __typename?: 'MaReleaseEvent', status: MaReleaseStatus, at: string, byName: string, note: string }> } };
+
+export type MaStartExtensionBuildMutationVariables = Exact<{
+  channel: MaReleaseChannel;
+}>;
+
+
+export type MaStartExtensionBuildMutation = { __typename?: 'Mutation', maStartExtensionBuild: boolean };
 
 export type MaMeetingRowFragment = { __typename?: 'MaMeeting', id: string, meetingCode: string, title: string, ownerId: string, ownerName: string, language: MaLanguage, startedAt: string, endedAt?: string | null, durationSeconds: number, status: MaMeetingStatus, participantCount: number, transcriptionState: MaTranscriptionState, summaryStatus: MaStepStatus, emailStatus: MaEmailStatus, actionItemCount: number, openActionCount: number };
 
@@ -30771,6 +30970,15 @@ export type EmployeeLocationsQueryVariables = Exact<{
 
 export type EmployeeLocationsQuery = { __typename?: 'Query', employeeLocations: Array<{ __typename?: 'TrackerLocation', id: string, lat: number, lng: number, accuracyM: number, source: TrackerLocationSource, kind: TrackerLocationKind, capturedAt: string }> };
 
+export type EmployeeLocationsBetweenQueryVariables = Exact<{
+  employeeId: Scalars['ID']['input'];
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+}>;
+
+
+export type EmployeeLocationsBetweenQuery = { __typename?: 'Query', employeeLocationsBetween: Array<{ __typename?: 'TrackerLocation', id: string, lat: number, lng: number, accuracyM: number, source: TrackerLocationSource, kind: TrackerLocationKind, capturedAt: string }> };
+
 export type EmployeeEarningsQueryVariables = Exact<{
   employeeId: Scalars['ID']['input'];
   from: Scalars['String']['input'];
@@ -32258,6 +32466,7 @@ export const ColdEmailDraftFieldsFragmentDoc = gql`
   goal
   tone
   createdAt
+  maxVariants
   variants {
     ...ColdEmailVariantFields
   }
@@ -33217,6 +33426,17 @@ export const CampaignFieldsFragmentDoc = gql`
   trackClicks
   sendState
   sendingRevisionId
+}
+    `;
+export const MaReleaseSettingsFieldsFragmentDoc = gql`
+    fragment MaReleaseSettingsFields on MaReleaseSettings {
+  allowedRepository
+  slackChannelId
+  slackChannelName
+  notifyOnNewBuild
+  slackConfigured
+  updatedByName
+  updatedAt
 }
     `;
 export const MaMeetingRowFragmentDoc = gql`
@@ -45494,6 +45714,39 @@ export function useAddColdEmailVariantMutation(baseOptions?: ApolloReactHooks.Mu
         return ApolloReactHooks.useMutation<AddColdEmailVariantMutation, AddColdEmailVariantMutationVariables>(AddColdEmailVariantDocument, options);
       }
 export type AddColdEmailVariantMutationHookResult = ReturnType<typeof useAddColdEmailVariantMutation>;
+export const RewriteColdEmailDraftDocument = gql`
+    mutation RewriteColdEmailDraft($id: ID!, $readWebsite: Boolean) {
+  rewriteColdEmailDraft(id: $id, readWebsite: $readWebsite) {
+    ...ColdEmailDraftFields
+  }
+}
+    ${ColdEmailDraftFieldsFragmentDoc}
+${ColdEmailDraftRowFieldsFragmentDoc}
+${ColdEmailVariantFieldsFragmentDoc}`;
+
+/**
+ * __useRewriteColdEmailDraftMutation__
+ *
+ * To run a mutation, you first call `useRewriteColdEmailDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRewriteColdEmailDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rewriteColdEmailDraftMutation, { data, loading, error }] = useRewriteColdEmailDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      readWebsite: // value for 'readWebsite'
+ *   },
+ * });
+ */
+export function useRewriteColdEmailDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RewriteColdEmailDraftMutation, RewriteColdEmailDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RewriteColdEmailDraftMutation, RewriteColdEmailDraftMutationVariables>(RewriteColdEmailDraftDocument, options);
+      }
+export type RewriteColdEmailDraftMutationHookResult = ReturnType<typeof useRewriteColdEmailDraftMutation>;
 export const UpdateColdEmailVariantDocument = gql`
     mutation UpdateColdEmailVariant($draftId: ID!, $variantId: ID!, $subject: String!, $body: String!) {
   updateColdEmailVariant(
@@ -62412,6 +62665,346 @@ export function useCampaignMetricsSuspenseQuery(baseOptions?: ApolloReactHooks.S
 export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
 export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
 export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
+export const MaCalendarDocument = gql`
+    query MaCalendar($from: DateTime!, $to: DateTime!, $scope: MaScope) {
+  maCalendar(from: $from, to: $to, scope: $scope) {
+    google
+    googleError
+    meetings {
+      id
+      meetingCode
+      title
+      ownerName
+      startedAt
+      endedAt
+      status
+    }
+    events {
+      id
+      title
+      startsAt
+      endsAt
+      allDay
+      meetingCode
+      meetUrl
+      organizerName
+      organizerEmail
+      description
+      meetingId
+      attendees {
+        email
+        name
+        responseStatus
+        organizer
+        self
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useMaCalendarQuery__
+ *
+ * To run a query within a React component, call `useMaCalendarQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMaCalendarQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMaCalendarQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      scope: // value for 'scope'
+ *   },
+ * });
+ */
+export function useMaCalendarQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MaCalendarQuery, MaCalendarQueryVariables> & ({ variables: MaCalendarQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MaCalendarQuery, MaCalendarQueryVariables>(MaCalendarDocument, options);
+      }
+export function useMaCalendarLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MaCalendarQuery, MaCalendarQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MaCalendarQuery, MaCalendarQueryVariables>(MaCalendarDocument, options);
+        }
+// @ts-ignore
+export function useMaCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MaCalendarQuery, MaCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaCalendarQuery, MaCalendarQueryVariables>;
+// @ts-ignore
+export function useMaCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaCalendarQuery, MaCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaCalendarQuery | undefined, MaCalendarQueryVariables>;
+export function useMaCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaCalendarQuery, MaCalendarQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MaCalendarQuery, MaCalendarQueryVariables>(MaCalendarDocument, options);
+        }
+export type MaCalendarQueryHookResult = ReturnType<typeof useMaCalendarQuery>;
+export type MaCalendarLazyQueryHookResult = ReturnType<typeof useMaCalendarLazyQuery>;
+export type MaCalendarSuspenseQueryHookResult = ReturnType<typeof useMaCalendarSuspenseQuery>;
+export const MaAvailableModelsDocument = gql`
+    query MaAvailableModels($purpose: MaModelPurpose!) {
+  maAvailableModels(purpose: $purpose)
+}
+    `;
+
+/**
+ * __useMaAvailableModelsQuery__
+ *
+ * To run a query within a React component, call `useMaAvailableModelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMaAvailableModelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMaAvailableModelsQuery({
+ *   variables: {
+ *      purpose: // value for 'purpose'
+ *   },
+ * });
+ */
+export function useMaAvailableModelsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MaAvailableModelsQuery, MaAvailableModelsQueryVariables> & ({ variables: MaAvailableModelsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>(MaAvailableModelsDocument, options);
+      }
+export function useMaAvailableModelsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>(MaAvailableModelsDocument, options);
+        }
+// @ts-ignore
+export function useMaAvailableModelsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>;
+// @ts-ignore
+export function useMaAvailableModelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaAvailableModelsQuery | undefined, MaAvailableModelsQueryVariables>;
+export function useMaAvailableModelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MaAvailableModelsQuery, MaAvailableModelsQueryVariables>(MaAvailableModelsDocument, options);
+        }
+export type MaAvailableModelsQueryHookResult = ReturnType<typeof useMaAvailableModelsQuery>;
+export type MaAvailableModelsLazyQueryHookResult = ReturnType<typeof useMaAvailableModelsLazyQuery>;
+export type MaAvailableModelsSuspenseQueryHookResult = ReturnType<typeof useMaAvailableModelsSuspenseQuery>;
+export const MaReleaseOverviewDocument = gql`
+    query MaReleaseOverview {
+  maReleaseOverview {
+    releaseManager
+    registered
+    awaitingApproval
+  }
+}
+    `;
+
+/**
+ * __useMaReleaseOverviewQuery__
+ *
+ * To run a query within a React component, call `useMaReleaseOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMaReleaseOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMaReleaseOverviewQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMaReleaseOverviewQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>(MaReleaseOverviewDocument, options);
+      }
+export function useMaReleaseOverviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>(MaReleaseOverviewDocument, options);
+        }
+// @ts-ignore
+export function useMaReleaseOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>;
+// @ts-ignore
+export function useMaReleaseOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaReleaseOverviewQuery | undefined, MaReleaseOverviewQueryVariables>;
+export function useMaReleaseOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MaReleaseOverviewQuery, MaReleaseOverviewQueryVariables>(MaReleaseOverviewDocument, options);
+        }
+export type MaReleaseOverviewQueryHookResult = ReturnType<typeof useMaReleaseOverviewQuery>;
+export type MaReleaseOverviewLazyQueryHookResult = ReturnType<typeof useMaReleaseOverviewLazyQuery>;
+export type MaReleaseOverviewSuspenseQueryHookResult = ReturnType<typeof useMaReleaseOverviewSuspenseQuery>;
+export const MaReleaseSettingsDocument = gql`
+    query MaReleaseSettings {
+  maReleaseSettings {
+    ...MaReleaseSettingsFields
+  }
+}
+    ${MaReleaseSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useMaReleaseSettingsQuery__
+ *
+ * To run a query within a React component, call `useMaReleaseSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMaReleaseSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMaReleaseSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMaReleaseSettingsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>(MaReleaseSettingsDocument, options);
+      }
+export function useMaReleaseSettingsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>(MaReleaseSettingsDocument, options);
+        }
+// @ts-ignore
+export function useMaReleaseSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>;
+// @ts-ignore
+export function useMaReleaseSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaReleaseSettingsQuery | undefined, MaReleaseSettingsQueryVariables>;
+export function useMaReleaseSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MaReleaseSettingsQuery, MaReleaseSettingsQueryVariables>(MaReleaseSettingsDocument, options);
+        }
+export type MaReleaseSettingsQueryHookResult = ReturnType<typeof useMaReleaseSettingsQuery>;
+export type MaReleaseSettingsLazyQueryHookResult = ReturnType<typeof useMaReleaseSettingsLazyQuery>;
+export type MaReleaseSettingsSuspenseQueryHookResult = ReturnType<typeof useMaReleaseSettingsSuspenseQuery>;
+export const MaReleaseSlackChannelsDocument = gql`
+    query MaReleaseSlackChannels {
+  maReleaseSlackChannels {
+    id
+    name
+    isPrivate
+  }
+}
+    `;
+
+/**
+ * __useMaReleaseSlackChannelsQuery__
+ *
+ * To run a query within a React component, call `useMaReleaseSlackChannelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMaReleaseSlackChannelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMaReleaseSlackChannelsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMaReleaseSlackChannelsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>(MaReleaseSlackChannelsDocument, options);
+      }
+export function useMaReleaseSlackChannelsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>(MaReleaseSlackChannelsDocument, options);
+        }
+// @ts-ignore
+export function useMaReleaseSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>;
+// @ts-ignore
+export function useMaReleaseSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaReleaseSlackChannelsQuery | undefined, MaReleaseSlackChannelsQueryVariables>;
+export function useMaReleaseSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MaReleaseSlackChannelsQuery, MaReleaseSlackChannelsQueryVariables>(MaReleaseSlackChannelsDocument, options);
+        }
+export type MaReleaseSlackChannelsQueryHookResult = ReturnType<typeof useMaReleaseSlackChannelsQuery>;
+export type MaReleaseSlackChannelsLazyQueryHookResult = ReturnType<typeof useMaReleaseSlackChannelsLazyQuery>;
+export type MaReleaseSlackChannelsSuspenseQueryHookResult = ReturnType<typeof useMaReleaseSlackChannelsSuspenseQuery>;
+export const MaUpdateReleaseSettingsDocument = gql`
+    mutation MaUpdateReleaseSettings($input: MaReleaseSettingsInput!) {
+  maUpdateReleaseSettings(input: $input) {
+    ...MaReleaseSettingsFields
+  }
+}
+    ${MaReleaseSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useMaUpdateReleaseSettingsMutation__
+ *
+ * To run a mutation, you first call `useMaUpdateReleaseSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMaUpdateReleaseSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [maUpdateReleaseSettingsMutation, { data, loading, error }] = useMaUpdateReleaseSettingsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useMaUpdateReleaseSettingsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MaUpdateReleaseSettingsMutation, MaUpdateReleaseSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MaUpdateReleaseSettingsMutation, MaUpdateReleaseSettingsMutationVariables>(MaUpdateReleaseSettingsDocument, options);
+      }
+export type MaUpdateReleaseSettingsMutationHookResult = ReturnType<typeof useMaUpdateReleaseSettingsMutation>;
+export const MaApproveReleaseDocument = gql`
+    mutation MaApproveRelease($id: ID!, $channel: MaReleaseChannel!) {
+  maApproveRelease(id: $id, channel: $channel) {
+    ...MaReleaseFields
+  }
+}
+    ${MaReleaseFieldsFragmentDoc}`;
+
+/**
+ * __useMaApproveReleaseMutation__
+ *
+ * To run a mutation, you first call `useMaApproveReleaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMaApproveReleaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [maApproveReleaseMutation, { data, loading, error }] = useMaApproveReleaseMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      channel: // value for 'channel'
+ *   },
+ * });
+ */
+export function useMaApproveReleaseMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MaApproveReleaseMutation, MaApproveReleaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MaApproveReleaseMutation, MaApproveReleaseMutationVariables>(MaApproveReleaseDocument, options);
+      }
+export type MaApproveReleaseMutationHookResult = ReturnType<typeof useMaApproveReleaseMutation>;
+export const MaStartExtensionBuildDocument = gql`
+    mutation MaStartExtensionBuild($channel: MaReleaseChannel!) {
+  maStartExtensionBuild(channel: $channel)
+}
+    `;
+
+/**
+ * __useMaStartExtensionBuildMutation__
+ *
+ * To run a mutation, you first call `useMaStartExtensionBuildMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMaStartExtensionBuildMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [maStartExtensionBuildMutation, { data, loading, error }] = useMaStartExtensionBuildMutation({
+ *   variables: {
+ *      channel: // value for 'channel'
+ *   },
+ * });
+ */
+export function useMaStartExtensionBuildMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MaStartExtensionBuildMutation, MaStartExtensionBuildMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MaStartExtensionBuildMutation, MaStartExtensionBuildMutationVariables>(MaStartExtensionBuildDocument, options);
+      }
+export type MaStartExtensionBuildMutationHookResult = ReturnType<typeof useMaStartExtensionBuildMutation>;
 export const MaDashboardDocument = gql`
     query MaDashboard($filter: MaDashboardFilter) {
   maDashboard(filter: $filter) {
@@ -81752,6 +82345,58 @@ export function useEmployeeLocationsSuspenseQuery(baseOptions?: ApolloReactHooks
 export type EmployeeLocationsQueryHookResult = ReturnType<typeof useEmployeeLocationsQuery>;
 export type EmployeeLocationsLazyQueryHookResult = ReturnType<typeof useEmployeeLocationsLazyQuery>;
 export type EmployeeLocationsSuspenseQueryHookResult = ReturnType<typeof useEmployeeLocationsSuspenseQuery>;
+export const EmployeeLocationsBetweenDocument = gql`
+    query EmployeeLocationsBetween($employeeId: ID!, $from: String!, $to: String!) {
+  employeeLocationsBetween(employeeId: $employeeId, from: $from, to: $to) {
+    id
+    lat
+    lng
+    accuracyM
+    source
+    kind
+    capturedAt
+  }
+}
+    `;
+
+/**
+ * __useEmployeeLocationsBetweenQuery__
+ *
+ * To run a query within a React component, call `useEmployeeLocationsBetweenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmployeeLocationsBetweenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmployeeLocationsBetweenQuery({
+ *   variables: {
+ *      employeeId: // value for 'employeeId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useEmployeeLocationsBetweenQuery(baseOptions: ApolloReactHooks.QueryHookOptions<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables> & ({ variables: EmployeeLocationsBetweenQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>(EmployeeLocationsBetweenDocument, options);
+      }
+export function useEmployeeLocationsBetweenLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>(EmployeeLocationsBetweenDocument, options);
+        }
+// @ts-ignore
+export function useEmployeeLocationsBetweenSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>;
+// @ts-ignore
+export function useEmployeeLocationsBetweenSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeeLocationsBetweenQuery | undefined, EmployeeLocationsBetweenQueryVariables>;
+export function useEmployeeLocationsBetweenSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmployeeLocationsBetweenQuery, EmployeeLocationsBetweenQueryVariables>(EmployeeLocationsBetweenDocument, options);
+        }
+export type EmployeeLocationsBetweenQueryHookResult = ReturnType<typeof useEmployeeLocationsBetweenQuery>;
+export type EmployeeLocationsBetweenLazyQueryHookResult = ReturnType<typeof useEmployeeLocationsBetweenLazyQuery>;
+export type EmployeeLocationsBetweenSuspenseQueryHookResult = ReturnType<typeof useEmployeeLocationsBetweenSuspenseQuery>;
 export const EmployeeEarningsDocument = gql`
     query EmployeeEarnings($employeeId: ID!, $from: String!, $to: String!) {
   employeeEarnings(employeeId: $employeeId, from: $from, to: $to) {
