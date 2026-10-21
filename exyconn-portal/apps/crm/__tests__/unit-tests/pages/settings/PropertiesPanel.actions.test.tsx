@@ -46,11 +46,14 @@ vi.mock('@exyconn/shell/components/data/DataTable', () => ({
     <ul>
       {rows.map((row) => (
         <li key={row.id}>
-          {actions.map((action) => (
-            <button key={action.ariaLabel} type="button" onClick={() => action.onClick(row)}>
-              {`${action.ariaLabel}: ${row.label}`}
-            </button>
-          ))}
+          {actions.map((action) =>
+            // The panel only passes icon actions; a control action renders itself.
+            'render' in action ? null : (
+              <button key={action.ariaLabel} type="button" onClick={() => action.onClick(row)}>
+                {`${action.ariaLabel}: ${row.label}`}
+              </button>
+            ),
+          )}
         </li>
       ))}
     </ul>
