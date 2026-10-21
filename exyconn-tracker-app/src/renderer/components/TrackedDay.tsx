@@ -7,9 +7,9 @@ import {
   trackerActivity,
   trackerDayStatus,
   useTheme,
+  type PickerDayProps,
   type Theme,
 } from '@exyconn/ui';
-import type { PickerDayProps } from '@exyconn/ui';
 import {
   MARK_WORDS,
   formatDayLabel,

@@ -4,15 +4,14 @@ import {
   calculateEstimate,
   estimateSchema,
   type Estimate,
-  type Minor,
   type ScenarioOutcome,
 } from "@exyconn/gcc-cost";
 
 const RECALC_DELAY_MS = 120;
 
 /** Each input's total (with tax) inside its scenario's window, so a row reads one number. */
-function totalsBySource(outcome: ScenarioOutcome): Map<string, Minor> {
-  const totals = new Map<string, Minor>();
+function totalsBySource(outcome: ScenarioOutcome): Map<string, number> {
+  const totals = new Map<string, number>();
   for (const item of outcome.result.charges) {
     if (item.month <= outcome.summary.forecastMonths) {
       totals.set(item.sourceId, (totals.get(item.sourceId) ?? 0) + item.amount + item.tax);

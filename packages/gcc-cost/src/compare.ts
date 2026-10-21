@@ -1,5 +1,4 @@
 import { calculateScenario, type ScenarioResult } from './engine';
-import type { Minor } from './money';
 import type { Estimate } from './schema';
 import { summarise, type ScenarioSummary } from './summary';
 
@@ -28,9 +27,9 @@ export type ComparedMetric = (typeof COMPARED_METRICS)[number];
 
 export interface MetricVariance {
   metric: ComparedMetric;
-  value: Minor | null;
+  value: number | null;
   /** Difference from the baseline scenario; null when either side has no value. */
-  delta: Minor | null;
+  delta: number | null;
   /** Percentage difference; null when the baseline is zero or missing. */
   deltaPct: number | null;
 }
@@ -41,7 +40,7 @@ export interface ScenarioComparison {
   variances: MetricVariance[];
 }
 
-function variance(value: Minor | null, base: Minor | null): Omit<MetricVariance, 'metric'> {
+function variance(value: number | null, base: number | null): Omit<MetricVariance, 'metric'> {
   if (value === null || base === null) {
     return { value, delta: null, deltaPct: null };
   }

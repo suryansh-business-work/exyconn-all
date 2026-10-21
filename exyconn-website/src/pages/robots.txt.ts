@@ -42,7 +42,7 @@ Sitemap: ${SITE_URL}/sitemap.xml
 # ${SITE_URL}/llms.txt
 `;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = () => {
   return new Response(robotsTxt, {
     status: 200,
     headers: {

@@ -1,5 +1,5 @@
 import type { ScenarioOutcome } from './compare';
-import { formatMoney, type FormatOptions, type Minor } from './money';
+import { formatMoney, type FormatOptions } from './money';
 import type { Estimate } from './schema';
 import { departmentTotals } from './summary';
 
@@ -54,11 +54,11 @@ const pct = (value: number | null) => (value === null ? 'Not set' : `${value}%`)
 
 function scenarioReport(
   outcome: ScenarioOutcome,
-  format: (minor: Minor) => string,
+  format: (minor: number) => string,
 ): ReportScenario {
   const { summary, result } = outcome;
   const { assumptions } = result.scenario;
-  const optional = (minor: Minor | null) => (minor === null ? 'Not applicable' : format(minor));
+  const optional = (minor: number | null) => (minor === null ? 'Not applicable' : format(minor));
   return {
     name: result.scenario.name,
     forecastMonths: summary.forecastMonths,
@@ -131,7 +131,7 @@ export function buildReport(
   outcomes: readonly ScenarioOutcome[],
   options: Pick<FormatOptions, 'locale' | 'display'> & { generatedOn: string },
 ): ReportModel {
-  const format = (minor: Minor) =>
+  const format = (minor: number) =>
     formatMoney(minor, {
       currency: estimate.reportingCurrency,
       rates: estimate.fxRates,

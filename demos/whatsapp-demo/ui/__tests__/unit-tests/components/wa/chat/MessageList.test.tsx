@@ -126,6 +126,6 @@ describe('MessageList', () => {
     rerender(
       <MessageList messages={[message('m1', today), message('m2', today + 1)]} typing={false} />,
     );
-    expect(scrollTo.mock.calls.length).toBe(calls + 1);
+    expect(scrollTo.mock.calls).toHaveLength(calls + 1);
   });
 });

@@ -12,7 +12,7 @@ interface WhatsappDemoLiveProps {
  */
 export function WhatsappDemoLive({ access, onSignOut }: Readonly<WhatsappDemoLiveProps>) {
   const url = demoChatsUrl(access);
-  const firstName = access.name.replace(/\s.*$/s, "");
+  const [firstName] = access.name.split(/\s/, 1);
   return (
     <div className="wa-live">
       <div className="wa-live__bar">

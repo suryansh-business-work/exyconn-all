@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
-import { formatMoney, type CalculatorPreset, type Minor } from "@exyconn/gcc-cost";
+import { formatMoney, type CalculatorPreset } from "@exyconn/gcc-cost";
 import type { Brand } from "../GccCalculator";
 import type { SectionId } from "../strings/sections";
 import type { EstimateStore } from "./useEstimateStore";
@@ -46,8 +46,8 @@ export function useMoney() {
     const list = rates ?? [];
     return {
       currency,
-      format: (minor: Minor) => formatMoney(minor, { currency, rates: list, locale }),
-      compact: (minor: Minor) =>
+      format: (minor: number) => formatMoney(minor, { currency, rates: list, locale }),
+      compact: (minor: number) =>
         formatMoney(minor, { currency, rates: list, locale, compact: true }),
     };
   }, [currency, rates, locale]);

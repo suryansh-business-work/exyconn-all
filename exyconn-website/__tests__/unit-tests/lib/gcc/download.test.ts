@@ -10,6 +10,7 @@ describe("fileStem", () => {
     ["x".repeat(80), "x".repeat(60)],
     ["—— ??? ——", "gcc-estimate"],
     ["", "gcc-estimate"],
+    [`${"!".repeat(50_000)}Pune${"?".repeat(50_000)}`, "pune"],
   ])("turns %j into %j", (name, stem) => {
     expect(fileStem(name)).toBe(stem);
   });

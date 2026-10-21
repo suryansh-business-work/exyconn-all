@@ -35,7 +35,9 @@
     </intent>
   </queries>
 
-  <application>
+  <!-- No auto-backup, the same as app.config.ts sets for the app (the two must agree, or the
+       manifest merge fails): nothing the tracker keeps on the phone needs restoring. -->
+  <application android:allowBackup="false">
     <service
       android:name="expo.modules.trackernative.KeepAliveService"
       android:exported="false"

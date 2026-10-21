@@ -1,7 +1,7 @@
 import type { Charge, CostSection } from './charges';
 import type { MonthTotals, ScenarioResult } from './engine';
 import { FORECAST_MONTHS } from './schema';
-import { sumMinor, type Minor } from './money';
+import { sumMinor } from './money';
 
 export interface GroupTotal {
   key: string;
@@ -9,43 +9,43 @@ export interface GroupTotal {
   group: string;
   /** The item label for item totals; the group again for group totals. */
   label: string;
-  setup: Minor;
-  operating: Minor;
-  tax: Minor;
+  setup: number;
+  operating: number;
+  tax: number;
   /** setup + operating + tax (contingency is reported once, not per group). */
-  total: Minor;
+  total: number;
 }
 
 export interface ScenarioSummary {
   forecastMonths: number;
   /** One-time costs inside the forecast window, pre-tax. */
-  setupCost: Minor;
+  setupCost: number;
   /** Refundable deposits paid inside the window. Never part of a cost total. */
-  deposits: Minor;
+  deposits: number;
   /**
    * Month-1 setup with its tax, month-1 deposits, the working-capital reserve (months × the
    * first year's average monthly operating cost with its tax), and month-1 operating cost with
    * its tax when paid in advance.
    */
-  initialCash: Minor;
-  workingCapital: Minor;
+  initialCash: number;
+  workingCapital: number;
   phaseMonth: number;
   /** Pre-tax operating cost of the phase month. */
-  monthlyOperating: Minor;
+  monthlyOperating: number;
   phaseHeadcount: number;
   /** monthlyOperating ÷ headcount in the phase month; null with nobody on payroll. */
-  costPerEmployeeMonthly: Minor | null;
+  costPerEmployeeMonthly: number | null;
   /** Pre-tax operating cost of each forecast year (12-month blocks inside the window). */
-  annualOperating: Minor[];
-  tax: Minor;
-  contingency: Minor;
+  annualOperating: number[];
+  tax: number;
+  contingency: number;
   /** Every cost in the window: setup + operating + tax + contingency. Excludes deposits. */
-  forecastTotal: Minor;
+  forecastTotal: number;
   /** Cumulative total at 12, 24, 36 and 60 months, whatever the window. */
-  horizonTotals: { months: number; total: Minor }[];
-  optionalTotal: Minor;
+  horizonTotals: { months: number; total: number }[];
+  optionalTotal: number;
   /** Present value of the monthly totals at the discount rate; null without a rate. */
-  presentValue: Minor | null;
+  presentValue: number | null;
   /** First month whose cumulative benefit covers cumulative cost; null when not reached or no benefit was given. */
   breakEvenMonth: number | null;
   byGroup: GroupTotal[];
@@ -97,7 +97,7 @@ export const itemTotals = (charges: readonly Charge[], window: number) =>
 const uniqueLabels = (charges: readonly Charge[], pick: (item: Charge) => boolean) =>
   [...new Set(charges.filter(pick).map((item) => item.label))].sort((a, b) => a.localeCompare(b));
 
-function presentValue(rows: readonly MonthTotals[], ratePct: number | null): Minor | null {
+function presentValue(rows: readonly MonthTotals[], ratePct: number | null): number | null {
   if (ratePct === null) {
     return null;
   }

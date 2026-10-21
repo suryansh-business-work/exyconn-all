@@ -119,9 +119,9 @@ describe("bootDetailTabs", () => {
 
     document.body.innerHTML = `<div data-detail-tabs><div role="tablist" hidden></div></div>`;
     bootDetailTabs();
-    expect(document.querySelector<HTMLElement>("[data-detail-tabs]")?.dataset.tabsReady).toBe(
-      undefined
-    );
+    expect(
+      document.querySelector<HTMLElement>("[data-detail-tabs]")?.dataset.tabsReady
+    ).toBeUndefined();
 
     document.body.innerHTML = `<div data-detail-tabs><section role="tabpanel"></section></div>`;
     bootDetailTabs();

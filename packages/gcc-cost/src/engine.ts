@@ -2,7 +2,7 @@ import { monthRange, type Charge } from './charges';
 import { planHeadcount, type HeadcountPlan } from './headcount';
 import { LIMITS } from './limits';
 import { categoryLabels, isActive, lineCharges, percentageCharges } from './lines';
-import { BASE_CURRENCY, inrPerUnit, percentOf, type Minor } from './money';
+import { BASE_CURRENCY, inrPerUnit, percentOf } from './money';
 import { officeCharges } from './office';
 import { payrollCharges } from './payroll';
 import type { FxRate, Scenario } from './schema';
@@ -26,17 +26,17 @@ export interface MonthTotals {
   month: number;
   headcount: number;
   hires: number;
-  setup: Minor;
-  operating: Minor;
-  tax: Minor;
+  setup: number;
+  operating: number;
+  tax: number;
   /** The part of `tax` charged on operating costs (the rest is on setup). */
-  operatingTax: Minor;
+  operatingTax: number;
   /** Contingency on the month's pre-tax setup and operating cost. */
-  contingency: Minor;
+  contingency: number;
   /** setup + operating + tax + contingency. Excludes deposits. */
-  total: Minor;
-  deposits: Minor;
-  optional: Minor;
+  total: number;
+  deposits: number;
+  optional: number;
 }
 
 export interface ScenarioResult {

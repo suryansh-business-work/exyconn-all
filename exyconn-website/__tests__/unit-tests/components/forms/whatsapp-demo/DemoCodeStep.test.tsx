@@ -33,10 +33,10 @@ afterEach(() => {
 });
 
 describe("DemoCodeStep", () => {
-  it("says where the code went and focuses the code box", () => {
+  it("says where the code went and focuses the code box", async () => {
     const { input } = setup();
     expect(screen.getByRole("status")).toHaveTextContent("meera@example.com");
-    expect(input).toHaveFocus();
+    await waitFor(() => expect(input).toHaveFocus());
     expect(input).toHaveAttribute("maxlength", "6");
   });
 

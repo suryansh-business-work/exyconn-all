@@ -25,6 +25,25 @@ function load(): HTMLAudioElement | null {
   return shutter;
 }
 
+function warnUnplayable(cause: unknown): void {
+  console.warn('Camera shutter sound could not play', cause);
+}
+
+/**
+ * Rewinds and starts the sound, so two captures close together are both audible instead of
+ * the second being swallowed by the first still playing. A synchronous throw is warned here;
+ * the returned promise carries a later refusal to the caller.
+ */
+function rewindAndPlay(audio: HTMLAudioElement): Promise<void> | undefined {
+  try {
+    audio.currentTime = 0;
+    return audio.play();
+  } catch (cause: unknown) {
+    warnUnplayable(cause);
+    return undefined;
+  }
+}
+
 /**
  * Plays the camera shutter for a capture. Announcing every screenshot out loud is the point —
  * a tracker that photographs someone's screen in silence is surveillance.
@@ -38,14 +57,5 @@ export function playShutter(): void {
   if (audio === null) {
     return;
   }
-  try {
-    // Rewind, so two captures close together are both audible instead of the second being
-    // swallowed by the first still playing.
-    audio.currentTime = 0;
-    audio.play().catch((cause: unknown) => {
-      console.warn('Camera shutter sound could not play', cause);
-    });
-  } catch (cause: unknown) {
-    console.warn('Camera shutter sound could not play', cause);
-  }
+  rewindAndPlay(audio)?.catch(warnUnplayable);
 }

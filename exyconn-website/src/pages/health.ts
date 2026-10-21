@@ -4,7 +4,7 @@
 // Returns: JSON health status for monitoring and load balancing
 // =============================================================================
 
-export async function GET() {
+export function GET() {
   const healthResponse = {
     status: "ok",
     service: "exyconn-website",

@@ -11,18 +11,20 @@ import { setTimeout as delay } from "node:timers/promises";
 
 const DEFAULT_CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
-async function readDevToolsPort(profileDir) {
-  for (let attempt = 0; attempt < 100; attempt += 1) {
-    try {
-      const [port, path] = (await readFile(join(profileDir, "DevToolsActivePort"), "utf8")).split(
-        "\n"
-      );
-      return `ws://127.0.0.1:${port}${path}`;
-    } catch {
-      await delay(100);
-    }
+/** Polls (recursively, one read after the pause before it) until Chrome writes its port file. */
+async function readDevToolsPort(profileDir, attemptsLeft = 100) {
+  if (attemptsLeft === 0) {
+    throw new Error("Chrome did not open a DevTools port — set CHROME_PATH to a Chrome binary.");
   }
-  throw new Error("Chrome did not open a DevTools port — set CHROME_PATH to a Chrome binary.");
+  try {
+    const [port, path] = (await readFile(join(profileDir, "DevToolsActivePort"), "utf8")).split(
+      "\n"
+    );
+    return `ws://127.0.0.1:${port}${path}`;
+  } catch {
+    await delay(100);
+    return readDevToolsPort(profileDir, attemptsLeft - 1);
+  }
 }
 
 /** Launches Chrome and returns `{ openPage, close }`. */

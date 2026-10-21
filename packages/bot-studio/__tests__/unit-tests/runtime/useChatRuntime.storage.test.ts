@@ -62,6 +62,6 @@ describe('useChatRuntime: the viewer’s saved chats', () => {
   it('keeps an anonymous preview in memory only', () => {
     const { rt } = mount({ storageUserId: null });
     act(() => rt().open('clinic'));
-    expect(localStorage.length).toBe(0);
+    expect(localStorage).toHaveLength(0);
   });
 });

@@ -239,7 +239,7 @@ describe('portal sync', () => {
 
     await vi.advanceTimersByTimeAsync(120_000);
 
-    expect(states.length).toBe(before);
+    expect(states).toHaveLength(before);
   });
 
   it('follows the portal into and out of the consent screen', async () => {

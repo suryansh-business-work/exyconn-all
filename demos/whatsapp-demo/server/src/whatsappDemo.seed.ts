@@ -54,7 +54,9 @@ async function seedDemo(seed: SeedDemo, order: number): Promise<void> {
 
 /** Seeds every industry this company has not had yet. Runs inside one company's scope. */
 export async function ensureWhatsappDemoSeeds(): Promise<void> {
-  for (const [index, seed] of SEED_DEMOS.entries()) {
+  // One seed after another, so a real failure stops the rest exactly as it did in a loop.
+  await SEED_DEMOS.reduce<Promise<void>>(async (previous, seed, index) => {
+    await previous;
     try {
       await runOnce(`whatsapp-demo-seed:${seed.key}`, () => seedDemo(seed, index));
     } catch (error) {
@@ -64,7 +66,7 @@ export async function ensureWhatsappDemoSeeds(): Promise<void> {
         throw error;
       }
     }
-  }
+  }, Promise.resolve());
 }
 
 /** Companies this process has already seeded, so a catalog read costs nothing after the first. */
