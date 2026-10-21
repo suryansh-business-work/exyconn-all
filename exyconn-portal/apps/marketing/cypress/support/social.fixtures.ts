@@ -6,6 +6,7 @@ export const RULES = [
     maxChars: 63206,
     requiresImage: false,
     allowsImage: true,
+    canDelete: true,
     note: 'Text, a link or a photo.',
   },
   {
@@ -14,6 +15,7 @@ export const RULES = [
     maxChars: 2200,
     requiresImage: true,
     allowsImage: true,
+    canDelete: false,
     note: 'Needs an image.',
   },
   {
@@ -22,6 +24,7 @@ export const RULES = [
     maxChars: 3000,
     requiresImage: false,
     allowsImage: false,
+    canDelete: true,
     note: 'Text.',
   },
   {
@@ -30,6 +33,7 @@ export const RULES = [
     maxChars: 280,
     requiresImage: false,
     allowsImage: false,
+    canDelete: true,
     note: 'Text up to 280.',
   },
   {
@@ -38,11 +42,17 @@ export const RULES = [
     maxChars: 0,
     requiresImage: false,
     allowsImage: false,
+    canDelete: true,
     note: 'Analytics only.',
   },
 ].map((rule) => ({ __typename: 'SocialNetworkRule', ...rule }));
 
-export const account = (id: string, network: string, name: string) => ({
+export const account = (
+  id: string,
+  network: string,
+  name: string,
+  over: Record<string, unknown> = {},
+) => ({
   __typename: 'SocialAccount',
   id,
   network,
@@ -50,10 +60,15 @@ export const account = (id: string, network: string, name: string) => ({
   name,
   handle: '',
   avatarUrl: '',
+  kind: 'PERSON',
+  active: true,
+  disconnectedAt: null,
+  needsReconnect: false,
   expiresAt: null,
   lastSyncedAt: null,
   syncError: '',
   createdAt: '2026-09-19T00:00:00.000Z',
+  ...over,
 });
 
 export const ACCOUNTS = [

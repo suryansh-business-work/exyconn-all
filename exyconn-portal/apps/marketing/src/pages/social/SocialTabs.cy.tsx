@@ -8,6 +8,7 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 import { ConfirmProvider } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { theme } from '@exyconn/shell/config/theme';
 import {
+  DeletePublishedSocialPostDocument,
   SocialAccountsDocument,
   SocialAnalyticsDocument,
   SocialMediaPostsDocument,
@@ -75,6 +76,41 @@ describe('Social tabs', () => {
     cy.contains('Token expired').should('be.visible');
     cy.get('button[aria-label="edit post"]').should('have.length', 1);
     cy.get('button[aria-label="open post on the network"]').should('have.length', 1);
+  });
+
+  it('deletes a published post from its network after a plain, destructive confirm', () => {
+    mount(<PostsTab />, [
+      ...composerMocks,
+      {
+        request: {
+          query: SocialMediaPostsDocument,
+          variables: { accountId: null, status: null, limit: 200 },
+        },
+        result: { data: { socialMediaPosts: [post('p1', { batchId: 'b1' })] } },
+        maxUsageCount: 5,
+      },
+      {
+        request: { query: DeletePublishedSocialPostDocument, variables: { id: 'p1' } },
+        result: {
+          data: {
+            deletePublishedSocialPost: [
+              {
+                __typename: 'SocialPostDeletion',
+                postId: 'p1',
+                accountId: 'fb',
+                network: 'FACEBOOK',
+                outcome: 'DELETED',
+                message: 'Deleted from Facebook and Exyconn.',
+              },
+            ],
+          },
+        },
+      },
+    ]);
+    cy.get('button[aria-label="delete published post"]').click();
+    cy.contains('It is removed from Facebook itself as well as from Exyconn').should('be.visible');
+    cy.contains('button', 'Delete post').click();
+    cy.contains('Exyconn · Facebook: Deleted from Facebook and Exyconn.').should('be.visible');
   });
 
   it('shows the totals, the charts and the AI panel', () => {

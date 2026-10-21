@@ -12,6 +12,7 @@ const gql = vi.hoisted(() => ({
   refetch: vi.fn(),
   startConnect: vi.fn(),
   disconnect: vi.fn(),
+  setActive: vi.fn(),
   syncOne: vi.fn(),
   syncEvery: vi.fn(),
   notify: vi.fn(),
@@ -24,6 +25,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useSocialAccountsQuery: () => gql.accounts(),
   useStartSocialConnectMutation: () => [gql.startConnect],
   useDisconnectSocialAccountMutation: () => [gql.disconnect],
+  useSetSocialAccountActiveMutation: () => [gql.setActive],
   useSyncSocialAccountMutation: () => [gql.syncOne],
   useSyncAllSocialAccountsMutation: () => [gql.syncEvery],
 }));
@@ -165,5 +167,45 @@ describe('useSocialAccounts', () => {
         expect.any(Error),
       ),
     );
+  });
+
+  it('warns that a LinkedIn profile takes its company pages with it', async () => {
+    gql.disconnect.mockResolvedValue({});
+    const { result } = render();
+
+    await act(() =>
+      result.current.disconnect(accountRow({ name: 'Asha', app: SocialApp.Linkedin })),
+    );
+
+    expect(gql.confirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Disconnect {name}? Its LinkedIn company pages are disconnected too. Posts already published stay where they are.',
+        messageValues: { name: 'Asha' },
+      }),
+    );
+  });
+
+  it('pauses an account and turns it back on, saying which', async () => {
+    gql.setActive.mockResolvedValue({});
+    const { result } = render();
+
+    await act(() => result.current.setActive(ACCOUNT, false));
+    expect(gql.setActive).toHaveBeenCalledWith({ variables: { id: 'fb-1', active: false } });
+    expect(gql.notify).toHaveBeenCalledWith('{name} is paused', 'success', { name: 'Acme' });
+
+    await act(() => result.current.setActive(ACCOUNT, true));
+    expect(gql.notify).toHaveBeenCalledWith('{name} is back on', 'success', { name: 'Acme' });
+    expect(gql.refetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('reports a pause that failed', async () => {
+    gql.setActive.mockRejectedValue(new Error('Social account not found'));
+    const { result } = render();
+
+    await act(() => result.current.setActive(ACCOUNT, false));
+
+    expect(gql.notify).toHaveBeenCalledWith('Social account not found', 'error');
+    expect(gql.refetch).not.toHaveBeenCalled();
   });
 });

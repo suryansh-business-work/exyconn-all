@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 export const CAMPAIGN_CHANNELS = ['EMAIL', 'SOCIAL', 'SEARCH', 'DISPLAY'] as const;
 export const CAMPAIGN_STATUSES = ['PLANNED', 'ACTIVE', 'PAUSED', 'COMPLETED'] as const;
@@ -28,6 +29,11 @@ const campaignSchema = new Schema(
     name: { type: String, required: true, trim: true },
     channel: { type: String, enum: CAMPAIGN_CHANNELS, required: true, default: 'EMAIL' },
     budget: { type: Number, required: true, min: 0 },
+    /**
+     * The ISO 4217 currency the budget is set in. Campaigns saved before it existed are given
+     * the company's at boot (repairStoredCurrencies), so every row has one.
+     */
+    budgetCurrency: currencyField,
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     status: { type: String, enum: CAMPAIGN_STATUSES, required: true, default: 'PLANNED' },

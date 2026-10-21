@@ -1,18 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { UseFormReturn } from 'react-hook-form';
 import { CodePane } from '../../../../../../../src/pages/marketing/forms/campaign/design/CodePane';
-import type { CampaignStudioValues } from '../../../../../../../src/pages/marketing/forms/campaign/campaign.types';
 import { renderWithProviders } from '../../../../../test-utils';
-import { StudioFormHarness } from '../form-harness';
+import { StudioFormHarness, type StudioForm } from '../form-harness';
 import { VARIABLES, preview } from '../studio.fixtures';
 import { editorApi } from '../code-editor-stub';
 
 vi.mock('@exyconn/code-editor', () => import('../code-editor-stub'));
 
 function renderPane(issues = preview().issues) {
-  let form: UseFormReturn<CampaignStudioValues> | undefined;
+  let form: StudioForm | undefined;
   renderWithProviders(
     <StudioFormHarness
       values={{ mjml: '<mjml></mjml>' }}
@@ -23,7 +21,7 @@ function renderPane(issues = preview().issues) {
       <CodePane variables={VARIABLES} preview={preview({ issues })} />
     </StudioFormHarness>,
   );
-  return () => form as UseFormReturn<CampaignStudioValues>;
+  return () => form as StudioForm;
 }
 
 describe('CodePane', () => {

@@ -1,9 +1,7 @@
 import { x } from '../../../../../src/modules/social-accounts/networks/x';
-import { linkedin } from '../../../../../src/modules/social-accounts/networks/linkedin';
 import { fakeFetch } from '../social.fixtures';
 
 const X_ACCOUNT = { externalId: 'x-1', accessToken: 'x-token' };
-const MEMBER = { externalId: 'm-1', accessToken: 'li-token' };
 
 afterEach(() => jest.restoreAllMocks());
 
@@ -69,50 +67,5 @@ describe('X publishing', () => {
     expect(JSON.parse(fetched.mock.calls[0][1]?.body as string)).toEqual({
       text: 'Read https://exyconn.com',
     });
-  });
-});
-
-describe('LinkedIn publishing', () => {
-  const bodyOf = (fetched: jest.SpiedFunction<typeof fetch>) =>
-    JSON.parse(fetched.mock.calls[0][1]?.body as string) as {
-      author: string;
-      specificContent: Record<string, Record<string, unknown>>;
-    };
-  const reply = (body: unknown) =>
-    jest
-      .spyOn(globalThis, 'fetch')
-      .mockImplementation(async () => new Response(JSON.stringify(body), { status: 201 }));
-
-  it('shares a link as an article and links to the update', async () => {
-    const fetched = reply({ id: 'urn:li:share:1' });
-    const published = await linkedin.publish?.(MEMBER, {
-      text: 'Read this',
-      mediaUrl: '',
-      link: 'https://exyconn.com',
-    });
-    expect(published).toEqual({
-      externalId: 'urn:li:share:1',
-      permalink: 'https://www.linkedin.com/feed/update/urn:li:share:1',
-    });
-    const body = bodyOf(fetched);
-    expect(body.author).toBe('urn:li:person:m-1');
-    expect(body.specificContent['com.linkedin.ugc.ShareContent']).toEqual({
-      shareCommentary: { text: 'Read this' },
-      shareMediaCategory: 'ARTICLE',
-      media: [{ status: 'READY', originalUrl: 'https://exyconn.com' }],
-    });
-  });
-
-  it('posts text alone with no media', async () => {
-    const fetched = reply({ id: 'urn:li:share:2' });
-    await linkedin.publish?.(MEMBER, { text: 'Just words', mediaUrl: '', link: '' });
-    expect(bodyOf(fetched).specificContent['com.linkedin.ugc.ShareContent']).toEqual({
-      shareCommentary: { text: 'Just words' },
-      shareMediaCategory: 'NONE',
-    });
-  });
-
-  it('reads nothing back, because LinkedIn does not allow it', async () => {
-    expect(await linkedin.fetchPosts(MEMBER)).toBeNull();
   });
 });

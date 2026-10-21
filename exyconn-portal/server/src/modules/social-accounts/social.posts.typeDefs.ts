@@ -52,7 +52,28 @@ export const socialPostsTypeDefs = gql`
     maxChars: Int!
     requiresImage: Boolean!
     allowsImage: Boolean!
+    "Whether a published post can be deleted on the network from here (not on Instagram)."
+    canDelete: Boolean!
     note: String!
+  }
+
+  "What deleting a published post did on one account."
+  enum SocialPostDeletionOutcome {
+    "Deleted on the network and in Exyconn."
+    DELETED
+    "Removed from Exyconn; the network does not let apps delete posts, so it stays there."
+    KEPT_ON_NETWORK
+    "The network refused; nothing was deleted."
+    FAILED
+  }
+
+  type SocialPostDeletion {
+    postId: ID!
+    accountId: ID!
+    network: SocialNetwork!
+    outcome: SocialPostDeletionOutcome!
+    "What happened, or the network's reason it did not."
+    message: String!
   }
 
   type SocialSyncResult {
@@ -126,7 +147,10 @@ export const socialPostsTypeDefs = gql`
     updateSocialMediaPost(id: ID!, input: SocialMediaPostUpdateInput!): SocialMediaPost!
     "Publishes a draft, a scheduled post ahead of time, or retries a failed one."
     publishSocialMediaPostNow(id: ID!): SocialMediaPost!
+    "Deletes a draft, scheduled or failed post — one that has not gone out. MARKETING."
     deleteSocialMediaPost(id: ID!): Boolean!
+    "Deletes a published post on its network and in Exyconn, for every account it went to together. MARKETING."
+    deletePublishedSocialPost(id: ID!): [SocialPostDeletion!]!
     "AI: what worked, what did not, and what to try, from the last days' posts."
     socialMediaInsights(days: Int = 30): String!
     "AI: post ideas on a topic, in the voice of the best posts."

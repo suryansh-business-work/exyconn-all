@@ -9,6 +9,8 @@ import {
 import { compileEmail, loadFooter } from './campaign.render';
 import { htmlToText } from './campaign.mjml';
 import { badRequest, notFound } from '../../utils/errors';
+import { isValidCurrency } from '../../utils/iso';
+import { companyProfile } from '../../lib/company';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_PERIOD_DAYS = 30;
@@ -38,6 +40,13 @@ export const campaignDraftSchema = z.object({
   scheduledAudienceListId: z.string().trim().default(''),
   mjml: z.string().max(MAX_MJML, 'The email is too large.').default(''),
   budget: z.number().min(0).default(0),
+  /** Left out, an update keeps the stored one and a new draft takes the company's. */
+  budgetCurrency: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .refine(isValidCurrency, 'Choose a valid ISO 4217 currency.')
+    .optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   trackOpens: z.boolean().default(true),
@@ -80,6 +89,7 @@ export async function saveDraft(id: string | null, input: unknown, expectedVersi
     const created = await CampaignModel.create({
       ...draft,
       ...parts,
+      budgetCurrency: draft.budgetCurrency ?? (await companyProfile()).currency,
       startDate,
       endDate: draft.endDate ?? new Date(startDate.getTime() + DEFAULT_PERIOD_DAYS * DAY_MS),
       contentVersion: 1,

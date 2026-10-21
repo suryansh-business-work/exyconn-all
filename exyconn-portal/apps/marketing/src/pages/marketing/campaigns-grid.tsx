@@ -13,6 +13,7 @@ import {
   type RowActionSpec,
 } from '@exyconn/crud';
 import type { ListCampaignsPagedQuery } from '@exyconn/shell/graphql/generated';
+import { formatMoney } from '@exyconn/shell/utils/money';
 
 export type PagedCampaignRow = ListCampaignsPagedQuery['listCampaignsPaged']['rows'][number];
 
@@ -35,6 +36,6 @@ export const CAMPAIGN_COLUMNS: ColDef<PagedCampaignRow>[] = [
   textColumn('subject', 'Subject', (row) => row.subject || '—'),
   statusColumn('sendState', 'Delivery'),
   dateColumn('lastSentAt', 'Last sent', '—'),
-  valueColumn('budget', 'Budget', (row) => row.budget.toLocaleString()),
+  valueColumn('budget', 'Budget', (row) => formatMoney(row.budget, row.budgetCurrency)),
   actionsColumn([VIEW_ACTION, SEND_ACTION, EDIT_ACTION, DELETE_ACTION], 150),
 ];

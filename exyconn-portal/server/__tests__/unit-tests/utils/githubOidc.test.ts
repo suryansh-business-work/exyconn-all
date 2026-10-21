@@ -29,7 +29,7 @@ const EXPECTED: OidcExpectation = {
 const CLAIMS = {
   repository: 'acme/portal',
   ref: 'refs/heads/main',
-  event_name: 'push',
+  event_name: 'workflow_run',
   workflow_ref: 'acme/portal/.github/workflows/meet-extension-release.yml@refs/heads/main',
   sha: 'a'.repeat(40),
   run_id: '123',
@@ -135,6 +135,7 @@ describe('verifyGithubOidc', () => {
     ['ref', { ref: 'refs/heads/feature' }],
     ['workflow_ref', { workflow_ref: 'acme/portal/.github/workflows/other.yml@refs/heads/main' }],
     ['event_name', { event_name: 'pull_request' }],
+    ['event_name', { event_name: 'push' }],
   ])('refuses a token whose %s is not the release workflow on main', async (_claim, patch) => {
     expect(await refusalOf(sign(patch))).toBe(
       'The token is not from the release workflow on the allowed branch.',

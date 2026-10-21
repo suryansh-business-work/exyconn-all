@@ -7,6 +7,7 @@ const seedCampaign = () =>
     name: 'Spring webinar',
     channel: 'EMAIL',
     budget: 250,
+    budgetCurrency: 'INR',
     startDate: new Date('2027-03-01'),
     endDate: new Date('2027-03-31'),
     status: 'PLANNED',

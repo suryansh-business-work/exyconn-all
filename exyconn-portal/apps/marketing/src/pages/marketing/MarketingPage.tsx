@@ -5,7 +5,7 @@ import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
+import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
   useListCampaignsStatsQuery,
   useDeleteCampaignMutation,
@@ -15,6 +15,7 @@ import {
 import type { CampaignRow } from './forms/campaign';
 import { studioPath } from './CampaignStudioPage';
 import { CampaignDetails } from './CampaignDetails';
+import { totalBudgetStat } from './campaign-budget-stat';
 import { color } from '@exyconn/shell/components/ui';
 import {
   CAMPAIGN_COLUMNS,
@@ -56,11 +57,7 @@ export function MarketingPage() {
       value: String(statCount(stats, 'status', 'ACTIVE')),
       accent: color.green[300],
     },
-    {
-      label: 'Total budget',
-      value: `₹${statSum(stats, 'budget').toLocaleString()}`,
-      accent: color.pink[400],
-    },
+    totalBudgetStat(stats, t, color.pink[400]),
     { label: 'Sent', value: String(sent), accent: color.orange[500] },
   ];
 

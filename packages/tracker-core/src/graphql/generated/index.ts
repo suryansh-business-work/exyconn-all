@@ -621,6 +621,8 @@ export type CampaignChannel =
 export type CampaignDraftInput = {
   blocks: InputMaybe<Scalars['JSON']['input']>;
   budget: InputMaybe<Scalars['Float']['input']>;
+  /** The ISO 4217 currency the budget is set in. A new draft without one takes the company's. */
+  budgetCurrency: InputMaybe<Scalars['String']['input']>;
   campaignType: InputMaybe<CampaignType>;
   channel: InputMaybe<CampaignChannel>;
   editorMode: InputMaybe<EditorMode>;
@@ -644,6 +646,8 @@ export type CampaignDraftInput = {
 export type CampaignInput = {
   body: InputMaybe<Scalars['String']['input']>;
   budget: Scalars['Float']['input'];
+  /** The ISO 4217 currency the budget is set in. */
+  budgetCurrency: Scalars['String']['input'];
   channel: CampaignChannel;
   endDate: Scalars['DateTime']['input'];
   name: Scalars['String']['input'];
@@ -3684,6 +3688,11 @@ export type SlipStatus =
   | 'GENERATED'
   | 'PAID';
 
+/** A person's own account, or an organization's page acting as itself (a LinkedIn company page). */
+export type SocialAccountKind =
+  | 'ORGANIZATION'
+  | 'PERSON';
+
 export type SocialApp =
   | 'LINKEDIN'
   | 'META'
@@ -3736,6 +3745,15 @@ export type SocialNetwork =
   | 'THREADS'
   | 'X'
   | 'YOUTUBE';
+
+/** What deleting a published post did on one account. */
+export type SocialPostDeletionOutcome =
+  /** Deleted on the network and in Exyconn. */
+  | 'DELETED'
+  /** The network refused; nothing was deleted. */
+  | 'FAILED'
+  /** Removed from Exyconn; the network does not let apps delete posts, so it stays there. */
+  | 'KEPT_ON_NETWORK';
 
 export type SocialPostInput = {
   body: Scalars['String']['input'];

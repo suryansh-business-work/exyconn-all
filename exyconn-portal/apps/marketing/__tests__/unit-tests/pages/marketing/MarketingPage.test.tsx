@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ListCampaignsPagedDocument } from '@exyconn/shell/graphql/generated';
+import { formatMoney } from '@exyconn/shell/utils/money';
 import { MarketingPage } from '../../../../src/pages/marketing';
 import { CAMPAIGN_COLUMNS } from '../../../../src/pages/marketing/campaigns-grid';
 import { renderWithProviders } from '../../test-utils';
@@ -38,7 +39,7 @@ vi.mock('../../../../src/pages/marketing/CampaignDetails', () => ({
 
 const STATS = tableStats(
   6,
-  { status: { ACTIVE: 2, PLANNED: 4 }, lastSentAt: { null: 4 } },
+  { status: { ACTIVE: 2, PLANNED: 4 }, lastSentAt: { null: 4 }, budgetCurrency: { INR: 6 } },
   { budget: 450000 },
 );
 
@@ -60,7 +61,7 @@ describe('MarketingPage', () => {
     expect(statLines()).toEqual([
       'Campaigns: 6',
       'Active: 2',
-      `Total budget: ₹${(450000).toLocaleString()}`,
+      `Total budget: ${formatMoney(450000, 'INR')}`,
       'Sent: 2',
     ]);
     expect(dashboardProps().statsLoading).toBe(false);
@@ -71,7 +72,25 @@ describe('MarketingPage', () => {
     renderWithProviders(<MarketingPage />);
 
     expect(dashboardProps().statsLoading).toBe(true);
-    expect(statLines()).toEqual(['Campaigns: 0', 'Active: 0', 'Total budget: ₹0', 'Sent: 0']);
+    expect(statLines()).toEqual([
+      'Campaigns: 0',
+      'Active: 0',
+      `Total budget: ${formatMoney(0)}`,
+      'Sent: 0',
+    ]);
+  });
+
+  it('does not add budgets in different currencies into one total', () => {
+    gql.stats.mockReturnValue({
+      data: {
+        listCampaignsStats: tableStats(3, { budgetCurrency: { INR: 2, USD: 1 } }, { budget: 9000 }),
+      },
+      loading: false,
+      refetch: gql.refetch,
+    });
+    renderWithProviders(<MarketingPage />);
+
+    expect(statLines()).toContain('Total budget: 2 currencies');
   });
 
   it('drives the server grid with the paged campaigns query and dates through settings', () => {

@@ -6,6 +6,7 @@ import {
   toDraftInput,
   toStudioValues,
   type CampaignRow,
+  type CampaignStudioInput,
   type CampaignStudioValues,
 } from '../../../../../../../src/pages/marketing/forms/campaign/campaign.types';
 import { campaignRow } from '../../../../../fixtures';
@@ -20,8 +21,8 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
 /** The studio's form and its draft hook together, as the studio wires them. */
 function renderDraft(initial: CampaignRow | null = null) {
   return renderHook(() => {
-    const form = useForm<CampaignStudioValues>({
-      defaultValues: toStudioValues(initial, 'hello@exyconn.com'),
+    const form = useForm<CampaignStudioInput, unknown, CampaignStudioValues>({
+      defaultValues: toStudioValues(initial, 'hello@exyconn.com', 'INR'),
     });
     return { form, draft: useCampaignDraft(form.control, initial) };
   });

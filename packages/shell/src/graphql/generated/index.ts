@@ -1630,6 +1630,8 @@ export type Campaign = {
   blocks: Scalars['JSON']['output'];
   body?: Maybe<Scalars['String']['output']>;
   budget: Scalars['Float']['output'];
+  /** The ISO 4217 currency the budget is set in. */
+  budgetCurrency: Scalars['String']['output'];
   campaignType: CampaignType;
   channel: CampaignChannel;
   contentVersion: Scalars['Int']['output'];
@@ -1700,6 +1702,8 @@ export type CampaignDeliveryStats = {
 export type CampaignDraftInput = {
   blocks?: InputMaybe<Scalars['JSON']['input']>;
   budget?: InputMaybe<Scalars['Float']['input']>;
+  /** The ISO 4217 currency the budget is set in. A new draft without one takes the company's. */
+  budgetCurrency?: InputMaybe<Scalars['String']['input']>;
   campaignType?: InputMaybe<CampaignType>;
   channel?: InputMaybe<CampaignChannel>;
   editorMode?: InputMaybe<EditorMode>;
@@ -1723,6 +1727,8 @@ export type CampaignDraftInput = {
 export type CampaignInput = {
   body?: InputMaybe<Scalars['String']['input']>;
   budget: Scalars['Float']['input'];
+  /** The ISO 4217 currency the budget is set in. */
+  budgetCurrency: Scalars['String']['input'];
   channel: CampaignChannel;
   endDate: Scalars['DateTime']['input'];
   name: Scalars['String']['input'];
@@ -8714,6 +8720,8 @@ export type Mutation = {
   deleteProject: Scalars['Boolean']['output'];
   deleteProjectWorkflow: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  /** Deletes a published post on its network and in Exyconn, for every account it went to together. MARKETING. */
+  deletePublishedSocialPost: Array<SocialPostDeletion>;
   deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRazorpayConfig: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
@@ -8722,6 +8730,7 @@ export type Mutation = {
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
   deleteSocialComment: Scalars['Boolean']['output'];
+  /** Deletes a draft, scheduled or failed post — one that has not gone out. MARKETING. */
   deleteSocialMediaPost: Scalars['Boolean']['output'];
   deleteSocialPost: Scalars['Boolean']['output'];
   deleteSonarConfig: Scalars['Boolean']['output'];
@@ -8759,6 +8768,7 @@ export type Mutation = {
   disconnectGmailAccount: Scalars['Boolean']['output'];
   /** Removes the mailbox and its token; mail already sent stays on the records. */
   disconnectMicrosoftMailAccount: Scalars['Boolean']['output'];
+  /** Disconnects an account, and the LinkedIn pages connected through it. MARKETING. */
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
@@ -9105,6 +9115,8 @@ export type Mutation = {
    * the default of everything the role's module access allows.
    */
   setRolePermission: RolePermission;
+  /** Pauses an account (false) or turns it back on (true). MARKETING. */
+  setSocialAccountActive: SocialAccount;
   /** SUPPORT/ADMIN: move a ticket through its lifecycle. */
   setSupportTicketStatus: SupportTicket;
   /** SUPPORT/ADMIN: re-triage a ticket — the team it belongs to, how urgent it is, its topic. */
@@ -10991,6 +11003,11 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeletePublishedSocialPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePurchaseOrderArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12082,6 +12099,12 @@ export type MutationSetRolePermissionArgs = {
   actions: Array<PermissionAction>;
   module: Scalars['String']['input'];
   role: Role;
+};
+
+
+export type MutationSetSocialAccountActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -18953,22 +18976,35 @@ export enum SlipStatus {
 /** A connected account. Its tokens never leave the server. */
 export type SocialAccount = {
   __typename?: 'SocialAccount';
+  /** False while paused: left out of Compose and syncs, and its scheduled posts held. */
+  active: Scalars['Boolean']['output'];
   app: SocialApp;
   avatarUrl: Scalars['String']['output'];
   connectedBy: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** When the network stopped reaching it (a page its member no longer administers). */
+  disconnectedAt?: Maybe<Scalars['DateTime']['output']>;
   /** Null when the token does not expire. */
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
   handle: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  kind: SocialAccountKind;
   /** When its posts and numbers were last read from the network. */
   lastSyncedAt?: Maybe<Scalars['DateTime']['output']>;
   name: Scalars['String']['output'];
+  /** A LinkedIn profile connected before company pages: reconnect to add them. */
+  needsReconnect: Scalars['Boolean']['output'];
   network: SocialNetwork;
   /** Why the last read failed, in the network's words; empty when it worked. */
   syncError: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** A person's own account, or an organization's page acting as itself (a LinkedIn company page). */
+export enum SocialAccountKind {
+  Organization = 'ORGANIZATION',
+  Person = 'PERSON'
+}
 
 export type SocialAnalytics = {
   __typename?: 'SocialAnalytics';
@@ -19029,6 +19065,8 @@ export type SocialAppStatus = {
   label: Scalars['String']['output'];
   /** The networks one connection adds (Facebook and Instagram for Meta). */
   networks: Array<SocialNetwork>;
+  /** LinkedIn refused the company-page scopes for this app, so it connects member profiles only. */
+  pagesRefused: Scalars['Boolean']['output'];
 };
 
 /** The outcome of checking an app's client ID and secret with its provider. */
@@ -19144,6 +19182,8 @@ export enum SocialNetwork {
 export type SocialNetworkRule = {
   __typename?: 'SocialNetworkRule';
   allowsImage: Scalars['Boolean']['output'];
+  /** Whether a published post can be deleted on the network from here (not on Instagram). */
+  canDelete: Scalars['Boolean']['output'];
   canPublish: Scalars['Boolean']['output'];
   maxChars: Scalars['Int']['output'];
   network: SocialNetwork;
@@ -19176,6 +19216,26 @@ export type SocialPost = {
   /** The post this one shares, resolved one level deep. Null when it is an original. */
   sharedFrom?: Maybe<SocialPost>;
 };
+
+export type SocialPostDeletion = {
+  __typename?: 'SocialPostDeletion';
+  accountId: Scalars['ID']['output'];
+  /** What happened, or the network's reason it did not. */
+  message: Scalars['String']['output'];
+  network: SocialNetwork;
+  outcome: SocialPostDeletionOutcome;
+  postId: Scalars['ID']['output'];
+};
+
+/** What deleting a published post did on one account. */
+export enum SocialPostDeletionOutcome {
+  /** Deleted on the network and in Exyconn. */
+  Deleted = 'DELETED',
+  /** The network refused; nothing was deleted. */
+  Failed = 'FAILED',
+  /** Removed from Exyconn; the network does not let apps delete posts, so it stays there. */
+  KeptOnNetwork = 'KEPT_ON_NETWORK'
+}
 
 export type SocialPostInput = {
   body: Scalars['String']['input'];
@@ -27198,19 +27258,19 @@ export type DeleteAppLogGroupMutationVariables = Exact<{
 
 export type DeleteAppLogGroupMutation = { __typename?: 'Mutation', deleteAppLogGroup: boolean };
 
-export type CampaignFieldsFragment = { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string };
+export type CampaignFieldsFragment = { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string };
 
 export type ListCampaignsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCampaignsQuery = { __typename?: 'Query', listCampaigns: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string }> };
+export type ListCampaignsQuery = { __typename?: 'Query', listCampaigns: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string }> };
 
 export type ListCampaignsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCampaignsPagedQuery = { __typename?: 'Query', listCampaignsPaged: { __typename?: 'CampaignPage', totalCount: number, rows: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string }> } };
+export type ListCampaignsPagedQuery = { __typename?: 'Query', listCampaignsPaged: { __typename?: 'CampaignPage', totalCount: number, rows: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string }> } };
 
 export type ListCampaignsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -29265,12 +29325,12 @@ export type SaveSocialAppConfigMutation = { __typename?: 'Mutation', saveSocialA
 export type SocialAppStatusesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SocialAppStatusesQuery = { __typename?: 'Query', socialAppStatuses: Array<{ __typename?: 'SocialAppStatus', app: SocialApp, label: string, available: boolean, networks: Array<SocialNetwork> }> };
+export type SocialAppStatusesQuery = { __typename?: 'Query', socialAppStatuses: Array<{ __typename?: 'SocialAppStatus', app: SocialApp, label: string, available: boolean, networks: Array<SocialNetwork>, pagesRefused: boolean }> };
 
 export type SocialAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SocialAccountsQuery = { __typename?: 'Query', socialAccounts: Array<{ __typename?: 'SocialAccount', id: string, network: SocialNetwork, app: SocialApp, name: string, handle: string, avatarUrl: string, expiresAt?: string | null, lastSyncedAt?: string | null, syncError: string, createdAt: string }> };
+export type SocialAccountsQuery = { __typename?: 'Query', socialAccounts: Array<{ __typename?: 'SocialAccount', id: string, network: SocialNetwork, app: SocialApp, name: string, handle: string, avatarUrl: string, kind: SocialAccountKind, active: boolean, disconnectedAt?: string | null, needsReconnect: boolean, expiresAt?: string | null, lastSyncedAt?: string | null, syncError: string, createdAt: string }> };
 
 export type StartSocialConnectMutationVariables = Exact<{
   app: SocialApp;
@@ -29285,6 +29345,14 @@ export type DisconnectSocialAccountMutationVariables = Exact<{
 
 
 export type DisconnectSocialAccountMutation = { __typename?: 'Mutation', disconnectSocialAccount: boolean };
+
+export type SetSocialAccountActiveMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  active: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetSocialAccountActiveMutation = { __typename?: 'Mutation', setSocialAccountActive: { __typename?: 'SocialAccount', id: string, active: boolean } };
 
 export type TestSocialAppConfigMutationVariables = Exact<{
   app: SocialApp;
@@ -29316,7 +29384,7 @@ export type SocialCalendarQuery = { __typename?: 'Query', socialCalendar: Array<
 export type SocialNetworkRulesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SocialNetworkRulesQuery = { __typename?: 'Query', socialNetworkRules: Array<{ __typename?: 'SocialNetworkRule', network: SocialNetwork, canPublish: boolean, maxChars: number, requiresImage: boolean, allowsImage: boolean, note: string }> };
+export type SocialNetworkRulesQuery = { __typename?: 'Query', socialNetworkRules: Array<{ __typename?: 'SocialNetworkRule', network: SocialNetwork, canPublish: boolean, maxChars: number, requiresImage: boolean, allowsImage: boolean, canDelete: boolean, note: string }> };
 
 export type SocialAnalyticsQueryVariables = Exact<{
   days: Scalars['Int']['input'];
@@ -29365,6 +29433,13 @@ export type DeleteSocialMediaPostMutationVariables = Exact<{
 
 
 export type DeleteSocialMediaPostMutation = { __typename?: 'Mutation', deleteSocialMediaPost: boolean };
+
+export type DeletePublishedSocialPostMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePublishedSocialPostMutation = { __typename?: 'Mutation', deletePublishedSocialPost: Array<{ __typename?: 'SocialPostDeletion', postId: string, accountId: string, network: SocialNetwork, outcome: SocialPostDeletionOutcome, message: string }> };
 
 export type SocialMediaInsightsMutationVariables = Exact<{
   days: Scalars['Int']['input'];
@@ -29863,7 +29938,7 @@ export type SaveCampaignDraftMutationVariables = Exact<{
 }>;
 
 
-export type SaveCampaignDraftMutation = { __typename?: 'Mutation', saveCampaignDraft: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+export type SaveCampaignDraftMutation = { __typename?: 'Mutation', saveCampaignDraft: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
 
 export type QueueCampaignSendMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -29872,14 +29947,14 @@ export type QueueCampaignSendMutationVariables = Exact<{
 }>;
 
 
-export type QueueCampaignSendMutation = { __typename?: 'Mutation', queueCampaignSend: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+export type QueueCampaignSendMutation = { __typename?: 'Mutation', queueCampaignSend: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
 
 export type CancelCampaignSendMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type CancelCampaignSendMutation = { __typename?: 'Mutation', cancelCampaignSend: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+export type CancelCampaignSendMutation = { __typename?: 'Mutation', cancelCampaignSend: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
 
 export type RetryCampaignFailuresMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -29971,7 +30046,7 @@ export type GetCampaignQueryVariables = Exact<{
 }>;
 
 
-export type GetCampaignQuery = { __typename?: 'Query', getCampaign: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
+export type GetCampaignQuery = { __typename?: 'Query', getCampaign: { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string } };
 
 export type KbArticleFieldsFragment = { __typename?: 'KbArticle', id: string, title: string, slug: string, category: SupportCategory, summary: string, body: string, isPublished: boolean, updatedByName: string, updatedAt: string };
 
@@ -33401,6 +33476,7 @@ export const CampaignFieldsFragmentDoc = gql`
   name
   channel
   budget
+  budgetCurrency
   startDate
   endDate
   status
@@ -73389,6 +73465,7 @@ export const SocialAppStatusesDocument = gql`
     label
     available
     networks
+    pagesRefused
   }
 }
     `;
@@ -73437,6 +73514,10 @@ export const SocialAccountsDocument = gql`
     name
     handle
     avatarUrl
+    kind
+    active
+    disconnectedAt
+    needsReconnect
     expiresAt
     lastSyncedAt
     syncError
@@ -73536,6 +73617,38 @@ export function useDisconnectSocialAccountMutation(baseOptions?: ApolloReactHook
         return ApolloReactHooks.useMutation<DisconnectSocialAccountMutation, DisconnectSocialAccountMutationVariables>(DisconnectSocialAccountDocument, options);
       }
 export type DisconnectSocialAccountMutationHookResult = ReturnType<typeof useDisconnectSocialAccountMutation>;
+export const SetSocialAccountActiveDocument = gql`
+    mutation SetSocialAccountActive($id: ID!, $active: Boolean!) {
+  setSocialAccountActive(id: $id, active: $active) {
+    id
+    active
+  }
+}
+    `;
+
+/**
+ * __useSetSocialAccountActiveMutation__
+ *
+ * To run a mutation, you first call `useSetSocialAccountActiveMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetSocialAccountActiveMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setSocialAccountActiveMutation, { data, loading, error }] = useSetSocialAccountActiveMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      active: // value for 'active'
+ *   },
+ * });
+ */
+export function useSetSocialAccountActiveMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetSocialAccountActiveMutation, SetSocialAccountActiveMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetSocialAccountActiveMutation, SetSocialAccountActiveMutationVariables>(SetSocialAccountActiveDocument, options);
+      }
+export type SetSocialAccountActiveMutationHookResult = ReturnType<typeof useSetSocialAccountActiveMutation>;
 export const TestSocialAppConfigDocument = gql`
     mutation TestSocialAppConfig($app: SocialApp!) {
   testSocialAppConfig(app: $app) {
@@ -73667,6 +73780,7 @@ export const SocialNetworkRulesDocument = gql`
     maxChars
     requiresImage
     allowsImage
+    canDelete
     note
   }
 }
@@ -73954,6 +74068,40 @@ export function useDeleteSocialMediaPostMutation(baseOptions?: ApolloReactHooks.
         return ApolloReactHooks.useMutation<DeleteSocialMediaPostMutation, DeleteSocialMediaPostMutationVariables>(DeleteSocialMediaPostDocument, options);
       }
 export type DeleteSocialMediaPostMutationHookResult = ReturnType<typeof useDeleteSocialMediaPostMutation>;
+export const DeletePublishedSocialPostDocument = gql`
+    mutation DeletePublishedSocialPost($id: ID!) {
+  deletePublishedSocialPost(id: $id) {
+    postId
+    accountId
+    network
+    outcome
+    message
+  }
+}
+    `;
+
+/**
+ * __useDeletePublishedSocialPostMutation__
+ *
+ * To run a mutation, you first call `useDeletePublishedSocialPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePublishedSocialPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePublishedSocialPostMutation, { data, loading, error }] = useDeletePublishedSocialPostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePublishedSocialPostMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeletePublishedSocialPostMutation, DeletePublishedSocialPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeletePublishedSocialPostMutation, DeletePublishedSocialPostMutationVariables>(DeletePublishedSocialPostDocument, options);
+      }
+export type DeletePublishedSocialPostMutationHookResult = ReturnType<typeof useDeletePublishedSocialPostMutation>;
 export const SocialMediaInsightsDocument = gql`
     mutation SocialMediaInsights($days: Int!) {
   socialMediaInsights(days: $days)

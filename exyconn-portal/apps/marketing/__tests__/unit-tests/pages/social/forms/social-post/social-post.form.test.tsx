@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
-import { SocialMediaPostStatus, SocialNetwork } from '@exyconn/shell/graphql/generated';
+import {
+  SocialAccountKind,
+  SocialMediaPostStatus,
+  SocialNetwork,
+} from '@exyconn/shell/graphql/generated';
 import { SocialPostForm } from '../../../../../../src/pages/social/forms/social-post';
 import { renderWithProviders } from '../../../../test-utils';
-import { postRow } from '../../../../fixtures';
+import { accountRow, postRow } from '../../../../fixtures';
 import { chooseMany, chooseOption, fill, optionsOf, press } from '../../../../form-helpers';
 import { ACCOUNTS, RULES } from './social-post.fixtures';
 
@@ -57,6 +61,26 @@ describe('SocialPostForm — a new post', () => {
       'Publish now',
       'Schedule for later',
       'Save as a draft',
+    ]);
+  });
+
+  it('leaves out paused accounts and pages no longer reachable, and names company pages', async () => {
+    renderComposer([
+      ...ACCOUNTS,
+      accountRow({ id: 'fb-paused', name: 'Quiet', active: false }),
+      accountRow({ id: 'fb-gone', name: 'Gone', disconnectedAt: '2026-10-01T00:00:00.000Z' }),
+      accountRow({
+        id: 'li-page',
+        name: 'Exyconn',
+        network: SocialNetwork.Facebook,
+        kind: SocialAccountKind.Organization,
+      }),
+    ]);
+
+    expect(await optionsOf('Post to')).toEqual([
+      'Acme · Facebook',
+      'Acme IG · Instagram',
+      'Exyconn · Facebook page',
     ]);
   });
 

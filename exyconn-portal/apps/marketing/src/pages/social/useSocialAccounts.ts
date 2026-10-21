@@ -5,6 +5,7 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import {
   useDisconnectSocialAccountMutation,
+  useSetSocialAccountActiveMutation,
   useSocialAccountsQuery,
   useSocialAppStatusesQuery,
   useStartSocialConnectMutation,
@@ -24,6 +25,7 @@ export function useSocialAccounts() {
   const accounts = useSocialAccountsQuery({ fetchPolicy: 'cache-and-network' });
   const [startConnect] = useStartSocialConnectMutation();
   const [disconnectAccount] = useDisconnectSocialAccountMutation();
+  const [setAccountActive] = useSetSocialAccountActiveMutation();
   const [syncOne] = useSyncSocialAccountMutation();
   const [syncEvery] = useSyncAllSocialAccountsMutation();
   const [connecting, setConnecting] = useState<SocialApp | null>(null);
@@ -48,8 +50,12 @@ export function useSocialAccounts() {
   };
 
   const disconnect = async (row: Account) => {
+    // A LinkedIn profile's company pages post through its connection, so they go with it.
+    const withPages = row.app === 'LINKEDIN' && row.kind === 'PERSON';
     const ok = await confirm({
-      message: 'Disconnect {name}? Posts already published stay where they are.',
+      message: withPages
+        ? 'Disconnect {name}? Its LinkedIn company pages are disconnected too. Posts already published stay where they are.'
+        : 'Disconnect {name}? Posts already published stay where they are.',
       messageValues: { name: row.name },
       confirmText: 'Disconnect',
     });
@@ -60,6 +66,17 @@ export function useSocialAccounts() {
       reload();
     } catch (error) {
       notify(errorMessage(error, 'Could not disconnect'), 'error');
+    }
+  };
+
+  /** Pauses an account (false), or turns it back on (true). */
+  const setActive = async (row: Account, active: boolean) => {
+    try {
+      await setAccountActive({ variables: { id: row.id, active } });
+      notify(active ? '{name} is back on' : '{name} is paused', 'success', { name: row.name });
+      reload();
+    } catch (error) {
+      notify(errorMessage(error, 'Could not change the account'), 'error');
     }
   };
 
@@ -95,6 +112,7 @@ export function useSocialAccounts() {
     syncing,
     connect,
     disconnect,
+    setActive,
     sync,
   };
 }

@@ -3,7 +3,12 @@ import { useWatch, type Control } from 'react-hook-form';
 import { EMAIL } from '@exyconn/regex';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useSaveCampaignDraftMutation } from '@exyconn/shell/graphql/generated';
-import { toDraftInput, type CampaignRow, type CampaignStudioValues } from '../campaign.types';
+import {
+  toDraftInput,
+  type CampaignRow,
+  type CampaignStudioInput,
+  type CampaignStudioValues,
+} from '../campaign.types';
 
 /** Long enough that typing is one save, short enough that little is ever lost. */
 const AUTOSAVE_MS = 1500;
@@ -23,7 +28,7 @@ export interface CampaignDraftState {
 }
 
 /** Whether the draft can be saved at all: it needs a name, and anything typed must be valid. */
-const isSavable = (values: CampaignStudioValues) =>
+const isSavable = (values: CampaignStudioInput) =>
   values.name.trim() !== '' && (values.replyTo.trim() === '' || EMAIL.test(values.replyTo.trim()));
 
 /**
@@ -32,11 +37,11 @@ const isSavable = (values: CampaignStudioValues) =>
  * than silently overwritten.
  */
 export function useCampaignDraft(
-  control: Control<CampaignStudioValues>,
+  control: Control<CampaignStudioInput, unknown, CampaignStudioValues>,
   initial: CampaignRow | null,
 ): CampaignDraftState {
   const [saveDraft] = useSaveCampaignDraftMutation();
-  const values = useWatch({ control }) as CampaignStudioValues;
+  const values = useWatch({ control }) as CampaignStudioInput;
   const key = JSON.stringify(toDraftInput(values));
   const [campaign, setCampaign] = useState<CampaignRow | null>(initial);
   const [status, setStatus] = useState<SaveStatus>(initial ? 'saved' : 'idle');

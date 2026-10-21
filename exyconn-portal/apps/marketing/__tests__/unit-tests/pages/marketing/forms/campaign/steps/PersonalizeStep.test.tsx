@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { UseFormReturn } from 'react-hook-form';
 import { PersonalizeStep } from '../../../../../../../src/pages/marketing/forms/campaign/steps/PersonalizeStep';
 import type { CampaignStudioValues } from '../../../../../../../src/pages/marketing/forms/campaign/campaign.types';
 import { renderWithProviders } from '../../../../../test-utils';
-import { StudioFormHarness } from '../form-harness';
+import { StudioFormHarness, type StudioForm } from '../form-harness';
 import { COMPANY, previewState, studioOptions } from '../studio.fixtures';
 
 const gql = vi.hoisted(() => ({ records: vi.fn() }));
@@ -19,7 +18,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
 function renderStep(values: Partial<CampaignStudioValues> = {}) {
   gql.records.mockReturnValue({ data: { previewRecordOptions: [COMPANY] }, loading: false });
   const onPreviewRecord = vi.fn();
-  let form: UseFormReturn<CampaignStudioValues> | undefined;
+  let form: StudioForm | undefined;
   renderWithProviders(
     <StudioFormHarness
       values={{ subject: 'Hello', preheader: 'Inside', ...values }}
@@ -35,7 +34,7 @@ function renderStep(values: Partial<CampaignStudioValues> = {}) {
       />
     </StudioFormHarness>,
   );
-  return { onPreviewRecord, form: () => form as UseFormReturn<CampaignStudioValues> };
+  return { onPreviewRecord, form: () => form as StudioForm };
 }
 
 describe('PersonalizeStep', () => {

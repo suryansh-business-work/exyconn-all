@@ -1,4 +1,4 @@
-import { getJson } from '../social.http';
+import { getJson, sendJson } from '../social.http';
 import {
   SYNC_LIMIT,
   count,
@@ -60,4 +60,11 @@ export const youtube: NetworkClient = {
     });
   },
   publish: null,
+  /** A YouTube post is a video: deleting it is `videos.delete`, under the force-ssl scope. */
+  remove: async (account, externalId) => {
+    await sendJson('YouTube', `${API}/videos?id=${encodeURIComponent(externalId)}`, {
+      method: 'DELETE',
+      accessToken: account.accessToken,
+    });
+  },
 };

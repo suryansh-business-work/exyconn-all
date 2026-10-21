@@ -3,8 +3,18 @@ import { SOCIAL_APPS, SOCIAL_NETWORKS } from './social.constants';
 
 /** Where a post came from: read from the network, or written here. */
 export const POST_ORIGINS = ['SYNCED', 'COMPOSED'] as const;
-/** A written post's life: a synced one is always PUBLISHED. */
-export const POST_STATUSES = ['DRAFT', 'SCHEDULED', 'PUBLISHING', 'PUBLISHED', 'FAILED'] as const;
+/**
+ * A written post's life: a synced one is PUBLISHED. REMOVED is a published post deleted here
+ * that its network would not let an app delete (Instagram): kept so a sync does not bring it back.
+ */
+export const POST_STATUSES = [
+  'DRAFT',
+  'SCHEDULED',
+  'PUBLISHING',
+  'PUBLISHED',
+  'FAILED',
+  'REMOVED',
+] as const;
 export type PostStatus = (typeof POST_STATUSES)[number];
 
 /** What the network counts for a post. Zero when the network does not share a number. */

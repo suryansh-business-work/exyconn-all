@@ -1,11 +1,14 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { env } from '../../config/env';
 import { runAsPlatform, runForOrganization } from '../../lib/tenant';
-import { badRequest, notFound } from '../../utils/errors';
+import { badRequest } from '../../utils/errors';
+import { logger } from '../../utils/logger';
 import { seal } from '../../utils/secretBox';
+import { recordAudit } from '../audit';
 import { SOCIAL_APPS, SOCIAL_CALLBACK_PATH, type SocialApp } from './social.constants';
 import { SocialAccountModel, SocialAppConfigModel, SocialOAuthStateModel } from './social.models';
 import { PROVIDERS, type ProviderAccount, type ProviderTokens } from './social.providers';
+import { syncLinkedInPages } from './social.linkedin-pages';
 
 export interface SocialAppConfigInput {
   app: SocialApp;
@@ -35,6 +38,7 @@ export async function appConfigs() {
       clientId: row?.clientId ?? '',
       clientSecret: row?.clientSecret ?? '',
       enabled: row?.enabled ?? false,
+      pagesRefused: row?.pagesRefused ?? false,
     };
   });
 }
@@ -59,6 +63,8 @@ export async function saveAppConfig(input: SocialAppConfigInput) {
         $set: {
           clientId,
           enabled: input.enabled,
+          // Saving again is how Tech says the provider's side was fixed: try the pages again.
+          pagesRefused: false,
           ...(secret === '' ? {} : { clientSecret: secret }),
         },
       },
@@ -122,40 +128,90 @@ export async function completeConnect(app: SocialApp, nonce: string, code: strin
   if (accounts.length === 0) {
     badRequest(`${provider.label} returned no account this login can manage.`);
   }
-  await runForOrganization(state.organizationId, () =>
-    Promise.all(
-      accounts.map((account) =>
-        SocialAccountModel.updateOne(
-          { network: account.network, externalId: account.externalId },
-          {
-            $set: {
-              app,
-              name: account.name,
-              handle: account.handle,
-              avatarUrl: account.avatarUrl,
-              accessToken: seal(account.accessToken ?? tokens.accessToken),
-              refreshToken: tokens.refreshToken === '' ? '' : seal(tokens.refreshToken),
-              expiresAt: expiryOf(tokens, account),
-              connectedBy: state.userId,
-            },
-          },
-          { upsert: true },
-        ),
-      ),
-    ),
-  );
-  return { returnTo: state.returnTo, connected: accounts.length };
+  const connected = await runForOrganization(state.organizationId, async () => {
+    await Promise.all(accounts.map((account) => saveAccount(app, account, tokens, state.userId)));
+    const pages = app === 'LINKEDIN' ? await connectPages(accounts[0], tokens) : 0;
+    const names = accounts.map((account) => account.name).join(', ');
+    const pageNote = pages > 0 ? ` and ${pages} company page(s)` : '';
+    await recordAudit(
+      { user: null },
+      {
+        actor: { id: state.userId },
+        action: 'CREATE',
+        module: 'SocialAccount',
+        entityLabel: names,
+        summary: `Connected ${provider.label}: ${names}${pageNote}`,
+      },
+    );
+    return accounts.length + pages;
+  });
+  return { returnTo: state.returnTo, connected };
 }
 
-export function listAccounts() {
-  return SocialAccountModel.find()
-    .select('-accessToken -refreshToken')
-    .sort({ network: 1, name: 1 })
+/** Saves one account a connection reached; a reconnect updates it in place. */
+function saveAccount(
+  app: SocialApp,
+  account: ProviderAccount,
+  tokens: ProviderTokens,
+  userId: string,
+) {
+  return SocialAccountModel.updateOne(
+    { network: account.network, externalId: account.externalId },
+    {
+      $set: {
+        app,
+        kind: 'PERSON',
+        name: account.name,
+        handle: account.handle,
+        avatarUrl: account.avatarUrl,
+        accessToken: seal(account.accessToken ?? tokens.accessToken),
+        refreshToken: tokens.refreshToken === '' ? '' : seal(tokens.refreshToken),
+        expiresAt: expiryOf(tokens, account),
+        connectedBy: userId,
+        disconnectedAt: null,
+        ...(tokens.scopes ? { scopes: tokens.scopes } : {}),
+      },
+    },
+    { upsert: true },
+  ).exec();
+}
+
+/** The company pages the LinkedIn member just connected administers, saved beside them. */
+async function connectPages(member: ProviderAccount, tokens: ProviderTokens): Promise<number> {
+  const owner = await SocialAccountModel.findOne({
+    network: 'LINKEDIN',
+    externalId: member.externalId,
+  })
+    .select('_id scopes connectedBy')
     .lean();
+  return owner ? syncLinkedInPages(owner, tokens.accessToken) : 0;
 }
 
-export async function disconnect(id: string): Promise<boolean> {
-  const removed = await SocialAccountModel.findByIdAndDelete(id).lean();
-  if (!removed) notFound('Social account');
-  return true;
+/**
+ * LinkedIn refused the company-page scopes for the app (it lacks the Community Management API
+ * product). Remembered on the app, so connections ask for the member scopes alone and the
+ * Marketing card can say why, and the same connection starts again without them — the member
+ * still connects. Returns the consent page to send the browser to.
+ */
+export async function restartWithoutPages(nonce: string, detail: string): Promise<string> {
+  const state = await runAsPlatform(() =>
+    SocialOAuthStateModel.findOneAndDelete({ nonce, app: 'LINKEDIN' }).lean(),
+  );
+  if (!state) {
+    badRequest(
+      'This connection link has expired or was already used. Start again from Marketing › Social accounts.',
+    );
+  }
+  const linkedin = (await appConfigs()).find((config) => config.app === 'LINKEDIN');
+  if (linkedin?.pagesRefused) {
+    // Already asking for the member scopes alone: LinkedIn refused one of those.
+    badRequest(
+      `LinkedIn refused the connection: ${detail || 'a scope is not authorized for the app'}`,
+    );
+  }
+  logger.warn({ detail }, 'LinkedIn refused the company page scopes for the app');
+  await runAsPlatform(() =>
+    SocialAppConfigModel.updateOne({ app: 'LINKEDIN' }, { $set: { pagesRefused: true } }),
+  );
+  return startConnect('LINKEDIN', state.organizationId, state.userId, state.returnTo);
 }

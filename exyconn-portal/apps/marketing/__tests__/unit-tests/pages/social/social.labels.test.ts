@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { SocialNetwork } from '@exyconn/shell/graphql/generated';
+import { SocialAccountKind, SocialNetwork } from '@exyconn/shell/graphql/generated';
 import {
   NETWORK_LABEL,
   SOCIAL_PATH,
   UNSENT,
   accountLabel,
+  isPostable,
 } from '../../../../src/pages/social/social.labels';
 
 describe('social labels', () => {
@@ -20,6 +21,30 @@ describe('social labels', () => {
     expect(accountLabel({ name: 'Acme', network: SocialNetwork.Instagram })).toBe(
       'Acme · Instagram',
     );
+  });
+
+  it('labels a company page as the network page it is', () => {
+    expect(
+      accountLabel({
+        name: 'Exyconn',
+        network: SocialNetwork.Linkedin,
+        kind: SocialAccountKind.Organization,
+      }),
+    ).toBe('Exyconn · LinkedIn page');
+    expect(
+      accountLabel({
+        name: 'Asha',
+        network: SocialNetwork.Linkedin,
+        kind: SocialAccountKind.Person,
+      }),
+    ).toBe('Asha · LinkedIn');
+  });
+
+  it('posts only to accounts that are on and still reachable', () => {
+    expect(isPostable({ active: true, disconnectedAt: null })).toBe(true);
+    expect(isPostable({})).toBe(true);
+    expect(isPostable({ active: false })).toBe(false);
+    expect(isPostable({ active: true, disconnectedAt: '2026-10-01T00:00:00.000Z' })).toBe(false);
   });
 
   it('treats only posts that have not gone out as unsent', () => {

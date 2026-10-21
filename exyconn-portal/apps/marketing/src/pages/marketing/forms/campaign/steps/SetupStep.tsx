@@ -106,11 +106,24 @@ export function SetupStep({ options, campaign }: Readonly<SetupStepProps>) {
         </AccordionSummary>
         <AccordionDetails>
           <Flex direction="column" spacing={2}>
-            <RhfCurrencyField
-              name="budget"
-              label="Budget"
-              helperText="Optional, for reporting what the campaign cost."
-            />
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <RhfTextField
+                  name="budget"
+                  label="Budget amount"
+                  type="number"
+                  required={false}
+                  helperText="Optional, for reporting what the campaign cost; 0 or more."
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <RhfCurrencyField
+                  name="budgetCurrency"
+                  label="Currency"
+                  helperText="The currency the budget is set in."
+                />
+              </Grid>
+            </Grid>
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <RhfDatePicker

@@ -58,6 +58,7 @@ describe('filing a lead', () => {
       name: 'Autumn webinar',
       channel: 'EMAIL',
       budget: 100,
+      budgetCurrency: 'INR',
       startDate: new Date('2026-10-01'),
       endDate: new Date('2026-10-31'),
       status: 'ACTIVE',

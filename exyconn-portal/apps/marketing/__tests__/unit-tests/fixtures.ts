@@ -11,6 +11,7 @@ import {
   SuppressionScope,
   CampaignChannel,
   CampaignStatus,
+  SocialAccountKind,
   SocialApp,
   SocialMediaPostOrigin,
   SocialMediaPostStatus,
@@ -59,6 +60,7 @@ export function campaignRow(
     name: 'Diwali offer',
     channel: CampaignChannel.Email,
     budget: 120000,
+    budgetCurrency: 'INR',
     startDate: '2026-10-01T00:00:00.000Z',
     endDate: '2026-10-31T00:00:00.000Z',
     status: CampaignStatus.Active,
@@ -142,6 +144,10 @@ export function accountRow(overrides: Partial<AccountRow> = {}): AccountRow {
     name: 'Acme',
     handle: '@acme',
     avatarUrl: '',
+    kind: SocialAccountKind.Person,
+    active: true,
+    disconnectedAt: null,
+    needsReconnect: false,
     expiresAt: null,
     lastSyncedAt: null,
     syncError: '',
@@ -157,6 +163,7 @@ export function providerRow(overrides: Partial<ProviderRow> = {}): ProviderRow {
     label: 'Meta',
     available: true,
     networks: [SocialNetwork.Facebook, SocialNetwork.Instagram],
+    pagesRefused: false,
     ...overrides,
   };
 }
@@ -192,6 +199,7 @@ export function ruleRow(network: SocialNetwork, overrides: Partial<RuleRow> = {}
     maxChars: 63206,
     requiresImage: false,
     allowsImage: true,
+    canDelete: true,
     note: '',
     ...overrides,
   };

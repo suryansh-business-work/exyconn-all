@@ -77,3 +77,30 @@ describe('the callback, when the provider cannot be reached', () => {
     );
   });
 });
+
+describe('the callback, when LinkedIn refuses the company-page scopes', () => {
+  it('connects the member alone: straight back to LinkedIn asking for the member scopes', async () => {
+    await configureApp('LINKEDIN');
+    const nonce = await started();
+
+    const response = await request(app).get(
+      `/oauth/social/linkedin/callback?state=${nonce}&error=unauthorized_scope_error&error_description=Scope+r_organization_admin+is+not+authorized`,
+    );
+
+    expect(response.status).toBe(302);
+    const consent = new URL(response.headers.location);
+    expect(consent.origin).toBe('https://www.linkedin.com');
+    expect(consent.searchParams.get('scope')).toBe('openid profile w_member_social');
+  });
+
+  it('sends the browser back with the reason when the member scopes are refused too', async () => {
+    await configureApp('LINKEDIN', { pagesRefused: true });
+    const nonce = await started('https://portal.exyconn.com/marketing/social');
+
+    const response = await request(app).get(
+      `/oauth/social/linkedin/callback?state=${nonce}&error=unauthorized_scope_error`,
+    );
+
+    expect(response.headers.location).toContain('error=LinkedIn+refused+the+connection');
+  });
+});

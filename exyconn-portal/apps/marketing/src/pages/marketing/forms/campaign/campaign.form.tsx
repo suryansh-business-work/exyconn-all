@@ -1,8 +1,7 @@
 import type { TypedDocumentNode } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useWatch } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
-import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { useApolloClient } from '@apollo/client/react';
 import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Flex, Heading } from '@exyconn/shell/components/ui';
@@ -18,18 +17,17 @@ import { StudioStepper } from './studio/StudioStepper';
 import { StudioFooter } from './studio/StudioFooter';
 import { StudioStepContent } from './studio/StudioStepContent';
 import { useCampaignDraft } from './studio/useCampaignDraft';
+import { useCampaignForm } from './studio/useCampaignForm';
 import { useStudioOptions } from './studio/useStudioOptions';
 import { useQualityChecks } from './studio/useQualityChecks';
 import { useLeaveGuard } from './studio/useLeaveGuard';
 import { useCampaignPreview } from './design/useCampaignPreview';
 import type { PreviewRecord } from './personalize/PreviewAsField';
 import {
-  campaignSchema,
   STEP_FIELDS,
   STUDIO_STEPS,
-  toStudioValues,
   type CampaignRow,
-  type CampaignStudioValues,
+  type CampaignStudioInput,
   type StudioStep,
 } from './campaign.types';
 
@@ -58,11 +56,7 @@ export function CampaignForm({ initial, onExit }: Readonly<CampaignFormProps>) {
   const notify = useNotify();
   const client = useApolloClient();
   const options = useStudioOptions();
-  const methods = useForm<CampaignStudioValues>({
-    mode: 'onTouched',
-    resolver: zodResolver(campaignSchema),
-    defaultValues: toStudioValues(initial, ''),
-  });
+  const methods = useCampaignForm(initial);
   const { getValues, setValue, trigger, control } = methods;
   const draft = useCampaignDraft(control, initial);
   const [params, setParams] = useSearchParams();
@@ -71,7 +65,7 @@ export function CampaignForm({ initial, onExit }: Readonly<CampaignFormProps>) {
   const [reachable, setReachable] = useState(initial ? LAST : index);
   const [busy, setBusy] = useState(false);
   const [previewRecord, setPreviewRecord] = useState<PreviewRecord | null>(null);
-  const values = useWatch({ control }) as CampaignStudioValues;
+  const values = useWatch({ control }) as CampaignStudioInput;
   useLeaveGuard(draft.dirty);
 
   // A new campaign is sent from the verified address unless somebody picks another.

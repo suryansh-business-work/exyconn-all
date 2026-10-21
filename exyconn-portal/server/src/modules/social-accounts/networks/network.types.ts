@@ -1,8 +1,12 @@
+import type { SocialAccountKind } from '../social.constants';
+
 /** An account as a network client needs it: which one, and how to act as it. */
 export interface NetworkAccount {
   /** The network's id for the member, page, profile or channel. */
   externalId: string;
   accessToken: string;
+  /** A person's own account, or an organization's page; a person unless said otherwise. */
+  kind?: SocialAccountKind;
 }
 
 /** A post as read from the network, with the numbers it shares. */
@@ -34,6 +38,11 @@ export interface PublishedPost {
 export interface NetworkClient {
   fetchPosts: (account: NetworkAccount) => Promise<NetworkPost[] | null>;
   publish: ((account: NetworkAccount, post: OutgoingPost) => Promise<PublishedPost>) | null;
+  /**
+   * Deletes a published post on the network, by the network's id for it. Null where the
+   * network does not let an app delete posts (Instagram).
+   */
+  remove: ((account: NetworkAccount, externalId: string) => Promise<void>) | null;
 }
 
 /** How many recent posts a sync reads. */

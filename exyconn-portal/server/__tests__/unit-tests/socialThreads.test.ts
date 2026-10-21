@@ -39,7 +39,11 @@ function fakeThreads(routes: Array<[RegExp, unknown]>, calls: Call[] = []) {
   const turns = new Map<RegExp, number>();
   jest.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const url = requestUrl(input);
-    calls.push({ url, method: init?.method ?? 'GET', body: (init?.body as string | undefined) ?? '' });
+    calls.push({
+      url,
+      method: init?.method ?? 'GET',
+      body: (init?.body as string | undefined) ?? '',
+    });
     const hit = routes.find(([pattern]) => pattern.test(url));
     const status = hit ? 200 : 400;
     let body: unknown = { error: { message: `unexpected ${url}` } };
@@ -72,7 +76,7 @@ describe('Threads provider', () => {
     expect(Object.fromEntries(consent.searchParams)).toEqual({
       client_id: 'threads-app',
       redirect_uri: 'https://api/cb',
-      scope: 'threads_basic,threads_content_publish,threads_manage_insights',
+      scope: 'threads_basic,threads_content_publish,threads_manage_insights,threads_delete',
       response_type: 'code',
       state: 'state-1',
     });

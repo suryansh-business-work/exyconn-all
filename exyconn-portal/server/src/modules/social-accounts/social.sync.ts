@@ -4,6 +4,8 @@ import { SocialMediaPostModel } from './social-post.model';
 import { accessTokenOf } from './social.tokens';
 import { logger } from '../../utils/logger';
 import { inSequence } from '../../utils/inSequence';
+import { LIVE_ACCOUNT } from './social.accounts';
+import { syncLinkedInPages } from './social.linkedin-pages';
 
 export interface SyncResult {
   accountId: string;
@@ -23,10 +25,30 @@ const messageOf = (error: unknown): string =>
 export async function syncAccount(accountId: string): Promise<SyncResult> {
   const account = await SocialAccountModel.findById(accountId).lean();
   if (!account) return { accountId, synced: 0, error: 'The account is no longer connected.' };
+  if (account.active === false) {
+    return {
+      accountId,
+      synced: 0,
+      error: `${account.name} is paused. Turn it back on to sync it.`,
+    };
+  }
+  if (account.disconnectedAt) {
+    return {
+      accountId,
+      synced: 0,
+      error: `${account.name} is no longer reachable — connect it again.`,
+    };
+  }
   try {
+    const accessToken = await accessTokenOf(account);
+    // A LinkedIn member's sync also refreshes which company pages it administers.
+    if (account.network === 'LINKEDIN' && account.kind !== 'ORGANIZATION') {
+      await syncLinkedInPages(account, accessToken);
+    }
     const posts = await NETWORKS[account.network].fetchPosts({
       externalId: account.externalId,
-      accessToken: await accessTokenOf(account),
+      accessToken,
+      kind: account.kind ?? 'PERSON',
     });
     const found = posts ?? [];
     // One upsert per post rather than a bulkWrite: bulkWrite goes around the tenant layer, so
@@ -68,11 +90,14 @@ export async function syncAccount(accountId: string): Promise<SyncResult> {
   }
 }
 
-/** Every account of the company in scope, one after another — the scheduled refresh. */
+/**
+ * Every live account of the company in scope, one after another — the scheduled refresh and
+ * "Sync all". Paused accounts and pages no longer reachable are left alone.
+ */
 export async function syncAllAccounts(): Promise<SyncResult[]> {
-  const accounts = await SocialAccountModel.find().select('_id').lean();
+  const accounts = await SocialAccountModel.find(LIVE_ACCOUNT).select('_id').lean();
   // One account at a time: the networks rate-limit reads per app.
-  const results = await inSequence(accounts, (account) => syncAccount(String(account._id)));
+  const results = await inSequence(accounts, (account) => syncAccount(account._id.toHexString()));
   const failed = results.filter((result) => result.error);
   if (failed.length > 0) logger.warn({ failed }, 'Some social accounts could not be synced');
   return results;

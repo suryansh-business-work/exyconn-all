@@ -3,6 +3,7 @@ import { useT } from '@exyconn/i18n';
 import EditIcon from '@mui/icons-material/Edit';
 import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Flex, MenuItem, Text, TextField } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -40,8 +41,9 @@ export function PostsTab() {
   const reload = () => {
     posts.refetch().catch((error: unknown) => portalLogger.warn('Could not reload posts', error));
   };
-  const actions = usePostActions(reload);
   const accountName = new Map(composer.accounts.map((a) => [a.id, accountLabel(a)]));
+  const actions = usePostActions(reload, (id) => accountName.get(id) ?? id);
+  const deletable = new Set(composer.rules.filter((r) => r.canDelete).map((r) => r.network));
   const run = (work: Promise<void>) => {
     work.catch((error: unknown) => portalLogger.error('A post action failed', error));
   };
@@ -58,8 +60,8 @@ export function PostsTab() {
       render: (r) => (
         <Box>
           <Text size="sm">{excerpt(r.text)}</Text>
-          {r.status === 'FAILED' && (
-            <Text size="caption" color="error">
+          {r.error !== '' && (r.status === 'FAILED' || r.status === 'SCHEDULED') && (
+            <Text size="caption" color={r.status === 'FAILED' ? 'error' : 'text.secondary'}>
               {r.error}
             </Text>
           )}
@@ -103,6 +105,14 @@ export function PostsTab() {
       color: 'error',
       onClick: (r) => run(actions.deletePost(r)),
       hidden: (r) => !UNSENT.has(r.status),
+    },
+    {
+      icon: <DeleteForeverIcon fontSize="small" />,
+      tooltip: 'Delete post',
+      ariaLabel: 'delete published post',
+      color: 'error',
+      onClick: (r) => run(actions.deletePublished(r, deletable.has(r.network))),
+      hidden: (r) => r.status !== 'PUBLISHED',
     },
     {
       icon: <OpenInNewIcon fontSize="small" />,

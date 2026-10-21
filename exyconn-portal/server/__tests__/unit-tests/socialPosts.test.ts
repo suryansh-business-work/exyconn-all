@@ -162,7 +162,7 @@ describe('composing and publishing', () => {
     const li = await account('LINKEDIN', 'LINKEDIN');
     fakeNetwork([
       [/facebook\.com\/v19\.0\/facebook-1\/feed/, 200, { id: 'fb-post-1' }],
-      [/ugcPosts/, 403, { message: 'Not enough permissions' }],
+      [/rest\/posts/, 403, { message: 'Not enough permissions' }],
     ]);
     const posts = (await composePosts(
       {

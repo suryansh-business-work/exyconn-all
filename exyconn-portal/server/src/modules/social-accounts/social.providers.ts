@@ -1,4 +1,10 @@
-import { THREADS_GRAPH, type SocialApp, type SocialNetwork } from './social.constants';
+import {
+  LINKEDIN_MEMBER_SCOPES,
+  LINKEDIN_PAGE_SCOPES,
+  THREADS_GRAPH,
+  type SocialApp,
+  type SocialNetwork,
+} from './social.constants';
 import { basicAuthHeader, getJson, postForm } from './social.http';
 
 /** What the tokens are, as the provider answered. */
@@ -6,6 +12,8 @@ export interface ProviderTokens {
   accessToken: string;
   refreshToken: string;
   expiresInSeconds: number | null;
+  /** The scopes granted, where the provider says which (LinkedIn). */
+  scopes?: string[];
 }
 
 /** One account a connection reaches — a member, a page, a channel. */
@@ -24,6 +32,8 @@ export interface ProviderAccount {
 export interface AppCredentials {
   clientId: string;
   clientSecret: string;
+  /** LinkedIn refused the company-page scopes for this app: ask for the member ones alone. */
+  pagesRefused?: boolean;
 }
 
 interface Provider {
@@ -58,6 +68,12 @@ const tokensOf = (body: Record<string, unknown>): ProviderTokens => ({
   expiresInSeconds: num(body.expires_in),
 });
 
+/** The member scopes, plus the company-page ones unless LinkedIn refused them for the app. */
+export const linkedinScopes = (app: AppCredentials): string[] =>
+  app.pagesRefused
+    ? [...LINKEDIN_MEMBER_SCOPES]
+    : [...LINKEDIN_MEMBER_SCOPES, ...LINKEDIN_PAGE_SCOPES];
+
 const linkedin: Provider = {
   label: 'LinkedIn',
   consoleUrl: 'https://www.linkedin.com/developers/apps',
@@ -67,18 +83,19 @@ const linkedin: Provider = {
       client_id: app.clientId,
       redirect_uri: redirectUri,
       state,
-      scope: 'openid profile w_member_social',
+      scope: linkedinScopes(app).join(' '),
     }),
-  exchange: async (app, code, redirectUri) =>
-    tokensOf(
-      await postForm('LinkedIn', 'https://www.linkedin.com/oauth/v2/accessToken', {
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: redirectUri,
-        client_id: app.clientId,
-        client_secret: app.clientSecret,
-      }),
-    ),
+  exchange: async (app, code, redirectUri) => {
+    const body = await postForm('LinkedIn', 'https://www.linkedin.com/oauth/v2/accessToken', {
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      client_id: app.clientId,
+      client_secret: app.clientSecret,
+    });
+    // LinkedIn lists what it granted, comma-separated: that is what says pages are reachable.
+    return { ...tokensOf(body), scopes: str(body.scope).split(',').filter(Boolean) };
+  },
   accounts: async (tokens) => {
     const me = await getJson(
       'LinkedIn',
@@ -183,7 +200,7 @@ const threads: Provider = {
     url('https://threads.net/oauth/authorize', {
       client_id: app.clientId,
       redirect_uri: redirectUri,
-      scope: 'threads_basic,threads_content_publish,threads_manage_insights',
+      scope: 'threads_basic,threads_content_publish,threads_manage_insights,threads_delete',
       response_type: 'code',
       state,
     }),
@@ -283,8 +300,9 @@ const youtube: Provider = {
       client_id: app.clientId,
       redirect_uri: redirectUri,
       state,
+      // force-ssl is the scope videos.delete needs.
       scope:
-        'https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.upload',
+        'https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl',
       // A refresh token is only issued offline, and only on a consent screen.
       access_type: 'offline',
       prompt: 'consent',
