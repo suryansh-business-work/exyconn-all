@@ -1629,6 +1629,8 @@ export type Campaign = {
   blocks: Scalars['JSON']['output'];
   body?: Maybe<Scalars['String']['output']>;
   budget: Scalars['Float']['output'];
+  /** The ISO 4217 currency the budget is set in. */
+  budgetCurrency: Scalars['String']['output'];
   campaignType: CampaignType;
   channel: CampaignChannel;
   contentVersion: Scalars['Int']['output'];
@@ -1699,6 +1701,8 @@ export type CampaignDeliveryStats = {
 export type CampaignDraftInput = {
   blocks?: InputMaybe<Scalars['JSON']['input']>;
   budget?: InputMaybe<Scalars['Float']['input']>;
+  /** The ISO 4217 currency the budget is set in. A new draft without one takes the company's. */
+  budgetCurrency?: InputMaybe<Scalars['String']['input']>;
   campaignType?: InputMaybe<CampaignType>;
   channel?: InputMaybe<CampaignChannel>;
   editorMode?: InputMaybe<EditorMode>;
@@ -1722,6 +1726,8 @@ export type CampaignDraftInput = {
 export type CampaignInput = {
   body?: InputMaybe<Scalars['String']['input']>;
   budget: Scalars['Float']['input'];
+  /** The ISO 4217 currency the budget is set in. */
+  budgetCurrency: Scalars['String']['input'];
   channel: CampaignChannel;
   endDate: Scalars['DateTime']['input'];
   name: Scalars['String']['input'];
@@ -8713,6 +8719,8 @@ export type Mutation = {
   deleteProject: Scalars['Boolean']['output'];
   deleteProjectWorkflow: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  /** Deletes a published post on its network and in Exyconn, for every account it went to together. MARKETING. */
+  deletePublishedSocialPost: Array<SocialPostDeletion>;
   deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRazorpayConfig: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
@@ -8721,6 +8729,7 @@ export type Mutation = {
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
   deleteSocialComment: Scalars['Boolean']['output'];
+  /** Deletes a draft, scheduled or failed post — one that has not gone out. MARKETING. */
   deleteSocialMediaPost: Scalars['Boolean']['output'];
   deleteSocialPost: Scalars['Boolean']['output'];
   deleteSonarConfig: Scalars['Boolean']['output'];
@@ -8758,6 +8767,7 @@ export type Mutation = {
   disconnectGmailAccount: Scalars['Boolean']['output'];
   /** Removes the mailbox and its token; mail already sent stays on the records. */
   disconnectMicrosoftMailAccount: Scalars['Boolean']['output'];
+  /** Disconnects an account, and the LinkedIn pages connected through it. MARKETING. */
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
@@ -9104,6 +9114,8 @@ export type Mutation = {
    * the default of everything the role's module access allows.
    */
   setRolePermission: RolePermission;
+  /** Pauses an account (false) or turns it back on (true). MARKETING. */
+  setSocialAccountActive: SocialAccount;
   /** SUPPORT/ADMIN: move a ticket through its lifecycle. */
   setSupportTicketStatus: SupportTicket;
   /** SUPPORT/ADMIN: re-triage a ticket — the team it belongs to, how urgent it is, its topic. */
@@ -10990,6 +11002,11 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeletePublishedSocialPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePurchaseOrderArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12081,6 +12098,12 @@ export type MutationSetRolePermissionArgs = {
   actions: Array<PermissionAction>;
   module: Scalars['String']['input'];
   role: Role;
+};
+
+
+export type MutationSetSocialAccountActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -18952,22 +18975,35 @@ export enum SlipStatus {
 /** A connected account. Its tokens never leave the server. */
 export type SocialAccount = {
   __typename?: 'SocialAccount';
+  /** False while paused: left out of Compose and syncs, and its scheduled posts held. */
+  active: Scalars['Boolean']['output'];
   app: SocialApp;
   avatarUrl: Scalars['String']['output'];
   connectedBy: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** When the network stopped reaching it (a page its member no longer administers). */
+  disconnectedAt?: Maybe<Scalars['DateTime']['output']>;
   /** Null when the token does not expire. */
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
   handle: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  kind: SocialAccountKind;
   /** When its posts and numbers were last read from the network. */
   lastSyncedAt?: Maybe<Scalars['DateTime']['output']>;
   name: Scalars['String']['output'];
+  /** A LinkedIn profile connected before company pages: reconnect to add them. */
+  needsReconnect: Scalars['Boolean']['output'];
   network: SocialNetwork;
   /** Why the last read failed, in the network's words; empty when it worked. */
   syncError: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** A person's own account, or an organization's page acting as itself (a LinkedIn company page). */
+export enum SocialAccountKind {
+  Organization = 'ORGANIZATION',
+  Person = 'PERSON'
+}
 
 export type SocialAnalytics = {
   __typename?: 'SocialAnalytics';
@@ -19028,6 +19064,8 @@ export type SocialAppStatus = {
   label: Scalars['String']['output'];
   /** The networks one connection adds (Facebook and Instagram for Meta). */
   networks: Array<SocialNetwork>;
+  /** LinkedIn refused the company-page scopes for this app, so it connects member profiles only. */
+  pagesRefused: Scalars['Boolean']['output'];
 };
 
 /** The outcome of checking an app's client ID and secret with its provider. */
@@ -19143,6 +19181,8 @@ export enum SocialNetwork {
 export type SocialNetworkRule = {
   __typename?: 'SocialNetworkRule';
   allowsImage: Scalars['Boolean']['output'];
+  /** Whether a published post can be deleted on the network from here (not on Instagram). */
+  canDelete: Scalars['Boolean']['output'];
   canPublish: Scalars['Boolean']['output'];
   maxChars: Scalars['Int']['output'];
   network: SocialNetwork;
@@ -19175,6 +19215,26 @@ export type SocialPost = {
   /** The post this one shares, resolved one level deep. Null when it is an original. */
   sharedFrom?: Maybe<SocialPost>;
 };
+
+export type SocialPostDeletion = {
+  __typename?: 'SocialPostDeletion';
+  accountId: Scalars['ID']['output'];
+  /** What happened, or the network's reason it did not. */
+  message: Scalars['String']['output'];
+  network: SocialNetwork;
+  outcome: SocialPostDeletionOutcome;
+  postId: Scalars['ID']['output'];
+};
+
+/** What deleting a published post did on one account. */
+export enum SocialPostDeletionOutcome {
+  /** Deleted on the network and in Exyconn. */
+  Deleted = 'DELETED',
+  /** The network refused; nothing was deleted. */
+  Failed = 'FAILED',
+  /** Removed from Exyconn; the network does not let apps delete posts, so it stays there. */
+  KeptOnNetwork = 'KEPT_ON_NETWORK'
+}
 
 export type SocialPostInput = {
   body: Scalars['String']['input'];
@@ -23378,6 +23438,7 @@ export type ResolversTypes = ResolversObject<{
   SlackConfigInput: SlackConfigInput;
   SlipStatus: SlipStatus;
   SocialAccount: ResolverTypeWrapper<SocialAccount>;
+  SocialAccountKind: SocialAccountKind;
   SocialAnalytics: ResolverTypeWrapper<SocialAnalytics>;
   SocialApp: SocialApp;
   SocialAppConfig: ResolverTypeWrapper<SocialAppConfig>;
@@ -23397,6 +23458,8 @@ export type ResolversTypes = ResolversObject<{
   SocialNetworkRule: ResolverTypeWrapper<SocialNetworkRule>;
   SocialNetworkStat: ResolverTypeWrapper<SocialNetworkStat>;
   SocialPost: ResolverTypeWrapper<SocialPost>;
+  SocialPostDeletion: ResolverTypeWrapper<SocialPostDeletion>;
+  SocialPostDeletionOutcome: SocialPostDeletionOutcome;
   SocialPostInput: SocialPostInput;
   SocialProfile: ResolverTypeWrapper<SocialProfile>;
   SocialSyncResult: ResolverTypeWrapper<SocialSyncResult>;
@@ -24415,6 +24478,7 @@ export type ResolversParentTypes = ResolversObject<{
   SocialNetworkRule: SocialNetworkRule;
   SocialNetworkStat: SocialNetworkStat;
   SocialPost: SocialPost;
+  SocialPostDeletion: SocialPostDeletion;
   SocialPostInput: SocialPostInput;
   SocialProfile: SocialProfile;
   SocialSyncResult: SocialSyncResult;
@@ -25449,6 +25513,7 @@ export type CampaignResolvers<ContextType = GraphQLContext, ParentType extends R
   blocks?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   body?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   budget?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  budgetCurrency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   campaignType?: Resolver<ResolversTypes['CampaignType'], ParentType, ContextType>;
   channel?: Resolver<ResolversTypes['CampaignChannel'], ParentType, ContextType>;
   contentVersion?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -29541,6 +29606,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deleteProjectWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectWorkflowArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
+  deletePublishedSocialPost?: Resolver<Array<ResolversTypes['SocialPostDeletion']>, ParentType, ContextType, RequireFields<MutationDeletePublishedSocialPostArgs, 'id'>>;
   deletePurchaseOrder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePurchaseOrderArgs, 'id'>>;
   deleteRazorpayConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRazorpayConfigArgs, 'id'>>;
   deleteRecurringInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRecurringInvoiceArgs, 'id'>>;
@@ -29743,6 +29809,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setOnboardingItem?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationSetOnboardingItemArgs, 'checklistId' | 'done' | 'key'>>;
   setOrganizationStatus?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationSetOrganizationStatusArgs, 'id' | 'status'>>;
   setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
+  setSocialAccountActive?: Resolver<ResolversTypes['SocialAccount'], ParentType, ContextType, RequireFields<MutationSetSocialAccountActiveArgs, 'active' | 'id'>>;
   setSupportTicketStatus?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketStatusArgs, 'id' | 'status'>>;
   setSupportTicketTriage?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketTriageArgs, 'category' | 'id' | 'priority'>>;
   setTaskParent?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskParentArgs, 'taskId'>>;
@@ -31910,15 +31977,19 @@ export type SlackConfigResolvers<ContextType = GraphQLContext, ParentType extend
 }>;
 
 export type SocialAccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialAccount'] = ResolversParentTypes['SocialAccount']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   app?: Resolver<ResolversTypes['SocialApp'], ParentType, ContextType>;
   avatarUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   connectedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  disconnectedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   handle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['SocialAccountKind'], ParentType, ContextType>;
   lastSyncedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  needsReconnect?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
   syncError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -31959,6 +32030,7 @@ export type SocialAppStatusResolvers<ContextType = GraphQLContext, ParentType ex
   available?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   networks?: Resolver<Array<ResolversTypes['SocialNetwork']>, ParentType, ContextType>;
+  pagesRefused?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -32024,6 +32096,7 @@ export type SocialMediaPostMetricsResolvers<ContextType = GraphQLContext, Parent
 
 export type SocialNetworkRuleResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialNetworkRule'] = ResolversParentTypes['SocialNetworkRule']> = ResolversObject<{
   allowsImage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  canDelete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canPublish?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   maxChars?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
@@ -32052,6 +32125,15 @@ export type SocialPostResolvers<ContextType = GraphQLContext, ParentType extends
   likedByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   shareCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   sharedFrom?: Resolver<Maybe<ResolversTypes['SocialPost']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialPostDeletionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialPostDeletion'] = ResolversParentTypes['SocialPostDeletion']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
+  outcome?: Resolver<ResolversTypes['SocialPostDeletionOutcome'], ParentType, ContextType>;
+  postId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -34331,6 +34413,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SocialNetworkRule?: SocialNetworkRuleResolvers<ContextType>;
   SocialNetworkStat?: SocialNetworkStatResolvers<ContextType>;
   SocialPost?: SocialPostResolvers<ContextType>;
+  SocialPostDeletion?: SocialPostDeletionResolvers<ContextType>;
   SocialProfile?: SocialProfileResolvers<ContextType>;
   SocialSyncResult?: SocialSyncResultResolvers<ContextType>;
   SonarAnalysis?: SonarAnalysisResolvers<ContextType>;
