@@ -84,6 +84,6 @@ describe('LOCATION_PURPOSE', () => {
   it('is one sentence about attendance and tracking', () => {
     expect(LOCATION_PURPOSE).toMatch(/attendance/);
     expect(LOCATION_PURPOSE).toMatch(/track/);
-    expect(LOCATION_PURPOSE.endsWith('.')).toBe(true);
+    expect(LOCATION_PURPOSE).toMatch(/\.$/);
   });
 });
