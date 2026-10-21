@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { DEFAULT_FORMAT_SETTINGS, setActiveFormatSettings } from '@exyconn/i18n';
 import { CAMPAIGN_COLUMNS } from '../../../../src/pages/marketing/campaigns-grid';
 import { actionSpecs, columnIds, formatCell } from '../../grid-helpers';
 import { campaignRow } from '../../fixtures';
@@ -6,6 +7,14 @@ import { campaignRow } from '../../fixtures';
 const formatDate = (value: string) => `on ${value}`;
 
 describe('CAMPAIGN_COLUMNS', () => {
+  beforeEach(() => {
+    setActiveFormatSettings({ ...DEFAULT_FORMAT_SETTINGS, locale: 'en-US', currency: 'INR' });
+  });
+
+  afterEach(() => {
+    setActiveFormatSettings(DEFAULT_FORMAT_SETTINGS);
+  });
+
   it('lists the campaign register columns, with the actions last', () => {
     expect(columnIds(CAMPAIGN_COLUMNS)).toEqual([
       'name',
@@ -25,10 +34,16 @@ describe('CAMPAIGN_COLUMNS', () => {
     expect(formatCell(CAMPAIGN_COLUMNS, 'subject', undefined)).toBe('');
   });
 
-  it('writes the budget as a grouped number', () => {
+  it('writes the budget as money in the campaign’s own currency', () => {
     expect(formatCell(CAMPAIGN_COLUMNS, 'budget', campaignRow({ budget: 250000 }))).toBe(
-      (250000).toLocaleString(),
+      '₹250,000',
     );
+    expect(
+      formatCell(CAMPAIGN_COLUMNS, 'budget', campaignRow({ budget: 1500, budgetCurrency: 'USD' })),
+    ).toBe('$1,500');
+    expect(
+      formatCell(CAMPAIGN_COLUMNS, 'budget', campaignRow({ budget: 0, budgetCurrency: 'EUR' })),
+    ).toBe('€0');
   });
 
   it('dates the last send through the viewer settings, or a dash when never sent', () => {

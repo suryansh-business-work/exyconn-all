@@ -1,14 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { UseFormReturn } from 'react-hook-form';
 import { AudienceUpdateMode } from '@exyconn/shell/graphql/generated';
 import { AudienceStep } from '../../../../../../../src/pages/marketing/forms/campaign/steps/AudienceStep';
 import type { CampaignStudioValues } from '../../../../../../../src/pages/marketing/forms/campaign/campaign.types';
 import { renderWithProviders } from '../../../../../test-utils';
 import { chooseOption, optionsOf } from '../../../../../form-helpers';
 import { audienceRow } from '../../../../../fixtures';
-import { StudioFormHarness } from '../form-harness';
+import { StudioFormHarness, type StudioForm } from '../form-harness';
 import { checksState } from '../studio.fixtures';
 
 const gql = vi.hoisted(() => ({ lists: vi.fn(), counts: vi.fn(), refetch: vi.fn() }));
@@ -34,7 +33,7 @@ const resolution = (eligible: number) => ({
 });
 
 function renderStep(values: Partial<CampaignStudioValues> = {}) {
-  let form: UseFormReturn<CampaignStudioValues> | undefined;
+  let form: StudioForm | undefined;
   renderWithProviders(
     <StudioFormHarness
       values={values}
@@ -45,7 +44,7 @@ function renderStep(values: Partial<CampaignStudioValues> = {}) {
       <AudienceStep />
     </StudioFormHarness>,
   );
-  return () => form as UseFormReturn<CampaignStudioValues>;
+  return () => form as StudioForm;
 }
 
 describe('AudienceStep', () => {

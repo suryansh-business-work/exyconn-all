@@ -19,6 +19,8 @@ export const marketingTypeDefs = gql`
     name: String!
     channel: CampaignChannel!
     budget: Float!
+    "The ISO 4217 currency the budget is set in."
+    budgetCurrency: String!
     startDate: DateTime!
     endDate: DateTime!
     status: CampaignStatus!
@@ -60,6 +62,8 @@ export const marketingTypeDefs = gql`
     name: String!
     channel: CampaignChannel!
     budget: Float!
+    "The ISO 4217 currency the budget is set in."
+    budgetCurrency: String!
     startDate: DateTime!
     endDate: DateTime!
     status: CampaignStatus!

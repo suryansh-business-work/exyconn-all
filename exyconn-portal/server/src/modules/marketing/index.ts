@@ -17,6 +17,7 @@ interface CampaignInput {
   name: string;
   channel: string;
   budget: number;
+  budgetCurrency: string;
   startDate: Date;
   endDate: Date;
   status: string;
@@ -41,7 +42,7 @@ const campaignResolvers = createCrudResolvers(marketingService, {
   roles: [ROLES.MARKETING],
   table: {
     searchFields: ['name', 'subject', 'body'],
-    filterFields: ['name', 'channel', 'status'],
+    filterFields: ['name', 'channel', 'status', 'budgetCurrency'],
     sortFields: [
       'name',
       'channel',
@@ -54,7 +55,8 @@ const campaignResolvers = createCrudResolvers(marketingService, {
     ],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
-  stats: { countBy: ['status', 'channel', 'lastSentAt'], sum: ['budget'] },
+  // Budgets are summed across currencies, so the currency count says whether that sum is one.
+  stats: { countBy: ['status', 'channel', 'lastSentAt', 'budgetCurrency'], sum: ['budget'] },
 });
 
 export const audienceListsService = createCrudService<object>(

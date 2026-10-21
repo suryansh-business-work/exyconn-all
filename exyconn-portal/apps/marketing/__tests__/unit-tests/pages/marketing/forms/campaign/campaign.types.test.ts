@@ -12,6 +12,7 @@ import {
   campaignSchema,
   toDraftInput,
   toStudioValues,
+  type CampaignStudioInput,
   type CampaignStudioValues,
 } from '../../../../../../src/pages/marketing/forms/campaign/campaign.types';
 import {
@@ -21,8 +22,8 @@ import {
 import { campaignRow } from '../../../../fixtures';
 
 /** A complete, valid set of studio values a test then breaks one field of. */
-const valid = (overrides: Partial<CampaignStudioValues> = {}): CampaignStudioValues => ({
-  ...toStudioValues(null, 'hello@exyconn.com'),
+const valid = (overrides: Partial<CampaignStudioInput> = {}): CampaignStudioInput => ({
+  ...toStudioValues(null, 'hello@exyconn.com', 'EUR'),
   name: 'Diwali offer',
   senderName: 'Exyconn',
   subject: 'Festive savings',
@@ -31,7 +32,7 @@ const valid = (overrides: Partial<CampaignStudioValues> = {}): CampaignStudioVal
 });
 
 /** The first message the schema gives for a field, or undefined when the field is valid. */
-const errorFor = (values: CampaignStudioValues, field: keyof CampaignStudioValues) => {
+const errorFor = (values: CampaignStudioInput, field: keyof CampaignStudioValues) => {
   const result = campaignSchema.safeParse(values);
   return result.success
     ? undefined
@@ -80,8 +81,26 @@ describe('campaignSchema', () => {
 
   it('rejects a negative budget and a budget that is not a number', () => {
     expect(errorFor(valid({ budget: -1 }), 'budget')).toBe('The budget cannot be negative');
+    expect(errorFor(valid({ budget: '-0.5' }), 'budget')).toBe('The budget cannot be negative');
     expect(errorFor(valid({ budget: Number.NaN }), 'budget')).toBe('Enter a number');
+    expect(errorFor(valid({ budget: 'abc' }), 'budget')).toBe('Enter a number');
     expect(errorFor(valid({ budget: 0 }), 'budget')).toBeUndefined();
+  });
+
+  it('reads the amount typed as text as a number, and an empty one as no budget', () => {
+    expect(campaignSchema.parse(valid({ budget: '2500.50' })).budget).toBe(2500.5);
+    expect(campaignSchema.parse(valid({ budget: '' })).budget).toBe(0);
+  });
+
+  it('needs an ISO 4217 currency for the budget, kept upper-cased', () => {
+    expect(errorFor(valid({ budgetCurrency: '' }), 'budgetCurrency')).toBe('Currency is required');
+    expect(errorFor(valid({ budgetCurrency: 'XYZ' }), 'budgetCurrency')).toBe(
+      'Choose a valid ISO 4217 currency',
+    );
+    expect(errorFor(valid({ budgetCurrency: '₹' }), 'budgetCurrency')).toBe(
+      'Choose a valid ISO 4217 currency',
+    );
+    expect(campaignSchema.parse(valid({ budgetCurrency: ' usd ' })).budgetCurrency).toBe('USD');
   });
 
   it('accepts only the known campaign types and editor modes', () => {
@@ -111,7 +130,9 @@ describe('STUDIO_STEPS and STEP_FIELDS', () => {
   });
 
   it('checks each step’s own fields, and nothing on the last two', () => {
-    expect(STEP_FIELDS.setup).toContain('senderEmail');
+    expect(STEP_FIELDS.setup).toEqual(
+      expect.arrayContaining(['senderEmail', 'budget', 'budgetCurrency']),
+    );
     expect(STEP_FIELDS.audience).toEqual(['scheduledAudienceListId']);
     expect(STEP_FIELDS.design).toEqual(['mjml']);
     expect(STEP_FIELDS.personalize).toEqual(['subject', 'preheader']);
@@ -134,12 +155,13 @@ describe('STUDIO_STEPS and STEP_FIELDS', () => {
 
 describe('toStudioValues', () => {
   it('starts a new campaign as a visual newsletter from the default sender', () => {
-    const values = toStudioValues(null, 'hello@exyconn.com');
+    const values = toStudioValues(null, 'hello@exyconn.com', 'EUR');
     expect(values).toMatchObject({
       name: '',
       campaignType: CampaignType.Newsletter,
       senderEmail: 'hello@exyconn.com',
       budget: 0,
+      budgetCurrency: 'EUR',
       startDate: null,
       endDate: null,
       trackOpens: true,
@@ -157,12 +179,13 @@ describe('toStudioValues', () => {
       trackOpens: false,
       scheduledAudienceListId: 'audience-1',
     });
-    expect(toStudioValues(row, 'other@exyconn.com')).toMatchObject({
+    expect(toStudioValues(row, 'other@exyconn.com', 'EUR')).toMatchObject({
       name: 'Diwali offer',
       senderEmail: 'hello@exyconn.com',
       replyTo: 'reply@exyconn.com',
       preheader: 'Inside',
       budget: 120000,
+      budgetCurrency: 'INR',
       startDate: '2026-10-01T00:00:00.000Z',
       trackOpens: false,
       scheduledAudienceListId: 'audience-1',
@@ -174,15 +197,15 @@ describe('toStudioValues', () => {
   it('keeps a stored design and builds the MJML from it when none was saved', () => {
     const blocks = [newBlock('divider')];
     const row = campaignRow({ editorMode: EditorMode.Visual, blocks: { blocks }, mjml: '' });
-    const values = toStudioValues(row, '');
+    const values = toStudioValues(row, '', 'EUR');
     expect(values.design.blocks).toEqual(blocks);
     expect(values.mjml).toBe(designToMjml(values.design));
   });
 
   it('falls back to the default sender when the saved one is empty', () => {
-    expect(toStudioValues(campaignRow({ senderEmail: '' }), 'x@exyconn.com').senderEmail).toBe(
-      'x@exyconn.com',
-    );
+    expect(
+      toStudioValues(campaignRow({ senderEmail: '' }), 'x@exyconn.com', 'EUR').senderEmail,
+    ).toBe('x@exyconn.com');
   });
 
   it('fills fields an old campaign row lacks', () => {
@@ -191,8 +214,10 @@ describe('toStudioValues', () => {
       endDate: undefined,
       editorMode: undefined,
       campaignType: undefined,
+      budgetCurrency: undefined,
     } as never);
-    expect(toStudioValues(row, '')).toMatchObject({
+    expect(toStudioValues(row, '', 'EUR')).toMatchObject({
+      budgetCurrency: 'EUR',
       startDate: null,
       endDate: null,
       editorMode: EditorMode.Visual,
@@ -218,6 +243,18 @@ describe('toDraftInput', () => {
 
   it('sends no design in code mode', () => {
     expect(toDraftInput(valid({ editorMode: EditorMode.Code })).blocks).toEqual({});
+  });
+
+  it('sends the amount as a number with its currency', () => {
+    expect(toDraftInput(valid({ budget: '1500', budgetCurrency: 'USD' }))).toMatchObject({
+      budget: 1500,
+      budgetCurrency: 'USD',
+    });
+    expect(toDraftInput(valid({ budget: '' })).budget).toBe(0);
+  });
+
+  it('sends no currency before one is known, so the server uses the company one', () => {
+    expect(toDraftInput(valid({ budgetCurrency: '' })).budgetCurrency).toBeUndefined();
   });
 
   it('sends an empty date as no date', () => {

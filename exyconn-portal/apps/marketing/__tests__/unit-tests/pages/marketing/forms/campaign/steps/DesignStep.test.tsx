@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { UseFormReturn } from 'react-hook-form';
 import { EditorMode } from '@exyconn/shell/graphql/generated';
 import { DesignStep } from '../../../../../../../src/pages/marketing/forms/campaign/steps/DesignStep';
 import type { CampaignStudioValues } from '../../../../../../../src/pages/marketing/forms/campaign/campaign.types';
@@ -12,7 +11,7 @@ import {
   type Design,
 } from '../../../../../../../src/pages/marketing/forms/campaign/design/blocks';
 import { renderWithProviders } from '../../../../../test-utils';
-import { StudioFormHarness } from '../form-harness';
+import { StudioFormHarness, type StudioForm } from '../form-harness';
 import { previewState, studioOptions } from '../studio.fixtures';
 
 const gql = vi.hoisted(() => ({ saved: vi.fn(), tech: vi.fn() }));
@@ -35,7 +34,7 @@ const DESIGN: Design = {
 const PICKED_BLOCKS = [{ ...newBlock('text'), content: 'From template' }];
 
 function renderStep(values: Partial<CampaignStudioValues> = {}) {
-  let form: UseFormReturn<CampaignStudioValues> | undefined;
+  let form: StudioForm | undefined;
   renderWithProviders(
     <StudioFormHarness
       values={{
@@ -51,7 +50,7 @@ function renderStep(values: Partial<CampaignStudioValues> = {}) {
       <DesignStep options={studioOptions()} preview={previewState()} />
     </StudioFormHarness>,
   );
-  return () => form as UseFormReturn<CampaignStudioValues>;
+  return () => form as StudioForm;
 }
 
 /** Answers the open confirmation dialog with its confirm or cancel button. */

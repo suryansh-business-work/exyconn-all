@@ -100,6 +100,7 @@ describe('click link signing (open redirect)', () => {
           name: 'Old',
           channel: 'EMAIL',
           budget: 0,
+          budgetCurrency: 'INR',
           startDate: new Date('2026-01-01'),
           endDate: new Date('2026-01-31'),
           body: '<a href="https://example.com/offer">Offer</a>',

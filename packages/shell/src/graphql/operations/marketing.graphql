@@ -3,6 +3,7 @@ fragment CampaignFields on Campaign {
   name
   channel
   budget
+  budgetCurrency
   startDate
   endDate
   status

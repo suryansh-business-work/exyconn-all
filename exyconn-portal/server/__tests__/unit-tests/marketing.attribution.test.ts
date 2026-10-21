@@ -17,6 +17,7 @@ const seedCampaign = (name: string) =>
     name,
     channel: 'EMAIL',
     budget: 100,
+    budgetCurrency: 'INR',
     startDate: new Date('2027-03-01'),
     endDate: new Date('2027-03-31'),
     status: 'ACTIVE',

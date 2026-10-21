@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { I18nProvider } from '@exyconn/i18n';
 import {
   GetCampaignDocument,
   PreviewCampaignContentDocument,
@@ -38,13 +39,16 @@ function Url() {
   return <output aria-label="Url">{useCurrentUrl()}</output>;
 }
 
+/** The company's settings as PortalApp provides them once loaded: books kept in rupees. */
+const COMPANY_SETTINGS = { currency: 'INR' };
+
 function renderForm(initial: CampaignRow | null = null, route = '/marketing/campaigns/new') {
   const onExit = vi.fn();
   renderWithProviders(
-    <>
+    <I18nProvider locale="en" messages={{}} settings={COMPANY_SETTINGS}>
       <CampaignForm initial={initial} onExit={onExit} />
       <Url />
-    </>,
+    </I18nProvider>,
     { route },
   );
   return onExit;
@@ -108,6 +112,10 @@ describe('CampaignForm', () => {
     await press('Next');
     await waitFor(() => expect(output('Current step')).toHaveTextContent('audience'));
     expect(gql.save.mock.calls[0][0].variables.input.senderEmail).toBe('hello@exyconn.com');
+    expect(gql.save.mock.calls[0][0].variables.input).toMatchObject({
+      budget: 0,
+      budgetCurrency: 'INR',
+    });
   });
 
   it('keeps a step until its fields are valid, and saves before moving on', async () => {

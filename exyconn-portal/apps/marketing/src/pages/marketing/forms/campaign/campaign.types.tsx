@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { currencyField } from '@exyconn/shell/utils/currencyField';
 import {
   CampaignChannel,
   CampaignStatus,
@@ -50,7 +51,11 @@ export const campaignSchema = z.object({
     .min(1, 'Add a subject line')
     .max(255, 'Keep the subject under 255 characters'),
   preheader: z.string().trim().max(200, 'Keep the preview text under 200 characters'),
-  budget: z.number({ error: 'Enter a number' }).min(0, 'The budget cannot be negative'),
+  // The amount field hands over the text typed; an empty one is no budget, 0.
+  budget: z.coerce
+    .number<number | string>({ error: 'Enter a number' })
+    .min(0, 'The budget cannot be negative'),
+  budgetCurrency: currencyField,
   startDate: z.string().nullable(),
   endDate: z.string().nullable(),
   trackOpens: z.boolean(),
@@ -67,6 +72,9 @@ export const campaignSchema = z.object({
 
 export type CampaignStudioValues = z.infer<typeof campaignSchema>;
 
+/** The values as the form holds them, before the schema parses them: the amount is text. */
+export type CampaignStudioInput = z.input<typeof campaignSchema>;
+
 /** The fields each step must have right before moving on. */
 export const STEP_FIELDS: Readonly<Record<StudioStep, (keyof CampaignStudioValues)[]>> = {
   setup: [
@@ -78,6 +86,7 @@ export const STEP_FIELDS: Readonly<Record<StudioStep, (keyof CampaignStudioValue
     'subject',
     'preheader',
     'budget',
+    'budgetCurrency',
   ],
   audience: ['scheduledAudienceListId'],
   design: ['mjml'],
@@ -91,6 +100,7 @@ const toDateInput = (value?: string | null) => value ?? null;
 export function toStudioValues(
   row: CampaignRow | null,
   defaultSender: string,
+  companyCurrency: string,
 ): CampaignStudioValues {
   const design = asDesign(row?.blocks) ?? starterDesign();
   const editorMode = row?.editorMode ?? EditorMode.Visual;
@@ -104,6 +114,7 @@ export function toStudioValues(
     subject: row?.subject ?? '',
     preheader: row?.preheader ?? '',
     budget: row?.budget ?? 0,
+    budgetCurrency: row?.budgetCurrency ?? companyCurrency,
     startDate: toDateInput(row?.startDate),
     endDate: toDateInput(row?.endDate),
     trackOpens: row?.trackOpens ?? true,
@@ -115,11 +126,16 @@ export function toStudioValues(
   };
 }
 
-/** The values as a draft save sends them. The design travels only in visual mode. */
-export function toDraftInput(values: CampaignStudioValues): CampaignDraftInput {
+/**
+ * The values as a draft save sends them. The design travels only in visual mode, and an
+ * amount still being typed as text travels as the number it reads as.
+ */
+export function toDraftInput(values: CampaignStudioInput): CampaignDraftInput {
   const { design, ...rest } = values;
   return {
     ...rest,
+    budget: Number(rest.budget),
+    budgetCurrency: values.budgetCurrency || undefined,
     channel: CampaignChannel.Email,
     status: CampaignStatus.Planned,
     blocks: values.editorMode === EditorMode.Visual ? design : {},

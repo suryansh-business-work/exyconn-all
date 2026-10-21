@@ -52,6 +52,8 @@ export const campaignStudioTypeDefs = gql`
     blocks: JSON
     mjml: String
     budget: Float
+    "The ISO 4217 currency the budget is set in. A new draft without one takes the company's."
+    budgetCurrency: String
     startDate: DateTime
     endDate: DateTime
     trackOpens: Boolean

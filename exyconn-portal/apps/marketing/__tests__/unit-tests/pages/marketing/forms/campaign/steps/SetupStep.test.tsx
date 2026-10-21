@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { UseFormReturn } from 'react-hook-form';
 import { SetupStep } from '../../../../../../../src/pages/marketing/forms/campaign/steps/SetupStep';
 import {
   STEP_FIELDS,
@@ -9,7 +8,7 @@ import {
 } from '../../../../../../../src/pages/marketing/forms/campaign/campaign.types';
 import { renderWithProviders } from '../../../../../test-utils';
 import { chooseOption, optionsOf } from '../../../../../form-helpers';
-import { StudioFormHarness } from '../form-harness';
+import { StudioFormHarness, type StudioForm } from '../form-harness';
 import { studioOptions } from '../studio.fixtures';
 import { campaignRow } from '../../../../../fixtures';
 import type { StudioOptions } from '../../../../../../../src/pages/marketing/forms/campaign/studio/useStudioOptions';
@@ -33,7 +32,7 @@ function renderStep({
   campaign?: CampaignRow | null;
   values?: Partial<CampaignStudioValues>;
 } = {}) {
-  let form: UseFormReturn<CampaignStudioValues> | undefined;
+  let form: StudioForm | undefined;
   renderWithProviders(
     <StudioFormHarness
       values={values}
@@ -44,7 +43,7 @@ function renderStep({
       <SetupStep options={options} campaign={campaign} />
     </StudioFormHarness>,
   );
-  return () => form as UseFormReturn<CampaignStudioValues>;
+  return () => form as StudioForm;
 }
 
 const openAdvanced = () =>
@@ -111,7 +110,9 @@ describe('SetupStep', () => {
   it('keeps budget, period and tracking under Advanced settings', async () => {
     const form = renderStep();
     await openAdvanced();
-    expect(screen.getByText('Optional, for reporting what the campaign cost.')).toBeVisible();
+    expect(
+      screen.getByText('Optional, for reporting what the campaign cost; 0 or more.'),
+    ).toBeVisible();
     fireEvent.change(screen.getByLabelText('Campaign starts'), {
       target: { value: '2026-11-01T00:00:00.000Z' },
     });
@@ -124,6 +125,38 @@ describe('SetupStep', () => {
       false,
       false,
     ]);
+  });
+
+  it('takes the budget as an amount and a currency, in two fields', async () => {
+    const form = renderStep();
+    await openAdvanced();
+    const amount = screen.getByLabelText(/^Budget amount\s*\*?$/);
+    expect(amount).toHaveAttribute('type', 'number');
+    expect(screen.getByRole('combobox', { name: /^Currency/ })).toHaveValue(
+      'INR — Indian Rupee (₹)',
+    );
+
+    fireEvent.change(amount, { target: { value: '2500' } });
+    await userEvent.click(screen.getByRole('combobox', { name: /^Currency/ }));
+    await userEvent.click(
+      within(screen.getByRole('listbox')).getByRole('option', { name: /^USD — / }),
+    );
+
+    expect(form().getValues(['budget', 'budgetCurrency'])).toEqual(['2500', 'USD']);
+    expect(await act(() => form().trigger(['budget', 'budgetCurrency']))).toBe(true);
+  });
+
+  it('refuses a negative budget and a missing currency before moving on', async () => {
+    const form = renderStep({ values: { budgetCurrency: '' } });
+    await openAdvanced();
+    fireEvent.change(screen.getByLabelText(/^Budget amount\s*\*?$/), {
+      target: { value: '-5' },
+    });
+
+    await act(() => form().trigger(STEP_FIELDS.setup));
+
+    expect(screen.getByText('The budget cannot be negative')).toBeInTheDocument();
+    expect(screen.getByText('Currency is required')).toBeInTheDocument();
   });
 
   it('names the Tech > Email template a campaign started from', async () => {

@@ -11,10 +11,17 @@ import { InvoiceModel } from '../finance/finance.model';
 import { PaymentModel } from '../finance/payment.model';
 import { RecurringInvoiceModel } from '../finance/recurring-invoice.model';
 import { PurchaseOrderModel } from '../products/purchase-order.model';
+import { CampaignModel } from '../marketing/marketing.model';
 
-/** Every model that stores money with its own currency (see lib/currencyField). */
-// Each model is typed by its own document; this only reads and writes `currency` and `_id`.
-const MONEY_MODELS = [
+/** One collection that stores money, and the field holding its currency. */
+interface MoneyCollection {
+  model: Model<unknown>;
+  field: string;
+}
+
+/** Every model that stores money in a `currency` field (see lib/currencyField). */
+// Each model is typed by its own document; this only reads and writes the currency and `_id`.
+const CURRENCY_MODELS = [
   SalaryStructureModel,
   SalarySlipModel,
   ExpenseClaimModel,
@@ -25,6 +32,15 @@ const MONEY_MODELS = [
   RecurringInvoiceModel,
   PurchaseOrderModel,
 ] as unknown as readonly Model<unknown>[];
+
+/**
+ * Every collection with a stored currency. A campaign keeps its budget's in `budgetCurrency`;
+ * campaigns saved before it existed have none and are read as the company's money.
+ */
+const MONEY_COLLECTIONS: readonly MoneyCollection[] = [
+  ...CURRENCY_MODELS.map((model) => ({ model, field: 'currency' })),
+  { model: CampaignModel as unknown as Model<unknown>, field: 'budgetCurrency' },
+];
 
 /** What people typed for rupees while the currency was still a free-text field. */
 const RUPEE_SPELLINGS = new Set(['₹', 'RS', 'RUPEE', 'RUPEES']);
@@ -49,19 +65,34 @@ export function repairedCurrency(stored: unknown, companyCurrency: string): stri
   return normalizeCurrency(text) ?? companyCurrency;
 }
 
-/** Rewrites one collection's non-ISO currencies; returns how many records changed. */
-async function repairModel(model: Model<unknown>, companyCurrency: string): Promise<number> {
+/**
+ * Rewrites one collection's non-ISO currencies; returns how many records changed. `$nin`
+ * also matches a record with no currency at all, which is grouped under null.
+ */
+async function repairModel(
+  { model, field }: MoneyCollection,
+  companyCurrency: string,
+): Promise<number> {
   const groups = await model.aggregate<StoredCurrencyGroup>([
-    { $match: { currency: { $nin: supportedCurrencies() } } },
-    { $group: { _id: '$currency', ids: { $push: '$_id' } } },
+    { $match: { [field]: { $nin: supportedCurrencies() } } },
+    { $group: { _id: `$${field}`, ids: { $push: '$_id' } } },
   ]);
   // Each group holds a disjoint set of ids, so the rewrites are independent.
   const counts = await Promise.all(
     groups.map(async (group) => {
       const currency = repairedCurrency(group._id, companyCurrency);
-      const result = await model.updateMany({ _id: { $in: group.ids } }, { $set: { currency } });
+      const result = await model.updateMany(
+        { _id: { $in: group.ids } },
+        { $set: { [field]: currency } },
+      );
       logger.info(
-        { model: model.modelName, from: group._id, to: currency, count: result.modifiedCount },
+        {
+          model: model.modelName,
+          field,
+          from: group._id,
+          to: currency,
+          count: result.modifiedCount,
+        },
         'Repaired stored currencies',
       );
       return result.modifiedCount;
@@ -74,7 +105,8 @@ async function repairModel(model: Model<unknown>, companyCurrency: string): Prom
  * Brings the organization in scope's money records to ISO 4217 currencies.
  *
  * Records written before the currency was validated hold '', 'inr ' or '₹', and every screen
- * and document that formats one of them threw "RangeError: Invalid currency code". Runs at
+ * and document that formats one of them threw "RangeError: Invalid currency code"; campaigns
+ * from before budgets had a currency hold none and take the company's. Runs at
  * boot for each organization and touches only records that are wrong, so every restart after
  * the first changes nothing. Returns how many records were rewritten.
  */
@@ -87,7 +119,7 @@ export async function repairStoredCurrencies(): Promise<number> {
   }
   // Different collections, so the repairs are independent.
   const counts = await Promise.all(
-    MONEY_MODELS.map((model) => repairModel(model, companyCurrency)),
+    MONEY_COLLECTIONS.map((collection) => repairModel(collection, companyCurrency)),
   );
   return counts.reduce((sum, count) => sum + count, 0);
 }
