@@ -15,12 +15,15 @@ const SERVICE_WORKER_URL = `${import.meta.env.BASE_URL}sw.js`;
 /** Asks the waiting worker to take over now (the generated worker listens for this). */
 const SKIP_WAITING = { type: 'SKIP_WAITING' };
 
+/** How often an open tab asks the server for a newer build; browsers alone check rarely. */
+const UPDATE_CHECK_MS = 15 * 60_000;
+
 /**
  * Registers this portal's service worker and watches for a newer build.
  *
- * The worker is asked to PROMPT rather than to swap itself in: these screens are mostly
- * forms, and a portal that reloaded itself under somebody halfway through an invoice would
- * lose their work to save them a click.
+ * The worker waits rather than swapping itself in: these screens are mostly forms, so the
+ * moment to take a new build is chosen by the caller (PwaAutoUpdate picks a safe one). An open
+ * tab checks for a newer build every UPDATE_CHECK_MS and whenever it comes back into view.
  *
  * Registration goes through the browser's own API rather than the plugin's helper, so no app
  * has to carry a runtime dependency to be installable. There is no worker in dev or under the
@@ -36,6 +39,8 @@ export function usePwaUpdate(): PwaUpdate {
       return;
     }
     let live = true;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    let checkOnReturn: (() => void) | undefined;
     const offer = (worker: ServiceWorker | null) => {
       if (live && worker) {
         waiting.current = worker;
@@ -60,6 +65,21 @@ export function usePwaUpdate(): PwaUpdate {
         // Already waiting: this tab was opened after a newer build was installed elsewhere.
         offer(registration.waiting);
         registration.addEventListener('updatefound', () => watchInstalling(registration));
+        if (!live) {
+          return;
+        }
+        const check = () => {
+          registration.update().catch(() => {
+            // Offline or the server is busy: the next check tries again.
+          });
+        };
+        timer = setInterval(check, UPDATE_CHECK_MS);
+        checkOnReturn = () => {
+          if (document.visibilityState === 'visible') {
+            check();
+          }
+        };
+        document.addEventListener('visibilitychange', checkOnReturn);
       })
       .catch(() => {
         // No worker in this build, or the browser refused it. The portal still works.
@@ -67,6 +87,10 @@ export function usePwaUpdate(): PwaUpdate {
 
     return () => {
       live = false;
+      clearInterval(timer);
+      if (checkOnReturn) {
+        document.removeEventListener('visibilitychange', checkOnReturn);
+      }
     };
   }, []);
 

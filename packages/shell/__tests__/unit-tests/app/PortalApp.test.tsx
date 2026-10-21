@@ -36,7 +36,7 @@ vi.mock('@/layout/PortalLayout', async () => {
   };
 });
 
-vi.mock('@/pwa', () => ({ OfflineBanner: () => null, PwaUpdateBanner: () => null }));
+vi.mock('@/pwa', () => ({ OfflineBanner: () => null, PwaAutoUpdate: () => null }));
 vi.mock('@/pages/Profile', () => ({ ProfilePage: () => <p>profile page</p> }));
 vi.mock('@/pages/Settings', () => ({ SettingsPage: () => <p>settings page</p> }));
 vi.mock('@/pages/Notifications', () => ({ NotificationsPage: () => <p>notifications page</p> }));

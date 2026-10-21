@@ -4,6 +4,7 @@ import { readingPanel } from '@/components/glass/glass';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { errorMessage } from '@/utils/errorMessage';
 import {
+  MyNotificationPreferencesDocument,
   useMyNotificationPreferencesQuery,
   useSetMyNotificationPreferenceMutation,
   type MyNotificationPreferencesQuery,
@@ -99,10 +100,24 @@ export function NotificationPreferencesPanel() {
     preference: Preference,
     channels: { inPortal: boolean; email: boolean },
   ) => {
+    const next = preferences.map((item) =>
+      item.kind === preference.kind ? { ...item, ...channels } : item,
+    );
     try {
       await save({
         variables: {
           input: { kind: preference.kind, ...channels },
+        },
+        // The switch moves at once; the server's answer (the whole set) then replaces it.
+        optimisticResponse: { setMyNotificationPreference: next },
+        // The items carry no id, so Apollo cannot match them to the list on screen by itself.
+        update: (cache, { data: saved }) => {
+          if (saved) {
+            cache.writeQuery({
+              query: MyNotificationPreferencesDocument,
+              data: { myNotificationPreferences: saved.setMyNotificationPreference },
+            });
+          }
         },
       });
     } catch (err) {
