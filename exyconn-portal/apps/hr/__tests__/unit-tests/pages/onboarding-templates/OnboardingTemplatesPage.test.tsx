@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListOnboardingTemplatesPagedDocument } from '@exyconn/shell/graphql/generated';
 import { OnboardingTemplatesPage } from '../../../../src/pages/onboarding-templates';
 import { ONBOARDING_TEMPLATE_COLUMNS } from '../../../../src/pages/onboarding-templates/onboarding-template-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -26,7 +26,7 @@ vi.mock('../../../../src/pages/onboarding-templates/forms/onboarding-template', 
   OnboardingTemplateForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('OnboardingTemplatesPage', {
+const suite = crudPageSuite({
   page: <OnboardingTemplatesPage />,
   mocks: gql,
   statsKey: 'listOnboardingTemplatesStats',
@@ -45,4 +45,11 @@ describeCrudPage('OnboardingTemplatesPage', {
   row: { id: 'tpl-2', name: 'Engineering joiner' },
   confirm: 'Delete the "Engineering joiner" template?',
   entity: 'Onboarding template',
+});
+
+describe('OnboardingTemplatesPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

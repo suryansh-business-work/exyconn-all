@@ -13,12 +13,12 @@ interface Point {
 export function ContactPointList({
   points,
   scheme,
-  trailing,
+  renderTrailing,
 }: Readonly<{
   points: Point[];
   scheme: 'mailto' | 'tel';
   /** Extra controls after one entry, e.g. the Verify button beside an email address. */
-  trailing?: (value: string) => ReactNode;
+  renderTrailing?: (value: string) => ReactNode;
 }>) {
   const t = useT();
   const ordered = [...points].sort((a, b) => Number(b.primary) - Number(a.primary));
@@ -42,7 +42,7 @@ export function ContactPointList({
           {point.primary && (
             <StarIcon fontSize="inherit" color="warning" titleAccess={t('Primary')} />
           )}
-          {trailing?.(point.value)}
+          {renderTrailing?.(point.value)}
         </Flex>
       ))}
     </Flex>

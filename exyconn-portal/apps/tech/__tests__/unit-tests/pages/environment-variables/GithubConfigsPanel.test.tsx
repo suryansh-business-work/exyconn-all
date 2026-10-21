@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { GithubConfigsPanel } from '../../../../src/pages/environment-variables/GithubConfigsPanel';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -21,7 +21,7 @@ vi.mock('../../../../src/pages/environment-variables/forms/github-config', async
   (await import('./panel.harness')).formModule('GithubConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'GithubConfigsPanel',
   Panel: GithubConfigsPanel,
   listQuery: gql.list,
@@ -69,4 +69,11 @@ describeConfigPanel({
       { repo: 'exyconn/tracker' },
     ],
   },
+});
+
+describe('GithubConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

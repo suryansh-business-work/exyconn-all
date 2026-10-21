@@ -84,9 +84,9 @@ export function UploadStep({
     setError(null);
     readFile(chosen)
       .then(onFile)
-      .catch((failure: unknown) => {
-        portalLogger.error('Reading an import file failed', failure);
-        setError(shownError(failure));
+      .catch((error_: unknown) => {
+        portalLogger.error('Reading an import file failed', error_);
+        setError(shownError(error_));
       })
       .finally(() => setReading(false));
   };

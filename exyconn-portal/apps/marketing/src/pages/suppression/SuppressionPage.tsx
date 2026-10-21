@@ -3,8 +3,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import { useFormatters, useT } from '@exyconn/i18n';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { Button, Flex, Text } from '@exyconn/shell/components/ui';
-import { color } from '@exyconn/shell/components/ui';
+import { Button, color, Flex, Text } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
@@ -39,7 +38,10 @@ export function SuppressionPage() {
   const crud = useCrudResource<SuppressionRow, PagedSuppressionRow>({
     label: 'Suppression',
     // The grid has no plain delete; removal goes through the justified dialog.
-    onDelete: async (row) => setDialog({ kind: 'remove', row }),
+    onDelete: (row) => {
+      setDialog({ kind: 'remove', row });
+      return Promise.resolve();
+    },
     confirmMessage: (row) => ({ message: 'Remove {email}?', values: { email: row.email } }),
     refetch,
   });

@@ -7,7 +7,7 @@ import { EXIT_RECORD_COLUMNS } from '../../../../src/pages/exits/exit-record-gri
 import { renderWithProviders } from '../../test-utils';
 import { dashboardProps } from '../../harness/crud-dashboard';
 import { runRowAction, tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({
   stats: vi.fn(),
@@ -51,7 +51,7 @@ const row = {
   assetsReturned: false,
 };
 
-describeCrudPage('ExitsPage', {
+const suite = crudPageSuite({
   page: <ExitsPage />,
   mocks: gql,
   statsKey: 'listExitRecordsStats',
@@ -70,6 +70,13 @@ describeCrudPage('ExitsPage', {
   row,
   confirm: 'Delete this exit record?',
   entity: 'ExitRecord',
+});
+
+describe('ExitsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('ExitsPage held assets', () => {

@@ -3,7 +3,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SlackConfigsPanel } from '../../../../src/pages/environment-variables/SlackConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 import { forms, resetHarness } from './panel.harness';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn() }));
@@ -48,7 +48,7 @@ const ROWS = [
   },
 ];
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'SlackConfigsPanel',
   Panel: SlackConfigsPanel,
   listQuery: gql.list,
@@ -68,6 +68,13 @@ describeConfigPanel({
   newTitle: 'New Slack config',
   editTitle: 'Edit Slack config',
   backLabel: 'Back to Slack configurations',
+});
+
+describe('SlackConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('SlackConfigsPanel test message', () => {

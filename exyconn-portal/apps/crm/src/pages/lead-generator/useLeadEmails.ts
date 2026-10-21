@@ -38,9 +38,12 @@ export function useLeadEmails() {
       ...current,
       ...Object.fromEntries(queue.map((place) => [place.placeId, { status: 'PENDING' as const }])),
     }));
-    const worker = async () => {
-      for (let place = queue.shift(); place; place = queue.shift()) {
+    /** Takes the next place off the shared queue until it is empty. */
+    const worker = async (): Promise<void> => {
+      const place = queue.shift();
+      if (place) {
         await lookUp(place);
+        await worker();
       }
     };
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));

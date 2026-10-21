@@ -1,10 +1,10 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListObjectivesPagedDocument } from '@exyconn/shell/graphql/generated';
 import { ObjectivesPage } from '../../../../src/pages/objectives';
 import { ObjectiveForm } from '../../../../src/pages/objectives/forms/objective';
 import { OBJECTIVE_COLUMNS } from '../../../../src/pages/objectives/objectives-grid';
 import { objectiveRow } from '../compliance.fixtures';
-import { describeCrudPage } from '../crud-page.suite';
+import { crudPageSuite } from '../crud-page.suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn() }));
 
@@ -18,7 +18,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useDeleteObjectiveMutation: () => [gql.remove],
 }));
 
-describeCrudPage({
+const suite = crudPageSuite({
   name: 'ObjectivesPage',
   Page: ObjectivesPage,
   Form: ObjectiveForm,
@@ -40,4 +40,11 @@ describeCrudPage({
   deleteMutation: gql.remove,
   pagedDocument: ListObjectivesPagedDocument,
   pagedKey: 'listObjectivesPaged',
+});
+
+describe('ObjectivesPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

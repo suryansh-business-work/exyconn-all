@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageConfigsPanel } from '../../../../src/pages/environment-variables/ImageConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 import { forms, resetHarness } from './panel.harness';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn() }));
@@ -50,7 +50,7 @@ const ROWS = [
   },
 ];
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'ImageConfigsPanel',
   Panel: ImageConfigsPanel,
   listQuery: gql.list,
@@ -70,6 +70,13 @@ describeConfigPanel({
   newTitle: 'New image config',
   editTitle: 'Edit image config',
   backLabel: 'Back to Image upload configurations',
+});
+
+describe('ImageConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('ImageConfigsPanel test upload', () => {

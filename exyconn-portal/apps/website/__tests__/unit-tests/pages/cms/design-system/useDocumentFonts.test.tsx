@@ -38,7 +38,7 @@ describe('useDocumentFonts', () => {
     const before = document.head.children.length;
     const { unmount } = renderHook(() => useDocumentFonts(''));
 
-    expect(document.head.children.length).toBe(before);
+    expect(document.head.children).toHaveLength(before);
     unmount();
   });
 });

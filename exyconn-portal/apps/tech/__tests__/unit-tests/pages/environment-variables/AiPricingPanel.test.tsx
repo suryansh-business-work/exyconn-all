@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AiPricingPanel } from '../../../../src/pages/environment-variables/AiPricingPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 import { forms, resetHarness } from './panel.harness';
 
 const gql = vi.hoisted(() => ({
@@ -53,7 +53,7 @@ const ROWS = [
 
 gql.limit.mockReturnValue({ data: undefined, refetch: gql.refetchLimit });
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'AiPricingPanel',
   Panel: AiPricingPanel,
   listQuery: gql.list,
@@ -74,6 +74,13 @@ describeConfigPanel({
   newTitle: 'New model price',
   editTitle: 'Edit model price',
   backLabel: 'Back to AI pricing',
+});
+
+describe('AiPricingPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('AiPricingPanel budget', () => {

@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FirecrawlConfigsPanel } from '../../../../src/pages/environment-variables/FirecrawlConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 import { notify, resetHarness } from './panel.harness';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
@@ -57,7 +57,7 @@ const rows = [
   },
 ];
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'FirecrawlConfigsPanel',
   Panel: FirecrawlConfigsPanel,
   listQuery: gql.list,
@@ -86,8 +86,15 @@ describeConfigPanel({
   },
 });
 
+describe('FirecrawlConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
+});
+
 describe('FirecrawlConfigsPanel test action', () => {
-  const refetch = vi.fn(async () => undefined);
+  const refetch = vi.fn(() => Promise.resolve(undefined));
   const renderPanel = () => {
     resetHarness();
     gql.test.mockReset();

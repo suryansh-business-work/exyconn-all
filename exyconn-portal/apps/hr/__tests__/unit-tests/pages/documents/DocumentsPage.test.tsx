@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DocumentKind, ListEmployeeDocumentsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { DocumentsPage } from '../../../../src/pages/documents';
 import { EMPLOYEE_DOCUMENT_COLUMNS } from '../../../../src/pages/documents/employee-document-grid';
 import { renderWithProviders } from '../../test-utils';
 import { dashboardProps } from '../../harness/crud-dashboard';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -40,7 +40,7 @@ const row = {
   issuedOn: '2026-01-05T00:00:00.000Z',
 };
 
-describeCrudPage('DocumentsPage', {
+const suite = crudPageSuite({
   page: <DocumentsPage />,
   mocks: gql,
   statsKey: 'listEmployeeDocumentsStats',
@@ -59,6 +59,13 @@ describeCrudPage('DocumentsPage', {
   row,
   confirm: 'Delete this document?',
   entity: 'EmployeeDocument',
+});
+
+describe('DocumentsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('DocumentsPage employee names', () => {

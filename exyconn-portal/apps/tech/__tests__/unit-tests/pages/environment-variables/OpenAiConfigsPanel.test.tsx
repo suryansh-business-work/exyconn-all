@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { OpenAiConfigsPanel } from '../../../../src/pages/environment-variables/OpenAiConfigsPanel';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -21,7 +21,7 @@ vi.mock('../../../../src/pages/environment-variables/forms/openai-config', async
   (await import('./panel.harness')).formModule('OpenAiConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'OpenAiConfigsPanel',
   Panel: OpenAiConfigsPanel,
   listQuery: gql.list,
@@ -67,4 +67,11 @@ describeConfigPanel({
       { label: 'Production', model: 'gpt-4o-mini' },
     ],
   },
+});
+
+describe('OpenAiConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

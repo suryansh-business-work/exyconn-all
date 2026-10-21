@@ -9,7 +9,7 @@ export type DisplayColDef<Row> = ColDef<Row> & { headerName: string };
  * column is neither.
  */
 export function isDisplayColumn<Row>(column: ColDef<Row>): column is DisplayColDef<Row> {
-  const hasValue = Boolean(column.field || column.valueGetter || column.valueFormatter);
+  const hasValue = [column.field, column.valueGetter, column.valueFormatter].some(Boolean);
   return Boolean(column.headerName) && hasValue && column.colId !== 'actions';
 }
 

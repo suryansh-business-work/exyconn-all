@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { GmailConnection } from '../../../../src/pages/environment-variables/GmailConnection';
-import { describeMailConnection } from './mail-connection.suite';
+import { mailConnectionSuite } from './mail-connection.suite';
 
 const gql = vi.hoisted(() => ({ test: vi.fn() }));
 const logger = vi.hoisted(() => ({ error: vi.fn(), warn: vi.fn() }));
@@ -28,7 +28,7 @@ const config = (accountCount: number) => ({
   updatedAt: null,
 });
 
-describeMailConnection({
+const suite = mailConnectionSuite({
   name: 'GmailConnection',
   render: (accountCount) => <GmailConnection config={config(accountCount)} />,
   mutation: gql.test,
@@ -42,4 +42,11 @@ describeMailConnection({
   fallbackFailure: 'The Gmail test failed',
   failureLog: 'tech: the Gmail test failed',
   crashLog: 'tech: Gmail test failed',
+});
+
+describe('GmailConnection', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListEmploymentTypesPagedDocument } from '@exyconn/shell/graphql/generated';
 import { EmploymentTypesPage } from '../../../../src/pages/employment-types';
 import { EMPLOYMENT_TYPE_COLUMNS } from '../../../../src/pages/employment-types/employment-type-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -26,7 +26,7 @@ vi.mock('../../../../src/pages/employment-types/forms/employment-type', async ()
   EmploymentTypeForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('EmploymentTypesPage', {
+const suite = crudPageSuite({
   page: <EmploymentTypesPage />,
   mocks: gql,
   statsKey: 'listEmploymentTypesStats',
@@ -46,4 +46,11 @@ describeCrudPage('EmploymentTypesPage', {
   row: { id: 'type-1', name: 'Full time', code: 'FT', payrollEligible: true, active: true },
   confirm: 'Delete this employment type?',
   entity: 'EmploymentType',
+});
+
+describe('EmploymentTypesPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

@@ -1,3 +1,4 @@
+import type { TypedDocumentNode } from '@apollo/client';
 import { useCallback, useMemo } from 'react';
 import type { ColDef } from 'ag-grid-community';
 import { useApolloClient } from '@apollo/client/react';
@@ -20,6 +21,13 @@ import { queryData } from '@exyconn/shell/utils/queryData';
 import type { ImportRow, ImportSource } from '../import';
 import { exportColumnsOf } from './exportColumns';
 import { importFieldOptions, importModes } from './gridImportSource';
+
+const tableExportQuery: TypedDocumentNode<TableExportQuery, TableExportQueryVariables> =
+  TableExportDocument;
+const tableImportTemplateQuery: TypedDocumentNode<
+  TableImportTemplateQuery,
+  TableImportTemplateQueryVariables
+> = TableImportTemplateDocument;
 
 export interface GridTransferOptions<Row> {
   /** The paged list query (`listClientsPaged`). */
@@ -59,8 +67,8 @@ export function useGridTransfer<Row>({
 
   const exportFile = useCallback(
     async (format: TableFileFormat): Promise<number> => {
-      const result = await client.query<TableExportQuery, TableExportQueryVariables>({
-        query: TableExportDocument,
+      const result = await client.query({
+        query: tableExportQuery,
         variables: {
           list,
           input: { ...getQuery(), page: 0, pageSize: 1 },
@@ -79,11 +87,8 @@ export function useGridTransfer<Row>({
 
   const downloadTemplate = useCallback(
     async (format: TableFileFormat): Promise<void> => {
-      const result = await client.query<
-        TableImportTemplateQuery,
-        TableImportTemplateQueryVariables
-      >({
-        query: TableImportTemplateDocument,
+      const result = await client.query({
+        query: tableImportTemplateQuery,
         variables: { list, format, fileName: `${fileName}-sample`, columns },
         fetchPolicy: 'no-cache',
       });

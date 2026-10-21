@@ -33,7 +33,7 @@ async function retype(label: string, value: string) {
   await userEvent.paste(value);
 }
 
-const save = () => userEvent.click(screen.getByRole('button', { name: 'Save deductions' }));
+const clickSave = () => userEvent.click(screen.getByRole('button', { name: 'Save deductions' }));
 
 describe('PayrollSettingsForm', () => {
   beforeEach(() => {
@@ -43,7 +43,7 @@ describe('PayrollSettingsForm', () => {
   it('saves the stored policy back exactly, bands and all', async () => {
     const { onDone } = renderForm();
 
-    await save();
+    await clickSave();
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     const { tdsSlabs, ...rest } = payrollSettings();
@@ -59,7 +59,7 @@ describe('PayrollSettingsForm', () => {
     await userEvent.click(
       screen.getByRole('switch', { name: 'Withhold employee state insurance (ESI)' }),
     );
-    await save();
+    await clickSave();
 
     await waitFor(() => expect(gql.save).toHaveBeenCalledTimes(1));
     expect(gql.save.mock.calls[0][0].variables.input).toMatchObject({
@@ -77,7 +77,7 @@ describe('PayrollSettingsForm', () => {
     } as unknown as PayrollSettingsRow;
     renderForm(older);
 
-    await save();
+    await clickSave();
 
     await waitFor(() => expect(gql.save).toHaveBeenCalledTimes(1));
     expect(gql.save.mock.calls[0][0].variables.input).toMatchObject({
@@ -90,7 +90,7 @@ describe('PayrollSettingsForm', () => {
   it('starts with no bands when the policy has none on file', async () => {
     renderForm({ ...payrollSettings(), tdsSlabs: undefined } as unknown as PayrollSettingsRow);
 
-    await save();
+    await clickSave();
 
     await waitFor(() => expect(gql.save).toHaveBeenCalledTimes(1));
     expect(gql.save.mock.calls[0][0].variables.input.tdsSlabs).toEqual([]);
@@ -100,7 +100,7 @@ describe('PayrollSettingsForm', () => {
     renderForm();
 
     await retype('Payroll can be run from day', '29');
-    await save();
+    await clickSave();
 
     expect(
       await screen.findByText('Choose a day from 1 to 28, so it exists in every month'),
@@ -115,7 +115,7 @@ describe('PayrollSettingsForm', () => {
     await retype('PF rate (% of basic)', '101');
     await retype('ESI wage limit', '-1');
     await retype('Professional tax per month', '-5');
-    await save();
+    await clickSave();
 
     expect(await screen.findByText('Use a whole day of the month')).toBeInTheDocument();
     expect(screen.getByText('The PF rate cannot exceed 100%')).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe('PayrollSettingsForm', () => {
   it('asks which regime to apply when none is chosen', async () => {
     renderForm(payrollSettings({ tdsRegimeKey: '' }));
 
-    await save();
+    await clickSave();
 
     expect(await screen.findByText('Choose the regime to apply')).toBeInTheDocument();
     expect(gql.save).not.toHaveBeenCalled();
@@ -137,7 +137,7 @@ describe('PayrollSettingsForm', () => {
     gql.save.mockRejectedValue(new Error('Payroll is locked for the month'));
     const { onDone } = renderForm();
 
-    await save();
+    await clickSave();
 
     expect(await screen.findByText('Payroll is locked for the month')).toBeInTheDocument();
     expect(onDone).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe('PayrollSettingsForm', () => {
     gql.save.mockRejectedValue('offline');
     renderForm();
 
-    await save();
+    await clickSave();
 
     expect(await screen.findByText('Could not save the policy')).toBeInTheDocument();
   });

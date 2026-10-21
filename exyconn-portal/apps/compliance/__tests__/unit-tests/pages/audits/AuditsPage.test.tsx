@@ -1,10 +1,10 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListInternalAuditsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { AuditsPage } from '../../../../src/pages/audits';
 import { AuditForm } from '../../../../src/pages/audits/forms/audit';
 import { AUDIT_COLUMNS } from '../../../../src/pages/audits/audits-grid';
 import { auditRow } from '../compliance.fixtures';
-import { describeCrudPage } from '../crud-page.suite';
+import { crudPageSuite } from '../crud-page.suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn() }));
 
@@ -18,7 +18,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useDeleteInternalAuditMutation: () => [gql.remove],
 }));
 
-describeCrudPage({
+const suite = crudPageSuite({
   name: 'AuditsPage',
   Page: AuditsPage,
   Form: AuditForm,
@@ -43,4 +43,11 @@ describeCrudPage({
   deleteMutation: gql.remove,
   pagedDocument: ListInternalAuditsPagedDocument,
   pagedKey: 'listInternalAuditsPaged',
+});
+
+describe('AuditsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

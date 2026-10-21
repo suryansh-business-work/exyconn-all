@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { env } from '@exyconn/shell/config/env';
 import { RazorpayConfigsPanel } from '../../../../src/pages/environment-variables/RazorpayConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -24,7 +24,7 @@ vi.mock('../../../../src/pages/environment-variables/forms/razorpay-config', asy
   (await import('./panel.harness')).formModule('RazorpayConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'RazorpayConfigsPanel',
   Panel: RazorpayConfigsPanel,
   listQuery: gql.list,
@@ -70,6 +70,13 @@ describeConfigPanel({
     mutation: gql.test,
     success: ['Razorpay accepted the keys on "{label}"', 'success', { label: 'India' }],
   },
+});
+
+describe('RazorpayConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('RazorpayConfigsPanel webhook', () => {

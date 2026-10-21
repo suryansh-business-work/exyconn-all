@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FilterOp, ListApplicantsPagedDocument } from '@exyconn/shell/graphql/generated';
@@ -7,7 +7,7 @@ import { APPLICANT_COLUMNS } from '../../../../src/pages/applicants/applicants-g
 import { renderWithProviders } from '../../test-utils';
 import { paged } from '../../harness/crud-dashboard';
 import { runRowAction, tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 import { applicantRow } from './applicant-fixture';
 
 vi.setConfig({ testTimeout: 20_000 });
@@ -42,7 +42,7 @@ const stats = tableStats(20, {
   stage: { NEW: 6, SCREENING: 5, INTERVIEW: 4, OFFER: 2, HIRED: 1, REJECTED: 2 },
 });
 
-describeCrudPage('ApplicantsPage', {
+const suite = crudPageSuite({
   page: <ApplicantsPage />,
   mocks: gql,
   statsKey: 'listApplicantsStats',
@@ -61,6 +61,13 @@ describeCrudPage('ApplicantsPage', {
   row,
   confirm: 'Delete applicant "Asha Rao"?',
   entity: 'Applicant',
+});
+
+describe('ApplicantsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('ApplicantsPage pipeline tools', () => {

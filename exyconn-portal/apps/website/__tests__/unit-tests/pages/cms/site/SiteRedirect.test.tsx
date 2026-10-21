@@ -45,18 +45,12 @@ describe('SiteRedirect', () => {
     expect(await url()).toHaveTextContent('/website/s/main/blog?tab=drafts');
   });
 
-  it('sends the bare website address to the site overview', async () => {
-    renderAt('/website');
-    expect(await url()).toHaveTextContent(/^\/website\/s\/main$/);
-  });
-
-  it('sends an unknown page of a site to the overview instead of prefixing it again', async () => {
-    renderAt('/website/s/other/unknown');
-    expect(await url()).toHaveTextContent(/^\/website\/s\/main$/);
-  });
-
-  it('sends the bare site segment to the overview', async () => {
-    renderAt('/website/s');
+  it.each([
+    ['the bare website address', '/website'],
+    ['an unknown page of a site, instead of prefixing it again', '/website/s/other/unknown'],
+    ['the bare site segment', '/website/s'],
+  ])('sends %s to the site overview', async (_case, route) => {
+    renderAt(route);
     expect(await url()).toHaveTextContent(/^\/website\/s\/main$/);
   });
 

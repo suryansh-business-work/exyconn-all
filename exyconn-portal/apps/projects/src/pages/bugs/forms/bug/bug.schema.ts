@@ -2,9 +2,7 @@ import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
 import { BugSeverity, BugStatus } from '@exyconn/shell/graphql/generated';
 import type { BugFormValues, BugRow } from './bug.types';
-
-/** Visible text of a rich-text value, so an editor holding only empty tags counts as empty. */
-const textOf = (html: string) => html.replaceAll(/<[^>]*>/g, '').trim();
+import { visibleText } from '@exyconn/shell/utils/visibleText';
 
 const optionalLink = z
   .string()
@@ -22,8 +20,8 @@ export const bugSchema = z.object({
     .max(200, 'Keep the title under 200 characters'),
   description: z
     .string()
-    .refine((html) => textOf(html).length > 0, { message: 'Description is required' })
-    .refine((html) => textOf(html).length >= 10, {
+    .refine((html) => visibleText(html).length > 0, { message: 'Description is required' })
+    .refine((html) => visibleText(html).length >= 10, {
       message: 'Add a little more detail (at least 10 characters)',
     }),
   stepsToReproduce: z.string(),
@@ -59,7 +57,7 @@ export const toInitial = (row: BugRow | null): BugFormValues => ({
 /** What the server stores: an empty assignee, steps or date goes up as "none". */
 export const toInput = (values: BugValues) => ({
   ...values,
-  stepsToReproduce: textOf(values.stepsToReproduce) ? values.stepsToReproduce : '',
+  stepsToReproduce: visibleText(values.stepsToReproduce) ? values.stepsToReproduce : '',
   assigneeId: values.assigneeId || null,
   dueDate: values.dueDate || null,
 });

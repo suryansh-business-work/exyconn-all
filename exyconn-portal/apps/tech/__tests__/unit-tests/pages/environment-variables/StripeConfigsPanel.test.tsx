@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { StripeConfigsPanel } from '../../../../src/pages/environment-variables/StripeConfigsPanel';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -21,7 +21,7 @@ vi.mock('../../../../src/pages/environment-variables/forms/stripe-config', async
   (await import('./panel.harness')).formModule('StripeConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'StripeConfigsPanel',
   Panel: StripeConfigsPanel,
   listQuery: gql.list,
@@ -65,4 +65,11 @@ describeConfigPanel({
     mutation: gql.test,
     success: ['Stripe accepted the key on "{label}"', 'success', { label: 'Cards' }],
   },
+});
+
+describe('StripeConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

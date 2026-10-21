@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListTeamsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { TeamsPage } from '../../../../src/pages/teams';
 import { TEAM_COLUMNS } from '../../../../src/pages/teams/team-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -26,7 +26,7 @@ vi.mock('../../../../src/pages/teams/forms/team', async () => ({
   TeamForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('TeamsPage', {
+const suite = crudPageSuite({
   page: <TeamsPage />,
   mocks: gql,
   statsKey: 'listTeamsStats',
@@ -53,4 +53,11 @@ describeCrudPage('TeamsPage', {
   },
   confirm: 'Delete this team?',
   entity: 'Team',
+});
+
+describe('TeamsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

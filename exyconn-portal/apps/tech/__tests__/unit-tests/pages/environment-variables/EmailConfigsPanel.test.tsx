@@ -3,7 +3,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EmailConfigsPanel } from '../../../../src/pages/environment-variables/EmailConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 import { forms, resetHarness } from './panel.harness';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn() }));
@@ -52,7 +52,7 @@ const ROWS = [
   },
 ];
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'EmailConfigsPanel',
   Panel: EmailConfigsPanel,
   listQuery: gql.list,
@@ -72,6 +72,13 @@ describeConfigPanel({
   newTitle: 'New email config',
   editTitle: 'Edit email config',
   backLabel: 'Back to Email configurations',
+});
+
+describe('EmailConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('EmailConfigsPanel test email', () => {

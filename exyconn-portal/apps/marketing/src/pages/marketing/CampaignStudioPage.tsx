@@ -5,8 +5,10 @@ import { useGetCampaignQuery } from '@exyconn/shell/graphql/generated';
 import { CampaignForm } from './forms/campaign';
 
 /** Where the studio lives: `/marketing/campaigns/new` or `/marketing/campaigns/:id`. */
-export const studioPath = (id: string | null, step?: string) =>
-  `/marketing/campaigns/${id ?? 'new'}${step ? `?step=${step}` : ''}`;
+export const studioPath = (id: string | null, step?: string) => {
+  const query = step ? `?step=${step}` : '';
+  return `/marketing/campaigns/${id ?? 'new'}${query}`;
+};
 
 /** The Email Campaign Studio page: a new campaign, or one loaded by its id. */
 export function CampaignStudioPage() {

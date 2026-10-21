@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { fileToDataUrl } from '@exyconn/shell/utils/file';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { inSequence } from '@exyconn/shell/utils/inSequence';
 import { CHAT_REPLY_LIMITS, type ChatReplyFile } from './chat-reply.types';
 
 const MB = 1024 * 1024;
@@ -33,21 +34,22 @@ export function useChatAttachments(maxUploadMb: number) {
       });
       return;
     }
-    for (const file of picked) {
+    // One file at a time, so the attachments keep the order they were picked in.
+    await inSequence(picked, async (file) => {
       if (!isPictureOrClip(file)) {
         notify('Attach a picture or a video', 'warning');
-        continue;
+        return;
       }
       if (file.size > maxUploadMb * MB) {
         notify('{name} is larger than {size} MB', 'warning', {
           name: file.name,
           size: maxUploadMb,
         });
-        continue;
+        return;
       }
       const data = await fileToDataUrl(file);
       add({ id: globalThis.crypto.randomUUID(), name: file.name, data, size: file.size });
-    }
+    });
   };
 
   return {

@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BenefitKind, ListBenefitsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { BenefitsPage } from '../../../../src/pages/benefits';
 import { BENEFIT_COLUMNS } from '../../../../src/pages/benefits/benefit-grid';
 import { renderWithProviders } from '../../test-utils';
 import { dashboardProps } from '../../harness/crud-dashboard';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -41,7 +41,7 @@ const row = {
   coverage: 'Family',
 };
 
-describeCrudPage('BenefitsPage', {
+const suite = crudPageSuite({
   page: <BenefitsPage />,
   mocks: gql,
   statsKey: 'listBenefitsStats',
@@ -60,6 +60,13 @@ describeCrudPage('BenefitsPage', {
   row,
   confirm: 'Delete this benefit?',
   entity: 'Benefit',
+});
+
+describe('BenefitsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('BenefitsPage employee names', () => {

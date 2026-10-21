@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { env } from '@exyconn/shell/config/env';
 import { PayoneerConfigsPanel } from '../../../../src/pages/environment-variables/PayoneerConfigsPanel';
 import { renderWithProviders } from '../../test-utils';
-import { describeConfigPanel } from './config-panel.suite';
+import { configPanelSuite } from './config-panel.suite';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
 
@@ -47,7 +47,7 @@ const ROWS = [
   },
 ];
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'PayoneerConfigsPanel',
   Panel: PayoneerConfigsPanel,
   listQuery: gql.list,
@@ -72,6 +72,13 @@ describeConfigPanel({
     mutation: gql.test,
     success: ['Payoneer accepted the credentials on "{label}"', 'success', { label: 'Global' }],
   },
+});
+
+describe('PayoneerConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('PayoneerConfigsPanel notification URL', () => {

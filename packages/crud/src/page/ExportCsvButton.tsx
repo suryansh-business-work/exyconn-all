@@ -1,3 +1,4 @@
+import type { TypedDocumentNode } from '@apollo/client';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import type { ColDef } from 'ag-grid-community';
@@ -19,6 +20,9 @@ import { csvColumnsFromDefs, fetchAllRows } from './export';
 import { useT } from '@exyconn/i18n';
 import { assertExportAllowed } from './permissions';
 import { queryData } from '@exyconn/shell/utils/queryData';
+
+const canExportQuery: TypedDocumentNode<CanExportQuery, CanExportQueryVariables> =
+  CanExportDocument;
 
 interface ExportCsvButtonProps<Row> {
   /** The file's name; the date is appended and `.csv` added. */
@@ -118,8 +122,8 @@ export function GridExportButton<Row>({
   );
   const canExport = useCallback(
     async (module: string) => {
-      const result = await client.query<CanExportQuery, CanExportQueryVariables>({
-        query: CanExportDocument,
+      const result = await client.query({
+        query: canExportQuery,
         variables: { module },
         fetchPolicy: 'network-only',
       });

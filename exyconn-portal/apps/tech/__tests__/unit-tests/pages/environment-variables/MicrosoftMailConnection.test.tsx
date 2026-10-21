@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { MicrosoftMailConnection } from '../../../../src/pages/environment-variables/MicrosoftMailConnection';
-import { describeMailConnection } from './mail-connection.suite';
+import { mailConnectionSuite } from './mail-connection.suite';
 
 const gql = vi.hoisted(() => ({ test: vi.fn() }));
 const logger = vi.hoisted(() => ({ error: vi.fn(), warn: vi.fn() }));
@@ -17,7 +17,7 @@ vi.mock('@exyconn/shell/components/feedback/NotificationProvider', async (import
   (await import('./panel.harness')).notifyModule(importOriginal),
 );
 
-describeMailConnection({
+const suite = mailConnectionSuite({
   name: 'MicrosoftMailConnection',
   render: (accountCount) => <MicrosoftMailConnection accountCount={accountCount} />,
   mutation: gql.test,
@@ -31,4 +31,11 @@ describeMailConnection({
   fallbackFailure: 'The Microsoft Mail test failed',
   failureLog: 'tech: the Microsoft Mail test failed',
   crashLog: 'tech: Microsoft Mail test failed',
+});
+
+describe('MicrosoftMailConnection', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

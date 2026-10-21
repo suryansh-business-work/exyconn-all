@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GoalStatus, ListGoalsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { GoalsPage } from '../../../../src/pages/goals';
 import { GOAL_COLUMNS } from '../../../../src/pages/goals/goal-grid';
 import { renderWithProviders } from '../../test-utils';
 import { dashboardProps } from '../../harness/crud-dashboard';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -41,7 +41,7 @@ const row = {
   status: GoalStatus.Active,
 };
 
-describeCrudPage('GoalsPage', {
+const suite = crudPageSuite({
   page: <GoalsPage />,
   mocks: gql,
   statsKey: 'listGoalsStats',
@@ -60,6 +60,13 @@ describeCrudPage('GoalsPage', {
   row,
   confirm: 'Delete this goal?',
   entity: 'Goal',
+});
+
+describe('GoalsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });
 
 describe('GoalsPage employee names', () => {

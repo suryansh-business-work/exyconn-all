@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { ProjectDocsPage } from '../../../../../src/pages/projects/docs';
@@ -17,10 +17,15 @@ interface EditorProps {
 }
 
 const state = vi.hoisted(() => ({
+  logError: vi.fn(),
   docs: null as unknown,
   projectId: '',
   editor: null as unknown,
   onDragEnd: null as unknown,
+}));
+
+vi.mock('@exyconn/shell/logging/portalLogger', () => ({
+  portalLogger: { error: (...args: unknown[]) => state.logError(...args) },
 }));
 
 vi.mock('../../../../../src/pages/projects/docs/useProjectDocs', () => ({
@@ -72,7 +77,7 @@ function docsApi(overrides: Record<string, unknown> = {}) {
     addPage: vi.fn(),
     savePage: vi.fn(),
     removePage: vi.fn(),
-    reorderPage: vi.fn(),
+    reorderPage: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -157,5 +162,20 @@ describe('ProjectDocsPage', () => {
 
     expect(docs().reorderPage).toHaveBeenCalledTimes(1);
     expect(docs().reorderPage).toHaveBeenCalledWith('releasing', 'runbooks');
+  });
+
+  it('logs a move that fails outside the docs hook', async () => {
+    const failure = new Error('Lost the connection');
+    state.docs = docsApi({ reorderPage: vi.fn().mockRejectedValue(failure) });
+    renderPage();
+
+    drop('releasing', 'runbooks');
+
+    await waitFor(() =>
+      expect(state.logError).toHaveBeenCalledWith(
+        'projects: reordering a doc page failed',
+        failure,
+      ),
+    );
   });
 });

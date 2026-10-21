@@ -75,7 +75,9 @@ describe('DelegateApprovalsForm', () => {
   it('offers colleagues by name and address, so two people with one name are told apart', () => {
     mount();
     cy.get('input[name="toEmployeeId"]').click();
-    cy.get('ul[role="listbox"]').contains('li', `${COLLEAGUE.name} (${COLLEAGUE.email})`);
+    cy.get('ul[role="listbox"]')
+      .contains('li', `${COLLEAGUE.name} (${COLLEAGUE.email})`)
+      .should('be.visible');
   });
 
   it('refuses a window that ends before it begins', () => {

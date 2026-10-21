@@ -86,9 +86,9 @@ export function useDataTableBulk<T extends { id: string }>(
       sentRef.current = ids;
       await job.start({ entity, action: TableBulkAction.Delete, ids: [...ids] });
       clear();
-    } catch (failure) {
-      portalLogger.error('Could not start the bulk delete', failure, { entity });
-      notify(errorMessage(failure, 'The bulk action failed'), 'error');
+    } catch (error_) {
+      portalLogger.error('Could not start the bulk delete', error_, { entity });
+      notify(errorMessage(error_, 'The bulk action failed'), 'error');
     }
   };
 

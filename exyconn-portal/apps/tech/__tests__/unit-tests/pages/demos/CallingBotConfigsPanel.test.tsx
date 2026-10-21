@@ -1,7 +1,7 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { CallingBotPhoneProvider } from '@exyconn/shell/graphql/generated';
 import { CallingBotConfigsPanel } from '../../../../src/pages/demos/CallingBotConfigsPanel';
-import { describeConfigPanel } from '../environment-variables/config-panel.suite';
+import { configPanelSuite } from '../environment-variables/config-panel.suite';
 import { configRow } from './calling-bot.fixtures';
 
 const gql = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), test: vi.fn() }));
@@ -25,7 +25,7 @@ vi.mock('../../../../src/pages/demos/forms/calling-bot-config', async () =>
   (await import('../environment-variables/panel.harness')).formModule('CallingBotConfigForm'),
 );
 
-describeConfigPanel({
+const suite = configPanelSuite({
   name: 'CallingBotConfigsPanel',
   Panel: CallingBotConfigsPanel,
   listQuery: gql.list,
@@ -66,4 +66,11 @@ describeConfigPanel({
     mutation: gql.test,
     success: ['OpenAI and Sarvam AI accepted "{label}"', 'success', { label: 'Clinic bot' }],
   },
+});
+
+describe('CallingBotConfigsPanel', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

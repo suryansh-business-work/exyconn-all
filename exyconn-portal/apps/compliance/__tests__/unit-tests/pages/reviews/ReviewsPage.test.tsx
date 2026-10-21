@@ -1,10 +1,10 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListManagementReviewsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { ReviewsPage } from '../../../../src/pages/reviews';
 import { ReviewForm } from '../../../../src/pages/reviews/forms/review';
 import { REVIEW_COLUMNS } from '../../../../src/pages/reviews/reviews-grid';
 import { reviewRow } from '../compliance.fixtures';
-import { describeCrudPage } from '../crud-page.suite';
+import { crudPageSuite } from '../crud-page.suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn() }));
 
@@ -18,7 +18,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useDeleteManagementReviewMutation: () => [gql.remove],
 }));
 
-describeCrudPage({
+const suite = crudPageSuite({
   name: 'ReviewsPage',
   Page: ReviewsPage,
   Form: ReviewForm,
@@ -43,4 +43,11 @@ describeCrudPage({
   deleteMutation: gql.remove,
   pagedDocument: ListManagementReviewsPagedDocument,
   pagedKey: 'listManagementReviewsPaged',
+});
+
+describe('ReviewsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

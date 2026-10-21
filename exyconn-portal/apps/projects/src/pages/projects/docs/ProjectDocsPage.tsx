@@ -15,6 +15,7 @@ import { useProjectDocs } from './useProjectDocs';
 import { DocTree } from './DocTree';
 import { DocPageEditor } from './DocPageEditor';
 import { PanelSkeleton, SkeletonStatus } from '@exyconn/shell/components/feedback/skeletons';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 
 interface ProjectDocsPageProps {
   projectId: string;
@@ -38,7 +39,11 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over) {
-      docs.reorderPage(String(active.id), String(over.id));
+      docs
+        .reorderPage(String(active.id), String(over.id))
+        .catch((error: unknown) =>
+          portalLogger.error('projects: reordering a doc page failed', error),
+        );
     }
   };
 

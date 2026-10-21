@@ -40,9 +40,9 @@ describe('leaveBalanceSchema', () => {
   });
 
   it('lets an adjustment go negative down to a year of days', () => {
-    expect(messageFor({ ...valid, allocated: 366, adjustment: -366, used: 0 }, 'adjustment')).toBe(
-      undefined,
-    );
+    expect(
+      messageFor({ ...valid, allocated: 366, adjustment: -366, used: 0 }, 'adjustment'),
+    ).toBeUndefined();
     expect(messageFor({ ...valid, adjustment: -367 }, 'adjustment')).toBe('Adjustment is too low');
   });
 
@@ -50,7 +50,7 @@ describe('leaveBalanceSchema', () => {
     expect(messageFor({ ...valid, used: 15 }, 'adjustment')).toBe(
       'This would leave fewer than 0 days available',
     );
-    expect(messageFor({ ...valid, used: 14 }, 'adjustment')).toBe(undefined);
+    expect(messageFor({ ...valid, used: 14 }, 'adjustment')).toBeUndefined();
   });
 });
 

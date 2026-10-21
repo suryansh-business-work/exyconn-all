@@ -41,7 +41,8 @@ describe('AudienceListForm', () => {
 
   it('warns that using every address can reach one person several times', () => {
     mount();
-    cy.get('input[name="emailSelection"][value="ALL"]').check({ force: true });
+    cy.contains('label', 'All eligible email addresses').click();
+    cy.get('input[name="emailSelection"][value="ALL"]').should('be.checked');
     cy.contains('in several of their inboxes').should('be.visible');
   });
 
@@ -55,7 +56,8 @@ describe('AudienceListForm', () => {
 
   it('explains that a fixed snapshot is frozen when saved', () => {
     mount();
-    cy.get('input[name="updateMode"][value="FIXED_SNAPSHOT"]').check({ force: true });
+    cy.contains('label', 'Fixed snapshot').click();
+    cy.get('input[name="updateMode"][value="FIXED_SNAPSHOT"]').should('be.checked');
     cy.contains('Saving freezes the audience exactly as the counts below show it.').should(
       'be.visible',
     );

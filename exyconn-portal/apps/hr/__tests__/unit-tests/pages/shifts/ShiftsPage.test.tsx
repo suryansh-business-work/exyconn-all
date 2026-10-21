@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { ListShiftsPagedDocument } from '@exyconn/shell/graphql/generated';
 import { ShiftsPage } from '../../../../src/pages/shifts';
 import { SHIFT_COLUMNS } from '../../../../src/pages/shifts/shift-grid';
 import { tableStats } from '../../harness/crud-page';
-import { describeCrudPage } from '../../harness/crud-page-suite';
+import { crudPageSuite } from '../../harness/crud-page-suite';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), remove: vi.fn(), refetch: vi.fn() }));
 
@@ -26,7 +26,7 @@ vi.mock('../../../../src/pages/shifts/forms/shift', async () => ({
   ShiftForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-describeCrudPage('ShiftsPage', {
+const suite = crudPageSuite({
   page: <ShiftsPage />,
   mocks: gql,
   statsKey: 'listShiftsStats',
@@ -55,4 +55,11 @@ describeCrudPage('ShiftsPage', {
   },
   confirm: 'Delete this shift?',
   entity: 'Shift',
+});
+
+describe('ShiftsPage', () => {
+  beforeEach(suite.setup);
+  for (const [title, run] of suite.cases) {
+    it(title, run);
+  }
 });

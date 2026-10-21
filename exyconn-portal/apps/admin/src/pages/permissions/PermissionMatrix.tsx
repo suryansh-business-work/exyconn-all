@@ -17,6 +17,7 @@ import { usePermissionDraft } from './usePermissionDraft';
 import { PermissionTable } from './PermissionTable';
 import { PermissionSaveBar } from './PermissionSaveBar';
 import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
+import { inSequence } from '@exyconn/shell/utils/inSequence';
 
 /** What one role may do in every module: a matrix edited in place and saved in one go. */
 export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
@@ -48,10 +49,10 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
     setBusy(true);
     const done: string[] = [];
     try {
-      for (const module of draft.dirty) {
+      await inSequence([...draft.dirty], async (module) => {
         await store(module, draft.current(module));
         done.push(module);
-      }
+      });
       notify('Saved {count} module(s) for {role}', 'success', { count: done.length, role });
     } catch (error) {
       notify(errorMessage(error, 'Could not save'), 'error');

@@ -31,9 +31,9 @@ export function ExportMenuButton({ onExport }: Readonly<ExportMenuButtonProps>) 
     setBusy(true);
     onExport(format)
       .then((count) => notify('Exported {count} rows.', 'success', { count }))
-      .catch((failure: unknown) => {
-        portalLogger.error('A grid export failed', failure, { format });
-        notify(errorMessage(failure, t('The export failed.')), 'error');
+      .catch((error_: unknown) => {
+        portalLogger.error('A grid export failed', error_, { format });
+        notify(errorMessage(error_, t('The export failed.')), 'error');
       })
       .finally(() => setBusy(false));
   };
