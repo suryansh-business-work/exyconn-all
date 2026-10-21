@@ -49,6 +49,25 @@ function patternOrNull(value: string, offered: (pattern: string) => boolean, kin
   return pattern === '' ? null : pattern;
 }
 
+/** A zone the runtime knows, or null for '' (follow the workspace). Anything else is refused. */
+function timezoneOrNull(value: string) {
+  const timezone = value.trim();
+  if (timezone !== '' && !isValidTimezone(timezone)) {
+    badRequest(`"${timezone}" is not a timezone this system knows.`);
+  }
+  return timezone === '' ? null : timezone;
+}
+
+/** A language tag in its canonical form, or null for '' (follow the workspace). */
+function localeOrNull(value: string) {
+  const locale = value.trim();
+  const canonical = canonicalLocale(locale);
+  if (locale !== '' && !canonical) {
+    badRequest(`"${locale}" is not a language tag this system knows.`);
+  }
+  return locale === '' ? null : canonical;
+}
+
 /** Shows enough of an address to recognise it without publishing it in full. */
 function maskEmail(email: string): string {
   const [local, domain] = email.split('@');
@@ -253,19 +272,10 @@ class AuthService {
     if (input.name !== undefined) update.name = input.name;
     if (input.avatarUrl !== undefined) update.avatarUrl = input.avatarUrl;
     if (input.timezone !== undefined) {
-      const timezone = input.timezone.trim();
-      if (timezone !== '' && !isValidTimezone(timezone)) {
-        badRequest(`"${timezone}" is not a timezone this system knows.`);
-      }
-      update.timezone = timezone === '' ? null : timezone;
+      update.timezone = timezoneOrNull(input.timezone);
     }
     if (input.locale !== undefined) {
-      const locale = input.locale.trim();
-      const canonical = canonicalLocale(locale);
-      if (locale !== '' && !canonical) {
-        badRequest(`"${locale}" is not a language tag this system knows.`);
-      }
-      update.locale = locale === '' ? null : canonical;
+      update.locale = localeOrNull(input.locale);
     }
     if (input.dateFormat !== undefined) {
       update.dateFormat = patternOrNull(input.dateFormat, isDateFormat, 'date');
