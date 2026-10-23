@@ -35,11 +35,38 @@ export const crmTimelineTypeDefs = gql`
     status: String!
     "Where to open it: a path inside the portal app that owns this kind; empty when it has no page."
     url: String!
+    "Whether url is this entry's own page (View details goes there); otherwise View details opens crmTimelineDetail."
+    opensPage: Boolean!
     attachments: [FileAttachment!]!
+  }
+
+  enum CrmTimelineFieldType {
+    TEXT
+    "An ISO date-time, shown in the viewer's date and time settings."
+    DATE
+    "An amount in the company's currency."
+    MONEY
+  }
+
+  "One labelled value of a timeline entry's record."
+  type CrmTimelineField {
+    "English label; the client translates it."
+    label: String!
+    value: String!
+    type: CrmTimelineFieldType!
+  }
+
+  "Everything one timeline entry's record holds, for its View details dialog."
+  type CrmTimelineDetail {
+    fields: [CrmTimelineField!]!
+    "The full text: an email's body, an activity's or deal's notes, a form's message."
+    body: String!
   }
 
   extend type Query {
     "Everything that happened with the contact or company, newest first (at most 200)."
     crmTimeline(object: CrmTimelineObject!, id: ID!, limit: Int): [CrmTimelineItem!]!
+    "The full record behind one entry of that contact's or company's timeline (itemId is CrmTimelineItem.id)."
+    crmTimelineDetail(object: CrmTimelineObject!, id: ID!, itemId: ID!): CrmTimelineDetail!
   }
 `;

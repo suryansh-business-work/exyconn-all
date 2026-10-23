@@ -17,6 +17,7 @@ import { KIND_FILTERS } from './timeline.kinds';
 import { TimelineEntry, type TimelineRow } from './TimelineEntry';
 import { TimelineTable } from './TimelineTable';
 import { TimelineViewToggle, useTimelineView } from './TimelineViewToggle';
+import { TimelineDetailsDialog } from './TimelineDetailsDialog';
 
 /**
  * Entries hang off the left rail: no opposite column taking half the width. MUI Lab draws that
@@ -30,7 +31,13 @@ const RAIL_SX = {
 };
 
 /** The entries on the rail, newest first, with the loading and empty states. */
-function TimelineList({ rows, loading }: Readonly<{ rows: TimelineRow[]; loading: boolean }>) {
+interface TimelineListProps {
+  rows: TimelineRow[];
+  loading: boolean;
+  onViewDetails: (row: TimelineRow) => void;
+}
+
+function TimelineList({ rows, loading, onViewDetails }: Readonly<TimelineListProps>) {
   const t = useT();
   if (loading) {
     return <ListSkeleton toolbar={false} rows={4} columns={3} label="Loading the activity" />;
@@ -41,7 +48,12 @@ function TimelineList({ rows, loading }: Readonly<{ rows: TimelineRow[]; loading
   return (
     <MuiTimeline sx={RAIL_SX}>
       {rows.map((row, index) => (
-        <TimelineEntry key={row.id} entry={row} last={index === rows.length - 1} />
+        <TimelineEntry
+          key={row.id}
+          entry={row}
+          last={index === rows.length - 1}
+          onViewDetails={onViewDetails}
+        />
       ))}
     </MuiTimeline>
   );
@@ -60,6 +72,7 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
   const t = useT();
   const [filter, setFilter] = useState(KIND_FILTERS[0]);
   const [view, setView] = useTimelineView();
+  const [viewing, setViewing] = useState<TimelineRow | null>(null);
   const { data, loading, error, refetch } = useCrmTimelineQuery({
     variables: { object, id, limit },
     fetchPolicy: 'cache-and-network',
@@ -116,10 +129,21 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
         </Flex>
       )}
       {table ? (
-        <TimelineTable rows={rows} loading={loadingFirst} onRefresh={() => refetch()} />
+        <TimelineTable
+          rows={rows}
+          loading={loadingFirst}
+          onRefresh={() => refetch()}
+          onViewDetails={setViewing}
+        />
       ) : (
-        <TimelineList rows={rows} loading={loadingFirst} />
+        <TimelineList rows={rows} loading={loadingFirst} onViewDetails={setViewing} />
       )}
+      <TimelineDetailsDialog
+        object={object}
+        recordId={id}
+        row={viewing}
+        onClose={() => setViewing(null)}
+      />
     </Stack>
   );
 }

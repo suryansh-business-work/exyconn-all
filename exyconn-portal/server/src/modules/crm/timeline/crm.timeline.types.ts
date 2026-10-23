@@ -12,6 +12,8 @@ export interface TimelineItem {
    * app), empty when it has no page of its own.
    */
   url: string;
+  /** True when `url` is this entry's own page; false when it is a list or tab, or empty. */
+  opensPage: boolean;
   attachments: Array<{ url: string; name: string; contentType?: string | null }>;
 }
 
@@ -42,11 +44,13 @@ export interface TimelineTarget {
 }
 
 export const item = (
-  fields: Omit<TimelineItem, 'attachments' | 'url' | 'status' | 'actor'> & Partial<TimelineItem>,
+  fields: Omit<TimelineItem, 'attachments' | 'url' | 'opensPage' | 'status' | 'actor'> &
+    Partial<TimelineItem>,
 ): TimelineItem => ({
   actor: '',
   status: '',
   url: '',
+  opensPage: false,
   attachments: [],
   ...fields,
 });

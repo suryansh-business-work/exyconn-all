@@ -4,15 +4,22 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { KIND_STYLES } from './timeline.kinds';
 import type { TimelineRow } from './TimelineEntry';
 import { TimelineTitle } from './TimelineTitle';
+import { TimelineDetailsButton } from './TimelineDetailsButton';
 
 interface TimelineTableProps {
   rows: TimelineRow[];
   loading: boolean;
   onRefresh: () => Promise<unknown>;
+  onViewDetails: (row: TimelineRow) => void;
 }
 
 /** The same touchpoints as the timeline, one row each, for scanning many at once. */
-export function TimelineTable({ rows, loading, onRefresh }: Readonly<TimelineTableProps>) {
+export function TimelineTable({
+  rows,
+  loading,
+  onRefresh,
+  onViewDetails,
+}: Readonly<TimelineTableProps>) {
   const t = useT();
   const { formatDateTime } = useFormatters();
   const columns: Column<TimelineRow>[] = [
@@ -56,6 +63,11 @@ export function TimelineTable({ rows, loading, onRefresh }: Readonly<TimelineTab
       render: (row) => <time dateTime={row.at}>{formatDateTime(row.at)}</time>,
     },
     { key: 'actor', label: 'By' },
+    {
+      key: 'id',
+      label: 'Actions',
+      render: (row) => <TimelineDetailsButton row={row} onOpen={onViewDetails} />,
+    },
   ];
   return (
     <DataTable

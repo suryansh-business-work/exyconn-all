@@ -25,6 +25,7 @@ function row(overrides: Partial<TimelineRow>): TimelineRow {
     actor: '',
     status: '',
     url: '',
+    opensPage: false,
     attachments: [],
     ...overrides,
   };
@@ -161,7 +162,7 @@ describe('Timeline', () => {
       within(table)
         .getAllByRole('columnheader')
         .map((cell) => cell.textContent),
-    ).toEqual(['Type', 'Activity', 'Status', 'Details', 'When', 'By']);
+    ).toEqual(['Type', 'Activity', 'Status', 'Details', 'When', 'By', 'Actions']);
     expect(within(table).getByRole('link', { name: 'Re: Pricing' })).toHaveAttribute(
       'href',
       EMAIL_HREF,
