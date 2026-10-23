@@ -6,7 +6,7 @@ import { STATUS_ICONS, useStatusColors } from './tracker.status';
 
 /**
  * What each tile colour means, drawn exactly as the tiles draw it, above the calendar. Each
- * tile names its mark; the info button explains it on hover or keyboard focus.
+ * tile names its mark; the info button in its bottom corner explains it on hover or keyboard focus.
  */
 export function TrackerCalendarLegend() {
   const t = useT();
@@ -35,10 +35,12 @@ export function TrackerCalendarLegend() {
             component="li"
             key={mark}
             sx={{
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
               gap: 1,
               p: 1,
+              pb: 4,
               borderRadius: 1,
               border: 1,
               borderColor: hue,
@@ -48,14 +50,23 @@ export function TrackerCalendarLegend() {
             <Box aria-hidden sx={{ display: 'flex', fontSize: 20, color: hue }}>
               {STATUS_ICONS[mark]}
             </Box>
-            <Text size="sm" weight="semibold" sx={{ flex: 1, minWidth: 0 }}>
+            <Text
+              size="sm"
+              weight="semibold"
+              sx={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}
+            >
               {t(MARK_WORDS[mark])}
             </Text>
             <Tooltip title={t(MARK_MEANINGS[mark])} describeChild>
               <IconButton
                 size="small"
                 aria-label={t('What {mark} means', { mark: t(MARK_WORDS[mark]) })}
-                sx={{ color: hue }}
+                sx={{
+                  position: 'absolute',
+                  right: (theme) => theme.spacing(0.5),
+                  bottom: (theme) => theme.spacing(0.5),
+                  color: hue,
+                }}
               >
                 <InfoOutlinedIcon fontSize="small" />
               </IconButton>
