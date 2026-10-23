@@ -8,6 +8,7 @@ import {
   useSetUserBlockedMutation,
 } from '@/graphql/generated';
 import { UserActions } from '@/pages/UserDetails/UserActions';
+import { DockHost, closeDockPanel } from '@/components/compose-dock';
 import { renderWithProviders } from '../../test-utils';
 import { mutationTuple } from '../hookMocks';
 import { makeUserDetail } from './userFixture';
@@ -51,7 +52,11 @@ function renderActions(patch = {}, editPath?: string) {
       <Route
         path="/"
         element={
-          <UserActions user={makeUserDetail(patch)} onChanged={onChanged} editPath={editPath} />
+          <>
+            <UserActions user={makeUserDetail(patch)} onChanged={onChanged} editPath={editPath} />
+            {/* The custom email opens in the floating window, which the portal layout mounts. */}
+            <DockHost />
+          </>
         }
       />
       <Route path="/hr/employees/emp-1/edit" element={<p>edit page</p>} />
@@ -63,6 +68,8 @@ function renderActions(patch = {}, editPath?: string) {
 const click = async (name: string) => userEvent.click(await screen.findByRole('button', { name }));
 
 beforeEach(() => {
+  // The dock store outlives a render; start every test with no window open.
+  closeDockPanel('user-mail:emp-1');
   resetPassword.mockReset().mockResolvedValue({ data: { resetUserPassword: true } });
   setActive.mockReset().mockResolvedValue({ data: {} });
   setBlocked.mockReset().mockResolvedValue({ data: {} });
@@ -167,7 +174,7 @@ describe('UserActions — dialogs', () => {
   it('writes a custom email in a compose window without reloading the user', async () => {
     const onChanged = renderActions();
     await click('Send custom email');
-    expect(screen.getByRole('dialog', { name: 'Email Meera Nair' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Email · Meera Nair' })).toBeInTheDocument();
     await click('mail done');
     expect(onChanged).not.toHaveBeenCalled();
   });
@@ -184,6 +191,6 @@ describe('UserActions — dialogs', () => {
     renderActions();
     await click('Send custom email');
     await click('Close');
-    await expect.poll(() => screen.queryByRole('dialog', { name: 'Email Meera Nair' })).toBeNull();
+    await expect.poll(() => screen.queryByRole('dialog', { name: 'Email · Meera Nair' })).toBeNull();
   });
 });

@@ -101,7 +101,8 @@ describe('AuditLogPage', () => {
     const heading = await screen.findByText('Audit details');
     const drawer = within(heading.closest('.MuiDrawer-root') as HTMLElement);
     expect(drawer.getByText('Updated client Acme')).toBeInTheDocument();
-    expect(drawer.getByText('Asha Rao (asha@example.com)')).toBeInTheDocument();
+    const actorEmail = drawer.getByRole('button', { name: 'Email asha@example.com' });
+    expect(actorEmail.parentElement).toHaveTextContent('Asha Rao (asha@example.com)');
     expect(drawer.getByText('Acme · client-7')).toBeInTheDocument();
     expect(drawer.getByRole('table', { name: 'changed fields' })).toHaveTextContent('phone111222');
 
