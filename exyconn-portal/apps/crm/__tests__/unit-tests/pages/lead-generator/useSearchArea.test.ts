@@ -19,13 +19,15 @@ describe('useSearchArea', () => {
     expect(result.current).toMatchObject({ points: [], drawing: false, finished: false, area: [] });
   });
 
-  it('collects corners while drawing but offers no area until it is finished', () => {
-    const { result } = drawn(3);
+  it('offers the area as soon as it has enough corners, even before it is finished', () => {
+    const { result } = drawn(2);
+    expect(result.current.area).toEqual([]);
 
+    act(() => result.current.addPoint(corners(3)[2]));
     expect(result.current.drawing).toBe(true);
     expect(result.current.points).toEqual(corners(3));
     expect(result.current.finished).toBe(false);
-    expect(result.current.area).toEqual([]);
+    expect(result.current.area).toEqual(corners(3));
 
     act(() => result.current.finish());
     expect(result.current.finished).toBe(true);

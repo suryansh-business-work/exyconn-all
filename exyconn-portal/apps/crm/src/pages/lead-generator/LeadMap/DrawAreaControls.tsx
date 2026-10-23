@@ -22,7 +22,7 @@ function statusOf(t: Translate, area: SearchArea, mapReady: boolean): string {
   }
   if (area.drawing) {
     return t(
-      'Drawing: {count} corners. Click the map to add more, then Finish area (at least {min}).',
+      'Drawing: {count} corners. Click the map to add more, then click the first corner or Finish area (at least {min}).',
       {
         count,
         min: MIN_AREA_POINTS,

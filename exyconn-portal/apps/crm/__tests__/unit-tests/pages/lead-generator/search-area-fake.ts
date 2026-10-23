@@ -19,7 +19,7 @@ export function fakeArea(overrides: Partial<SearchArea> = {}): SearchArea {
     points,
     drawing,
     finished,
-    area: finished ? points : [],
+    area: points.length >= 3 ? points : [],
     start: vi.fn(),
     addPoint: vi.fn(),
     undo: vi.fn(),

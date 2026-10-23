@@ -149,10 +149,10 @@ describe('LeadMapBody', () => {
   it('draws the search area only for an area search', () => {
     const area = fakeArea({ drawing: true, points: corners(2) });
     const { rerender } = renderBody({ area });
-    expect(screen.queryByTestId('polyline')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('polygon')).not.toBeInTheDocument();
 
     rerender({ drawEnabled: true });
-    expect(screen.getByTestId('polyline')).toBeInTheDocument();
+    expect(screen.getByTestId('polygon')).toBeInTheDocument();
   });
 
   it('explains a rejected key, and stops counting the map as ready', () => {

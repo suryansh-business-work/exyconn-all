@@ -44,6 +44,9 @@ export function LeadWorkspace({ browserKey }: Readonly<{ browserKey: string | nu
   const onSearch = (values: LeadSearchValues) => {
     selection.clear();
     setFocusedId(null);
+    if (values.mode === 'area') {
+      area.finish();
+    }
     search.search(toSearchInput(values, centre.current));
   };
   const findEmails = () => {

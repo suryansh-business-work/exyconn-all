@@ -37,7 +37,7 @@ describe('DrawAreaControls', () => {
     const area = renderControls(fakeArea({ drawing: true, points: corners(2) }));
 
     expect(status()).toHaveTextContent(
-      'Drawing: 2 corners. Click the map to add more, then Finish area (at least 3).',
+      'Drawing: 2 corners. Click the map to add more, then click the first corner or Finish area (at least 3).',
     );
     expect(button('Finish area')).toBeDisabled();
     expect(screen.queryByRole('button', { name: 'Draw area' })).not.toBeInTheDocument();
