@@ -3,6 +3,7 @@ import type { BrowserWindow } from 'electron';
 import type { LocationProvider, TrackerLocationInput } from '@exyconn/tracker-core';
 import { IPC, type LocationResult } from '@shared/types';
 import { onTrusted } from './web-security';
+import { readWindowsLocation } from './windows-location';
 
 /**
  * This computer's location, read from the OS location service.
@@ -14,12 +15,11 @@ import { onTrusted } from './web-security';
  * in Info.plist and, under the hardened runtime, the
  * `com.apple.security.personal-information.location` entitlement (both in electron-builder.yml
  * and build/entitlements.mac.plist), and Location Services switched on for the app in System
- * Settings > Privacy & Security. On Windows (Electron 33 / Chromium 130) Chromium's default
- * provider is Google's network location web service, which fails without a GOOGLE_API_KEY —
- * so main switches on Chromium's Windows provider instead (`WinrtGeolocationImplementation`
- * in index.ts, before the app is ready), which reads Windows Location Services. Windows'
- * "Location services" and "Let desktop apps access your location" must then be on; Settings
- * in the app opens that page (`openLocationSettings` in trackers/permissions.ts).
+ * Settings > Privacy & Security. Windows does not go through Chromium at all: there Chromium
+ * asks Google's network location web service, which fails without a GOOGLE_API_KEY, so main
+ * reads Windows Location Services itself (windows-location.ts). Windows' "Location services"
+ * and "Let desktop apps access your location" must be on; Settings in the app opens that page
+ * (`openLocationSettings` in trackers/permissions.ts).
  *
  * The renderer is granted the `geolocation` permission for the app's own pages only
  * (lockDownPermissions in index.ts). A hidden window still answers, which matters because the
@@ -71,7 +71,13 @@ function requestLocation(window: BrowserWindow | null): Promise<TrackerLocationI
   });
 }
 
-/** The desktop's `LocationProvider`: the OS location service, through the tracker window. */
+/**
+ * The desktop's `LocationProvider`: Windows Location Services on Windows, and Core Location
+ * through the tracker window everywhere else.
+ */
 export function systemLocation(getWindow: () => BrowserWindow | null): LocationProvider {
+  if (process.platform === 'win32') {
+    return { current: readWindowsLocation };
+  }
   return { current: () => requestLocation(getWindow()) };
 }

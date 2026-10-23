@@ -361,12 +361,6 @@ function lockDownPermissions(): void {
 
 // First, so an error anywhere after this reaches Tech > Logs.
 installMainCrashHandlers();
-// Before `app` is ready, or Chromium has already picked its features. On Windows, location is
-// read from Windows Location Services rather than Google's network lookup, which fails
-// without an API key (see location-bridge.ts). Nothing else in the app sets `enable-features`.
-if (process.platform === 'win32') {
-  app.commandLine.appendSwitch('enable-features', 'WinrtGeolocationImplementation');
-}
 // Before any window exists: no pop-ups, no navigation off the app's own pages.
 installNavigationGuards();
 

@@ -38,24 +38,10 @@ afterEach(() => {
 });
 
 describe('startup', () => {
-  it('reads location from Windows Location Services on Windows', async () => {
+  // Windows reads its location in main (windows-location.ts), not through a Chromium switch.
+  it.each(['win32', 'darwin'])('leaves Chromium’s features alone on %s', async (platform) => {
     const realPlatform = process.platform;
-    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
-    try {
-      await launch();
-    } finally {
-      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
-    }
-
-    expect(electron.app.commandLine.appendSwitch).toHaveBeenCalledWith(
-      'enable-features',
-      'WinrtGeolocationImplementation',
-    );
-  });
-
-  it('leaves Chromium’s features alone off Windows', async () => {
-    const realPlatform = process.platform;
-    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
+    Object.defineProperty(process, 'platform', { value: platform, configurable: true });
     try {
       await launch();
     } finally {
