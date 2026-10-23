@@ -1,9 +1,15 @@
 import { Divider } from '@exyconn/shell/components/ui';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { useGetCompanyQuery } from '@exyconn/shell/graphql/generated';
+import { useGetCompanyQuery, type CompanyFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { EditRecordButton } from '../../records/detail';
 import { QuickViewDrawer, QuickViewPanel } from '../../records/quick-view';
-import { ReachOutActions, emailsOf, phonesOf } from '../../records/comms';
+import {
+  ReachOutActions,
+  composeEmailTo,
+  emailsOf,
+  phonesOf,
+  type ReachOutRecord,
+} from '../../records/comms';
 import { GoogleMapCard } from '../../maps/GoogleMapCard';
 import { CompanyForm } from './forms/company';
 import { CompanyFields } from './detail/CompanyFields';
@@ -63,20 +69,26 @@ function CompanyQuickViewBody({ id, onClose, onSaved }: Readonly<CompanyQuickVie
         <>
           <CompanyHeader company={company} titleComponent="h2" />
           <Divider />
-          <CompanyFields company={company} />
-          <ReachOutActions
-            record={{
-              object: 'COMPANY',
-              id: company.id,
-              name: company.name,
-              phones: phonesOf(company),
-              emails: emailsOf(company),
+          <CompanyFields
+            company={company}
+            onEmail={(address) => {
+              onClose();
+              composeEmailTo(reachOutOf(company), address);
             }}
-            onOpen={onClose}
           />
+          <ReachOutActions record={reachOutOf(company)} onOpen={onClose} />
           <GoogleMapCard target={company} title={company.name} />
         </>
       )}
     </QuickViewPanel>
   );
 }
+
+/** The company as the communication dock takes it: every number and address on it. */
+const reachOutOf = (company: CompanyFieldsFragment): ReachOutRecord => ({
+  object: 'COMPANY',
+  id: company.id,
+  name: company.name,
+  phones: phonesOf(company),
+  emails: emailsOf(company),
+});

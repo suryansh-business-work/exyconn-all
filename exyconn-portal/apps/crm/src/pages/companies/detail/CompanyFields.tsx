@@ -7,7 +7,14 @@ import { VerifiedEmailList, type CheckedEmail } from '../../../email-verificatio
 type CompanyRecord = Omit<CompanyFieldsFragment, 'emails'> & { emails: readonly CheckedEmail[] };
 
 /** How to reach the company and its key facts, each with a placeholder when it is not known. */
-export function CompanyFields({ company }: Readonly<{ company: CompanyRecord }>) {
+export function CompanyFields({
+  company,
+  onEmail,
+}: Readonly<{
+  company: CompanyRecord;
+  /** Opens the CRM's email window to the address clicked. */
+  onEmail?: (address: string) => void;
+}>) {
   const t = useT();
   const { locale } = useI18n();
   const { formatCurrency, formatNumber } = useFormatters();
@@ -17,7 +24,9 @@ export function CompanyFields({ company }: Readonly<{ company: CompanyRecord }>)
   return (
     <DetailList>
       <DetailField label="Email" empty="No email">
-        {company.emails.length > 0 && <VerifiedEmailList emails={company.emails} />}
+        {company.emails.length > 0 && (
+          <VerifiedEmailList emails={company.emails} onCompose={onEmail} />
+        )}
       </DetailField>
       <DetailField label="Phone" empty="No phone">
         {company.phones.length > 0 && (

@@ -37,9 +37,18 @@ export interface DockPosition {
   y: number;
 }
 
+/** The size the expanded panel was resized to; null keeps its default size. */
+export interface DockSize {
+  width: number;
+  height: number;
+}
+
 interface DockState {
   panels: CommsPanel[];
   position: DockPosition | null;
+  size: DockSize | null;
+  /** Fills the screen; the position and size above come back on restore. */
+  maximized: boolean;
 }
 
 /**
@@ -47,7 +56,7 @@ interface DockState {
  * call in progress or a half-written text must survive that. The store keeps the panels; the
  * memory below keeps each panel's draft and status for its next mount.
  */
-let state: DockState = { panels: [], position: null };
+let state: DockState = { panels: [], position: null, size: null, maximized: false };
 const listeners = new Set<() => void>();
 const memory = new Map<string, unknown>();
 
@@ -86,6 +95,12 @@ export function openComms(request: CommsRequest) {
     ...state,
     panels: [...others, { ...request, key, minimized: false, focusPending: true }],
   });
+}
+
+/** The record's email panel, addressed to `address` (the one clicked) rather than its first. */
+export function composeEmailTo(record: Omit<CommsRequest, 'channel'>, address: string) {
+  const others = record.emails.filter((email) => email !== address);
+  openComms({ ...record, channel: 'EMAIL', emails: [address, ...others] });
 }
 
 export function minimizeComms(key: string) {
@@ -129,6 +144,14 @@ export function closeComms(key: string) {
 
 export function moveDock(position: DockPosition | null) {
   update({ ...state, position });
+}
+
+export function resizeDock(size: DockSize | null) {
+  update({ ...state, size });
+}
+
+export function maximizeDock(maximized: boolean) {
+  update({ ...state, maximized });
 }
 
 /** A value a panel keeps across remounts until it is closed, e.g. a draft or a call status. */

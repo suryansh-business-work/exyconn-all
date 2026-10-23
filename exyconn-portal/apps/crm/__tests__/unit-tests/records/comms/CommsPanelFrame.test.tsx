@@ -5,13 +5,15 @@ import type { ReactNode } from 'react';
 import { theme } from '@exyconn/shell/config/theme';
 import { openComms, useCommsDock } from '../../../../src/records/comms/commsStore';
 import { CommsPanelFrame } from '../../../../src/records/comms/CommsPanelFrame';
-import type { DockPosition } from '../../../../src/records/comms/commsStore';
+import type { DockPosition, DockSize } from '../../../../src/records/comms/commsStore';
 import { renderWithProviders } from '../../test-utils';
 import { commsPanel, commsRequest, resetDock } from './comms-fixtures';
 
 interface FrameOptions {
   focusPending?: boolean;
   position?: DockPosition | null;
+  size?: DockSize | null;
+  maximized?: boolean;
   abovePills?: boolean;
   children?: ReactNode;
 }
@@ -19,6 +21,8 @@ interface FrameOptions {
 function renderFrame({
   focusPending = false,
   position = null,
+  size = null,
+  maximized = false,
   abovePills = false,
   children = <input aria-label="Message" />,
 }: FrameOptions = {}) {
@@ -29,6 +33,8 @@ function renderFrame({
       panel={commsPanel({ focusPending })}
       title="SMS · Ada Lovelace"
       position={position}
+      size={size}
+      maximized={maximized}
       abovePills={abovePills}
       onMinimize={onMinimize}
       onClose={onClose}

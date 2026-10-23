@@ -1,5 +1,5 @@
 import { useEffect, type PointerEvent as ReactPointerEvent, type RefObject } from 'react';
-import { moveDock, type DockPosition } from './commsStore';
+import { moveDock, resizeDock, type DockPosition } from './commsStore';
 
 /** Keeps the whole panel on screen. */
 function clamp(position: DockPosition, width: number, height: number): DockPosition {
@@ -12,7 +12,7 @@ function clamp(position: DockPosition, width: number, height: number): DockPosit
 }
 
 /** Moves the panel straight on the element while dragging, so the form does not re-render. */
-function place(panel: HTMLElement, position: DockPosition) {
+export function place(panel: HTMLElement, position: DockPosition) {
   panel.style.left = `${position.x}px`;
   panel.style.top = `${position.y}px`;
   panel.style.right = 'auto';
@@ -22,11 +22,15 @@ function place(panel: HTMLElement, position: DockPosition) {
 /**
  * Drags the dock panel by its header with pointer events (mouse, pen and touch), clamped to
  * the viewport; the final spot goes to the store. Presses on the header's buttons are left to
- * them. A window resize puts the panel back in its corner, so it cannot end up off screen.
+ * them. A window resize puts the panel back in its corner at its default size, so it cannot end
+ * up off screen.
  */
 export function useDockDrag(panelRef: RefObject<HTMLElement | null>, enabled: boolean) {
   useEffect(() => {
-    const reset = () => moveDock(null);
+    const reset = () => {
+      moveDock(null);
+      resizeDock(null);
+    };
     globalThis.addEventListener('resize', reset);
     return () => globalThis.removeEventListener('resize', reset);
   }, []);

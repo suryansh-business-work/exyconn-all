@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
-import { moveDock, useCommsDock } from '../../../../src/records/comms/commsStore';
+import { moveDock, resizeDock, useCommsDock } from '../../../../src/records/comms/commsStore';
 import { useDockDrag } from '../../../../src/records/comms/useDockDrag';
 import { resetDock } from './comms-fixtures';
 
@@ -144,14 +144,18 @@ describe('useDockDrag', () => {
     expect(parts.handle.setPointerCapture).not.toHaveBeenCalled();
   });
 
-  it('puts the panel back in its corner when the window is resized, until unmounted', () => {
+  it('puts the panel back in its corner at its default size when the window is resized, until unmounted', () => {
     const { drag, dock } = renderDrag(parts);
-    act(() => moveDock({ x: 300, y: 250 }));
+    act(() => {
+      moveDock({ x: 300, y: 250 });
+      resizeDock({ width: 500, height: 400 });
+    });
 
     act(() => {
       globalThis.dispatchEvent(new Event('resize'));
     });
     expect(dock.result.current.position).toBeNull();
+    expect(dock.result.current.size).toBeNull();
 
     drag.unmount();
     act(() => moveDock({ x: 10, y: 10 }));

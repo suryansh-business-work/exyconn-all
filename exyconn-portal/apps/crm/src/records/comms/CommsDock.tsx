@@ -32,7 +32,7 @@ export function CommsDock() {
   const t = useT();
   const theme = useTheme();
   const titleOf = useTitle();
-  const { panels, position } = useCommsDock();
+  const { panels, position, size, maximized } = useCommsDock();
   const pills = panels.filter((panel) => panel.minimized);
   const open = panels.find((panel) => !panel.minimized);
 
@@ -82,6 +82,8 @@ export function CommsDock() {
           panel={open}
           title={titleOf(open)}
           position={position}
+          size={size}
+          maximized={maximized}
           abovePills={pills.length > 0}
           onMinimize={() => {
             minimizeComms(open.key);

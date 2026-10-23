@@ -2,11 +2,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import {
   closeComms,
+  composeEmailTo,
   focusTaken,
+  maximizeDock,
   minimizeComms,
   moveDock,
   openComms,
   readMemory,
+  resizeDock,
   restoreComms,
   useCommsDock,
   useRemembered,
@@ -34,7 +37,7 @@ describe('commsStore', () => {
   it('starts empty and docked bottom-right', () => {
     const { result } = renderDock();
 
-    expect(result.current).toEqual({ panels: [], position: null });
+    expect(result.current).toEqual({ panels: [], position: null, size: null, maximized: false });
   });
 
   it('opens a panel expanded, keyed by channel, record type and id, wanting focus', () => {
@@ -137,6 +140,27 @@ describe('commsStore', () => {
     expect(result.current.position).toBeNull();
   });
 
+  it('remembers the resized size and the maximized state apart from the position', () => {
+    const { result } = renderDock();
+    act(() => moveDock({ x: 40, y: 80 }));
+
+    act(() => resizeDock({ width: 500, height: 400 }));
+    act(() => maximizeDock(true));
+    expect(result.current).toMatchObject({
+      position: { x: 40, y: 80 },
+      size: { width: 500, height: 400 },
+      maximized: true,
+    });
+
+    act(() => maximizeDock(false));
+    act(() => resizeDock(null));
+    expect(result.current).toMatchObject({
+      position: { x: 40, y: 80 },
+      size: null,
+      maximized: false,
+    });
+  });
+
   it('stops telling an unmounted reader about changes', () => {
     const { result, unmount } = renderDock();
     unmount();
@@ -167,6 +191,19 @@ describe('commsStore', () => {
       act(() => closeComms(SMS_KEY));
       const third = renderHook(() => useRemembered(SMS_KEY, 'ringing', false));
       expect(third.result.current[0]).toBe(false);
+    });
+  });
+
+  it('addresses an email panel to the address clicked, keeping the others', () => {
+    const { result } = renderDock();
+    const record = { ...commsRequest(), emails: ['a@x.io', 'b@x.io'] };
+
+    act(() => composeEmailTo(record, 'b@x.io'));
+
+    expect(result.current.panels[0]).toMatchObject({
+      channel: 'EMAIL',
+      key: 'EMAIL:CONTACT:c-1',
+      emails: ['b@x.io', 'a@x.io'],
     });
   });
 });

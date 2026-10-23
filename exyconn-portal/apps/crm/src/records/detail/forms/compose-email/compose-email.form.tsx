@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
+import AddIcon from '@mui/icons-material/Add';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useT } from '@exyconn/i18n';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Alert, Button, Flex, Link } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -54,6 +55,7 @@ export function ComposeEmailForm({
 }: Readonly<ComposeEmailFormProps>) {
   const t = useT();
   const notify = useNotify();
+  const navigate = useNavigate();
   const refetchQueries = [CrmEmailThreadsDocument, CrmTimelineDocument];
   const [send] = useSendCrmEmailMutation({ refetchQueries });
   const [draft, { loading: drafting }] = useDraftCrmEmailMutation();
@@ -156,6 +158,11 @@ export function ComposeEmailForm({
         label="From"
         options={sender.options}
         helperText="The connected Gmail or Microsoft mailbox it is sent from"
+        action={{
+          label: 'Add email',
+          icon: <AddIcon fontSize="small" />,
+          onSelect: () => navigate(EMAIL_INTEGRATIONS_PATH),
+        }}
       />
       <ComposeAddressFields to={context.to} recipientsLocked={context.recipientsLocked} />
       <Flex direction="column" spacing={1}>

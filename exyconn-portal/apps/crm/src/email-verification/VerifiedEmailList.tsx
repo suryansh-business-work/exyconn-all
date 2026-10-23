@@ -14,12 +14,20 @@ export interface CheckedEmail {
  * A record's addresses, each a mail link with its latest check (a Verified chip for a good
  * mailbox, the other statuses as elsewhere) and a button to check it again.
  */
-export function VerifiedEmailList({ emails }: Readonly<{ emails: readonly CheckedEmail[] }>) {
+export function VerifiedEmailList({
+  emails,
+  onCompose,
+}: Readonly<{
+  emails: readonly CheckedEmail[];
+  /** Opens the CRM's email window to the address clicked, instead of a mail link. */
+  onCompose?: (address: string) => void;
+}>) {
   const checks = new Map(emails.map((email) => [email.address, email.verification ?? null]));
   return (
     <ContactPointList
       scheme="mailto"
       points={emails.map((email) => ({ ...email, value: email.address }))}
+      onSelect={onCompose}
       renderTrailing={(address) => (
         <EmailVerifyButton email={address} verification={checks.get(address) ?? null} />
       )}
