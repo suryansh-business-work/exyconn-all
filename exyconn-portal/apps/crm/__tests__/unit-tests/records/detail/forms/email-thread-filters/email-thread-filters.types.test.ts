@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { CrmEmailDirection } from '@exyconn/shell/graphql/generated';
 import {
   EMPTY_EMAIL_FILTERS,
   activeFilterCount,
@@ -23,7 +24,7 @@ describe('email thread filters', () => {
     const filters = {
       ...EMPTY_EMAIL_FILTERS,
       period: 'LAST_7_DAYS' as const,
-      direction: 'OUT' as const,
+      direction: CrmEmailDirection.Out,
       accountId: 'acc-1',
     };
     expect(filterInput(filters, NOW)).toEqual({
