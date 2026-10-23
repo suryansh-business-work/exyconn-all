@@ -6,6 +6,7 @@ import { inSequence } from '../../utils/inSequence';
 import { FALLBACK_LOCALE, canonicalLocale } from './locale.constants';
 import { TranslationModel, translationKey, type TranslationSource } from './translation.model';
 import { TRANSLATE_BATCH, machineTranslate } from './i18n.translate';
+import { shippedSources } from './ui-sources';
 
 /**
  * The caller's workspace settings, or null for a request that belongs to no workspace.
@@ -168,12 +169,12 @@ export interface LanguageFill {
 }
 
 /**
- * Translates, in the background, every string the catalogue has seen in ANY language into
- * this one.
+ * Translates, in the background, every string the apps ship (ui-sources) and every string the
+ * catalogue has seen in ANY language into this one.
  *
  * Browsing fills a language one screen at a time, so a language nobody has read in yet starts
  * out English everywhere. This is the administrator saying "do it all now": the English words
- * the portals and the website have already reported are sent to the model in batches, one
+ * the apps ship, and those the portals and the website have reported, are sent to the model in batches, one
  * after another, and land in the catalogue as they finish. It goes through `translateMissing`,
  * which checks the catalogue again before each batch — a string somebody translated in the
  * meantime, or corrected by hand, is never paid for or overwritten.
@@ -188,12 +189,13 @@ export async function fillLanguage(locale: string): Promise<LanguageFill> {
     return { ...nothing, alreadyRunning: true };
   }
 
-  const [sources, present] = await Promise.all([
+  const [catalogued, present] = await Promise.all([
     TranslationModel.distinct('source'),
     TranslationModel.find({ locale: canonical }).select('source').lean(),
   ]);
+  const sources = new Set<string>([...shippedSources, ...(catalogued as string[])]);
   const known = new Set(present.map((row) => row.source));
-  const missing = (sources as string[]).filter((source) => !known.has(source));
+  const missing = [...sources].filter((source) => !known.has(source));
   if (missing.length === 0) {
     return { ...nothing, alreadyRunning: false };
   }

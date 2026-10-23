@@ -15,6 +15,9 @@ import * as translate from '../../src/modules/i18n/i18n.translate';
 import { Types } from 'mongoose';
 import { runAsPlatform, runForOrganization, setDefaultScope } from '../../src/lib/tenant';
 
+// The shipped UI strings are thousands; these tests fill from the catalogue alone.
+jest.mock('../../src/modules/i18n/ui-sources', () => ({ shippedSources: [] }));
+
 // The welcome email talks to SMTP; stub it so user creation works offline.
 jest.mock('../../src/utils/mailer', () => ({
   mailer: { sendWelcomeEmail: jest.fn().mockResolvedValue(undefined) },

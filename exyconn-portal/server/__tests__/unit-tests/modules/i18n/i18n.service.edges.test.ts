@@ -13,6 +13,14 @@ import * as translate from '../../../../src/modules/i18n/i18n.translate';
 import { runForOrganization } from '../../../../src/lib/tenant';
 import { logger } from '../../../../src/utils/logger';
 
+// The shipped UI strings are thousands; these tests choose their own (none unless set).
+const mockShipped: string[] = [];
+jest.mock('../../../../src/modules/i18n/ui-sources', () => ({
+  get shippedSources() {
+    return mockShipped;
+  },
+}));
+
 const echo = (prefix: string) =>
   jest
     .spyOn(translate, 'machineTranslate')
@@ -29,7 +37,10 @@ beforeEach(() => {
   jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 });
 
-afterEach(() => jest.restoreAllMocks());
+afterEach(() => {
+  jest.restoreAllMocks();
+  mockShipped.length = 0;
+});
 
 describe('readBundle and upsertTranslation', () => {
   it('has no bundle for a tag that does not resolve', async () => {
@@ -149,5 +160,29 @@ describe('fillLanguage edge cases', () => {
     const retry = await fillLanguage('it');
     expect(retry.alreadyRunning).toBe(false);
     await expect(retry.finished).resolves.toBe(1);
+  });
+});
+
+describe('fillLanguage with the shipped UI strings', () => {
+  it('fills a language from the strings the apps ship, even with an empty catalogue', async () => {
+    mockShipped.push('Add goal', 'Save changes');
+    echo('pt');
+
+    const fill = await fillLanguage('pt');
+
+    expect(fill.queued).toBe(2);
+    await expect(fill.finished).resolves.toBe(2);
+    expect((await readBundle('pt')).map((row) => row.text).sort()).toEqual([
+      'pt:Add goal',
+      'pt:Save changes',
+    ]);
+  });
+
+  it('ships the extracted strings of the apps', () => {
+    const real = jest.requireActual<typeof import('../../../../src/modules/i18n/ui-sources')>(
+      '../../../../src/modules/i18n/ui-sources',
+    );
+    expect(real.shippedSources.length).toBeGreaterThan(1000);
+    expect(real.shippedSources).toContain('Cancel');
   });
 });
