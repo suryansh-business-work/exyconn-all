@@ -62,6 +62,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import EmailIcon from '@mui/icons-material/Email';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
@@ -510,6 +511,13 @@ export const MODULES: ModuleDefinition[] = [
     accent: color.green[500],
     children: [
       { key: 'crm-overview', label: 'Overview', path: '/', icon: DashboardIcon },
+      {
+        // The connected mailboxes' conversations, read and answered like Gmail.
+        key: 'crm-mail',
+        label: 'Mail',
+        path: '/mail',
+        icon: EmailIcon,
+      },
       {
         key: 'crm-leads',
         label: 'Leads',

@@ -54,13 +54,16 @@ export function rawMessage(email: OutgoingEmail): string {
 
 export interface GmailPart {
   mimeType?: string;
-  body?: { data?: string };
+  /** Set on an attachment's part. */
+  filename?: string;
+  /** An attachment's content is fetched separately, by `attachmentId`. */
+  body?: { data?: string; attachmentId?: string; size?: number };
   parts?: GmailPart[];
   headers?: Array<{ name: string; value: string }>;
 }
 
 /** The decoded body of the first part of one MIME type; '' when the message has none. */
-function firstPartOf(part: GmailPart | undefined, mimeType: string): string {
+export function firstPartOf(part: GmailPart | undefined, mimeType: string): string {
   if (!part) {
     return '';
   }

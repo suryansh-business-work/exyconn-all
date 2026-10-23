@@ -1283,6 +1283,38 @@ export type CrmInsightTone =
   | 'POSITIVE'
   | 'WARNING';
 
+export type CrmMailAction =
+  | 'ARCHIVE'
+  | 'MARK_READ'
+  | 'MARK_UNREAD'
+  | 'STAR'
+  /** Moves the conversation to Gmail's trash, where Gmail keeps it for 30 days. */
+  | 'TRASH'
+  | 'UNSTAR';
+
+export type CrmMailFolder =
+  /** Everything except spam and trash. */
+  | 'ALL'
+  | 'INBOX'
+  | 'SENT'
+  | 'STARRED';
+
+export type CrmMailThreadRef = {
+  accountId: Scalars['ID']['input'];
+  threadId: Scalars['String']['input'];
+};
+
+export type CrmMailThreadsInput = {
+  /** One mailbox; every readable one when empty. */
+  accountId: InputMaybe<Scalars['ID']['input']>;
+  folder: CrmMailFolder;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  /** Matches subject, preview and people, and Gmail's own search of each mailbox. */
+  search: InputMaybe<Scalars['String']['input']>;
+};
+
 /** A circle on the map: only records whose coordinates fall inside it. */
 export type CrmNearInput = {
   /** Centre latitude, -90 to 90. */
@@ -1428,6 +1460,13 @@ export type CrmSortInput = {
 export type CrmTagObject =
   | 'COMPANY'
   | 'CONTACT';
+
+export type CrmTimelineFieldType =
+  /** An ISO date-time, shown in the viewer's date and time settings. */
+  | 'DATE'
+  /** An amount in the company's currency. */
+  | 'MONEY'
+  | 'TEXT';
 
 export type CrmTimelineKind =
   | 'CALL'

@@ -16,7 +16,7 @@ const SYNC_THREADS = 20;
 /** Addresses per Gmail search, so a company with many people stays under Google's limit. */
 const TERMS_PER_QUERY = 15;
 /** A company on one of these has no domain of its own: matching it would read everybody. */
-const SHARED_MAIL_DOMAINS: ReadonlySet<string> = new Set([
+export const SHARED_MAIL_DOMAINS: ReadonlySet<string> = new Set([
   'gmail.com',
   'googlemail.com',
   'outlook.com',

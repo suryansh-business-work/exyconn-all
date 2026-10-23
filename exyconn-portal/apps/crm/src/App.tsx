@@ -18,6 +18,7 @@ import { EMAIL_INTEGRATIONS_PATH } from './integrations/emailIntegrationsPath';
 import { CommsDockLayout } from './records/comms';
 import { MeetingsPage } from './pages/meetings';
 import { CalendarPage } from './pages/calendar';
+import { MailPage } from './pages/mail';
 import { BookingProfilePage, BookMeetingPage } from './pages/book';
 import { LegacyCrmRedirect } from './LegacyCrmRedirect';
 
@@ -44,6 +45,7 @@ export function App() {
       {/* The communication dock floats over every CRM page, so a call or a text keeps going. */}
       <Route element={<CommsDockLayout />}>
         <Route path="/" element={<CrmOverviewPage />} />
+        <Route path="/mail/:folder?" element={<MailPage />} />
         <Route path="/leads" element={<CrmPage />} />
         <Route path="/companies" element={<CompaniesPage />} />
         <Route path="/companies/:id/:tab?" element={<CompanyDetailPage />} />

@@ -18,6 +18,7 @@ import { WebsiteScraperPage } from '../../src/pages/website-scraper';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
 import { CalendarPage } from '../../src/pages/calendar';
+import { MailPage } from '../../src/pages/mail';
 import { IntegrationsPage } from '../../src/pages/integrations';
 import { CommsDockLayout } from '../../src/records/comms';
 
@@ -87,6 +88,7 @@ describe('App', () => {
     expect(layout.element.type).toBe(CommsDockLayout);
     expect(declaredRoutes((portal.props as PortalProps).children)).toEqual([
       ['/', CrmOverviewPage],
+      ['/mail/:folder?', MailPage],
       ['/leads', CrmPage],
       ['/companies', CompaniesPage],
       ['/companies/:id/:tab?', CompanyDetailPage],

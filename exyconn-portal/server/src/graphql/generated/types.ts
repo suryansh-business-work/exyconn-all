@@ -3716,6 +3716,170 @@ export type CrmIntegrationStatus = {
   sms: CrmChannelStatus;
 };
 
+export enum CrmMailAction {
+  Archive = 'ARCHIVE',
+  MarkRead = 'MARK_READ',
+  MarkUnread = 'MARK_UNREAD',
+  Star = 'STAR',
+  /** Moves the conversation to Gmail's trash, where Gmail keeps it for 30 days. */
+  Trash = 'TRASH',
+  Unstar = 'UNSTAR'
+}
+
+export type CrmMailAttachment = {
+  __typename?: 'CrmMailAttachment';
+  filename: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  messageId: Scalars['String']['output'];
+  mimeType: Scalars['String']['output'];
+  size: Scalars['Int']['output'];
+};
+
+export type CrmMailAttachmentFile = {
+  __typename?: 'CrmMailAttachmentFile';
+  /** The file's bytes, base64-encoded. */
+  data: Scalars['String']['output'];
+  size: Scalars['Int']['output'];
+};
+
+export enum CrmMailFolder {
+  /** Everything except spam and trash. */
+  All = 'ALL',
+  Inbox = 'INBOX',
+  Sent = 'SENT',
+  Starred = 'STARRED'
+}
+
+export type CrmMailFolderCount = {
+  __typename?: 'CrmMailFolderCount';
+  folder: CrmMailFolder;
+  unread: Scalars['Int']['output'];
+};
+
+export type CrmMailMessage = {
+  __typename?: 'CrmMailMessage';
+  attachments: Array<CrmMailAttachment>;
+  bcc: Array<Scalars['String']['output']>;
+  cc: Array<Scalars['String']['output']>;
+  direction: CrmEmailDirection;
+  fromAddress: Scalars['String']['output'];
+  fromName: Scalars['String']['output'];
+  /** The HTML body, already cleaned by the portal's sanitizer; empty for a plain-text message. */
+  html: Scalars['String']['output'];
+  /** Gmail's message id. */
+  id: Scalars['ID']['output'];
+  /** The RFC 5322 Message-ID a reply answers. */
+  messageId: Scalars['String']['output'];
+  sentAt: Scalars['DateTime']['output'];
+  subject: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+  to: Array<Scalars['String']['output']>;
+  unread: Scalars['Boolean']['output'];
+};
+
+export type CrmMailOverview = {
+  __typename?: 'CrmMailOverview';
+  /** Unread conversations per folder, across the chosen mailbox or every readable one. */
+  folders: Array<CrmMailFolderCount>;
+  mailboxes: Array<CrmMailbox>;
+};
+
+/** The CRM contact or company a conversation is with, matched by address or domain. */
+export type CrmMailRecordLink = {
+  __typename?: 'CrmMailRecordLink';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  object: CrmTimelineObject;
+};
+
+export type CrmMailSyncResult = {
+  __typename?: 'CrmMailSyncResult';
+  accountId: Scalars['ID']['output'];
+  email: Scalars['String']['output'];
+  /** Why the sync failed and what to do; empty when it worked. */
+  error: Scalars['String']['output'];
+  /** It synced moments ago, so this request left it alone. */
+  skipped: Scalars['Boolean']['output'];
+  syncedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type CrmMailThread = {
+  __typename?: 'CrmMailThread';
+  accountId: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  /** Whether it is in the inbox (not archived). */
+  inbox: Scalars['Boolean']['output'];
+  mailbox: Scalars['String']['output'];
+  messages: Array<CrmMailMessage>;
+  record?: Maybe<CrmMailRecordLink>;
+  starred: Scalars['Boolean']['output'];
+  subject: Scalars['String']['output'];
+  threadId: Scalars['String']['output'];
+  unread: Scalars['Boolean']['output'];
+};
+
+export type CrmMailThreadPage = {
+  __typename?: 'CrmMailThreadPage';
+  rows: Array<CrmMailThreadSummary>;
+  totalCount: Scalars['Int']['output'];
+  /** Mailboxes Gmail's own search could not reach, and why; the list still shows what it has. */
+  warnings: Array<Scalars['String']['output']>;
+};
+
+export type CrmMailThreadRef = {
+  accountId: Scalars['ID']['input'];
+  threadId: Scalars['String']['input'];
+};
+
+export type CrmMailThreadSummary = {
+  __typename?: 'CrmMailThreadSummary';
+  accountId: Scalars['ID']['output'];
+  fromAddress: Scalars['String']['output'];
+  fromName: Scalars['String']['output'];
+  hasAttachments: Scalars['Boolean']['output'];
+  /** The mailbox and Gmail thread id, joined by a colon. */
+  id: Scalars['ID']['output'];
+  lastAt: Scalars['DateTime']['output'];
+  mailbox: Scalars['String']['output'];
+  messageCount: Scalars['Int']['output'];
+  participants: Array<Scalars['String']['output']>;
+  record?: Maybe<CrmMailRecordLink>;
+  /** The newest message's preview, as plain text. */
+  snippet: Scalars['String']['output'];
+  starred: Scalars['Boolean']['output'];
+  subject: Scalars['String']['output'];
+  threadId: Scalars['String']['output'];
+  unread: Scalars['Boolean']['output'];
+};
+
+export type CrmMailThreadsInput = {
+  /** One mailbox; every readable one when empty. */
+  accountId?: InputMaybe<Scalars['ID']['input']>;
+  folder: CrmMailFolder;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  /** Matches subject, preview and people, and Gmail's own search of each mailbox. */
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A mailbox turned on for the CRM, as CRM > Mail lists it. */
+export type CrmMailbox = {
+  __typename?: 'CrmMailbox';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** Why the last call to the provider failed; empty when it worked. */
+  lastError: Scalars['String']['output'];
+  /** When CRM > Mail last read its folders; null until then. */
+  lastSyncedAt?: Maybe<Scalars['DateTime']['output']>;
+  provider: CrmEmailProvider;
+  /** Whether CRM > Mail can read it: a connected Gmail mailbox. Microsoft mailboxes only send. */
+  readable: Scalars['Boolean']['output'];
+  status: GmailAccountStatus;
+  /** Unread conversations in its inbox. */
+  unreadCount: Scalars['Int']['output'];
+};
+
 /** A circle on the map: only records whose coordinates fall inside it. */
 export type CrmNearInput = {
   /** Centre latitude, -90 to 90. */
@@ -4001,6 +4165,31 @@ export enum CrmTagObject {
   Contact = 'CONTACT'
 }
 
+/** Everything one timeline entry's record holds, for its View details dialog. */
+export type CrmTimelineDetail = {
+  __typename?: 'CrmTimelineDetail';
+  /** The full text: an email's body, an activity's or deal's notes, a form's message. */
+  body: Scalars['String']['output'];
+  fields: Array<CrmTimelineField>;
+};
+
+/** One labelled value of a timeline entry's record. */
+export type CrmTimelineField = {
+  __typename?: 'CrmTimelineField';
+  /** English label; the client translates it. */
+  label: Scalars['String']['output'];
+  type: CrmTimelineFieldType;
+  value: Scalars['String']['output'];
+};
+
+export enum CrmTimelineFieldType {
+  /** An ISO date-time, shown in the viewer's date and time settings. */
+  Date = 'DATE',
+  /** An amount in the company's currency. */
+  Money = 'MONEY',
+  Text = 'TEXT'
+}
+
 /** One touchpoint with a contact or company, from whichever module recorded it. */
 export type CrmTimelineItem = {
   __typename?: 'CrmTimelineItem';
@@ -4010,6 +4199,8 @@ export type CrmTimelineItem = {
   attachments: Array<FileAttachment>;
   id: Scalars['ID']['output'];
   kind: CrmTimelineKind;
+  /** Whether url is this entry's own page (View details goes there); otherwise View details opens crmTimelineDetail. */
+  opensPage: Scalars['Boolean']['output'];
   status: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -5221,6 +5412,8 @@ export type GmailAccount = {
   id: Scalars['ID']['output'];
   /** Why the last call to Gmail failed; empty when it worked. */
   lastError: Scalars['String']['output'];
+  /** When the last error happened; null while the mailbox works. */
+  lastErrorAt?: Maybe<Scalars['DateTime']['output']>;
   lastSyncAt?: Maybe<Scalars['DateTime']['output']>;
   status: GmailAccountStatus;
 };
@@ -8306,6 +8499,8 @@ export type MicrosoftMailAccount = {
   id: Scalars['ID']['output'];
   /** Why the last call to Microsoft failed; empty when it worked. */
   lastError: Scalars['String']['output'];
+  /** When the last error happened; null while the mailbox works. */
+  lastErrorAt?: Maybe<Scalars['DateTime']['output']>;
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
   status: GmailAccountStatus;
 };
@@ -8643,6 +8838,8 @@ export type Mutation = {
   /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
   createWhatsappWorkflow: WhatsappWorkflow;
+  /** Applies the action in Gmail to every conversation given; returns how many changed. */
+  crmMailThreadAction: Scalars['Int']['output'];
   /** An AI summary of everything that happened with the record. */
   crmRecordSummary: Scalars['String']['output'];
   /** Approves or rejects one item, through the owning module's own decision service. */
@@ -9205,13 +9402,13 @@ export type Mutation = {
   startCallingBotCall: CallingBotCallStart;
   /** Click-to-call: rings the caller's own phone, then bridges to the record's number. */
   startCrmCall: CrmCallResult;
-  /** Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. */
+  /** Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. loginHint is the address being reconnected. */
   startGmailConnect: Scalars['String']['output'];
   /** Google's consent page for a sign-in that returns to this portal page. Public. */
   startGoogleSignIn: Scalars['String']['output'];
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
   startMfaEnrolment: MfaEnrolment;
-  /** Microsoft's consent page to connect one more mailbox (or renew one); comes back to returnTo. */
+  /** Microsoft's consent page to connect one more mailbox (or renew one); comes back to returnTo. loginHint is the address being reconnected. */
   startMicrosoftMailConnect: Scalars['String']['output'];
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
@@ -9246,6 +9443,8 @@ export type Mutation = {
    */
   subscribeToStatus: Scalars['Boolean']['output'];
   syncAllSocialAccounts: Array<SocialSyncResult>;
+  /** Reads the newest mail of one mailbox, or of every readable one, from Gmail. */
+  syncCrmMail: Array<CrmMailSyncResult>;
   /** Reads one account's posts and numbers from the network now. MARKETING. */
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
@@ -9264,6 +9463,8 @@ export type Mutation = {
   /** Scrapes example.com with this config; says what worked, or why not. */
   testFirecrawlConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
+  /** Checks one mailbox works now by reading its address; the outcome is kept on it as lastError. */
+  testGmailAccount: GmailAccount;
   /** Reads every enabled mailbox's address with its stored connection. */
   testGmailConfig: Scalars['String']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -9274,6 +9475,8 @@ export type Mutation = {
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
+  /** Checks one mailbox works now with a fresh token and its address; the outcome is kept on it as lastError. */
+  testMicrosoftMailAccount: MicrosoftMailAccount;
   /** Reads every enabled mailbox's address with its stored connection. */
   testMicrosoftMailConfig: Scalars['String']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
@@ -10476,6 +10679,12 @@ export type MutationCreateWebsiteSubmissionArgs = {
 
 export type MutationCreateWhatsappWorkflowArgs = {
   input: WhatsappWorkflowCreateInput;
+};
+
+
+export type MutationCrmMailThreadActionArgs = {
+  action: CrmMailAction;
+  threads: Array<CrmMailThreadRef>;
 };
 
 
@@ -12274,6 +12483,7 @@ export type MutationStartCrmCallArgs = {
 
 
 export type MutationStartGmailConnectArgs = {
+  loginHint?: InputMaybe<Scalars['String']['input']>;
   returnTo: Scalars['String']['input'];
 };
 
@@ -12284,6 +12494,7 @@ export type MutationStartGoogleSignInArgs = {
 
 
 export type MutationStartMicrosoftMailConnectArgs = {
+  loginHint?: InputMaybe<Scalars['String']['input']>;
   returnTo: Scalars['String']['input'];
 };
 
@@ -12344,6 +12555,11 @@ export type MutationSubscribeToStatusArgs = {
 };
 
 
+export type MutationSyncCrmMailArgs = {
+  accountId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
 export type MutationSyncSocialAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12389,6 +12605,11 @@ export type MutationTestGithubConnectionArgs = {
 };
 
 
+export type MutationTestGmailAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestGodaddyConnectionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12407,6 +12628,11 @@ export type MutationTestImageUploadArgs = {
 
 
 export type MutationTestInboundMailConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestMicrosoftMailAccountArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -15276,6 +15502,12 @@ export type Query = {
   /** Whether the company's CRM can email through Gmail (one of its accounts is enabled). */
   crmGmailReady: Scalars['Boolean']['output'];
   crmIntegrationStatus: CrmIntegrationStatus;
+  /** One attachment of a message, up to 15 MB. */
+  crmMailAttachment: CrmMailAttachmentFile;
+  crmMailOverview: CrmMailOverview;
+  /** One conversation with every message, read from Gmail now. */
+  crmMailThread: CrmMailThread;
+  crmMailThreads: CrmMailThreadPage;
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
   crmSmsConfigs: Array<CrmSmsConfig>;
@@ -15283,6 +15515,8 @@ export type Query = {
   crmTags: Array<Scalars['String']['output']>;
   /** Everything that happened with the contact or company, newest first (at most 200). */
   crmTimeline: Array<CrmTimelineItem>;
+  /** The full record behind one entry of that contact's or company's timeline (itemId is CrmTimelineItem.id). */
+  crmTimelineDetail: CrmTimelineDetail;
   crmViews: Array<CrmView>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
@@ -16527,6 +16761,29 @@ export type QueryCrmEmailThreadsArgs = {
 };
 
 
+export type QueryCrmMailAttachmentArgs = {
+  accountId: Scalars['ID']['input'];
+  attachmentId: Scalars['String']['input'];
+  messageId: Scalars['String']['input'];
+};
+
+
+export type QueryCrmMailOverviewArgs = {
+  accountId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryCrmMailThreadArgs = {
+  accountId: Scalars['ID']['input'];
+  threadId: Scalars['String']['input'];
+};
+
+
+export type QueryCrmMailThreadsArgs = {
+  input: CrmMailThreadsInput;
+};
+
+
 export type QueryCrmObjectSchemaArgs = {
   object: CrmObject;
 };
@@ -16545,6 +16802,13 @@ export type QueryCrmTagsArgs = {
 export type QueryCrmTimelineArgs = {
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
+  object: CrmTimelineObject;
+};
+
+
+export type QueryCrmTimelineDetailArgs = {
+  id: Scalars['ID']['input'];
+  itemId: Scalars['ID']['input'];
   object: CrmTimelineObject;
 };
 
@@ -22882,6 +23146,21 @@ export type ResolversTypes = ResolversObject<{
   CrmInsightKind: CrmInsightKind;
   CrmInsightTone: CrmInsightTone;
   CrmIntegrationStatus: ResolverTypeWrapper<CrmIntegrationStatus>;
+  CrmMailAction: CrmMailAction;
+  CrmMailAttachment: ResolverTypeWrapper<CrmMailAttachment>;
+  CrmMailAttachmentFile: ResolverTypeWrapper<CrmMailAttachmentFile>;
+  CrmMailFolder: CrmMailFolder;
+  CrmMailFolderCount: ResolverTypeWrapper<CrmMailFolderCount>;
+  CrmMailMessage: ResolverTypeWrapper<CrmMailMessage>;
+  CrmMailOverview: ResolverTypeWrapper<CrmMailOverview>;
+  CrmMailRecordLink: ResolverTypeWrapper<CrmMailRecordLink>;
+  CrmMailSyncResult: ResolverTypeWrapper<CrmMailSyncResult>;
+  CrmMailThread: ResolverTypeWrapper<CrmMailThread>;
+  CrmMailThreadPage: ResolverTypeWrapper<CrmMailThreadPage>;
+  CrmMailThreadRef: CrmMailThreadRef;
+  CrmMailThreadSummary: ResolverTypeWrapper<CrmMailThreadSummary>;
+  CrmMailThreadsInput: CrmMailThreadsInput;
+  CrmMailbox: ResolverTypeWrapper<CrmMailbox>;
   CrmNearInput: CrmNearInput;
   CrmObject: CrmObject;
   CrmObjectSchema: ResolverTypeWrapper<CrmObjectSchema>;
@@ -22910,6 +23189,9 @@ export type ResolversTypes = ResolversObject<{
   CrmSourceCount: ResolverTypeWrapper<CrmSourceCount>;
   CrmStageValue: ResolverTypeWrapper<CrmStageValue>;
   CrmTagObject: CrmTagObject;
+  CrmTimelineDetail: ResolverTypeWrapper<CrmTimelineDetail>;
+  CrmTimelineField: ResolverTypeWrapper<CrmTimelineField>;
+  CrmTimelineFieldType: CrmTimelineFieldType;
   CrmTimelineItem: ResolverTypeWrapper<CrmTimelineItem>;
   CrmTimelineKind: CrmTimelineKind;
   CrmTimelineObject: CrmTimelineObject;
@@ -24038,6 +24320,19 @@ export type ResolversParentTypes = ResolversObject<{
   CrmImportResult: CrmImportResult;
   CrmInsight: CrmInsight;
   CrmIntegrationStatus: CrmIntegrationStatus;
+  CrmMailAttachment: CrmMailAttachment;
+  CrmMailAttachmentFile: CrmMailAttachmentFile;
+  CrmMailFolderCount: CrmMailFolderCount;
+  CrmMailMessage: CrmMailMessage;
+  CrmMailOverview: CrmMailOverview;
+  CrmMailRecordLink: CrmMailRecordLink;
+  CrmMailSyncResult: CrmMailSyncResult;
+  CrmMailThread: CrmMailThread;
+  CrmMailThreadPage: CrmMailThreadPage;
+  CrmMailThreadRef: CrmMailThreadRef;
+  CrmMailThreadSummary: CrmMailThreadSummary;
+  CrmMailThreadsInput: CrmMailThreadsInput;
+  CrmMailbox: CrmMailbox;
   CrmNearInput: CrmNearInput;
   CrmObjectSchema: CrmObjectSchema;
   CrmOwnerValue: CrmOwnerValue;
@@ -24060,6 +24355,8 @@ export type ResolversParentTypes = ResolversObject<{
   CrmSortInput: CrmSortInput;
   CrmSourceCount: CrmSourceCount;
   CrmStageValue: CrmStageValue;
+  CrmTimelineDetail: CrmTimelineDetail;
+  CrmTimelineField: CrmTimelineField;
   CrmTimelineItem: CrmTimelineItem;
   CrmView: CrmView;
   CrmViewInput: CrmViewInput;
@@ -26750,6 +27047,119 @@ export type CrmIntegrationStatusResolvers<ContextType = GraphQLContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CrmMailAttachmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailAttachment'] = ResolversParentTypes['CrmMailAttachment']> = ResolversObject<{
+  filename?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  messageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mimeType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  size?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailAttachmentFileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailAttachmentFile'] = ResolversParentTypes['CrmMailAttachmentFile']> = ResolversObject<{
+  data?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  size?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailFolderCountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailFolderCount'] = ResolversParentTypes['CrmMailFolderCount']> = ResolversObject<{
+  folder?: Resolver<ResolversTypes['CrmMailFolder'], ParentType, ContextType>;
+  unread?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailMessageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailMessage'] = ResolversParentTypes['CrmMailMessage']> = ResolversObject<{
+  attachments?: Resolver<Array<ResolversTypes['CrmMailAttachment']>, ParentType, ContextType>;
+  bcc?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  cc?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  direction?: Resolver<ResolversTypes['CrmEmailDirection'], ParentType, ContextType>;
+  fromAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fromName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  html?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  messageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sentAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  to?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  unread?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailOverview'] = ResolversParentTypes['CrmMailOverview']> = ResolversObject<{
+  folders?: Resolver<Array<ResolversTypes['CrmMailFolderCount']>, ParentType, ContextType>;
+  mailboxes?: Resolver<Array<ResolversTypes['CrmMailbox']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailRecordLinkResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailRecordLink'] = ResolversParentTypes['CrmMailRecordLink']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmTimelineObject'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailSyncResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailSyncResult'] = ResolversParentTypes['CrmMailSyncResult']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  syncedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailThreadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailThread'] = ResolversParentTypes['CrmMailThread']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inbox?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  mailbox?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  messages?: Resolver<Array<ResolversTypes['CrmMailMessage']>, ParentType, ContextType>;
+  record?: Resolver<Maybe<ResolversTypes['CrmMailRecordLink']>, ParentType, ContextType>;
+  starred?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  threadId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unread?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailThreadPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailThreadPage'] = ResolversParentTypes['CrmMailThreadPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CrmMailThreadSummary']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  warnings?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailThreadSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailThreadSummary'] = ResolversParentTypes['CrmMailThreadSummary']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  fromAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fromName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasAttachments?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  mailbox?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  messageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  participants?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  record?: Resolver<Maybe<ResolversTypes['CrmMailRecordLink']>, ParentType, ContextType>;
+  snippet?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  starred?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  threadId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unread?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmMailboxResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmMailbox'] = ResolversParentTypes['CrmMailbox']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastSyncedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['CrmEmailProvider'], ParentType, ContextType>;
+  readable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['GmailAccountStatus'], ParentType, ContextType>;
+  unreadCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CrmObjectSchemaResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmObjectSchema'] = ResolversParentTypes['CrmObjectSchema']> = ResolversObject<{
   dedupeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
@@ -26866,12 +27276,26 @@ export type CrmStageValueResolvers<ContextType = GraphQLContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CrmTimelineDetailResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmTimelineDetail'] = ResolversParentTypes['CrmTimelineDetail']> = ResolversObject<{
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fields?: Resolver<Array<ResolversTypes['CrmTimelineField']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmTimelineFieldResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmTimelineField'] = ResolversParentTypes['CrmTimelineField']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['CrmTimelineFieldType'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CrmTimelineItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmTimelineItem'] = ResolversParentTypes['CrmTimelineItem']> = ResolversObject<{
   actor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['CrmTimelineKind'], ParentType, ContextType>;
+  opensPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -27560,6 +27984,7 @@ export type GmailAccountResolvers<ContextType = GraphQLContext, ParentType exten
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastErrorAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   lastSyncAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['GmailAccountStatus'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -29351,6 +29776,7 @@ export type MicrosoftMailAccountResolvers<ContextType = GraphQLContext, ParentTy
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastErrorAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   lastUsedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['GmailAccountStatus'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -29579,6 +30005,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<MutationCreateWebsiteChatKnowledgeArgs, 'input'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'captcha' | 'input'>>;
   createWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationCreateWhatsappWorkflowArgs, 'input'>>;
+  crmMailThreadAction?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationCrmMailThreadActionArgs, 'action' | 'threads'>>;
   crmRecordSummary?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationCrmRecordSummaryArgs, 'id' | 'object'>>;
   decideApproval?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDecideApprovalArgs, 'decision' | 'id'>>;
   decideEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationDecideEmployeeRequestArgs, 'id' | 'status'>>;
@@ -29929,6 +30356,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   subscribeNewsletter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeNewsletterArgs, 'captcha' | 'input'>>;
   subscribeToStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeToStatusArgs, 'email'>>;
   syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
+  syncCrmMail?: Resolver<Array<ResolversTypes['CrmMailSyncResult']>, ParentType, ContextType, Partial<MutationSyncCrmMailArgs>>;
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
   syncWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatSyncResult'], ParentType, ContextType>;
   testCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCallingBotConfigArgs, 'id'>>;
@@ -29939,12 +30367,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testEmailVerifierConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestEmailVerifierConfigArgs, 'id'>>;
   testFirecrawlConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestFirecrawlConfigArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
+  testGmailAccount?: Resolver<ResolversTypes['GmailAccount'], ParentType, ContextType, RequireFields<MutationTestGmailAccountArgs, 'id'>>;
   testGmailConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
   testGoogleMapsConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestGoogleMapsConfigArgs, 'id'>>;
   testGoogleSignInConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
   testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
+  testMicrosoftMailAccount?: Resolver<ResolversTypes['MicrosoftMailAccount'], ParentType, ContextType, RequireFields<MutationTestMicrosoftMailAccountArgs, 'id'>>;
   testMicrosoftMailConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPayoneerConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPayoneerConnectionArgs, 'id'>>;
@@ -31105,11 +31535,16 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   crmEmailThreads?: Resolver<Array<ResolversTypes['CrmEmailThread']>, ParentType, ContextType, RequireFields<QueryCrmEmailThreadsArgs, 'id' | 'object'>>;
   crmGmailReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   crmIntegrationStatus?: Resolver<ResolversTypes['CrmIntegrationStatus'], ParentType, ContextType>;
+  crmMailAttachment?: Resolver<ResolversTypes['CrmMailAttachmentFile'], ParentType, ContextType, RequireFields<QueryCrmMailAttachmentArgs, 'accountId' | 'attachmentId' | 'messageId'>>;
+  crmMailOverview?: Resolver<ResolversTypes['CrmMailOverview'], ParentType, ContextType, Partial<QueryCrmMailOverviewArgs>>;
+  crmMailThread?: Resolver<ResolversTypes['CrmMailThread'], ParentType, ContextType, RequireFields<QueryCrmMailThreadArgs, 'accountId' | 'threadId'>>;
+  crmMailThreads?: Resolver<ResolversTypes['CrmMailThreadPage'], ParentType, ContextType, RequireFields<QueryCrmMailThreadsArgs, 'input'>>;
   crmObjectSchema?: Resolver<ResolversTypes['CrmObjectSchema'], ParentType, ContextType, RequireFields<QueryCrmObjectSchemaArgs, 'object'>>;
   crmProperties?: Resolver<Array<ResolversTypes['CrmProperty']>, ParentType, ContextType, RequireFields<QueryCrmPropertiesArgs, 'object'>>;
   crmSmsConfigs?: Resolver<Array<ResolversTypes['CrmSmsConfig']>, ParentType, ContextType>;
   crmTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryCrmTagsArgs, 'object'>>;
   crmTimeline?: Resolver<Array<ResolversTypes['CrmTimelineItem']>, ParentType, ContextType, RequireFields<QueryCrmTimelineArgs, 'id' | 'object'>>;
+  crmTimelineDetail?: Resolver<ResolversTypes['CrmTimelineDetail'], ParentType, ContextType, RequireFields<QueryCrmTimelineDetailArgs, 'id' | 'itemId' | 'object'>>;
   crmViews?: Resolver<Array<ResolversTypes['CrmView']>, ParentType, ContextType, RequireFields<QueryCrmViewsArgs, 'object'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
   dnsDomains?: Resolver<Array<ResolversTypes['DnsDomain']>, ParentType, ContextType>;
@@ -34144,6 +34579,17 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CrmImportResult?: CrmImportResultResolvers<ContextType>;
   CrmInsight?: CrmInsightResolvers<ContextType>;
   CrmIntegrationStatus?: CrmIntegrationStatusResolvers<ContextType>;
+  CrmMailAttachment?: CrmMailAttachmentResolvers<ContextType>;
+  CrmMailAttachmentFile?: CrmMailAttachmentFileResolvers<ContextType>;
+  CrmMailFolderCount?: CrmMailFolderCountResolvers<ContextType>;
+  CrmMailMessage?: CrmMailMessageResolvers<ContextType>;
+  CrmMailOverview?: CrmMailOverviewResolvers<ContextType>;
+  CrmMailRecordLink?: CrmMailRecordLinkResolvers<ContextType>;
+  CrmMailSyncResult?: CrmMailSyncResultResolvers<ContextType>;
+  CrmMailThread?: CrmMailThreadResolvers<ContextType>;
+  CrmMailThreadPage?: CrmMailThreadPageResolvers<ContextType>;
+  CrmMailThreadSummary?: CrmMailThreadSummaryResolvers<ContextType>;
+  CrmMailbox?: CrmMailboxResolvers<ContextType>;
   CrmObjectSchema?: CrmObjectSchemaResolvers<ContextType>;
   CrmOwnerValue?: CrmOwnerValueResolvers<ContextType>;
   CrmPeriodValue?: CrmPeriodValueResolvers<ContextType>;
@@ -34157,6 +34603,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CrmSort?: CrmSortResolvers<ContextType>;
   CrmSourceCount?: CrmSourceCountResolvers<ContextType>;
   CrmStageValue?: CrmStageValueResolvers<ContextType>;
+  CrmTimelineDetail?: CrmTimelineDetailResolvers<ContextType>;
+  CrmTimelineField?: CrmTimelineFieldResolvers<ContextType>;
   CrmTimelineItem?: CrmTimelineItemResolvers<ContextType>;
   CrmView?: CrmViewResolvers<ContextType>;
   DashboardCampaign?: DashboardCampaignResolvers<ContextType>;

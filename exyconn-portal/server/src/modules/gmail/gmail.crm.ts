@@ -10,6 +10,7 @@ import {
   type AccountMailbox,
 } from './gmail.accounts';
 import { CrmEmailMessageModel } from './gmail.models';
+import { CrmMailThreadModel } from '../crm-mail/crm-mail.models';
 import { keepRecord, toRecord } from './gmail.sync';
 
 /**
@@ -49,12 +50,20 @@ async function replyThreading(input: SendCrmEmailInput, mailbox: AccountMailbox)
   if (!input.threadId) {
     return { threadId: undefined, inReplyTo: undefined, references: [] };
   }
-  const earlier = await CrmEmailMessageModel.find({ threadId: input.threadId })
-    .sort({ sentAt: 1 })
-    .select('accountId messageId')
-    .lean();
-  const references = [...new Set(earlier.map((message) => message.messageId).filter(Boolean))];
-  const sameMailbox = earlier.some((message) => message.accountId === mailbox.id);
+  const [earlier, listed] = await Promise.all([
+    CrmEmailMessageModel.find({ threadId: input.threadId })
+      .sort({ sentAt: 1 })
+      .select('accountId messageId')
+      .lean(),
+    // A conversation opened in CRM > Mail may be with nobody in the CRM yet.
+    CrmMailThreadModel.findOne({ accountId: mailbox.id, threadId: input.threadId })
+      .select('messageIds')
+      .lean(),
+  ]);
+  const ids = [...(listed?.messageIds ?? []), ...earlier.map((message) => message.messageId)];
+  const references = [...new Set(ids.filter(Boolean))];
+  const sameMailbox =
+    listed !== null || earlier.some((message) => message.accountId === mailbox.id);
   const answering = input.inReplyTo?.trim() ?? '';
   return {
     threadId: sameMailbox ? input.threadId : undefined,

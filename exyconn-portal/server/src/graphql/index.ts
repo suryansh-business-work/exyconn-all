@@ -7,6 +7,7 @@ import { googleSignInTypeDefs, googleSignInResolvers } from '../modules/auth/goo
 import { gmailTypeDefs, gmailResolvers } from '../modules/gmail';
 import { microsoftMailTypeDefs, microsoftMailResolvers } from '../modules/microsoft-mail';
 import { crmIntegrationsTypeDefs, crmIntegrationsResolvers } from '../modules/crm-integrations';
+import { crmMailTypeDefs, crmMailResolvers } from '../modules/crm-mail';
 import { meetingTypeDefs, meetingResolvers } from '../modules/crm/meetings';
 import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
@@ -259,6 +260,7 @@ export const typeDefs = [
   gmailTypeDefs,
   microsoftMailTypeDefs,
   crmIntegrationsTypeDefs,
+  crmMailTypeDefs,
   meetingTypeDefs,
   organizationsTypeDefs,
   adminTypeDefs,
@@ -376,6 +378,7 @@ export const resolvers = mergeResolvers([
   gmailResolvers,
   microsoftMailResolvers,
   crmIntegrationsResolvers,
+  crmMailResolvers,
   meetingResolvers,
   organizationsResolvers,
   adminResolvers,

@@ -1,0 +1,109 @@
+fragment CrmMailRecordLinkFields on CrmMailRecordLink {
+  object
+  id
+  name
+}
+
+query CrmMailOverview($accountId: ID) {
+  crmMailOverview(accountId: $accountId) {
+    mailboxes {
+      id
+      email
+      provider
+      readable
+      status
+      lastError
+      lastSyncedAt
+      unreadCount
+    }
+    folders {
+      folder
+      unread
+    }
+  }
+}
+
+query CrmMailThreads($input: CrmMailThreadsInput!) {
+  crmMailThreads(input: $input) {
+    rows {
+      id
+      accountId
+      mailbox
+      threadId
+      subject
+      snippet
+      fromName
+      fromAddress
+      participants
+      lastAt
+      messageCount
+      unread
+      starred
+      hasAttachments
+      record {
+        ...CrmMailRecordLinkFields
+      }
+    }
+    totalCount
+    warnings
+  }
+}
+
+query CrmMailThread($accountId: ID!, $threadId: String!) {
+  crmMailThread(accountId: $accountId, threadId: $threadId) {
+    id
+    accountId
+    mailbox
+    threadId
+    subject
+    unread
+    starred
+    inbox
+    record {
+      ...CrmMailRecordLinkFields
+    }
+    messages {
+      id
+      messageId
+      fromName
+      fromAddress
+      to
+      cc
+      bcc
+      subject
+      sentAt
+      direction
+      html
+      text
+      unread
+      attachments {
+        id
+        messageId
+        filename
+        mimeType
+        size
+      }
+    }
+  }
+}
+
+query CrmMailAttachment($accountId: ID!, $messageId: String!, $attachmentId: String!) {
+  crmMailAttachment(accountId: $accountId, messageId: $messageId, attachmentId: $attachmentId) {
+    data
+    size
+  }
+}
+
+mutation SyncCrmMail($accountId: ID) {
+  syncCrmMail(accountId: $accountId) {
+    accountId
+    email
+    syncedAt
+    error
+    skipped
+  }
+}
+
+mutation CrmMailThreadAction($threads: [CrmMailThreadRef!]!, $action: CrmMailAction!) {
+  crmMailThreadAction(threads: $threads, action: $action)
+}
