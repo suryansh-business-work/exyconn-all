@@ -29,12 +29,6 @@ function recordOf(thread: MailThread): Pick<ComposeEmailContext, 'object' | 'id'
 export const senderOf = (message: MailMessage) =>
   message.fromName ? `${message.fromName} <${message.fromAddress}>` : message.fromAddress;
 
-const quoted = (text: string) =>
-  text
-    .split('\n')
-    .map((line) => `> ${line}`)
-    .join('\n');
-
 /**
  * Who a reply goes to: the sender of the newest message from the other side (or, when the
  * mailbox wrote every message, its recipients). Reply all copies everyone else on that
@@ -57,7 +51,7 @@ function recipients(thread: MailThread, all: boolean): { to: string[]; cc: strin
 
 /**
  * What the compose form starts with for a reply, a reply to all or a forward of `message`:
- * recipients, subject, the quoted text, and the thread and mailbox a reply stays in.
+ * recipients, subject, the earlier mail it quotes, and the thread and mailbox a reply stays in.
  * Reply all copies the others on the message in Cc.
  */
 export function composeFor(
@@ -73,14 +67,14 @@ export function composeFor(
       ...base,
       to: [],
       subject,
-      body: `\n\n${words.forwarded}\n${message.text}`,
+      quote: `${words.forwarded}\n${message.text}`,
     };
   }
   return {
     ...base,
     ...recipients(thread, mode === 'replyAll'),
     subject: replySubject(thread.subject),
-    body: `\n\n${words.wrote}\n${quoted(message.text)}`,
+    quote: `${words.wrote}\n${message.text}`,
     threadId: thread.threadId,
     inReplyTo: message.messageId || undefined,
   };

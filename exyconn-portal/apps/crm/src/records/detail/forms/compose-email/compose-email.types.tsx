@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { visibleText } from '@exyconn/shell/utils/visibleText';
 
 const addressList = z.array(z.string().trim().regex(EMAIL, 'Each address must be a valid email'));
 
@@ -13,7 +14,12 @@ export const composeEmailSchema = z.object({
     .trim()
     .min(1, 'Write a subject')
     .max(300, 'Keep the subject under 300 characters'),
-  body: z.string().trim().min(1, 'Write the message').max(50_000, 'The message is too long'),
+  /** Rich text (HTML) from the editor; plain text for a cold email version. */
+  body: z
+    .string()
+    .trim()
+    .max(50_000, 'The message is too long')
+    .refine((body) => visibleText(body) !== '', 'Write the message'),
   /** What the AI draft should say; not sent. */
   instruction: z.string().trim().max(1000, 'Keep the instruction under 1000 characters'),
 });
@@ -33,6 +39,8 @@ export interface ComposeEmailContext {
   subject?: string;
   /** A message to start from, e.g. a cold email version. */
   body?: string;
+  /** The earlier mail a reply or forward carries, as plain text; sent quoted under the body. */
+  quote?: string;
   /** The recipient is fixed (a cold email goes to the draft's address): To is shown, not edited. */
   recipientsLocked?: boolean;
   threadId?: string;

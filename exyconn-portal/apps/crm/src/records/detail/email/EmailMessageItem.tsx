@@ -1,21 +1,19 @@
 import { useId, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useFormatters, useT } from '@exyconn/i18n';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
-  Button,
   Chip,
-  Collapse,
   Flex,
   Stack,
   Text,
 } from '@exyconn/shell/components/ui';
 import { CrmEmailDirection } from '@exyconn/shell/graphql/generated';
 import type { EmailMessage } from './emailTypes';
+import { FoldedQuote } from './FoldedQuote';
 import { splitQuoted } from './quotedText';
 
 interface EmailMessageItemProps {
@@ -24,45 +22,15 @@ interface EmailMessageItemProps {
   defaultExpanded: boolean;
 }
 
-/** The text a person wrote, with the earlier mail it quotes folded away until asked for. */
+/** The text a person wrote, with the earlier mail it quotes folded behind "⋯". */
 function MessageBody({ text }: Readonly<{ text: string }>) {
-  const t = useT();
-  const [showQuoted, setShowQuoted] = useState(false);
   const { main, quoted } = splitQuoted(text);
   return (
     <Stack spacing={1}>
       <Text size="sm" sx={{ whiteSpace: 'pre-line', overflowWrap: 'anywhere' }}>
         {main}
       </Text>
-      {quoted && (
-        <>
-          <Button
-            size="small"
-            variant="text"
-            startIcon={<MoreHorizIcon />}
-            aria-expanded={showQuoted}
-            onClick={() => setShowQuoted(!showQuoted)}
-            sx={{ alignSelf: 'flex-start' }}
-          >
-            {showQuoted ? t('Hide quoted text') : t('Show quoted text')}
-          </Button>
-          <Collapse in={showQuoted} unmountOnExit>
-            <Text
-              size="sm"
-              color="text.secondary"
-              sx={{
-                whiteSpace: 'pre-line',
-                overflowWrap: 'anywhere',
-                borderLeft: 2,
-                borderColor: 'divider',
-                pl: 1.5,
-              }}
-            >
-              {quoted}
-            </Text>
-          </Collapse>
-        </>
-      )}
+      {quoted && <FoldedQuote text={quoted} />}
     </Stack>
   );
 }

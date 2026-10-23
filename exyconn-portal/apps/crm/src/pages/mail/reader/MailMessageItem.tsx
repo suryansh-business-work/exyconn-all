@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useFormatters, useT } from '@exyconn/i18n';
-import { Box, ButtonBase, Collapse, Flex, Stack, Text } from '@exyconn/shell/components/ui';
+import { Avatar, Box, ButtonBase, Collapse, Flex, Stack, Text } from '@exyconn/shell/components/ui';
+import { initialsOf } from '../../../records/detail/initials';
 import { senderOf, type MailMessage } from '../mailCompose';
 import { MailBody } from './MailBody';
 import { MailAttachments } from './MailAttachments';
@@ -35,27 +36,46 @@ export function MailMessageItem({
   return (
     <Box
       component="li"
-      sx={{ listStyle: 'none', borderBottom: 1, borderColor: 'divider', py: 1.5 }}
+      sx={{
+        listStyle: 'none',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 1,
+        mb: 1,
+        bgcolor: open ? 'background.paper' : 'transparent',
+      }}
     >
       <ButtonBase
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        sx={{ width: '100%', textAlign: 'left', display: 'block', borderRadius: 1, p: 0.5 }}
+        sx={{ width: '100%', textAlign: 'left', display: 'block', borderRadius: 1, p: 1.5 }}
       >
-        <Flex direction="row" spacing={1} justifyContent="space-between" alignItems="baseline">
-          <Text size="sm" weight="semibold" sx={{ overflowWrap: 'anywhere' }}>
-            {sender}
-          </Text>
-          <Text size="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
-            <time dateTime={message.sentAt}>{formatDateTime(message.sentAt)}</time>
-          </Text>
+        <Flex direction="row" spacing={1.5} alignItems="flex-start">
+          <Avatar alt="" aria-hidden sx={{ width: 32, height: 32, typography: 'caption' }}>
+            {initialsOf(message.fromName || message.fromAddress)}
+          </Avatar>
+          <Stack spacing={0.25} sx={{ minWidth: 0, flexGrow: 1 }}>
+            <Flex direction="row" spacing={1} justifyContent="space-between" alignItems="baseline">
+              <Text size="sm" weight="semibold" sx={{ overflowWrap: 'anywhere' }}>
+                {sender}
+              </Text>
+              <Text size="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                <time dateTime={message.sentAt}>{formatDateTime(message.sentAt)}</time>
+              </Text>
+            </Flex>
+            <Text
+              size="caption"
+              color="text.secondary"
+              noWrap={!open}
+              sx={{ overflowWrap: 'anywhere' }}
+            >
+              {open ? recipientLine(message, t) : message.text}
+            </Text>
+          </Stack>
         </Flex>
-        <Text size="caption" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
-          {open ? recipientLine(message, t) : message.text.slice(0, 160)}
-        </Text>
       </ButtonBase>
       <Collapse in={open} unmountOnExit>
-        <Stack spacing={1.5} sx={{ pt: 1 }}>
+        <Stack spacing={1.5} sx={{ px: 1.5, pb: 1.5 }}>
           <MailBody
             html={message.html}
             text={message.text}

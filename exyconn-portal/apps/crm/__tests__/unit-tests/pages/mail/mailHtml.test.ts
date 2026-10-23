@@ -6,10 +6,29 @@ const HTML =
 
 describe('prepareMailHtml', () => {
   it('drops scripts and handlers, keeps the images and opens links in a new tab', () => {
-    const html = prepareMailHtml(HTML);
-    expect(html).not.toMatch(/script|onclick/);
-    expect(html).toContain('src="https://track.example/p.gif"');
-    expect(html).toContain('<a href="https://acme.io" target="_blank" rel="noopener noreferrer">');
+    const { main, quoted } = prepareMailHtml(HTML);
+    expect(main).not.toMatch(/script|onclick/);
+    expect(main).toContain('src="https://track.example/p.gif"');
+    expect(main).toContain('<a href="https://acme.io" target="_blank" rel="noopener noreferrer">');
+    expect(quoted).toBe('');
+  });
+
+  it("folds Gmail's and Outlook's quoted mail away from the reply", () => {
+    const gmail = prepareMailHtml('<p>Thanks!</p><div class="gmail_quote"><p>Earlier</p></div>');
+    expect(gmail.main).toBe('<p>Thanks!</p>');
+    expect(gmail.quoted).toContain('Earlier');
+
+    const outlook = prepareMailHtml(
+      '<p>Sure</p><div id="divRplyFwdMsg">From: Asha</div><p>Original</p>',
+    );
+    expect(outlook.main).toBe('<p>Sure</p>');
+    expect(outlook.quoted).toContain('From: Asha');
+    expect(outlook.quoted).toContain('Original');
+  });
+
+  it('keeps a message that is nothing but quote whole', () => {
+    const only = '<blockquote type="cite"><p>Forwarded text</p></blockquote>';
+    expect(prepareMailHtml(only)).toEqual({ main: only, quoted: '' });
   });
 });
 

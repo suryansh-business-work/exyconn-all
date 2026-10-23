@@ -1,7 +1,8 @@
 import { useT } from '@exyconn/i18n';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Button, Flex, TextField } from '@exyconn/shell/components/ui';
-import { RhfChipsInput, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfChipsInput, RhfRichText, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { FoldedQuote } from '../../email/FoldedQuote';
 
 interface ComposeAddressFieldsProps {
   /** The recipients shown read-only when they are locked. */
@@ -69,5 +70,38 @@ export function ComposeAiDraft({ drafting, onDraft }: Readonly<ComposeAiDraftPro
         {t('Draft with AI')}
       </Button>
     </Flex>
+  );
+}
+
+interface ComposeBodyFieldProps {
+  /** A cold email version is plain text, sent as written; everything else is rich text. */
+  plain: boolean;
+  /** The earlier mail a reply or forward carries, folded under the editor. */
+  quote?: string;
+}
+
+/** The message: the rich text editor (or plain text for a cold email) and any quoted mail. */
+export function ComposeBodyField({ plain, quote }: Readonly<ComposeBodyFieldProps>) {
+  return (
+    <>
+      {plain ? (
+        <RhfTextField
+          name="body"
+          label="Message"
+          multiline
+          minRows={8}
+          helperText="Sent as written. Draft with AI fills this in, and you can edit it before sending."
+        />
+      ) : (
+        <RhfRichText
+          name="body"
+          label="Message"
+          folder="email"
+          minHeight={200}
+          helperText="Draft with AI fills this in, and you can edit it before sending."
+        />
+      )}
+      {quote && <FoldedQuote text={quote} />}
+    </>
   );
 }

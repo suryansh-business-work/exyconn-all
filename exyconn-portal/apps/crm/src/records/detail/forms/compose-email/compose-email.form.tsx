@@ -5,7 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useT } from '@exyconn/i18n';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Alert, Link } from '@exyconn/shell/components/ui';
-import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -22,8 +22,9 @@ import {
   type ComposeEmailContext,
   type ComposeEmailValues,
 } from './compose-email.types';
-import { ComposeAddressFields, ComposeAiDraft } from './compose-email.fields';
+import { ComposeAddressFields, ComposeAiDraft, ComposeBodyField } from './compose-email.fields';
 import { useComposeSender } from './useComposeSender';
+import { textToHtml, withQuote } from './emailHtml';
 import { readMemory, useFormMemory } from '@exyconn/shell/components/compose-dock';
 import { EMAIL_INTEGRATIONS_PATH } from '../../../../integrations/emailIntegrationsPath';
 
@@ -98,7 +99,8 @@ export function ComposeEmailForm({
           },
         },
       });
-      methods.setValue('body', data?.draftCrmEmail ?? '', {
+      const drafted = data?.draftCrmEmail ?? '';
+      methods.setValue('body', sendOverride ? drafted : textToHtml(drafted), {
         shouldDirty: true,
         shouldValidate: true,
       });
@@ -116,7 +118,8 @@ export function ComposeEmailForm({
           to: values.to,
           cc: values.cc,
           subject: values.subject,
-          body: values.body,
+          body: withQuote(values.body, context.quote),
+          html: true,
           threadId: context.threadId,
           inReplyTo: context.inReplyTo,
         },
@@ -177,13 +180,7 @@ export function ComposeEmailForm({
           }
         />
       )}
-      <RhfTextField
-        name="body"
-        label="Message"
-        multiline
-        minRows={8}
-        helperText="Sent as written. Draft with AI fills this in, and you can edit it before sending."
-      />
+      <ComposeBodyField plain={Boolean(sendOverride)} quote={context.quote} />
     </EntityForm>
   );
 }
