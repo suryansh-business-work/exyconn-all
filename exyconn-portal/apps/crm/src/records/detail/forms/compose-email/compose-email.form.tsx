@@ -2,10 +2,9 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import AddIcon from '@mui/icons-material/Add';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useT } from '@exyconn/i18n';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Alert, Button, Flex, Link } from '@exyconn/shell/components/ui';
+import { Alert, Link } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -23,15 +22,21 @@ import {
   type ComposeEmailContext,
   type ComposeEmailValues,
 } from './compose-email.types';
-import { ComposeAddressFields } from './compose-email.fields';
+import { ComposeAddressFields, ComposeAiDraft } from './compose-email.fields';
 import { useComposeSender } from './useComposeSender';
 import { readMemory, useFormMemory } from '@exyconn/shell/components/compose-dock';
 import { EMAIL_INTEGRATIONS_PATH } from '../../../../integrations/emailIntegrationsPath';
 
 const DRAFT = 'email-draft';
 
+/** What a sent email refreshes; the record's threads and timeline unless the host says otherwise. */
+type RefetchQueries = NonNullable<Parameters<typeof useSendCrmEmailMutation>[0]>['refetchQueries'];
+const RECORD_QUERIES: RefetchQueries = [CrmEmailThreadsDocument, CrmTimelineDocument];
+
 interface ComposeEmailFormProps {
   context: ComposeEmailContext;
+  /** Refreshed after sending; the record's threads and timeline by default. */
+  refetchQueries?: RefetchQueries;
   /** In the communication dock: keeps the draft while the page remounts on navigation. */
   memoryKey?: string;
   /** Sends instead of the plain CRM send, e.g. a cold email version that must be tracked. */
@@ -49,13 +54,13 @@ export function ComposeEmailForm({
   context,
   memoryKey,
   send: sendOverride,
+  refetchQueries = RECORD_QUERIES,
   onDone,
   onCancel,
 }: Readonly<ComposeEmailFormProps>) {
   const t = useT();
   const notify = useNotify();
   const navigate = useNavigate();
-  const refetchQueries = [CrmEmailThreadsDocument, CrmTimelineDocument];
   const [send] = useSendCrmEmailMutation({ refetchQueries });
   const [draft, { loading: drafting }] = useDraftCrmEmailMutation();
   const remembered = memoryKey ? readMemory<ComposeEmailValues>(memoryKey, DRAFT) : undefined;
@@ -65,7 +70,7 @@ export function ComposeEmailForm({
     defaultValues: remembered ?? {
       fromAccountId: '',
       to: context.to,
-      cc: [],
+      cc: context.cc ?? [],
       subject: context.subject ?? '',
       body: context.body ?? '',
       instruction: '',
@@ -164,25 +169,14 @@ export function ComposeEmailForm({
         }}
       />
       <ComposeAddressFields to={context.to} recipientsLocked={context.recipientsLocked} />
-      <Flex direction="column" spacing={1}>
-        <RhfTextField
-          name="instruction"
-          label="Ask the AI to write it"
-          helperText="e.g. thank them for the call and propose a demo next week"
-        />
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<AutoAwesomeIcon />}
-          onClick={() =>
+      {context.id !== '' && (
+        <ComposeAiDraft
+          drafting={drafting}
+          onDraft={() =>
             onDraft().catch((error: unknown) => portalLogger.warn('crm: AI draft failed', error))
           }
-          loading={drafting}
-          sx={{ alignSelf: 'flex-start' }}
-        >
-          {t('Draft with AI')}
-        </Button>
-      </Flex>
+        />
+      )}
       <RhfTextField
         name="body"
         label="Message"

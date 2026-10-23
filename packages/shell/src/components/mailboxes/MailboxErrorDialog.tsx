@@ -57,7 +57,8 @@ export function MailboxErrorDialog({ row, onClose }: Readonly<MailboxErrorDialog
   const t = useT();
   const notify = useNotify();
   const { formatDateTime } = useFormatters();
-  const error = row?.lastError ? describeMailboxError(row.lastError) : undefined;
+  const lastError = row?.lastError ?? '';
+  const error = lastError ? describeMailboxError(lastError) : undefined;
 
   const copy = async (text: string) => {
     const copied = await copyToClipboard(text);
@@ -106,7 +107,7 @@ export function MailboxErrorDialog({ row, onClose }: Readonly<MailboxErrorDialog
           <Button
             startIcon={<ContentCopyIcon />}
             onClick={() => {
-              copy(row?.lastError ?? '').catch((failure: unknown) =>
+              copy(lastError).catch((failure: unknown) =>
                 portalLogger.warn('mailbox: copying a mailbox error failed', failure),
               );
             }}

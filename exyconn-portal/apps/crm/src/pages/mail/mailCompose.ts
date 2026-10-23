@@ -35,24 +35,30 @@ const quoted = (text: string) =>
     .map((line) => `> ${line}`)
     .join('\n');
 
-/** Who a reply goes to: the sender of the newest message from the other side, or everyone. */
-function recipients(thread: MailThread, all: boolean): string[] {
+/**
+ * Who a reply goes to: the sender of the newest message from the other side (or, when the
+ * mailbox wrote every message, its recipients). Reply all copies everyone else on that
+ * message. The mailbox itself is never a recipient.
+ */
+function recipients(thread: MailThread, all: boolean): { to: string[]; cc: string[] } {
   const own = thread.mailbox;
   const last = thread.messages.findLast((m) => m.direction === CrmEmailDirection.In);
   const answering = last ?? thread.messages.at(-1);
   if (!answering) {
-    return [];
+    return { to: [], cc: [] };
   }
   const sender =
     answering.direction === CrmEmailDirection.In ? [answering.fromAddress] : answering.to;
-  const list = all ? [...sender, ...answering.to, ...answering.cc] : sender;
-  return [...new Set(list)].filter((address) => address !== own);
+  const to = [...new Set(sender)].filter((address) => address !== own);
+  const others = all ? [...answering.to, ...answering.cc] : [];
+  const cc = [...new Set(others)].filter((address) => address !== own && !to.includes(address));
+  return { to, cc };
 }
 
 /**
  * What the compose form starts with for a reply, a reply to all or a forward of `message`:
  * recipients, subject, the quoted text, and the thread and mailbox a reply stays in.
- * Reply all puts everyone in To: the shared compose form has no way to start with Cc filled.
+ * Reply all copies the others on the message in Cc.
  */
 export function composeFor(
   thread: MailThread,
@@ -72,7 +78,7 @@ export function composeFor(
   }
   return {
     ...base,
-    to: recipients(thread, mode === 'replyAll'),
+    ...recipients(thread, mode === 'replyAll'),
     subject: replySubject(thread.subject),
     body: `\n\n${words.wrote}\n${quoted(message.text)}`,
     threadId: thread.threadId,

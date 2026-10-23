@@ -132,7 +132,8 @@ describe('MailPage', () => {
 
     expect(screen.getByText('compose form')).toBeInTheDocument();
     expect(compose.contexts.at(-1)).toMatchObject({
-      to: ['asha@globex.io', 'ops@globex.io'],
+      to: ['asha@globex.io'],
+      cc: ['ops@globex.io'],
       threadId: 't1',
       fromAccountId: 'g1',
     });

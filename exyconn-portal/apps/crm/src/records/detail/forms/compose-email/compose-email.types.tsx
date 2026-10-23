@@ -20,11 +20,16 @@ export const composeEmailSchema = z.object({
 
 export type ComposeEmailValues = z.infer<typeof composeEmailSchema>;
 
-/** Who and what the email is about: the record, and the thread when it is a reply. */
+/**
+ * Who and what the email is about: the record, and the thread when it is a reply. An empty
+ * `id` is an email about no record yet (e.g. a new email in CRM > Mail).
+ */
 export interface ComposeEmailContext {
   object: 'CONTACT' | 'COMPANY';
   id: string;
   to: string[];
+  /** Others copied, e.g. everyone else on the message for Reply all. */
+  cc?: string[];
   subject?: string;
   /** A message to start from, e.g. a cold email version. */
   body?: string;

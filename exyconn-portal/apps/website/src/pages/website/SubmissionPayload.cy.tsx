@@ -10,10 +10,10 @@ const mount = (data: unknown) =>
   );
 
 describe('SubmissionPayload', () => {
-  it('lists each field with a label, email ready to click', () => {
+  it('lists each field with a label, the email opening the email window', () => {
     mount({ firstName: 'Asha', email: 'a@x.co', message: 'Line one\nLine two' });
     cy.contains('dt', 'First name').next('dd').should('have.text', 'Asha');
-    cy.contains('a', 'a@x.co').should('have.attr', 'href', 'mailto:a@x.co');
+    cy.contains('button', 'a@x.co').should('have.attr', 'aria-label', 'Email a@x.co');
     cy.contains('dt', 'Message').should('be.visible');
   });
 

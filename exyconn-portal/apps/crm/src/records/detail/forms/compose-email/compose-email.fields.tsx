@@ -1,5 +1,6 @@
 import { useT } from '@exyconn/i18n';
-import { TextField } from '@exyconn/shell/components/ui';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { Button, Flex, TextField } from '@exyconn/shell/components/ui';
 import { RhfChipsInput, RhfTextField } from '@exyconn/shell/components/form/rhf';
 
 interface ComposeAddressFieldsProps {
@@ -39,5 +40,34 @@ export function ComposeAddressFields({
         helperText="What they see in their inbox, up to 300 characters."
       />
     </>
+  );
+}
+
+interface ComposeAiDraftProps {
+  drafting: boolean;
+  onDraft: () => void;
+}
+
+/** "Draft with AI" and the instruction it follows; only for an email about a record. */
+export function ComposeAiDraft({ drafting, onDraft }: Readonly<ComposeAiDraftProps>) {
+  const t = useT();
+  return (
+    <Flex direction="column" spacing={1}>
+      <RhfTextField
+        name="instruction"
+        label="Ask the AI to write it"
+        helperText="e.g. thank them for the call and propose a demo next week"
+      />
+      <Button
+        size="small"
+        variant="outlined"
+        startIcon={<AutoAwesomeIcon />}
+        onClick={onDraft}
+        loading={drafting}
+        sx={{ alignSelf: 'flex-start' }}
+      >
+        {t('Draft with AI')}
+      </Button>
+    </Flex>
   );
 }
