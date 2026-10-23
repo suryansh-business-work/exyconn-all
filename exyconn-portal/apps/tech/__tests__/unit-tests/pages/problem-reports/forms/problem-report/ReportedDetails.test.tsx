@@ -12,9 +12,10 @@ describe('ReportedDetails', () => {
     renderWithProviders(<ReportedDetails report={reportRow()} />);
 
     expect(screen.getByText('PR-1042 · Portal is slow to load')).toBeInTheDocument();
-    expect(
-      screen.getByText(`Portal · SLOWNESS · Asha Rao (asha@example.test) · ${RECEIVED}`),
-    ).toBeInTheDocument();
+    const email = screen.getByRole('button', { name: 'Email asha@example.test' });
+    expect(email.parentElement).toHaveTextContent(
+      `Portal · SLOWNESS · Asha Rao (asha@example.test) · ${RECEIVED}`,
+    );
     expect(
       screen.getByText('Every page takes more than ten seconds to open since this morning.'),
     ).toBeInTheDocument();

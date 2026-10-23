@@ -136,6 +136,7 @@ describe('SignatureEvidence', () => {
     renderEvidence();
     expect(screen.getByText('Waiting')).toBeInTheDocument();
     expect(screen.getByText('bob@acme.example')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Email bob@acme.example' })).toBeInTheDocument();
     expect(screen.getByText('Link expires at 2026-11-01T00:00:00.000Z')).toBeInTheDocument();
   });
 

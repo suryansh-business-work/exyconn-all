@@ -7,6 +7,7 @@ import { WorkArrangementFacts } from '@/components/work';
 import { presenceStatus, userInitials, userStatus, type UserDetail } from './user-details.types';
 import { readingPanel } from '@/components/glass/glass';
 import { EmployeeContactFacts } from './EmployeeContactFacts';
+import { EmailLink } from '@/components/email';
 
 /** Read-only summary card: identity, presence, contact, work facts, roles and audit timestamps. */
 export function UserProfileCard({ user }: Readonly<{ user: UserDetail }>) {
@@ -28,7 +29,7 @@ export function UserProfileCard({ user }: Readonly<{ user: UserDetail }>) {
             {user.name}
           </Heading>
           <Text size="sm" color="text.secondary" noWrap>
-            {user.email}
+            <EmailLink address={user.email} />
           </Text>
           <SocialLinkButtons links={user.socialLinks} />
         </Box>

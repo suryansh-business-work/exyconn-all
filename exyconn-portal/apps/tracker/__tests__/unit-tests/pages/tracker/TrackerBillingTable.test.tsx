@@ -50,6 +50,7 @@ describe('TrackerBillingTable', () => {
 
     const asha = rowOf('Asha Rao');
     expect(asha.getByText('asha@example.test')).toBeInTheDocument();
+    expect(asha.getByRole('button', { name: 'Email asha@example.test' })).toBeInTheDocument();
     expect(asha.getByText('HOURLY')).toBeInTheDocument();
     expect(asha.getByText('12.5 h')).toBeInTheDocument();
     expect(asha.getByText('$40.00')).toBeInTheDocument();

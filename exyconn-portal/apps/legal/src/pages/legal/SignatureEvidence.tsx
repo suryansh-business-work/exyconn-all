@@ -3,6 +3,7 @@ import { Alert, Box, Button, Chip, Flex, Text } from '@exyconn/shell/components/
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
   useContractSignaturesQuery,
@@ -55,7 +56,7 @@ function SignatureRow({ signature, formatDateTime, onWithdraw }: Readonly<Signat
         )}
       </Flex>
       <Text size="caption" color="text.secondary">
-        {signature.signerEmail}
+        <EmailLink address={signature.signerEmail} />
       </Text>
       {signature.signedAt ? (
         <Box>

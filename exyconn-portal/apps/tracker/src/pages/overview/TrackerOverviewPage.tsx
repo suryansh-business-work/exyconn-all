@@ -15,6 +15,7 @@ import {
 import { color } from '@exyconn/shell/components/ui';
 import { moneyFormat, monthRange } from '../tracker/tracker.billing';
 import { countBy } from './tracker-overview';
+import { EmailLink } from '@exyconn/shell/components/email';
 
 /** How many employees the overview lists before sending you to the billing report. */
 const TOP_EMPLOYEES = 8;
@@ -69,7 +70,7 @@ export function TrackerOverviewPage() {
 
   const columns: Column<BillingRow>[] = [
     { key: 'name', label: 'Employee' },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'Email', render: (row) => <EmailLink address={row.email} /> },
     { key: 'hours', label: 'Hours', render: (r) => r.hours.toFixed(1) },
     {
       key: 'billingRate',

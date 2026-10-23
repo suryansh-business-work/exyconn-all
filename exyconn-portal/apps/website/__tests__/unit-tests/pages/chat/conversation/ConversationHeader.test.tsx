@@ -42,9 +42,8 @@ describe('ConversationHeader', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Asha Rao' })).toBeInTheDocument();
     expect(screen.getByText('OPEN')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'asha@example.com' })).toHaveAttribute(
-      'href',
-      'mailto:asha@example.com',
+    expect(screen.getByRole('button', { name: 'Email asha@example.com' })).toHaveTextContent(
+      'asha@example.com',
     );
     expect(detail('Phone')).toHaveTextContent('+91 98765 43210');
     expect(detail('Site')).toHaveTextContent('exyconn.com');

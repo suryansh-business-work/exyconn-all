@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { screen } from '@testing-library/react';
 import { color } from '@exyconn/shell/components/ui';
 import { TrackerOverviewPage } from '../../../../src/pages/overview';
 import { moneyFormat } from '../../../../src/pages/tracker/tracker.billing';
@@ -154,6 +155,16 @@ describe('TrackerOverviewPage', () => {
     expect(cell('amount', rated)).toBe(money.format(rated.amount));
     expect(cell('billingRate', unrated)).toBe('—');
     expect(cell('amount', unrated)).toBe('—');
+  });
+
+  it('shows each address as a link that opens the email window', () => {
+    renderWithProviders(<TrackerOverviewPage />);
+    const email = tableProps().columns.find((c) => c.key === 'email');
+    const row = billingRow('r', 1);
+
+    renderWithProviders(<>{email?.render?.(row)}</>);
+
+    expect(screen.getByRole('button', { name: `Email ${row.email}` })).toBeInTheDocument();
   });
 
   it('hands the table its loading flag, empty message and the billing refetch', () => {

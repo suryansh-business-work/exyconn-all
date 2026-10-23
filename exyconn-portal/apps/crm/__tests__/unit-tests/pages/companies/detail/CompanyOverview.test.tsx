@@ -74,6 +74,7 @@ describe('CompanyOverview', () => {
     expect(value('Address')).toBe('1 Main St');
     expect(value('Company owner')).toBe('Priya');
     expect(value('Lead owner')).toContain('Priya (priya@exyconn.com)');
+    expect(screen.getByRole('button', { name: 'Email priya@exyconn.com' })).toBeInTheDocument();
     expect(value('Notes')).toBe('Met at expo');
     expect(value('Added')).not.toBe('');
     expect(screen.getByText('Custom values {"tier":"gold"}')).toBeInTheDocument();

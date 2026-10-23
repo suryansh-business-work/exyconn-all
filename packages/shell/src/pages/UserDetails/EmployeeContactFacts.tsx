@@ -1,7 +1,8 @@
 import { useT } from '@exyconn/i18n';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import { Box, Chip, Flex, Link } from '@/components/ui';
+import { Box, Chip, Flex } from '@/components/ui';
+import { EmailLink } from '@/components/email';
 import { DetailFact, DetailFactGrid } from '@/components/data/DetailFact';
 import { WorkDayChips } from '@/components/work';
 import type { UserDetail } from './user-details.types';
@@ -17,7 +18,7 @@ function VerifiedAddress({ address, verifiedAt }: Readonly<AddressProps>) {
   const verified = Boolean(verifiedAt);
   return (
     <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-      <Link href={`mailto:${address}`}>{address}</Link>
+      <EmailLink address={address} />
       <Chip
         size="small"
         variant={verified ? 'filled' : 'outlined'}

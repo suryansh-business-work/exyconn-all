@@ -15,6 +15,7 @@ describe('ProfileHeader', () => {
     expect(screen.getByRole('heading', { name: 'Asha Rao' })).toBeInTheDocument();
     expect(screen.getByText('Engineer · Platform')).toBeInTheDocument();
     expect(screen.getByText('asha@example.com')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Email asha@example.com' })).toBeInTheDocument();
     expect(screen.getByText('Joined date(2024-04-01)')).toBeInTheDocument();
     expect(screen.getByText('4 posts')).toBeInTheDocument();
     expect(screen.getByText('12 likes received')).toBeInTheDocument();

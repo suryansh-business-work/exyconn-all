@@ -8,6 +8,7 @@ import {
   dateColumn,
   derivedColumn,
   derivedStatusColumn,
+  emailColumn,
   statusColumn,
   textColumn,
   valueColumn,
@@ -101,6 +102,14 @@ describe('column factories', () => {
       field: 'isActive',
       filter: false,
     });
+  });
+
+  it('renders an email column through the email cell and keeps it filterable', () => {
+    const column = emailColumn<Row>('name', 'Email');
+
+    expect(column).toMatchObject({ field: 'name', headerName: 'Email' });
+    expect(column.cellRenderer).toBeTypeOf('function');
+    expect(column.filter).toBeUndefined();
   });
 
   it('formats dates through the grid context and falls back to the empty text', () => {

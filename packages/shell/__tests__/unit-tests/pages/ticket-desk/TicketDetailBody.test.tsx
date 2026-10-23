@@ -92,7 +92,8 @@ describe('TicketDetailBody — who raised it', () => {
 
   it('names a customer by company, with their email', () => {
     renderBody({ requesterType: 'CLIENT', clientName: 'Acme', requesterEmail: 'it@acme.test' });
-    expect(screen.getByText('SUP-101 · Raised by Acme (it@acme.test)')).toBeInTheDocument();
+    expect(screen.getByText('SUP-101 · Raised by Acme')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Email it@acme.test' })).toBeInTheDocument();
   });
 
   it('falls back to the requester name', () => {

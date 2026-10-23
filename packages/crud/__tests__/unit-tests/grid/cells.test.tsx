@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ICellRendererParams } from 'ag-grid-community';
 import SendIcon from '@mui/icons-material/Send';
-import { BoolCell, RowActionsCell, StatusCell } from '../../../src/grid/cells';
+import { BoolCell, EmailCell, RowActionsCell, StatusCell } from '../../../src/grid/cells';
 import { DELETE_ACTION, EDIT_ACTION } from '../../../src/grid/columns';
 import type { RowActionSpec } from '../../../src/grid/types';
 import { renderWithProviders } from '../test-utils';
@@ -24,6 +24,22 @@ const actionParams = (
   actions: Record<string, (target: Row) => void>,
   actionSpecs: readonly RowActionSpec[],
 ) => ({ data, context: { actions }, actionSpecs }) as unknown as ActionParams;
+
+describe('EmailCell', () => {
+  it('renders the address as a button that names who it emails', () => {
+    renderWithProviders(<EmailCell {...cellParams('ada@acme.io')} />);
+
+    expect(screen.getByRole('button', { name: 'Email ada@acme.io' })).toHaveTextContent(
+      'ada@acme.io',
+    );
+  });
+
+  it('renders nothing for a blank or non-text value', () => {
+    const { container } = renderWithProviders(<EmailCell {...cellParams(null)} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+});
 
 describe('StatusCell', () => {
   it('renders the value as a status chip', () => {

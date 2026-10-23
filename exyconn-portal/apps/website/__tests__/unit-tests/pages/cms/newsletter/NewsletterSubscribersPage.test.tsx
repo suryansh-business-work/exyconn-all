@@ -79,6 +79,7 @@ describe('NewsletterSubscribersPage', () => {
       'actions',
     ]);
     expect(cellText(columns, 'email', subscriber())).toBe('asha@example.com');
+    expect(columns.find((col) => col.colId === 'email')?.cellRenderer).toBeTypeOf('function');
     expect(cellText(columns, 'name', subscriber())).toBe('Asha');
     expect(cellText(columns, 'name', gone)).toBe('—');
     expect(cellText(columns, 'source', subscriber())).toBe('footer');

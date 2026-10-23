@@ -58,3 +58,9 @@ describe('CLIENT_COLUMNS', () => {
     expect(HUB_ACCESS_ACTION).toMatchObject({ label: 'client hub access', color: 'primary' });
   });
 });
+
+describe('CLIENT_COLUMNS email', () => {
+  it('renders each address as a link that opens the email window', () => {
+    expect(CLIENT_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf('function');
+  });
+});

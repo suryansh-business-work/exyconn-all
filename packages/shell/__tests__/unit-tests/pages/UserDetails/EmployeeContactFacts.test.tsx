@@ -21,13 +21,12 @@ describe('EmployeeContactFacts', () => {
       />,
     );
     const official = fact('Official email');
-    expect(within(official).getByRole('link', { name: 'meera@example.com' })).toHaveAttribute(
-      'href',
-      'mailto:meera@example.com',
-    );
+    expect(
+      within(official).getByRole('button', { name: 'Email meera@example.com' }),
+    ).toHaveTextContent('meera@example.com');
     expect(official).toHaveTextContent('Verified');
     const personal = fact('Personal email');
-    expect(within(personal).getByRole('link', { name: 'meera@home.test' })).toBeInTheDocument();
+    expect(within(personal).getByRole('button', { name: 'Email meera@home.test' })).toBeInTheDocument();
     expect(personal).toHaveTextContent('Unverified');
     // Their own week, not the company's.
     expect(fact('Work days')).toHaveTextContent('MonTueWedOwn week');

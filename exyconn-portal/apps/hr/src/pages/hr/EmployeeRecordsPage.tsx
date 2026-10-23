@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -28,7 +29,7 @@ export function EmployeeRecordsPage() {
 
   const columns: Column<UserRow>[] = [
     { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'Email', render: (row) => <EmailLink address={row.email} /> },
     { key: 'department', label: 'Department', render: (r) => r.department ?? '—' },
     { key: 'designation', label: 'Designation', render: (r) => r.designation ?? '—' },
     { key: 'teamName', label: 'Team', render: (r) => r.teamName || '—' },

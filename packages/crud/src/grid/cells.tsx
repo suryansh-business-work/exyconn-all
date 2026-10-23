@@ -7,6 +7,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
 import type { CrudGridContext, DatedCrudGridContext, RowActionSpec } from './types';
 import { cellText } from '@exyconn/shell/utils/cellText';
+import { EmailLink } from '@exyconn/shell/components/email';
 
 /** Renders the column's value as the shared colour-coded status chip. */
 export function StatusCell(params: Readonly<ICellRendererParams>) {
@@ -15,6 +16,12 @@ export function StatusCell(params: Readonly<ICellRendererParams>) {
     return null;
   }
   return <StatusChip value={cellText(value)} />;
+}
+
+/** Renders the column's address as a link that opens the email window; blank shows nothing. */
+export function EmailCell(params: Readonly<ICellRendererParams>) {
+  const value: unknown = params.value;
+  return <EmailLink address={typeof value === 'string' ? value : ''} />;
 }
 
 /** Renders the column's boolean value as a Yes/No chip. */

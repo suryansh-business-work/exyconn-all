@@ -6,6 +6,7 @@ import {
   EDIT_ACTION,
   dateColumn,
   derivedColumn,
+  emailColumn,
   statusColumn,
   textColumn,
   type DatedCrudGridContext,
@@ -55,7 +56,7 @@ export const LOG_COLUMNS: ColDef<PagedLogRow>[] = [
   dateColumn('sentAt', 'When'),
   statusColumn('status', 'Status'),
   textColumn('templateName', 'Template'),
-  textColumn('to', 'To'),
+  emailColumn('to', 'To'),
   textColumn('subject', 'Subject'),
   textColumn('error', 'Failure reason'),
 ];

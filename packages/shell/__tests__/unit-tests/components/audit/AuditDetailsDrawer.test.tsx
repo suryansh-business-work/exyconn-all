@@ -73,6 +73,21 @@ describe('AuditDetailsDrawer', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
+  it('names an actor with no address, and shows a dash when there is neither', () => {
+    renderDrawer({ ...row, actorEmail: '' });
+    expect(screen.getByText('Autor').nextElementSibling).toHaveTextContent(/^Asha$/);
+  });
+
+  it('shows a dash for an actor with neither name nor address', () => {
+    renderDrawer({ ...row, actorName: '', actorEmail: '' });
+    expect(screen.getByText('Autor').nextElementSibling).toHaveTextContent('—');
+  });
+
+  it('makes the actor address open the email window', () => {
+    renderDrawer(row);
+    expect(screen.getByRole('button', { name: 'Email asha@example.com' })).toBeInTheDocument();
+  });
+
   it('renders nothing without a row', () => {
     renderDrawer(null);
     expect(screen.queryByText('Detalles')).not.toBeInTheDocument();

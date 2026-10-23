@@ -101,3 +101,9 @@ describe('SUPPRESSION_COLUMNS', () => {
     expect(isActionHidden(SUPPRESSION_COLUMNS, 'remove', archived)).toBe(false);
   });
 });
+
+describe('SUPPRESSION_COLUMNS email', () => {
+  it('renders each address as a link that opens the email window', () => {
+    expect(SUPPRESSION_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf('function');
+  });
+});

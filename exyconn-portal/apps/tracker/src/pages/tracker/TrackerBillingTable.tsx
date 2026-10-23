@@ -3,6 +3,7 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { Text } from '@exyconn/shell/components/ui';
 import type { TrackerBillingQuery } from '@exyconn/shell/graphql/generated';
+import { EmailLink } from '@exyconn/shell/components/email';
 
 type BillingRow = TrackerBillingQuery['trackerBilling']['rows'][number];
 
@@ -18,7 +19,7 @@ export function TrackerBillingTable({ rows, money, loading, onRefresh }: Readonl
   const t = useT();
   const columns: Column<BillingRow>[] = [
     { key: 'name', label: 'Employee' },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'Email', render: (row) => <EmailLink address={row.email} /> },
     { key: 'payType', label: 'Pay type', render: (r) => <StatusChip value={r.payType} /> },
     { key: 'hours', label: 'Hours', render: (r) => t('{hours} h', { hours: r.hours }) },
     {

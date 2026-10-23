@@ -5,6 +5,7 @@ import {
   EDIT_ACTION,
   actionsColumn,
   derivedColumn,
+  emailColumn,
   statusColumn,
   textColumn,
   valueColumn,
@@ -31,7 +32,7 @@ export const HUB_ACCESS_ACTION: RowActionSpec = {
 export const CLIENT_COLUMNS: ColDef<PagedClientRow>[] = [
   textColumn('name', 'Name'),
   textColumn('company', 'Company'),
-  textColumn('email', 'Email'),
+  emailColumn('email', 'Email'),
   textColumn('phone', 'Phone'),
   valueColumn('country', 'Country', (row) => (row.country ? countryName(row.country) : '')),
   derivedColumn('taxId', 'Tax ID', (row) => (row.taxId ? `${row.taxIdLabel} ${row.taxId}` : '')),
