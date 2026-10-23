@@ -104,6 +104,8 @@ describe('SUPPRESSION_COLUMNS', () => {
 
 describe('SUPPRESSION_COLUMNS email', () => {
   it('renders each address as a link that opens the email window', () => {
-    expect(SUPPRESSION_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf('function');
+    expect(SUPPRESSION_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf(
+      'function',
+    );
   });
 });

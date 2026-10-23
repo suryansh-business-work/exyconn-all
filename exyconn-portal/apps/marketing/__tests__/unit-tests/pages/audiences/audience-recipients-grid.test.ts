@@ -88,6 +88,8 @@ describe('RECIPIENT_COLUMNS', () => {
 
 describe('RECIPIENT_COLUMNS email', () => {
   it('renders each address as a link that opens the email window', () => {
-    expect(RECIPIENT_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf('function');
+    expect(RECIPIENT_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf(
+      'function',
+    );
   });
 });

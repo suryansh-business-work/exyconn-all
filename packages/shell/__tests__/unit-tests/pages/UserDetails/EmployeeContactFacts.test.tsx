@@ -26,7 +26,9 @@ describe('EmployeeContactFacts', () => {
     ).toHaveTextContent('meera@example.com');
     expect(official).toHaveTextContent('Verified');
     const personal = fact('Personal email');
-    expect(within(personal).getByRole('button', { name: 'Email meera@home.test' })).toBeInTheDocument();
+    expect(
+      within(personal).getByRole('button', { name: 'Email meera@home.test' }),
+    ).toBeInTheDocument();
     expect(personal).toHaveTextContent('Unverified');
     // Their own week, not the company's.
     expect(fact('Work days')).toHaveTextContent('MonTueWedOwn week');
