@@ -3585,6 +3585,13 @@ export enum CrmEmailDirection {
   Out = 'OUT'
 }
 
+/** A connected mailbox the record's mail is in. */
+export type CrmEmailMailbox = {
+  __typename?: 'CrmEmailMailbox';
+  accountId: Scalars['String']['output'];
+  mailbox: Scalars['String']['output'];
+};
+
 export type CrmEmailMessage = {
   __typename?: 'CrmEmailMessage';
   /** The connected account it was read from or sent by; empty on mail from before accounts. */
@@ -3637,6 +3644,38 @@ export type CrmEmailThread = {
   subject: Scalars['String']['output'];
   threadId: Scalars['ID']['output'];
 };
+
+export type CrmEmailThreadPage = {
+  __typename?: 'CrmEmailThreadPage';
+  /** Every mailbox with mail of the record, whatever the filters. */
+  mailboxes: Array<CrmEmailMailbox>;
+  rows: Array<CrmEmailThread>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CrmEmailThreadPageInput = {
+  /** One connected mailbox's account id. */
+  accountId?: InputMaybe<Scalars['String']['input']>;
+  /** The latest message is on or after this moment. */
+  after?: InputMaybe<Scalars['DateTime']['input']>;
+  /** The latest message is on or before this moment. */
+  before?: InputMaybe<Scalars['DateTime']['input']>;
+  /** Threads with at least one message sent (OUT) or received (IN). */
+  direction?: InputMaybe<CrmEmailDirection>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  /** Up to 100. */
+  pageSize: Scalars['Int']['input'];
+  /** Words in the subject, preview, body or addresses. */
+  search?: InputMaybe<Scalars['String']['input']>;
+  sort?: InputMaybe<CrmEmailThreadSort>;
+};
+
+export enum CrmEmailThreadSort {
+  Newest = 'NEWEST',
+  Oldest = 'OLDEST',
+  Subject = 'SUBJECT'
+}
 
 export type CrmFilterGroup = {
   __typename?: 'CrmFilterGroup';
@@ -9451,6 +9490,8 @@ export type Mutation = {
    */
   subscribeToStatus: Scalars['Boolean']['output'];
   syncAllSocialAccounts: Array<SocialSyncResult>;
+  /** Reads the record's newest threads from every enabled mailbox into the CRM. */
+  syncCrmEmails: Scalars['Boolean']['output'];
   /** Reads the newest mail of one mailbox, or of every readable one, from Gmail. */
   syncCrmMail: Array<CrmMailSyncResult>;
   /** Reads one account's posts and numbers from the network now. MARKETING. */
@@ -12587,6 +12628,12 @@ export type MutationSubscribeToStatusArgs = {
 };
 
 
+export type MutationSyncCrmEmailsArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+};
+
+
 export type MutationSyncCrmMailArgs = {
   accountId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -15565,6 +15612,8 @@ export type Query = {
   crmEmailSender?: Maybe<Scalars['ID']['output']>;
   /** Every Gmail and Microsoft mailbox of the company a CRM email may go from. */
   crmEmailSenders: Array<CrmEmailSenderOption>;
+  /** One page of the record's synced threads, searched, filtered and sorted; it does not reach Gmail. */
+  crmEmailThreadPage: CrmEmailThreadPage;
   /** The record's Gmail threads across every enabled account, synced from Gmail first. */
   crmEmailThreads: Array<CrmEmailThread>;
   /** Whether the company's CRM can email through Gmail (one of its accounts is enabled). */
@@ -16822,6 +16871,13 @@ export type QueryCrmDashboardArgs = {
 
 export type QueryCrmEmailSenderArgs = {
   id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+};
+
+
+export type QueryCrmEmailThreadPageArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmEmailThreadPageInput;
   object: CrmTimelineObject;
 };
 
@@ -23214,11 +23270,15 @@ export type ResolversTypes = ResolversObject<{
   CrmEmailAddress: ResolverTypeWrapper<CrmEmailAddress>;
   CrmEmailAddressInput: CrmEmailAddressInput;
   CrmEmailDirection: CrmEmailDirection;
+  CrmEmailMailbox: ResolverTypeWrapper<CrmEmailMailbox>;
   CrmEmailMessage: ResolverTypeWrapper<CrmEmailMessage>;
   CrmEmailProvider: CrmEmailProvider;
   CrmEmailSenderOption: ResolverTypeWrapper<CrmEmailSenderOption>;
   CrmEmailStatus: ResolverTypeWrapper<CrmEmailStatus>;
   CrmEmailThread: ResolverTypeWrapper<CrmEmailThread>;
+  CrmEmailThreadPage: ResolverTypeWrapper<CrmEmailThreadPage>;
+  CrmEmailThreadPageInput: CrmEmailThreadPageInput;
+  CrmEmailThreadSort: CrmEmailThreadSort;
   CrmFilterGroup: ResolverTypeWrapper<CrmFilterGroup>;
   CrmFilterGroupInput: CrmFilterGroupInput;
   CrmImportInput: CrmImportInput;
@@ -24396,10 +24456,13 @@ export type ResolversParentTypes = ResolversObject<{
   CrmDashboardKpis: CrmDashboardKpis;
   CrmEmailAddress: CrmEmailAddress;
   CrmEmailAddressInput: CrmEmailAddressInput;
+  CrmEmailMailbox: CrmEmailMailbox;
   CrmEmailMessage: CrmEmailMessage;
   CrmEmailSenderOption: CrmEmailSenderOption;
   CrmEmailStatus: CrmEmailStatus;
   CrmEmailThread: CrmEmailThread;
+  CrmEmailThreadPage: CrmEmailThreadPage;
+  CrmEmailThreadPageInput: CrmEmailThreadPageInput;
   CrmFilterGroup: CrmFilterGroup;
   CrmFilterGroupInput: CrmFilterGroupInput;
   CrmImportInput: CrmImportInput;
@@ -27058,6 +27121,12 @@ export type CrmEmailAddressResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CrmEmailMailboxResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailMailbox'] = ResolversParentTypes['CrmEmailMailbox']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mailbox?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CrmEmailMessageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailMessage'] = ResolversParentTypes['CrmEmailMessage']> = ResolversObject<{
   accountId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bodyText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -27097,6 +27166,13 @@ export type CrmEmailThreadResolvers<ContextType = GraphQLContext, ParentType ext
   messages?: Resolver<Array<ResolversTypes['CrmEmailMessage']>, ParentType, ContextType>;
   subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   threadId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmEmailThreadPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailThreadPage'] = ResolversParentTypes['CrmEmailThreadPage']> = ResolversObject<{
+  mailboxes?: Resolver<Array<ResolversTypes['CrmEmailMailbox']>, ParentType, ContextType>;
+  rows?: Resolver<Array<ResolversTypes['CrmEmailThread']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30451,6 +30527,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   subscribeNewsletter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeNewsletterArgs, 'captcha' | 'input'>>;
   subscribeToStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeToStatusArgs, 'email'>>;
   syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
+  syncCrmEmails?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSyncCrmEmailsArgs, 'id' | 'object'>>;
   syncCrmMail?: Resolver<Array<ResolversTypes['CrmMailSyncResult']>, ParentType, ContextType, Partial<MutationSyncCrmMailArgs>>;
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
   syncWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatSyncResult'], ParentType, ContextType>;
@@ -31653,6 +31730,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   crmDashboard?: Resolver<ResolversTypes['CrmDashboard'], ParentType, ContextType, RequireFields<QueryCrmDashboardArgs, 'from' | 'to'>>;
   crmEmailSender?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<QueryCrmEmailSenderArgs, 'id' | 'object'>>;
   crmEmailSenders?: Resolver<Array<ResolversTypes['CrmEmailSenderOption']>, ParentType, ContextType>;
+  crmEmailThreadPage?: Resolver<ResolversTypes['CrmEmailThreadPage'], ParentType, ContextType, RequireFields<QueryCrmEmailThreadPageArgs, 'id' | 'input' | 'object'>>;
   crmEmailThreads?: Resolver<Array<ResolversTypes['CrmEmailThread']>, ParentType, ContextType, RequireFields<QueryCrmEmailThreadsArgs, 'id' | 'object'>>;
   crmGmailReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   crmIntegrationStatus?: Resolver<ResolversTypes['CrmIntegrationStatus'], ParentType, ContextType>;
@@ -34693,10 +34771,12 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CrmDashboard?: CrmDashboardResolvers<ContextType>;
   CrmDashboardKpis?: CrmDashboardKpisResolvers<ContextType>;
   CrmEmailAddress?: CrmEmailAddressResolvers<ContextType>;
+  CrmEmailMailbox?: CrmEmailMailboxResolvers<ContextType>;
   CrmEmailMessage?: CrmEmailMessageResolvers<ContextType>;
   CrmEmailSenderOption?: CrmEmailSenderOptionResolvers<ContextType>;
   CrmEmailStatus?: CrmEmailStatusResolvers<ContextType>;
   CrmEmailThread?: CrmEmailThreadResolvers<ContextType>;
+  CrmEmailThreadPage?: CrmEmailThreadPageResolvers<ContextType>;
   CrmFilterGroup?: CrmFilterGroupResolvers<ContextType>;
   CrmImportIssue?: CrmImportIssueResolvers<ContextType>;
   CrmImportResult?: CrmImportResultResolvers<ContextType>;

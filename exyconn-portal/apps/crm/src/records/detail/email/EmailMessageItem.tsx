@@ -1,38 +1,128 @@
+import { useId, useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useFormatters, useT } from '@exyconn/i18n';
-import { Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
-import { CrmEmailDirection, type CrmEmailThreadsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Button,
+  Chip,
+  Collapse,
+  Flex,
+  Stack,
+  Text,
+} from '@exyconn/shell/components/ui';
+import { CrmEmailDirection } from '@exyconn/shell/graphql/generated';
+import type { EmailMessage } from './emailTypes';
+import { splitQuoted } from './quotedText';
 
-export type EmailMessage = CrmEmailThreadsQuery['crmEmailThreads'][number]['messages'][number];
+interface EmailMessageItemProps {
+  message: EmailMessage;
+  /** The newest message opens expanded, like Gmail. */
+  defaultExpanded: boolean;
+}
 
-/** One message of a thread: who sent it to whom, when, and what it says (text only). */
-export function EmailMessageItem({ message }: Readonly<{ message: EmailMessage }>) {
+/** The text a person wrote, with the earlier mail it quotes folded away until asked for. */
+function MessageBody({ text }: Readonly<{ text: string }>) {
+  const t = useT();
+  const [showQuoted, setShowQuoted] = useState(false);
+  const { main, quoted } = splitQuoted(text);
+  return (
+    <Stack spacing={1}>
+      <Text size="sm" sx={{ whiteSpace: 'pre-line', overflowWrap: 'anywhere' }}>
+        {main}
+      </Text>
+      {quoted && (
+        <>
+          <Button
+            size="small"
+            variant="text"
+            startIcon={<MoreHorizIcon />}
+            aria-expanded={showQuoted}
+            onClick={() => setShowQuoted(!showQuoted)}
+            sx={{ alignSelf: 'flex-start' }}
+          >
+            {showQuoted ? t('Hide quoted text') : t('Show quoted text')}
+          </Button>
+          <Collapse in={showQuoted} unmountOnExit>
+            <Text
+              size="sm"
+              color="text.secondary"
+              sx={{
+                whiteSpace: 'pre-line',
+                overflowWrap: 'anywhere',
+                borderLeft: 2,
+                borderColor: 'divider',
+                pl: 1.5,
+              }}
+            >
+              {quoted}
+            </Text>
+          </Collapse>
+        </>
+      )}
+    </Stack>
+  );
+}
+
+/**
+ * One message of a conversation as a row of its own: who sent it and when, and a preview while
+ * folded; unfolded, who it went to and what it says. Every message sits at the same level.
+ */
+export function EmailMessageItem({ message, defaultExpanded }: Readonly<EmailMessageItemProps>) {
   const t = useT();
   const { formatDateTime } = useFormatters();
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const summaryId = useId();
   const sent = message.direction === CrmEmailDirection.Out;
   const recipients = [...message.to, ...message.cc].join(', ');
   return (
-    <Stack spacing={0.5} component="li" sx={{ listStyle: 'none' }}>
-      <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-        <Chip
-          size="small"
-          color={sent ? 'primary' : 'default'}
-          label={sent ? t('Sent') : t('Received')}
-        />
-        <Text size="sm" weight="semibold" sx={{ overflowWrap: 'anywhere' }}>
-          {message.from}
-        </Text>
-        <Text size="caption" color="text.secondary">
-          <time dateTime={message.sentAt}>{formatDateTime(message.sentAt)}</time>
-        </Text>
-      </Flex>
-      {recipients && (
-        <Text size="caption" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
-          {t('To: {recipients}', { recipients })}
-        </Text>
-      )}
-      <Text size="sm" sx={{ whiteSpace: 'pre-line', overflowWrap: 'anywhere' }}>
-        {message.bodyText || message.snippet}
-      </Text>
-    </Stack>
+    <Box component="li" sx={{ listStyle: 'none' }}>
+      <Accordion disableGutters expanded={expanded} onChange={(_event, open) => setExpanded(open)}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          id={summaryId}
+          sx={{ '& .MuiAccordionSummary-content': { minWidth: 0 } }}
+        >
+          <Stack spacing={0.25} sx={{ minWidth: 0, width: '100%' }}>
+            <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+              <Chip
+                size="small"
+                color={sent ? 'primary' : 'default'}
+                label={sent ? t('Sent') : t('Received')}
+              />
+              <Text component="span" size="sm" weight="semibold" sx={{ overflowWrap: 'anywhere' }}>
+                {message.sentByName || message.from}
+              </Text>
+              <Text component="span" size="caption" color="text.secondary" sx={{ ml: 'auto' }}>
+                <time dateTime={message.sentAt}>{formatDateTime(message.sentAt)}</time>
+              </Text>
+            </Flex>
+            {!expanded && message.snippet && (
+              <Text component="span" size="sm" color="text.secondary" noWrap>
+                {message.snippet}
+              </Text>
+            )}
+          </Stack>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Stack spacing={1.5}>
+            <Stack spacing={0.25}>
+              <Text size="caption" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
+                {t('From: {sender}', { sender: message.from })}
+              </Text>
+              {recipients && (
+                <Text size="caption" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
+                  {t('To: {recipients}', { recipients })}
+                </Text>
+              )}
+            </Stack>
+            <MessageBody text={message.bodyText || message.snippet} />
+          </Stack>
+        </AccordionDetails>
+      </Accordion>
+    </Box>
   );
 }

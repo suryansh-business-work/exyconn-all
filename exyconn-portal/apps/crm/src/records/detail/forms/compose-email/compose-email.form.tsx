@@ -11,7 +11,7 @@ import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvid
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import {
-  CrmEmailThreadsDocument,
+  CrmEmailThreadPageDocument,
   CrmTimelineDocument,
   CrmTimelineObject,
   useDraftCrmEmailMutation,
@@ -31,7 +31,7 @@ const DRAFT = 'email-draft';
 
 /** What a sent email refreshes; the record's threads and timeline unless the host says otherwise. */
 type RefetchQueries = NonNullable<Parameters<typeof useSendCrmEmailMutation>[0]>['refetchQueries'];
-const RECORD_QUERIES: RefetchQueries = [CrmEmailThreadsDocument, CrmTimelineDocument];
+const RECORD_QUERIES: RefetchQueries = [CrmEmailThreadPageDocument, CrmTimelineDocument];
 
 interface ComposeEmailFormProps {
   context: ComposeEmailContext;

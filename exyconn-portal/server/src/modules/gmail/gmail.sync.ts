@@ -1,4 +1,5 @@
 import { logger } from '../../utils/logger';
+import { decodeHtmlEntities } from '../../utils/htmlEntities';
 import { CompanyModel } from '../crm/company.model';
 import { timelineTarget } from '../crm/timeline/crm.timeline';
 import { gmailClient, type GmailMessage } from './gmail.client';
@@ -142,24 +143,44 @@ export function groupThreads(messages: StoredMessage[]) {
       mailbox: list[0].mailbox ?? '',
       subject: list[0].subject ?? '',
       lastAt: list.at(-1)?.sentAt ?? new Date(0),
-      messages: list.map((message) => ({ ...message, id: String(message._id) })),
+      // Gmail's snippets come HTML-escaped (`you&#39;re`); the stored copy stays as Gmail sent it.
+      messages: list.map((message) => ({
+        ...message,
+        id: String(message._id),
+        snippet: decodeHtmlEntities(message.snippet ?? ''),
+      })),
     }))
     .sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
 }
 
-/**
- * The record's email threads across every enabled account, newest first, after a fresh sync.
- * An account Gmail refuses is marked for reconnecting; the others' threads still arrive.
- */
-export async function crmEmailThreads(object: Kind, id: string) {
-  const mailboxes = await enabledMailboxes();
-  const { addresses, domain } = await searchTermsOf(object, id);
-  const queries = gmailQueries(addresses, domain);
-  if (queries.length > 0) {
-    await Promise.all(mailboxes.map((mailbox) => syncAccount(mailbox, queries)));
-  }
+/** The record's stored threads, newest first, without reaching Gmail. */
+async function storedThreads({ addresses, domain }: { addresses: string[]; domain: string }) {
   if (addresses.length === 0 && !domain) {
     return [];
   }
   return groupThreads(await storedMessages(addresses, domain));
+}
+
+/**
+ * Reads the record's newest threads from every enabled mailbox into the CRM.
+ * An account Gmail refuses is marked for reconnecting; the others still sync.
+ */
+export async function syncRecordEmails(object: Kind, id: string) {
+  const mailboxes = await enabledMailboxes();
+  const terms = await searchTermsOf(object, id);
+  const queries = gmailQueries(terms.addresses, terms.domain);
+  if (queries.length > 0) {
+    await Promise.all(mailboxes.map((mailbox) => syncAccount(mailbox, queries)));
+  }
+  return terms;
+}
+
+/** The record's email threads across every enabled account, newest first, after a fresh sync. */
+export async function crmEmailThreads(object: Kind, id: string) {
+  return storedThreads(await syncRecordEmails(object, id));
+}
+
+/** The record's email threads as last synced, newest first. */
+export async function recordEmailThreads(object: Kind, id: string) {
+  return storedThreads(await searchTermsOf(object, id));
 }

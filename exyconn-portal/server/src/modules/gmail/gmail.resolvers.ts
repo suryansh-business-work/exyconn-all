@@ -24,7 +24,8 @@ import {
   testGmailAccount,
 } from './gmail.accounts';
 import { assertCompanyCrm, type SendCrmEmailInput } from './gmail.crm';
-import { crmEmailThreads } from './gmail.sync';
+import { crmEmailThreads, syncRecordEmails } from './gmail.sync';
+import { crmEmailThreadPage, type CrmEmailThreadPageInput } from './gmail.threadPage';
 import { auditGmail } from './gmail.audit';
 import { forCrmUser, gmailClientConfig } from './gmail.client';
 import { auditMicrosoft } from '../microsoft-mail';
@@ -74,6 +75,14 @@ export const gmailResolvers = {
     ) => {
       await crmGmail(ctx, 'VIEW');
       return forCrmUser(() => crmEmailThreads(object, id));
+    },
+    crmEmailThreadPage: async (
+      _p: unknown,
+      { object, id, input }: { object: Kind; id: string; input: CrmEmailThreadPageInput },
+      ctx: GraphQLContext,
+    ) => {
+      await crmGmail(ctx, 'VIEW');
+      return forCrmUser(() => crmEmailThreadPage(object, id, input));
     },
     crmEmailSender: async (
       _p: unknown,
@@ -163,6 +172,15 @@ export const gmailResolvers = {
     testGmailConfig: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await techStaff(ctx, 'EDIT');
       return testGmail();
+    },
+    syncCrmEmails: async (
+      _p: unknown,
+      { object, id }: { object: Kind; id: string },
+      ctx: GraphQLContext,
+    ) => {
+      await crmGmail(ctx, 'VIEW');
+      await forCrmUser(() => syncRecordEmails(object, id));
+      return true;
     },
     sendCrmEmail: async (
       _p: unknown,

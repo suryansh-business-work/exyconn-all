@@ -1251,6 +1251,29 @@ export type CrmEmailProvider =
   | 'GMAIL'
   | 'MICROSOFT';
 
+export type CrmEmailThreadPageInput = {
+  /** One connected mailbox's account id. */
+  accountId: InputMaybe<Scalars['String']['input']>;
+  /** The latest message is on or after this moment. */
+  after: InputMaybe<Scalars['DateTime']['input']>;
+  /** The latest message is on or before this moment. */
+  before: InputMaybe<Scalars['DateTime']['input']>;
+  /** Threads with at least one message sent (OUT) or received (IN). */
+  direction: InputMaybe<CrmEmailDirection>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  /** Up to 100. */
+  pageSize: Scalars['Int']['input'];
+  /** Words in the subject, preview, body or addresses. */
+  search: InputMaybe<Scalars['String']['input']>;
+  sort: InputMaybe<CrmEmailThreadSort>;
+};
+
+export type CrmEmailThreadSort =
+  | 'NEWEST'
+  | 'OLDEST'
+  | 'SUBJECT';
+
 /** Conditions in a group must all hold; a record matches when any group does. */
 export type CrmFilterGroupInput = {
   conditions: Array<CrmConditionInput>;
