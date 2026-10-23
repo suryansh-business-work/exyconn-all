@@ -11,7 +11,7 @@ import {
 import { maskedToken } from '../forms/secret';
 import { CrmSmsConfigForm, type CrmSmsConfigRow } from '../forms/crm-sms-config';
 import { ChannelConfigsPanel } from '../ChannelConfigsPanel';
-import { ProviderLabel } from '../../../integrations/ProviderLogo';
+import { ProviderLabel } from '@exyconn/shell/components/mailboxes';
 
 const COLUMNS: Column<CrmSmsConfigRow>[] = [
   { key: 'label', label: 'Label' },

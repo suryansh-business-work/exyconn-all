@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Tooltip, useTheme } from '@exyconn/shell/components/ui';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { ProviderLogo } from '../../../integrations/ProviderLogo';
+import { ProviderLogo } from '@exyconn/shell/components/mailboxes';
 
 interface ConnectMailboxButtonProps {
   /** E.g. "Connect Gmail". */

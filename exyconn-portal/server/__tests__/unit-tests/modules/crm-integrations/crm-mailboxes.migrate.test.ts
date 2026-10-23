@@ -9,7 +9,8 @@ import { logger } from '../../../../src/utils/logger';
 
 const MODELS = [GmailAccountModel, MicrosoftMailAccountModel] as const;
 const LEGACY_INDEX = 'email_1';
-const PER_COMPANY_INDEX = 'organizationId_1_email_1';
+// Per company and per owner since personal mailboxes (my-mailboxes.migrate).
+const PER_COMPANY_INDEX = 'organizationId_1_email_1_ownerUserId_1';
 
 /** The platform-wide unique index the mailboxes had while they were platform rows. */
 const addLegacyIndex = () =>

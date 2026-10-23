@@ -5,21 +5,26 @@ import { recordAudit } from '../audit';
 import { withParams } from '../gmail/gmail.routes';
 import { finishMicrosoftConnect, takeMicrosoftState } from './microsoft.connect';
 import { MICROSOFT_AUDIT_MODULE } from './microsoft.audit';
+import { connectedAuditLine } from '../my-mailboxes/my-mailboxes.default';
 import type { MicrosoftOAuthStateDocument } from './microsoft.models';
 
-/** The audit line for a connected mailbox, in the company whose CRM user connected it. */
+/** The audit line for a connected mailbox, in the company of whoever connected it. */
 async function auditConnected(state: MicrosoftOAuthStateDocument, email: string) {
   if (!state.organizationId) {
     return;
   }
+  const line = connectedAuditLine(
+    state.ownerUserId,
+    { module: MICROSOFT_AUDIT_MODULE, summary: `Connected the Microsoft mailbox ${email}` },
+    email,
+  );
   await runForOrganization(state.organizationId, () =>
     recordAudit(
       { user: null },
       {
         action: 'CREATE',
-        module: MICROSOFT_AUDIT_MODULE,
+        ...line,
         entityLabel: email,
-        summary: `Connected the Microsoft mailbox ${email}`,
         actor: { id: state.actorId ?? '', name: state.actorName ?? '' },
       },
     ),

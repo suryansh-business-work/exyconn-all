@@ -8,7 +8,7 @@ import {
   ListSubheader,
 } from '@exyconn/shell/components/ui';
 import { GmailAccountStatus, type CrmMailOverviewQuery } from '@exyconn/shell/graphql/generated';
-import { ProviderLogo } from '../../integrations/ProviderLogo';
+import { ProviderLogo } from '@exyconn/shell/components/mailboxes';
 
 export type MailboxItem = CrmMailOverviewQuery['crmMailOverview']['mailboxes'][number];
 

@@ -12,6 +12,20 @@ export interface OutgoingEmail {
   inReplyTo?: string;
   /** Every Message-ID of the conversation so far, oldest first (RFC 5322 References). */
   references?: string[];
+  /** Blind copies: Gmail delivers to them and strips the header from what others receive. */
+  bcc?: string[];
+  replyTo?: string;
+  /** The body is HTML (already sanitized) rather than plain text. */
+  html?: boolean;
+}
+
+/** Bcc and Reply-To, when the email has them. */
+function optionalHeaders(email: OutgoingEmail): string[] {
+  const bcc = email.bcc ?? [];
+  return [
+    ...(bcc.length > 0 ? [`Bcc: ${bcc.map(oneLine).join(', ')}`] : []),
+    ...(email.replyTo ? [`Reply-To: ${oneLine(email.replyTo)}`] : []),
+  ];
 }
 
 /** In-Reply-To and References for a reply; none for a new email. */
@@ -42,10 +56,11 @@ export function rawMessage(email: OutgoingEmail): string {
     `From: ${oneLine(email.from)}`,
     `To: ${email.to.map(oneLine).join(', ')}`,
     ...(email.cc.length > 0 ? [`Cc: ${email.cc.map(oneLine).join(', ')}`] : []),
+    ...optionalHeaders(email),
     `Subject: ${encodedWord(oneLine(email.subject))}`,
     ...threadingHeaders(email),
     'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset="UTF-8"',
+    `Content-Type: text/${email.html ? 'html' : 'plain'}; charset="UTF-8"`,
     'Content-Transfer-Encoding: base64',
   ];
   const body = Buffer.from(email.body, 'utf8').toString('base64');

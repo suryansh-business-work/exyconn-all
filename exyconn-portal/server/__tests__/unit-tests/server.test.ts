@@ -63,6 +63,7 @@ jest.mock('../../src/modules/gmail', () => ({ migrateLegacyGmailConnection: jest
 jest.mock('../../src/modules/crm-integrations/crm-mailboxes.migrate', () => ({
   assignMailboxesToOperator: jest.fn(),
 }));
+jest.mock('../../src/modules/my-mailboxes', () => ({ allowPersonalMailboxes: jest.fn() }));
 jest.mock('../../src/modules/crm/crm.origin.backfill', () => ({ backfillCrmOrigins: jest.fn() }));
 jest.mock('../../src/modules/crm/crm.domain.repair', () => ({
   allowBlankCompanyDomains: jest.fn(),
@@ -111,6 +112,7 @@ const MODULES = {
   clients: '../../src/modules/clients',
   gmail: '../../src/modules/gmail',
   mailboxes: '../../src/modules/crm-integrations/crm-mailboxes.migrate',
+  myMailboxes: '../../src/modules/my-mailboxes',
   crmOrigins: '../../src/modules/crm/crm.origin.backfill',
   crmDomains: '../../src/modules/crm/crm.domain.repair',
   marketingMigrate: '../../src/modules/marketing/marketing.migrate',
@@ -213,6 +215,7 @@ describe('server bootstrap', () => {
       'client-tax-ids',
       'gmail-multi-account',
       'crm-mailboxes-per-organization',
+      'mailbox-personal-owner',
       'crm-record-origins',
       'crm-company-blank-domains',
       'crm-company-invented-domains',
@@ -228,6 +231,7 @@ describe('server bootstrap', () => {
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
     expect(m.gmail.migrateLegacyGmailConnection).toHaveBeenCalled();
     expect(m.mailboxes.assignMailboxesToOperator).toHaveBeenCalled();
+    expect(m.myMailboxes.allowPersonalMailboxes).toHaveBeenCalled();
     expect(m.crmOrigins.backfillCrmOrigins).toHaveBeenCalled();
     expect(m.crmDomains.allowBlankCompanyDomains.mock.invocationCallOrder[0]).toBeLessThan(
       m.crmDomains.clearInventedCompanyDomains.mock.invocationCallOrder[0],
@@ -256,10 +260,10 @@ describe('server bootstrap', () => {
       'ensureWhatsappDemoSeeds',
     ]);
     // Admin access, the log-group backfill, status monitors, the Gmail account migration, the
-    // mailboxes' move into the operator, the company domain index swap, the two calling bot
-    // migrations, its example seeds and AI model prices run for the platform rather than for
-    // each company.
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(10);
+    // mailboxes' move into the operator, their per-owner index swap, the company domain index
+    // swap, the two calling bot migrations, its example seeds and AI model prices run for the
+    // platform rather than for each company.
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(11);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {

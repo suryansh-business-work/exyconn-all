@@ -9012,6 +9012,8 @@ export type Mutation = {
   disconnectGmailAccount: Scalars['Boolean']['output'];
   /** Removes the mailbox and its token; mail already sent stays on the records. */
   disconnectMicrosoftMailAccount: Scalars['Boolean']['output'];
+  /** Removes one of the caller's mailboxes and its token. */
+  disconnectMyMailbox: Scalars['Boolean']['output'];
   /** Disconnects an account, and the LinkedIn pages connected through it. MARKETING. */
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
@@ -9281,6 +9283,8 @@ export type Mutation = {
   sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
+  /** Sends an email from one of the caller's own mailboxes. Not kept on any CRM record. */
+  sendMyEmail: MyEmailSent;
   /** Posts a line onto the caller's OWN tracker thread. */
   sendMyTrackerMessage: TrackerMessage;
   /** HR broadcast to every active employee, one department, or a chosen list. */
@@ -9318,6 +9322,8 @@ export type Mutation = {
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
   setDefaultCmsSite: CmsSite;
+  /** Makes one of the caller's mailboxes the one new email goes from. */
+  setDefaultMyMailbox: MyMailbox;
   /** HR/ADMIN: sets the days people work unless HR gave them their own week. At least one day. */
   setDefaultWorkDays: WorkWeek;
   /** Points the domain's nameservers at Cloudflare, back at GoDaddy, or at a custom set. */
@@ -9410,6 +9416,8 @@ export type Mutation = {
   startMfaEnrolment: MfaEnrolment;
   /** Microsoft's consent page to connect one more mailbox (or renew one); comes back to returnTo. loginHint is the address being reconnected. */
   startMicrosoftMailConnect: Scalars['String']['output'];
+  /** The provider's consent page to connect one of the caller's own mailboxes (or renew one); comes back to returnTo. */
+  startMyMailboxConnect: Scalars['String']['output'];
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
    * already has a checklist that is not finished — two open checklists is two answers to
@@ -9479,6 +9487,8 @@ export type Mutation = {
   testMicrosoftMailAccount: MicrosoftMailAccount;
   /** Reads every enabled mailbox's address with its stored connection. */
   testMicrosoftMailConfig: Scalars['String']['output'];
+  /** Checks one of the caller's mailboxes works now; the outcome is kept on it as lastError. */
+  testMyMailbox: MyMailbox;
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPayoneerConnection: Scalars['Boolean']['output'];
   testPaypalConnection: Scalars['Boolean']['output'];
@@ -11460,6 +11470,11 @@ export type MutationDisconnectMicrosoftMailAccountArgs = {
 };
 
 
+export type MutationDisconnectMyMailboxArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12169,6 +12184,11 @@ export type MutationSendInvoiceArgs = {
 };
 
 
+export type MutationSendMyEmailArgs = {
+  input: SendMyEmailInput;
+};
+
+
 export type MutationSendMyTrackerMessageArgs = {
   body: Scalars['String']['input'];
 };
@@ -12274,6 +12294,11 @@ export type MutationSetDealStageArgs = {
 
 
 export type MutationSetDefaultCmsSiteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationSetDefaultMyMailboxArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -12499,6 +12524,13 @@ export type MutationStartMicrosoftMailConnectArgs = {
 };
 
 
+export type MutationStartMyMailboxConnectArgs = {
+  loginHint?: InputMaybe<Scalars['String']['input']>;
+  provider: CrmEmailProvider;
+  returnTo: Scalars['String']['input'];
+};
+
+
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
@@ -12633,6 +12665,11 @@ export type MutationTestInboundMailConnectionArgs = {
 
 
 export type MutationTestMicrosoftMailAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestMyMailboxArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -13683,6 +13720,14 @@ export type MyApprovalDelegations = {
   held: Array<ApprovalDelegation>;
 };
 
+/** What went out: never the body. */
+export type MyEmailSent = {
+  __typename?: 'MyEmailSent';
+  from: Scalars['String']['output'];
+  recipientCount: Scalars['Int']['output'];
+  subject: Scalars['String']['output'];
+};
+
 export type MyExpenseClaimInput = {
   amount: Scalars['Float']['input'];
   category: Scalars['String']['input'];
@@ -13690,6 +13735,29 @@ export type MyExpenseClaimInput = {
   description: Scalars['String']['input'];
   incurredOn: Scalars['DateTime']['input'];
   receiptUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A mailbox the signed-in person connected for their own email. Its token never leaves the server. */
+export type MyMailbox = {
+  __typename?: 'MyMailbox';
+  connectedAt?: Maybe<Scalars['DateTime']['output']>;
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** The mailbox new email goes from unless another one is chosen. */
+  isDefault: Scalars['Boolean']['output'];
+  /** Why the last call to the provider failed; empty when it worked. */
+  lastError: Scalars['String']['output'];
+  /** When the last error happened; null while the mailbox works. */
+  lastErrorAt?: Maybe<Scalars['DateTime']['output']>;
+  provider: CrmEmailProvider;
+  status: GmailAccountStatus;
+};
+
+/** Which providers a person can connect a mailbox through (the platform's OAuth apps are set up). */
+export type MyMailboxProviders = {
+  __typename?: 'MyMailboxProviders';
+  gmail: Scalars['Boolean']['output'];
+  microsoft: Scalars['Boolean']['output'];
 };
 
 /**
@@ -16117,6 +16185,9 @@ export type Query = {
   myLegalAssignmentBody: Scalars['String']['output'];
   /** The contracts, policies and documents the signed-in person has been handed. */
   myLegalAssignments: Array<LegalAssignment>;
+  myMailboxProviders: MyMailboxProviders;
+  /** The caller's own mailboxes, the default one first. */
+  myMailboxes: Array<MyMailbox>;
   /** The signed-in user's manager, if one is set. */
   myManager?: Maybe<EmployeeOption>;
   /** Whether two-factor authentication is on for this account. */
@@ -19147,6 +19218,18 @@ export type SendMailInput = {
   /** The body as rich text (HTML). It is sanitised before it is sent. */
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
+};
+
+export type SendMyEmailInput = {
+  bcc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Rich HTML from the editor; sanitized on the server. */
+  body: Scalars['String']['input'];
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** One of the caller's own mailboxes (myMailboxes); their default one when omitted. */
+  fromMailboxId?: InputMaybe<Scalars['ID']['input']>;
+  replyTo?: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  to: Array<Scalars['String']['input']>;
 };
 
 export type SendNotificationInput = {
@@ -23596,7 +23679,10 @@ export type ResolversTypes = ResolversObject<{
   MovementReason: MovementReason;
   Mutation: ResolverTypeWrapper<{}>;
   MyApprovalDelegations: ResolverTypeWrapper<MyApprovalDelegations>;
+  MyEmailSent: ResolverTypeWrapper<MyEmailSent>;
   MyExpenseClaimInput: MyExpenseClaimInput;
+  MyMailbox: ResolverTypeWrapper<MyMailbox>;
+  MyMailboxProviders: ResolverTypeWrapper<MyMailboxProviders>;
   MyPolicy: ResolverTypeWrapper<MyPolicy>;
   MyRequestInput: MyRequestInput;
   NameserverTarget: NameserverTarget;
@@ -23768,6 +23854,7 @@ export type ResolversTypes = ResolversObject<{
   SendCrmEmailInput: SendCrmEmailInput;
   SendCrmSmsInput: SendCrmSmsInput;
   SendMailInput: SendMailInput;
+  SendMyEmailInput: SendMyEmailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: ResolverTypeWrapper<SendNotificationResult>;
   ServerRuntime: ResolverTypeWrapper<ServerRuntime>;
@@ -24678,7 +24765,10 @@ export type ResolversParentTypes = ResolversObject<{
   ModulePermission: ModulePermission;
   Mutation: {};
   MyApprovalDelegations: MyApprovalDelegations;
+  MyEmailSent: MyEmailSent;
   MyExpenseClaimInput: MyExpenseClaimInput;
+  MyMailbox: MyMailbox;
+  MyMailboxProviders: MyMailboxProviders;
   MyPolicy: MyPolicy;
   MyRequestInput: MyRequestInput;
   NavLink: NavLink;
@@ -24813,6 +24903,7 @@ export type ResolversParentTypes = ResolversObject<{
   SendCrmEmailInput: SendCrmEmailInput;
   SendCrmSmsInput: SendCrmSmsInput;
   SendMailInput: SendMailInput;
+  SendMyEmailInput: SendMyEmailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: SendNotificationResult;
   ServerRuntime: ServerRuntime;
@@ -30159,6 +30250,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   discardWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDiscardWhatsappWorkflowDraftArgs, 'id'>>;
   disconnectGmailAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectGmailAccountArgs, 'id'>>;
   disconnectMicrosoftMailAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectMicrosoftMailAccountArgs, 'id'>>;
+  disconnectMyMailbox?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectMyMailboxArgs, 'id'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
   draftCrmEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationDraftCrmEmailArgs, 'input'>>;
   duplicateCampaignTemplate?: Resolver<ResolversTypes['CampaignTemplate'], ParentType, ContextType, RequireFields<MutationDuplicateCampaignTemplateArgs, 'id'>>;
@@ -30290,6 +30382,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendCrmEmail?: Resolver<ResolversTypes['CrmEmailMessage'], ParentType, ContextType, RequireFields<MutationSendCrmEmailArgs, 'input'>>;
   sendCrmSms?: Resolver<ResolversTypes['CrmSmsResult'], ParentType, ContextType, RequireFields<MutationSendCrmSmsArgs, 'input'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
+  sendMyEmail?: Resolver<ResolversTypes['MyEmailSent'], ParentType, ContextType, RequireFields<MutationSendMyEmailArgs, 'input'>>;
   sendMyTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendMyTrackerMessageArgs, 'body'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
   sendSalarySlips?: Resolver<ResolversTypes['PayrollDispatchResult'], ParentType, ContextType, RequireFields<MutationSendSalarySlipsArgs, 'month' | 'year'>>;
@@ -30308,6 +30401,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setCrmTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetCrmTagsArgs, 'id' | 'object' | 'tags'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setDefaultCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationSetDefaultCmsSiteArgs, 'id'>>;
+  setDefaultMyMailbox?: Resolver<ResolversTypes['MyMailbox'], ParentType, ContextType, RequireFields<MutationSetDefaultMyMailboxArgs, 'id'>>;
   setDefaultWorkDays?: Resolver<ResolversTypes['WorkWeek'], ParentType, ContextType, RequireFields<MutationSetDefaultWorkDaysArgs, 'days'>>;
   setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
@@ -30345,6 +30439,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   startGoogleSignIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartGoogleSignInArgs, 'returnTo'>>;
   startMfaEnrolment?: Resolver<ResolversTypes['MfaEnrolment'], ParentType, ContextType>;
   startMicrosoftMailConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartMicrosoftMailConnectArgs, 'returnTo'>>;
+  startMyMailboxConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartMyMailboxConnectArgs, 'provider' | 'returnTo'>>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
   startSocialConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartSocialConnectArgs, 'app'>>;
   startSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationStartSprintArgs, 'id'>>;
@@ -30376,6 +30471,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
   testMicrosoftMailAccount?: Resolver<ResolversTypes['MicrosoftMailAccount'], ParentType, ContextType, RequireFields<MutationTestMicrosoftMailAccountArgs, 'id'>>;
   testMicrosoftMailConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  testMyMailbox?: Resolver<ResolversTypes['MyMailbox'], ParentType, ContextType, RequireFields<MutationTestMyMailboxArgs, 'id'>>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPayoneerConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPayoneerConnectionArgs, 'id'>>;
   testPaypalConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPaypalConnectionArgs, 'id'>>;
@@ -30559,6 +30655,31 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
 export type MyApprovalDelegationsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyApprovalDelegations'] = ResolversParentTypes['MyApprovalDelegations']> = ResolversObject<{
   given?: Resolver<Array<ResolversTypes['ApprovalDelegation']>, ParentType, ContextType>;
   held?: Resolver<Array<ResolversTypes['ApprovalDelegation']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MyEmailSentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyEmailSent'] = ResolversParentTypes['MyEmailSent']> = ResolversObject<{
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recipientCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MyMailboxResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyMailbox'] = ResolversParentTypes['MyMailbox']> = ResolversObject<{
+  connectedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isDefault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastErrorAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['CrmEmailProvider'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['GmailAccountStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MyMailboxProvidersResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyMailboxProviders'] = ResolversParentTypes['MyMailboxProviders']> = ResolversObject<{
+  gmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  microsoft?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -32039,6 +32160,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
   myLegalAssignmentBody?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryMyLegalAssignmentBodyArgs, 'id'>>;
   myLegalAssignments?: Resolver<Array<ResolversTypes['LegalAssignment']>, ParentType, ContextType>;
+  myMailboxProviders?: Resolver<ResolversTypes['MyMailboxProviders'], ParentType, ContextType>;
+  myMailboxes?: Resolver<Array<ResolversTypes['MyMailbox']>, ParentType, ContextType>;
   myManager?: Resolver<Maybe<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
   myMfaStatus?: Resolver<ResolversTypes['MfaStatus'], ParentType, ContextType>;
   myNotificationPreferences?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType>;
@@ -34835,6 +34958,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ModulePermission?: ModulePermissionResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   MyApprovalDelegations?: MyApprovalDelegationsResolvers<ContextType>;
+  MyEmailSent?: MyEmailSentResolvers<ContextType>;
+  MyMailbox?: MyMailboxResolvers<ContextType>;
+  MyMailboxProviders?: MyMailboxProvidersResolvers<ContextType>;
   MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   NewsletterIssue?: NewsletterIssueResolvers<ContextType>;

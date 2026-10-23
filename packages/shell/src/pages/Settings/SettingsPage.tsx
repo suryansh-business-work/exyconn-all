@@ -6,6 +6,7 @@ import { readingPanel } from '@/components/glass/glass';
 import { TwoFactorPanel } from './TwoFactorPanel';
 import { SessionsPanel } from './SessionsPanel';
 import { NotificationPreferencesPanel } from './NotificationPreferencesPanel';
+import { MailboxesPanel } from './mailboxes/MailboxesPanel';
 
 /**
  * Account settings: the password, the second factor, the devices signed in, and which
@@ -55,6 +56,14 @@ export function SettingsPage() {
           }}
         >
           <NotificationPreferencesPanel />
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
+          <MailboxesPanel />
         </Grid>
       </Grid>
     </Box>

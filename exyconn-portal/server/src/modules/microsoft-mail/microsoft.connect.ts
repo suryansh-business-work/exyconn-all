@@ -16,6 +16,7 @@ import {
   noteMicrosoftOutcome,
   saveMicrosoftAccount,
 } from './microsoft.accounts';
+import { claimDefaultIfNone, ownerOf } from '../my-mailboxes/my-mailboxes.default';
 import {
   MicrosoftMailAccountModel,
   MicrosoftMailConfigModel,
@@ -93,6 +94,8 @@ export interface MicrosoftConnectActor {
   id: string;
   name: string;
   organizationId: string;
+  /** Set when the person connects their own mailbox (Settings > Mailboxes), not a CRM one. */
+  ownerUserId?: string;
 }
 
 /**
@@ -118,6 +121,7 @@ export async function startMicrosoftConnect(
       actorId: actor.id,
       actorName: actor.name,
       organizationId: actor.organizationId,
+      ownerUserId: actor.ownerUserId ?? '',
     }),
   );
   const params = new URLSearchParams({
@@ -148,7 +152,9 @@ export const takeMicrosoftState = (nonce: string) =>
  * the company that started the connection (the callback itself has no session).
  */
 export async function finishMicrosoftConnect(
-  state: Pick<MicrosoftOAuthStateDocument, 'codeVerifier' | 'actorName' | 'organizationId'>,
+  state: Pick<MicrosoftOAuthStateDocument, 'codeVerifier' | 'actorName' | 'organizationId'> & {
+    ownerUserId?: string | null;
+  },
   code: string,
 ): Promise<string> {
   if (!state.organizationId) {
@@ -165,12 +171,17 @@ export async function finishMicrosoftConnect(
     throw new Error('Microsoft did not grant offline access. Try Connect again.');
   }
   const email = await mailboxAddress(tokens.access_token);
-  await saveMicrosoftAccount(
+  const owner = ownerOf(state.ownerUserId);
+  const saved = await saveMicrosoftAccount(
     state.organizationId,
     email,
     tokens.refresh_token,
     state.actorName ?? '',
+    owner,
   );
+  if (owner) {
+    await claimDefaultIfNone(state.organizationId, owner, 'MICROSOFT', saved._id);
+  }
   return email;
 }
 

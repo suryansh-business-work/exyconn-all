@@ -1,7 +1,6 @@
 import { useT } from '@exyconn/i18n';
 import { Chip, Flex, Text } from '@exyconn/shell/components/ui';
-import { PROVIDER_NAMES } from '../../integrations/providerNames';
-import { ProviderLogo } from '../../integrations/ProviderLogo';
+import { PROVIDER_NAMES, ProviderLogo } from '@exyconn/shell/components/mailboxes';
 
 interface ChannelStatusProps {
   /** Whether the channel can be used from a record page. */

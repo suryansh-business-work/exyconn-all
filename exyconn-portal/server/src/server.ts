@@ -33,6 +33,7 @@ import {
 import { migrateClientTaxIds } from './modules/clients';
 import { migrateLegacyGmailConnection } from './modules/gmail';
 import { assignMailboxesToOperator } from './modules/crm-integrations/crm-mailboxes.migrate';
+import { allowPersonalMailboxes } from './modules/my-mailboxes';
 import { backfillCrmOrigins } from './modules/crm/crm.origin.backfill';
 import {
   allowBlankCompanyDomains,
@@ -113,6 +114,9 @@ async function bootstrap(): Promise<void> {
   await runAsPlatform(() => runOnce('gmail-multi-account', migrateLegacyGmailConnection));
   // Connected mailboxes became each company's own: those stored before go to the operator, once.
   await runAsPlatform(() => runOnce('crm-mailboxes-per-organization', assignMailboxesToOperator));
+  // A person may connect their own mailbox at an address their company's CRM also uses: the
+  // mailbox indexes learn the owner, once.
+  await runAsPlatform(() => runOnce('mailbox-personal-owner', allowPersonalMailboxes));
   // Companies and contacts from before origins were kept learn who or what filed them, once.
   await forEachOrganization(
     () => runOnce('crm-record-origins', backfillCrmOrigins),

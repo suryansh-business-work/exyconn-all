@@ -1,7 +1,7 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { MenuItem, TextField } from '@exyconn/shell/components/ui';
-import { ProviderLabel } from '../../../integrations/ProviderLogo';
+import { ProviderLabel } from '@exyconn/shell/components/mailboxes';
 
 interface RhfProviderSelectProps {
   /** The provider enum values to offer, in order. */

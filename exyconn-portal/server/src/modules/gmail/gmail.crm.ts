@@ -5,8 +5,8 @@ import { timelineTarget } from '../crm/timeline/crm.timeline';
 import { gmailClient } from './gmail.client';
 import {
   enabledMailboxes,
-  noteAccountOutcome,
   sendingMailbox,
+  withMailboxOutcome,
   type AccountMailbox,
 } from './gmail.accounts';
 import { CrmEmailMessageModel } from './gmail.models';
@@ -91,7 +91,7 @@ export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string)
   const { to, cc, subject } = checkedRecipients(input);
   const mailbox = await sendingMailbox(input.fromAccountId);
   const threading = await replyThreading(input, mailbox);
-  try {
+  return withMailboxOutcome(mailbox.id, async () => {
     const sent = await gmailClient.send(
       mailbox,
       {
@@ -108,10 +108,7 @@ export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string)
     const record = toRecord(await gmailClient.message(mailbox, sent.id), mailbox);
     await keepRecord(record, sentByName);
     return { ...record, id: record.gmailId, sentByName };
-  } catch (error) {
-    await noteAccountOutcome(mailbox.id, error);
-    throw error;
-  }
+  });
 }
 
 /**

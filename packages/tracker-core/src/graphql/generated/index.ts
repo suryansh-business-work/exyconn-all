@@ -3702,6 +3702,18 @@ export type SendMailInput = {
   subject: Scalars['String']['input'];
 };
 
+export type SendMyEmailInput = {
+  bcc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Rich HTML from the editor; sanitized on the server. */
+  body: Scalars['String']['input'];
+  cc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** One of the caller's own mailboxes (myMailboxes); their default one when omitted. */
+  fromMailboxId: InputMaybe<Scalars['ID']['input']>;
+  replyTo: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  to: Array<Scalars['String']['input']>;
+};
+
 export type SendNotificationInput = {
   audience: NotificationAudience;
   body: InputMaybe<Scalars['String']['input']>;

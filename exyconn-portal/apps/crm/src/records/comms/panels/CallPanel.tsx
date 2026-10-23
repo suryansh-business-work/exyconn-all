@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button, Stack } from '@exyconn/shell/components/ui';
-import { useRemembered, type CommsPanel } from '../commsStore';
+import { useRemembered } from '@exyconn/shell/components/compose-dock';
+import type { CommsPanel } from '../commsStore';
 import { StartCallForm } from '../forms/start-call';
 import { CallNoteForm } from '../forms/call-note';
 

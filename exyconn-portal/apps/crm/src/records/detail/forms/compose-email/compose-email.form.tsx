@@ -25,8 +25,7 @@ import {
 } from './compose-email.types';
 import { ComposeAddressFields } from './compose-email.fields';
 import { useComposeSender } from './useComposeSender';
-import { readMemory } from '../../../comms/commsStore';
-import { useFormMemory } from '../../../comms/useFormMemory';
+import { readMemory, useFormMemory } from '@exyconn/shell/components/compose-dock';
 import { EMAIL_INTEGRATIONS_PATH } from '../../../../integrations/emailIntegrationsPath';
 
 const DRAFT = 'email-draft';

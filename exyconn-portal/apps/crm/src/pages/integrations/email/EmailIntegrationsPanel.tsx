@@ -5,7 +5,7 @@ import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { ConnectMailboxButton } from './ConnectMailboxButton';
-import { MailboxErrorDialog } from './MailboxErrorDialog';
+import { MailboxErrorDialog } from '@exyconn/shell/components/mailboxes';
 import { MailboxTable } from './MailboxTable';
 import {
   MAIL_PROVIDERS,

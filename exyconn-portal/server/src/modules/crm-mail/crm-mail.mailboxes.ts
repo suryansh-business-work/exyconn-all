@@ -1,6 +1,6 @@
 import { badRequest } from '../../utils/errors';
 import { createLimiter, enforceLimit } from '../../lib/rateLimiter';
-import { enabledMailboxes, type AccountMailbox } from '../gmail/gmail.accounts';
+import { enabledMailboxes, ORG_MAILBOXES, type AccountMailbox } from '../gmail/gmail.accounts';
 import { GmailAccountModel, type GmailAccountDocument } from '../gmail/gmail.models';
 import {
   MicrosoftMailAccountModel,
@@ -47,8 +47,10 @@ const unreadInbox = (accountId: string) =>
 /** Every mailbox turned on for the CRM, Gmail first, with its unread inbox count. */
 export async function mailMailboxes() {
   const [gmail, microsoft] = await Promise.all([
-    GmailAccountModel.find({ enabled: true }).sort(newestFirst).lean<GmailAccountDocument[]>(),
-    MicrosoftMailAccountModel.find({ enabled: true })
+    GmailAccountModel.find({ enabled: true, ...ORG_MAILBOXES })
+      .sort(newestFirst)
+      .lean<GmailAccountDocument[]>(),
+    MicrosoftMailAccountModel.find({ enabled: true, ...ORG_MAILBOXES })
       .sort(newestFirst)
       .lean<MicrosoftMailAccountDocument[]>(),
   ]);

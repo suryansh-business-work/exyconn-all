@@ -4,7 +4,7 @@ import {
   useCrmEmailSendersQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
-import { PROVIDER_NAMES } from '../../../../integrations/providerNames';
+import { PROVIDER_NAMES } from '@exyconn/shell/components/mailboxes';
 import type { ComposeEmailContext } from './compose-email.types';
 
 /**

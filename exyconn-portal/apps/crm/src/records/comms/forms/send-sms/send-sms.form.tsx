@@ -11,8 +11,8 @@ import {
   CrmTimelineObject,
   useSendCrmSmsMutation,
 } from '@exyconn/shell/graphql/generated';
-import { readMemory, type CommsPanel } from '../../commsStore';
-import { useFormMemory } from '../../useFormMemory';
+import { readMemory, useFormMemory } from '@exyconn/shell/components/compose-dock';
+import type { CommsPanel } from '../../commsStore';
 import { recipientOptions } from '../recipient';
 import { MAX_SMS_LENGTH, sendSmsSchema, type SendSmsValues } from './send-sms.types';
 
