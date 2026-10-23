@@ -89,7 +89,8 @@ export function DrawArea({ area }: Readonly<{ area: SearchArea }>) {
   if (drawing) {
     return (
       <>
-        <PolygonF paths={points} options={outlineOptions} />
+        {/* An empty polygon has no path, and PolygonF listens on its path on mount. */}
+        {points.length > 0 && <PolygonF paths={points} options={outlineOptions} />}
         {points.map((point, index) => {
           // The first corner closes the shape: clicking it finishes instead of adding a corner.
           const closes = index === 0 && canClose;
