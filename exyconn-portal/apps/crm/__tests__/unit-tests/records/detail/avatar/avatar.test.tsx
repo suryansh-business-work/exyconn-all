@@ -11,12 +11,15 @@ import { renderWithProviders } from '../../../test-utils';
 
 /** Sources that load in this fake browser; anything else errors. */
 const loads = new Set<string>();
+/** Sources that load as a 16px placeholder (Google's no-icon globe); the rest are 64px. */
+const tiny = new Set<string>();
 /** Every image the code asked for, in order, to settle by hand. */
 let requested: FakeImage[] = [];
 
 class FakeImage {
   onload: (() => void) | null = null;
   onerror: (() => void) | null = null;
+  naturalWidth = 0;
   private value = '';
   get src() {
     return this.value;
@@ -27,6 +30,7 @@ class FakeImage {
   }
   settle() {
     if (loads.has(this.value)) {
+      this.naturalWidth = tiny.has(this.value) ? 16 : 64;
       this.onload?.();
     } else {
       this.onerror?.();
@@ -43,6 +47,7 @@ function settleAll() {
 
 beforeEach(() => {
   loads.clear();
+  tiny.clear();
   requested = [];
   vi.stubGlobal('Image', FakeImage);
 });
@@ -91,6 +96,15 @@ describe('loadFirstImage', () => {
       'https://b.test/2.png',
     ]);
     expect(onDone).toHaveBeenCalledWith('https://b.test/2.png');
+  });
+
+  it("passes over Google's 16px no-icon globe as if it had failed", () => {
+    loads.add(FAVICON);
+    tiny.add(FAVICON);
+    const onDone = vi.fn();
+    loadFirstImage([FAVICON], onDone);
+    settleAll();
+    expect(onDone).toHaveBeenCalledWith('');
   });
 
   it('reports nothing loaded when every source fails', () => {

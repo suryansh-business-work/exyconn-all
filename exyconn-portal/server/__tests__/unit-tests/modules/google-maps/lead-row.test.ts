@@ -3,7 +3,6 @@ import {
   checkedRow,
   domainOf,
   locationOf,
-  placeholderDomain,
   type LeadImportInput,
 } from '../../../../src/modules/google-maps/lead-row';
 
@@ -21,17 +20,6 @@ describe('domainOf', () => {
     expect(domainOf('not a url')).toBe('');
     expect(domainOf(null)).toBe('');
     expect(domainOf(undefined)).toBe('');
-  });
-});
-
-describe('placeholderDomain', () => {
-  it('falls back to "place" for a name with no letters or digits', () => {
-    expect(placeholderDomain('★★★', 'place-a')).toMatch(/^place-[\da-f]{8}\.no-website\.invalid$/);
-  });
-
-  it('keeps the slug to forty characters', () => {
-    const domain = placeholderDomain('a'.repeat(60), 'place-a');
-    expect(domain.split('-')[0]).toHaveLength(40);
   });
 });
 

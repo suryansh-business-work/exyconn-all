@@ -47,6 +47,7 @@ export const emptyResult = (): LeadImportResult => ({
   filed: [],
   merges: [],
   skips: [],
+  websitesDropped: [],
 });
 
 /** Adds one call's result to the running total. */
@@ -57,6 +58,7 @@ export function addResult(total: LeadImportResult, part: LeadImportResult) {
   total.filed.push(...part.filed);
   total.merges.push(...part.merges);
   total.skips.push(...part.skips);
+  total.websitesDropped.push(...part.websitesDropped);
 }
 
 /** Every place now known to be in the CRM, and its company: filed, updated or skipped as a duplicate. */

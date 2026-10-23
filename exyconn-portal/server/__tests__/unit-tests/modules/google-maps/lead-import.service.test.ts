@@ -3,11 +3,33 @@ import {
   importLeads,
   LEAD_SOURCE,
   MAX_IMPORT,
-  placeholderDomain,
   type LeadImportInput,
 } from '../../../../src/modules/google-maps/lead-import.service';
 import { CompanyModel } from '../../../../src/modules/crm/company.model';
 import { ActivityModel } from '../../../../src/modules/crm/activity.model';
+import {
+  checkWebsites,
+  type WebsiteCheck,
+} from '../../../../src/modules/google-maps/website-check';
+
+jest.mock('../../../../src/modules/google-maps/website-check', () => ({
+  checkWebsites: jest.fn(),
+}));
+
+const LOGO = 'https://www.google.com/s2/favicons?domain=smiledental.example&sz=64';
+/** What each website answers in a test; anything not listed answers 200 OK with a favicon. */
+let answers: Record<string, WebsiteCheck> = {};
+const checkWebsitesMock = checkWebsites as jest.MockedFunction<typeof checkWebsites>;
+
+beforeEach(() => {
+  answers = {};
+  checkWebsitesMock.mockImplementation(
+    async (sites) =>
+      new Map(
+        sites.map((site) => [site, answers[site] ?? { ok: true, reason: '', logoUrl: LOGO }]),
+      ),
+  );
+});
 
 /** The person running the import, as the import records them. */
 const ASHA = { source: 'GOOGLE_PLACES' as const, userId: 'u1', userName: 'Asha', userEmail: '' };
@@ -28,18 +50,11 @@ const lead = (over: Partial<LeadImportInput> = {}): LeadImportInput => ({
   ...over,
 });
 
-describe('domainOf / placeholderDomain', () => {
+describe('domainOf', () => {
   it('reads the host without www, and nothing from a non-web URL', () => {
     expect(domainOf('https://www.Acme.example/x')).toBe('acme.example');
     expect(domainOf('javascript:alert(1)')).toBe('');
     expect(domainOf('')).toBe('');
-  });
-
-  it('gives a business with no website a stable, reserved, unique domain', () => {
-    const one = placeholderDomain('Café Ünïque & Co', 'place-a');
-    expect(one).toMatch(/^cafe-unique-co-[\da-f]{8}\.no-website\.invalid$/);
-    expect(placeholderDomain('Café Ünïque & Co', 'place-a')).toBe(one);
-    expect(placeholderDomain('Café Ünïque & Co', 'place-b')).not.toBe(one);
   });
 });
 
@@ -62,7 +77,10 @@ describe('importLeads', () => {
       placeId: 'place-1',
       mapUrl: 'https://maps.google.com/?cid=1',
       leadSource: LEAD_SOURCE,
+      website: 'https://www.smiledental.example/home',
+      logoUrl: LOGO,
     });
+    expect(result.websitesDropped).toEqual([]);
     expect(company?.emails).toEqual([
       { address: 'hello@smiledental.example', label: 'Work', primary: true },
     ]);
@@ -91,8 +109,91 @@ describe('importLeads', () => {
       'Already in the CRM',
     ]);
     const filed = await CompanyModel.findById(result.filed[0].companyId).lean();
-    expect(filed?.domain).toMatch(/\.no-website\.invalid$/);
+    expect(filed).toMatchObject({ domain: '', website: '', logoUrl: '' });
     expect(await CompanyModel.countDocuments()).toBe(3);
+  });
+
+  it('files a lead whose website does not answer 200 OK without its website, domain or favicon', async () => {
+    answers['https://www.smiledental.example/home'] = {
+      ok: false,
+      reason: 'Answered 404 instead of 200 OK',
+      logoUrl: '',
+    };
+
+    const result = await importLeads([lead()], ASHA);
+
+    expect(result.created).toBe(1);
+    expect(result.websitesDropped).toEqual([
+      {
+        placeId: 'place-1',
+        name: 'Smile Dental',
+        website: 'https://www.smiledental.example/home',
+        reason: 'Answered 404 instead of 200 OK',
+      },
+    ]);
+    const company = await CompanyModel.findById(result.filed[0].companyId).lean();
+    expect(company).toMatchObject({ domain: '', website: '', logoUrl: '' });
+  });
+
+  it('files any number of businesses without a website, each with a blank domain', async () => {
+    const result = await importLeads(
+      [
+        lead({ placeId: 'a', name: 'One', website: '', phone: '+91 20 1111 1111' }),
+        lead({ placeId: 'b', name: 'Two', website: '', phone: '+91 20 2222 2222' }),
+      ],
+      ASHA,
+    );
+
+    expect(result.created).toBe(2);
+    expect(await CompanyModel.countDocuments({ domain: '' })).toBe(2);
+    expect(result.websitesDropped).toEqual([]);
+  });
+
+  it('still refuses a second company on a real domain', async () => {
+    await CompanyModel.init();
+    await CompanyModel.create({ name: 'Acme', domain: 'acme.example', owner: '' });
+    await expect(
+      CompanyModel.create({ name: 'Acme 2', domain: 'acme.example', owner: '' }),
+    ).rejects.toMatchObject({
+      code: 11000,
+    });
+  });
+
+  it('visits only the websites that may be saved: new leads and the merges asked for', async () => {
+    await CompanyModel.create({ name: 'Acme', domain: 'acme.example', owner: '' });
+
+    await importLeads(
+      [lead(), lead({ placeId: 'place-2', name: 'Acme', website: 'https://acme.example' })],
+      ASHA,
+    );
+
+    expect(checkWebsitesMock).toHaveBeenCalledWith(['https://www.smiledental.example/home']);
+  });
+
+  it('merges a duplicate without a website that does not answer 200 OK', async () => {
+    const acme = await CompanyModel.create({
+      name: 'Smile Dental',
+      domain: 'smile.example',
+      city: 'Pune',
+      owner: '',
+    });
+    answers['https://www.smiledental.example/home'] = {
+      ok: false,
+      reason: 'No answer within 5 seconds',
+      logoUrl: '',
+    };
+
+    const result = await importLeads([lead({ phone: '' })], ASHA, [
+      { placeId: 'place-1', companyId: acme._id.toHexString() },
+    ]);
+
+    expect(result.merged).toBe(1);
+    expect(result.merges[0].added.map((extra) => extra.field)).not.toContain('website');
+    expect(result.websitesDropped).toEqual([
+      expect.objectContaining({ placeId: 'place-1', reason: 'No answer within 5 seconds' }),
+    ]);
+    const company = await CompanyModel.findById(acme._id).lean();
+    expect(company?.website).toBe('');
   });
 
   it('refuses an empty or oversized batch and a lead with no place or coordinates', async () => {

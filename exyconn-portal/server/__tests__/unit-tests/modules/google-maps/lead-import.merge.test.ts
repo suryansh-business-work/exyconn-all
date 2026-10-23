@@ -7,7 +7,20 @@ import {
 } from '../../../../src/modules/google-maps/lead-import.service';
 import * as leadMerge from '../../../../src/modules/google-maps/lead-merge.service';
 
-const ORIGIN = { source: 'GOOGLE_PLACES' as const, userId: 'u1', userName: '', userEmail: 'a@x.test' };
+// Every website here answers 200 OK; website-check.test.ts covers the ones that do not.
+jest.mock('../../../../src/modules/google-maps/website-check', () => ({
+  checkWebsites: jest.fn(
+    async (sites: string[]) =>
+      new Map(sites.map((site) => [site, { ok: true, reason: '', logoUrl: '' }])),
+  ),
+}));
+
+const ORIGIN = {
+  source: 'GOOGLE_PLACES' as const,
+  userId: 'u1',
+  userName: '',
+  userEmail: 'a@x.test',
+};
 
 const lead = (over: Partial<LeadImportInput> = {}): LeadImportInput => ({
   placeId: 'place-1',
@@ -107,7 +120,12 @@ describe('importLeads with duplicates', () => {
 
     const result = await importLeads(
       [
-        lead({ placeId: 'place-a', name: 'Acme', website: 'https://acme.example', address: 'A St' }),
+        lead({
+          placeId: 'place-a',
+          name: 'Acme',
+          website: 'https://acme.example',
+          address: 'A St',
+        }),
         lead({ placeId: 'place-a', name: 'Acme again' }),
       ],
       ORIGIN,

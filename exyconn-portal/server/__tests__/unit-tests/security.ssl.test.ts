@@ -8,7 +8,7 @@ import {
   monitorHosts,
   unreachableRow,
 } from '../../src/modules/security/ssl.certificates';
-import { mapWithConcurrency } from '../../src/modules/security/concurrency';
+import { mapWithConcurrency } from '../../src/utils/concurrency';
 import { clearSslCache, sslCertificates } from '../../src/modules/security/ssl.service';
 import { readCertificate } from '../../src/modules/security/ssl.probe';
 import { StatusMonitorModel } from '../../src/modules/status/status-monitor.model';

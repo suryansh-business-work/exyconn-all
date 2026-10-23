@@ -15,7 +15,7 @@ import { robotsAllows } from './robots';
  */
 
 export const CRAWLER_AGENT = 'ExyconnLeadBot';
-const USER_AGENT = `Mozilla/5.0 (compatible; ${CRAWLER_AGENT}/1.0; +https://exyconn.com)`;
+export const USER_AGENT = `Mozilla/5.0 (compatible; ${CRAWLER_AGENT}/1.0; +https://exyconn.com)`;
 const PAGE_TIMEOUT_MS = 8000;
 const PAGE_MAX_BYTES = 1024 * 1024;
 const ROBOTS_MAX_BYTES = 128 * 1024;

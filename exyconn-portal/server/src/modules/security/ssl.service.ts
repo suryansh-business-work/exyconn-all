@@ -8,7 +8,7 @@ import {
   type SslHost,
 } from './ssl.certificates';
 import { readCertificate } from './ssl.probe';
-import { mapWithConcurrency } from './concurrency';
+import { mapWithConcurrency } from '../../utils/concurrency';
 
 /** How long a report is reused before the hosts are checked again. */
 export const SSL_CACHE_TTL_MS = 10 * 60_000;

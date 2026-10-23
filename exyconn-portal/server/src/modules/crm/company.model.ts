@@ -13,12 +13,14 @@ export const COMPANY_STATUSES = ['PROSPECT', 'CUSTOMER', 'PARTNER', 'CHURNED'] a
 /**
  * An account: the organisation deals and contacts hang off. `domain` is the
  * natural key sales people recognise, so it is unique — two rows for the same
- * company is the failure mode that makes a CRM untrustworthy.
+ * company is the failure mode that makes a CRM untrustworthy. It is blank for a
+ * business with no working website (a lead generator import), and blanks are not
+ * unique: see the index below.
  */
 const companySchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
-    domain: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    domain: { type: String, default: '', lowercase: true, trim: true },
     industry: { type: String, default: '', trim: true },
     /** Empty until somebody knows it: an import never guesses. */
     size: { type: String, enum: ['', ...COMPANY_SIZES], default: '' },
@@ -38,6 +40,16 @@ const companySchema = new Schema(
     ...tagFields,
   },
   { timestamps: true },
+);
+
+/**
+ * One company per domain, blanks excepted. Descending on purpose: the key differs from the old
+ * index on every domain (blanks included), so Mongo builds this one beside it and the boot repair
+ * (crm.domain.repair.ts) drops the old one after — the domain is never without a unique guard.
+ */
+companySchema.index(
+  { domain: -1 },
+  { unique: true, partialFilterExpression: { domain: { $gt: '' } } },
 );
 
 /** Finding the company behind an address — suppression links, audience expansion. */

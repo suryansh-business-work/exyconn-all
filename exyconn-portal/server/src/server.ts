@@ -35,6 +35,10 @@ import { migrateLegacyGmailConnection } from './modules/gmail';
 import { assignMailboxesToOperator } from './modules/crm-integrations/crm-mailboxes.migrate';
 import { backfillCrmOrigins } from './modules/crm/crm.origin.backfill';
 import {
+  allowBlankCompanyDomains,
+  clearInventedCompanyDomains,
+} from './modules/crm/crm.domain.repair';
+import {
   backfillSuppressionOrigins,
   migrateLegacyAudiences,
   migrateLegacyCampaigns,
@@ -113,6 +117,13 @@ async function bootstrap(): Promise<void> {
   await forEachOrganization(
     () => runOnce('crm-record-origins', backfillCrmOrigins),
     'backfillCrmOrigins',
+  );
+  // A company with no working website keeps a blank domain: the unique index learns to skip
+  // blanks first, then the domains the lead generator used to invent are blanked, once.
+  await runAsPlatform(() => runOnce('crm-company-blank-domains', allowBlankCompanyDomains));
+  await forEachOrganization(
+    () => runOnce('crm-company-invented-domains', clearInventedCompanyDomains),
+    'clearInventedCompanyDomains',
   );
   // Audiences saved as names plus one segment rule become builder audiences, once.
   await forEachOrganization(

@@ -77,4 +77,29 @@ describe('ImportSummary', () => {
     expect(screen.queryByRole('link', { name: 'Zeta Clinic' })).not.toBeInTheDocument();
     expect(screen.getByText(/Zeta Clinic/)).toHaveTextContent('Zeta Clinic: No name or website');
   });
+
+  it('names each lead saved without its website, and why', () => {
+    renderWithProviders(
+      <ImportSummary
+        onClose={vi.fn()}
+        summary={importResult({
+          created: 1,
+          websitesDropped: [
+            {
+              placeId: 'd',
+              name: 'Delta Dental',
+              website: 'https://delta.example',
+              reason: 'Answered 404 instead of 200 OK',
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        'Delta Dental: website https://delta.example not saved — Answered 404 instead of 200 OK',
+      ),
+    ).toBeInTheDocument();
+  });
 });

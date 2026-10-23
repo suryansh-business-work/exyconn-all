@@ -60,6 +60,15 @@ export function ImportSummary({ summary, onClose }: Readonly<ImportSummaryProps>
             {t(': {reason}', { reason: skip.reason })}
           </Text>
         ))}
+        {summary.websitesDropped.map((drop) => (
+          <Text key={drop.placeId} size="caption">
+            {t('{name}: website {website} not saved — {reason}', {
+              name: drop.name,
+              website: drop.website,
+              reason: drop.reason,
+            })}
+          </Text>
+        ))}
       </Stack>
     </Alert>
   );
