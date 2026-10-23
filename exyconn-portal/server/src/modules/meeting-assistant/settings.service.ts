@@ -10,17 +10,30 @@ export type MaSettingsInput = Omit<
   'key' | 'updatedByName' | 'createdAt' | 'updatedAt'
 >;
 
-/** This company's settings, created with the defaults the first time anyone reads them. */
+const DUPLICATE_KEY = 11000;
+
+/**
+ * This company's settings, created with the defaults the first time anyone reads them. Two
+ * first reads at once (two tabs starting a call) both upsert, and the loser hits the unique
+ * index: the winner's row is then the settings, so it is read instead of failing the call.
+ */
 export async function getMaSettings(): Promise<MaSettingsDocument> {
   const existing = await MaSettingsModel.findOne({ key: KEY }).lean<MaSettingsDocument>();
   if (existing) {
     return existing;
   }
-  return (await MaSettingsModel.findOneAndUpdate(
-    { key: KEY },
-    { $setOnInsert: { key: KEY } },
-    { upsert: true, new: true },
-  ).lean<MaSettingsDocument>())!;
+  try {
+    return (await MaSettingsModel.findOneAndUpdate(
+      { key: KEY },
+      { $setOnInsert: { key: KEY } },
+      { upsert: true, new: true },
+    ).lean<MaSettingsDocument>())!;
+  } catch (error) {
+    if ((error as { code?: number }).code !== DUPLICATE_KEY) {
+      throw error;
+    }
+    return (await MaSettingsModel.findOne({ key: KEY }).lean<MaSettingsDocument>())!;
+  }
 }
 
 /** Trimmed, lower-cased, de-duplicated and blank-free. */
