@@ -4256,6 +4256,8 @@ export type CrmTimelineItem = {
   kind: CrmTimelineKind;
   /** Whether url is this entry's own page (View details goes there); otherwise View details opens crmTimelineDetail. */
   opensPage: Scalars['Boolean']['output'];
+  /** When a task's reminder is emailed; null for everything that is not a reminder. */
+  remindAt?: Maybe<Scalars['DateTime']['output']>;
   status: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -27482,6 +27484,7 @@ export type CrmTimelineItemResolvers<ContextType = GraphQLContext, ParentType ex
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['CrmTimelineKind'], ParentType, ContextType>;
   opensPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  remindAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

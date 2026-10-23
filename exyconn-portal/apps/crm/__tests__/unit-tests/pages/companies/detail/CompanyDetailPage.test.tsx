@@ -135,7 +135,17 @@ describe('CompanyDetailPage', () => {
     renderPage();
 
     await waitFor(() => expect(document.title).toBe('Acme'));
-    expect(tabNames()).toEqual(['Overview', 'Activity', 'People', 'Cold emails']);
+    expect(tabNames()).toEqual([
+      'Overview',
+      'Activity',
+      'Notes',
+      'Calls',
+      'Tasks',
+      'Meetings',
+      'Reminders',
+      'People',
+      'Cold emails',
+    ]);
     expect(screen.getByText('AI summary of Acme')).toBeInTheDocument();
     expect(screen.getByText('Actions for COMPANY company-1 Acme')).toBeInTheDocument();
   });
@@ -151,6 +161,11 @@ describe('CompanyDetailPage', () => {
     expect(tabNames()).toEqual([
       'Overview',
       'Activity',
+      'Notes',
+      'Calls',
+      'Tasks',
+      'Meetings',
+      'Reminders',
       'People',
       'Google Business',
       'Cold emails',

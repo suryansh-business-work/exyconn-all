@@ -42,13 +42,13 @@ export function CompanyProfile({
       <DetailActions
         target={{ relatedType: 'COMPANY', relatedId: company.id, relatedName: company.name }}
       />
+      <ReachOutActions record={reachOut} />
       <Divider />
       <Text component="h2" size="label" weight="bold">
         {t('Company details')}
       </Text>
       <CompanyFields company={company} onEmail={(address) => composeEmailTo(reachOut, address)} />
       <TagsEditor object={CrmTagObject.Company} id={company.id} tags={company.tags} />
-      <ReachOutActions record={reachOut} />
       <GoogleMapCard target={company} title={company.name} />
     </Stack>
   );

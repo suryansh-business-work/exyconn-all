@@ -1,6 +1,7 @@
 export { ContactPointList } from './ContactPointList';
 export { CustomValues } from './CustomValues';
 export { DetailActions } from './DetailActions';
+export { activityTabs } from './ActivityTabs';
 export { DetailField } from './DetailField';
 export { DetailLayout } from './DetailLayout';
 export { EditRecordButton } from './EditRecordButton';

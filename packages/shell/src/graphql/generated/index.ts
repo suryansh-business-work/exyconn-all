@@ -4257,6 +4257,8 @@ export type CrmTimelineItem = {
   kind: CrmTimelineKind;
   /** Whether url is this entry's own page (View details goes there); otherwise View details opens crmTimelineDetail. */
   opensPage: Scalars['Boolean']['output'];
+  /** When a task's reminder is emailed; null for everything that is not a reminder. */
+  remindAt?: Maybe<Scalars['DateTime']['output']>;
   status: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -25093,7 +25095,7 @@ export type CrmTimelineQueryVariables = Exact<{
 }>;
 
 
-export type CrmTimelineQuery = { __typename?: 'Query', crmTimeline: Array<{ __typename?: 'CrmTimelineItem', id: string, kind: CrmTimelineKind, at: string, title: string, summary: string, actor: string, status: string, url: string, opensPage: boolean, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> };
+export type CrmTimelineQuery = { __typename?: 'Query', crmTimeline: Array<{ __typename?: 'CrmTimelineItem', id: string, kind: CrmTimelineKind, at: string, title: string, summary: string, actor: string, status: string, url: string, opensPage: boolean, remindAt?: string | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> };
 
 export type CrmTimelineDetailQueryVariables = Exact<{
   object: CrmTimelineObject;
@@ -47820,6 +47822,7 @@ export const CrmTimelineDocument = gql`
     status
     url
     opensPage
+    remindAt
     attachments {
       url
       name

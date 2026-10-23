@@ -291,6 +291,35 @@ describe('a contact timeline', () => {
     expect(await crmTimeline('CONTACT', id, 500)).toHaveLength(16);
   });
 
+  it('carries when a task’s reminder is due, and nothing for other entries', async () => {
+    const asha = await ContactModel.create({ name: 'Asha', email: 'asha@acme.com', owner: 'A' });
+    const remindAt = day(20);
+    await ActivityModel.create([
+      {
+        type: 'TASK',
+        subject: 'Send the quote',
+        relatedType: 'CONTACT',
+        relatedId: asha.id,
+        relatedName: 'Asha',
+        owner: 'A',
+        remindAt,
+      },
+      {
+        type: 'NOTE',
+        subject: 'Met at the fair',
+        relatedType: 'CONTACT',
+        relatedId: asha.id,
+        relatedName: 'Asha',
+        owner: 'A',
+      },
+    ]);
+
+    const items = await crmTimeline('CONTACT', asha.id, 10);
+
+    expect(items.find((item) => item.title === 'Send the quote')?.remindAt).toEqual(remindAt);
+    expect(items.find((item) => item.title === 'Met at the fair')?.remindAt).toBeNull();
+  });
+
   it('reads an older contact with only its single address', async () => {
     const { insertedId } = await ContactModel.collection.insertOne({
       name: 'Old',

@@ -15,6 +15,8 @@ export interface TimelineItem {
   /** True when `url` is this entry's own page; false when it is a list or tab, or empty. */
   opensPage: boolean;
   attachments: Array<{ url: string; name: string; contentType?: string | null }>;
+  /** When a task's reminder is emailed; null for everything that is not a reminder. */
+  remindAt: Date | null;
 }
 
 export type TimelineKind =
@@ -44,7 +46,10 @@ export interface TimelineTarget {
 }
 
 export const item = (
-  fields: Omit<TimelineItem, 'attachments' | 'url' | 'opensPage' | 'status' | 'actor'> &
+  fields: Omit<
+    TimelineItem,
+    'attachments' | 'url' | 'opensPage' | 'status' | 'actor' | 'remindAt'
+  > &
     Partial<TimelineItem>,
 ): TimelineItem => ({
   actor: '',
@@ -52,5 +57,6 @@ export const item = (
   url: '',
   opensPage: false,
   attachments: [],
+  remindAt: null,
   ...fields,
 });

@@ -118,7 +118,16 @@ describe('ContactDetailPage', () => {
     renderPage();
 
     await waitFor(() => expect(document.title).toBe('Asha Rao'));
-    expect(tabNames()).toEqual(['Overview', 'Activity', 'Cold emails']);
+    expect(tabNames()).toEqual([
+      'Overview',
+      'Activity',
+      'Notes',
+      'Calls',
+      'Tasks',
+      'Meetings',
+      'Reminders',
+      'Cold emails',
+    ]);
     expect(screen.getByText('AI summary of Asha Rao')).toBeInTheDocument();
   });
 
@@ -126,7 +135,17 @@ describe('ContactDetailPage', () => {
     gql.gmail.mockReturnValue({ data: { crmGmailReady: true } });
     renderPage('emails');
 
-    expect(tabNames()).toEqual(['Overview', 'Activity', 'Cold emails', 'Emails']);
+    expect(tabNames()).toEqual([
+      'Overview',
+      'Activity',
+      'Notes',
+      'Calls',
+      'Tasks',
+      'Meetings',
+      'Reminders',
+      'Cold emails',
+      'Emails',
+    ]);
     expect(screen.getByText('Email threads of contact-1 to [asha@acme.io]')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('tab', { name: 'Activity' }));

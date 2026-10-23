@@ -365,6 +365,7 @@ query CrmTimeline($object: CrmTimelineObject!, $id: ID!, $limit: Int) {
     status
     url
     opensPage
+    remindAt
     attachments {
       url
       name

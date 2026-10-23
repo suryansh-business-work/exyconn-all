@@ -4070,7 +4070,7 @@
   "Front pads, disc skimming, fluid check",
   "Frontend Developer",
   "Frozen on {date}. Saving again takes a new snapshot from the counts below.",
-  "Full {hours}h day complete.",
+  "Full {hours}h day complete — {remaining} left.",
   "Full Body Checkup",
   "Full deposit refund",
   "Full description",
