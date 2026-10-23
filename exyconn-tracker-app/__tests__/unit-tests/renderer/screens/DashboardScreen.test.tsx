@@ -40,7 +40,7 @@ describe('DashboardScreen', () => {
     expect(text).toContain('Live counters for the run in progress');
     expect(text).toContain('Key presses');
     expect(text).toContain('42');
-    expect(text).toContain('0h 2m 0s');
+    expect(text).toContain('00:02:00');
   });
 
   it('shows one off-day banner in place of the attendance gate and the controls', async () => {

@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
-import { formatHoursMinutes } from '@exyconn/tracker-core';
-import type { ProgressStyle, WorkProfile, Workday } from '@exyconn/tracker-core';
 import {
   dayFigures,
   dayProgressLabel,
   daySummary,
   dayTargetSource,
+  formatClock,
   type DayFigures,
-} from '../../lib/dashboard/day-progress';
+  type ProgressStyle,
+  type WorkProfile,
+  type Workday,
+} from '@exyconn/tracker-core';
 import { useBrand } from '../../theme/BrandProvider';
 import { useThemeColor } from '../../theme/useThemeColor';
 import { Icon } from '../ui/Icon';
@@ -39,30 +41,31 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>) {
   const t = useT();
   return (
     <YStack gap="$3">
-      <Figure>{formatHoursMinutes(activeMs)}</Figure>
+      <Figure>{formatClock(activeMs)}</Figure>
       <GradientBar
         percent={figures.percent}
         label={t('Worked')}
-        trailing={t('of {target}', { target: formatHoursMinutes(figures.targetMs) })}
-        accessibilityLabel={dayProgressLabel(figures, activeMs)}
+        trailing={t('of {target}', { target: formatClock(figures.targetMs) })}
+        accessibilityLabel={dayProgressLabel(figures, activeMs, t)}
       />
-      <Caption>{daySummary(figures)}</Caption>
+      <Caption>{daySummary(figures, t)}</Caption>
     </YStack>
   );
 }
 
 /** The ring: the percentage sits inside the shape that describes it. */
 function DayProgressRing({ figures, activeMs, color }: Readonly<ShapeProps>) {
+  const t = useT();
   return (
     <XStack gap="$4" alignItems="center">
       <ProgressRing
         value={figures.percent}
         label={`${figures.percent}%`}
-        caption={formatHoursMinutes(activeMs)}
+        caption={formatClock(activeMs)}
         color={color}
       />
       <Body color="$muted" flex={1}>
-        {daySummary(figures)}
+        {daySummary(figures, t)}
       </Body>
     </XStack>
   );
@@ -110,7 +113,7 @@ export function DayProgress({ workday, workProfile, activeMs, style }: Readonly<
           {figures.percent}%
         </Heading>
       </XStack>
-      {explained ? <Caption>{dayTargetSource(figures)}</Caption> : null}
+      {explained ? <Caption>{dayTargetSource(figures, t)}</Caption> : null}
       <Shape figures={figures} activeMs={activeMs} color={color} />
     </YStack>
   );

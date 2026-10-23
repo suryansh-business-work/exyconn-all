@@ -36,9 +36,9 @@ describe('DayProgress', () => {
       />,
     );
     expect(bar()?.getAttribute('aria-valuenow')).toBe('25');
-    expect(bar()?.getAttribute('aria-label')).toBe('2h 0m of 8h 0m worked today');
-    expect(pageText()).toContain('25% — 6h 0m left of your 8h day.');
-    expect(pageText()).toContain('of 8h 0m');
+    expect(bar()?.getAttribute('aria-label')).toBe('02:00:00 of 08:00:00 worked today');
+    expect(pageText()).toContain('25% — 06:00:00 left of your 8h day.');
+    expect(pageText()).toContain('of 08:00:00');
   });
 
   it('draws a finished day as a full green ring', async () => {
@@ -50,8 +50,10 @@ describe('DayProgress', () => {
         style="ring"
       />,
     );
-    expect(document.querySelector('[role="img"]')?.getAttribute('aria-label')).toBe('100%. 7h 0m');
-    expect(pageText()).toContain('Full 6h day complete.');
+    expect(document.querySelector('[role="img"]')?.getAttribute('aria-label')).toBe(
+      '100%. 07:00:00',
+    );
+    expect(pageText()).toContain('Full 6h day complete — -01:00:00 left.');
     expect(document.querySelector('.MuiCircularProgress-colorSuccess')).not.toBeNull();
   });
 
@@ -59,14 +61,14 @@ describe('DayProgress', () => {
     await render(
       <DayProgress workday={null} workProfile={profile(4)} activeMs={HOUR} style="ring" />,
     );
-    expect(pageText()).toContain('25% — 3h 0m left of your 4h day.');
+    expect(pageText()).toContain('25% — 03:00:00 left of your 4h day.');
     expect(document.querySelector('.MuiCircularProgress-colorSuccess')).toBeNull();
   });
 
   it('shows nothing done, against the default day, when no target is known yet', async () => {
     await render(<DayProgress workday={null} workProfile={null} activeMs={HOUR} style="bar" />);
     expect(bar()?.getAttribute('aria-valuenow')).toBe('0');
-    expect(pageText()).toContain(`0% — 0m left of your ${DEFAULT_WORK_HOURS}h day.`);
+    expect(pageText()).toContain(`0% — 00:00:00 left of your ${DEFAULT_WORK_HOURS}h day.`);
   });
 
   it('explains where the working day comes from behind the info button', async () => {

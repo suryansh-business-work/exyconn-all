@@ -4,13 +4,22 @@
  * the single module that applies the employee's chosen zone.
  */
 
-/** Format a duration in milliseconds as "Hh Mm Ss" (e.g. 3661000 -> "1h 1m 1s"). */
+const pad = (value: number) => String(value).padStart(2, '0');
+
+/**
+ * A duration as a running clock, "HH:mm:ss" (3661000 -> "01:01:01"); hours keep counting past
+ * 99. What the live counters show: it ticks every second while tracking.
+ */
 export function formatClock(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${hours}h ${minutes}m ${seconds}s`;
+  return `${pad(hours)}:${pad(minutes)}:${pad(totalSeconds % 60)}`;
+}
+
+/** A clock that runs below zero, e.g. "-00:12:34" once a day's time left is used up. */
+export function formatSignedClock(ms: number): string {
+  return ms < 0 ? `-${formatClock(-ms)}` : formatClock(ms);
 }
 
 /** Format a duration as "Hh Mm" — used in the report, where seconds are noise. */

@@ -1,62 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { t } from '../translator';
-import type { TrackerTask, WorkProfile, Workday } from '@exyconn/tracker-core';
-import {
-  dayFigures,
-  dayProgressLabel,
-  daySummary,
-  dayTargetSource,
-} from '../../../src/lib/dashboard/day-progress';
+import type { TrackerTask } from '@exyconn/tracker-core';
 import { presenceCaption } from '../../../src/lib/dashboard/presence-text';
 import { syncPendingText, syncPolicyText } from '../../../src/lib/dashboard/sync-text';
 import { NO_TICKET, ticketOptions } from '../../../src/lib/dashboard/ticket-options';
 import { settings, stats } from './fixtures';
-
-const HOUR = 3_600_000;
-
-const WORKDAY: Workday = {
-  date: '2026-09-11',
-  targetMs: 8 * HOUR,
-  activeMs: 0,
-  attendanceStatus: 'PRESENT',
-  attendanceNote: null,
-  attendanceMarked: true,
-  offReason: null,
-  offLabel: null,
-  profileAddress: null,
-};
-
-const PROFILE: WorkProfile = {
-  workingTime: 'FIXED',
-  workingTimeNote: '',
-  workLocation: 'OFFICE',
-  workLocationNote: '',
-  workHoursPerDay: 8,
-  targetMs: 8 * HOUR,
-  workDays: [1, 2, 3, 4, 5],
-};
-
-describe('day progress', () => {
-  it('fills against the workday target', () => {
-    const figures = dayFigures(WORKDAY, PROFILE, 2 * HOUR);
-    expect(figures.percent).toBe(25);
-    expect(daySummary(figures)).toBe('25% — 6h 0m left of your 8h day.');
-    expect(dayProgressLabel(figures, 2 * HOUR)).toBe('2h 0m of 8h 0m worked today');
-  });
-
-  it('says the day is complete and caps at 100%', () => {
-    const figures = dayFigures(WORKDAY, PROFILE, 9 * HOUR);
-    expect(figures.percent).toBe(100);
-    expect(figures.done).toBe(true);
-    expect(daySummary(figures)).toBe('Full 8h day complete.');
-  });
-
-  it('falls back to the default day and never calls an unknown target done', () => {
-    const figures = dayFigures(null, null, HOUR);
-    expect(figures).toMatchObject({ percent: 0, done: false, hours: 8, targetMs: 0 });
-    expect(dayTargetSource(figures)).toContain('The default is 8');
-  });
-});
 
 describe('sync text', () => {
   it('states the upload cadence', () => {

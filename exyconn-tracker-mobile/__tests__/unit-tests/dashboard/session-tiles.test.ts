@@ -33,9 +33,9 @@ describe('sessionTiles', () => {
   it('shows worked and idle time with their shares of the session', () => {
     const tiles = sessionTiles(stats(), settings(), ANDROID);
     const worked = tileOf(tiles, 'worked');
-    expect(worked.value).toBe('0h 45m 0s');
+    expect(worked.value).toBe('00:45:00');
     // Counts are grouped in the device's locale, so the expectation is too.
-    expect(worked.detail.headline).toBe(`0h 45m 0s (${formatCount(2700)} seconds)`);
+    expect(worked.detail.headline).toBe(`00:45:00 (${formatCount(2700)} seconds)`);
     expect(factOf(worked, 'share')).toBe('75% active');
     expect(factOf(worked, 'threshold')).toBe('300 seconds');
     expect(factOf(tileOf(tiles, 'idle'), 'share')).toBe('25% idle');

@@ -33,10 +33,10 @@ describe('sessionTiles', () => {
       SETTINGS,
     );
     const worked = tile(tiles, 'worked');
-    expect(worked.value).toBe('0h 4m 30s');
-    expect(worked.detail.headline).toBe('0h 4m 30s (270 seconds)');
+    expect(worked.value).toBe('00:04:30');
+    expect(worked.detail.headline).toBe('00:04:30 (270 seconds)');
     expect(fact(worked, 'share')).toBe('75% active');
-    expect(fact(worked, 'idle')).toBe('0h 1m 30s');
+    expect(fact(worked, 'idle')).toBe('00:01:30');
     expect(fact(worked, 'threshold')).toBe('120 seconds');
     expect(fact(tile(tiles, 'idle'), 'share')).toBe('25% idle');
     expect(fact(tile(tiles, 'idle'), 'threshold')).toBe('120 seconds');

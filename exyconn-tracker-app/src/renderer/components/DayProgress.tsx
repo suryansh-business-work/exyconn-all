@@ -4,10 +4,15 @@ import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import type { ProgressStyle, WorkProfile, Workday } from '@shared/types';
 import GradientBar from './GradientBar';
 import ProgressRing from './ProgressRing';
-import { DEFAULT_WORK_HOURS, formatHoursMinutes } from '@exyconn/tracker-core';
-import { useT, type Interpolations } from '@exyconn/i18n';
-
-type Translate = (source: string, values?: Interpolations) => string;
+import {
+  dayFigures,
+  dayProgressLabel,
+  daySummary,
+  dayTargetSource,
+  formatClock,
+  type DayFigures,
+} from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 
 interface Props {
   workday: Workday | null;
@@ -16,43 +21,6 @@ interface Props {
   activeMs: number;
   /** Bar across the card, or a ring around the figure. The employee's own choice. */
   style: ProgressStyle;
-}
-
-/** What the day amounts to, worked out once and drawn either way. */
-interface DayFigures {
-  percent: number;
-  targetMs: number;
-  remainingMs: number;
-  done: boolean;
-  hours: number;
-}
-
-function figuresFor(
-  workday: Workday | null,
-  workProfile: WorkProfile | null,
-  activeMs: number,
-): DayFigures {
-  const targetMs = workday?.targetMs ?? workProfile?.targetMs ?? 0;
-  const remainingMs = Math.max(0, targetMs - activeMs);
-  return {
-    targetMs,
-    remainingMs,
-    percent: targetMs > 0 ? Math.min(100, Math.round((activeMs / targetMs) * 100)) : 0,
-    done: remainingMs === 0 && targetMs > 0,
-    hours: workProfile?.workHoursPerDay ?? DEFAULT_WORK_HOURS,
-  };
-}
-
-/** The sentence under either shape: how far in, or that the day is done. */
-function summaryOf(t: Translate, figures: DayFigures): string {
-  if (figures.done) {
-    return t('Full {hours}h day complete.', { hours: figures.hours });
-  }
-  return t('{percent}% — {remaining} left of your {hours}h day.', {
-    percent: figures.percent,
-    remaining: formatHoursMinutes(figures.remainingMs),
-    hours: figures.hours,
-  });
 }
 
 interface ShapeProps {
@@ -74,19 +42,16 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactEleme
           fontVariantNumeric: 'tabular-nums',
         }}
       >
-        {formatHoursMinutes(activeMs)}
+        {formatClock(activeMs)}
       </Typography>
       <GradientBar
         percent={figures.percent}
         label={t('Worked')}
-        trailing={t('of {target}', { target: formatHoursMinutes(figures.targetMs) })}
-        ariaLabel={t('{active} of {target} worked today', {
-          active: formatHoursMinutes(activeMs),
-          target: formatHoursMinutes(figures.targetMs),
-        })}
+        trailing={t('of {target}', { target: formatClock(figures.targetMs) })}
+        ariaLabel={dayProgressLabel(figures, activeMs, t)}
       />
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-        {summaryOf(t, figures)}
+        {daySummary(figures, t)}
       </Typography>
     </Stack>
   );
@@ -107,7 +72,7 @@ function DayProgressRing({ figures, activeMs }: Readonly<ShapeProps>): ReactElem
       <ProgressRing
         value={figures.percent}
         label={`${figures.percent}%`}
-        caption={formatHoursMinutes(activeMs)}
+        caption={formatClock(activeMs)}
         color={figures.done ? 'success' : 'primary'}
       />
       <Typography
@@ -118,7 +83,7 @@ function DayProgressRing({ figures, activeMs }: Readonly<ShapeProps>): ReactElem
           minWidth: 0,
         }}
       >
-        {summaryOf(t, figures)}
+        {daySummary(figures, t)}
       </Typography>
     </Stack>
   );
@@ -144,7 +109,7 @@ export default function DayProgress({
   style,
 }: Readonly<Props>): ReactElement {
   const t = useT();
-  const figures = figuresFor(workday, workProfile, activeMs);
+  const figures = dayFigures(workday, workProfile, activeMs);
 
   return (
     <Box>
@@ -157,13 +122,7 @@ export default function DayProgress({
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
             {t('Worked today')}
           </Typography>
-          <Tooltip
-            describeChild
-            title={t(
-              'Your working day is {hours} hours, set by HR on your employee record. The default is {fallback}. Only ACTIVE time counts — idle minutes do not fill this bar.',
-              { hours: figures.hours, fallback: DEFAULT_WORK_HOURS },
-            )}
-          >
+          <Tooltip describeChild title={dayTargetSource(figures, t)}>
             {/* A button, not a bare icon, so the explanation is reachable by keyboard and read
                 by a screen reader — a tooltip on an icon opens for a mouse and nobody else. */}
             <IconButton size="small" aria-label={t('How your working day is set')} sx={{ p: 0.25 }}>
