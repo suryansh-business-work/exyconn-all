@@ -54,7 +54,7 @@ export function EmailMessageItem({ message, defaultExpanded }: Readonly<EmailMes
           id={summaryId}
           sx={{ '& .MuiAccordionSummary-content': { minWidth: 0 } }}
         >
-          <Stack spacing={0.25} sx={{ minWidth: 0, width: '100%' }}>
+          <Stack spacing={0.5} sx={{ minWidth: 0, width: '100%' }}>
             <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
               <Chip
                 size="small"
@@ -77,7 +77,7 @@ export function EmailMessageItem({ message, defaultExpanded }: Readonly<EmailMes
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={1.5}>
-            <Stack spacing={0.25}>
+            <Stack spacing={0.5}>
               <Text size="caption" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
                 {t('From: {sender}', { sender: message.from })}
               </Text>

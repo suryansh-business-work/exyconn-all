@@ -35,14 +35,14 @@ export function ColdEmailBriefCard({
           </Stack>
         )}
         {fit.length > 0 && (
-          <Stack spacing={0.75}>
+          <Stack spacing={1}>
             <Text component="h3" size="label" weight="bold" sx={{ m: 0 }}>
               {t('What we can offer them')}
             </Text>
-            <Stack component="ul" spacing={0.75} sx={{ m: 0, p: 0, listStyle: 'none' }}>
+            <Stack component="ul" spacing={1} sx={{ m: 0, p: 0, listStyle: 'none' }}>
               {fit.map((line) => (
                 <Flex key={line} component="li" direction="row" spacing={1} alignItems="flex-start">
-                  <CheckCircleOutlineIcon fontSize="small" color="success" sx={{ mt: 0.25 }} />
+                  <CheckCircleOutlineIcon fontSize="small" color="success" />
                   <Text size="sm" sx={{ m: 0 }}>
                     {line}
                   </Text>

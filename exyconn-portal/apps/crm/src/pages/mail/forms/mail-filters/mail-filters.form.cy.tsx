@@ -17,14 +17,19 @@ const mount = (filters: MailFilters = EMPTY_MAIL_FILTERS) =>
     </ThemeProvider>,
   );
 
+/** Opens the select for the field `name` and picks `option`. */
+const choose = (name: string, option: string) => {
+  cy.get(`input[name="${name}"]`).parent().find('[role="combobox"]').click();
+  cy.contains('li[role="option"]', option).click();
+};
+
 describe('MailFiltersForm', () => {
   it('applies a recent-mail preset with unread and attachments only', () => {
     mount();
-    cy.findByRole('combobox', { name: /^Date/ }).click();
-    cy.findByRole('option', { name: 'Last 30 days' }).click();
-    cy.findByRole('switch', { name: 'Unread only' }).click();
-    cy.findByRole('switch', { name: 'With attachments only' }).click();
-    cy.findByRole('button', { name: 'Apply filters' }).click();
+    choose('period', 'Last 30 days');
+    cy.contains('label', 'Unread only').click();
+    cy.contains('label', 'With attachments only').click();
+    cy.contains('button', 'Apply filters').click();
 
     cy.get('@apply').should('have.been.calledWithMatch', {
       period: 'LAST_30_DAYS',
@@ -35,9 +40,8 @@ describe('MailFiltersForm', () => {
 
   it('asks for a date when the custom range is left empty', () => {
     mount();
-    cy.findByRole('combobox', { name: /^Date/ }).click();
-    cy.findByRole('option', { name: 'Custom dates' }).click();
-    cy.findByRole('button', { name: 'Apply filters' }).click();
+    choose('period', 'Custom dates');
+    cy.contains('button', 'Apply filters').click();
 
     cy.contains('Pick a start or an end date').should('be.visible');
     cy.get('@apply').should('not.have.been.called');
@@ -45,11 +49,11 @@ describe('MailFiltersForm', () => {
 
   it('clears every filter, and cancels without applying', () => {
     mount({ ...EMPTY_MAIL_FILTERS, period: 'LAST_7_DAYS', unreadOnly: true });
-    cy.findByRole('button', { name: 'Clear filters' }).click();
-    cy.findByRole('button', { name: 'Apply filters' }).click();
+    cy.contains('button', 'Clear filters').click();
+    cy.contains('button', 'Apply filters').click();
     cy.get('@apply').should('have.been.calledWithMatch', EMPTY_MAIL_FILTERS);
 
-    cy.findByRole('button', { name: 'Cancel' }).click();
+    cy.contains('button', 'Cancel').click();
     cy.get('@cancel').should('have.been.calledOnce');
   });
 });

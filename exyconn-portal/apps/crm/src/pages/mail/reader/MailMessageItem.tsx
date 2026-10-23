@@ -54,7 +54,7 @@ export function MailMessageItem({
           <Avatar alt="" aria-hidden sx={{ width: 32, height: 32, typography: 'caption' }}>
             {initialsOf(message.fromName || message.fromAddress)}
           </Avatar>
-          <Stack spacing={0.25} sx={{ minWidth: 0, flexGrow: 1 }}>
+          <Stack spacing={0.5} sx={{ minWidth: 0, flexGrow: 1 }}>
             <Flex direction="row" spacing={1} justifyContent="space-between" alignItems="baseline">
               <Text size="sm" weight="semibold" sx={{ overflowWrap: 'anywhere' }}>
                 {sender}
