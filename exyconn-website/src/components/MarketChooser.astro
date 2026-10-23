@@ -1,0 +1,110 @@
+---
+import { MARKETS, type Market } from "../lib/i18n/markets";
+
+/**
+ * Asks a first-time reader for their country and language, then remembers the answer on the
+ * device (scripts/chrome/market-choice.ts) and is never shown again there. From then on every
+ * page opened in another market is moved to the chosen one; the footer's picker changes it.
+ * The page's own market is preselected, which for a new reader is what their browser asked for.
+ */
+interface Props {
+  market: Market;
+}
+
+const { market } = Astro.props;
+---
+
+<dialog
+  id="market-chooser"
+  class="market-chooser"
+  data-current={market.path}
+  aria-labelledby="market-chooser-title"
+  aria-describedby="market-chooser-text"
+>
+  <form method="dialog" class="grid gap-4" data-market-chooser-form>
+    <h2 id="market-chooser-title" class="flex items-center gap-2 text-lg font-semibold text-fg">
+      <i class="fa-solid fa-globe icon-sm text-fg-muted" aria-hidden="true"></i>
+      Choose your country and language
+    </h2>
+    <p id="market-chooser-text" class="text-sm text-fg-secondary">
+      We will remember it on this device and open the site in it next time.
+    </p>
+    <label class="grid gap-1 text-sm font-semibold text-fg">
+      Country and language
+      <!-- Every market names itself in its own language, so the names are never translated. -->
+      <select
+        name="market"
+        translate="no"
+        class="rounded-lg border border-line bg-surface px-3 py-2 font-normal text-fg focus:outline-none focus:ring-2 focus:ring-blue-muted"
+        data-market-chooser-select
+      >
+        {
+          MARKETS.map((entry) => (
+            <option value={entry.path} lang={entry.locale} selected={entry.path === market.path}>
+              {entry.label}
+            </option>
+          ))
+        }
+      </select>
+    </label>
+    <button
+      type="submit"
+      class="justify-self-end rounded-lg bg-blue-strong px-4 py-2 text-sm font-semibold text-on-solid hover:bg-blue-deep focus:outline-none focus:ring-2 focus:ring-blue-muted transition"
+    >
+      Continue
+    </button>
+  </form>
+</dialog>
+
+<style>
+  .market-chooser {
+    width: min(92vw, 28rem);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .market-chooser::backdrop {
+    background: color-mix(in oklab, var(--color-scrim) 55%, transparent);
+  }
+</style>
+
+<script>
+  import { chosenMarket, marketHref, rememberMarket } from "../scripts/chrome/market-choice";
+
+  function goTo(path: string, current: string) {
+    if (path !== current) {
+      location.assign(marketHref(path, current, location));
+    }
+  }
+
+  function initMarketChooser() {
+    const dialog = document.querySelector<HTMLDialogElement>("#market-chooser");
+    const select = dialog?.querySelector<HTMLSelectElement>("[data-market-chooser-select]");
+    const current = dialog?.dataset.current;
+    if (!dialog || !select || !current) {
+      return;
+    }
+    const chosen = chosenMarket(new Set([...select.options].map((option) => option.value)));
+    if (chosen !== null) {
+      // Chosen before: this page opened in another market (a shared link) moves to theirs.
+      if (chosen !== current) {
+        location.replace(marketHref(chosen, current, location));
+      }
+      return;
+    }
+    dialog.querySelector("form")?.addEventListener("submit", () => {
+      rememberMarket(select.value);
+      goTo(select.value, current);
+    });
+    // Escape keeps the market the page is in, and that counts as the answer.
+    dialog.addEventListener("cancel", () => {
+      rememberMarket(current);
+    });
+    dialog.showModal();
+  }
+
+  initMarketChooser();
+</script>

@@ -142,15 +142,15 @@ const here = rest === "" ? "/" : rest;
 </style>
 
 <script>
-  import { choiceCookie } from "../lib/i18n/market-cookie";
+  import { rememberMarket } from "../scripts/chrome/market-choice";
 
-  // Picking a market is the one thing remembered: from then on a link without a market comes
-  // back to it instead of to what the browser's language suggests (see marketForRequest).
+  // Picking a market is the one thing remembered: from then on every page comes back to it
+  // instead of to what the browser's language suggests (see MarketChooser.astro).
   for (const picker of document.querySelectorAll<HTMLElement>("[data-market-picker]")) {
     picker.addEventListener("click", (event) => {
       const link = (event.target as Element).closest<HTMLAnchorElement>("a[data-market]");
       if (link?.dataset.market) {
-        document.cookie = choiceCookie(link.dataset.market);
+        rememberMarket(link.dataset.market);
       }
     });
   }

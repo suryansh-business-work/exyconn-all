@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   browserMarket,
-  hasChosenMarket,
   isCrawler,
   marketForRequest,
   marketRedirect,
@@ -48,14 +47,6 @@ describe("the browser's market", () => {
 
   it("falls back to the default market", () => {
     expect(browserMarket(request()).path).toBe("en-us");
-  });
-});
-
-describe("whether the reader has chosen", () => {
-  it("is true only once the choice cookie names a market", () => {
-    expect(hasChosenMarket(request({ cookie: "exy_market_choice=de-at" }))).toBe(true);
-    expect(hasChosenMarket(request({ cookie: "exy_market_choice=nowhere" }))).toBe(false);
-    expect(hasChosenMarket(request())).toBe(false);
   });
 });
 
