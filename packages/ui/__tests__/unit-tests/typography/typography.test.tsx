@@ -1,4 +1,4 @@
-import { createRef } from 'react';
+import { createRef, type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import {
@@ -108,5 +108,30 @@ describe('Text', () => {
       padding: '3px',
       margin: '1px',
     });
+  });
+
+  it('is a line of its own, so two Texts stacked in a Box never run together', () => {
+    render(
+      <div>
+        <Text>Ravi Sharma</Text>
+        <Text size="caption">01 Oct 2026</Text>
+      </div>,
+    );
+    expect(screen.getByText('Ravi Sharma')).toHaveStyle({ display: 'block' });
+    expect(screen.getByText('01 Oct 2026')).toHaveStyle({ display: 'block' });
+  });
+
+  it.each([
+    ['Text', (child: ReactNode) => <Text>Due {child}</Text>],
+    ['Paragraph', (child: ReactNode) => <Paragraph>Due {child}</Paragraph>],
+    ['Heading', (child: ReactNode) => <Heading>Due {child}</Heading>],
+  ])('stays inline inside a %s', (_, wrap) => {
+    render(wrap(<Text weight="bold">today</Text>));
+    expect(screen.getByText('today')).not.toHaveStyle({ display: 'block' });
+  });
+
+  it('lets a caller sx display override the block default', () => {
+    render(<Text sx={{ display: 'inline-flex' }}>Chip</Text>);
+    expect(screen.getByText('Chip')).toHaveStyle({ display: 'inline-flex' });
   });
 });
