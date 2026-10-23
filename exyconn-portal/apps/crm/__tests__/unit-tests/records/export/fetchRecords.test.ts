@@ -40,6 +40,15 @@ describe('fetchAllRecords', () => {
     });
   });
 
+  it('sends only the search input, not the rest of the list state', async () => {
+    const { client, query } = clientAnswering('searchLeads', [{ rows: rowsOf(1), totalCount: 1 }]);
+    const listState = { ...QUERY, columns: ['name'] };
+
+    await fetchAllRecords(client, CrmObject.Lead, listState);
+
+    expect(query.mock.calls[0][0].variables.query).not.toHaveProperty('columns');
+  });
+
   it('pages through companies until every match is in', async () => {
     const { client, query } = clientAnswering('searchCompanies', [
       { rows: rowsOf(200), totalCount: 400 },

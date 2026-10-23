@@ -1,4 +1,8 @@
-import { suggestLocations } from '../../../../src/modules/google-maps/places.autocomplete';
+import {
+  isPlaceId,
+  locatePlace,
+  suggestLocations,
+} from '../../../../src/modules/google-maps/places.autocomplete';
 
 const KEY = process.env.TEST_GOOGLE_KEY ?? 'AIzaTestServerKey000000000000000000';
 
@@ -79,5 +83,42 @@ describe('suggestLocations', () => {
     await expect(suggestLocations(KEY, 'Ko')).rejects.toThrow(
       new RegExp(String.raw`\(403\): .{300}$`),
     );
+  });
+});
+
+describe('locatePlace', () => {
+  it('reads only the location of the place, with the server key', async () => {
+    const fetchMock = answer({ location: { latitude: 12.97, longitude: 77.59 } });
+
+    await expect(locatePlace(KEY, 'ChIJ-abc_1')).resolves.toEqual({ lat: 12.97, lng: 77.59 });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('https://places.googleapis.com/v1/places/ChIJ-abc_1');
+    const headers = new Headers(init?.headers);
+    expect(headers.get('X-Goog-Api-Key')).toBe(KEY);
+    expect(headers.get('X-Goog-FieldMask')).toBe('location');
+  });
+
+  it('refuses a place Google gives no location for', async () => {
+    answer({ location: { latitude: 12.97 } });
+    await expect(locatePlace(KEY, 'p1')).rejects.toThrow('Google Places has no location');
+    answer({});
+    await expect(locatePlace(KEY, 'p1')).rejects.toThrow('Google Places has no location');
+  });
+
+  it('keeps Google’s own error, clipped', async () => {
+    answer(`Not found ${'x'.repeat(400)}`, 404);
+    await expect(locatePlace(KEY, 'p1')).rejects.toThrow(
+      /^Google Places location failed \(404\): Not found x{290}$/,
+    );
+  });
+});
+
+describe('isPlaceId', () => {
+  it('accepts Place IDs and nothing that could change the URL', () => {
+    expect(isPlaceId('ChIJN1t_tDeuEmsRUsoyG83frY4')).toBe(true);
+    expect(isPlaceId('')).toBe(false);
+    expect(isPlaceId('../admin')).toBe(false);
+    expect(isPlaceId('a'.repeat(301))).toBe(false);
   });
 });

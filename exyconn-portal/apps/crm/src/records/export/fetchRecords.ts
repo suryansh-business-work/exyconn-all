@@ -14,7 +14,7 @@ import type { CrmRecordRow } from '../schema';
 import type { RecordSearchDocument } from '../list/useRecordFetcher';
 
 /** The rows to export: what the list is showing, without its paging. */
-export type ExportQuery = Pick<CrmQueryInput, 'search' | 'groups' | 'sorts'>;
+export type ExportQuery = Pick<CrmQueryInput, 'search' | 'groups' | 'sorts' | 'near'>;
 
 /** The largest page the search resolvers serve. */
 const PAGE_SIZE = 200;
@@ -81,11 +81,15 @@ export async function fetchAllRecords(
   object: CrmObject,
   query: ExportQuery,
 ): Promise<FetchedRecords> {
+  // Only the search input's own fields: the list hands over its whole state (columns too),
+  // and GraphQL refuses an input with a field it does not define.
+  const { search, groups, sorts, near } = query;
   const rows: CrmRecordRow[] = [];
   let totalCount = 0;
   let page = 0;
   while (rows.length < MAX_EXPORT_ROWS) {
-    const result = await fetchPage(client, object, { ...query, page, pageSize: PAGE_SIZE });
+    const input = { search, groups, sorts, near, page, pageSize: PAGE_SIZE };
+    const result = await fetchPage(client, object, input);
     totalCount = result.totalCount;
     rows.push(...result.rows);
     if (result.rows.length < PAGE_SIZE || rows.length >= totalCount) {

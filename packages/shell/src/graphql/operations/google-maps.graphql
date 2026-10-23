@@ -122,6 +122,12 @@ mutation ImportLeadsToCrm($leads: [LeadImportInput!]!, $mergeInto: [LeadMergeInp
       reason
       companyId
     }
+    websitesDropped {
+      placeId
+      name
+      website
+      reason
+    }
   }
 }
 
@@ -131,6 +137,14 @@ query LeadLocationSuggestions($input: String!) {
     text
     mainText
     secondaryText
+  }
+}
+
+# CRM > Companies/Contacts > Near a location: the chosen suggestion's coordinates.
+query PlaceCoordinates($placeId: ID!) {
+  placeCoordinates(placeId: $placeId) {
+    lat
+    lng
   }
 }
 

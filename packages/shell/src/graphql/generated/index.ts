@@ -3717,6 +3717,16 @@ export type CrmIntegrationStatus = {
   sms: CrmChannelStatus;
 };
 
+/** A circle on the map: only records whose coordinates fall inside it. */
+export type CrmNearInput = {
+  /** Centre latitude, -90 to 90. */
+  lat: Scalars['Float']['input'];
+  /** Centre longitude, -180 to 180. */
+  lng: Scalars['Float']['input'];
+  /** More than 0 and at most 500 kilometres. */
+  radiusKm: Scalars['Float']['input'];
+};
+
 export enum CrmObject {
   Company = 'COMPANY',
   Contact = 'CONTACT',
@@ -3886,6 +3896,8 @@ export type CrmQueryInput = {
   /** True lists only archived records; otherwise archived records are left out. */
   archived?: InputMaybe<Scalars['Boolean']['input']>;
   groups?: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Companies and contacts only: records within this circle; records without coordinates are left out. */
+  near?: InputMaybe<CrmNearInput>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
@@ -6584,6 +6596,13 @@ export type KbArticlePage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A point on the map. */
+export type LatLng = {
+  __typename?: 'LatLng';
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
+};
+
 export type LatLngInput = {
   lat: Scalars['Float']['input'];
   lng: Scalars['Float']['input'];
@@ -6686,6 +6705,8 @@ export type LeadImportResult = {
   merges: Array<LeadImportMerged>;
   skipped: Scalars['Int']['output'];
   skips: Array<LeadImportSkip>;
+  /** Leads saved without their website (or its favicon): only a site answering 200 OK is kept. */
+  websitesDropped: Array<LeadWebsiteDropped>;
 };
 
 export type LeadImportSkip = {
@@ -6799,6 +6820,17 @@ export enum LeadStage {
   Qualified = 'QUALIFIED',
   Won = 'WON'
 }
+
+/** A lead filed or merged without its website, because the site did not answer 200 OK. */
+export type LeadWebsiteDropped = {
+  __typename?: 'LeadWebsiteDropped';
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  /** Why it was not saved, e.g. Answered 404 instead of 200 OK. */
+  reason: Scalars['String']['output'];
+  /** The website Google Places listed. */
+  website: Scalars['String']['output'];
+};
 
 export type LeaveBalance = {
   __typename?: 'LeaveBalance';
@@ -15928,6 +15960,8 @@ export type Query = {
   /** The statutory deduction policy. Created with its defaults on first read. */
   payrollSettings: PayrollSettings;
   payrollSummary: PayrollSummary;
+  /** Where a place from leadLocationSuggestions is, by its Place ID. */
+  placeCoordinates: LatLng;
   /** Organizations and their size across the whole platform. SUPER_ADMIN. */
   platformAnalytics: PlatformAnalytics;
   /** Who has signed a policy, newest first. */
@@ -17826,6 +17860,11 @@ export type QueryPayrollRunPlanArgs = {
 export type QueryPayrollSummaryArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type QueryPlaceCoordinatesArgs = {
+  placeId: Scalars['ID']['input'];
 };
 
 
@@ -26090,7 +26129,7 @@ export type ImportLeadsToCrmMutationVariables = Exact<{
 }>;
 
 
-export type ImportLeadsToCrmMutation = { __typename?: 'Mutation', importLeadsToCrm: { __typename?: 'LeadImportResult', created: number, skipped: number, merged: number, filed: Array<{ __typename?: 'LeadImportFiled', placeId: string, companyId: string }>, merges: Array<{ __typename?: 'LeadImportMerged', placeId: string, companyId: string, name: string, added: Array<{ __typename?: 'LeadImportExtra', field: string, label: string, current: string, incoming: string }> }>, skips: Array<{ __typename?: 'LeadImportSkip', placeId: string, name: string, reason: string, companyId?: string | null }> } };
+export type ImportLeadsToCrmMutation = { __typename?: 'Mutation', importLeadsToCrm: { __typename?: 'LeadImportResult', created: number, skipped: number, merged: number, filed: Array<{ __typename?: 'LeadImportFiled', placeId: string, companyId: string }>, merges: Array<{ __typename?: 'LeadImportMerged', placeId: string, companyId: string, name: string, added: Array<{ __typename?: 'LeadImportExtra', field: string, label: string, current: string, incoming: string }> }>, skips: Array<{ __typename?: 'LeadImportSkip', placeId: string, name: string, reason: string, companyId?: string | null }>, websitesDropped: Array<{ __typename?: 'LeadWebsiteDropped', placeId: string, name: string, website: string, reason: string }> } };
 
 export type LeadLocationSuggestionsQueryVariables = Exact<{
   input: Scalars['String']['input'];
@@ -26098,6 +26137,13 @@ export type LeadLocationSuggestionsQueryVariables = Exact<{
 
 
 export type LeadLocationSuggestionsQuery = { __typename?: 'Query', leadLocationSuggestions: Array<{ __typename?: 'LeadLocationSuggestion', placeId: string, text: string, mainText: string, secondaryText: string }> };
+
+export type PlaceCoordinatesQueryVariables = Exact<{
+  placeId: Scalars['ID']['input'];
+}>;
+
+
+export type PlaceCoordinatesQuery = { __typename?: 'Query', placeCoordinates: { __typename?: 'LatLng', lat: number, lng: number } };
 
 export type CompanyGoogleBusinessQueryVariables = Exact<{
   companyId: Scalars['ID']['input'];
@@ -55294,6 +55340,12 @@ export const ImportLeadsToCrmDocument = gql`
       reason
       companyId
     }
+    websitesDropped {
+      placeId
+      name
+      website
+      reason
+    }
   }
 }
     ${LeadImportExtraFieldsFragmentDoc}`;
@@ -55368,6 +55420,51 @@ export function useLeadLocationSuggestionsSuspenseQuery(baseOptions?: ApolloReac
 export type LeadLocationSuggestionsQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsQuery>;
 export type LeadLocationSuggestionsLazyQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsLazyQuery>;
 export type LeadLocationSuggestionsSuspenseQueryHookResult = ReturnType<typeof useLeadLocationSuggestionsSuspenseQuery>;
+export const PlaceCoordinatesDocument = gql`
+    query PlaceCoordinates($placeId: ID!) {
+  placeCoordinates(placeId: $placeId) {
+    lat
+    lng
+  }
+}
+    `;
+
+/**
+ * __usePlaceCoordinatesQuery__
+ *
+ * To run a query within a React component, call `usePlaceCoordinatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlaceCoordinatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlaceCoordinatesQuery({
+ *   variables: {
+ *      placeId: // value for 'placeId'
+ *   },
+ * });
+ */
+export function usePlaceCoordinatesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables> & ({ variables: PlaceCoordinatesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>(PlaceCoordinatesDocument, options);
+      }
+export function usePlaceCoordinatesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>(PlaceCoordinatesDocument, options);
+        }
+// @ts-ignore
+export function usePlaceCoordinatesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>;
+// @ts-ignore
+export function usePlaceCoordinatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PlaceCoordinatesQuery | undefined, PlaceCoordinatesQueryVariables>;
+export function usePlaceCoordinatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PlaceCoordinatesQuery, PlaceCoordinatesQueryVariables>(PlaceCoordinatesDocument, options);
+        }
+export type PlaceCoordinatesQueryHookResult = ReturnType<typeof usePlaceCoordinatesQuery>;
+export type PlaceCoordinatesLazyQueryHookResult = ReturnType<typeof usePlaceCoordinatesLazyQuery>;
+export type PlaceCoordinatesSuspenseQueryHookResult = ReturnType<typeof usePlaceCoordinatesSuspenseQuery>;
 export const CompanyGoogleBusinessDocument = gql`
     query CompanyGoogleBusiness($companyId: ID!) {
   companyGoogleBusiness(companyId: $companyId) {

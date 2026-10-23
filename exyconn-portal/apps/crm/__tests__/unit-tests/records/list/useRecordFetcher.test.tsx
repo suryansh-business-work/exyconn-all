@@ -72,6 +72,15 @@ describe('useRecordFetcher', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it('sends the near circle without its label', () => {
+    const near = { lat: 12.9, lng: 77.6, radiusKm: 5, label: 'Your location' };
+    const { fetchRows } = setup({ ...QUERY, near });
+
+    expect(fetchRows.variablesFor?.({ page: 0, pageSize: 1, search: null })).toMatchObject({
+      query: { near: { lat: 12.9, lng: 77.6, radiusKm: 5 } },
+    });
+  });
+
   it('sends the list query with the grid page and returns the selected page', async () => {
     client.query.mockResolvedValue({
       data: { searchLeads: { rows: [{ id: 'r' }], totalCount: 1, extra: 1 } },

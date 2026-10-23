@@ -43,6 +43,12 @@ export const googleMapsTypeDefs = gql`
     secondaryText: String!
   }
 
+  "A point on the map."
+  type LatLng {
+    lat: Float!
+    lng: Float!
+  }
+
   input LeadSearchInput {
     "What to look for, e.g. dentists."
     query: String!
@@ -170,6 +176,16 @@ export const googleMapsTypeDefs = gql`
     companyId: ID!
   }
 
+  "A lead filed or merged without its website, because the site did not answer 200 OK."
+  type LeadWebsiteDropped {
+    placeId: ID!
+    name: String!
+    "The website Google Places listed."
+    website: String!
+    "Why it was not saved, e.g. Answered 404 instead of 200 OK."
+    reason: String!
+  }
+
   type LeadImportResult {
     created: Int!
     skipped: Int!
@@ -177,6 +193,8 @@ export const googleMapsTypeDefs = gql`
     filed: [LeadImportFiled!]!
     merges: [LeadImportMerged!]!
     skips: [LeadImportSkip!]!
+    "Leads saved without their website (or its favicon): only a site answering 200 OK is kept."
+    websitesDropped: [LeadWebsiteDropped!]!
   }
 
   "One Google review of a business, as Places returns it."
@@ -224,6 +242,8 @@ export const googleMapsTypeDefs = gql`
     searchLeadPlaces(input: LeadSearchInput!): LeadSearchPage!
     "Cities, areas and postcodes matching what was typed in Where (2-100 characters)."
     leadLocationSuggestions(input: String!): [LeadLocationSuggestion!]!
+    "Where a place from leadLocationSuggestions is, by its Place ID."
+    placeCoordinates(placeId: ID!): LatLng!
     "Read-only: which of these leads are already CRM companies, and what extra details each would add."
     previewLeadImport(leads: [LeadImportInput!]!): [LeadImportPreview!]!
   }

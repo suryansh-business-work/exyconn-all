@@ -4,6 +4,7 @@ import { useCrmViewsQuery, type CrmObject } from '@exyconn/shell/graphql/generat
 import {
   EMPTY_QUERY,
   queryOfView,
+  sameNear,
   sameQuery,
   type CrmViewRow,
   type RecordQueryState,
@@ -37,7 +38,8 @@ export function useRecordQuery(object: CrmObject) {
   const appliedRef = useRef<string | null>(null);
 
   const replace = useCallback((next: RecordQueryState, rebuild: boolean) => {
-    const changed = !sameQuery(queryRef.current, next);
+    const changed =
+      !sameQuery(queryRef.current, next) || !sameNear(queryRef.current.near, next.near);
     queryRef.current = next;
     setQuery(next);
     if (!changed) {

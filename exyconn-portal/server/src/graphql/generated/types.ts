@@ -3716,6 +3716,16 @@ export type CrmIntegrationStatus = {
   sms: CrmChannelStatus;
 };
 
+/** A circle on the map: only records whose coordinates fall inside it. */
+export type CrmNearInput = {
+  /** Centre latitude, -90 to 90. */
+  lat: Scalars['Float']['input'];
+  /** Centre longitude, -180 to 180. */
+  lng: Scalars['Float']['input'];
+  /** More than 0 and at most 500 kilometres. */
+  radiusKm: Scalars['Float']['input'];
+};
+
 export enum CrmObject {
   Company = 'COMPANY',
   Contact = 'CONTACT',
@@ -3885,6 +3895,8 @@ export type CrmQueryInput = {
   /** True lists only archived records; otherwise archived records are left out. */
   archived?: InputMaybe<Scalars['Boolean']['input']>;
   groups?: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Companies and contacts only: records within this circle; records without coordinates are left out. */
+  near?: InputMaybe<CrmNearInput>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
@@ -6583,6 +6595,13 @@ export type KbArticlePage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A point on the map. */
+export type LatLng = {
+  __typename?: 'LatLng';
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
+};
+
 export type LatLngInput = {
   lat: Scalars['Float']['input'];
   lng: Scalars['Float']['input'];
@@ -6685,6 +6704,8 @@ export type LeadImportResult = {
   merges: Array<LeadImportMerged>;
   skipped: Scalars['Int']['output'];
   skips: Array<LeadImportSkip>;
+  /** Leads saved without their website (or its favicon): only a site answering 200 OK is kept. */
+  websitesDropped: Array<LeadWebsiteDropped>;
 };
 
 export type LeadImportSkip = {
@@ -6798,6 +6819,17 @@ export enum LeadStage {
   Qualified = 'QUALIFIED',
   Won = 'WON'
 }
+
+/** A lead filed or merged without its website, because the site did not answer 200 OK. */
+export type LeadWebsiteDropped = {
+  __typename?: 'LeadWebsiteDropped';
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  /** Why it was not saved, e.g. Answered 404 instead of 200 OK. */
+  reason: Scalars['String']['output'];
+  /** The website Google Places listed. */
+  website: Scalars['String']['output'];
+};
 
 export type LeaveBalance = {
   __typename?: 'LeaveBalance';
@@ -15927,6 +15959,8 @@ export type Query = {
   /** The statutory deduction policy. Created with its defaults on first read. */
   payrollSettings: PayrollSettings;
   payrollSummary: PayrollSummary;
+  /** Where a place from leadLocationSuggestions is, by its Place ID. */
+  placeCoordinates: LatLng;
   /** Organizations and their size across the whole platform. SUPER_ADMIN. */
   platformAnalytics: PlatformAnalytics;
   /** Who has signed a policy, newest first. */
@@ -17825,6 +17859,11 @@ export type QueryPayrollRunPlanArgs = {
 export type QueryPayrollSummaryArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type QueryPlaceCoordinatesArgs = {
+  placeId: Scalars['ID']['input'];
 };
 
 
@@ -22843,6 +22882,7 @@ export type ResolversTypes = ResolversObject<{
   CrmInsightKind: CrmInsightKind;
   CrmInsightTone: CrmInsightTone;
   CrmIntegrationStatus: ResolverTypeWrapper<CrmIntegrationStatus>;
+  CrmNearInput: CrmNearInput;
   CrmObject: CrmObject;
   CrmObjectSchema: ResolverTypeWrapper<CrmObjectSchema>;
   CrmOp: CrmOp;
@@ -23101,6 +23141,7 @@ export type ResolversTypes = ResolversObject<{
   KbArticle: ResolverTypeWrapper<KbArticle>;
   KbArticleInput: KbArticleInput;
   KbArticlePage: ResolverTypeWrapper<KbArticlePage>;
+  LatLng: ResolverTypeWrapper<LatLng>;
   LatLngInput: LatLngInput;
   Lead: ResolverTypeWrapper<Lead>;
   LeadEmailResult: ResolverTypeWrapper<LeadEmailResult>;
@@ -23122,6 +23163,7 @@ export type ResolversTypes = ResolversObject<{
   LeadSearchPage: ResolverTypeWrapper<LeadSearchPage>;
   LeadSource: LeadSource;
   LeadStage: LeadStage;
+  LeadWebsiteDropped: ResolverTypeWrapper<LeadWebsiteDropped>;
   LeaveBalance: ResolverTypeWrapper<LeaveBalance>;
   LeaveBalanceInput: LeaveBalanceInput;
   LeaveBalancePage: ResolverTypeWrapper<LeaveBalancePage>;
@@ -23996,6 +24038,7 @@ export type ResolversParentTypes = ResolversObject<{
   CrmImportResult: CrmImportResult;
   CrmInsight: CrmInsight;
   CrmIntegrationStatus: CrmIntegrationStatus;
+  CrmNearInput: CrmNearInput;
   CrmObjectSchema: CrmObjectSchema;
   CrmOwnerValue: CrmOwnerValue;
   CrmPeriodValue: CrmPeriodValue;
@@ -24199,6 +24242,7 @@ export type ResolversParentTypes = ResolversObject<{
   KbArticle: KbArticle;
   KbArticleInput: KbArticleInput;
   KbArticlePage: KbArticlePage;
+  LatLng: LatLng;
   LatLngInput: LatLngInput;
   Lead: Lead;
   LeadEmailResult: LeadEmailResult;
@@ -24216,6 +24260,7 @@ export type ResolversParentTypes = ResolversObject<{
   LeadPlace: LeadPlace;
   LeadSearchInput: LeadSearchInput;
   LeadSearchPage: LeadSearchPage;
+  LeadWebsiteDropped: LeadWebsiteDropped;
   LeaveBalance: LeaveBalance;
   LeaveBalanceInput: LeaveBalanceInput;
   LeaveBalancePage: LeaveBalancePage;
@@ -28283,6 +28328,12 @@ export type KbArticlePageResolvers<ContextType = GraphQLContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LatLngResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LatLng'] = ResolversParentTypes['LatLng']> = ResolversObject<{
+  lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  lng?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LeadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Lead'] = ResolversParentTypes['Lead']> = ResolversObject<{
   campaignId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   campaignName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -28348,6 +28399,7 @@ export type LeadImportResultResolvers<ContextType = GraphQLContext, ParentType e
   merges?: Resolver<Array<ResolversTypes['LeadImportMerged']>, ParentType, ContextType>;
   skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   skips?: Resolver<Array<ResolversTypes['LeadImportSkip']>, ParentType, ContextType>;
+  websitesDropped?: Resolver<Array<ResolversTypes['LeadWebsiteDropped']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -28395,6 +28447,14 @@ export type LeadPlaceResolvers<ContextType = GraphQLContext, ParentType extends 
 export type LeadSearchPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadSearchPage'] = ResolversParentTypes['LeadSearchPage']> = ResolversObject<{
   nextPageToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   places?: Resolver<Array<ResolversTypes['LeadPlace']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadWebsiteDroppedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadWebsiteDropped'] = ResolversParentTypes['LeadWebsiteDropped']> = ResolversObject<{
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -31586,6 +31646,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
   payrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType>;
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
+  placeCoordinates?: Resolver<ResolversTypes['LatLng'], ParentType, ContextType, RequireFields<QueryPlaceCoordinatesArgs, 'placeId'>>;
   platformAnalytics?: Resolver<ResolversTypes['PlatformAnalytics'], ParentType, ContextType>;
   policyAcknowledgements?: Resolver<Array<ResolversTypes['PolicyAcknowledgement']>, ParentType, ContextType, RequireFields<QueryPolicyAcknowledgementsArgs, 'policyId'>>;
   previewAudience?: Resolver<ResolversTypes['AudienceResolution'], ParentType, ContextType, RequireFields<QueryPreviewAudienceArgs, 'input'>>;
@@ -34226,6 +34287,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   JobPage?: JobPageResolvers<ContextType>;
   KbArticle?: KbArticleResolvers<ContextType>;
   KbArticlePage?: KbArticlePageResolvers<ContextType>;
+  LatLng?: LatLngResolvers<ContextType>;
   Lead?: LeadResolvers<ContextType>;
   LeadEmailResult?: LeadEmailResultResolvers<ContextType>;
   LeadImportExtra?: LeadImportExtraResolvers<ContextType>;
@@ -34238,6 +34300,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LeadPage?: LeadPageResolvers<ContextType>;
   LeadPlace?: LeadPlaceResolvers<ContextType>;
   LeadSearchPage?: LeadSearchPageResolvers<ContextType>;
+  LeadWebsiteDropped?: LeadWebsiteDroppedResolvers<ContextType>;
   LeaveBalance?: LeaveBalanceResolvers<ContextType>;
   LeaveBalancePage?: LeaveBalancePageResolvers<ContextType>;
   LeavePolicy?: LeavePolicyResolvers<ContextType>;

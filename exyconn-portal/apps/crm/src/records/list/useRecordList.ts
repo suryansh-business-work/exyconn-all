@@ -4,6 +4,7 @@ import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataG
 import type { CrmObject } from '@exyconn/shell/graphql/generated';
 import { useRecordColumns } from '../columns/useRecordColumns';
 import { useObjectSchema, type CrmRecordRow } from '../schema';
+import { nearInputOf } from '../filters/near-filter/near-filter.types';
 import { toSnapshot, type RecordQuerySnapshot } from './recordQuery';
 import { useRecordFetcher, type RecordSearchDocument } from './useRecordFetcher';
 import { useRecordQuery } from './useRecordQuery';
@@ -39,7 +40,11 @@ export function useRecordList<TQuery, TRow extends CrmRecordRow>({
   const fetchRows = useRecordFetcher(document, select, list.queryRef, list.record);
   const view = useRecordColumns(columns, schema.fields, list.query.columns, list.query.sorts);
   const snapshot = useMemo<RecordQuerySnapshot>(
-    () => ({ ...toSnapshot(list.query), columns: view.exportColumns }),
+    () => ({
+      ...toSnapshot(list.query),
+      columns: view.exportColumns,
+      near: nearInputOf(list.query.near),
+    }),
     [list.query, view.exportColumns],
   );
   return {

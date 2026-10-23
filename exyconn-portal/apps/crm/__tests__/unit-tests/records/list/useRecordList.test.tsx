@@ -73,6 +73,17 @@ describe('useRecordList', () => {
     act(() => result.current.list.apply({ search: ' acme ' }));
     expect(result.current.snapshot.search).toBe('acme');
     expect(result.current.refreshSignal).toBe(1);
+
+    // The near circle reloads the rows and reaches the export, without its label.
+    const near = { lat: 12.9, lng: 77.6, radiusKm: 5, label: 'Koramangala' };
+    act(() => result.current.list.apply({ near }));
+    expect(result.current.snapshot.near).toEqual({ lat: 12.9, lng: 77.6, radiusKm: 5 });
+    expect(result.current.refreshSignal).toBe(2);
+    act(() => result.current.list.apply({ near: { ...near } }));
+    expect(result.current.refreshSignal).toBe(2);
+    act(() => result.current.list.apply({ near: null }));
+    expect(result.current.snapshot.near).toBeUndefined();
+    expect(result.current.refreshSignal).toBe(3);
   });
 });
 

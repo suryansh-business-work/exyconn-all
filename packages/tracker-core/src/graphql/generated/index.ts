@@ -1283,6 +1283,16 @@ export type CrmInsightTone =
   | 'POSITIVE'
   | 'WARNING';
 
+/** A circle on the map: only records whose coordinates fall inside it. */
+export type CrmNearInput = {
+  /** Centre latitude, -90 to 90. */
+  lat: Scalars['Float']['input'];
+  /** Centre longitude, -180 to 180. */
+  lng: Scalars['Float']['input'];
+  /** More than 0 and at most 500 kilometres. */
+  radiusKm: Scalars['Float']['input'];
+};
+
 export type CrmObject =
   | 'COMPANY'
   | 'CONTACT'
@@ -1379,6 +1389,8 @@ export type CrmQueryInput = {
   /** True lists only archived records; otherwise archived records are left out. */
   archived: InputMaybe<Scalars['Boolean']['input']>;
   groups: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Companies and contacts only: records within this circle; records without coordinates are left out. */
+  near: InputMaybe<CrmNearInput>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
