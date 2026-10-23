@@ -47,6 +47,8 @@ describe('problem report constants', () => {
 
 describe('PROBLEM_REPORT_COLUMNS email', () => {
   it('renders each address as a link that opens the email window', () => {
-    expect(PROBLEM_REPORT_COLUMNS.find((col) => col.field === 'reporterEmail')?.cellRenderer).toBeTypeOf('function');
+    expect(
+      PROBLEM_REPORT_COLUMNS.find((col) => col.field === 'reporterEmail')?.cellRenderer,
+    ).toBeTypeOf('function');
   });
 });

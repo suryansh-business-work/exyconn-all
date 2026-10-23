@@ -1,10 +1,5 @@
 import type { ColDef } from 'ag-grid-community';
-import {
-  derivedColumn,
-  derivedStatusColumn,
-  emailColumn,
-  textColumn,
-} from '@exyconn/crud';
+import { derivedColumn, derivedStatusColumn, emailColumn, textColumn } from '@exyconn/crud';
 import type { AudienceRecipientFieldsFragment } from '@exyconn/shell/graphql/generated';
 
 export type RecipientRow = AudienceRecipientFieldsFragment;

@@ -22,6 +22,8 @@ describe('SUPPLIER_COLUMNS', () => {
 
 describe('SUPPLIER_COLUMNS email', () => {
   it('renders each address as a link that opens the email window', () => {
-    expect(SUPPLIER_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf('function');
+    expect(SUPPLIER_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf(
+      'function',
+    );
   });
 });

@@ -1,12 +1,6 @@
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { useFormatters } from '@exyconn/i18n';
-import {
-  dateColumn,
-  emailColumn,
-  statusColumn,
-  textColumn,
-  usePagedFetcher,
-} from '@exyconn/crud';
+import { dateColumn, emailColumn, statusColumn, textColumn, usePagedFetcher } from '@exyconn/crud';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import {
   EmailVerificationsPagedDocument,
