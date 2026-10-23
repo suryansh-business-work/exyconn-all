@@ -99,6 +99,35 @@ describe('startDockResize', () => {
     expect(dock.result.current.size).toEqual(size);
   });
 
+  it('grows left and up from the top-left corner, moving the spot with the pointer', () => {
+    const dock = renderHook(() => useDock());
+
+    startDockResize(parts.panel, 'top-left', press(parts.handle));
+    pull(parts.handle, 400, 300);
+    expect([parts.panel.style.left, parts.panel.style.top]).toEqual(['0px', '0px']);
+    release(parts.handle);
+
+    expect(dock.result.current.size).toEqual({ width: 500, height: 350 });
+    expect(dock.result.current.position).toEqual({ x: 0, y: 0 });
+  });
+
+  it.each([
+    ['left', { width: 400, height: 300 }, { x: 100, y: 50 }],
+    ['top', { width: 400, height: 350 }, { x: 100, y: 0 }],
+  ] as [ResizeEdge, object, object][])(
+    'pulls the %s edge no further than the window and no smaller than the minimum',
+    (edge, size, position) => {
+      const dock = renderHook(() => useDock());
+
+      startDockResize(parts.panel, edge, press(parts.handle));
+      pull(parts.handle, 900, -500);
+      release(parts.handle);
+
+      expect(dock.result.current.size).toEqual(size);
+      expect(dock.result.current.position).toEqual(position);
+    },
+  );
+
   it('stops following the pointer once it is released', () => {
     startDockResize(parts.panel, 'corner', press(parts.handle));
     release(parts.handle);
