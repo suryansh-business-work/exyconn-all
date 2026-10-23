@@ -13,6 +13,7 @@ describe('composeFor', () => {
       id: 'c1',
       fromAccountId: 'g1',
       to: ['asha@globex.io'],
+      cc: [],
       subject: 'Re: Pricing',
       body: '\n\nOn Tuesday, Asha wrote:\n> Can you share\n> the price list?',
       threadId: 't1',
@@ -20,12 +21,13 @@ describe('composeFor', () => {
     });
   });
 
-  it('replies to everyone but the mailbox itself, and files under the company', () => {
+  it('replies to the sender, copies everyone else but the mailbox, and files under the company', () => {
     const open = thread({
       record: { object: CrmTimelineObject.Company, id: 'co1', name: 'Globex' },
     });
     const context = composeFor(open, open.messages[0], 'replyAll', words);
-    expect(context.to).toEqual(['asha@globex.io', 'ops@globex.io']);
+    expect(context.to).toEqual(['asha@globex.io']);
+    expect(context.cc).toEqual(['ops@globex.io']);
     expect(context).toMatchObject({ object: 'COMPANY', id: 'co1' });
   });
 

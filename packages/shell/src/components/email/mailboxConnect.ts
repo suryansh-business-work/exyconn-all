@@ -16,6 +16,8 @@ export function mailboxReturnUrl(href: string): string {
   return url.toString();
 }
 
+const RESULT_PARAMS: ReadonlySet<string> = new Set(CONNECT_RESULT_PARAMS);
+
 export interface ConnectResult {
   /** The address connected, or the provider's reason it was not. */
   text: string;
@@ -27,9 +29,10 @@ export function connectResultOf(search: URLSearchParams): ConnectResult | null {
   if (!search.has(MY_MAILBOX_PARAM)) {
     return null;
   }
-  const name = CONNECT_RESULT_PARAMS.find((param) => search.has(param));
-  if (!name) {
+  const outcome = [...search.entries()].find(([name]) => RESULT_PARAMS.has(name));
+  if (!outcome) {
     return null;
   }
-  return { text: search.get(name) ?? '', failed: name.endsWith('Error') };
+  const [name, text] = outcome;
+  return { text, failed: name.endsWith('Error') };
 }

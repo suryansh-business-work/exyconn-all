@@ -19,7 +19,8 @@ export function useComposeSender(context: ComposeEmailContext) {
       object: context.object === 'CONTACT' ? CrmTimelineObject.Contact : CrmTimelineObject.Company,
       id: context.id,
     },
-    skip: Boolean(context.fromAccountId),
+    // A reply starts on its thread's account; an email about no record has no history to go by.
+    skip: Boolean(context.fromAccountId) || context.id === '',
   });
   const options: SelectOption[] = (data?.crmEmailSenders ?? []).map((mailbox) => ({
     value: mailbox.id,
