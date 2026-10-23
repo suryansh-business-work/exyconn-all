@@ -46,9 +46,13 @@ const gmailAccountSchema = new Schema(
     status: { type: String, enum: GMAIL_ACCOUNT_STATUSES, default: 'CONNECTED' },
     /** Why the last call to Gmail failed, in Google's words; '' when it worked. */
     lastError: { type: String, default: '' },
+    /** When `lastError` happened; null while the mailbox works. */
+    lastErrorAt: { type: Date, default: null },
     connectedAt: { type: Date, default: Date.now },
     connectedByName: { type: String, default: '' },
     lastSyncAt: { type: Date, default: null },
+    /** When CRM > Mail last read the mailbox's folders (crm-mail sync); null until then. */
+    mailSyncedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

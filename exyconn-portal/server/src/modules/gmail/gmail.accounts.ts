@@ -1,6 +1,6 @@
 import { runForOrganization } from '../../lib/tenant';
 import { badRequest, notFound } from '../../utils/errors';
-import { GmailAuthError, gmailClientConfig, type Mailbox } from './gmail.client';
+import { GmailAuthError, gmailClient, gmailClientConfig, type Mailbox } from './gmail.client';
 import {
   CrmEmailMessageModel,
   GmailAccountModel,
@@ -26,6 +26,8 @@ export const presentGmailAccount = (account: GmailAccountDocument) => ({
   enabled: account.enabled,
   status: account.status,
   lastError: account.lastError,
+  // Rows saved before the field existed have none (lean skips defaults).
+  lastErrorAt: account.lastErrorAt ?? null,
   connectedAt: account.connectedAt,
   connectedByName: account.connectedByName,
   lastSyncAt: account.lastSyncAt,
@@ -49,6 +51,7 @@ export const saveConnectedAccount = (
           refreshToken: sealedToken,
           status: 'CONNECTED',
           lastError: '',
+          lastErrorAt: null,
           connectedAt: new Date(),
           connectedByName: actorName,
         },
@@ -78,16 +81,36 @@ export async function disconnectGmailAccount(id: string): Promise<GmailAccountDo
 }
 
 /** Records how the last call to the account went; an auth refusal asks for a reconnect. */
-export async function noteAccountOutcome(id: string, error: unknown): Promise<void> {
+export async function noteAccountOutcome(
+  id: string,
+  error: unknown,
+): Promise<GmailAccountDocument> {
   if (error === null) {
-    await updateAccount(id, { lastError: '', lastSyncAt: new Date() });
-    return;
+    return updateAccount(id, { lastError: '', lastErrorAt: null, lastSyncAt: new Date() });
   }
   const message = error instanceof Error ? error.message : 'Gmail did not answer.';
-  await updateAccount(id, {
+  return updateAccount(id, {
     lastError: message,
+    lastErrorAt: new Date(),
     ...(error instanceof GmailAuthError ? { status: 'NEEDS_RECONNECT' as const } : {}),
   });
+}
+
+/**
+ * Checks one mailbox works right now by reading its own address with its stored connection.
+ * A pass clears the last error (and a reconnect flag); a failure is kept on the mailbox, as
+ * any other failed call is, so the table shows it.
+ */
+export async function testGmailAccount(id: string): Promise<GmailAccountDocument> {
+  const config = await gmailClientConfig();
+  const account = await GmailAccountModel.findById(id).lean<GmailAccountDocument | null>();
+  if (!account) notFound('Gmail account');
+  try {
+    await gmailClient.profile(mailboxOf(config, account));
+  } catch (error) {
+    return noteAccountOutcome(id, error);
+  }
+  return updateAccount(id, { status: 'CONNECTED', lastError: '', lastErrorAt: null });
 }
 
 /** The client and an account together: what every Gmail call is made with. */

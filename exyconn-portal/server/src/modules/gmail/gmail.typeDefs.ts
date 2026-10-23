@@ -34,6 +34,8 @@ export const gmailTypeDefs = gql`
     status: GmailAccountStatus!
     "Why the last call to Gmail failed; empty when it worked."
     lastError: String!
+    "When the last error happened; null while the mailbox works."
+    lastErrorAt: DateTime
     connectedAt: DateTime
     connectedByName: String!
     lastSyncAt: DateTime
@@ -119,8 +121,10 @@ export const gmailTypeDefs = gql`
     saveGmailConfig(input: GmailConfigInput!): GmailConfig!
     "Copies the saved Google sign-in client into Gmail and turns Gmail on (TECH)."
     useGoogleSignInClientForGmail: GmailConfig!
-    "Google's consent page to connect one more mailbox (or renew one); comes back to returnTo."
-    startGmailConnect(returnTo: String!): String!
+    "Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. loginHint is the address being reconnected."
+    startGmailConnect(returnTo: String!, loginHint: String): String!
+    "Checks one mailbox works now by reading its address; the outcome is kept on it as lastError."
+    testGmailAccount(id: ID!): GmailAccount!
     "Turns an account on or off for the CRM."
     setGmailAccountEnabled(id: ID!, enabled: Boolean!): GmailAccount!
     "Removes the account and its token; mail already synced stays on the records."

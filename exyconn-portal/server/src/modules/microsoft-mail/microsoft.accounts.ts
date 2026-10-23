@@ -2,7 +2,13 @@ import { isValidObjectId } from 'mongoose';
 import { runForOrganization } from '../../lib/tenant';
 import { notFound } from '../../utils/errors';
 import { seal } from '../../utils/secretBox';
-import { MicrosoftAuthError, microsoftApp, type MicrosoftMailbox } from './microsoft.client';
+import {
+  MicrosoftAuthError,
+  mailboxAddress,
+  microsoftApp,
+  refreshMailbox,
+  type MicrosoftMailbox,
+} from './microsoft.client';
 import { MicrosoftMailAccountModel, type MicrosoftMailAccountDocument } from './microsoft.models';
 
 /**
@@ -23,6 +29,8 @@ export const presentMicrosoftAccount = (account: MicrosoftMailAccountDocument) =
   enabled: account.enabled,
   status: account.status,
   lastError: account.lastError,
+  // Rows saved before the field existed have none (lean skips defaults).
+  lastErrorAt: account.lastErrorAt ?? null,
   connectedAt: account.connectedAt,
   connectedByName: account.connectedByName,
   lastUsedAt: account.lastUsedAt,
@@ -43,6 +51,7 @@ export const saveMicrosoftAccount = (
           refreshToken: seal(refreshToken),
           status: 'CONNECTED',
           lastError: '',
+          lastErrorAt: null,
           connectedAt: new Date(),
           connectedByName: actorName,
         },
@@ -80,22 +89,55 @@ export async function disconnectMicrosoftAccount(id: string) {
 export async function noteMicrosoftOutcome(
   id: string,
   outcome: { error: unknown } | { refreshToken?: string },
-): Promise<void> {
+): Promise<MicrosoftMailAccountDocument> {
   if ('error' in outcome) {
     const message = outcome.error instanceof Error ? outcome.error.message : 'No answer.';
-    await updateAccount(id, {
+    return updateAccount(id, {
       lastError: message,
+      lastErrorAt: new Date(),
       ...(outcome.error instanceof MicrosoftAuthError
         ? { status: 'NEEDS_RECONNECT' as const }
         : {}),
     });
-    return;
   }
-  await updateAccount(id, {
+  return updateAccount(id, {
     lastError: '',
+    lastErrorAt: null,
     lastUsedAt: new Date(),
     ...(outcome.refreshToken ? { refreshToken: seal(outcome.refreshToken) } : {}),
   });
+}
+
+/**
+ * Checks one mailbox works right now: a fresh token, then its own address from Graph. A pass
+ * clears the last error (and a reconnect flag) and keeps a rotated token; a failure is kept on
+ * the mailbox, as any other failed call is, so the table shows it.
+ */
+export async function testMicrosoftAccount(id: string): Promise<MicrosoftMailAccountDocument> {
+  const app = await microsoftApp();
+  const account = await MicrosoftMailAccountModel.findById(
+    id,
+  ).lean<MicrosoftMailAccountDocument | null>();
+  if (!account) notFound('Microsoft mailbox');
+  try {
+    const tokens = await refreshMailbox({
+      id,
+      email: account.email,
+      refreshToken: account.refreshToken,
+      clientId: app.clientId,
+      clientSecret: app.clientSecret,
+      tenant: app.tenant,
+    });
+    await mailboxAddress(tokens.access_token);
+    return await updateAccount(id, {
+      status: 'CONNECTED',
+      lastError: '',
+      lastErrorAt: null,
+      ...(tokens.refresh_token ? { refreshToken: seal(tokens.refresh_token) } : {}),
+    });
+  } catch (error) {
+    return noteMicrosoftOutcome(id, { error });
+  }
 }
 
 /** Every mailbox the company's CRM sends from: enabled and connected, with the app's client. */

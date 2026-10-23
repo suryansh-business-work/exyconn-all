@@ -106,7 +106,9 @@ describe('requestTokens', () => {
 
   it('falls back to the error code, then to no reason at all', async () => {
     answer(json({ error: 'temporarily_unavailable' }, 503));
-    await expect(requestTokens(APP, {})).rejects.toThrow('Microsoft refused: temporarily_unavailable');
+    await expect(requestTokens(APP, {})).rejects.toThrow(
+      'Microsoft refused: temporarily_unavailable',
+    );
 
     answer(json({ refresh_token: 'rt' }));
     await expect(requestTokens(APP, {})).rejects.toThrow('Microsoft refused: no reason');
@@ -170,14 +172,14 @@ describe('graph', () => {
     );
   });
 
-  it('throws a plain error for other refusals, with at most 300 characters of detail', async () => {
-    answer(new Response('x'.repeat(400), { status: 500 }));
+  it('throws a plain error for other refusals, with at most 2000 characters of detail', async () => {
+    answer(new Response('x'.repeat(2100), { status: 500 }));
 
     const refused = graph('at-1', '/me/sendMail');
 
     await expect(refused).rejects.not.toBeInstanceOf(MicrosoftAuthError);
     await expect(refused).rejects.toThrow(
-      new Error(`Microsoft Graph /me/sendMail failed (500): ${'x'.repeat(300)}`),
+      new Error(`Microsoft Graph /me/sendMail failed (500): ${'x'.repeat(2000)}`),
     );
   });
 });

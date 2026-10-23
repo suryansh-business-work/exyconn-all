@@ -34,6 +34,7 @@ fragment MicrosoftMailAccountFields on MicrosoftMailAccount {
   enabled
   status
   lastError
+  lastErrorAt
   connectedAt
   connectedByName
   lastUsedAt
@@ -46,8 +47,14 @@ query MicrosoftMailAccounts {
   microsoftMailClientReady
 }
 
-mutation StartMicrosoftMailConnect($returnTo: String!) {
-  startMicrosoftMailConnect(returnTo: $returnTo)
+mutation StartMicrosoftMailConnect($returnTo: String!, $loginHint: String) {
+  startMicrosoftMailConnect(returnTo: $returnTo, loginHint: $loginHint)
+}
+
+mutation TestMicrosoftMailAccount($id: ID!) {
+  testMicrosoftMailAccount(id: $id) {
+    ...MicrosoftMailAccountFields
+  }
 }
 
 mutation SetMicrosoftMailAccountEnabled($id: ID!, $enabled: Boolean!) {

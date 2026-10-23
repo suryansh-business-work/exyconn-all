@@ -21,6 +21,7 @@ import {
   listGmailAccounts,
   presentGmailAccount,
   setGmailAccountEnabled,
+  testGmailAccount,
 } from './gmail.accounts';
 import { assertCompanyCrm, type SendCrmEmailInput } from './gmail.crm';
 import { crmEmailThreads } from './gmail.sync';
@@ -123,15 +124,23 @@ export const gmailResolvers = {
     },
     startGmailConnect: async (
       _p: unknown,
-      { returnTo }: { returnTo: string },
+      { returnTo, loginHint }: { returnTo: string; loginHint?: string | null },
       ctx: GraphQLContext,
     ) => {
       const { user, organizationId } = await crmGmail(ctx, 'EDIT');
-      return startGmailConnect(returnTo, {
-        id: user.id,
-        name: await actorNameOf(ctx),
-        organizationId,
-      });
+      return startGmailConnect(
+        returnTo,
+        { id: user.id, name: await actorNameOf(ctx), organizationId },
+        loginHint,
+      );
+    },
+    testGmailAccount: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      await crmGmail(ctx, 'EDIT');
+      const saved = await forCrmUser(() => testGmailAccount(id));
+      const outcome = saved.lastError ? 'failed' : 'worked';
+      const summary = `Tested the Gmail account ${saved.email}: it ${outcome}`;
+      await auditGmail(ctx, 'UPDATE', { id, label: saved.email }, summary);
+      return presentGmailAccount(saved);
     },
     setGmailAccountEnabled: async (
       _p: unknown,

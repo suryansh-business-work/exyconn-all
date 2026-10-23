@@ -95,8 +95,15 @@ export interface MicrosoftConnectActor {
   organizationId: string;
 }
 
-/** Microsoft's consent page for one more mailbox (or the same one, to renew its token). */
-export async function startMicrosoftConnect(returnTo: string, actor: MicrosoftConnectActor) {
+/**
+ * Microsoft's consent page for one more mailbox (or the same one, to renew its token). A
+ * `loginHint` (the address being reconnected) goes straight to that account.
+ */
+export async function startMicrosoftConnect(
+  returnTo: string,
+  actor: MicrosoftConnectActor,
+  loginHint?: string | null,
+) {
   const app = await microsoftApp();
   if (!PORTAL_ORIGINS.has(new URL(returnTo).origin)) {
     badRequest('That is not a portal address.');
@@ -122,8 +129,12 @@ export async function startMicrosoftConnect(returnTo: string, actor: MicrosoftCo
     state: nonce,
     code_challenge: sha256(codeVerifier),
     code_challenge_method: 'S256',
-    prompt: 'select_account',
   });
+  if (loginHint) {
+    params.set('login_hint', loginHint);
+  } else {
+    params.set('prompt', 'select_account');
+  }
   return `${microsoftAuthorizeUrl(app)}?${params.toString()}`;
 }
 

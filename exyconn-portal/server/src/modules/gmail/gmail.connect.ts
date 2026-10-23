@@ -122,9 +122,14 @@ export interface ConnectActor {
 
 /**
  * Google's consent page for one more mailbox (or the same one again, to renew its token);
- * the callback stores its refresh token as a GmailAccount of the actor's company.
+ * the callback stores its refresh token as a GmailAccount of the actor's company. A
+ * `loginHint` (the address being reconnected) goes straight to that Google account.
  */
-export async function startGmailConnect(returnTo: string, actor: ConnectActor): Promise<string> {
+export async function startGmailConnect(
+  returnTo: string,
+  actor: ConnectActor,
+  loginHint?: string | null,
+): Promise<string> {
   const config = await readGmailConfig();
   if (!config.clientId || !config.clientSecret) {
     badRequest(EMAIL_ACCOUNTS_UNAVAILABLE);
@@ -153,9 +158,13 @@ export async function startGmailConnect(returnTo: string, actor: ConnectActor): 
     code_challenge: sha256(codeVerifier),
     code_challenge_method: 'S256',
     access_type: 'offline',
-    // Always ask, so Google always hands back a refresh token; and let them pick an account.
-    prompt: 'consent select_account',
+    // Always ask, so Google always hands back a refresh token; and let them pick an account
+    // unless the address being reconnected is already known.
+    prompt: loginHint ? 'consent' : 'consent select_account',
   });
+  if (loginHint) {
+    params.set('login_hint', loginHint);
+  }
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 

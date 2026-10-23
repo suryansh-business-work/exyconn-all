@@ -4,6 +4,8 @@ import { open } from '../../utils/secretBox';
 import { MicrosoftMailConfigModel, type MicrosoftMailConfigDocument } from './microsoft.models';
 
 const GRAPH = 'https://graph.microsoft.com/v1.0';
+/** How much of a refusal's body is kept: enough for Graph's whole JSON error. */
+const ERROR_DETAIL_LIMIT = 2000;
 /** Send as the mailbox, read who it is, and keep a refresh token. Nothing else is asked for. */
 export const MICROSOFT_SCOPES = 'offline_access Mail.Send User.Read';
 
@@ -108,7 +110,7 @@ export async function graph<T>(accessToken: string, path: string, init: RequestI
     },
   });
   if (!response.ok) {
-    const detail = (await response.text()).slice(0, 300);
+    const detail = (await response.text()).slice(0, ERROR_DETAIL_LIMIT);
     const message = `Microsoft Graph ${path.split('?')[0]} failed (${response.status}): ${detail}`;
     throw response.status === 401 ? new MicrosoftAuthError(message) : new Error(message);
   }

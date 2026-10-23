@@ -9,9 +9,10 @@ import {
   GmailAccountsDocument,
   useDisconnectGmailAccountMutation,
   useSetGmailAccountEnabledMutation,
+  useTestGmailAccountMutation,
   useStartGmailConnectMutation,
-  type GmailAccountFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
+import type { MailboxRef } from './mailboxes';
 import { oauthReturnAddress, useOAuthReturnNotice } from '../../../integrations/useOAuthReturn';
 
 /** Where Google's callback puts the outcome on the address it returns to. */
@@ -31,6 +32,7 @@ export function useGmailAccountActions() {
     CrmEmailSendersDocument,
   ];
   const [start, { loading: connecting }] = useStartGmailConnectMutation();
+  const [testAccount] = useTestGmailAccountMutation({ refetchQueries });
   const [setEnabled] = useSetGmailAccountEnabledMutation({ refetchQueries });
   const [disconnect] = useDisconnectGmailAccountMutation({ refetchQueries });
 
@@ -45,21 +47,34 @@ export function useGmailAccountActions() {
     }
   };
 
-  const connect = () =>
+  const connect = (loginHint?: string) =>
     run(async () => {
-      const { data } = await start({ variables: { returnTo: oauthReturnAddress(RETURN_KEYS) } });
+      const returnTo = oauthReturnAddress(RETURN_KEYS);
+      const { data } = await start({ variables: { returnTo, loginHint } });
       if (data?.startGmailConnect) {
         globalThis.location.assign(data.startGmailConnect);
       }
     }, 'Could not start the Gmail connection');
 
-  const toggle = (account: GmailAccountFieldsFragment, enabled: boolean) =>
+  const test = (account: MailboxRef) =>
+    run(async () => {
+      const { data } = await testAccount({ variables: { id: account.id } });
+      if (data?.testGmailAccount.lastError) {
+        notify('{email} failed the test. Open its error details to see why.', 'error', {
+          email: account.email,
+        });
+      } else {
+        notify('{email} works.', 'success', { email: account.email });
+      }
+    }, 'Could not test the account');
+
+  const toggle = (account: MailboxRef, enabled: boolean) =>
     run(
       () => setEnabled({ variables: { id: account.id, enabled } }),
       'Could not change the account',
     );
 
-  const remove = async (account: GmailAccountFieldsFragment) => {
+  const remove = async (account: MailboxRef) => {
     const ok = await confirm({
       title: 'Disconnect Gmail',
       message:
@@ -73,7 +88,7 @@ export function useGmailAccountActions() {
     }
   };
 
-  return { connect, connecting, toggle, remove };
+  return { connect, connecting, test, toggle, remove };
 }
 
 export type GmailAccountActions = ReturnType<typeof useGmailAccountActions>;

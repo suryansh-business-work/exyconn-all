@@ -34,6 +34,8 @@ const microsoftMailAccountSchema = new Schema(
     status: { type: String, enum: GMAIL_ACCOUNT_STATUSES, default: 'CONNECTED' },
     /** Why the last call to Microsoft failed, in Microsoft's words; '' when it worked. */
     lastError: { type: String, default: '' },
+    /** When `lastError` happened; null while the mailbox works. */
+    lastErrorAt: { type: Date, default: null },
     connectedAt: { type: Date, default: Date.now },
     connectedByName: { type: String, default: '' },
     lastUsedAt: { type: Date, default: null },

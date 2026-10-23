@@ -20,6 +20,7 @@ import {
   listMicrosoftAccounts,
   presentMicrosoftAccount,
   setMicrosoftAccountEnabled,
+  testMicrosoftAccount,
 } from './microsoft.accounts';
 import { microsoftApp } from './microsoft.client';
 import { auditMicrosoft } from './microsoft.audit';
@@ -77,12 +78,20 @@ export const microsoftMailResolvers = {
     },
     startMicrosoftMailConnect: async (
       _p: unknown,
-      { returnTo }: { returnTo: string },
+      { returnTo, loginHint }: { returnTo: string; loginHint?: string | null },
       ctx: GraphQLContext,
     ) => {
       const { user, organizationId } = await crmMailbox(ctx, 'EDIT');
       const actor = { id: user.id, name: await actorNameOf(ctx), organizationId };
-      return forCrmUser(() => startMicrosoftConnect(returnTo, actor));
+      return forCrmUser(() => startMicrosoftConnect(returnTo, actor, loginHint));
+    },
+    testMicrosoftMailAccount: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      await crmMailbox(ctx, 'EDIT');
+      const saved = await forCrmUser(() => testMicrosoftAccount(id));
+      const outcome = saved.lastError ? 'failed' : 'worked';
+      const summary = `Tested the Microsoft mailbox ${saved.email}: it ${outcome}`;
+      await auditMicrosoft(ctx, 'UPDATE', { id, label: saved.email }, summary);
+      return presentMicrosoftAccount(saved);
     },
     setMicrosoftMailAccountEnabled: async (
       _p: unknown,
