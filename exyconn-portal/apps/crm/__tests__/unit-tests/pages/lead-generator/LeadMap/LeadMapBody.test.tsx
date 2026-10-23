@@ -49,6 +49,7 @@ function renderBody(overrides: Partial<LeadMapProps> = {}) {
     onCentreChange: vi.fn(),
     area: fakeArea(),
     drawEnabled: false,
+    circle: null,
     ...overrides,
   };
   const view = renderWithProviders(<LeadMapBody {...props} />);
@@ -153,6 +154,14 @@ describe('LeadMapBody', () => {
 
     rerender({ drawEnabled: true });
     expect(screen.getByTestId('polygon')).toBeInTheDocument();
+  });
+
+  it('outlines a radius search as a circle', () => {
+    const { rerender } = renderBody();
+    expect(screen.queryByTestId('circle')).not.toBeInTheDocument();
+
+    rerender({ circle: { centre: { lat: 1, lng: 2 }, radiusKm: 5 } });
+    expect(screen.getByTestId('circle')).toHaveAttribute('data-radius', '5000');
   });
 
   it('explains a rejected key, and stops counting the map as ready', () => {

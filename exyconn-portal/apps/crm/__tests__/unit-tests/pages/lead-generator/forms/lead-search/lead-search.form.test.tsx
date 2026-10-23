@@ -3,7 +3,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LeadSearchForm } from '../../../../../../src/pages/lead-generator/forms/lead-search';
 import { renderWithProviders } from '../../../../test-utils';
-import { fillField, press, setNumber } from '../../../../form-helpers';
+import { fillField, press } from '../../../../form-helpers';
 import { corners } from '../../search-area-fake';
 
 /** A field's label as written, or followed by the red star a required field adds. */
@@ -34,12 +34,19 @@ function renderForm(overrides: Partial<Props> = {}) {
   const props = { searching: false, mapReady: true, area: [], ...overrides };
   const onSearch = vi.fn();
   const onModeChange = vi.fn();
+  const onCircleChange = vi.fn();
   const element = (next: Props) => (
-    <LeadSearchForm {...next} mapHint={MAP_HINT} onModeChange={onModeChange} onSearch={onSearch} />
+    <LeadSearchForm
+      {...next}
+      mapHint={MAP_HINT}
+      onModeChange={onModeChange}
+      onCircleChange={onCircleChange}
+      onSearch={onSearch}
+    />
   );
   const view = renderWithProviders(element(props));
   const rerender = (next: Partial<Props>) => view.rerender(element({ ...props, ...next }));
-  return { onSearch, onModeChange, rerender };
+  return { onSearch, onModeChange, onCircleChange, rerender };
 }
 
 /** Pastes `text` into the field labelled `label`; typing 201 characters one by one is slow. */
@@ -49,6 +56,11 @@ async function pasteInto(label: string, text: string) {
 }
 
 const mode = (name: string) => screen.getByRole('button', { name });
+
+async function chooseRadius(label: string) {
+  await userEvent.click(screen.getByRole('combobox', { name: labelled('Radius') }));
+  await userEvent.click(await screen.findByRole('option', { name: label }));
+}
 const searched = (onSearch: ReturnType<typeof vi.fn>) => onSearch.mock.calls[0]?.[0];
 
 describe('LeadSearchForm', () => {
@@ -92,6 +104,9 @@ describe('LeadSearchForm', () => {
       mode: 'place',
       location: 'Pune, India',
       radiusKm: 5,
+      centre: 'map',
+      lat: '',
+      lng: '',
       area: [],
     });
     expect(onModeChange).toHaveBeenLastCalledWith('place');
@@ -101,7 +116,7 @@ describe('LeadSearchForm', () => {
     renderForm({ mapReady: false });
 
     expect(mode('A place')).toBeEnabled();
-    expect(mode('Around the map centre')).toBeDisabled();
+    expect(mode('Around a point')).toBeDisabled();
     expect(mode('Inside a drawn area')).toBeDisabled();
     expect(screen.getByText(MAP_HINT)).toBeInTheDocument();
   });
@@ -122,29 +137,103 @@ describe('LeadSearchForm', () => {
     expect(onModeChange).toHaveBeenCalledTimes(1);
   });
 
-  it('searches around the map centre within 1 to 50 km', async () => {
-    const { onSearch, onModeChange } = renderForm();
-    await userEvent.click(mode('Around the map centre'));
+  it('searches around the map centre within the radius chosen', async () => {
+    const { onSearch, onModeChange, onCircleChange } = renderForm();
+    expect(onCircleChange).toHaveBeenLastCalledWith(null);
+    await userEvent.click(mode('Around a point'));
     expect(onModeChange).toHaveBeenLastCalledWith('map');
     expect(screen.queryByLabelText(/^Where\s*\*?$/)).not.toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /The map centre/ })).toBeChecked();
     await fillField('What to look for', 'bakeries');
 
-    setNumber('Radius (km)', '0');
+    await chooseRadius('10 km');
+    expect(onCircleChange).toHaveBeenLastCalledWith({ centre: null, radiusKm: 10 });
     await press('Search Google Places');
-    expect(await screen.findByText('At least 1 km')).toBeInTheDocument();
 
-    setNumber('Radius (km)', '51');
-    expect(await screen.findByText('At most 50 km')).toBeInTheDocument();
-
-    setNumber('Radius (km)', '12');
-    await press('Search Google Places');
     await waitFor(() => expect(onSearch).toHaveBeenCalledTimes(1));
-    expect(searched(onSearch)).toMatchObject({ mode: 'map', radiusKm: 12, query: 'bakeries' });
+    expect(searched(onSearch)).toMatchObject({
+      mode: 'map',
+      centre: 'map',
+      radiusKm: 10,
+      query: 'bakeries',
+    });
+  });
+
+  it('searches around typed coordinates, and only real ones', async () => {
+    const { onSearch, onCircleChange } = renderForm();
+    await userEvent.click(mode('Around a point'));
+    await userEvent.click(screen.getByRole('radio', { name: /Latitude and longitude/ }));
+    await fillField('What to look for', 'bakeries');
+    await fillField('Latitude', '95');
+    await fillField('Longitude', '-181');
+
+    await press('Search Google Places');
+    expect(await screen.findByText('Enter a latitude between -90 and 90')).toBeInTheDocument();
+    expect(screen.getByText('Enter a longitude between -180 and 180')).toBeInTheDocument();
+    expect(onSearch).not.toHaveBeenCalled();
+
+    await fillField('Latitude', '12.97');
+    await fillField('Longitude', '77.59');
+    await press('Search Google Places');
+
+    await waitFor(() => expect(onSearch).toHaveBeenCalledTimes(1));
+    expect(searched(onSearch)).toMatchObject({ centre: 'coords', lat: '12.97', lng: '77.59' });
+    expect(onCircleChange).toHaveBeenLastCalledWith({
+      centre: { lat: 12.97, lng: 77.59 },
+      radiusKm: 5,
+    });
+  });
+
+  it('searches near the reader once the browser says where they are', async () => {
+    const located = vi.fn((done: PositionCallback) =>
+      done({ coords: { latitude: 18.5204, longitude: 73.8567 } } as GeolocationPosition),
+    );
+    vi.stubGlobal('navigator', { ...navigator, geolocation: { getCurrentPosition: located } });
+    const { onSearch } = renderForm();
+    await userEvent.click(mode('Around a point'));
+    await userEvent.click(screen.getByRole('radio', { name: /Near me/ }));
+    await fillField('What to look for', 'bakeries');
+
+    expect(await screen.findByText('Your location: 18.520400, 73.856700')).toBeInTheDocument();
+    await press('Search Google Places');
+
+    await waitFor(() => expect(onSearch).toHaveBeenCalledTimes(1));
+    expect(searched(onSearch)).toMatchObject({ centre: 'me', lat: '18.520400', lng: '73.856700' });
+    vi.unstubAllGlobals();
+  });
+
+  it('shows that it is still finding the reader', async () => {
+    vi.stubGlobal('navigator', { ...navigator, geolocation: { getCurrentPosition: vi.fn() } });
+    renderForm();
+    await userEvent.click(mode('Around a point'));
+    await userEvent.click(screen.getByRole('radio', { name: /Near me/ }));
+
+    expect(screen.getByRole('button', { name: 'Finding you…' })).toBeDisabled();
+    vi.unstubAllGlobals();
+  });
+
+  it('explains a blocked location and will not search near the reader without it', async () => {
+    const denied = { code: 1, PERMISSION_DENIED: 1, TIMEOUT: 3 } as GeolocationPositionError;
+    const blocked = vi.fn((_done: PositionCallback, fail: PositionErrorCallback) => fail(denied));
+    vi.stubGlobal('navigator', { ...navigator, geolocation: { getCurrentPosition: blocked } });
+    const { onSearch } = renderForm();
+    await userEvent.click(mode('Around a point'));
+    await userEvent.click(screen.getByRole('radio', { name: /Near me/ }));
+    await fillField('What to look for', 'bakeries');
+
+    expect(await screen.findByText(/Location access is blocked/)).toBeInTheDocument();
+    await press('Search Google Places');
+    expect(await screen.findByText(/Your location is not known yet/)).toBeInTheDocument();
+    expect(onSearch).not.toHaveBeenCalled();
+
+    await press('Locate me');
+    expect(blocked).toHaveBeenCalledTimes(2);
+    vi.unstubAllGlobals();
   });
 
   it('goes back to a place search when the map stops working', async () => {
     const { onModeChange, rerender } = renderForm();
-    await userEvent.click(mode('Around the map centre'));
+    await userEvent.click(mode('Around a point'));
 
     rerender({ mapReady: false });
 

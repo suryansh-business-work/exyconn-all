@@ -13,7 +13,7 @@ import type { LeadSearchFormInput, SearchMode } from './lead-search.types';
 /** The three ways to say where; the English label is the translation key. */
 const MODES: ReadonlyArray<{ value: SearchMode; label: string; needsMap: boolean }> = [
   { value: 'place', label: 'A place', needsMap: false },
-  { value: 'map', label: 'Around the map centre', needsMap: true },
+  { value: 'map', label: 'Around a point', needsMap: true },
   { value: 'area', label: 'Inside a drawn area', needsMap: true },
 ];
 

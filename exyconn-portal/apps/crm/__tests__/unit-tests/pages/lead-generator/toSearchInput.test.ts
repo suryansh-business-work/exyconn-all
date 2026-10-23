@@ -8,6 +8,9 @@ const values = (overrides: Partial<LeadSearchValues>): LeadSearchValues => ({
   mode: 'place',
   location: 'Pune, India',
   radiusKm: 5,
+  centre: 'map',
+  lat: '',
+  lng: '',
   area: [],
   ...overrides,
 });
@@ -35,6 +38,16 @@ describe('toSearchInput', () => {
       lat: 18.52,
       lng: 73.85,
       radiusMeters: 1235,
+    });
+  });
+
+  it('searches a radius around typed coordinates or the reader, not the map centre', () => {
+    const typed = values({ mode: 'map', centre: 'coords', lat: '12.5', lng: '77.25' });
+    expect(toSearchInput(typed, CENTRE)).toEqual({
+      query: 'dentists',
+      lat: 12.5,
+      lng: 77.25,
+      radiusMeters: 5000,
     });
   });
 

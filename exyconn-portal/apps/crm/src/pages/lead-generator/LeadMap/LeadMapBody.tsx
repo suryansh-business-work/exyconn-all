@@ -4,9 +4,11 @@ import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { MapKeyRejected, MapLoadFailed, MapSkeleton } from '@exyconn/shell/components/maps';
 import { useMapsScript } from '@exyconn/shell/components/maps/mapsScript';
 import type { LatLng } from '../../../maps/mapLinks';
+import type { SearchCircle } from '../forms/lead-search';
 import type { LeadPlace } from '../leadTypes';
 import type { SearchArea } from '../useSearchArea';
 import { DrawArea } from './DrawArea';
+import { RadiusCircle } from './RadiusCircle';
 
 /** The whole world, until a search gives the map something to frame. */
 const WORLD_CENTRE: LatLng = { lat: 20, lng: 0 };
@@ -35,6 +37,8 @@ export interface LeadMapProps {
   area: SearchArea;
   /** "Inside a drawn area" is the chosen search: show the area and take clicks as corners. */
   drawEnabled: boolean;
+  /** The radius search to outline, or null when the search is not around a point. */
+  circle: SearchCircle | null;
 }
 
 /** The results as numbered markers; a marker and its row select each other. */
@@ -47,6 +51,7 @@ export default function LeadMapBody({
   onCentreChange,
   area,
   drawEnabled,
+  circle,
 }: Readonly<LeadMapProps>) {
   const { isLoaded, loadError, authFailed } = useMapsScript(apiKey);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -120,6 +125,7 @@ export default function LeadMapBody({
         />
       ))}
       {drawEnabled && <DrawArea area={area} />}
+      {circle && <RadiusCircle circle={circle} />}
     </GoogleMap>
   );
 }

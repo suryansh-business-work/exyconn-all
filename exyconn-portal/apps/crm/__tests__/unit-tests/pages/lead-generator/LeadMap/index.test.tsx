@@ -24,6 +24,7 @@ function renderMap(apiKey: string | null, drawEnabled: boolean) {
       onCentreChange={vi.fn()}
       area={fakeArea()}
       drawEnabled={drawEnabled}
+      circle={null}
     />,
   );
 }

@@ -27,6 +27,7 @@ function renderField() {
       mapHint=""
       area={[]}
       onModeChange={vi.fn()}
+      onCircleChange={vi.fn()}
       onSearch={vi.fn()}
     />,
   );

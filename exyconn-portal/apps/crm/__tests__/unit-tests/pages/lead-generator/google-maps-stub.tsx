@@ -168,3 +168,18 @@ export function PolygonF(props: Readonly<PolygonProps & { editable?: boolean }>)
     />
   );
 }
+
+export function CircleF({
+  center,
+  radius,
+  options,
+}: Readonly<{ center: Point; radius: number; options: { strokeColor: string } }>) {
+  return (
+    <div
+      data-testid="circle"
+      data-center={JSON.stringify(center)}
+      data-radius={radius}
+      data-stroke={options.strokeColor}
+    />
+  );
+}
