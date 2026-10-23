@@ -1,23 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
-import { useFormatters, useT } from '@exyconn/i18n';
-import {
-  Alert,
-  Box,
-  Flex,
-  List,
-  ListItemButton,
-  ListItemText,
-  Skeleton,
-  Text,
-} from '@exyconn/shell/components/ui';
+import { useT } from '@exyconn/i18n';
+import { Alert, Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
-import {
-  ColdEmailStatus,
-  FilterOp,
-  useColdEmailDraftsQuery,
-} from '@exyconn/shell/graphql/generated';
+import { FilterOp, useColdEmailDraftsQuery } from '@exyconn/shell/graphql/generated';
 import { OPEN_DRAFT_PARAM } from './coldEmailPaths';
+import { ColdEmailDraftsTable } from './ColdEmailDraftsTable';
 import { DraftColdEmailButton } from './DraftColdEmailButton';
 import { InlineColdEmailDraft } from './InlineColdEmailDraft';
 import type { ColdEmailDraftTarget } from './forms/cold-email-draft';
@@ -26,8 +14,8 @@ import type { ColdEmailDraftTarget } from './forms/cold-email-draft';
 const SHOWN = 50;
 
 /**
- * A contact's or company's "Cold emails" tab: draft a new one with the AI, and every draft
- * written for the record. A draft opens in place (its id rides in the URL, so a new draft
+ * A contact's or company's "Cold emails" tab: draft a new one with the AI, and a table of every
+ * draft written for the record, newest first. A draft opens in place (its id rides in the URL, so a new draft
  * opens here too), where it is read, edited, given another version and sent.
  */
 export function RecordColdEmails({ target }: Readonly<{ target: ColdEmailDraftTarget }>) {
@@ -48,8 +36,7 @@ export function RecordColdEmails({ target }: Readonly<{ target: ColdEmailDraftTa
       },
       { replace: true },
     );
-  const { formatDateTime } = useFormatters();
-  const { data, loading, error } = useColdEmailDraftsQuery({
+  const { data, loading, error, refetch } = useColdEmailDraftsQuery({
     variables: {
       input: {
         page: 0,
@@ -62,42 +49,17 @@ export function RecordColdEmails({ target }: Readonly<{ target: ColdEmailDraftTa
   const rows = data?.coldEmailDrafts.rows ?? [];
   const total = data?.coldEmailDrafts.totalCount ?? 0;
 
-  let body;
-  if (error && !data) {
-    body = (
+  const body =
+    error && !data ? (
       <Alert severity="error">{errorMessage(error, t('Could not load the cold emails.'))}</Alert>
+    ) : (
+      <ColdEmailDraftsTable
+        rows={rows}
+        loading={loading && !data}
+        onRefresh={() => refetch()}
+        onOpen={(row) => openDraft(row.id === openId ? null : row.id)}
+      />
     );
-  } else if (loading && !data) {
-    body = <Skeleton variant="rounded" height={56} aria-label={t('Loading the cold emails')} />;
-  } else if (rows.length === 0) {
-    body = (
-      <Text component="p" size="sm" color="text.secondary" sx={{ m: 0 }}>
-        {t('No cold emails yet. Use "Draft a cold email" to write one.')}
-      </Text>
-    );
-  } else {
-    body = (
-      <List disablePadding>
-        {rows.map((row) => (
-          <ListItemButton
-            key={row.id}
-            selected={row.id === openId}
-            aria-expanded={row.id === openId}
-            onClick={() => openDraft(row.id === openId ? null : row.id)}
-          >
-            <ListItemText
-              primary={row.toEmail}
-              secondary={t('{count} versions · {status} · updated {when}', {
-                count: row.variantCount,
-                status: row.status === ColdEmailStatus.Sent ? t('Sent') : t('Draft'),
-                when: formatDateTime(row.updatedAt),
-              })}
-            />
-          </ListItemButton>
-        ))}
-      </List>
-    );
-  }
 
   return (
     <Box component="section" aria-labelledby={`cold-emails-${id}`} sx={panel}>

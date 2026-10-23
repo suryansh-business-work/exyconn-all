@@ -2792,9 +2792,20 @@ export enum CmsSiteStatus {
   Draft = 'DRAFT'
 }
 
+/** What the AI made of the prospect before writing: their business, and what of ours fits them. */
+export type ColdEmailBrief = {
+  __typename?: 'ColdEmailBrief';
+  /** Two or three sentences on what their business does. */
+  about: Scalars['String']['output'];
+  /** One line per thing we offer that fits them, and why. */
+  fit: Array<Scalars['String']['output']>;
+};
+
 /** A cold email being prepared for one contact or company, with every version written so far. */
 export type ColdEmailDraft = {
   __typename?: 'ColdEmailDraft';
+  /** Empty on drafts written before briefs, until they are rewritten. */
+  brief: ColdEmailBrief;
   createdAt: Scalars['DateTime']['output'];
   createdByName: Scalars['String']['output'];
   /** What we are offering, in the person's words; empty means an introduction to the company. */
@@ -24806,30 +24817,30 @@ export type CrmCalendarQuery = { __typename?: 'Query', crmCalendar: Array<{ __ty
 
 export type ColdEmailVariantFieldsFragment = { __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string };
 
-export type ColdEmailDraftRowFieldsFragment = { __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string };
+export type ColdEmailDraftRowFieldsFragment = { __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string };
 
-export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
+export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
 
 export type ColdEmailDraftsQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ColdEmailDraftsQuery = { __typename?: 'Query', coldEmailDrafts: { __typename?: 'ColdEmailDraftPage', totalCount: number, rows: Array<{ __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string }> } };
+export type ColdEmailDraftsQuery = { __typename?: 'Query', coldEmailDrafts: { __typename?: 'ColdEmailDraftPage', totalCount: number, rows: Array<{ __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string }> } };
 
 export type ColdEmailDraftQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type CreateColdEmailDraftMutationVariables = Exact<{
   input: CreateColdEmailDraftInput;
 }>;
 
 
-export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type AddColdEmailVariantMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24838,7 +24849,7 @@ export type AddColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type RewriteColdEmailDraftMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24846,7 +24857,7 @@ export type RewriteColdEmailDraftMutationVariables = Exact<{
 }>;
 
 
-export type RewriteColdEmailDraftMutation = { __typename?: 'Mutation', rewriteColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type RewriteColdEmailDraftMutation = { __typename?: 'Mutation', rewriteColdEmailDraft: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type UpdateColdEmailVariantMutationVariables = Exact<{
   draftId: Scalars['ID']['input'];
@@ -24856,7 +24867,7 @@ export type UpdateColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type DeleteColdEmailVariantMutationVariables = Exact<{
   draftId: Scalars['ID']['input'];
@@ -24864,7 +24875,7 @@ export type DeleteColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type DeleteColdEmailDraftMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24878,7 +24889,7 @@ export type SendColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type CrmDashboardQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
@@ -33136,6 +33147,8 @@ export const ColdEmailDraftRowFieldsFragmentDoc = gql`
   status
   variantCount
   createdByName
+  goal
+  createdAt
   updatedAt
 }
     `;
@@ -33155,10 +33168,12 @@ export const ColdEmailVariantFieldsFragmentDoc = gql`
 export const ColdEmailDraftFieldsFragmentDoc = gql`
     fragment ColdEmailDraftFields on ColdEmailDraft {
   ...ColdEmailDraftRowFields
-  goal
   tone
-  createdAt
   maxVariants
+  brief {
+    about
+    fit
+  }
   variants {
     ...ColdEmailVariantFields
   }

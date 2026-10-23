@@ -39,6 +39,11 @@ const coldEmailDraftSchema = new Schema(
     goal: { type: String, default: '', trim: true },
     tone: { type: String, enum: COLD_EMAIL_TONES, required: true, default: 'FRIENDLY' },
     variants: { type: [variantSchema], default: [] },
+    /** What the AI made of them: their business in brief, and what of ours fits them. */
+    brief: {
+      about: { type: String, default: '', trim: true },
+      fit: { type: [String], default: [] },
+    },
     status: { type: String, enum: COLD_EMAIL_STATUSES, required: true, default: 'DRAFT' },
     createdById: { type: String, required: true },
     createdByName: { type: String, default: '', trim: true },

@@ -2,15 +2,17 @@ import {
   MAX_BATCH,
   MAX_SUBJECT_CHARS,
   coldEmailPrompt,
+  parseColdEmailBrief,
   parseColdEmails,
 } from '../../../../../src/modules/crm/cold-email/cold-email.prompt';
 
-const prompt = (count?: number) =>
+const prompt = (count?: number, offering = '') =>
   coldEmailPrompt({
     senderName: 'Asha',
     organizationName: 'Exyconn',
     recipientName: 'Ravi',
     context: 'Company: Acme',
+    offering,
     goal: 'our checkout software',
     tone: 'BRIEF',
     instruction: '',
@@ -24,9 +26,10 @@ describe('the multi-version prompt', () => {
   it('asks for one version in the batch format when no count is given', () => {
     const text = prompt();
 
-    expect(text).toContain(
-      'Answer with JSON only, exactly {"versions": [{"subject": "...", "body": "..."}]}',
-    );
+    expect(text).toContain('Answer with JSON only, exactly {"brief": {"about": ');
+    expect(text).toContain('"versions": [{"subject": "...", "body": "..."}]}, and nothing else.');
+    expect(text).not.toContain('What we offer, from our own website:');
+    expect(text).not.toContain('Say which of what we offer fits them');
     expect(text).not.toContain('- Version 1');
     expect(text).toContain('earlier versions: First try | Second try');
   });
@@ -38,7 +41,36 @@ describe('the multi-version prompt', () => {
     expect(text).toContain('Write 4 clearly different versions of it. Each version:');
     expect(text).toContain('- Version 1 opens with something specific about them');
     expect(text).toContain('- Version 4 is the shortest, built around one simple question.');
-    expect(text).toContain('with 4 items, and nothing else.');
+    expect(text).toContain('with 4 versions, and nothing else.');
+  });
+
+  it('gives the model what we offer that fits them, from our own website', () => {
+    const text = prompt(1, '[1] Checkout audits\nWe find where carts are dropped.');
+
+    expect(text).toContain('Say which of what we offer fits them and why');
+    expect(text).toContain('What we offer, from our own website:\n[1] Checkout audits');
+  });
+});
+
+describe('parseColdEmailBrief', () => {
+  it('reads what the AI made of them, trimmed', () => {
+    const response = JSON.stringify({
+      brief: { about: ' Acme sells shoes online. ', fit: [' Checkout audit: carts are dropped '] },
+      versions: [],
+    });
+
+    expect(parseColdEmailBrief(response)).toEqual({
+      about: 'Acme sells shoes online.',
+      fit: ['Checkout audit: carts are dropped'],
+    });
+  });
+
+  it.each([
+    ['no brief', '{"versions": []}'],
+    ['a brief in the wrong shape', '{"brief": {"about": 42, "fit": "x"}}'],
+    ['no JSON', 'Here you go'],
+  ])('reads none from %s', (_case, response) => {
+    expect(parseColdEmailBrief(response)).toBeNull();
   });
 });
 

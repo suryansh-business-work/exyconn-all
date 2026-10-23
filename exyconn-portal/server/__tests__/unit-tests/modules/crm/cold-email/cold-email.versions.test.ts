@@ -91,7 +91,9 @@ describe('how many versions a new draft writes', () => {
     const draft = await create(1);
 
     expect(subjectsOf(draft)).toEqual(['Only one']);
-    expect(promptOf(0)).toContain('Answer with JSON only, exactly {"versions": [{"subject"');
+    expect(promptOf(0)).toContain(
+      '"versions": [{"subject": "...", "body": "..."}]}, and nothing else.',
+    );
     expect(promptOf(0)).not.toContain('clearly different versions');
   });
 

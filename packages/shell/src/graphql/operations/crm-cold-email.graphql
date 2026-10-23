@@ -22,15 +22,19 @@ fragment ColdEmailDraftRowFields on ColdEmailDraft {
   status
   variantCount
   createdByName
+  goal
+  createdAt
   updatedAt
 }
 
 fragment ColdEmailDraftFields on ColdEmailDraft {
   ...ColdEmailDraftRowFields
-  goal
   tone
-  createdAt
   maxVariants
+  brief {
+    about
+    fit
+  }
   variants {
     ...ColdEmailVariantFields
   }

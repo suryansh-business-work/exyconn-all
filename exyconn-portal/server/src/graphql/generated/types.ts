@@ -2791,9 +2791,20 @@ export enum CmsSiteStatus {
   Draft = 'DRAFT'
 }
 
+/** What the AI made of the prospect before writing: their business, and what of ours fits them. */
+export type ColdEmailBrief = {
+  __typename?: 'ColdEmailBrief';
+  /** Two or three sentences on what their business does. */
+  about: Scalars['String']['output'];
+  /** One line per thing we offer that fits them, and why. */
+  fit: Array<Scalars['String']['output']>;
+};
+
 /** A cold email being prepared for one contact or company, with every version written so far. */
 export type ColdEmailDraft = {
   __typename?: 'ColdEmailDraft';
+  /** Empty on drafts written before briefs, until they are rewritten. */
+  brief: ColdEmailBrief;
   createdAt: Scalars['DateTime']['output'];
   createdByName: Scalars['String']['output'];
   /** What we are offering, in the person's words; empty means an introduction to the company. */
@@ -23232,6 +23243,7 @@ export type ResolversTypes = ResolversObject<{
   CmsSiteSeo: ResolverTypeWrapper<CmsSiteSeo>;
   CmsSiteSeoInput: CmsSiteSeoInput;
   CmsSiteStatus: CmsSiteStatus;
+  ColdEmailBrief: ResolverTypeWrapper<ColdEmailBrief>;
   ColdEmailDraft: ResolverTypeWrapper<ColdEmailDraft>;
   ColdEmailDraftPage: ResolverTypeWrapper<ColdEmailDraftPage>;
   ColdEmailStatus: ColdEmailStatus;
@@ -24430,6 +24442,7 @@ export type ResolversParentTypes = ResolversObject<{
   CmsSiteInput: CmsSiteInput;
   CmsSiteSeo: CmsSiteSeo;
   CmsSiteSeoInput: CmsSiteSeoInput;
+  ColdEmailBrief: ColdEmailBrief;
   ColdEmailDraft: ColdEmailDraft;
   ColdEmailDraftPage: ColdEmailDraftPage;
   ColdEmailVariant: ColdEmailVariant;
@@ -26717,7 +26730,14 @@ export type CmsSiteSeoResolvers<ContextType = GraphQLContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ColdEmailBriefResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ColdEmailBrief'] = ResolversParentTypes['ColdEmailBrief']> = ResolversObject<{
+  about?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fit?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ColdEmailDraftResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ColdEmailDraft'] = ResolversParentTypes['ColdEmailDraft']> = ResolversObject<{
+  brief?: Resolver<ResolversTypes['ColdEmailBrief'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   goal?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -34759,6 +34779,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CmsSite?: CmsSiteResolvers<ContextType>;
   CmsSiteDns?: CmsSiteDnsResolvers<ContextType>;
   CmsSiteSeo?: CmsSiteSeoResolvers<ContextType>;
+  ColdEmailBrief?: ColdEmailBriefResolvers<ContextType>;
   ColdEmailDraft?: ColdEmailDraftResolvers<ContextType>;
   ColdEmailDraftPage?: ColdEmailDraftPageResolvers<ContextType>;
   ColdEmailVariant?: ColdEmailVariantResolvers<ContextType>;
