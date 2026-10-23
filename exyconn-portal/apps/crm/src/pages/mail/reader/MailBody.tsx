@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
-import ImageIcon from '@mui/icons-material/Image';
-import { useT } from '@exyconn/i18n';
-import { Alert, Box, Button, Text, useTheme } from '@exyconn/shell/components/ui';
+import { Box, Text, useTheme } from '@exyconn/shell/components/ui';
 import { mailDocument, prepareMailHtml } from './mailHtml';
 
 interface MailBodyProps {
@@ -16,18 +14,13 @@ const INITIAL_HEIGHT = 120;
 
 /**
  * A message's body. HTML is shown in a sandboxed frame — no script runs, no form submits, and
- * its styles stay inside — with remote images hidden until "Show images". A plain-text
- * message is shown as text.
+ * its styles stay inside — with its images loaded as it opens. A plain-text message is shown
+ * as text.
  */
 export function MailBody({ html, text, label }: Readonly<MailBodyProps>) {
-  const t = useT();
   const theme = useTheme();
-  const [showImages, setShowImages] = useState(false);
   const [height, setHeight] = useState(INITIAL_HEIGHT);
-  const prepared = useMemo(
-    () => (html ? prepareMailHtml(html, showImages) : null),
-    [html, showImages],
-  );
+  const prepared = useMemo(() => (html ? prepareMailHtml(html) : null), [html]);
 
   if (!prepared) {
     return (
@@ -52,25 +45,11 @@ export function MailBody({ html, text, label }: Readonly<MailBodyProps>) {
 
   return (
     <Box>
-      {prepared.images > 0 && !showImages && (
-        <Alert
-          severity="info"
-          icon={<ImageIcon fontSize="small" />}
-          sx={{ mb: 1 }}
-          action={
-            <Button color="inherit" size="small" onClick={() => setShowImages(true)}>
-              {t('Show images')}
-            </Button>
-          }
-        >
-          {t('Images are hidden so the sender cannot tell you opened this.')}
-        </Alert>
-      )}
       <Box
         component="iframe"
         title={label}
         sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        srcDoc={mailDocument(prepared.html, style, showImages)}
+        srcDoc={mailDocument(prepared, style)}
         onLoad={(event) => measure(event.currentTarget as HTMLIFrameElement)}
         sx={{
           display: 'block',

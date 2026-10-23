@@ -1,14 +1,14 @@
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
-import { RhfDatePicker, RhfSelect } from '@exyconn/shell/components/form/rhf';
+import { RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { Button } from '@exyconn/shell/components/ui';
 import type { CrmEmailMailbox } from '@exyconn/shell/graphql/generated';
+import { PeriodFields } from '../../../../mail-filters';
 import {
   DIRECTION_OPTIONS,
   EMPTY_EMAIL_FILTERS,
-  PERIOD_OPTIONS,
   emailThreadFiltersSchema,
   type EmailThreadFilters,
 } from './email-thread-filters.types';
@@ -37,8 +37,6 @@ export function EmailThreadFiltersForm({
     resolver: zodResolver(emailThreadFiltersSchema),
     defaultValues: filters,
   });
-  const period = useWatch({ control: methods.control, name: 'period' });
-  const after = useWatch({ control: methods.control, name: 'after' });
   const translated = (options: ReadonlyArray<{ value: string; label: string }>) =>
     options.map((option) => ({ value: option.value, label: t(option.label) }));
   const mailboxOptions = [
@@ -54,23 +52,7 @@ export function EmailThreadFiltersForm({
       submitLabel="Apply filters"
       onCancel={onCancel}
     >
-      <RhfSelect
-        name="period"
-        label="Date"
-        options={translated(PERIOD_OPTIONS)}
-        helperText="When the latest message of the conversation was sent"
-      />
-      {period === 'CUSTOM' && (
-        <>
-          <RhfDatePicker name="after" label="From" helperText="The first day to include" />
-          <RhfDatePicker
-            name="before"
-            label="To"
-            minDate={after || undefined}
-            helperText="The last day to include"
-          />
-        </>
-      )}
+      <PeriodFields />
       <RhfSelect
         name="direction"
         label="Direction"

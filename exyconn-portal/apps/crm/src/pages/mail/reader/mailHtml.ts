@@ -10,33 +10,24 @@ export interface MailFrameStyle {
 
 /**
  * A message's HTML as the reader shows it. The server has cleaned it already; it is cleaned
- * again here (the portal's DOMPurify allow-list), remote images lose their address unless
- * the person chose to show them (a remote image tells the sender the mail was opened), and
- * every link opens in a new tab. Returns how many images the message has.
+ * again here (the portal's DOMPurify allow-list), and every link opens in a new tab.
  */
-export function prepareMailHtml(html: string, showImages: boolean) {
+export function prepareMailHtml(html: string) {
   const doc = new DOMParser().parseFromString(sanitizeRichHtml(html), 'text/html');
-  const images = [...doc.querySelectorAll('img[src]')];
-  if (!showImages) {
-    for (const image of images) {
-      image.removeAttribute('src');
-    }
-  }
   for (const link of doc.querySelectorAll('a[href]')) {
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
   }
-  return { html: doc.body.innerHTML, images: images.length };
+  return doc.body.innerHTML;
 }
 
 /**
- * The whole document the sandboxed frame shows: a policy that allows no script, no request
- * but https images (and none while they are hidden), and the message's own styles kept inside
- * the frame so they never reach the portal.
+ * The whole document the sandboxed frame shows: a policy that allows no script and no request
+ * but images (https and inline), and the message's own styles kept inside the frame so they
+ * never reach the portal.
  */
-export function mailDocument(body: string, style: MailFrameStyle, showImages: boolean) {
-  const images = showImages ? 'https: data:' : 'data:';
-  const policy = `default-src 'none'; img-src ${images}; style-src 'unsafe-inline'`;
+export function mailDocument(body: string, style: MailFrameStyle) {
+  const policy = "default-src 'none'; img-src https: data:; style-src 'unsafe-inline'";
   const css = [
     `body{margin:0;padding:12px;font-family:${style.font};font-size:14px;line-height:1.5;color:${style.ink};background:${style.paper};overflow-wrap:anywhere}`,
     `a{color:${style.link}}`,

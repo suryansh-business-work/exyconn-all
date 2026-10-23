@@ -3,11 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button, List, Stack, TablePagination } from '@exyconn/shell/components/ui';
 import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { CrmEmailDirection, type CrmTimelineObject } from '@exyconn/shell/graphql/generated';
-import { ComposeEmailForm, replySubject, type ComposeEmailContext } from '../forms/compose-email';
+import { openComposeEmail } from '../../comms';
+import { replySubject } from '../forms/compose-email';
 import { activeFilterCount } from '../forms/email-thread-filters';
 import { EmailFiltersDrawer } from './EmailFiltersDrawer';
 import { EmailThreadRow } from './EmailThreadRow';
@@ -34,7 +34,6 @@ const THREAD_PARAM = 'thread';
 export function EmailThreads({ object, id, defaultTo }: Readonly<EmailThreadsProps>) {
   const t = useT();
   const kind = object === 'CONTACT' ? 'CONTACT' : 'COMPANY';
-  const [compose, setCompose] = useState<ComposeEmailContext | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [params, setParams] = useSearchParams();
   const list = useEmailThreadPage(object, id);
@@ -42,7 +41,6 @@ export function EmailThreads({ object, id, defaultTo }: Readonly<EmailThreadsPro
   const result = data?.crmEmailThreadPage;
   const openKey = params.get(THREAD_PARAM);
   const openThread = result?.rows.find((thread) => threadKey(thread) === openKey) ?? null;
-  const close = () => setCompose(null);
 
   const setOpen = (thread: EmailThread | null) => {
     const next = new URLSearchParams(params);
@@ -57,7 +55,7 @@ export function EmailThreads({ object, id, defaultTo }: Readonly<EmailThreadsPro
   const reply = (thread: EmailThread) => {
     const last = thread.messages.at(-1);
     const lastIn = thread.messages.findLast((m) => m.direction === CrmEmailDirection.In);
-    setCompose({
+    openComposeEmail({
       object: kind,
       id,
       to: lastIn ? [lastIn.from] : defaultTo,
@@ -128,7 +126,7 @@ export function EmailThreads({ object, id, defaultTo }: Readonly<EmailThreadsPro
           onSearch={list.changeSearch}
           onSort={list.changeSort}
           onOpenFilters={() => setFiltersOpen(true)}
-          onNewEmail={() => setCompose({ object: kind, id, to: defaultTo })}
+          onNewEmail={() => openComposeEmail({ object: kind, id, to: defaultTo })}
           onRefresh={list.refresh}
         />
       )}
@@ -144,13 +142,6 @@ export function EmailThreads({ object, id, defaultTo }: Readonly<EmailThreadsPro
         }}
         onClose={() => setFiltersOpen(false)}
       />
-      <CrudDialog
-        open={compose !== null}
-        title={compose?.threadId ? t('Reply') : t('New email')}
-        onClose={close}
-      >
-        {compose && <ComposeEmailForm context={compose} onDone={close} onCancel={close} />}
-      </CrudDialog>
     </Stack>
   );
 }

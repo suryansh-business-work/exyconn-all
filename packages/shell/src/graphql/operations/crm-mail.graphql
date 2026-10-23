@@ -107,3 +107,14 @@ mutation SyncCrmMail($accountId: ID) {
 mutation CrmMailThreadAction($threads: [CrmMailThreadRef!]!, $action: CrmMailAction!) {
   crmMailThreadAction(threads: $threads, action: $action)
 }
+
+# What the reader shows from the list row while the conversation loads from Gmail.
+fragment CrmMailThreadPreview on CrmMailThreadSummary {
+  id
+  mailbox
+  subject
+  snippet
+  fromName
+  fromAddress
+  lastAt
+}

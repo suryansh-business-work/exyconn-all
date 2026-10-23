@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useFormatters, useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Stack } from '@exyconn/shell/components/ui';
-import { DetailSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { CrmMailAction, useCrmMailThreadQuery } from '@exyconn/shell/graphql/generated';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
@@ -10,6 +9,7 @@ import { composeFor, senderOf, type ReplyMode } from '../mailCompose';
 import { useMailActions } from '../useMailActions';
 import type { OpenThread } from '../useMailRoute';
 import { ReaderHeader } from './ReaderHeader';
+import { ReaderPreview } from './ReaderPreview';
 import { MailMessageItem } from './MailMessageItem';
 import { ReplyArea } from './ReplyArea';
 
@@ -65,7 +65,7 @@ export function MailReader({ open, onClose }: Readonly<MailReaderProps>) {
     );
   }
   if (!thread) {
-    return <DetailSkeleton label="Opening the conversation" />;
+    return <ReaderPreview open={open} onBack={onClose} />;
   }
 
   const onAction = async (action: CrmMailAction) => {

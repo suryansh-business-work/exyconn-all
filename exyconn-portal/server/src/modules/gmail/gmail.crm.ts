@@ -1,6 +1,8 @@
 import { currentOrganizationId } from '../../lib/tenant';
 import { badRequest, forbidden } from '../../utils/errors';
 import { isEmailAddress } from '../../utils/emailAddress';
+import { htmlToText } from '../../utils/inboundMail';
+import { sanitizeRichHtml } from '../../utils/sanitizeHtml';
 import { timelineTarget } from '../crm/timeline/crm.timeline';
 import { gmailClient } from './gmail.client';
 import {
@@ -33,6 +35,8 @@ export interface SendCrmEmailInput {
   cc?: string[] | null;
   subject: string;
   body: string;
+  /** The body is rich text (HTML) from the editor; otherwise plain text. */
+  html?: boolean | null;
   /** Replying in a thread: Gmail's thread id and the message being answered. */
   threadId?: string | null;
   inReplyTo?: string | null;
@@ -85,10 +89,27 @@ export function checkedRecipients(input: SendCrmEmailInput) {
   return { to, cc, subject: input.subject.trim() };
 }
 
+/**
+ * The message as it goes out: rich text cleaned to the portal's allow-list (and refused when
+ * nothing readable is left), or plain text as written. `text` is what the timeline keeps.
+ */
+export function checkedBody(input: SendCrmEmailInput) {
+  if (!input.html) {
+    return { body: input.body, html: false, text: input.body };
+  }
+  const body = sanitizeRichHtml(input.body);
+  const text = htmlToText(body).trim();
+  if (text === '') {
+    badRequest('Write a message.');
+  }
+  return { body, html: true, text };
+}
+
 /** Sends from the chosen account and keeps the sent message, with its thread, on the record. */
 export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string) {
   assertCompanyCrm();
   const { to, cc, subject } = checkedRecipients(input);
+  const { body, html } = checkedBody(input);
   const mailbox = await sendingMailbox(input.fromAccountId);
   const threading = await replyThreading(input, mailbox);
   return withMailboxOutcome(mailbox.id, async () => {
@@ -99,7 +120,8 @@ export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string)
         to,
         cc,
         subject,
-        body: input.body,
+        body,
+        html,
         inReplyTo: threading.inReplyTo,
         references: threading.references,
       },

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CrmMailAction, CrmMailFolder } from '@exyconn/shell/graphql/generated';
+import { CrmMailAction, CrmMailFolder, CrmMailSort } from '@exyconn/shell/graphql/generated';
 import { MailPage } from '../../../../src/pages/mail';
 import { renderWithProviders } from '../../test-utils';
 import { mailbox, row, thread } from './mail-fixtures';
@@ -13,7 +13,12 @@ const gql = vi.hoisted(() => ({
   sync: vi.fn(),
   action: vi.fn(),
 }));
-const compose = vi.hoisted(() => ({ contexts: [] as unknown[] }));
+const compose = vi.hoisted(() => ({ contexts: [] as unknown[], dock: vi.fn() }));
+
+vi.mock('../../../../src/records/comms', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  openComposeEmail: compose.dock,
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
@@ -80,6 +85,11 @@ describe('MailPage', () => {
             accountId: null,
             folder: CrmMailFolder.Inbox,
             search: null,
+            sort: CrmMailSort.Newest,
+            after: null,
+            before: null,
+            unreadOnly: null,
+            withAttachments: null,
             page: 0,
             pageSize: 25,
           },
@@ -137,5 +147,44 @@ describe('MailPage', () => {
       threadId: 't1',
       fromAccountId: 'g1',
     });
+  });
+
+  it('sorts and filters the list on the server, and keeps both in the address', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<MailPage />, { route: '/mail/inbox', path: '/mail/:folder?' });
+    const lastInput = () => gql.threads.mock.lastCall?.[0].variables.input;
+
+    await user.click(screen.getByRole('combobox', { name: 'Sort' }));
+    await user.click(screen.getByRole('option', { name: 'Oldest first' }));
+    expect(lastInput()).toMatchObject({ sort: CrmMailSort.Oldest, page: 0 });
+
+    await user.click(screen.getByRole('button', { name: 'Filters (0 active)' }));
+    await user.click(screen.getByRole('switch', { name: 'Unread only' }));
+    await user.click(screen.getByRole('button', { name: 'Apply filters' }));
+    await waitFor(() => expect(lastInput()).toMatchObject({ unreadOnly: true, sort: 'OLDEST' }));
+    expect(await screen.findByRole('button', { name: 'Filters (1 active)' })).toBeInTheDocument();
+  });
+
+  it('writes a new email in the window at the bottom of the screen', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<MailPage />, { route: '/mail/inbox', path: '/mail/:folder?' });
+
+    await user.click(screen.getByRole('button', { name: 'Folders and mailboxes' }));
+    await user.click(await screen.findByRole('button', { name: 'Compose' }));
+
+    expect(compose.dock).toHaveBeenCalledWith(
+      expect.objectContaining({ object: 'CONTACT', id: '', to: [] }),
+    );
+  });
+
+  it('shows the back button and placeholders while the conversation loads', () => {
+    gql.thread.mockReturnValue({ data: undefined, refetch: vi.fn() });
+    renderWithProviders(<MailPage />, {
+      route: '/mail/inbox?thread=acc-1:t1',
+      path: '/mail/:folder?',
+    });
+
+    expect(screen.getByLabelText('Opening the conversation')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Back to the list' }).length).toBeGreaterThan(0);
   });
 });

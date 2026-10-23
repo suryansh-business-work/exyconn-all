@@ -1,16 +1,8 @@
-import FilterListIcon from '@mui/icons-material/FilterList';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useT } from '@exyconn/i18n';
-import {
-  Badge,
-  Button,
-  Flex,
-  IconButton,
-  MenuItem,
-  TextField,
-  Tooltip,
-} from '@exyconn/shell/components/ui';
+import { Button, Flex } from '@exyconn/shell/components/ui';
 import { CrmEmailThreadSort } from '@exyconn/shell/graphql/generated';
+import { FilterIconButton, SortSelect } from '../../../mail-filters';
 import { MailSearchBar } from '../../../pages/mail/MailSearchBar';
 
 const SORT_OPTIONS = [
@@ -45,7 +37,6 @@ export function EmailThreadsToolbar({
   onRefresh,
 }: Readonly<EmailThreadsToolbarProps>) {
   const t = useT();
-  const filterLabel = t('Filters ({count} active)', { count: filterCount });
   return (
     <Flex direction="column" spacing={1.5}>
       <Flex direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -65,27 +56,8 @@ export function EmailThreadsToolbar({
         <Flex sx={{ flex: '1 1 240px', minWidth: 0 }}>
           <MailSearchBar value={search} onSearch={onSearch} />
         </Flex>
-        <TextField
-          select
-          size="small"
-          label={t('Sort')}
-          value={sort}
-          onChange={(event) => onSort(event.target.value as CrmEmailThreadSort)}
-          sx={{ minWidth: 170 }}
-        >
-          {SORT_OPTIONS.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {t(option.label)}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Tooltip title={filterLabel}>
-          <IconButton onClick={onOpenFilters} aria-label={filterLabel} aria-haspopup="dialog">
-            <Badge badgeContent={filterCount} color="primary">
-              <FilterListIcon />
-            </Badge>
-          </IconButton>
-        </Tooltip>
+        <SortSelect value={sort} options={SORT_OPTIONS} onChange={onSort} />
+        <FilterIconButton count={filterCount} onClick={onOpenFilters} />
       </Flex>
     </Flex>
   );

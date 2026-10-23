@@ -127,6 +127,8 @@ export const gmailTypeDefs = gql`
     cc: [String!]
     subject: String!
     body: String!
+    "The body is rich text (HTML) from the editor, cleaned before sending; plain text otherwise."
+    html: Boolean
     "Replying: Gmail's thread id and the Message-ID being answered."
     threadId: String
     inReplyTo: String

@@ -9,7 +9,12 @@ import {
 import { EmailThreads } from '../../../../../src/records/detail/email/EmailThreads';
 import { renderWithProviders } from '../../../test-utils';
 
-const gql = vi.hoisted(() => ({ page: vi.fn(), sync: vi.fn(), refetch: vi.fn() }));
+const gql = vi.hoisted(() => ({
+  page: vi.fn(),
+  sync: vi.fn(),
+  refetch: vi.fn(),
+  compose: vi.fn(),
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
@@ -18,11 +23,9 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useGmailAccountsQuery: () => ({ data: { gmailAccounts: [] } }),
 }));
 
-vi.mock('../../../../../src/records/detail/forms/compose-email', async (importOriginal) => ({
+vi.mock('../../../../../src/records/comms', async (importOriginal) => ({
   ...(await importOriginal<object>()),
-  ComposeEmailForm: ({ context }: { context: { to: string[]; subject?: string } }) => (
-    <p>{`compose to ${context.to.join(',')} ${context.subject ?? ''}`}</p>
-  ),
+  openComposeEmail: gql.compose,
 }));
 
 const message = (id: string, direction: CrmEmailDirection, body: string) => ({
@@ -131,7 +134,15 @@ describe('EmailThreads', () => {
     expect(within(messages[1]).getByText(/Ravi wrote/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Reply' }));
-    expect(screen.getByText('compose to asha@acme.test Re: Pricing')).toBeInTheDocument();
+    expect(gql.compose).toHaveBeenCalledWith({
+      object: 'CONTACT',
+      id: 'c1',
+      to: ['asha@acme.test'],
+      subject: 'Re: Pricing',
+      threadId: 't1',
+      inReplyTo: '<m2@mail>',
+      fromAccountId: 'acc-1',
+    });
   });
 
   it('goes back to the list from a conversation', async () => {
@@ -164,6 +175,10 @@ describe('EmailThreads', () => {
 
     await user.click(screen.getByRole('button', { name: 'New email' }));
 
-    expect(screen.getByText(/compose to asha@acme.test/)).toBeInTheDocument();
+    expect(gql.compose).toHaveBeenCalledWith({
+      object: 'CONTACT',
+      id: 'c1',
+      to: ['asha@acme.test'],
+    });
   });
 });

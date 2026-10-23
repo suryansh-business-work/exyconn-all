@@ -1322,6 +1322,12 @@ export type CrmMailFolder =
   | 'SENT'
   | 'STARRED';
 
+export type CrmMailSort =
+  | 'NEWEST'
+  | 'OLDEST'
+  | 'SENDER'
+  | 'SUBJECT';
+
 export type CrmMailThreadRef = {
   accountId: Scalars['ID']['input'];
   threadId: Scalars['String']['input'];
@@ -1330,12 +1336,21 @@ export type CrmMailThreadRef = {
 export type CrmMailThreadsInput = {
   /** One mailbox; every readable one when empty. */
   accountId: InputMaybe<Scalars['ID']['input']>;
+  /** The newest message is on or after / on or before these. */
+  after: InputMaybe<Scalars['DateTime']['input']>;
+  before: InputMaybe<Scalars['DateTime']['input']>;
   folder: CrmMailFolder;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
   /** Matches subject, preview and people, and Gmail's own search of each mailbox. */
   search: InputMaybe<Scalars['String']['input']>;
+  /** Newest first unless chosen. */
+  sort: InputMaybe<CrmMailSort>;
+  /** Only conversations with unread mail. */
+  unreadOnly: InputMaybe<Scalars['Boolean']['input']>;
+  /** Only conversations with files attached. */
+  withAttachments: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** A circle on the map: only records whose coordinates fall inside it. */
@@ -3697,6 +3712,8 @@ export type SendCrmEmailInput = {
   cc: InputMaybe<Array<Scalars['String']['input']>>;
   /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM. */
   fromAccountId: Scalars['ID']['input'];
+  /** The body is rich text (HTML) from the editor, cleaned before sending; plain text otherwise. */
+  html: InputMaybe<Scalars['Boolean']['input']>;
   inReplyTo: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */

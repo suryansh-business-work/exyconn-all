@@ -5,7 +5,12 @@ import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { CrmMailAction, useCrmMailThreadsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  CrmMailAction,
+  useCrmMailThreadsQuery,
+  type CrmMailSort,
+  type CrmMailThreadsInput,
+} from '@exyconn/shell/graphql/generated';
 import type { MailFolderItem } from './mailFolders';
 import { MailListToolbar } from './MailListToolbar';
 import { MailThreadRow, type MailRow } from './MailThreadRow';
@@ -19,6 +24,9 @@ interface MailThreadListProps {
   /** One mailbox's id; '' lists every readable mailbox together. */
   mailbox: string;
   search: string;
+  sort: CrmMailSort;
+  /** The applied filters' range and switches. */
+  filters: Pick<CrmMailThreadsInput, 'after' | 'before' | 'unreadOnly' | 'withAttachments'>;
   page: number;
   open: OpenThread | null;
   onOpen: (thread: OpenThread) => void;
@@ -30,12 +38,15 @@ const logFailure = (error: unknown) => portalLogger.warn('crm: mail list action 
 
 /**
  * One page of the folder, newest first, with bulk actions on the selected conversations.
- * Keyed by its folder, mailbox, search and page, so a new view starts with nothing selected.
+ * Keyed by its folder, mailbox, search, sort, filters and page, so a new view starts with
+ * nothing selected.
  */
 export function MailThreadList({
   folder,
   mailbox,
   search,
+  sort,
+  filters,
   page,
   open,
   onOpen,
@@ -50,6 +61,8 @@ export function MailThreadList({
         accountId: mailbox || null,
         folder: folder.folder,
         search: search || null,
+        sort,
+        ...filters,
         page,
         pageSize: MAIL_PAGE_SIZE,
       },

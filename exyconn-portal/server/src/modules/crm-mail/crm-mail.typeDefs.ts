@@ -84,12 +84,28 @@ export const crmMailTypeDefs = gql`
     warnings: [String!]!
   }
 
+  enum CrmMailSort {
+    NEWEST
+    OLDEST
+    SUBJECT
+    SENDER
+  }
+
   input CrmMailThreadsInput {
     "One mailbox; every readable one when empty."
     accountId: ID
     folder: CrmMailFolder!
     "Matches subject, preview and people, and Gmail's own search of each mailbox."
     search: String
+    "Only conversations with unread mail."
+    unreadOnly: Boolean
+    "Only conversations with files attached."
+    withAttachments: Boolean
+    "The newest message is on or after / on or before these."
+    after: DateTime
+    before: DateTime
+    "Newest first unless chosen."
+    sort: CrmMailSort
     "Zero-based."
     page: Int!
     pageSize: Int!

@@ -3831,6 +3831,13 @@ export type CrmMailRecordLink = {
   object: CrmTimelineObject;
 };
 
+export enum CrmMailSort {
+  Newest = 'NEWEST',
+  Oldest = 'OLDEST',
+  Sender = 'SENDER',
+  Subject = 'SUBJECT'
+}
+
 export type CrmMailSyncResult = {
   __typename?: 'CrmMailSyncResult';
   accountId: Scalars['ID']['output'];
@@ -3894,12 +3901,21 @@ export type CrmMailThreadSummary = {
 export type CrmMailThreadsInput = {
   /** One mailbox; every readable one when empty. */
   accountId?: InputMaybe<Scalars['ID']['input']>;
+  /** The newest message is on or after / on or before these. */
+  after?: InputMaybe<Scalars['DateTime']['input']>;
+  before?: InputMaybe<Scalars['DateTime']['input']>;
   folder: CrmMailFolder;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
   /** Matches subject, preview and people, and Gmail's own search of each mailbox. */
   search?: InputMaybe<Scalars['String']['input']>;
+  /** Newest first unless chosen. */
+  sort?: InputMaybe<CrmMailSort>;
+  /** Only conversations with unread mail. */
+  unreadOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Only conversations with files attached. */
+  withAttachments?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** A mailbox turned on for the CRM, as CRM > Mail lists it. */
@@ -19248,6 +19264,8 @@ export type SendCrmEmailInput = {
   cc?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM. */
   fromAccountId: Scalars['ID']['input'];
+  /** The body is rich text (HTML) from the editor, cleaned before sending; plain text otherwise. */
+  html?: InputMaybe<Scalars['Boolean']['input']>;
   inReplyTo?: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
@@ -23297,6 +23315,7 @@ export type ResolversTypes = ResolversObject<{
   CrmMailMessage: ResolverTypeWrapper<CrmMailMessage>;
   CrmMailOverview: ResolverTypeWrapper<CrmMailOverview>;
   CrmMailRecordLink: ResolverTypeWrapper<CrmMailRecordLink>;
+  CrmMailSort: CrmMailSort;
   CrmMailSyncResult: ResolverTypeWrapper<CrmMailSyncResult>;
   CrmMailThread: ResolverTypeWrapper<CrmMailThread>;
   CrmMailThreadPage: ResolverTypeWrapper<CrmMailThreadPage>;
