@@ -17,6 +17,8 @@ import {
   RecordDetailSkeleton,
   Timeline,
 } from '../../../records/detail';
+import { COLD_EMAILS_TAB, RecordColdEmails } from '../../../records/cold-email';
+import { emailsOf } from '../../../records/comms';
 import { ContactOverview } from './ContactOverview';
 import { ContactProfile } from './ContactProfile';
 
@@ -61,6 +63,21 @@ export function ContactDetailPage() {
       slug: 'activity',
       label: 'Activity',
       content: <Timeline object={CrmTimelineObject.Contact} id={contact.id} limit={200} />,
+    },
+    {
+      slug: COLD_EMAILS_TAB,
+      label: 'Cold emails',
+      content: (
+        <RecordColdEmails
+          target={{
+            object: 'CONTACT',
+            id: contact.id,
+            name: contact.name,
+            emails: emailsOf(contact),
+            website: contact.website,
+          }}
+        />
+      ),
     },
     ...(gmail?.crmGmailReady
       ? [

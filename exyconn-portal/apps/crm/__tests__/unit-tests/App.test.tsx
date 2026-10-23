@@ -17,7 +17,6 @@ import { LeadGeneratorPage } from '../../src/pages/lead-generator';
 import { WebsiteScraperPage } from '../../src/pages/website-scraper';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
-import { ColdEmailDraftPage, ColdEmailsPage } from '../../src/pages/cold-emails';
 import { CalendarPage } from '../../src/pages/calendar';
 import { IntegrationsPage } from '../../src/pages/integrations';
 import { CommsDockLayout } from '../../src/records/comms';
@@ -63,6 +62,13 @@ function declaredRoutes(children: ReactNode) {
     });
 }
 
+/** The props of the route declared at `path` inside the communication-dock layout. */
+const declaredRoute = (path: string) =>
+  Children.toArray(layoutRoute((portal.props as PortalProps).children).children)
+    .filter(isValidElement)
+    .map((route) => route.props as RouteProps)
+    .find((route) => route.path === path);
+
 describe('App', () => {
   it('mounts the CRM module behind the CRM role, with the shared sign-in', () => {
     render(<App />);
@@ -91,8 +97,7 @@ describe('App', () => {
       ['/activities', ActivitiesPage],
       ['/calendar', CalendarPage],
       ['/meetings/:tab?', MeetingsPage],
-      ['/cold-emails', ColdEmailsPage],
-      ['/cold-emails/:id', ColdEmailDraftPage],
+      ['/cold-emails/*', Navigate],
       ['/tools/email-verifier/:tab?', EmailVerifierPage],
       ['/tools/lead-generator', LeadGeneratorPage],
       ['/tools/website-scraper', WebsiteScraperPage],
@@ -105,10 +110,14 @@ describe('App', () => {
   it('sends the old Connect Gmail page to Integrations > Email', () => {
     render(<App />);
 
-    const old = Children.toArray(layoutRoute((portal.props as PortalProps).children).children)
-      .filter(isValidElement)
-      .map((route) => route.props as RouteProps)
-      .find((route) => route.path === '/settings/gmail');
+    const old = declaredRoute('/settings/gmail');
     expect(old?.element.props).toEqual({ to: '/integrations/email', replace: true });
+  });
+
+  it('sends old Cold emails links to Contacts, where each record has its own tab', () => {
+    render(<App />);
+
+    const old = declaredRoute('/cold-emails/*');
+    expect(old?.element.props).toEqual({ to: '/contacts', replace: true });
   });
 });

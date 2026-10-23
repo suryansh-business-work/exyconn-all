@@ -1,19 +1,13 @@
-/** CRM > Cold emails, the section every drafted cold email is kept in. */
-export const COLD_EMAILS_PATH = '/cold-emails';
-
-/** One draft's page, with all its versions. */
-export const coldEmailPath = (draftId: string) => `${COLD_EMAILS_PATH}/${draftId}`;
-
 /** The contact's or company's own page. */
 export const recordPath = (object: 'CONTACT' | 'COMPANY', id: string) =>
   object === 'CONTACT' ? `/contacts/${id}` : `/companies/${id}`;
 
-/** The search parameter naming the draft opened in place in a record's "Cold emails" section. */
+/** The search parameter naming the draft opened in place on a record's "Cold emails" tab. */
 export const OPEN_DRAFT_PARAM = 'coldEmail';
 
-/** The Overview tab's slug on a record's page, where its "Cold emails" section lives. */
-const OVERVIEW_TAB = 'overview';
+/** The slug of the "Cold emails" tab on a contact's or company's page. */
+export const COLD_EMAILS_TAB = 'cold-emails';
 
-/** The record's Overview tab with one of its drafts opened in place. */
+/** The record's "Cold emails" tab with one of its drafts opened in place. */
 export const recordDraftPath = (object: 'CONTACT' | 'COMPANY', id: string, draftId: string) =>
-  `${recordPath(object, id)}/${OVERVIEW_TAB}?${new URLSearchParams({ [OPEN_DRAFT_PARAM]: draftId }).toString()}`;
+  `${recordPath(object, id)}/${COLD_EMAILS_TAB}?${new URLSearchParams({ [OPEN_DRAFT_PARAM]: draftId }).toString()}`;

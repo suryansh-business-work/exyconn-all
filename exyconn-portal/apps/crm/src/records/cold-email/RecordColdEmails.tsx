@@ -1,10 +1,9 @@
-import { Link as RouterLink, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useFormatters, useT } from '@exyconn/i18n';
 import {
   Alert,
   Box,
   Flex,
-  Link,
   List,
   ListItemButton,
   ListItemText,
@@ -18,18 +17,22 @@ import {
   FilterOp,
   useColdEmailDraftsQuery,
 } from '@exyconn/shell/graphql/generated';
-import { COLD_EMAILS_PATH, OPEN_DRAFT_PARAM } from './coldEmailPaths';
+import { OPEN_DRAFT_PARAM } from './coldEmailPaths';
+import { DraftColdEmailButton } from './DraftColdEmailButton';
 import { InlineColdEmailDraft } from './InlineColdEmailDraft';
+import type { ColdEmailDraftTarget } from './forms/cold-email-draft';
 
-/** How many of the record's drafts the Overview tab lists; the section holds the rest. */
-const SHOWN = 5;
+/** How many of the record's drafts the tab lists, most recently changed first. */
+const SHOWN = 50;
 
 /**
- * The record's cold email drafts on its Overview tab, newest first. A draft opens in place
- * (its id rides in the URL, so a new draft opens here too), where it is read, edited and sent.
+ * A contact's or company's "Cold emails" tab: draft a new one with the AI, and every draft
+ * written for the record. A draft opens in place (its id rides in the URL, so a new draft
+ * opens here too), where it is read, edited, given another version and sent.
  */
-export function RecordColdEmails({ id }: Readonly<{ id: string }>) {
+export function RecordColdEmails({ target }: Readonly<{ target: ColdEmailDraftTarget }>) {
   const t = useT();
+  const { id } = target;
   const [params, setParams] = useSearchParams();
   const openId = params.get(OPEN_DRAFT_PARAM);
   const openDraft = (draftId: string | null) =>
@@ -57,6 +60,7 @@ export function RecordColdEmails({ id }: Readonly<{ id: string }>) {
     fetchPolicy: 'cache-and-network',
   });
   const rows = data?.coldEmailDrafts.rows ?? [];
+  const total = data?.coldEmailDrafts.totalCount ?? 0;
 
   let body;
   if (error && !data) {
@@ -97,16 +101,30 @@ export function RecordColdEmails({ id }: Readonly<{ id: string }>) {
 
   return (
     <Box component="section" aria-labelledby={`cold-emails-${id}`} sx={panel}>
-      <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+      <Flex
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={1}
+        flexWrap="wrap"
+        useFlexGap
+        sx={{ mb: 1 }}
+      >
         <Text id={`cold-emails-${id}`} component="h2" size="label" weight="bold">
           {t('Cold emails')}
         </Text>
-        <Link component={RouterLink} to={COLD_EMAILS_PATH} variant="body2">
-          {t('All cold emails')}
-        </Link>
+        <DraftColdEmailButton target={target} />
       </Flex>
       {openId && <InlineColdEmailDraft id={openId} onClose={() => openDraft(null)} />}
       {body}
+      {total > rows.length && (
+        <Text component="p" size="caption" color="text.secondary" sx={{ m: 0, mt: 1 }}>
+          {t('Showing the latest {shown} of {total} cold emails.', {
+            shown: rows.length,
+            total,
+          })}
+        </Text>
+      )}
     </Box>
   );
 }

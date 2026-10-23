@@ -8,8 +8,8 @@ import { ColdEmailDraftForm, type ColdEmailDraftTarget } from './forms/cold-emai
 import { recordDraftPath } from './coldEmailPaths';
 
 /**
- * "Draft a cold email" under a contact's or company's profile. Once written, the new draft
- * opens in place in the record's own "Cold emails" section (Overview tab), not on another page.
+ * "Draft a cold email" on a contact's or company's "Cold emails" tab. Once written, the new
+ * draft opens in place on that tab, not on another page.
  */
 export function DraftColdEmailButton({ target }: Readonly<{ target: ColdEmailDraftTarget }>) {
   const t = useT();

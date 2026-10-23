@@ -6,6 +6,8 @@ import { renderWithProviders } from '../../../test-utils';
 import { companyRow } from '../../../fixtures';
 import { fieldValue } from '../../record-detail-stubs';
 
+const comms = vi.hoisted(() => ({ compose: vi.fn() }));
+
 vi.mock('../../../../../src/records/detail', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../../../src/records/detail')>()),
   ...(await import('../../record-detail-stubs')).detailStubs,
@@ -13,6 +15,7 @@ vi.mock('../../../../../src/records/detail', async (importOriginal) => ({
 
 vi.mock('../../../../../src/records/comms', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../../../src/records/comms')>()),
+  composeEmailTo: comms.compose,
   ReachOutActions: (await import('../../record-detail-stubs')).ReachOutStub,
 }));
 
@@ -117,10 +120,7 @@ describe('CompanyProfile', () => {
     expect(value('Email')).toBe(
       'hello@acme.ioMainPrimaryverify hello@acme.ioops@acme.ioWorkverify ops@acme.io',
     );
-    expect(screen.getByRole('link', { name: 'hello@acme.io' })).toHaveAttribute(
-      'href',
-      'mailto:hello@acme.io',
-    );
+    expect(screen.getByRole('button', { name: 'hello@acme.io' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '+91 20 1234 5678' })).toHaveAttribute(
       'href',
       'tel:+91 20 1234 5678',
@@ -153,5 +153,16 @@ describe('CompanyProfile', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit company' }));
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
     expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the CRM email window to the address clicked', async () => {
+    renderProfile(filled);
+
+    await userEvent.click(screen.getByRole('button', { name: 'hello@acme.io' }));
+
+    expect(comms.compose).toHaveBeenCalledWith(
+      expect.objectContaining({ object: 'COMPANY', id: 'company-1', name: 'Acme' }),
+      'hello@acme.io',
+    );
   });
 });

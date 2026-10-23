@@ -12,20 +12,22 @@ import {
   useAddColdEmailVariantMutation,
   type ColdEmailTone,
 } from '@exyconn/shell/graphql/generated';
-import { useToneOptions } from '../../../../records/cold-email';
+import { useToneOptions } from '../../coldEmailTones';
 import { anotherVariantSchema, type AnotherVariantValues } from './another-variant.types';
 
 interface AnotherVariantFormProps {
   draftId: string;
   /** The draft's tone, which the new version starts from. */
   tone: ColdEmailTone;
+  /** Called with the new version's id once it is written, e.g. to show it. */
+  onAdded?: (variantId: string) => void;
 }
 
 /**
  * React Hook Form + Zod form that asks the AI for one more version of the draft, optionally
  * with a tweak ("shorter", "mention the free pilot") or in another tone.
  */
-export function AnotherVariantForm({ draftId, tone }: Readonly<AnotherVariantFormProps>) {
+export function AnotherVariantForm({ draftId, tone, onAdded }: Readonly<AnotherVariantFormProps>) {
   const t = useT();
   const notify = useNotify();
   const toneOptions = useToneOptions();
@@ -40,9 +42,13 @@ export function AnotherVariantForm({ draftId, tone }: Readonly<AnotherVariantFor
 
   const onSubmit = async (values: AnotherVariantValues) => {
     try {
-      await addVariant({
+      const result = await addVariant({
         variables: { id: draftId, instruction: values.instruction, tone: values.tone },
       });
+      const added = result.data?.addColdEmailVariant.variants.at(-1);
+      if (added) {
+        onAdded?.(added.id);
+      }
       notify(t('New version written'), 'success');
       methods.reset({ instruction: '', tone: values.tone });
     } catch (error) {

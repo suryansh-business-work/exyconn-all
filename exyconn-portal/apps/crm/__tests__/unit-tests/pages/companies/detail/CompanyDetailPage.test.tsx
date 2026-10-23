@@ -47,6 +47,18 @@ vi.mock('../../../../../src/pages/companies/detail/google-business/GoogleBusines
   ),
 }));
 
+// The tab's own tests cover it; here it only shows whose cold emails it was given.
+vi.mock('../../../../../src/records/cold-email', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../../../src/records/cold-email')>()),
+  RecordColdEmails: ({
+    target,
+  }: Readonly<{ target: { object: string; id: string; emails: string[]; website: string } }>) => (
+    <p>
+      Cold emails of {target.object} {target.id} to [{target.emails.join(', ')}] at {target.website}
+    </p>
+  ),
+}));
+
 function renderPage(tab = 'overview') {
   return renderWithProviders(
     <>
@@ -123,7 +135,7 @@ describe('CompanyDetailPage', () => {
     renderPage();
 
     await waitFor(() => expect(document.title).toBe('Acme'));
-    expect(tabNames()).toEqual(['Overview', 'Activity', 'People']);
+    expect(tabNames()).toEqual(['Overview', 'Activity', 'People', 'Cold emails']);
     expect(screen.getByText('AI summary of Acme')).toBeInTheDocument();
     expect(screen.getByText('Actions for COMPANY company-1 Acme')).toBeInTheDocument();
   });
@@ -136,7 +148,14 @@ describe('CompanyDetailPage', () => {
     gql.gmail.mockReturnValue({ data: { crmGmailReady: true } });
     renderPage('emails');
 
-    expect(tabNames()).toEqual(['Overview', 'Activity', 'People', 'Google Business', 'Emails']);
+    expect(tabNames()).toEqual([
+      'Overview',
+      'Activity',
+      'People',
+      'Google Business',
+      'Cold emails',
+      'Emails',
+    ]);
     expect(screen.getByText('Email threads of company-1 to [hello@acme.io]')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('tab', { name: 'Google Business' }));
@@ -170,5 +189,24 @@ describe('CompanyDetailPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
 
     expect(gql.refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('drafts and lists cold emails on their own tab, beside Google Business', async () => {
+    gql.company.mockReturnValue({
+      data: {
+        getCompany: companyRow({ placeId: 'place-7', email: 'hello@acme.io', website: '' }),
+      },
+      refetch: gql.refetch,
+    });
+    renderPage();
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Cold emails' }));
+
+    expect(screen.getByLabelText('current url')).toHaveTextContent(
+      '/companies/company-1/cold-emails',
+    );
+    expect(
+      screen.getByText('Cold emails of COMPANY company-1 to [hello@acme.io] at acme.io'),
+    ).toBeInTheDocument();
   });
 });

@@ -36,9 +36,7 @@ const CONTACT: LogActivityTarget = {
 };
 
 function renderActions(target = CONTACT) {
-  renderWithProviders(
-    <DetailActions target={target} extra={<button type="button">Email</button>} />,
-  );
+  renderWithProviders(<DetailActions target={target} />);
 }
 
 async function openLog(action: string) {
@@ -79,9 +77,9 @@ describe('DetailActions and LogActivityForm', () => {
     gql.create.mockResolvedValue({ data: { createActivity: { id: 'a-1' } } });
   });
 
-  it('offers the quick actions and the extra one', () => {
+  it('offers the quick actions', () => {
     renderActions();
-    for (const name of ['Note', 'Log call', 'Task', 'Meeting', 'Email']) {
+    for (const name of ['Note', 'Log call', 'Task', 'Meeting', 'Add reminder']) {
       expect(screen.getByRole('button', { name })).toBeInTheDocument();
     }
   });

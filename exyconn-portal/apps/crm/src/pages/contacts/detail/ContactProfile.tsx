@@ -2,9 +2,14 @@ import { useT } from '@exyconn/i18n';
 import { Divider, Stack, Text } from '@exyconn/shell/components/ui';
 import { CrmTagObject, type ContactFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { DetailActions, EditRecordButton, TagsEditor } from '../../../records/detail';
-import { ReachOutActions, emailsOf, phonesOf } from '../../../records/comms';
+import {
+  ReachOutActions,
+  composeEmailTo,
+  emailsOf,
+  phonesOf,
+  type ReachOutRecord,
+} from '../../../records/comms';
 import { GoogleMapCard } from '../../../maps/GoogleMapCard';
-import { DraftColdEmailButton } from '../../../records/cold-email';
 import { ContactForm } from '../forms/contact';
 import { ContactFields } from './ContactFields';
 import { ContactHeader } from './ContactHeader';
@@ -15,6 +20,13 @@ export function ContactProfile({
   onSaved,
 }: Readonly<{ contact: ContactFieldsFragment; onSaved: () => void }>) {
   const t = useT();
+  const reachOut: ReachOutRecord = {
+    object: 'CONTACT',
+    id: contact.id,
+    name: contact.name,
+    phones: phonesOf(contact),
+    emails: emailsOf(contact),
+  };
   return (
     <Stack spacing={2}>
       <ContactHeader
@@ -29,33 +41,14 @@ export function ContactProfile({
       />
       <DetailActions
         target={{ relatedType: 'CONTACT', relatedId: contact.id, relatedName: contact.name }}
-        extra={
-          <DraftColdEmailButton
-            target={{
-              object: 'CONTACT',
-              id: contact.id,
-              name: contact.name,
-              emails: emailsOf(contact),
-              website: contact.website,
-            }}
-          />
-        }
       />
       <Divider />
       <Text component="h2" size="label" weight="bold">
         {t('Contact details')}
       </Text>
-      <ContactFields contact={contact} />
+      <ContactFields contact={contact} onEmail={(address) => composeEmailTo(reachOut, address)} />
       <TagsEditor object={CrmTagObject.Contact} id={contact.id} tags={contact.tags} />
-      <ReachOutActions
-        record={{
-          object: 'CONTACT',
-          id: contact.id,
-          name: contact.name,
-          phones: phonesOf(contact),
-          emails: emailsOf(contact),
-        }}
-      />
+      <ReachOutActions record={reachOut} />
       <GoogleMapCard target={contact} title={contact.name} />
     </Stack>
   );
