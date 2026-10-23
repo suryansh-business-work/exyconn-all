@@ -19,3 +19,9 @@ describe('SUPPLIER_COLUMNS', () => {
     expect(actionSpecs(SUPPLIER_COLUMNS).map((spec) => spec.key)).toEqual(['edit', 'delete']);
   });
 });
+
+describe('SUPPLIER_COLUMNS email', () => {
+  it('renders each address as a link that opens the email window', () => {
+    expect(SUPPLIER_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf('function');
+  });
+});

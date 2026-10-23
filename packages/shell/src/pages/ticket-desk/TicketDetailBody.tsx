@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Divider, Stack, Text } from '@/components/ui';
 import { StatusChip } from '@/components/data/StatusChip';
+import { EmailLink } from '@/components/email';
 import { AttachmentList, type AttachmentItem } from '@/components/upload';
 import { TicketAssignee } from './TicketAssignee';
 import { TicketThread } from './TicketThread';
@@ -34,8 +35,7 @@ export interface DetailTicket {
 /** Who to say the ticket came from, in the words the agent would use on the phone. */
 function requesterLabel(ticket: DetailTicket, t: (source: string) => string): string {
   if (ticket.requesterType === 'CLIENT') {
-    const who = ticket.clientName || ticket.requesterName || t('a customer');
-    return ticket.requesterEmail ? `${who} (${ticket.requesterEmail})` : who;
+    return ticket.clientName || ticket.requesterName || t('a customer');
   }
   return ticket.employeeName ?? t('an employee');
 }
@@ -90,6 +90,8 @@ export function TicketDetailBody({
             requester: requesterLabel(ticket, t),
           })}
         </Text>
+        {/* A customer's address opens the email window; an employee is reached in the portal. */}
+        {ticket.requesterType === 'CLIENT' && <EmailLink address={ticket.requesterEmail} />}
       </Stack>
 
       <Text size="sm" sx={{ whiteSpace: 'pre-wrap' }}>

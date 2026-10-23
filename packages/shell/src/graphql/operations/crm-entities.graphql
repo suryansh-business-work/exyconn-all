@@ -364,11 +364,23 @@ query CrmTimeline($object: CrmTimelineObject!, $id: ID!, $limit: Int) {
     actor
     status
     url
+    opensPage
     attachments {
       url
       name
       contentType
     }
+  }
+}
+
+query CrmTimelineDetail($object: CrmTimelineObject!, $id: ID!, $itemId: ID!) {
+  crmTimelineDetail(object: $object, id: $id, itemId: $itemId) {
+    fields {
+      label
+      value
+      type
+    }
+    body
   }
 }
 

@@ -6,6 +6,8 @@ import { renderWithProviders } from '../../../test-utils';
 import { contactRow } from '../../../fixtures';
 import { fieldValue } from '../../record-detail-stubs';
 
+const comms = vi.hoisted(() => ({ compose: vi.fn() }));
+
 vi.mock('../../../../../src/records/detail', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../../../src/records/detail')>()),
   ...(await import('../../record-detail-stubs')).detailStubs,
@@ -13,6 +15,7 @@ vi.mock('../../../../../src/records/detail', async (importOriginal) => ({
 
 vi.mock('../../../../../src/records/comms', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../../../src/records/comms')>()),
+  composeEmailTo: comms.compose,
   ReachOutActions: (await import('../../record-detail-stubs')).ReachOutStub,
 }));
 
@@ -138,5 +141,16 @@ describe('ContactProfile', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit contact' }));
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
     expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the CRM email window to the address clicked', async () => {
+    renderProfile(contactRow());
+
+    await userEvent.click(screen.getByRole('button', { name: 'asha@acme.io' }));
+
+    expect(comms.compose).toHaveBeenCalledWith(
+      expect.objectContaining({ object: 'CONTACT', emails: ['asha@acme.io'] }),
+      'asha@acme.io',
+    );
   });
 });

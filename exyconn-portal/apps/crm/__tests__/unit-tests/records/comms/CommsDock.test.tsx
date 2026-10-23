@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router-dom';
+import { DockHost } from '@exyconn/shell/components/compose-dock';
 import { CommsDockLayout, openComms } from '../../../../src/records/comms';
 import type { CommsPanel } from '../../../../src/records/comms/commsStore';
 import { renderWithProviders } from '../../test-utils';
@@ -17,20 +18,23 @@ vi.mock('../../../../src/records/comms/panels/CommsPanelBody', () => ({
 
 function renderDock() {
   renderWithProviders(
-    <Routes>
-      <Route element={<CommsDockLayout />}>
-        <Route path="/" element={<h1>Contacts page</h1>} />
-      </Route>
-    </Routes>,
+    <>
+      <Routes>
+        <Route element={<CommsDockLayout />}>
+          <Route path="/" element={<h1>Contacts page</h1>} />
+        </Route>
+      </Routes>
+      <DockHost />
+    </>,
   );
 }
 
-const pills = () => screen.queryByRole('navigation', { name: 'Minimized conversations' });
+const pills = () => screen.queryByRole('navigation', { name: 'Minimized windows' });
 
 /** Animation frames queued by the dock, run by the test once React has rendered. */
 const frames: FrameRequestCallback[] = [];
 
-describe('CommsDock', () => {
+describe('CRM windows in the shell dock', () => {
   beforeEach(() => {
     frames.length = 0;
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {

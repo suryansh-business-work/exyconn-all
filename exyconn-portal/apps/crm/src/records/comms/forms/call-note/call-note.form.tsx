@@ -13,8 +13,8 @@ import {
   CrmTimelineDocument,
   useCreateActivityMutation,
 } from '@exyconn/shell/graphql/generated';
-import { readMemory, type CommsPanel } from '../../commsStore';
-import { useFormMemory } from '../../useFormMemory';
+import { readMemory, useFormMemory } from '@exyconn/shell/components/compose-dock';
+import type { CommsPanel } from '../../commsStore';
 import { callNoteSchema, type CallNoteValues } from './call-note.types';
 
 const DRAFT = 'call-note';

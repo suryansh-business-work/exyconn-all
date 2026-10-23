@@ -72,3 +72,9 @@ describe('email grids', () => {
     expect(LOG_COLUMNS.some((column) => column.colId === 'actions')).toBe(false);
   });
 });
+
+describe('LOG_COLUMNS email', () => {
+  it('renders each address as a link that opens the email window', () => {
+    expect(LOG_COLUMNS.find((col) => col.field === 'to')?.cellRenderer).toBeTypeOf('function');
+  });
+});

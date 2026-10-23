@@ -31,7 +31,7 @@ describe('submission fields', () => {
     expect(summaryOf({ email: 'a@x.co' })).toBe('—');
   });
 
-  it('lists the filled-in fields with links for email and phone', () => {
+  it('lists the filled-in fields marking emails and linking phone numbers', () => {
     expect(
       entriesOf({
         firstName: 'Asha',
@@ -43,11 +43,17 @@ describe('submission fields', () => {
         count: 3,
       }),
     ).toEqual([
-      { key: 'firstName', label: 'First name', value: 'Asha', link: undefined },
-      { key: 'email', label: 'Email', value: 'a@x.co', link: 'mailto:a@x.co' },
-      { key: 'phone', label: 'Phone', value: '+91 98765-43210', link: 'tel:+919876543210' },
-      { key: 'tags', label: 'Tags', value: '["ai","web"]', link: undefined },
-      { key: 'count', label: 'Count', value: '3', link: undefined },
+      { key: 'firstName', label: 'First name', value: 'Asha', email: false, link: undefined },
+      { key: 'email', label: 'Email', value: 'a@x.co', email: true, link: undefined },
+      {
+        key: 'phone',
+        label: 'Phone',
+        value: '+91 98765-43210',
+        email: false,
+        link: 'tel:+919876543210',
+      },
+      { key: 'tags', label: 'Tags', value: '["ai","web"]', email: false, link: undefined },
+      { key: 'count', label: 'Count', value: '3', email: false, link: undefined },
     ]);
     expect(entriesOf('not an object')).toEqual([]);
   });

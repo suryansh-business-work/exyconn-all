@@ -17,18 +17,20 @@ import {
   checkedBatch,
   domainOf,
   locationOf,
-  placeholderDomain,
   type CheckedLead,
   type LeadImportInput,
 } from './lead-row';
+import { checkWebsites, type WebsiteCheck } from './website-check';
 
-export { domainOf, MAX_IMPORT, placeholderDomain, type LeadImportInput } from './lead-row';
+export { domainOf, MAX_IMPORT, type LeadImportInput } from './lead-row';
 
 /**
  * CRM > Tools > Lead generator > "Add to CRM": the chosen Google Places results become CRM
  * companies. A business already in the CRM (see lead-match.ts) is never filed twice: it is skipped,
  * or — when the user agreed in the review step — its extra details are added to the existing
  * company without changing anything already filled in. Running the same search twice is harmless.
+ * A lead's website is saved only when it answers 200 OK (see website-check.ts); a lead without
+ * one is filed with a blank domain, never an invented one.
  */
 
 export const LEAD_SOURCE = 'Google Places';
@@ -70,6 +72,14 @@ export interface LeadImportMerged {
   added: LeadExtra[];
 }
 
+/** A lead filed or merged without its website, because the site did not answer 200 OK. */
+export interface LeadWebsiteDropped {
+  placeId: string;
+  name: string;
+  website: string;
+  reason: string;
+}
+
 export interface LeadImportResult {
   created: number;
   skipped: number;
@@ -77,10 +87,31 @@ export interface LeadImportResult {
   filed: LeadImportFiled[];
   merges: LeadImportMerged[];
   skips: LeadImportSkip[];
+  websitesDropped: LeadWebsiteDropped[];
+}
+
+/** A lead as it is saved: its website (and favicon) only when the site answered 200 OK. */
+interface SavedLead {
+  row: CheckedLead;
+  logoUrl: string;
+  /** Why its website was dropped; empty when it is kept or there was none. */
+  dropped: string;
+}
+
+/** The lead with its website only when its check passed; an unchecked website is never saved. */
+function savedLead(row: CheckedLead, checks: ReadonlyMap<string, WebsiteCheck>): SavedLead {
+  if (!row.website) {
+    return { row, logoUrl: '', dropped: '' };
+  }
+  const check = checks.get(row.website);
+  if (check?.ok) {
+    return { row, logoUrl: check.logoUrl, dropped: '' };
+  }
+  return { row: { ...row, website: '' }, logoUrl: '', dropped: check?.reason ?? 'Not checked' };
 }
 
 /** The company document for one place. */
-function companyOf(row: CheckedLead, domain: string, origin: RecordOrigin) {
+function companyOf({ row, logoUrl }: SavedLead, origin: RecordOrigin) {
   const profile = withPrimaries(
     {
       emails: row.emails.map((address) => ({ address, label: 'Work' })),
@@ -91,7 +122,9 @@ function companyOf(row: CheckedLead, domain: string, origin: RecordOrigin) {
   return {
     ...profile,
     name: row.name,
-    domain,
+    // Blank without a working website: a blank domain is allowed, an invented one is not.
+    domain: domainOf(row.website),
+    logoUrl,
     industry: row.primaryType,
     // Whoever ran the import is its lead owner, not the account's owner: nobody has taken it on.
     owner: '',
@@ -171,11 +204,13 @@ class ImportRun {
     filed: [],
     merges: [],
     skips: [],
+    websitesDropped: [],
   };
 
   constructor(
     private readonly matcher: CompanyMatcher,
     private readonly origin: RecordOrigin,
+    private readonly checks: ReadonlyMap<string, WebsiteCheck>,
   ) {}
 
   skip(row: CheckedLead, reason: string, companyId: string | null = null) {
@@ -183,16 +218,30 @@ class ImportRun {
     this.result.skips.push({ placeId: row.placeId, name: row.name, reason, companyId });
   }
 
+  /** Notes that a saved lead lost its website, so the summary can say which and why. */
+  private noteDropped(original: CheckedLead, { dropped }: SavedLead) {
+    if (dropped) {
+      this.result.websitesDropped.push({
+        placeId: original.placeId,
+        name: original.name,
+        website: original.website,
+        reason: dropped,
+      });
+    }
+  }
+
   /** Files a lead that matched nothing, with a note on its timeline. */
-  async create(row: CheckedLead) {
-    const domain = domainOf(row.website) || placeholderDomain(row.name, row.placeId);
-    const doc = companyOf(row, domain, this.origin);
+  async create(original: CheckedLead) {
+    const saved = savedLead(original, this.checks);
+    const { row } = saved;
+    const doc = companyOf(saved, this.origin);
     try {
       const company = await CompanyModel.create(doc);
       const id = company._id.toHexString();
       this.matcher.remember({ ...doc, _id: company._id });
       this.result.created += 1;
       this.result.filed.push({ placeId: row.placeId, companyId: id });
+      this.noteDropped(original, saved);
       await ActivityModel.create({
         type: 'NOTE',
         subject: `Added from ${LEAD_SOURCE}`,
@@ -224,7 +273,8 @@ class ImportRun {
       this.skip(row, REVIEW_STALE, companyId);
       return;
     }
-    const merge = await mergeLead(row, match.company._id);
+    const saved = savedLead(row, this.checks);
+    const merge = await mergeLead(saved.row, match.company._id);
     if (merge.outcome !== 'MERGED') {
       this.skip(row, MERGE_OUTCOME_REASONS[merge.outcome], companyId);
       return;
@@ -237,6 +287,7 @@ class ImportRun {
       name: merge.company.name,
       added: merge.added,
     });
+    this.noteDropped(row, saved);
   }
 }
 
@@ -261,7 +312,11 @@ export async function importLeads(
   const rows = checkedBatch(input);
   const targets = mergeTargets(mergeInto);
   const matcher = await companyMatcher(rows);
-  const run = new ImportRun(matcher, origin);
+  // Only the websites that may be saved are visited: new leads and the merges asked for.
+  const checks = await checkWebsites(
+    rows.filter((row) => targets.has(row.placeId) || !matcher.match(row)).map((row) => row.website),
+  );
+  const run = new ImportRun(matcher, origin, checks);
   // Row after row: a company filed for one row is what a later duplicate row must match.
   await inSequence(rows, (row) => {
     const match = matcher.match(row);

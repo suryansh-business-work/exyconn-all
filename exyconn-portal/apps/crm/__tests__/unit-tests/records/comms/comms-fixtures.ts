@@ -1,7 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import {
   closeComms,
+  maximizeDock,
   moveDock,
+  resizeDock,
   useCommsDock,
   type CommsPanel,
   type CommsRequest,
@@ -49,6 +51,8 @@ export function resetDock(): void {
       closeComms(key);
     }
     moveDock(null);
+    resizeDock(null);
+    maximizeDock(false);
   });
   unmount();
 }

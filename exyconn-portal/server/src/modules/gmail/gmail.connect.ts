@@ -12,6 +12,7 @@ import {
 } from '../auth/google/google-sign-in.oauth';
 import { EMAIL_ACCOUNTS_UNAVAILABLE, gmailClient } from './gmail.client';
 import { enabledMailboxes, noteAccountOutcome, saveConnectedAccount } from './gmail.accounts';
+import { claimDefaultIfNone, ownerOf } from '../my-mailboxes/my-mailboxes.default';
 import {
   GmailAccountModel,
   GmailConfigModel,
@@ -118,13 +119,20 @@ export interface ConnectActor {
   id: string;
   name: string;
   organizationId: string;
+  /** Set when the person connects their own mailbox (Settings > Mailboxes), not a CRM one. */
+  ownerUserId?: string;
 }
 
 /**
  * Google's consent page for one more mailbox (or the same one again, to renew its token);
- * the callback stores its refresh token as a GmailAccount of the actor's company.
+ * the callback stores its refresh token as a GmailAccount of the actor's company. A
+ * `loginHint` (the address being reconnected) goes straight to that Google account.
  */
-export async function startGmailConnect(returnTo: string, actor: ConnectActor): Promise<string> {
+export async function startGmailConnect(
+  returnTo: string,
+  actor: ConnectActor,
+  loginHint?: string | null,
+): Promise<string> {
   const config = await readGmailConfig();
   if (!config.clientId || !config.clientSecret) {
     badRequest(EMAIL_ACCOUNTS_UNAVAILABLE);
@@ -142,6 +150,7 @@ export async function startGmailConnect(returnTo: string, actor: ConnectActor): 
       updatedByName: actor.name,
       actorId: actor.id,
       organizationId: actor.organizationId,
+      ownerUserId: actor.ownerUserId ?? '',
     }),
   );
   const params = new URLSearchParams({
@@ -153,9 +162,13 @@ export async function startGmailConnect(returnTo: string, actor: ConnectActor): 
     code_challenge: sha256(codeVerifier),
     code_challenge_method: 'S256',
     access_type: 'offline',
-    // Always ask, so Google always hands back a refresh token; and let them pick an account.
-    prompt: 'consent select_account',
+    // Always ask, so Google always hands back a refresh token; and let them pick an account
+    // unless the address being reconnected is already known.
+    prompt: loginHint ? 'consent' : 'consent select_account',
   });
+  if (loginHint) {
+    params.set('login_hint', loginHint);
+  }
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
@@ -167,7 +180,12 @@ export const takeGmailState = (nonce: string) =>
  * the company that started the connection (the callback itself has no session).
  */
 export async function finishGmailConnect(
-  state: { codeVerifier: string; updatedByName?: string | null; organizationId?: string | null },
+  state: {
+    codeVerifier: string;
+    updatedByName?: string | null;
+    organizationId?: string | null;
+    ownerUserId?: string | null;
+  },
   code: string,
 ): Promise<string> {
   if (!state.organizationId) {
@@ -179,12 +197,17 @@ export async function finishGmailConnect(
     throw new Error('Google did not grant offline access. Try Connect again.');
   }
   const email = verifiedEmailOf(tokens.id_token, config.clientId);
-  await saveConnectedAccount(
+  const owner = ownerOf(state.ownerUserId);
+  const saved = await saveConnectedAccount(
     state.organizationId,
     email,
     seal(tokens.refresh_token),
     state.updatedByName ?? '',
+    owner,
   );
+  if (owner) {
+    await claimDefaultIfNone(state.organizationId, owner, 'GMAIL', saved._id);
+  }
   return email;
 }
 

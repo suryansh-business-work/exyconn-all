@@ -35,6 +35,10 @@ vi.mock('../../../../src/records/filters/ActiveFilterChips', () => ({
 vi.mock('../../../../src/records/list/sort', () => ({
   SortButton: stub('Sort', [{ property: 'name', dir: 'DESC' }]),
 }));
+vi.mock('../../../../src/records/filters/near-filter', () => ({
+  NearFilterButton: stub('Near', { lat: 1, lng: 2, radiusKm: 5, label: '' }),
+  NearFilterChip: stub('NearChip', undefined),
+}));
 vi.mock('../../../../src/records/columns/ColumnsButton', () => ({
   ColumnsButton: stub('Columns', ['email']),
 }));
@@ -99,5 +103,23 @@ describe('RecordListToolbar', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Could not load the record properties, so filters and columns are limited.',
     );
+  });
+});
+
+describe('RecordListToolbar near a location', () => {
+  it('is offered only to lists that ask for it, and applies or removes the circle', () => {
+    const { records, apply } = source();
+    const { unmount } = renderWithProviders(
+      <RecordListToolbar records={records} allLabel="All leads" />,
+    );
+    expect(screen.queryByRole('button', { name: 'Near' })).not.toBeInTheDocument();
+    expect(seen.props.NearChip.near).toBeNull();
+    unmount();
+
+    renderWithProviders(<RecordListToolbar records={records} allLabel="All companies" nearby />);
+    screen.getByRole('button', { name: 'Near' }).click();
+    expect(apply).toHaveBeenLastCalledWith({ near: { lat: 1, lng: 2, radiusKm: 5, label: '' } });
+    screen.getByRole('button', { name: 'NearChip' }).click();
+    expect(apply).toHaveBeenLastCalledWith({ near: null });
   });
 });

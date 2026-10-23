@@ -3,6 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useT } from '@exyconn/i18n';
 import {
   Alert,
+  Box,
   Button,
   Flex,
   IconButton,
@@ -17,11 +18,13 @@ import {
   type ColdEmailDraftFieldsFragment,
   type ColdEmailVariantFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { EditVariantDialog } from './EditVariantDialog';
 import { RewriteDraftButton } from './RewriteDraftButton';
 import { VariantCard } from './VariantCard';
 import { VariantSwitcher } from './VariantSwitcher';
 import { useVariantActions } from './useVariantActions';
+import { AnotherVariantForm } from './forms/another-variant';
 
 const logFailure = (what: string) => (error: unknown) => portalLogger.warn(`crm: ${what}`, error);
 
@@ -63,6 +66,9 @@ function DraftBody({ draft }: Readonly<{ draft: ColdEmailDraftFieldsFragment }>)
         onUse={() => actions.use(selected)}
       />
       <RewriteDraftButton draft={draft} onRewritten={setSelectedId} />
+      <Box component="section" aria-label={t('Generate another version')} sx={panel}>
+        <AnotherVariantForm draftId={draft.id} tone={draft.tone} onAdded={setSelectedId} />
+      </Box>
       <EditVariantDialog draftId={draft.id} variant={editing} onClose={() => setEditing(null)} />
     </Stack>
   );

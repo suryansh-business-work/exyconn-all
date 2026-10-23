@@ -9,6 +9,7 @@ import {
   dateColumn,
   derivedColumn,
   derivedStatusColumn,
+  emailColumn,
   statusColumn,
   textColumn,
   type DatedCrudGridContext,
@@ -52,7 +53,7 @@ const linkedNames = (row: PagedSuppressionRow): string =>
  * there is no edit form — only the note changes, and removal is its own justified action.
  */
 export const SUPPRESSION_COLUMNS: ColDef<PagedSuppressionRow>[] = [
-  textColumn('email', 'Email'),
+  emailColumn('email', 'Email'),
   statusColumn('reason', 'Reason'),
   statusColumn('origin', 'Source'),
   derivedColumn('linkedRecords', 'Linked contact / company', linkedNames),

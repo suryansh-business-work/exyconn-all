@@ -6,6 +6,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import { Box, Button, Chip, Flex, Grid, Heading, Link, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { WebsiteChatStatus } from '@exyconn/shell/graphql/generated';
@@ -82,7 +83,7 @@ export function ConversationHeader({ session, ...actions }: Readonly<Conversatio
         </Flex>
         <Grid container spacing={1.5}>
           <Detail label="Email">
-            <Link href={`mailto:${session.email}`}>{session.email}</Link>
+            <EmailLink address={session.email} />
           </Detail>
           <Detail label="Phone">{session.phone || '—'}</Detail>
           <Detail label="Site">{t(SITE_LABEL[session.site])}</Detail>

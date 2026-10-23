@@ -8,9 +8,10 @@ import {
   MicrosoftMailAccountsDocument,
   useDisconnectMicrosoftMailAccountMutation,
   useSetMicrosoftMailAccountEnabledMutation,
+  useTestMicrosoftMailAccountMutation,
   useStartMicrosoftMailConnectMutation,
-  type MicrosoftMailAccountFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
+import type { MailboxRef } from './mailboxes';
 import { oauthReturnAddress, useOAuthReturnNotice } from '../../../integrations/useOAuthReturn';
 
 /** Where Microsoft's callback puts the outcome on the address it returns to. */
@@ -29,6 +30,7 @@ export function useMicrosoftMailActions() {
     CrmEmailSendersDocument,
   ];
   const [start, { loading: connecting }] = useStartMicrosoftMailConnectMutation();
+  const [testAccount] = useTestMicrosoftMailAccountMutation({ refetchQueries });
   const [setEnabled] = useSetMicrosoftMailAccountEnabledMutation({ refetchQueries });
   const [disconnect] = useDisconnectMicrosoftMailAccountMutation({ refetchQueries });
 
@@ -43,21 +45,34 @@ export function useMicrosoftMailActions() {
     }
   };
 
-  const connect = () =>
+  const connect = (loginHint?: string) =>
     run(async () => {
-      const { data } = await start({ variables: { returnTo: oauthReturnAddress(RETURN_KEYS) } });
+      const returnTo = oauthReturnAddress(RETURN_KEYS);
+      const { data } = await start({ variables: { returnTo, loginHint } });
       if (data?.startMicrosoftMailConnect) {
         globalThis.location.assign(data.startMicrosoftMailConnect);
       }
     }, 'Could not start the Microsoft connection');
 
-  const toggle = (account: MicrosoftMailAccountFieldsFragment, enabled: boolean) =>
+  const test = (account: MailboxRef) =>
+    run(async () => {
+      const { data } = await testAccount({ variables: { id: account.id } });
+      if (data?.testMicrosoftMailAccount.lastError) {
+        notify('{email} failed the test. Open its error details to see why.', 'error', {
+          email: account.email,
+        });
+      } else {
+        notify('{email} works.', 'success', { email: account.email });
+      }
+    }, 'Could not test the mailbox');
+
+  const toggle = (account: MailboxRef, enabled: boolean) =>
     run(
       () => setEnabled({ variables: { id: account.id, enabled } }),
       'Could not change the mailbox',
     );
 
-  const remove = async (account: MicrosoftMailAccountFieldsFragment) => {
+  const remove = async (account: MailboxRef) => {
     const ok = await confirm({
       title: 'Disconnect Microsoft mailbox',
       message:
@@ -74,7 +89,7 @@ export function useMicrosoftMailActions() {
     }
   };
 
-  return { connect, connecting, toggle, remove };
+  return { connect, connecting, test, toggle, remove };
 }
 
 export type MicrosoftMailActions = ReturnType<typeof useMicrosoftMailActions>;

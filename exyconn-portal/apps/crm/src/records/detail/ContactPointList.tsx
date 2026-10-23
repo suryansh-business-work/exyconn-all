@@ -9,16 +9,22 @@ interface Point {
   primary: boolean;
 }
 
-/** Every address or number, the primary first, each a link that opens mail or the dialler. */
+/**
+ * Every address or number, the primary first, each a link that opens mail or the dialler —
+ * or, given `onSelect`, a button the app handles itself.
+ */
 export function ContactPointList({
   points,
   scheme,
   renderTrailing,
+  onSelect,
 }: Readonly<{
   points: Point[];
   scheme: 'mailto' | 'tel';
   /** Extra controls after one entry, e.g. the Verify button beside an email address. */
   renderTrailing?: (value: string) => ReactNode;
+  /** Handles a click in the app (e.g. the CRM's email window) instead of following the link. */
+  onSelect?: (value: string) => void;
 }>) {
   const t = useT();
   const ordered = [...points].sort((a, b) => Number(b.primary) - Number(a.primary));
@@ -33,9 +39,20 @@ export function ContactPointList({
           flexWrap="wrap"
           useFlexGap
         >
-          <Link href={`${scheme}:${point.value}`} underline="hover">
-            {point.value}
-          </Link>
+          {onSelect ? (
+            <Link
+              component="button"
+              type="button"
+              underline="hover"
+              onClick={() => onSelect(point.value)}
+            >
+              {point.value}
+            </Link>
+          ) : (
+            <Link href={`${scheme}:${point.value}`} underline="hover">
+              {point.value}
+            </Link>
+          )}
           <Text size="caption" color="text.secondary">
             {t(point.label)}
           </Text>

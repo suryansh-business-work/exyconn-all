@@ -3,7 +3,8 @@ import { DOMAIN } from '@exyconn/regex';
 /**
  * Where a company's favicon comes from: Google's favicon service. One https source for every
  * domain at a fixed size, and the company's own server never learns who looked it up. When
- * Google has no icon for a domain it still answers with an image (a generic globe).
+ * Google has no icon for a domain it still answers with an image (a 16px generic globe), which
+ * useFirstLoadedImage refuses so the initials show instead.
  */
 const FAVICON_SERVICE = 'https://www.google.com/s2/favicons';
 const FAVICON_SIZE = '64';

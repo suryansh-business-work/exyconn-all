@@ -107,6 +107,7 @@ export function CompaniesPage() {
           <RecordListToolbar
             records={records}
             allLabel="All companies"
+            nearby
             renderActions={(query) => (
               <RecordActions
                 object={CrmObject.Company}

@@ -15,6 +15,7 @@ import {
 import { TrackerTimezoneCell } from './TrackerTimezoneCell';
 import { useTrackerTimezones } from './useTrackerTimezones';
 import type { TrackerAccessRow } from '@exyconn/shell/pages/tracker-view/tracker.types';
+import { EmailLink } from '@exyconn/shell/components/email';
 
 interface AccessUserRow {
   id: string;
@@ -113,7 +114,7 @@ export function TrackerAccessPage() {
 
   const columns: Column<AccessUserRow>[] = [
     { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'Email', render: (row) => <EmailLink address={row.email} /> },
     {
       key: 'consent',
       label: 'Consent',

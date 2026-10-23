@@ -33,7 +33,12 @@ import {
 import { migrateClientTaxIds } from './modules/clients';
 import { migrateLegacyGmailConnection } from './modules/gmail';
 import { assignMailboxesToOperator } from './modules/crm-integrations/crm-mailboxes.migrate';
+import { allowPersonalMailboxes } from './modules/my-mailboxes';
 import { backfillCrmOrigins } from './modules/crm/crm.origin.backfill';
+import {
+  allowBlankCompanyDomains,
+  clearInventedCompanyDomains,
+} from './modules/crm/crm.domain.repair';
 import {
   backfillSuppressionOrigins,
   migrateLegacyAudiences,
@@ -109,10 +114,20 @@ async function bootstrap(): Promise<void> {
   await runAsPlatform(() => runOnce('gmail-multi-account', migrateLegacyGmailConnection));
   // Connected mailboxes became each company's own: those stored before go to the operator, once.
   await runAsPlatform(() => runOnce('crm-mailboxes-per-organization', assignMailboxesToOperator));
+  // A person may connect their own mailbox at an address their company's CRM also uses: the
+  // mailbox indexes learn the owner, once.
+  await runAsPlatform(() => runOnce('mailbox-personal-owner', allowPersonalMailboxes));
   // Companies and contacts from before origins were kept learn who or what filed them, once.
   await forEachOrganization(
     () => runOnce('crm-record-origins', backfillCrmOrigins),
     'backfillCrmOrigins',
+  );
+  // A company with no working website keeps a blank domain: the unique index learns to skip
+  // blanks first, then the domains the lead generator used to invent are blanked, once.
+  await runAsPlatform(() => runOnce('crm-company-blank-domains', allowBlankCompanyDomains));
+  await forEachOrganization(
+    () => runOnce('crm-company-invented-domains', clearInventedCompanyDomains),
+    'clearInventedCompanyDomains',
   );
   // Audiences saved as names plus one segment rule become builder audiences, once.
   await forEachOrganization(

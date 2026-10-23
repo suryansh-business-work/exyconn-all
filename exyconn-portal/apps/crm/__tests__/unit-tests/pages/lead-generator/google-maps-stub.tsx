@@ -64,9 +64,10 @@ export const googleGlobal = {
 
 interface PolygonProps {
   paths: Point[];
-  onLoad: (polygon: unknown) => void;
-  onUnmount: () => void;
-  onMouseUp: () => void;
+  options: { strokeColor: string };
+  onLoad?: (polygon: unknown) => void;
+  onUnmount?: () => void;
+  onMouseUp?: () => void;
 }
 
 /** The last map and polygon rendered, and the polygon's path as the user has dragged it. */
@@ -127,17 +128,20 @@ export function MarkerF({
   label,
   zIndex,
   onClick,
+  clickable,
 }: Readonly<{
   position: Point;
   title?: string;
   label?: string;
   zIndex?: number;
   onClick?: () => void;
+  clickable?: boolean;
 }>) {
   return (
     <button
       type="button"
       data-testid="marker"
+      data-clickable={clickable}
       data-position={JSON.stringify(position)}
       data-label={label}
       data-z={zIndex}
@@ -148,22 +152,34 @@ export function MarkerF({
   );
 }
 
-export function PolylineF({
-  path,
-  options,
-}: Readonly<{ path: Point[]; options: { strokeColor: string } }>) {
+export function PolygonF(props: Readonly<PolygonProps & { editable?: boolean }>) {
+  mapsStub.polygon = props;
+  const { onLoad, onUnmount, paths, editable, options } = props;
+  useLifecycle(
+    () => onLoad?.(fakePolygon),
+    () => onUnmount?.(),
+  );
   return (
     <div
-      data-testid="polyline"
-      data-path={JSON.stringify(path)}
+      data-testid="polygon"
+      data-paths={JSON.stringify(paths)}
+      data-editable={editable}
       data-stroke={options.strokeColor}
     />
   );
 }
 
-export function PolygonF(props: Readonly<PolygonProps & { editable: boolean }>) {
-  mapsStub.polygon = props;
-  const { onLoad, onUnmount, paths, editable } = props;
-  useLifecycle(() => onLoad(fakePolygon), onUnmount);
-  return <div data-testid="polygon" data-paths={JSON.stringify(paths)} data-editable={editable} />;
+export function CircleF({
+  center,
+  radius,
+  options,
+}: Readonly<{ center: Point; radius: number; options: { strokeColor: string } }>) {
+  return (
+    <div
+      data-testid="circle"
+      data-center={JSON.stringify(center)}
+      data-radius={radius}
+      data-stroke={options.strokeColor}
+    />
+  );
 }

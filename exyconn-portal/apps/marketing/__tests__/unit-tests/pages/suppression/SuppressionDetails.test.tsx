@@ -35,6 +35,7 @@ describe('SuppressionDetails', () => {
     renderWithProviders(<SuppressionDetails row={pagedRow({ source: '' })} />);
 
     expect(fact('Email')).toHaveTextContent('gone@acme.io');
+    expect(screen.getByRole('button', { name: 'Email gone@acme.io' })).toBeInTheDocument();
     expect(fact('Reason')).toHaveTextContent('UNSUBSCRIBED');
     expect(fact('Source')).toHaveTextContent('SUBSCRIBER');
     expect(fact('Source detail')).toHaveTextContent('—');

@@ -136,8 +136,14 @@ describe('EmployeeRecordsPage', () => {
 
   it('opens the employee a row belongs to', async () => {
     renderPage(['HR']);
-    await userEvent.click(screen.getByText('bilal@example.com'));
+    await userEvent.click(screen.getByText('Bilal Khan'));
     expect(screen.getByLabelText('current url')).toHaveTextContent('/hr/employees/u2');
+  });
+
+  it('opens the email window, not the employee, when their address is clicked', async () => {
+    renderPage(['HR']);
+    await userEvent.click(screen.getByRole('button', { name: 'Email bilal@example.com' }));
+    expect(screen.getByLabelText('current url')).not.toHaveTextContent('/hr/employees/u2');
   });
 
   it('says so when there are no employees, and refreshes on request', async () => {

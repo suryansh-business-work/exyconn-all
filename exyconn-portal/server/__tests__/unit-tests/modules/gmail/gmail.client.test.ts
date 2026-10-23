@@ -156,10 +156,10 @@ describe('Gmail API calls', () => {
     );
 
     jest.restoreAllMocks();
-    google(token, () => new Response('x'.repeat(400), { status: 500 }));
+    google(token, () => new Response('x'.repeat(2100), { status: 500 }));
     const failed = gmailClient.threadIds(mailbox, 'from:a@x.test', 5);
     await expect(failed).rejects.not.toThrow(GmailAuthError);
-    await expect(failed).rejects.toThrow(`Gmail /threads failed (500): ${'x'.repeat(300)}`);
+    await expect(failed).rejects.toThrow(`Gmail /threads failed (500): ${'x'.repeat(2000)}`);
   });
 
   it('reads an empty search and an empty thread as no ids and no messages', async () => {

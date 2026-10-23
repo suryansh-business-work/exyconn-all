@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { isEmailAddress } from '../../utils/emailAddress';
 import { badRequest } from '../../utils/errors';
 
@@ -48,23 +47,6 @@ export function domainOf(website: string | null | undefined): string {
   } catch {
     return '';
   }
-}
-
-/**
- * A company must have a unique domain. A business with no website gets a reserved `.invalid`
- * one (RFC 2606: never resolves) made from its name and Place ID, so it can still be filed and
- * its real domain typed in later.
- */
-export function placeholderDomain(name: string, placeId: string): string {
-  const slug = name
-    .toLowerCase()
-    .normalize('NFKD')
-    .replaceAll(/\p{M}/gu, '')
-    .replaceAll(/[^a-z\d]+/g, '-')
-    .replaceAll(/^-|-$/g, '')
-    .slice(0, 40);
-  const hash = createHash('sha1').update(placeId).digest('hex').slice(0, 8);
-  return `${slug || 'place'}-${hash}.no-website.invalid`;
 }
 
 /** Only Google's own Maps links are stored as a map URL. */

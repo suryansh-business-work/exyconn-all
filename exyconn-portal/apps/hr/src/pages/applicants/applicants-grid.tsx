@@ -6,6 +6,7 @@ import {
   EDIT_ACTION,
   actionsColumn,
   dateColumn,
+  emailColumn,
   statusColumn,
   textColumn,
   valueColumn,
@@ -43,7 +44,7 @@ export function ratingStars(rating: number): string {
 /** Column model for the hiring pipeline. Name, email and job title are the searched ones. */
 export const APPLICANT_COLUMNS: ColDef<PagedApplicantRow>[] = [
   textColumn('name', 'Name'),
-  textColumn('email', 'Email'),
+  emailColumn('email', 'Email'),
   textColumn('jobTitle', 'Job'),
   statusColumn('stage', 'Stage'),
   valueColumn('rating', 'Rating', (row) => ratingStars(row.rating)),

@@ -10,7 +10,7 @@ import {
 import { maskedToken } from '../forms/secret';
 import { CrmCallConfigForm, type CrmCallConfigRow } from '../forms/crm-call-config';
 import { ChannelConfigsPanel } from '../ChannelConfigsPanel';
-import { ProviderLabel } from '../../../integrations/ProviderLogo';
+import { ProviderLabel } from '@exyconn/shell/components/mailboxes';
 
 const COLUMNS: Column<CrmCallConfigRow>[] = [
   { key: 'label', label: 'Label' },

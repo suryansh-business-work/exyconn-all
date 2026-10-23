@@ -5,7 +5,9 @@ export interface SubmissionEntry {
   key: string;
   label: string;
   value: string;
-  /** How the value opens: an email address or a phone number becomes a link. */
+  /** An email address: it opens the portal's email window. */
+  email: boolean;
+  /** How a phone number opens: a `tel:` link. */
   link?: string;
 }
 
@@ -66,8 +68,7 @@ export function summaryOf(data: unknown): string {
   return `${line.slice(0, SUMMARY_LENGTH - 1)}…`;
 }
 
-function linkOf(key: string, value: string): string | undefined {
-  if (isEmail(value)) return `mailto:${value}`;
+function phoneLinkOf(key: string, value: string): string | undefined {
   if (PHONE_KEYS.has(key)) return `tel:${value.replaceAll(/[^\d+]/g, '')}`;
   return undefined;
 }
@@ -77,5 +78,14 @@ export function entriesOf(data: unknown): SubmissionEntry[] {
   return Object.entries(asRecord(data))
     .map(([key, raw]) => ({ key, value: text(raw) }))
     .filter((entry) => entry.value !== '')
-    .map(({ key, value }) => ({ key, label: humanize(key), value, link: linkOf(key, value) }));
+    .map(({ key, value }) => {
+      const email = isEmail(value);
+      return {
+        key,
+        label: humanize(key),
+        value,
+        email,
+        link: email ? undefined : phoneLinkOf(key, value),
+      };
+    });
 }

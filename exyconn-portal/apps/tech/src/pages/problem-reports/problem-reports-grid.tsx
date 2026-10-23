@@ -2,6 +2,7 @@ import type { ColDef } from 'ag-grid-community';
 import {
   actionsColumn,
   dateColumn,
+  emailColumn,
   statusColumn,
   textColumn,
   type CrudGridContext,
@@ -26,7 +27,7 @@ export const PROBLEM_REPORT_COLUMNS: ColDef<PagedProblemReportRow>[] = [
   statusColumn('severity', 'Severity'),
   statusColumn('status', 'Status'),
   textColumn('reporterName', 'Reported by'),
-  textColumn('reporterEmail', 'Email'),
+  emailColumn('reporterEmail', 'Email'),
   textColumn('assignee', 'Assignee'),
   dateColumn('createdAt', 'Received'),
   actionsColumn(),

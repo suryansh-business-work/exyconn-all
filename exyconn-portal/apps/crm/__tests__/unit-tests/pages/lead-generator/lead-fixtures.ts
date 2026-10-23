@@ -63,6 +63,7 @@ export function importResult(overrides: Partial<LeadImportResult> = {}): LeadImp
     filed: [],
     merges: [],
     skips: [],
+    websitesDropped: [],
     ...overrides,
   };
 }

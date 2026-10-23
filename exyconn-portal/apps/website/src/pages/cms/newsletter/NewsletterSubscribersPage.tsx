@@ -4,6 +4,7 @@ import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import {
   CrudDashboard,
   DELETE_ACTION,
+  EmailCell,
   actionsColumn,
   dateColumn,
   derivedColumn,
@@ -30,7 +31,8 @@ const subscribed = (row: NewsletterSubscriberRow) =>
   row.status === NewsletterSubscriberStatus.Subscribed;
 
 const COLUMNS: ColDef<NewsletterSubscriberRow>[] = [
-  derivedColumn('email', 'Email', (row) => row.email),
+  // Read from the row, not filtered by the server; each address opens the email window.
+  { ...derivedColumn('email', 'Email', (row) => row.email), cellRenderer: EmailCell },
   derivedColumn('name', 'Name', (row) => row.name || '—'),
   derivedStatusColumn('status', 'Status', (row) => row.status),
   derivedColumn('source', 'Source', (row) => row.source || '—'),

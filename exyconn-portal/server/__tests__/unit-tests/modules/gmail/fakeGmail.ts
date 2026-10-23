@@ -16,6 +16,8 @@ export interface FakeMailbox {
   threads: Record<string, GmailMessage[]>;
   /** Google answers invalid_grant: the stored connection was revoked. */
   revoked?: boolean;
+  /** The Gmail API refuses /profile with this status and body. */
+  profileFails?: { status: number; body: string };
 }
 
 export interface SentCall {
@@ -93,6 +95,11 @@ export function fakeGmail(mailboxes: Record<string, FakeMailbox>) {
   const api = (email: string, url: URL, init?: RequestInit) => {
     const box = mailboxes[email];
     const path = url.pathname.replace('/gmail/v1/users/me', '');
+    if (path === '/profile') {
+      return box.profileFails
+        ? new Response(box.profileFails.body, { status: box.profileFails.status })
+        : json({ emailAddress: email });
+    }
     if (path === '/threads') {
       queries.push({ mailbox: email, q: url.searchParams.get('q') ?? '' });
       return json({ threads: Object.keys(box.threads).map((id) => ({ id })) });

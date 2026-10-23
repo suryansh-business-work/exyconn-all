@@ -33,6 +33,19 @@ describe('company schema', () => {
     });
   });
 
+  it('accepts a blank domain or a bare one, and refuses a full URL', () => {
+    const domainErrors = (domain: string) => {
+      const result = schema.safeParse({ ...valid, domain });
+      return result.success ? [] : result.error.issues.map((issue) => issue.message);
+    };
+
+    expect(domainErrors('')).toEqual([]);
+    expect(domainErrors('exyconn.com')).toEqual([]);
+    expect(domainErrors('https://exyconn.com/about')).toEqual([
+      'Enter the domain on its own, e.g. exyconn.com',
+    ]);
+  });
+
   it('shows stored numbers as text, keeping zero', () => {
     const values = toCompanyValues(
       companyRow({ annualRevenue: 0, employeeCount: 250, foundedYear: 2015 }),

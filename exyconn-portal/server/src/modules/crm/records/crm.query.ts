@@ -4,6 +4,7 @@ import { badRequest } from '../../../utils/errors';
 import { escapeRegex } from '../../../utils/tableQuery';
 import { withIds } from '../../../utils/serialize';
 import { CHOICE_TYPES, OBJECT_DEFS, type CrmObject, type PropertyDef } from './crm.objects';
+import { nearFilter, type CrmNear } from './crm.near';
 import { opsOf, propertyIndex, type CrmOp } from './crm.schema';
 import { coerceValue } from './crm.values';
 
@@ -32,6 +33,8 @@ export interface CrmQueryInput {
   groups?: CrmFilterGroup[] | null;
   sorts?: CrmSort[] | null;
   archived?: boolean | null;
+  /** Only the records within this circle (companies and contacts). */
+  near?: CrmNear | null;
 }
 
 export const CRM_QUERY_LIMITS = Object.freeze({
@@ -259,7 +262,8 @@ export async function searchRecords(object: CrmObject, input: CrmQueryInput) {
     badRequest('That page is too far in; narrow the search or filters instead');
   }
   const properties = await propertyIndex(object);
-  const filter = { ...compileFilter(object, properties, input), ...archivedFilter(input.archived) };
+  const listed = { ...compileFilter(object, properties, input), ...archivedFilter(input.archived) };
+  const filter = input.near ? { $and: [listed, nearFilter(object, input.near)] } : listed;
   const { model } = OBJECT_DEFS[object];
   const [rows, totalCount] = await Promise.all([
     model

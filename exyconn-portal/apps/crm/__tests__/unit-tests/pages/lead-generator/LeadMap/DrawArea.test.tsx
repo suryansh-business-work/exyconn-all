@@ -38,25 +38,27 @@ describe('DrawArea', () => {
   it('shows nothing and leaves the map alone before an area is drawn', () => {
     const { map } = renderOnMap(fakeArea({ points: corners(2) }));
 
-    expect(screen.queryByTestId('polyline')).not.toBeInTheDocument();
     expect(screen.queryByTestId('polygon')).not.toBeInTheDocument();
     expect(map.addListener).not.toHaveBeenCalled();
     expect(map.setOptions).not.toHaveBeenCalled();
   });
 
-  it('turns each map click into a corner while drawing, and follows them with an outline', () => {
+  it('turns each map click into a corner while drawing, and closes them with a red outline', () => {
     const area = fakeArea({ drawing: true, points: corners(2) });
     const { map } = renderOnMap(area);
 
-    expect(map.setOptions).toHaveBeenCalledWith({ draggableCursor: 'crosshair' });
+    expect(map.setOptions).toHaveBeenCalledWith({
+      draggableCursor: 'crosshair',
+      disableDoubleClickZoom: true,
+    });
     act(() => map.fire('click', { latLng: { toJSON: () => ({ lat: 1, lng: 2 }) } }));
     act(() => map.fire('click', { latLng: null }));
 
     expect(area.addPoint).toHaveBeenCalledTimes(1);
     expect(area.addPoint).toHaveBeenCalledWith({ lat: 1, lng: 2 });
-    const line = screen.getByTestId('polyline');
-    expect(JSON.parse(line.dataset.path ?? '')).toEqual(corners(2));
-    expect(line.dataset.stroke).toBe(theme.palette.primary.main);
+    const outline = screen.getByTestId('polygon');
+    expect(JSON.parse(outline.dataset.paths ?? '')).toEqual(corners(2));
+    expect(outline.dataset.stroke).toBe(theme.palette.error.main);
     expect(screen.getAllByTestId('marker').map((m) => m.dataset.position)).toEqual(
       corners(2).map((point) => JSON.stringify(point)),
     );
@@ -69,15 +71,41 @@ describe('DrawArea', () => {
     rerender(fakeArea({ ...area, drawing: false }));
     act(() => map.fire('click', { latLng: { toJSON: () => ({ lat: 1, lng: 2 }) } }));
 
-    expect(map.setOptions).toHaveBeenLastCalledWith({ draggableCursor: null });
+    expect(map.setOptions).toHaveBeenLastCalledWith({
+      draggableCursor: null,
+      disableDoubleClickZoom: false,
+    });
     expect(area.addPoint).not.toHaveBeenCalled();
   });
 
   it('draws the outline even when there is no map to listen to yet', () => {
     renderWithProviders(<DrawArea area={fakeArea({ drawing: true, points: corners(1) })} />);
 
-    expect(screen.getByTestId('polyline')).toBeInTheDocument();
+    expect(screen.getByTestId('polygon')).toBeInTheDocument();
     expect(screen.getAllByTestId('marker')).toHaveLength(1);
+  });
+
+  it('finishes the area when the first corner is clicked, once there are enough corners', () => {
+    const area = fakeArea({ drawing: true, points: corners(3) });
+    renderOnMap(area);
+
+    const [first, ...rest] = screen.getAllByTestId('marker');
+    expect(first).toHaveTextContent('Click to finish the area');
+    expect(rest.every((marker) => marker.dataset.clickable === 'false')).toBe(true);
+    act(() => first.click());
+
+    expect(area.finish).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close an outline of two corners', () => {
+    const area = fakeArea({ drawing: true, points: corners(2) });
+    renderOnMap(area);
+
+    const [first] = screen.getAllByTestId('marker');
+    expect(first.dataset.clickable).toBe('false');
+    act(() => first.click());
+
+    expect(area.finish).not.toHaveBeenCalled();
   });
 
   it('shows a finished area as an editable polygon', () => {
@@ -86,13 +114,13 @@ describe('DrawArea', () => {
     const polygon = screen.getByTestId('polygon');
     expect(JSON.parse(polygon.dataset.paths ?? '')).toEqual(corners(3));
     expect(polygon.dataset.editable).toBe('true');
-    expect(screen.queryByTestId('polyline')).not.toBeInTheDocument();
+    expect(polygon.dataset.stroke).toBe(theme.palette.error.main);
   });
 
   it('reads the path back after a corner is dragged, and only when it changed', () => {
     const area = fakeArea({ points: corners(3) });
     renderOnMap(area);
-    const mouseUp = () => act(() => mapsStub.polygon?.onMouseUp());
+    const mouseUp = () => act(() => mapsStub.polygon?.onMouseUp?.());
 
     mapsStub.draggedPath = corners(3);
     mouseUp();
@@ -115,8 +143,8 @@ describe('DrawArea', () => {
     const polygon = mapsStub.polygon;
     mapsStub.draggedPath = corners(4);
 
-    act(() => polygon?.onUnmount());
-    act(() => polygon?.onMouseUp());
+    act(() => polygon?.onUnmount?.());
+    act(() => polygon?.onMouseUp?.());
 
     expect(area.edit).not.toHaveBeenCalled();
   });

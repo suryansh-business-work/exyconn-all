@@ -8,6 +8,8 @@ import { contactRow } from '../../fixtures';
 
 const gql = vi.hoisted(() => ({ contact: vi.fn(), refetch: vi.fn() }));
 
+const comms = vi.hoisted(() => ({ compose: vi.fn() }));
+
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useGetContactQuery: (options: unknown) => gql.contact(options),
@@ -15,6 +17,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
 
 vi.mock('../../../../src/records/comms', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../../src/records/comms')>()),
+  composeEmailTo: comms.compose,
   ReachOutActions: (await import('../record-detail-stubs')).ReachOutStub,
 }));
 
@@ -108,5 +111,17 @@ describe('ContactQuickView', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
     expect(onClose).toHaveBeenCalledTimes(2);
+  });
+
+  it('closes the preview and opens the CRM email window to the address clicked', async () => {
+    const { onClose } = renderView();
+
+    await userEvent.click(screen.getByRole('button', { name: 'asha@acme.io' }));
+
+    expect(onClose).toHaveBeenCalled();
+    expect(comms.compose).toHaveBeenCalledWith(
+      expect.objectContaining({ object: 'CONTACT' }),
+      'asha@acme.io',
+    );
   });
 });

@@ -94,6 +94,7 @@ export function ContactsPage() {
           <RecordListToolbar
             records={records}
             allLabel="All contacts"
+            nearby
             renderActions={(query) => (
               <RecordActions
                 object={CrmObject.Contact}

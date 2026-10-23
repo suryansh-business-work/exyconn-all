@@ -13,6 +13,8 @@ import { useT } from '@exyconn/i18n';
 import { MAIN_CONTENT_ID, SkipLink } from './SkipLink';
 import { BrandFavicon } from './BrandFavicon';
 import { useFocusOnNavigate } from './useFocusOnNavigate';
+import { DockHost } from '@/components/compose-dock';
+import { MailboxConnectReturn } from '@/components/email';
 
 /** Wide enough that a page like "Onboarding Templates" is read, not truncated. */
 const DRAWER_WIDTH = 288;
@@ -69,6 +71,7 @@ export function PortalLayout() {
     >
       <SkipLink />
       <BrandFavicon />
+      <MailboxConnectReturn />
       <Topbar drawerWidth={width} onMenuClick={() => setMobileOpen((o) => !o)} />
 
       <Box
@@ -139,6 +142,11 @@ export function PortalLayout() {
           </PageErrorBoundary>
         </Box>
       </Box>
+      {/* Email (and the CRM's call and text) windows float over every page and survive
+          navigation; a failing window does not take the page down with it. */}
+      <PageErrorBoundary>
+        <DockHost />
+      </PageErrorBoundary>
     </Box>
   );
 }

@@ -1,6 +1,7 @@
 import { useT, useFormatters } from '@exyconn/i18n';
 import { Box, Paper, Text, Typography } from '@exyconn/shell/components/ui';
 import type { EmailVerificationFieldsFragment } from '@exyconn/shell/graphql/generated';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { EmailStatusBadge } from '../../email-verification';
 
 /** The checks behind a result, in the words a salesperson would use. */
@@ -27,7 +28,7 @@ export function EmailCheckResult({
           component="h3"
           sx={{ fontWeight: 600, wordBreak: 'break-all' }}
         >
-          {result.email}
+          <EmailLink address={result.email} />
         </Typography>
         <EmailStatusBadge verification={result} />
       </Box>

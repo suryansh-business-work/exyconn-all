@@ -12,7 +12,7 @@ const LOG = 'crm: email accounts cannot connect yet, the OAuth app is not set up
 function renderButton(available: boolean | undefined) {
   return renderWithProviders(
     <ConnectMailboxButton
-      label="Connect Gmail account"
+      label="Connect Gmail"
       available={available}
       unavailableHint={HINT}
       connecting={false}
@@ -22,7 +22,7 @@ function renderButton(available: boolean | undefined) {
   );
 }
 
-const button = () => screen.getByRole('button', { name: 'Connect Gmail account' });
+const button = () => screen.getByRole('button', { name: 'Connect Gmail' });
 
 describe('ConnectMailboxButton', () => {
   let warn: ReturnType<typeof vi.spyOn>;
@@ -46,7 +46,7 @@ describe('ConnectMailboxButton', () => {
     const { rerender } = renderButton(false);
     rerender(
       <ConnectMailboxButton
-        label="Connect Gmail account"
+        label="Connect Gmail"
         available={false}
         unavailableHint={HINT}
         connecting={false}
@@ -67,7 +67,7 @@ describe('ConnectMailboxButton', () => {
   it('translates the reason it is given', async () => {
     renderWithProviders(
       <ConnectMailboxButton
-        label="Connect Gmail account"
+        label="Connect Gmail"
         available={false}
         unavailableHint={HINT}
         connecting={false}

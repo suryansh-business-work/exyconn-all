@@ -4,6 +4,7 @@ import { logger } from '../../utils/logger';
 import { recordAudit } from '../audit';
 import { finishGmailConnect, takeGmailState } from './gmail.connect';
 import { GMAIL_AUDIT_MODULE } from './gmail.audit';
+import { connectedAuditLine } from '../my-mailboxes/my-mailboxes.default';
 
 /** The portal page a callback returns to, with what happened added to its query. */
 export const withParams = (returnTo: string, params: Record<string, string>) =>
@@ -13,21 +14,26 @@ interface ConnectState {
   actorId?: string | null;
   updatedByName?: string | null;
   organizationId?: string | null;
+  ownerUserId?: string | null;
 }
 
-/** The audit line for a connected mailbox, in the company whose CRM user connected it. */
+/** The audit line for a connected mailbox, in the company of whoever connected it. */
 async function auditConnected(state: ConnectState, email: string): Promise<void> {
   if (!state.organizationId) {
     return;
   }
+  const line = connectedAuditLine(
+    state.ownerUserId,
+    { module: GMAIL_AUDIT_MODULE, summary: `Connected the Gmail account ${email}` },
+    email,
+  );
   await runForOrganization(state.organizationId, () =>
     recordAudit(
       { user: null },
       {
         action: 'CREATE',
-        module: GMAIL_AUDIT_MODULE,
+        ...line,
         entityLabel: email,
-        summary: `Connected the Gmail account ${email}`,
         actor: { id: state.actorId ?? '', name: state.updatedByName ?? '' },
       },
     ),

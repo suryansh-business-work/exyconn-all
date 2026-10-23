@@ -4,7 +4,7 @@ import { SubmissionPayload } from '../../../../src/pages/website/SubmissionPaylo
 import { renderWithProviders } from '../../test-utils';
 
 describe('SubmissionPayload', () => {
-  it('lists each filled-in field with its label, linking emails and phone numbers', () => {
+  it('lists each filled-in field with its label, an email opening the email window and a phone number dialling', () => {
     renderWithProviders(
       <SubmissionPayload
         data={{
@@ -19,16 +19,15 @@ describe('SubmissionPayload', () => {
     expect(screen.getByRole('heading', { name: 'What they sent' })).toBeInTheDocument();
     expect(screen.getByText('Full name')).toBeInTheDocument();
     expect(screen.getByText('Ravi K')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'ravi@example.com' })).toHaveAttribute(
-      'href',
-      'mailto:ravi@example.com',
+    expect(screen.getByRole('button', { name: 'Email ravi@example.com' })).toHaveTextContent(
+      'ravi@example.com',
     );
     expect(screen.getByRole('link', { name: '+91 98765 43210' })).toHaveAttribute(
       'href',
       'tel:+919876543210',
     );
     expect(screen.queryByText('Notes')).not.toBeInTheDocument();
-    expect(screen.getAllByRole('link')).toHaveLength(2);
+    expect(screen.getAllByRole('link')).toHaveLength(1);
   });
 
   it('says so when nothing was captured', () => {

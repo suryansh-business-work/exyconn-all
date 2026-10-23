@@ -1,6 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Card, Divider, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
+import { EmailLink } from '@exyconn/shell/components/email';
 import type { ProblemReportRow } from './problem-report.types';
 
 interface ReportedDetailsProps {
@@ -29,7 +30,8 @@ export function ReportedDetails({ report }: Readonly<ReportedDetailsProps>) {
           color: 'text.secondary',
         }}
       >
-        {service} · {report.category} · {report.reporterName} ({report.reporterEmail}) · {received}
+        {service} · {report.category} · {report.reporterName} (
+        <EmailLink address={report.reporterEmail} />) · {received}
       </Typography>
       <Divider sx={{ my: 1.5 }} />
       <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>

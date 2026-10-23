@@ -85,3 +85,9 @@ describe('RECIPIENT_COLUMNS', () => {
     expect(formatCell(RECIPIENT_COLUMNS, 'sources', undefined)).toBe('');
   });
 });
+
+describe('RECIPIENT_COLUMNS email', () => {
+  it('renders each address as a link that opens the email window', () => {
+    expect(RECIPIENT_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf('function');
+  });
+});

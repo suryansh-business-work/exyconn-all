@@ -39,6 +39,8 @@ export const microsoftMailTypeDefs = gql`
     status: GmailAccountStatus!
     "Why the last call to Microsoft failed; empty when it worked."
     lastError: String!
+    "When the last error happened; null while the mailbox works."
+    lastErrorAt: DateTime
     connectedAt: DateTime
     connectedByName: String!
     lastUsedAt: DateTime
@@ -56,8 +58,10 @@ export const microsoftMailTypeDefs = gql`
     saveMicrosoftMailConfig(input: MicrosoftMailConfigInput!): MicrosoftMailConfig!
     "Reads every enabled mailbox's address with its stored connection."
     testMicrosoftMailConfig: String!
-    "Microsoft's consent page to connect one more mailbox (or renew one); comes back to returnTo."
-    startMicrosoftMailConnect(returnTo: String!): String!
+    "Microsoft's consent page to connect one more mailbox (or renew one); comes back to returnTo. loginHint is the address being reconnected."
+    startMicrosoftMailConnect(returnTo: String!, loginHint: String): String!
+    "Checks one mailbox works now with a fresh token and its address; the outcome is kept on it as lastError."
+    testMicrosoftMailAccount(id: ID!): MicrosoftMailAccount!
     "Turns a mailbox on or off for the CRM."
     setMicrosoftMailAccountEnabled(id: ID!, enabled: Boolean!): MicrosoftMailAccount!
     "Removes the mailbox and its token; mail already sent stays on the records."

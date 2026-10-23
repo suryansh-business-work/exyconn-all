@@ -90,6 +90,7 @@ describe('addResult', () => {
         skipped: 1,
         merges: [{ placeId: 'b', companyId: 'c-b', name: 'B', added: [] }],
         skips: [{ placeId: 'c', name: 'C', reason: 'Duplicate', companyId: null }],
+        websitesDropped: [{ placeId: 'd', name: 'D', website: 'https://d.test', reason: '404' }],
       }),
     );
 
@@ -100,6 +101,7 @@ describe('addResult', () => {
       filed: [{ placeId: 'a', companyId: 'c-a' }],
       merges: [{ placeId: 'b', companyId: 'c-b', name: 'B', added: [] }],
       skips: [{ placeId: 'c', name: 'C', reason: 'Duplicate', companyId: null }],
+      websitesDropped: [{ placeId: 'd', name: 'D', website: 'https://d.test', reason: '404' }],
     });
   });
 

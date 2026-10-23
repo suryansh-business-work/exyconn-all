@@ -16,6 +16,8 @@ import {
   type TimelineTarget,
 } from './crm.timeline.types';
 import { coldEmailDraftPaths } from './crm.timeline.cold-email';
+import { belongsTo } from './crm.timeline.filters';
+import { decodeHtmlEntities } from '../../../utils/htmlEntities';
 
 /**
  * Each reader returns the newest `limit` records of one kind that belong to the target: by
@@ -26,19 +28,15 @@ import { coldEmailDraftPaths } from './crm.timeline.cold-email';
 const newest = { createdAt: -1 } as const;
 const idOf = (doc: { _id: unknown }) => String(doc._id);
 
-async function activities({
-  contactIds,
-  companyId,
-  limit,
-}: TimelineTarget): Promise<TimelineItem[]> {
-  const related = [...contactIds, companyId].filter(Boolean);
-  const rows = await ActivityModel.find({ relatedId: { $in: related } })
+async function activities(target: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await ActivityModel.find(belongsTo.activity(target))
     .sort(newest)
-    .limit(limit)
+    .limit(target.limit)
     .lean();
   const draftPaths = await coldEmailDraftPaths(rows);
-  return rows.map((row) =>
-    item({
+  return rows.map((row) => {
+    const draftPath = draftPaths.get(idOf(row)) ?? '';
+    return item({
       id: `activity:${idOf(row)}`,
       kind: row.type as TimelineKind,
       at: row.createdAt,
@@ -47,14 +45,15 @@ async function activities({
       actor: row.owner,
       status: row.done ? 'Done' : '',
       attachments: (row as { attachments?: TimelineItem['attachments'] }).attachments ?? [],
-      url: draftPaths.get(idOf(row)) ?? '',
-    }),
-  );
+      url: draftPath,
+      // A drafted cold email opens on its record's Cold emails tab; the rest open in place.
+      opensPage: Boolean(draftPath),
+    });
+  });
 }
 
-async function deals({ contactIds, companyId, limit }: TimelineTarget): Promise<TimelineItem[]> {
-  const or = [{ contactId: { $in: contactIds } }, ...(companyId ? [{ companyId }] : [])];
-  const rows = await DealModel.find({ $or: or }).sort(newest).limit(limit).lean();
+async function deals(target: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await DealModel.find(belongsTo.deal(target)).sort(newest).limit(target.limit).lean();
   return rows.map((row) =>
     item({
       id: `deal:${idOf(row)}`,
@@ -69,11 +68,8 @@ async function deals({ contactIds, companyId, limit }: TimelineTarget): Promise<
   );
 }
 
-async function leads({ addresses, limit }: TimelineTarget): Promise<TimelineItem[]> {
-  const rows = await LeadModel.find({ email: { $in: addresses } })
-    .sort(newest)
-    .limit(limit)
-    .lean();
+async function leads(target: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await LeadModel.find(belongsTo.lead(target)).sort(newest).limit(target.limit).lean();
   return rows.map((row) =>
     item({
       id: `lead:${idOf(row)}`,
@@ -88,10 +84,10 @@ async function leads({ addresses, limit }: TimelineTarget): Promise<TimelineItem
   );
 }
 
-async function formSubmissions({ addresses, limit }: TimelineTarget): Promise<TimelineItem[]> {
-  const rows = await WebsiteSubmissionModel.find({ 'submissionData.email': { $in: addresses } })
+async function formSubmissions(target: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await WebsiteSubmissionModel.find(belongsTo.submission(target))
     .sort(newest)
-    .limit(limit)
+    .limit(target.limit)
     .lean();
   return rows.map((row) => {
     // Matched on `submissionData.email`, so the data is always there.
@@ -124,6 +120,7 @@ async function chats({ addresses, limit }: TimelineTarget): Promise<TimelineItem
       actor: row.assigneeName,
       status: row.status,
       url: `/website/chat/sessions/${idOf(row)}`,
+      opensPage: true,
     }),
   );
 }
@@ -143,6 +140,7 @@ async function tickets({ addresses, limit }: TimelineTarget): Promise<TimelineIt
       actor: row.assigneeName,
       status: row.status,
       url: `/support/tickets/${idOf(row)}`,
+      opensPage: true,
     }),
   );
 }
@@ -167,14 +165,15 @@ async function campaignEmails({ addresses, limit }: TimelineTarget): Promise<Tim
         : 'Not opened',
       status: row.status,
       url: `/marketing/campaigns/${row.campaignId}`,
+      opensPage: true,
     }),
   );
 }
 
-async function systemEmails({ addresses, limit }: TimelineTarget): Promise<TimelineItem[]> {
-  const rows = await EmailLogModel.find({ to: { $in: addresses } })
+async function systemEmails(target: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await EmailLogModel.find(belongsTo.emailLog(target))
     .sort({ sentAt: -1 })
-    .limit(limit)
+    .limit(target.limit)
     .lean();
   return rows.map((row) =>
     item({
@@ -190,10 +189,10 @@ async function systemEmails({ addresses, limit }: TimelineTarget): Promise<Timel
   );
 }
 
-async function whatsappLeads({ addresses, limit }: TimelineTarget): Promise<TimelineItem[]> {
-  const rows = await WhatsappDemoVisitorModel.find({ email: { $in: addresses } })
+async function whatsappLeads(target: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await WhatsappDemoVisitorModel.find(belongsTo.whatsapp(target))
     .sort(newest)
-    .limit(limit)
+    .limit(target.limit)
     .lean();
   return rows.map((row) =>
     item({
@@ -208,14 +207,10 @@ async function whatsappLeads({ addresses, limit }: TimelineTarget): Promise<Time
   );
 }
 
-async function gmailMessages({
-  addresses,
-  recordPath,
-  limit,
-}: TimelineTarget): Promise<TimelineItem[]> {
-  const rows = await CrmEmailMessageModel.find({ participants: { $in: addresses } })
+async function gmailMessages(target: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await CrmEmailMessageModel.find(belongsTo.gmail(target))
     .sort({ sentAt: -1 })
-    .limit(limit)
+    .limit(target.limit)
     .lean();
   return rows.map((row) =>
     item({
@@ -226,10 +221,11 @@ async function gmailMessages({
         row.direction === 'OUT'
           ? `Emailed: ${row.subject}`
           : `Email from ${row.from}: ${row.subject}`,
-      summary: row.snippet,
+      // Gmail sends the snippet HTML-escaped (`you&#39;re`); the timeline shows it as text.
+      summary: decodeHtmlEntities(row.snippet),
       actor: row.sentByName ?? '',
       status: row.direction === 'OUT' ? 'Sent' : 'Received',
-      url: `${recordPath}/emails`,
+      url: `${target.recordPath}/emails`,
     }),
   );
 }

@@ -14,6 +14,7 @@ export {
   dateColumn,
   derivedColumn,
   derivedStatusColumn,
+  emailColumn,
   statusColumn,
   textColumn,
   valueColumn,
@@ -24,6 +25,7 @@ export type {
   RowActionColor,
   RowActionSpec,
 } from './grid/types';
+export { EmailCell } from './grid/cells';
 export { usePagedFetcher } from './grid/usePagedFetcher';
 export { AUDIT_COLUMNS, type AuditGridContext } from './grid/auditColumns';
 export {

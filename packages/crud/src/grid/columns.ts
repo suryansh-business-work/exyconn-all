@@ -1,7 +1,7 @@
 import type { ColDef, ValueGetterParams, ValueFormatterParams } from 'ag-grid-community';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { BoolCell, RowActionsCell, StatusCell, formatDateValue } from './cells';
+import { BoolCell, EmailCell, RowActionsCell, StatusCell, formatDateValue } from './cells';
 import { gridTranslator, type GridTranslate } from '@exyconn/shell/components/data/gridContext';
 import type { RowActionSpec } from './types';
 
@@ -56,6 +56,14 @@ export function textColumn<TRow>(
   format?: RowFormat<TRow>,
 ): ColDef<TRow> {
   return { field, headerName, valueFormatter: format && rowFormatter(format) };
+}
+
+/**
+ * A sortable, server-filterable email column: each address opens the email window when clicked
+ * (the click never reaches the row's own handler). Exports and phone cards read the plain value.
+ */
+export function emailColumn<TRow>(field: Field<TRow>, headerName: string): ColDef<TRow> {
+  return { field, headerName, cellRenderer: EmailCell };
 }
 
 /** A sortable column the server does not filter — money, counts, anything non-textual. */

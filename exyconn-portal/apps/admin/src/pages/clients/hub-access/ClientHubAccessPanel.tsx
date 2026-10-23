@@ -4,6 +4,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -56,7 +57,7 @@ export function ClientHubAccessPanel({ clientId }: Readonly<ClientHubAccessPanel
 
   const columns: Column<ClientContactRow>[] = [
     { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'Email', render: (row) => <EmailLink address={row.email} /> },
     {
       key: 'lastSignInAt',
       label: 'Last sign-in',

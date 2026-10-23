@@ -27,12 +27,17 @@ const wholeNumber = (max: number, message: string) =>
 const baseSchema = profileSchema.extend({
   name: z.string().trim().min(1, 'Name is required'),
   logoUrl: pictureUrlSchema,
-  /** A domain, not a URL — "exyconn.com", so two rows for one company are avoidable. */
+  /**
+   * A domain, not a URL — "exyconn.com", so two rows for one company are avoidable. Blank for a
+   * business with no website (lead generator imports keep only a site that answers 200 OK).
+   */
   domain: z
     .string()
     .trim()
-    .min(1, 'Domain is required')
-    .regex(DOMAIN, 'Enter the domain on its own, e.g. exyconn.com'),
+    .refine(
+      (value) => value === '' || DOMAIN.test(value),
+      'Enter the domain on its own, e.g. exyconn.com',
+    ),
   emails: z.array(emailPointSchema),
   industry: z.string().trim(),
   /** Blank until somebody knows it. */

@@ -4,6 +4,7 @@ import { Box, Grid, Stack, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DetailFact, DetailFactGrid } from '@exyconn/shell/components/data/DetailFact';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { ProfileSkeleton } from './ProfileSkeleton';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -43,7 +44,9 @@ export function PeoplePage() {
       <Stack spacing={2}>
         <Box sx={panel}>
           <DetailFactGrid>
-            <DetailFact label="Email">{profile.email}</DetailFact>
+            <DetailFact label="Email">
+              <EmailLink address={profile.email} />
+            </DetailFact>
             <DetailFact label="Department">{profile.department ?? '—'}</DetailFact>
             <DetailFact label="Designation">{profile.designation ?? '—'}</DetailFact>
             <DetailFact label="Account">

@@ -40,13 +40,13 @@ describe('CompanyForm', () => {
     gql.update.mockResolvedValue({ data: { updateCompany: { id: 'company-1' } } });
   });
 
-  it('requires a name and a domain, but not an owner', async () => {
+  it('requires a name, but not a domain or an owner', async () => {
     renderForm();
 
     await press('Create');
 
     expect(await screen.findByText('Name is required')).toBeInTheDocument();
-    expect(screen.getByText('Domain is required')).toBeInTheDocument();
+    expect(screen.queryByText('Domain is required')).not.toBeInTheDocument();
     expect(screen.queryByText('Owner is required')).not.toBeInTheDocument();
     expect(gql.create).not.toHaveBeenCalled();
   });

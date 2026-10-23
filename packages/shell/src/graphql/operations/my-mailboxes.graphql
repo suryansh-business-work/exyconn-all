@@ -1,0 +1,53 @@
+# Personal mailboxes: Settings > Mailboxes and the email window every portal opens on an address.
+fragment MyMailboxFields on MyMailbox {
+  id
+  provider
+  email
+  status
+  lastError
+  lastErrorAt
+  connectedAt
+  isDefault
+}
+
+query MyMailboxes {
+  myMailboxes {
+    ...MyMailboxFields
+  }
+  myMailboxProviders {
+    gmail
+    microsoft
+  }
+}
+
+mutation StartMyMailboxConnect(
+  $provider: CrmEmailProvider!
+  $returnTo: String!
+  $loginHint: String
+) {
+  startMyMailboxConnect(provider: $provider, returnTo: $returnTo, loginHint: $loginHint)
+}
+
+mutation TestMyMailbox($id: ID!) {
+  testMyMailbox(id: $id) {
+    ...MyMailboxFields
+  }
+}
+
+mutation DisconnectMyMailbox($id: ID!) {
+  disconnectMyMailbox(id: $id)
+}
+
+mutation SetDefaultMyMailbox($id: ID!) {
+  setDefaultMyMailbox(id: $id) {
+    ...MyMailboxFields
+  }
+}
+
+mutation SendMyEmail($input: SendMyEmailInput!) {
+  sendMyEmail(input: $input) {
+    from
+    subject
+    recipientCount
+  }
+}

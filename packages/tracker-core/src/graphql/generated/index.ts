@@ -1283,6 +1283,48 @@ export type CrmInsightTone =
   | 'POSITIVE'
   | 'WARNING';
 
+export type CrmMailAction =
+  | 'ARCHIVE'
+  | 'MARK_READ'
+  | 'MARK_UNREAD'
+  | 'STAR'
+  /** Moves the conversation to Gmail's trash, where Gmail keeps it for 30 days. */
+  | 'TRASH'
+  | 'UNSTAR';
+
+export type CrmMailFolder =
+  /** Everything except spam and trash. */
+  | 'ALL'
+  | 'INBOX'
+  | 'SENT'
+  | 'STARRED';
+
+export type CrmMailThreadRef = {
+  accountId: Scalars['ID']['input'];
+  threadId: Scalars['String']['input'];
+};
+
+export type CrmMailThreadsInput = {
+  /** One mailbox; every readable one when empty. */
+  accountId: InputMaybe<Scalars['ID']['input']>;
+  folder: CrmMailFolder;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  /** Matches subject, preview and people, and Gmail's own search of each mailbox. */
+  search: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A circle on the map: only records whose coordinates fall inside it. */
+export type CrmNearInput = {
+  /** Centre latitude, -90 to 90. */
+  lat: Scalars['Float']['input'];
+  /** Centre longitude, -180 to 180. */
+  lng: Scalars['Float']['input'];
+  /** More than 0 and at most 500 kilometres. */
+  radiusKm: Scalars['Float']['input'];
+};
+
 export type CrmObject =
   | 'COMPANY'
   | 'CONTACT'
@@ -1379,6 +1421,8 @@ export type CrmQueryInput = {
   /** True lists only archived records; otherwise archived records are left out. */
   archived: InputMaybe<Scalars['Boolean']['input']>;
   groups: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Companies and contacts only: records within this circle; records without coordinates are left out. */
+  near: InputMaybe<CrmNearInput>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
@@ -1416,6 +1460,13 @@ export type CrmSortInput = {
 export type CrmTagObject =
   | 'COMPANY'
   | 'CONTACT';
+
+export type CrmTimelineFieldType =
+  /** An ISO date-time, shown in the viewer's date and time settings. */
+  | 'DATE'
+  /** An amount in the company's currency. */
+  | 'MONEY'
+  | 'TEXT';
 
 export type CrmTimelineKind =
   | 'CALL'
@@ -3649,6 +3700,18 @@ export type SendMailInput = {
   /** The body as rich text (HTML). It is sanitised before it is sent. */
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
+};
+
+export type SendMyEmailInput = {
+  bcc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Rich HTML from the editor; sanitized on the server. */
+  body: Scalars['String']['input'];
+  cc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** One of the caller's own mailboxes (myMailboxes); their default one when omitted. */
+  fromMailboxId: InputMaybe<Scalars['ID']['input']>;
+  replyTo: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  to: Array<Scalars['String']['input']>;
 };
 
 export type SendNotificationInput = {

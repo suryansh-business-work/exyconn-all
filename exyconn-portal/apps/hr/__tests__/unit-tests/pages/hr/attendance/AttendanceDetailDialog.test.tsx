@@ -24,6 +24,7 @@ describe('AttendanceDetailDialog', () => {
     expect(screen.getByText('PRESENT')).toBeInTheDocument();
     expect(screen.getByText('04 Mar 2026')).toBeInTheDocument();
     expect(fact('Email')).toBe('asha@example.com');
+    expect(screen.getByRole('button', { name: 'Email asha@example.com' })).toBeInTheDocument();
     expect(fact('Designation')).toBe('Engineer');
     expect(fact('Department')).toBe('Engineering');
     expect(fact('Note')).toBe('Client visit');

@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/components/ui';
 import type { CrmTimelineQuery } from '@exyconn/shell/graphql/generated';
 import { AttachmentPreview } from './AttachmentPreview';
+import { TimelineDetailsButton } from './TimelineDetailsButton';
 import { KIND_STYLES } from './timeline.kinds';
 import { TimelineTitle } from './TimelineTitle';
 
@@ -20,10 +21,12 @@ interface TimelineEntryProps {
   entry: TimelineRow;
   /** The oldest entry shown: no line runs on below its dot. */
   last: boolean;
+  /** Opens the details dialog of an entry without a page of its own. */
+  onViewDetails: (row: TimelineRow) => void;
 }
 
 /** One touchpoint: its kind, what happened, who and when, and any files it carries. */
-export function TimelineEntry({ entry, last }: Readonly<TimelineEntryProps>) {
+export function TimelineEntry({ entry, last, onViewDetails }: Readonly<TimelineEntryProps>) {
   const t = useT();
   const { formatDateTime } = useFormatters();
   const style = KIND_STYLES[entry.kind];
@@ -58,6 +61,7 @@ export function TimelineEntry({ entry, last }: Readonly<TimelineEntryProps>) {
           <Text size="caption" color="text.secondary">
             <time dateTime={entry.at}>{formatDateTime(entry.at)}</time> {by}
           </Text>
+          <TimelineDetailsButton row={entry} onOpen={onViewDetails} />
         </Flex>
       </TimelineContent>
     </TimelineItem>

@@ -7,9 +7,14 @@ import { coldEmailDraftPaths } from '../../../../../src/modules/crm/timeline/crm
 
 const DRAFTED = 'Cold email drafted';
 
-const draft = (recordId: string, subjects: string[], toEmail = 'asha@acme.com') =>
+const draft = (
+  recordId: string,
+  subjects: string[],
+  toEmail = 'asha@acme.com',
+  object: 'CONTACT' | 'COMPANY' = 'CONTACT',
+) =>
   ColdEmailDraftModel.create({
-    object: 'CONTACT',
+    object,
     recordId,
     toEmail,
     variants: subjects.map((subject) => ({ subject, body: 'b', tone: 'FRIENDLY' })),
@@ -36,7 +41,24 @@ describe('coldEmailDraftPaths', () => {
     const paths = await coldEmailDraftPaths([row]);
 
     expect(paths).toEqual(
-      new Map([[row._id.toHexString(), `/cold-emails/${ashaDraft._id.toHexString()}`]]),
+      new Map([
+        [
+          row._id.toHexString(),
+          `/contacts/${asha}/cold-emails?coldEmail=${ashaDraft._id.toHexString()}`,
+        ],
+      ]),
+    );
+  });
+
+  it("opens a company's draft on the company's Cold emails tab", async () => {
+    const acme = new Types.ObjectId().toHexString();
+    const saved = await draft(acme, ['Faster checkouts'], 'hello@acme.com', 'COMPANY');
+    const row = logged(acme, 'To hello@acme.com: Faster checkouts');
+
+    const paths = await coldEmailDraftPaths([row]);
+
+    expect(paths.get(row._id.toHexString())).toBe(
+      `/companies/${acme}/cold-emails?coldEmail=${saved._id.toHexString()}`,
     );
   });
 
@@ -58,7 +80,9 @@ describe('coldEmailDraftPaths', () => {
 
     const paths = await coldEmailDraftPaths([row]);
 
-    expect(paths.get(row._id.toHexString())).toBe(`/cold-emails/${empty._id.toHexString()}`);
+    expect(paths.get(row._id.toHexString())).toBe(
+      `/contacts/${asha}/cold-emails?coldEmail=${empty._id.toHexString()}`,
+    );
   });
 
   it('reads nothing when no row is a drafted line', async () => {
@@ -90,7 +114,7 @@ describe('a cold email on the timeline', () => {
     expect(items[0]).toMatchObject({
       kind: 'NOTE',
       title: DRAFTED,
-      url: `/cold-emails/${saved._id.toHexString()}`,
+      url: `/contacts/${asha.id}/cold-emails?coldEmail=${saved._id.toHexString()}`,
     });
   });
 });

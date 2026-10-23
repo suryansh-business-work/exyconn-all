@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/components/ui';
 import { DetailFact, DetailFactGrid } from '@exyconn/shell/components/data/DetailFact';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { useMarketingSuppressionHistoryQuery } from '@exyconn/shell/graphql/generated';
 import type { PagedSuppressionRow } from './suppression-grid';
 
@@ -61,7 +62,9 @@ export function SuppressionDetails({ row }: Readonly<{ row: PagedSuppressionRow 
   return (
     <Flex direction="column" spacing={2}>
       <DetailFactGrid>
-        <DetailFact label="Email">{row.email}</DetailFact>
+        <DetailFact label="Email">
+          <EmailLink address={row.email} />
+        </DetailFact>
         <DetailFact label="Reason">
           <StatusChip value={row.reason} />
         </DetailFact>

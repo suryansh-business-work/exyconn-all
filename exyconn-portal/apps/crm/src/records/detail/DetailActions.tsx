@@ -29,12 +29,10 @@ const QUICK: ReadonlyArray<{ type: Loggable; label: string; icon: ReactNode }> =
 
 interface DetailActionsProps {
   target: LogActivityTarget;
-  /** Extra actions, such as sending an email. */
-  extra?: ReactNode;
 }
 
 /** The buttons under a profile: log something against the record. */
-export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
+export function DetailActions({ target }: Readonly<DetailActionsProps>) {
   const t = useT();
   const [logging, setLogging] = useState<Loggable | null>(null);
   const [reminding, setReminding] = useState(false);
@@ -49,7 +47,6 @@ export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
           // Equal-width cells: two across the narrow profile column, more where there is room.
           gridTemplateColumns: (theme) => `repeat(auto-fit, minmax(${theme.spacing(15)}, 1fr))`,
           containerType: 'inline-size',
-          // Applies to every action, including the `extra` ones passed in.
           '& .MuiButton-root': { fontSize: BUTTON_FONT_SIZE, px: 1, minWidth: 0 },
           '& .MuiButton-startIcon': { mr: 0.5 },
         }}
@@ -75,7 +72,6 @@ export function DetailActions({ target, extra }: Readonly<DetailActionsProps>) {
         >
           {t('Add reminder')}
         </Button>
-        {extra}
       </Box>
       <CrudDialog open={logging !== null} title={t('Log activity')} onClose={close}>
         {logging && (

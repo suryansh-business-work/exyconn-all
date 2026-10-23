@@ -1,10 +1,22 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Link, Typography } from '@exyconn/shell/components/ui';
-import { entriesOf } from './submission.fields';
+import { EmailLink } from '@exyconn/shell/components/email';
+import { entriesOf, type SubmissionEntry } from './submission.fields';
 
 interface SubmissionPayloadProps {
   /** Raw `JSON` scalar captured by the public website form — shape varies per form type. */
   data: unknown;
+}
+
+/** One answer: an address opens the email window, a phone number dials, the rest is text. */
+function EntryValue({ entry }: Readonly<{ entry: SubmissionEntry }>) {
+  if (entry.email) {
+    return <EmailLink address={entry.value} />;
+  }
+  if (entry.link) {
+    return <Link href={entry.link}>{entry.value}</Link>;
+  }
+  return <>{entry.value}</>;
 }
 
 /**
@@ -48,7 +60,7 @@ export function SubmissionPayload({ data }: Readonly<SubmissionPayloadProps>) {
                 variant="body2"
                 sx={{ m: 0, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
               >
-                {entry.link ? <Link href={entry.link}>{entry.value}</Link> : entry.value}
+                <EntryValue entry={entry} />
               </Typography>
             </Box>
           ))}

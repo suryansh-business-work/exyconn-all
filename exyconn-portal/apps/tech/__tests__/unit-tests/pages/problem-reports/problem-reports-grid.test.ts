@@ -44,3 +44,9 @@ describe('problem report constants', () => {
     expect(PROBLEM_STATUSES).toEqual(['CLOSED', 'IN_PROGRESS', 'NEW', 'RESOLVED', 'TRIAGED']);
   });
 });
+
+describe('PROBLEM_REPORT_COLUMNS email', () => {
+  it('renders each address as a link that opens the email window', () => {
+    expect(PROBLEM_REPORT_COLUMNS.find((col) => col.field === 'reporterEmail')?.cellRenderer).toBeTypeOf('function');
+  });
+});

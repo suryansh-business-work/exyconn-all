@@ -11,11 +11,6 @@ vi.mock('../../../../../src/records/detail', async (importOriginal) => ({
   ...(await import('../../record-detail-stubs')).detailStubs,
 }));
 
-// The record's cold emails load on their own; this page only places the section.
-vi.mock('../../../../../src/records/cold-email', () => ({
-  RecordColdEmails: ({ id }: Readonly<{ id: string }>) => <p>Cold emails of {id}</p>,
-}));
-
 function renderOverview(company: ReturnType<typeof companyRow>) {
   const { container } = renderWithProviders(<CompanyOverview company={company} />);
   return (label: string) => fieldValue(container, label);
@@ -27,7 +22,6 @@ describe('CompanyOverview', () => {
 
     expect(screen.getByText('AI summary of Acme')).toBeInTheDocument();
     expect(screen.getByText('Timeline of COMPANY company-1, last 5')).toBeInTheDocument();
-    expect(screen.getByText('Cold emails of company-1')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Company overview' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Recent activity' })).toBeInTheDocument();
   });
@@ -80,6 +74,7 @@ describe('CompanyOverview', () => {
     expect(value('Address')).toBe('1 Main St');
     expect(value('Company owner')).toBe('Priya');
     expect(value('Lead owner')).toContain('Priya (priya@exyconn.com)');
+    expect(screen.getByRole('button', { name: 'Email priya@exyconn.com' })).toBeInTheDocument();
     expect(value('Notes')).toBe('Met at expo');
     expect(value('Added')).not.toBe('');
     expect(screen.getByText('Custom values {"tier":"gold"}')).toBeInTheDocument();

@@ -9,6 +9,7 @@ import type {
   TableSortInput,
 } from '@exyconn/shell/graphql/generated';
 import { queryData } from '@exyconn/shell/utils/queryData';
+import { nearInputOf } from '../filters/near-filter/near-filter.types';
 import { toGroupInputs, type RecordQueryState } from './recordQuery';
 
 /** A generated `SearchLeads`-style document: one CRM query in, one page of records out. */
@@ -44,6 +45,7 @@ function crmQueryOf(input: TableQueryInput, current: RecordQueryState): CrmQuery
     sorts: sortsAfterHeader(input.sort, current.sorts),
     // The grid's Archived switch: archived rows only, or (otherwise) none of them.
     archived: input.archived,
+    near: nearInputOf(current.near),
   };
 }
 

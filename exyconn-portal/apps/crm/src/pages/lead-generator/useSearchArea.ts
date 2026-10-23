@@ -29,9 +29,13 @@ export function useSearchArea() {
   }, []);
   const edit = useCallback((next: LatLng[]) => setPoints(next), []);
 
-  const finished = !drawing && points.length >= MIN_AREA_POINTS;
-  /** The finished area to search in, or empty while drawing or with too few corners. */
-  const area = useMemo(() => (finished ? points : NO_AREA), [finished, points]);
+  const enough = points.length >= MIN_AREA_POINTS;
+  const finished = !drawing && enough;
+  /**
+   * The area to search in once it has enough corners — still while drawing, so searching
+   * without choosing Finish area first searches what is drawn instead of failing.
+   */
+  const area = useMemo(() => (enough ? points : NO_AREA), [enough, points]);
 
   return { points, drawing, finished, area, start, addPoint, undo, finish, clear, edit };
 }

@@ -39,19 +39,35 @@ export type GmailAccountStatus = (typeof GMAIL_ACCOUNT_STATUSES)[number];
  */
 const gmailAccountSchema = new Schema(
   {
-    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
     refreshToken: { type: String, required: true },
+    /**
+     * Set when one person connected the mailbox for their own email (Settings > Mailboxes);
+     * null (or missing, on rows from before) for the company's CRM mailboxes. The CRM never
+     * reads, lists or sends from a personal mailbox.
+     */
+    ownerUserId: { type: String, default: null },
+    /** The owner's default mailbox for new email; only meaningful on a personal mailbox. */
+    isDefault: { type: Boolean, default: false },
     /** Whether the CRM reads and sends from this mailbox ("Use for CRM"). */
     enabled: { type: Boolean, default: true },
     status: { type: String, enum: GMAIL_ACCOUNT_STATUSES, default: 'CONNECTED' },
     /** Why the last call to Gmail failed, in Google's words; '' when it worked. */
     lastError: { type: String, default: '' },
+    /** When `lastError` happened; null while the mailbox works. */
+    lastErrorAt: { type: Date, default: null },
     connectedAt: { type: Date, default: Date.now },
     connectedByName: { type: String, default: '' },
     lastSyncAt: { type: Date, default: null },
+    /** When CRM > Mail last read the mailbox's folders (crm-mail sync); null until then. */
+    mailSyncedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
+// One CRM row and one row per owner for an address: the tenancy plugin makes it
+// (organizationId, email, ownerUserId), so a person may connect personally the address their
+// company also uses in the CRM.
+gmailAccountSchema.index({ email: 1, ownerUserId: 1 }, { unique: true });
 
 /** A connection in progress, from "Connect Gmail" to Google's callback. */
 const gmailOAuthStateSchema = new Schema({
@@ -62,6 +78,8 @@ const gmailOAuthStateSchema = new Schema({
   /** Who started it and in which company: the callback saves the mailbox there and audits it. */
   actorId: { type: String, default: '' },
   organizationId: { type: String, default: '' },
+  /** Set when the person is connecting their own mailbox rather than one for the CRM. */
+  ownerUserId: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now, expires: STATE_TTL_SECONDS },
 });
 

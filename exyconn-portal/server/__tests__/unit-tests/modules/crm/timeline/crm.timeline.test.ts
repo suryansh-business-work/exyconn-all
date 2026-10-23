@@ -147,7 +147,8 @@ async function seedContactHistory() {
       direction: 'OUT',
       subject: 'Pricing',
       from: 'sales@exyconn.com',
-      snippet: 'Attached',
+      // Gmail sends snippets HTML-escaped.
+      snippet: 'Attached &amp; you&#39;re set',
       sentByName: 'Ravi',
       sentAt: day(15),
     },
@@ -220,8 +221,9 @@ describe('a contact timeline', () => {
       title: 'Emailed: Pricing',
       actor: 'Ravi',
       status: 'Sent',
-      summary: 'Attached',
+      summary: "Attached & you're set",
       url: `/contacts/${id}/emails`,
+      opensPage: false,
     });
     expect(noCompany).toMatchObject({
       summary: '',
@@ -252,6 +254,7 @@ describe('a contact timeline', () => {
       title: 'Support ticket T-1: Login',
       summary: 'Cannot sign in',
       url: `/support/tickets/${ticketId}`,
+      opensPage: true,
     });
     expect(chat).toMatchObject({ title: 'Chatted on the website (4 messages)', actor: 'Mia' });
     expect(chat.url).toBe(`/website/chat/sessions/${chat.id.replace('chat:', '')}`);

@@ -29,8 +29,8 @@ mutation UseGoogleSignInClientForGmail {
   }
 }
 
-mutation StartGmailConnect($returnTo: String!) {
-  startGmailConnect(returnTo: $returnTo)
+mutation StartGmailConnect($returnTo: String!, $loginHint: String) {
+  startGmailConnect(returnTo: $returnTo, loginHint: $loginHint)
 }
 
 fragment GmailAccountFields on GmailAccount {
@@ -39,6 +39,7 @@ fragment GmailAccountFields on GmailAccount {
   enabled
   status
   lastError
+  lastErrorAt
   connectedAt
   connectedByName
   lastSyncAt
@@ -53,6 +54,12 @@ query GmailAccounts {
 
 mutation SetGmailAccountEnabled($id: ID!, $enabled: Boolean!) {
   setGmailAccountEnabled(id: $id, enabled: $enabled) {
+    ...GmailAccountFields
+  }
+}
+
+mutation TestGmailAccount($id: ID!) {
+  testGmailAccount(id: $id) {
     ...GmailAccountFields
   }
 }

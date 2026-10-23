@@ -13,6 +13,7 @@ import {
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { DetailFact, DetailFactGrid } from '@exyconn/shell/components/data/DetailFact';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { AttendanceLocationFallback } from '@exyconn/shell/graphql/generated';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { activityPercent } from '@exyconn/shell/pages/tracker-view/tracker.format';
@@ -115,7 +116,9 @@ export function AttendanceDetailDialog({ entry, onClose }: Readonly<AttendanceDe
           </Text>
         </Stack>
         <DetailFactGrid>
-          <DetailFact label="Email">{entry.employeeEmail || '—'}</DetailFact>
+          <DetailFact label="Email">
+            {entry.employeeEmail ? <EmailLink address={entry.employeeEmail} /> : '—'}
+          </DetailFact>
           <DetailFact label="Designation">{entry.designation ?? '—'}</DetailFact>
           <DetailFact label="Department">{entry.department ?? '—'}</DetailFact>
           <DetailFact label="Note">{entry.note ?? '—'}</DetailFact>

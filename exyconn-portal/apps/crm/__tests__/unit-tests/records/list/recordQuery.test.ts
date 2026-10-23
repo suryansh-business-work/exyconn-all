@@ -5,6 +5,7 @@ import {
   conditionCount,
   newId,
   queryOfView,
+  sameNear,
   sameQuery,
   toGroupInputs,
   toSnapshot,
@@ -80,6 +81,14 @@ describe('recordQuery', () => {
     const b = { ...queryOfView(crmView()), search: ' acme ' };
     expect(sameQuery(a, b)).toBe(true);
     expect(sameQuery(a, { ...b, columns: ['name'] })).toBe(false);
+  });
+
+  it('compares near circles, treating a missing one as none', () => {
+    const near = { lat: 1, lng: 2, radiusKm: 5, label: '' };
+    expect(sameNear(undefined, null)).toBe(true);
+    expect(sameNear(near, { ...near })).toBe(true);
+    expect(sameNear(near, { ...near, radiusKm: 10 })).toBe(false);
+    expect(sameNear(near, null)).toBe(false);
   });
 
   it('counts the active conditions', () => {

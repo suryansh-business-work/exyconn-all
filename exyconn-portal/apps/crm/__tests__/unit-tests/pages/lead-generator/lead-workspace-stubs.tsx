@@ -6,15 +6,25 @@ import type {
 import type { LeadPlace } from '../../../../src/pages/lead-generator/leadTypes';
 import type { LatLng } from '../../../../src/maps/mapLinks';
 
+const AROUND_MAP = { centre: 'map', lat: '', lng: '' } as const;
+
 /** What the stand-in form submits for each mode. */
 export const SEARCH_VALUES: Record<SearchMode, LeadSearchValues> = {
-  place: { query: 'dentists', mode: 'place', location: 'Pune', radiusKm: 5, area: [] },
-  map: { query: 'dentists', mode: 'map', location: '', radiusKm: 2.5, area: [] },
+  place: {
+    query: 'dentists',
+    mode: 'place',
+    location: 'Pune',
+    radiusKm: 5,
+    ...AROUND_MAP,
+    area: [],
+  },
+  map: { query: 'dentists', mode: 'map', location: '', radiusKm: 2.5, ...AROUND_MAP, area: [] },
   area: {
     query: 'dentists',
     mode: 'area',
     location: '',
     radiusKm: 5,
+    ...AROUND_MAP,
     area: [
       { lat: 1, lng: 2 },
       { lat: 3, lng: 4 },

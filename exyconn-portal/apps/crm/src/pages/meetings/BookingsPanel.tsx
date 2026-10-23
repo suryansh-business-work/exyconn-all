@@ -4,6 +4,7 @@ import { useFormatters } from '@exyconn/i18n';
 import { Box, Link } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { EmailLink } from '@exyconn/shell/components/email';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -75,7 +76,7 @@ export function BookingsPanel() {
           r.name
         ),
     },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'Email', render: (row) => <EmailLink address={row.email} /> },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
   ];
   return (

@@ -61,6 +61,7 @@ describe('connected Microsoft mailboxes', () => {
       enabled: true,
       status: 'CONNECTED',
       lastError: '',
+      lastErrorAt: null,
       connectedAt: new Date('2026-10-02T00:00:00Z'),
       connectedByName: 'Ravi',
       lastUsedAt: null,

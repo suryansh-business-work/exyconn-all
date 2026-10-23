@@ -28,18 +28,26 @@ const microsoftMailConfigSchema = new Schema(
  */
 const microsoftMailAccountSchema = new Schema(
   {
-    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
     refreshToken: { type: String, required: true },
+    /** Set on a personal mailbox (Settings > Mailboxes); null for the company's CRM ones. */
+    ownerUserId: { type: String, default: null },
+    /** The owner's default mailbox for new email; only meaningful on a personal mailbox. */
+    isDefault: { type: Boolean, default: false },
     enabled: { type: Boolean, default: true },
     status: { type: String, enum: GMAIL_ACCOUNT_STATUSES, default: 'CONNECTED' },
     /** Why the last call to Microsoft failed, in Microsoft's words; '' when it worked. */
     lastError: { type: String, default: '' },
+    /** When `lastError` happened; null while the mailbox works. */
+    lastErrorAt: { type: Date, default: null },
     connectedAt: { type: Date, default: Date.now },
     connectedByName: { type: String, default: '' },
     lastUsedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
+// (organizationId, email, ownerUserId) once the tenancy plugin adds the company: see GmailAccount.
+microsoftMailAccountSchema.index({ email: 1, ownerUserId: 1 }, { unique: true });
 
 /** A connection in progress, from "Connect Microsoft" to Microsoft's callback. */
 const microsoftOAuthStateSchema = new Schema({
@@ -49,6 +57,8 @@ const microsoftOAuthStateSchema = new Schema({
   actorId: { type: String, default: '' },
   actorName: { type: String, default: '' },
   organizationId: { type: String, default: '' },
+  /** Set when the person is connecting their own mailbox rather than one for the CRM. */
+  ownerUserId: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now, expires: STATE_TTL_SECONDS },
 });
 

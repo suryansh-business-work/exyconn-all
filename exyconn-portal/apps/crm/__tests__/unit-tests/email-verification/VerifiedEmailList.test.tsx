@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   EmailVerificationStatus,
   type EmailVerificationBadgeFragment,
@@ -46,5 +47,20 @@ describe('VerifiedEmailList', () => {
     expect(
       within(otherRow).getByRole('button', { name: 'Verify ops@acme.io' }),
     ).toBeInTheDocument();
+  });
+
+  it('opens the CRM email window for the address clicked, given onCompose', async () => {
+    const onCompose = vi.fn();
+    renderWithProviders(
+      <VerifiedEmailList
+        emails={[{ address: 'ops@acme.io', label: 'Work', primary: true }]}
+        onCompose={onCompose}
+      />,
+    );
+
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'ops@acme.io' }));
+
+    expect(onCompose).toHaveBeenCalledWith('ops@acme.io');
   });
 });

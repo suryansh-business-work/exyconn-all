@@ -8,6 +8,8 @@ import { companyRow } from '../../fixtures';
 
 const gql = vi.hoisted(() => ({ company: vi.fn(), refetch: vi.fn() }));
 
+const comms = vi.hoisted(() => ({ compose: vi.fn() }));
+
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useGetCompanyQuery: (options: unknown) => gql.company(options),
@@ -15,6 +17,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
 
 vi.mock('../../../../src/records/comms', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../../src/records/comms')>()),
+  composeEmailTo: comms.compose,
   ReachOutActions: (await import('../record-detail-stubs')).ReachOutStub,
 }));
 
@@ -108,5 +111,32 @@ describe('CompanyQuickView', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
     expect(onClose).toHaveBeenCalledTimes(2);
+  });
+
+  it('closes the preview and opens the CRM email window to the address clicked', async () => {
+    gql.company.mockReturnValue({
+      data: {
+        getCompany: companyRow({
+          emails: [
+            {
+              __typename: 'CrmEmailAddress' as const,
+              address: 'hello@acme.io',
+              label: 'Main',
+              primary: true,
+            },
+          ],
+        }),
+      },
+      refetch: gql.refetch,
+    });
+    const { onClose } = renderView();
+
+    await userEvent.click(screen.getByRole('button', { name: 'hello@acme.io' }));
+
+    expect(onClose).toHaveBeenCalled();
+    expect(comms.compose).toHaveBeenCalledWith(
+      expect.objectContaining({ object: 'COMPANY', id: 'company-1' }),
+      'hello@acme.io',
+    );
   });
 });

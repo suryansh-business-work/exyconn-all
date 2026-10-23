@@ -19,6 +19,7 @@ describe('EmailCheckResult', () => {
     renderWithProviders(<EmailCheckResult result={verification({ roleAccount: true })} />);
 
     expect(screen.getByRole('heading', { name: 'asha@acme.com' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Email asha@acme.com' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /^Verified: / })).toBeInTheDocument();
     expect(screen.getByText('The mailbox exists')).toBeInTheDocument();
     expect(facts()).toEqual([

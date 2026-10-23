@@ -25,7 +25,13 @@ import {
 } from './lead-import.service';
 import { activeServerKey, searchText, type LeadSearchInput } from './places.client';
 import { findWebsiteEmails } from './website-emails';
-import { MAX_SUGGEST_LENGTH, MIN_SUGGEST_LENGTH, suggestLocations } from './places.autocomplete';
+import {
+  isPlaceId,
+  locatePlace,
+  MAX_SUGGEST_LENGTH,
+  MIN_SUGGEST_LENGTH,
+  suggestLocations,
+} from './places.autocomplete';
 import { assertPolygon } from './search-area';
 
 const HOUR = 60 * 60;
@@ -142,6 +148,19 @@ export const googleMapsResolvers = {
       }
       await enforceLimit(suggestLimiter, user.id, 'place suggestions');
       return suggestLocations(await activeServerKey(), text);
+    },
+    placeCoordinates: async (
+      _p: unknown,
+      { placeId }: { placeId: string },
+      ctx: GraphQLContext,
+    ) => {
+      const user = crmDesk(ctx);
+      if (!isPlaceId(placeId)) {
+        badRequest('Choose the place from the suggestions again.');
+      }
+      // The follow-up to a suggestion, so it shares the suggestions' budget.
+      await enforceLimit(suggestLimiter, user.id, 'place suggestions');
+      return locatePlace(await activeServerKey(), placeId);
     },
     previewLeadImport: async (
       _p: unknown,

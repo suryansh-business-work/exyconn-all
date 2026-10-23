@@ -4,7 +4,12 @@ import { Alert, Box, Grid, Stack } from '@exyconn/shell/components/ui';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import type { LatLng } from '../../maps/mapLinks';
-import { LeadSearchForm, type LeadSearchValues, type SearchMode } from './forms/lead-search';
+import {
+  LeadSearchForm,
+  type LeadSearchValues,
+  type SearchCircle,
+  type SearchMode,
+} from './forms/lead-search';
 import { ImportReviewDialog } from './ImportReviewDialog';
 import { ImportSummary } from './ImportSummary';
 import { LeadActions } from './LeadActions';
@@ -31,6 +36,7 @@ export function LeadWorkspace({ browserKey }: Readonly<{ browserKey: string | nu
   const selection = useLeadSelection(filters.visible);
   const area = useSearchArea();
   const [mode, setMode] = useState<SearchMode>('place');
+  const [circle, setCircle] = useState<SearchCircle | null>(null);
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const centre = useRef<LatLng | null>(null);
@@ -44,6 +50,9 @@ export function LeadWorkspace({ browserKey }: Readonly<{ browserKey: string | nu
   const onSearch = (values: LeadSearchValues) => {
     selection.clear();
     setFocusedId(null);
+    if (values.mode === 'area') {
+      area.finish();
+    }
     search.search(toSearchInput(values, centre.current));
   };
   const findEmails = () => {
@@ -67,6 +76,7 @@ export function LeadWorkspace({ browserKey }: Readonly<{ browserKey: string | nu
               mapHint={mapHint}
               area={area.area}
               onModeChange={setMode}
+              onCircleChange={setCircle}
               onSearch={onSearch}
             />
           </Box>
@@ -134,6 +144,7 @@ export function LeadWorkspace({ browserKey }: Readonly<{ browserKey: string | nu
           onCentreChange={onCentreChange}
           area={area}
           drawEnabled={mode === 'area'}
+          circle={circle}
         />
       </Grid>
     </Grid>

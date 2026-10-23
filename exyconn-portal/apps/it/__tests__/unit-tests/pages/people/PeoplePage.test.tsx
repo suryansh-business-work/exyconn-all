@@ -82,6 +82,7 @@ describe('PeoplePage', () => {
     renderWithProviders(<PeoplePage />, profileRoute);
 
     expect(fact('Email')).toContain('asha@exyconn.test');
+    expect(screen.getByRole('button', { name: 'Email asha@exyconn.test' })).toBeInTheDocument();
     expect(fact('Department')).toContain('Engineering');
     expect(fact('Designation')).toContain('Developer');
     expect(fact('Account')).toContain('ACTIVE');

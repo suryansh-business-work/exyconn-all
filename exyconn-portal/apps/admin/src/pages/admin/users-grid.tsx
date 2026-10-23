@@ -5,6 +5,7 @@ import {
   EDIT_ACTION,
   actionsColumn,
   derivedStatusColumn,
+  emailColumn,
   textColumn,
   type CrudGridContext,
   type RowActionSpec,
@@ -32,7 +33,7 @@ function RolesCell(params: Readonly<ICellRendererParams<PagedUserRow>>) {
 /** Column model for the server-side Users grid. Only name/email hit the server. */
 export const USER_COLUMNS: ColDef<PagedUserRow>[] = [
   textColumn('name', 'Name'),
-  textColumn('email', 'Email'),
+  emailColumn('email', 'Email'),
   {
     headerName: 'Roles',
     colId: 'roles',

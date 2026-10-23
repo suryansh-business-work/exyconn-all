@@ -167,6 +167,16 @@ export const crmRecordsTypeDefs = gql`
     dir: SortDir!
   }
 
+  "A circle on the map: only records whose coordinates fall inside it."
+  input CrmNearInput {
+    "Centre latitude, -90 to 90."
+    lat: Float!
+    "Centre longitude, -180 to 180."
+    lng: Float!
+    "More than 0 and at most 500 kilometres."
+    radiusKm: Float!
+  }
+
   input CrmQueryInput {
     "Zero-based."
     page: Int!
@@ -176,6 +186,8 @@ export const crmRecordsTypeDefs = gql`
     sorts: [CrmSortInput!]
     "True lists only archived records; otherwise archived records are left out."
     archived: Boolean
+    "Companies and contacts only: records within this circle; records without coordinates are left out."
+    near: CrmNearInput
   }
 
   type CrmView {

@@ -37,6 +37,18 @@ vi.mock('../../../../../src/pages/contacts/forms/contact', async () => ({
   ContactForm: (await import('../../../form-stub')).FormStub,
 }));
 
+// The tab's own tests cover it; here it only shows whose cold emails it was given.
+vi.mock('../../../../../src/records/cold-email', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../../../src/records/cold-email')>()),
+  RecordColdEmails: ({
+    target,
+  }: Readonly<{ target: { object: string; id: string; emails: string[]; website: string } }>) => (
+    <p>
+      Cold emails of {target.object} {target.id} to [{target.emails.join(', ')}] at {target.website}
+    </p>
+  ),
+}));
+
 function renderPage(tab = 'overview') {
   return renderWithProviders(
     <>
@@ -106,7 +118,7 @@ describe('ContactDetailPage', () => {
     renderPage();
 
     await waitFor(() => expect(document.title).toBe('Asha Rao'));
-    expect(tabNames()).toEqual(['Overview', 'Activity']);
+    expect(tabNames()).toEqual(['Overview', 'Activity', 'Cold emails']);
     expect(screen.getByText('AI summary of Asha Rao')).toBeInTheDocument();
   });
 
@@ -114,7 +126,7 @@ describe('ContactDetailPage', () => {
     gql.gmail.mockReturnValue({ data: { crmGmailReady: true } });
     renderPage('emails');
 
-    expect(tabNames()).toEqual(['Overview', 'Activity', 'Emails']);
+    expect(tabNames()).toEqual(['Overview', 'Activity', 'Cold emails', 'Emails']);
     expect(screen.getByText('Email threads of contact-1 to [asha@acme.io]')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('tab', { name: 'Activity' }));
@@ -141,5 +153,22 @@ describe('ContactDetailPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
 
     expect(gql.refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('drafts and lists cold emails on their own tab', async () => {
+    gql.contact.mockReturnValue({
+      data: { getContact: contactRow({ website: 'asha.dev' }) },
+      refetch: gql.refetch,
+    });
+    renderPage();
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Cold emails' }));
+
+    expect(screen.getByLabelText('current url')).toHaveTextContent(
+      '/contacts/contact-1/cold-emails',
+    );
+    expect(
+      screen.getByText('Cold emails of CONTACT contact-1 to [asha@acme.io] at asha.dev'),
+    ).toBeInTheDocument();
   });
 });

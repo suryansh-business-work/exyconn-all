@@ -10,15 +10,14 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import { CrudDialog } from '@/components/data/CrudDialog';
-import { ComposeWindow } from '@/components/compose';
 
 import { UserForm } from '../user-forms/user';
-import { CustomMailForm } from '../user-forms/custom-mail';
 import { BlockUserForm } from '../user-forms/block-user';
 import { useUserActions } from './useUserActions';
+import { openCustomMail } from './CustomMailWindow';
 import type { UserDetail } from './user-details.types';
 
-type ActiveDialog = 'edit' | 'mail' | 'block' | null;
+type ActiveDialog = 'edit' | 'block' | null;
 
 interface UserActionsProps {
   user: UserDetail;
@@ -78,7 +77,7 @@ export function UserActions({ user, onChanged, editPath }: Readonly<UserActionsP
       <ActionIcon
         label={t('Send custom email')}
         icon={<EmailIcon />}
-        onClick={() => setDialog('mail')}
+        onClick={() => openCustomMail(user)}
       />
       <ActionIcon
         label={t('Edit details')}
@@ -101,19 +100,6 @@ export function UserActions({ user, onChanged, editPath }: Readonly<UserActionsP
       <CrudDialog open={dialog === 'edit'} title="Edit user" onClose={close}>
         <UserForm initial={user} onCancel={close} onDone={done} />
       </CrudDialog>
-      {/* A compose window rather than a dialog: the record stays readable while writing. */}
-      <ComposeWindow
-        open={dialog === 'mail'}
-        title={t('Email {name}', { name: user.name })}
-        onClose={close}
-      >
-        <CustomMailForm
-          userId={user.id}
-          recipient={{ name: user.name, email: user.email }}
-          onCancel={close}
-          onDone={close}
-        />
-      </ComposeWindow>
       <CrudDialog open={dialog === 'block'} title={`Block ${user.name}`} onClose={close}>
         <BlockUserForm userId={user.id} onCancel={close} onDone={done} />
       </CrudDialog>

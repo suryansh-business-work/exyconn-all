@@ -17,6 +17,8 @@ import {
   RecordDetailSkeleton,
   Timeline,
 } from '../../../records/detail';
+import { COLD_EMAILS_TAB, RecordColdEmails } from '../../../records/cold-email';
+import { emailsOf } from '../../../records/comms';
 import { CompanyOverview } from './CompanyOverview';
 import { CompanyPeople } from './CompanyPeople';
 import { CompanyProfile } from './CompanyProfile';
@@ -74,6 +76,21 @@ export function CompanyDetailPage() {
           },
         ]
       : []),
+    {
+      slug: COLD_EMAILS_TAB,
+      label: 'Cold emails',
+      content: (
+        <RecordColdEmails
+          target={{
+            object: 'COMPANY',
+            id: company.id,
+            name: company.name,
+            emails: emailsOf(company),
+            website: company.website || company.domain,
+          }}
+        />
+      ),
+    },
     ...(gmail?.crmGmailReady
       ? [
           {

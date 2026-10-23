@@ -143,11 +143,6 @@ export function browserMarket(request: Request): Market {
   );
 }
 
-/** True once the reader has picked a market in the picker (or answered the suggestion). */
-export function hasChosenMarket(request: Request): boolean {
-  return rememberedMarket(request.headers.get("cookie")) !== null;
-}
-
 /**
  * A temporary (302) redirect from a URL without a market to the same page in the reader's
  * market. It depends on who is asking, so no shared cache may keep it for anyone else.

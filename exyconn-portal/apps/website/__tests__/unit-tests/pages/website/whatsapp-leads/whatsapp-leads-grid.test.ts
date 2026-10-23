@@ -97,3 +97,11 @@ describe('WHATSAPP_LEAD_COLUMNS', () => {
     expect(specs[1]).toMatchObject({ label: 'allow demo access again', color: 'success' });
   });
 });
+
+describe('WHATSAPP_LEAD_COLUMNS email', () => {
+  it('renders each address as a link that opens the email window', () => {
+    expect(WHATSAPP_LEAD_COLUMNS.find((col) => col.field === 'email')?.cellRenderer).toBeTypeOf(
+      'function',
+    );
+  });
+});

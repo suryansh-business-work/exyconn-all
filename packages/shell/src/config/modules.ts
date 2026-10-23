@@ -25,7 +25,6 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import SchemaIcon from '@mui/icons-material/Schema';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import BusinessIcon from '@mui/icons-material/Business';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
@@ -63,6 +62,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import EmailIcon from '@mui/icons-material/Email';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
@@ -512,6 +512,13 @@ export const MODULES: ModuleDefinition[] = [
     children: [
       { key: 'crm-overview', label: 'Overview', path: '/', icon: DashboardIcon },
       {
+        // The connected mailboxes' conversations, read and answered like Gmail.
+        key: 'crm-mail',
+        label: 'Mail',
+        path: '/mail',
+        icon: EmailIcon,
+      },
+      {
         key: 'crm-leads',
         label: 'Leads',
         path: '/leads',
@@ -553,14 +560,6 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Meetings',
         path: '/meetings',
         icon: EventAvailableIcon,
-        group: 'Pipeline',
-      },
-      {
-        // AI-written first emails to a contact or company, every version kept, sent from the CRM.
-        key: 'crm-cold-emails',
-        label: 'Cold emails',
-        path: '/cold-emails',
-        icon: ForwardToInboxIcon,
         group: 'Pipeline',
       },
       {

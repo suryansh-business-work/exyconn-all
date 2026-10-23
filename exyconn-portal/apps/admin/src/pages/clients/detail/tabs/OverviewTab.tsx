@@ -3,6 +3,7 @@ import { Card, CardContent, Stack } from '@exyconn/shell/components/ui';
 import { DetailFact, DetailFactGrid } from '@exyconn/shell/components/data/DetailFact';
 import { StatRow } from '@exyconn/shell/components/dashboard/StatRow';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { EmailLink } from '@exyconn/shell/components/email';
 import type { ClientCounts, ClientDetail } from '../client-detail.types';
 
 interface OverviewTabProps {
@@ -44,7 +45,9 @@ export function OverviewTab({ client, counts }: Readonly<OverviewTabProps>) {
         <CardContent>
           <DetailFactGrid>
             <DetailFact label="Contact person">{client.name}</DetailFact>
-            <DetailFact label="Email">{client.email}</DetailFact>
+            <DetailFact label="Email">
+              <EmailLink address={client.email} />
+            </DetailFact>
             <DetailFact label="Phone">{client.phone || '—'}</DetailFact>
             <DetailFact label="Location">{place || '—'}</DetailFact>
             <DetailFact label="Billing address">{client.billingAddress || '—'}</DetailFact>

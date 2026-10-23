@@ -61,6 +61,7 @@ describe('TrackerAccessPage', () => {
     renderWithProviders(<TrackerAccessPage />);
     const asha = within(rowOf('Asha Rao'));
     expect(asha.getByText('u1@example.test')).toBeInTheDocument();
+    expect(asha.getByRole('button', { name: 'Email u1@example.test' })).toBeInTheDocument();
     expect(asha.getByText('Consented')).toBeInTheDocument();
     expect(asha.getByText('Europe/London')).toBeInTheDocument();
     expect(asha.getByText(/chosen$/)).toBeInTheDocument();

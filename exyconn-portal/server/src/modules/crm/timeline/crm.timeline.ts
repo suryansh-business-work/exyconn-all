@@ -5,6 +5,7 @@ import { ROLES } from '../../../constants/roles';
 import { notFound } from '../../../utils/errors';
 import type { GraphQLContext } from '../../../middleware/auth';
 import { TIMELINE_SOURCES } from './crm.timeline.sources';
+import { timelineDetail } from './crm.timeline.detail';
 import type { TimelineItem, TimelineTarget } from './crm.timeline.types';
 
 const DEFAULT_LIMIT = 50;
@@ -71,6 +72,10 @@ export async function crmTimeline(
     .slice(0, limit);
 }
 
+/** Reading a timeline, or one entry of it, needs VIEW on the kind of record it is about. */
+const assertTimelinePermission = (ctx: GraphQLContext, object: 'CONTACT' | 'COMPANY') =>
+  assertPermission(ctx, object === 'CONTACT' ? 'Contact' : 'Company', [ROLES.CRM], 'VIEW');
+
 export const crmTimelineResolvers = {
   Query: {
     crmTimeline: async (
@@ -78,13 +83,16 @@ export const crmTimelineResolvers = {
       args: { object: 'CONTACT' | 'COMPANY'; id: string; limit?: number | null },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(
-        ctx,
-        args.object === 'CONTACT' ? 'Contact' : 'Company',
-        [ROLES.CRM],
-        'VIEW',
-      );
+      await assertTimelinePermission(ctx, args.object);
       return crmTimeline(args.object, args.id, args.limit);
+    },
+    crmTimelineDetail: async (
+      _p: unknown,
+      args: { object: 'CONTACT' | 'COMPANY'; id: string; itemId: string },
+      ctx: GraphQLContext,
+    ) => {
+      await assertTimelinePermission(ctx, args.object);
+      return timelineDetail(await timelineTarget(args.object, args.id, 1), args.itemId);
     },
   },
 };

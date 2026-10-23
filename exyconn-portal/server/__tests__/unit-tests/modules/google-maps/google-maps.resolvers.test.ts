@@ -152,6 +152,24 @@ describe('the CRM side', () => {
     ).rejects.toThrow();
   });
 
+  it('resolves a suggested place to its coordinates for CRM users only', async () => {
+    await GoogleMapsConfigModel.create({ label: 'Main', serverKey: KEY, isActive: true });
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue(Response.json({ location: { latitude: 12.9, longitude: 77.6 } }));
+
+    await expect(Query.placeCoordinates(null, { placeId: 'ChIJ-place' }, sales)).resolves.toEqual({
+      lat: 12.9,
+      lng: 77.6,
+    });
+    await expect(Query.placeCoordinates(null, { placeId: '../x' }, sales)).rejects.toThrow(
+      'Choose the place from the suggestions again.',
+    );
+    await expect(
+      Query.placeCoordinates(null, { placeId: 'ChIJ-place' }, employee),
+    ).rejects.toThrow();
+  });
+
   it('reports a website on a private address as unreachable, without fetching it', async () => {
     const fetchMock = jest.fn();
     globalThis.fetch = fetchMock;

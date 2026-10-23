@@ -1,3 +1,5 @@
+import type { LatLng } from '../../utils/geo';
+
 /**
  * Google Places API (New) Autocomplete for the lead generator's "Where" box, called from this
  * server with the same server key as Text Search, so suggestions work without a browser key.
@@ -61,4 +63,32 @@ export async function suggestLocations(
   return (data.suggestions ?? [])
     .map((suggestion) => toSuggestion(suggestion.placePrediction))
     .filter((suggestion): suggestion is LocationSuggestion => suggestion !== null);
+}
+
+const PLACE_URL = 'https://places.googleapis.com/v1/places';
+/** Google Place IDs are URL-safe base64-like text. */
+const PLACE_ID_PATTERN = /^[\w-]{1,300}$/;
+
+interface LocationPayload {
+  location?: { latitude?: number; longitude?: number };
+}
+
+/** Whether a Place ID is well formed, so nothing else reaches the Places URL. */
+export const isPlaceId = (placeId: string): boolean => PLACE_ID_PATTERN.test(placeId);
+
+/** Where a suggested place is, read from Place Details with only the location field (billed by mask). */
+export async function locatePlace(apiKey: string, placeId: string): Promise<LatLng> {
+  const response = await fetch(`${PLACE_URL}/${encodeURIComponent(placeId)}`, {
+    headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'location' },
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 300);
+    throw new Error(`Google Places location failed (${response.status}): ${detail}`);
+  }
+  const { location } = (await response.json()) as LocationPayload;
+  if (typeof location?.latitude !== 'number' || typeof location.longitude !== 'number') {
+    throw new Error('Google Places has no location for that place');
+  }
+  return { lat: location.latitude, lng: location.longitude };
 }

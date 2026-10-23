@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/components/ui';
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { EmailLink } from '@exyconn/shell/components/email';
 import type { SocialProfileQuery } from '@exyconn/shell/graphql/generated';
 
 type Profile = SocialProfileQuery['socialProfile'];
@@ -86,7 +87,7 @@ export function ProfileHeader({ profile }: Readonly<ProfileHeaderProps>) {
                 color: 'text.secondary',
               }}
             >
-              {user.email}
+              <EmailLink address={user.email} />
             </Typography>
             {profile.joinDate && (
               <Typography

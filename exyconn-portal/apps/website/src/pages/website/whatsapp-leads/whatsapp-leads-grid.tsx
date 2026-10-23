@@ -7,6 +7,7 @@ import {
   boolColumn,
   dateColumn,
   derivedColumn,
+  emailColumn,
   textColumn,
   valueColumn,
   type DatedCrudGridContext,
@@ -52,7 +53,7 @@ function sourceLabel(row: WhatsappLeadRow, t: GridTranslate): string {
  */
 export const WHATSAPP_LEAD_COLUMNS: ColDef<WhatsappLeadRow>[] = [
   textColumn('name', 'Name'),
-  textColumn('email', 'Email'),
+  emailColumn('email', 'Email'),
   textColumn('company', 'Company'),
   textColumn('phone', 'Phone'),
   derivedColumn('sourceLabel', 'Source', sourceLabel),

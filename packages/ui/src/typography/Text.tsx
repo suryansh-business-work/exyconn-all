@@ -1,9 +1,10 @@
-import { forwardRef } from 'react';
+import { forwardRef, useContext } from 'react';
 import MuiTypography, {
   type TypographyProps as MuiTypographyProps,
 } from '@mui/material/Typography';
 import { fontWeight } from '../tokens/typography.token';
 import { toSxArray } from '../layout/sx';
+import { InlineTextContext } from './inlineText';
 
 /** Inline text size scale, mapped to a MUI Typography variant. */
 export type TextSize = 'sm' | 'md' | 'lg' | 'caption' | 'overline' | 'label';
@@ -25,16 +26,28 @@ const SIZE_VARIANT: Record<TextSize, MuiTypographyProps['variant']> = {
   label: 'subtitle2',
 };
 
-/** Inline text — sized via `size` and weighted via the shared `fontWeight` tokens. */
+/**
+ * Text — sized via `size` and weighted via the shared `fontWeight` tokens. A line of its own,
+ * unless it sits inside other text (see InlineTextContext); `sx.display` overrides either.
+ */
 export const Text = forwardRef<HTMLSpanElement, TextProps>(
-  ({ size = 'md', weight, component = 'span', sx, ...props }, ref) => (
-    <MuiTypography
-      ref={ref}
-      variant={SIZE_VARIANT[size]}
-      component={component}
-      sx={[weight ? { fontWeight: fontWeight[weight] } : {}, ...toSxArray(sx)]}
-      {...props}
-    />
-  ),
+  ({ size = 'md', weight, component = 'span', sx, children, ...props }, ref) => {
+    const inline = useContext(InlineTextContext);
+    return (
+      <MuiTypography
+        ref={ref}
+        variant={SIZE_VARIANT[size]}
+        component={component}
+        sx={[
+          inline ? {} : { display: 'block' },
+          weight ? { fontWeight: fontWeight[weight] } : {},
+          ...toSxArray(sx),
+        ]}
+        {...props}
+      >
+        <InlineTextContext.Provider value>{children}</InlineTextContext.Provider>
+      </MuiTypography>
+    );
+  },
 );
 Text.displayName = 'Text';

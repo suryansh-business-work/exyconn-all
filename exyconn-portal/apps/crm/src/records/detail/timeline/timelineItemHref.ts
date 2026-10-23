@@ -26,3 +26,11 @@ const KIND_APP: Record<CrmTimelineKind, PortalAppKey> = {
 export function timelineItemHref(row: Pick<TimelineRow, 'kind' | 'url'>): string | null {
   return row.url ? appUrl(KIND_APP[row.kind], row.url) : null;
 }
+
+/**
+ * Where "View details" goes when the entry has a page of its own (a support ticket, a chat,
+ * a campaign, a cold email draft); `null` when its details open in the dialog instead.
+ */
+export function timelinePageHref(row: Pick<TimelineRow, 'kind' | 'url' | 'opensPage'>) {
+  return row.opensPage ? timelineItemHref(row) : null;
+}

@@ -39,6 +39,11 @@ bulk actions.
 (`refreshInfiniteCache`) — no skeleton flash, no jump back to the first page. Each row action
 in `actionsColumn` shows its label as a tooltip.
 
+`emailColumn(field, headerName)` is a server-filterable text column whose cells are
+`EmailLink`s (from `@exyconn/shell/components/email`): clicking an address opens the portal's
+email window, sending from the viewer's own mailbox (Settings > Mailboxes). The click does not
+reach the row's own handler; CSV export and phone cards read the plain address.
+
 Depends on `@exyconn/shell`; nothing depends on it but the apps.
 
 Full reference, including a module end to end:

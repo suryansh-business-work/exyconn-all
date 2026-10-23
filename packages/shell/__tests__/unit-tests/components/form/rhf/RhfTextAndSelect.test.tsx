@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { z } from 'zod';
@@ -84,6 +84,53 @@ describe('RhfSelect', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     expect(await screen.findByText('Pick a role')).toBeInTheDocument();
+  });
+});
+
+describe('RhfSelect action', () => {
+  it('runs the action from its last item without changing or validating the value', async () => {
+    const onSelect = vi.fn();
+    const schema = z.object({ role: z.string().min(1, 'Pick a role') });
+    renderWithProviders(
+      <FormHarness defaultValues={{ role: '' }} resolver={zodResolver(schema)}>
+        <RhfSelect
+          name="role"
+          label="Role"
+          options={ROLES}
+          action={{ label: 'Add role', icon: <span data-testid="add-icon" />, onSelect }}
+        />
+      </FormHarness>,
+      { messages: { 'Add role': 'Añadir rol' } },
+    );
+
+    await userEvent.click(screen.getByRole('combobox', { name: /Role/ }));
+    const options = within(screen.getByRole('listbox')).getAllByRole('option');
+    expect(options.at(-1)).toHaveTextContent('Añadir rol');
+    expect(within(options.at(-1) as HTMLElement).getByTestId('add-icon')).toBeInTheDocument();
+    await userEvent.click(options.at(-1) as HTMLElement);
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(formValues().role).toBe('');
+    expect(screen.queryByText('Pick a role')).not.toBeInTheDocument();
+  });
+
+  it('shows the action without an icon', async () => {
+    renderWithProviders(
+      <FormHarness defaultValues={{ role: 'ADMIN' }}>
+        <RhfSelect
+          name="role"
+          label="Role"
+          options={ROLES}
+          action={{ label: 'Add role', onSelect: vi.fn() }}
+        />
+      </FormHarness>,
+    );
+
+    await userEvent.click(screen.getByRole('combobox', { name: /Role/ }));
+
+    expect(
+      within(screen.getByRole('listbox')).getByRole('option', { name: 'Add role' }),
+    ).toBeInTheDocument();
   });
 });
 

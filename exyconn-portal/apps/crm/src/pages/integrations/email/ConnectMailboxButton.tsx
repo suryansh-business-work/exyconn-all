@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Tooltip, useTheme } from '@exyconn/shell/components/ui';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { ProviderLogo } from '@exyconn/shell/components/mailboxes';
 
 interface ConnectMailboxButtonProps {
-  /** E.g. "Connect Gmail account". */
+  /** E.g. "Connect Gmail". */
   label: string;
   /** Whether the platform can connect this provider; unknown while the first load runs. */
   available: boolean | undefined;
@@ -12,7 +13,7 @@ interface ConnectMailboxButtonProps {
   unavailableHint: string;
   connecting: boolean;
   onConnect: () => void;
-  /** The provider, for the log line when it cannot connect. */
+  /** The provider: its logo leads the label, and it names the log line when it cannot connect. */
   provider: string;
 }
 
@@ -32,6 +33,7 @@ export function ConnectMailboxButton({
   const t = useT();
   const theme = useTheme();
   const unavailable = available === false;
+  const logo = <ProviderLogo provider={provider} />;
   useEffect(() => {
     if (unavailable) {
       portalLogger.warn('crm: email accounts cannot connect yet, the OAuth app is not set up', {
@@ -43,7 +45,13 @@ export function ConnectMailboxButton({
   if (!unavailable) {
     return (
       <Box>
-        <Button variant="contained" onClick={onConnect} loading={connecting} disabled={!available}>
+        <Button
+          variant="outlined"
+          startIcon={logo}
+          onClick={onConnect}
+          loading={connecting}
+          disabled={!available}
+        >
           {t(label)}
         </Button>
       </Box>
@@ -54,7 +62,8 @@ export function ConnectMailboxButton({
     <Box>
       <Tooltip title={t(unavailableHint)} describeChild>
         <Button
-          variant="contained"
+          variant="outlined"
+          startIcon={logo}
           aria-disabled
           sx={{ opacity: theme.palette.action.disabledOpacity, cursor: 'not-allowed' }}
         >

@@ -38,20 +38,20 @@ const renderButton = (object: 'CONTACT' | 'COMPANY', id: string) =>
 const url = () => screen.getByRole('status', { name: 'url', hidden: true }).textContent;
 
 describe('DraftColdEmailButton', () => {
-  it("opens the new draft in place on a company's Overview tab", async () => {
+  it("opens the new draft in place on a company's Cold emails tab", async () => {
     renderButton('COMPANY', 'co-1');
     await userEvent.click(screen.getByRole('button', { name: 'Draft a cold email' }));
     await userEvent.click(await screen.findByRole('button', { name: 'written' }));
 
-    expect(url()).toBe('/companies/co-1/overview?coldEmail=draft-9');
+    expect(url()).toBe('/companies/co-1/cold-emails?coldEmail=draft-9');
   });
 
-  it("opens the new draft on a contact's Overview tab", async () => {
+  it("opens the new draft on a contact's Cold emails tab", async () => {
     renderButton('CONTACT', 'c-7');
     await userEvent.click(screen.getByRole('button', { name: 'Draft a cold email' }));
     await userEvent.click(await screen.findByRole('button', { name: 'written' }));
 
-    expect(url()).toBe('/contacts/c-7/overview?coldEmail=draft-9');
+    expect(url()).toBe('/contacts/c-7/cold-emails?coldEmail=draft-9');
   });
 
   it('stays on the page when the draft is given up', async () => {

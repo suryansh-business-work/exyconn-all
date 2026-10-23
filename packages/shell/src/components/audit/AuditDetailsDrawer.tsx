@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useT } from '@exyconn/i18n';
 import {
   Box,
@@ -12,12 +13,13 @@ import {
 } from '@/components/ui';
 import { CrudDialog } from '@/components/data/CrudDialog';
 import { StatusChip } from '@/components/data/StatusChip';
+import { EmailLink } from '@/components/email';
 import { parseAuditChanges, type AuditChangeRow } from './audit-changes';
 import type { AuditLogRow } from './audit-row';
 
 interface FactProps {
   label: string;
-  value: string;
+  value: ReactNode;
 }
 
 /** One labelled line of the entry — who, when, where. */
@@ -32,6 +34,22 @@ function Fact({ label, value }: Readonly<FactProps>) {
         {value || '—'}
       </Text>
     </Box>
+  );
+}
+
+/** Who did it: their name with their address (which opens the email window), or either alone. */
+function actorOf(row: AuditLogRow): ReactNode {
+  if (!row.actorEmail) {
+    return row.actorName;
+  }
+  const email = <EmailLink address={row.actorEmail} />;
+  if (!row.actorName) {
+    return email;
+  }
+  return (
+    <>
+      {row.actorName} ({email})
+    </>
   );
 }
 
@@ -86,7 +104,7 @@ export function AuditDetailsDrawer({
   if (!row) {
     return null;
   }
-  const actor = row.actorName ? `${row.actorName} (${row.actorEmail})` : row.actorEmail;
+  const actor = actorOf(row);
   const entity = row.entityLabel ? `${row.entityLabel} · ${row.entityId}` : row.entityId;
 
   return (

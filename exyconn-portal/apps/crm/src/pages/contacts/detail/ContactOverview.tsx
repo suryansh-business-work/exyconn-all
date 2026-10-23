@@ -14,7 +14,6 @@ import {
   LeadOwnerField,
   Timeline,
 } from '../../../records/detail';
-import { RecordColdEmails } from '../../../records/cold-email';
 
 /** The Overview tab: what we know about the person, then their latest touchpoints. */
 export function ContactOverview({ contact }: Readonly<{ contact: ContactFieldsFragment }>) {
@@ -63,7 +62,6 @@ export function ContactOverview({ contact }: Readonly<{ contact: ContactFieldsFr
           {contact.notes}
         </DetailField>
       </DetailList>
-      <RecordColdEmails id={contact.id} />
       <Divider />
       <Text component="h2" size="label" weight="bold">
         {t('Recent activity')}

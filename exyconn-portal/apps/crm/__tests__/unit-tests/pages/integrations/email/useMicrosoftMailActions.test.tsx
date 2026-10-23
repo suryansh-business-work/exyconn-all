@@ -14,6 +14,7 @@ const gql = vi.hoisted(() => ({
   start: vi.fn(),
   setEnabled: vi.fn(),
   disconnect: vi.fn(),
+  test: vi.fn(),
   options: vi.fn(),
   connecting: false,
 }));
@@ -21,6 +22,7 @@ const gql = vi.hoisted(() => ({
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useStartMicrosoftMailConnectMutation: () => [gql.start, { loading: gql.connecting }],
+  useTestMicrosoftMailAccountMutation: () => [gql.test],
   useSetMicrosoftMailAccountEnabledMutation: (options: unknown) => {
     gql.options('setEnabled', options);
     return [gql.setEnabled];
@@ -156,5 +158,31 @@ describe('useMicrosoftMailActions', () => {
     await waitFor(() =>
       expect(screen.getByText('Microsoft mailbox connected as ops@acme.io')).toBeInTheDocument(),
     );
+  });
+
+  it('reconnects a known address, testing a mailbox and saying how it went', async () => {
+    gql.start.mockResolvedValue({ data: null });
+    gql.test
+      .mockResolvedValueOnce({ data: { testMicrosoftMailAccount: { lastError: '' } } })
+      .mockResolvedValueOnce({ data: { testMicrosoftMailAccount: { lastError: 'Refused (403)' } } })
+      .mockRejectedValueOnce(new Error('offline'));
+    const result = renderActions();
+
+    await act(() => result.current.connect('sales@acme.io'));
+    expect(gql.start).toHaveBeenCalledWith({
+      variables: {
+        returnTo: 'https://crm.exyconn.com/integrations/email',
+        loginHint: 'sales@acme.io',
+      },
+    });
+    await act(() => result.current.test(account));
+    expect(gql.test).toHaveBeenCalledWith({ variables: { id: account.id } });
+    expect(await screen.findByText('sales@acme.io works.')).toBeInTheDocument();
+    await act(() => result.current.test(account));
+    expect(
+      await screen.findByText('sales@acme.io failed the test. Open its error details to see why.'),
+    ).toBeInTheDocument();
+    await act(() => result.current.test(account));
+    expect(await screen.findByText('offline')).toBeInTheDocument();
   });
 });

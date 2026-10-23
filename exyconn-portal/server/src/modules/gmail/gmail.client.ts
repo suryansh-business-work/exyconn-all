@@ -6,6 +6,8 @@ import { GmailConfigModel, type GmailConfigDocument } from './gmail.models';
 import { rawMessage, type GmailPart, type OutgoingEmail } from './gmail.mime';
 
 const API = 'https://gmail.googleapis.com/gmail/v1/users/me';
+/** How much of a refusal's body is kept: enough for Google's whole JSON error, links included. */
+const ERROR_DETAIL_LIMIT = 2000;
 
 export interface GmailMessage {
   id: string;
@@ -33,6 +35,17 @@ export class GmailAuthError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'GmailAuthError';
+  }
+}
+
+/** Gmail answered with an error other than an auth refusal; `status` is its HTTP status. */
+export class GmailApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = 'GmailApiError';
   }
 }
 
@@ -97,9 +110,8 @@ async function accessToken(mailbox: Mailbox): Promise<string> {
   return body.access_token;
 }
 
-/** One call to the Gmail API as the mailbox; a refusal throws with Google's reason. */
-async function gmail<T>(mailbox: Mailbox, path: string, init: RequestInit = {}): Promise<T> {
-  const token = await accessToken(mailbox);
+/** One call to the Gmail API with an access token; a refusal throws with Google's reason. */
+async function gmailWithToken<T>(token: string, path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API}${path}`, {
     ...init,
     headers: {
@@ -109,11 +121,27 @@ async function gmail<T>(mailbox: Mailbox, path: string, init: RequestInit = {}):
     },
   });
   if (!response.ok) {
-    const detail = (await response.text()).slice(0, 300);
+    const detail = (await response.text()).slice(0, ERROR_DETAIL_LIMIT);
     const message = `Gmail ${path.split('?')[0]} failed (${response.status}): ${detail}`;
-    throw response.status === 401 ? new GmailAuthError(message) : new Error(message);
+    throw response.status === 401
+      ? new GmailAuthError(message)
+      : new GmailApiError(message, response.status);
   }
   return (await response.json()) as T;
+}
+
+/** One call to the Gmail API as the mailbox; a refusal throws with Google's reason. */
+async function gmail<T>(mailbox: Mailbox, path: string, init: RequestInit = {}): Promise<T> {
+  return gmailWithToken<T>(await accessToken(mailbox), path, init);
+}
+
+/** A Gmail API caller for work that makes many calls: one access token for all of them. */
+export type GmailCall = <T>(path: string, init?: RequestInit) => Promise<T>;
+
+/** Fetches one access token and returns a caller that reuses it (Google's tokens live an hour). */
+export async function openGmailSession(mailbox: Mailbox): Promise<GmailCall> {
+  const token = await accessToken(mailbox);
+  return <T>(path: string, init: RequestInit = {}) => gmailWithToken<T>(token, path, init);
 }
 
 export const gmailClient = {
