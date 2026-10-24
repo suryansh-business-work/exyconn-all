@@ -129,8 +129,12 @@ export const FORBIDDEN_PATTERNS = [
   { name: 'a private key', pattern: /PRIVATE KEY-----/ },
 ];
 
-/** XML namespace and JSON Schema URIs are identifiers, not hosts the extension talks to. */
-const IDENTIFIER_PREFIXES = ['http://www.w3.org/', 'http://json-schema.org/'];
+/**
+ * Not hosts the extension talks to: XML namespace and JSON Schema URIs are identifiers, and
+ * `http://[${…}]` is zod's IPv6 check — it wraps the value in a URL only to parse it with
+ * `new URL()`, so it is a template that never names a host and is never fetched.
+ */
+const IDENTIFIER_PREFIXES = ['http://www.w3.org/', 'http://json-schema.org/', 'http://[${'];
 const HTTP_URL = /http:\/\/[^\s"'`)<>\\]+/g;
 
 /** Problems in one bundle file's text. */
