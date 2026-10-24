@@ -17,6 +17,7 @@ describe('@exyconn/meetings-ui', () => {
         'MeetingSettingsPage',
         'MeetingsListPage',
         'ParticipantsPage',
+        'ReleaseDetailsPage',
         'ReleasesPage',
         'TranscriptsPage',
         'meetingPaths',

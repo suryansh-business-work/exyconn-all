@@ -1,12 +1,5 @@
 /** The only permissions the extension asks for, each with a reason (see README). */
-export const PERMISSIONS = [
-  'storage',
-  'alarms',
-  'notifications',
-  'tabCapture',
-  'offscreen',
-  'identity',
-];
+export const PERMISSIONS = ['storage', 'alarms', 'notifications', 'tabCapture', 'offscreen'];
 
 export const MEET_MATCH = 'https://meet.google.com/*';
 export const ICON_SIZES = [16, 32, 48, 128];

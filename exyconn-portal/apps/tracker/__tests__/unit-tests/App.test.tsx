@@ -15,6 +15,7 @@ import {
 } from '../../src/pages/tracker';
 import { TrackerDownloadPage } from '../../src/pages/download';
 import { TrackerOverviewPage } from '../../src/pages/overview';
+import { BuildDetailsPage, TrackerBuildsPage } from '../../src/pages/builds';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -66,6 +67,8 @@ describe('App', () => {
       ['/tracker/messages/:tab?', TrackerMessagesPage],
       ['/tracker/settings', TrackerSettingsPage],
       ['/tracker/download', TrackerDownloadPage],
+      ['/tracker/builds/release/:id', BuildDetailsPage],
+      ['/tracker/builds/:tab?', TrackerBuildsPage],
     ]);
   });
 });

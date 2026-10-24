@@ -40,6 +40,7 @@ import {
 } from './modules/clienthub/payments/webhook.wallets';
 import { SLACK_EVENTS_PATH, slackEventsRouter } from './modules/website-chat';
 import { tableBulkJobSchemaPlugin } from './modules/table-transfer';
+import { mcpRouter, mcpSchemaPlugin } from './modules/mcp';
 import {
   GOOGLE_MEET_CALLBACK_PATH,
   MA_REST_PATH,
@@ -60,7 +61,7 @@ export async function createApp(): Promise<Express> {
     // off batched HTTP requests and stack traces in responses.
     ...armor,
     // The table bulk worker runs the modules' own operations through the schema Apollo builds.
-    plugins: [...armor.plugins, serverErrorLogPlugin, tableBulkJobSchemaPlugin],
+    plugins: [...armor.plugins, serverErrorLogPlugin, tableBulkJobSchemaPlugin, mcpSchemaPlugin],
     // Explicit rather than Apollo's NODE_ENV default: the schema is not published in production.
     introspection: !env.isProduction,
     formatError: buildFormatError(env.isProduction),
@@ -84,6 +85,9 @@ export async function createApp(): Promise<Express> {
   // One proxy hop (the host nginx), so `req.ip` is the real caller rather than 127.0.0.1 —
   // the public status-page mutation rate-limits on it.
   app.set('trust proxy', 1);
+  // Claude's custom connector: the CRM MCP server and its OAuth sign-in. Before the portals'
+  // CORS, which would answer a connector's preflight without letting it through.
+  app.use(mcpRouter());
   app.use(cors({ origin: env.corsOrigins, credentials: true }));
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });

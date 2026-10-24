@@ -157,6 +157,7 @@ describe('TechService', () => {
     expect(dispatch).toHaveBeenCalledWith('main', {
       platforms: 'windows,android,ios',
       slack_channels: 'C001',
+      bump: 'none',
     });
   });
 

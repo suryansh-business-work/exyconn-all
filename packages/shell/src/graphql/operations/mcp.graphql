@@ -1,0 +1,90 @@
+query McpOverview {
+  mcpOverview {
+    serverUrl
+    toolCount
+    queryCount
+    mutationCount
+  }
+}
+
+query McpTools {
+  mcpTools {
+    name
+    kind
+    description
+    arguments {
+      name
+      type
+      required
+      description
+    }
+  }
+}
+
+query McpUsage($days: Int!) {
+  mcpUsage(days: $days) {
+    calls
+    failures
+    people
+    days {
+      day
+      calls
+      failures
+    }
+    tools {
+      tool
+      calls
+      failures
+      averageMs
+    }
+    users {
+      userName
+      calls
+    }
+  }
+}
+
+query McpActivity($days: Int!, $limit: Int) {
+  mcpActivity(days: $days, limit: $limit) {
+    id
+    at
+    userName
+    clientName
+    tool
+    kind
+    ok
+    error
+    durationMs
+  }
+}
+
+query McpConnections {
+  mcpConnections {
+    id
+    clientName
+    userName
+    createdAt
+    lastUsedAt
+  }
+}
+
+query McpAuthorizationRequest($id: ID!) {
+  mcpAuthorizationRequest(id: $id) {
+    id
+    clientName
+    redirectHost
+    scopes
+  }
+}
+
+mutation ApproveMcpAuthorization($id: ID!) {
+  approveMcpAuthorization(id: $id)
+}
+
+mutation DenyMcpAuthorization($id: ID!) {
+  denyMcpAuthorization(id: $id)
+}
+
+mutation RevokeMcpConnection($id: ID!) {
+  revokeMcpConnection(id: $id)
+}

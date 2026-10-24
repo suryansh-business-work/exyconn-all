@@ -1,22 +1,26 @@
-import { useCallback } from 'react';
-import { useRevealTechSecretMutation, type TechSecret } from '@exyconn/shell/graphql/generated';
+import { useCallback, useEffect } from 'react';
+import { useRevealAllTechSecretsMutation, type TechSecret } from '@exyconn/shell/graphql/generated';
+import { forgetTechSecrets, loadTechSecrets, secretKeyOf } from './techSecretsCache';
 
-/** Fetches one saved credential for an eye button; undefined on a new config, which has none. */
+/** Reads one saved credential for an eye button; undefined on a new config, which has none. */
 export type TechRevealFor = (secret: TechSecret) => (() => Promise<string>) | undefined;
 
-/** The eye buttons' reveal for the config being edited. The server audits every reveal. */
+/**
+ * The eye buttons' reveal for the config being edited, read from every saved credential loaded
+ * once (techSecretsCache). When the form closes — after a save, say — the values are forgotten,
+ * so a key just saved shows as saved on the next look.
+ */
 export function useTechSecretReveal(configId: string | undefined): TechRevealFor {
-  const [revealSecret] = useRevealTechSecretMutation({ fetchPolicy: 'no-cache' });
+  const [revealAll] = useRevealAllTechSecretsMutation({ fetchPolicy: 'no-cache' });
+  useEffect(() => forgetTechSecrets, []);
   return useCallback(
     (secret) => {
       if (!configId) {
         return undefined;
       }
-      return async () => {
-        const { data } = await revealSecret({ variables: { id: configId, secret } });
-        return data?.revealTechSecret ?? '';
-      };
+      return async () =>
+        (await loadTechSecrets(() => revealAll())).get(secretKeyOf(secret, configId)) ?? '';
     },
-    [configId, revealSecret],
+    [configId, revealAll],
   );
 }

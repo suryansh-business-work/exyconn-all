@@ -1,29 +1,26 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import BlockIcon from '@mui/icons-material/Block';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import HistoryIcon from '@mui/icons-material/History';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import { Box } from '@exyconn/shell/components/ui';
+import { Box, Button } from '@exyconn/shell/components/ui';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { DataTable, type RowAction } from '@exyconn/shell/components/data/DataTable';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import {
-  MaReleaseStatus,
-  useMaReleasesQuery,
-  useMaSetReleaseStatusMutation,
-} from '@exyconn/shell/graphql/generated';
+import { MaReleaseStatus, useMaReleasesQuery } from '@exyconn/shell/graphql/generated';
 import { ReleaseStatusForm, type ReleaseRow } from '../forms/release-status';
 import { LoadError } from '../lib/LoadError';
-import { useRunNotified } from '../lib/useRunNotified';
 import { ApproveReleaseDialog } from './ApproveReleaseDialog';
 import { ReleaseHistoryDialog } from './ReleaseHistoryDialog';
 import { ReleaseManagerActions } from './ReleaseManagerActions';
 import { useReleaseColumns } from './useReleaseColumns';
 import { useReleaseDownload } from './useReleaseDownload';
+import { useReleaseLifecycle } from './useReleaseLifecycle';
+import { releaseDetailsPath } from './releasePaths';
 
 /** Builds a release manager can approve in one step: offered to people once approved. */
 const AWAITING_APPROVAL: ReadonlySet<MaReleaseStatus> = new Set([
@@ -31,45 +28,39 @@ const AWAITING_APPROVAL: ReadonlySet<MaReleaseStatus> = new Set([
   MaReleaseStatus.ReadyForInternalTesting,
 ]);
 
-/** AI → Meeting Assistant → Releases: every extension build, how it got here, and its lifecycle. */
+/**
+ * AI → Meeting Assistant → Builds: every extension build, how it got here and its lifecycle.
+ * Tick builds to download or delete them together; open one for its details.
+ */
 export function ReleasesPage() {
   const t = useT();
-  const confirm = useConfirm();
-  const runNotified = useRunNotified();
+  const navigate = useNavigate();
   const columns = useReleaseColumns();
-  const { download } = useReleaseDownload();
+  const { download, downloadMany } = useReleaseDownload();
+  const { deprecate, remove } = useReleaseLifecycle();
   const { data, loading, error, refetch } = useMaReleasesQuery({
     fetchPolicy: 'cache-and-network',
   });
-  const [setStatus] = useMaSetReleaseStatusMutation();
   const [changing, setChanging] = useState<ReleaseRow | null>(null);
   const [history, setHistory] = useState<ReleaseRow | null>(null);
   const [approving, setApproving] = useState<ReleaseRow | null>(null);
+  const rows = data?.maReleases ?? [];
 
-  const deprecate = async (release: ReleaseRow) => {
-    const ok = await confirm({
-      title: 'Deprecate version {version}?',
-      titleValues: { version: release.version },
-      message: 'Nobody will be offered this build any more. Installed copies keep working.',
-      confirmText: 'Deprecate',
-      destructive: true,
-    });
-    if (ok) {
-      await runNotified(
-        () =>
-          setStatus({
-            variables: {
-              id: release.id,
-              input: {
-                status: MaReleaseStatus.Deprecated,
-                note: t('Deprecated from the releases page'),
-              },
-            },
-          }),
-        'Release {version} deprecated',
-        { version: release.version },
-      );
-    }
+  /** Downloads the ticked builds people may download; the others have no file to offer. */
+  const selectionActions = (ids: readonly string[]) => {
+    const picked = new Set(ids);
+    const downloadable = rows.filter((row) => picked.has(row.id) && row.downloadable);
+    return (
+      <Button
+        size="small"
+        variant="outlined"
+        startIcon={<DownloadIcon />}
+        disabled={downloadable.length === 0}
+        onClick={() => downloadMany(downloadable.map((row) => row.id))}
+      >
+        {t('Download selected')}
+      </Button>
+    );
   };
 
   const actions: RowAction<ReleaseRow>[] = [
@@ -113,7 +104,7 @@ export function ReleasesPage() {
   return (
     <>
       <PageHeader
-        title="Extension releases"
+        title="Extension builds"
         subtitle="Every merge to main builds a new version. Approve a build to let people download it."
       >
         <ReleaseManagerActions />
@@ -124,8 +115,12 @@ export function ReleasesPage() {
         ) : (
           <DataTable
             columns={columns}
-            rows={data?.maReleases ?? []}
+            rows={rows}
             actions={actions}
+            onDelete={remove}
+            onRowClick={(row) => navigate(releaseDetailsPath(row.id))}
+            bulkEntity="MaRelease"
+            selectionActions={selectionActions}
             loading={loading && !data}
             onRefresh={() => refetch()}
             emptyMessage="No release available yet."

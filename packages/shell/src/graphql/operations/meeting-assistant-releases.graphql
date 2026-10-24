@@ -12,6 +12,7 @@ fragment MaReleaseSettingsFields on MaReleaseSettings {
   slackChannelName
   notifyOnNewBuild
   slackConfigured
+  keepLatestBuilds
   updatedByName
   updatedAt
 }
@@ -44,4 +45,14 @@ mutation MaApproveRelease($id: ID!, $channel: MaReleaseChannel!) {
 
 mutation MaStartExtensionBuild($channel: MaReleaseChannel!) {
   maStartExtensionBuild(channel: $channel)
+}
+
+mutation MaUpdateReleaseRetention($keepLatestBuilds: Int!) {
+  maUpdateReleaseRetention(keepLatestBuilds: $keepLatestBuilds) {
+    ...MaReleaseSettingsFields
+  }
+}
+
+mutation DeleteMaRelease($id: ID!) {
+  deleteMaRelease(id: $id)
 }

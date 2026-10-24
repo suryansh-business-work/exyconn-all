@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { downloadCsv } from '@/utils/csv';
-import { downloadBase64File, fileToDataUrl } from '@/utils/file';
+import { downloadBase64File, downloadUrls, fileToDataUrl } from '@/utils/file';
 
 /** Captures the anchor each download clicks and the blob it points at. */
 function trackDownloads() {
@@ -108,5 +108,29 @@ describe('fileToDataUrl', () => {
     vi.stubGlobal('FileReader', failingReader(null));
 
     await expect(fileToDataUrl(new File(['x'], 'a.png'))).rejects.toThrow('Failed to read file');
+  });
+});
+
+describe('downloadUrls', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('follows each link once as a download, leaving no anchor behind', () => {
+    const { anchors } = trackDownloads();
+    downloadUrls(['https://dl.test/a.exe', 'https://dl.test/b.apk']);
+    expect(anchors.map((anchor) => anchor.href)).toEqual([
+      'https://dl.test/a.exe',
+      'https://dl.test/b.apk',
+    ]);
+    expect(anchors.every((anchor) => anchor.hasAttribute('download'))).toBe(true);
+    expect(anchors.every((anchor) => anchor.rel === 'noopener')).toBe(true);
+    expect(document.querySelectorAll('a')).toHaveLength(0);
+  });
+
+  it('does nothing for no links', () => {
+    const { anchors } = trackDownloads();
+    downloadUrls([]);
+    expect(anchors).toHaveLength(0);
   });
 });

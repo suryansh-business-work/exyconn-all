@@ -1,3 +1,4 @@
+import { metered } from '../modules/tech/usage/usage.meter';
 import ImageKit from 'imagekit';
 import { ImageConfigModel, type ImageConfigDocument } from '../modules/tech/image-config.model';
 import { TRACKER_LIMITS } from '../modules/tracker/tracker.constants';
@@ -51,6 +52,14 @@ class ImageUploader {
     return url.startsWith(endpoint);
   }
 
+  /** One upload, counted on Tech > Environment Variables by the folder it lands in. */
+  private upload(client: ImageKit, options: Parameters<ImageKit['upload']>[0]) {
+    const folder = typeof options.folder === 'string' ? options.folder : '';
+    return metered('IMAGEKIT', folder ? `upload ${folder}` : 'upload', () =>
+      client.upload(options),
+    );
+  }
+
   /** Builds an ImageKit client from the single active Image config, or throws. */
   private async getClient(): Promise<ImageKit> {
     const config = await ImageConfigModel.findOne({ isActive: true }).lean();
@@ -67,7 +76,7 @@ class ImageUploader {
   async uploadAvatar(file: string, fileName: string): Promise<string> {
     assertUpload(file, AVATAR_UPLOAD);
     const client = await this.getClient();
-    const result = await client.upload({
+    const result = await this.upload(client, {
       file,
       fileName,
       folder: AVATAR_FOLDER,
@@ -89,7 +98,7 @@ class ImageUploader {
   async uploadImage(file: string, fileName: string, folder = 'misc'): Promise<string> {
     assertUpload(file, MEDIA_UPLOAD);
     const client = await this.getClient();
-    const result = await client.upload({
+    const result = await this.upload(client, {
       file,
       fileName,
       folder: this.mediaFolder(folder),
@@ -106,7 +115,7 @@ class ImageUploader {
   async uploadResume(file: string, fileName: string): Promise<string> {
     assertUpload(file, RESUME_UPLOAD);
     const client = await this.getClient();
-    const result = await client.upload({
+    const result = await this.upload(client, {
       file,
       fileName,
       folder: RESUME_FOLDER,
@@ -122,7 +131,7 @@ class ImageUploader {
   async uploadFont(file: string, fileName: string, folder: string): Promise<string> {
     assertUpload(file, FONT_UPLOAD);
     const client = await this.getClient();
-    const result = await client.upload({
+    const result = await this.upload(client, {
       file,
       fileName,
       folder: this.mediaFolder(folder),
@@ -153,7 +162,7 @@ class ImageUploader {
   ): Promise<string> {
     assertUpload(file, policy);
     const client = await this.getClient();
-    const result = await client.upload({ file, fileName, folder, useUniqueFileName: true });
+    const result = await this.upload(client, { file, fileName, folder, useUniqueFileName: true });
     return result.url;
   }
 
@@ -164,7 +173,7 @@ class ImageUploader {
    */
   async uploadFromUrl(url: string, fileName: string, folder = 'misc'): Promise<string> {
     const client = await this.getClient();
-    const result = await client.upload({
+    const result = await this.upload(client, {
       file: url,
       fileName,
       folder: this.mediaFolder(folder),
@@ -189,7 +198,7 @@ class ImageUploader {
   ): Promise<{ url: string; fileId: string }> {
     assertUpload(file, screenshotUpload(TRACKER_LIMITS.maxScreenshotBytes));
     const client = await this.getClient();
-    const result = await client.upload({
+    const result = await this.upload(client, {
       file,
       fileName,
       folder: `${TRACKER_FOLDER}/${userId}`,
@@ -205,7 +214,7 @@ class ImageUploader {
   async deleteFile(fileId: string): Promise<void> {
     const client = await this.getClient();
     try {
-      await client.deleteFile(fileId);
+      await metered('IMAGEKIT', 'delete', () => client.deleteFile(fileId));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (!message.toLowerCase().includes('does not exist')) {
@@ -221,7 +230,7 @@ class ImageUploader {
   async uploadTest(config: ImageConfigDocument, file: string, fileName: string): Promise<string> {
     assertUpload(file, TEST_UPLOAD);
     const client = this.buildClient(config);
-    const result = await client.upload({
+    const result = await this.upload(client, {
       file,
       fileName,
       folder: TEST_FOLDER,

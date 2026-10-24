@@ -18,6 +18,8 @@ const releaseSettingsSchema = new Schema(
     /** Also post when a new build arrives for QA. Off by default. */
     notifyOnNewBuild: { type: Boolean, default: false },
     updatedByName: { type: String, default: '' },
+    /** How many of the newest builds the hourly retention pass keeps; 0 keeps every build. */
+    keepLatestBuilds: { type: Number, default: 0, min: 0 },
   },
   { timestamps: true },
 );

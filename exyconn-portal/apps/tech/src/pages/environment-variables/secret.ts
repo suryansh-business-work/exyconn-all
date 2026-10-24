@@ -4,7 +4,7 @@ import { env } from '@exyconn/shell/config/env';
 /**
  * The platform credentials on these screens are never listed: the API says whether one is stored
  * and, for a long token, its last four characters. An edit form starts with the field empty; its
- * eye button fetches the saved value (revealTechSecret, audited), and leaving it empty keeps it.
+ * eye button shows the saved value (all of them read once per visit, audited; see techSecretsCache), and leaving it empty keeps it.
  */
 
 /** Helper text for a secret field on an edit form. */

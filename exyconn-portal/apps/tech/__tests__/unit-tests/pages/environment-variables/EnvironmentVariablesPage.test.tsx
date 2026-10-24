@@ -56,6 +56,17 @@ vi.mock('../../../../src/pages/environment-variables/EmailAccountsPanel', async 
 vi.mock('../../../../src/pages/environment-variables/AiPricingPanel', async () =>
   (await import('./panel.harness')).panelModule('AiPricingPanel'),
 );
+vi.mock('../../../../src/pages/environment-variables/BillingKeysPanel', async () =>
+  (await import('./panel.harness')).panelModule('BillingKeysPanel'),
+);
+vi.mock('../../../../src/pages/environment-variables/usage/IntegrationsDashboard', async () =>
+  (await import('./panel.harness')).panelModule('IntegrationsDashboard'),
+);
+vi.mock('../../../../src/pages/environment-variables/usage/IntegrationUsageCard', () => ({
+  IntegrationUsageCard: ({ provider }: Readonly<{ provider: string }>) => (
+    <p data-testid="usage-card">{provider}</p>
+  ),
+}));
 
 function Url() {
   return <output aria-label="url">{useCurrentUrl()}</output>;
@@ -86,6 +97,7 @@ describe('EnvironmentVariablesPage', () => {
         .filter((button) => button !== toggle)
         .map((header) => header.textContent),
     ).toEqual([
+      'Overview',
       'Messaging & email',
       'Google',
       'Media',
@@ -100,10 +112,18 @@ describe('EnvironmentVariablesPage', () => {
     );
   });
 
-  it('opens on the first integration when the address names none', async () => {
+  it('opens on the dashboard when the address names no integration', async () => {
     renderAt('/tech/environment-variables');
-    expect(await screen.findByTestId('SlackConfigsPanel')).toBeInTheDocument();
-    expect(screen.getByLabelText('url')).toHaveTextContent('/tech/environment-variables/slack');
+    expect(await screen.findByTestId('IntegrationsDashboard')).toBeInTheDocument();
+    expect(screen.getByLabelText('url')).toHaveTextContent('/tech/environment-variables/dashboard');
+  });
+
+  it('shows usage and billing above each counted integration, and none above the others', () => {
+    renderAt('/tech/environment-variables/openai');
+    expect(screen.getByTestId('usage-card')).toHaveTextContent('OPENAI');
+    expect(screen.getByTestId('OpenAiConfigsPanel')).toBeInTheDocument();
+    renderAt('/tech/environment-variables/stripe');
+    expect(screen.getAllByTestId('usage-card')).toHaveLength(1);
   });
 
   it.each([
@@ -122,6 +142,7 @@ describe('EnvironmentVariablesPage', () => {
     ['payoneer', 'PayoneerConfigsPanel'],
     ['sonarqube', 'SonarConfigsPanel'],
     ['email-accounts', 'EmailAccountsPanel'],
+    ['billing-keys', 'BillingKeysPanel'],
   ])('shows the %s panel at its own address', (slug, panel) => {
     renderAt(`/tech/environment-variables/${slug}`);
     expect(screen.getByRole('region')).toContainElement(screen.getByTestId(panel));

@@ -88,7 +88,8 @@ export type WorkerRequest =
   | { type: 'meet/report'; report: MeetReport }
   | { type: 'meet/gone' }
   | { type: 'state/get'; tabId?: number }
-  | { type: 'auth/sign-in' }
+  | { type: 'auth/sign-in'; email: string; password: string }
+  | { type: 'auth/mfa'; challenge: string; code: string }
   | { type: 'auth/sign-out' }
   | { type: 'capture/start'; tabId?: number }
   | { type: 'capture/consent'; tabId?: number }

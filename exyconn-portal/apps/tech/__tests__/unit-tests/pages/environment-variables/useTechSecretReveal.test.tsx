@@ -1,50 +1,73 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { TechSecret } from '@exyconn/shell/graphql/generated';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { useTechSecretReveal } from '../../../../src/pages/environment-variables/useTechSecretReveal';
+import { forgetTechSecrets } from '../../../../src/pages/environment-variables/techSecretsCache';
 import { renderHookWithProviders } from '../../test-utils';
 
-const gql = vi.hoisted(() => ({ reveal: vi.fn(), options: vi.fn() }));
+const gql = vi.hoisted(() => ({ revealAll: vi.fn(), options: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
-  useRevealTechSecretMutation: (options: unknown) => {
+  useRevealAllTechSecretsMutation: (options: unknown) => {
     gql.options(options);
-    return [gql.reveal];
+    return [gql.revealAll];
   },
 }));
 
+const SAVED = {
+  data: {
+    revealAllTechSecrets: [
+      { secret: TechSecret.GoogleMapsServerKey, id: 'cfg-1', value: 'server-key' },
+      { secret: TechSecret.GmailClientSecret, id: 'cfg-2', value: 'gmail-secret' },
+    ],
+  },
+};
+
 describe('useTechSecretReveal', () => {
   beforeEach(() => {
-    gql.reveal.mockReset();
+    forgetTechSecrets();
+    gql.revealAll.mockReset().mockResolvedValue(SAVED);
     gql.options.mockReset();
   });
 
   it('has no reveal on a new config, which has nothing saved', () => {
     const { result } = renderHookWithProviders(() => useTechSecretReveal(undefined));
     expect(result.current(TechSecret.GmailClientSecret)).toBeUndefined();
-    expect(gql.reveal).not.toHaveBeenCalled();
+    expect(gql.revealAll).not.toHaveBeenCalled();
   });
 
-  it('fetches the saved value of the asked secret, bypassing the cache', async () => {
-    gql.reveal.mockResolvedValue({ data: { revealTechSecret: 'stored-value' } });
+  it('loads every saved value once, bypassing the cache, then answers from memory', async () => {
     const { result } = renderHookWithProviders(() => useTechSecretReveal('cfg-1'));
-    const reveal = result.current(TechSecret.GoogleMapsServerKey);
-    await expect(reveal?.()).resolves.toBe('stored-value');
-    expect(gql.reveal).toHaveBeenCalledWith({
-      variables: { id: 'cfg-1', secret: TechSecret.GoogleMapsServerKey },
-    });
+    await expect(result.current(TechSecret.GoogleMapsServerKey)?.()).resolves.toBe('server-key');
+    await expect(result.current(TechSecret.GmailClientSecret)?.()).resolves.toBe('');
+    expect(gql.revealAll).toHaveBeenCalledTimes(1);
     expect(gql.options).toHaveBeenCalledWith({ fetchPolicy: 'no-cache' });
   });
 
-  it('reveals an empty value when the server answers without one', async () => {
-    gql.reveal.mockResolvedValue({ data: undefined });
+  it('reads the values again once the form closes, so a key just saved shows', async () => {
+    const { result, unmount } = renderHookWithProviders(() => useTechSecretReveal('cfg-1'));
+    await result.current(TechSecret.GoogleMapsServerKey)?.();
+    unmount();
+    const reopened = renderHookWithProviders(() => useTechSecretReveal('cfg-1'));
+    await reopened.result.current(TechSecret.GoogleMapsServerKey)?.();
+    expect(gql.revealAll).toHaveBeenCalledTimes(2);
+  });
+
+  it('answers empty when the server sends nothing, and retries after a refusal', async () => {
+    gql.revealAll
+      .mockRejectedValueOnce(new Error('Not allowed'))
+      .mockResolvedValueOnce({ data: undefined });
     const { result } = renderHookWithProviders(() => useTechSecretReveal('cfg-1'));
+    await expect(result.current(TechSecret.GmailClientSecret)?.()).rejects.toThrow('Not allowed');
     await expect(result.current(TechSecret.GmailClientSecret)?.()).resolves.toBe('');
   });
 
-  it('passes a refused reveal on to the eye button', async () => {
-    gql.reveal.mockRejectedValue(new Error('Not allowed'));
-    const { result } = renderHookWithProviders(() => useTechSecretReveal('cfg-1'));
-    await expect(result.current(TechSecret.GmailClientSecret)?.()).rejects.toThrow('Not allowed');
+  it('works on any page, with no provider around it', async () => {
+    const { result } = renderHook(() => useTechSecretReveal('cfg-1'), {
+      wrapper: ({ children }) => <MockedProvider>{children}</MockedProvider>,
+    });
+    await expect(result.current(TechSecret.GoogleMapsServerKey)?.()).resolves.toBe('server-key');
   });
 });

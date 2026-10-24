@@ -1,11 +1,25 @@
 import { GithubConfigModel, type GithubConfigDocument } from '../modules/tech/github-config.model';
 import { logger } from './logger';
 import { ConfigurationError } from './errors';
+import { metered } from '../modules/tech/usage/usage.meter';
+
+/** A GitHub path as one kind of call: ids and versions out, so each endpoint counts as one row. */
+export function githubAction(method: string, path: string): string {
+  const endpoint = path
+    .split('?')[0]
+    .replaceAll(/\/\d+(?=\/|$)/g, '/:id')
+    .replaceAll(/\/tags\/[^/]+$/g, '/tags/:tag');
+  return `${method} ${endpoint}`;
+}
 
 const GITHUB_API_URL = 'https://api.github.com';
 
 /** How many recent releases to scan for the newest one carrying tracker installers. */
 const RELEASE_SCAN = 20;
+
+/** GitHub's largest page, and how many of them the build list walks before it stops. */
+const RELEASE_PAGE_SIZE = 100;
+const MAX_RELEASE_PAGES = 10;
 
 /** The workflow that builds and publishes the tracker installers, desktop and mobile. */
 export const TRACKER_WORKFLOW_FILE = 'tracker-release.yml';
@@ -51,6 +65,8 @@ export interface ReleaseAsset {
 
 /** A published tracker release, as the portal's Download page shows it. */
 export interface TrackerRelease {
+  /** GitHub's release id — what deleting the release takes. */
+  id: string;
   version: string;
   tag: string;
   name: string;
@@ -61,6 +77,7 @@ export interface TrackerRelease {
 }
 
 interface ReleasePayload {
+  id: number;
   tag_name: string;
   name: string | null;
   body: string | null;
@@ -97,6 +114,7 @@ export function toTrackerRelease(release: ReleasePayload): TrackerRelease {
     .filter((asset): asset is ReleaseAsset => asset.platform !== null);
 
   return {
+    id: String(release.id),
     version,
     tag: release.tag_name,
     name: release.name ?? release.tag_name,
@@ -153,10 +171,20 @@ interface RunPayload {
  * Variables screen, so rotating the token never needs a redeploy.
  */
 class GithubActions {
-  private async request<T>(
+  private request<T>(
     config: GithubConfigDocument,
     path: string,
     init: RequestInit = {},
+  ): Promise<T | null> {
+    return metered('GITHUB', githubAction(init.method ?? 'GET', path), () =>
+      this.send<T>(config, path, init),
+    );
+  }
+
+  private async send<T>(
+    config: GithubConfigDocument,
+    path: string,
+    init: RequestInit,
   ): Promise<T | null> {
     const response = await fetch(`${GITHUB_API_URL}/repos/${config.owner}/${config.repo}${path}`, {
       ...init,
@@ -284,6 +312,40 @@ class GithubActions {
         entry.tag_name.startsWith(TRACKER_TAG_PREFIX) &&
         entry.assets.some((asset) => trackerAssetPlatform(asset.name) !== null),
     );
+  }
+
+  /** Every published tracker release, newest first, walked page by page. */
+  async listAllTrackerReleases(): Promise<TrackerRelease[]> {
+    const config = await this.getActiveConfig();
+    const releases: ReleasePayload[] = [];
+    for (let page = 1; page <= MAX_RELEASE_PAGES; page++) {
+      const batch =
+        (await this.request<ReleasePayload[]>(
+          config,
+          `/releases?per_page=${RELEASE_PAGE_SIZE}&page=${page}`,
+        )) ?? [];
+      releases.push(...batch);
+      if (batch.length < RELEASE_PAGE_SIZE) break;
+    }
+    return releases
+      .filter((entry) => !entry.draft && entry.tag_name.startsWith(TRACKER_TAG_PREFIX))
+      .map(toTrackerRelease);
+  }
+
+  /**
+   * Deletes one tracker release and its tag, so the same version can be built again. A release
+   * that is not a tracker build is refused: the repository publishes other things too.
+   */
+  async deleteTrackerRelease(id: string): Promise<TrackerRelease> {
+    const config = await this.getActiveConfig();
+    const release = await this.request<ReleasePayload>(config, `/releases/${id}`);
+    if (!release?.tag_name.startsWith(TRACKER_TAG_PREFIX)) {
+      throw new Error(`Release ${id} is not a tracker build.`);
+    }
+    await this.request(config, `/releases/${id}`, { method: 'DELETE' });
+    await this.request(config, `/git/refs/tags/${release.tag_name}`, { method: 'DELETE' });
+    logger.info(`Tracker release ${release.tag_name} deleted`);
+    return toTrackerRelease(release);
   }
 
   /**

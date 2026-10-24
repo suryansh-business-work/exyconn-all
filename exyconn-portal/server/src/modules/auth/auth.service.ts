@@ -144,6 +144,36 @@ export async function verifyCredentials(
   return user;
 }
 
+/**
+ * The second half of a two-factor sign-in, for every door that asks for one (the portal, the
+ * Meeting Assistant extension): the challenge says who, the code says it is still them. A wrong
+ * code counts against the same per-address and per-IP limits a wrong password does, so the six
+ * digits cannot be worked through at leisure. Answers the person, in an open workspace.
+ */
+export async function proveSecondFactor(
+  challenge: string,
+  code: string,
+  ip: string,
+): Promise<SignedInUser> {
+  const userId = verifyMfaChallenge(challenge);
+  if (!userId) {
+    unauthenticated('That sign-in has expired. Enter your password again.');
+  }
+  const user = await runAsPlatform(() => UserModel.findById(userId));
+  if (!user?.isActive || user.isBlocked) {
+    unauthenticated(INVALID_CREDENTIALS);
+  }
+  const address = signInAddress(user.email);
+  await assertSignInAllowed(address, ip);
+  if (!(await verifySecondFactor(user.id, code))) {
+    await recordSignInFailure(address, ip);
+    unauthenticated('That code is not right.');
+  }
+  await recordSignInSuccess(address);
+  await assertWorkspaceOpen(organizationOf(user));
+  return user;
+}
+
 /** Where a sign-in came from, recorded on the session it creates. */
 export interface SignInFrom {
   ip: string;
@@ -227,31 +257,9 @@ class AuthService {
     return { token, user: user.toObject(), mfaRequired: false, mfaChallenge: '' };
   }
 
-  /**
-   * The second half of a two-factor sign-in.
-   *
-   * The challenge says who; the code says it is still them. A wrong code counts against the
-   * same per-address and per-IP limits a wrong password does, so the six digits cannot be
-   * worked through at leisure.
-   */
+  /** The second half of a two-factor sign-in to the portal (see proveSecondFactor). */
   async completeMfaSignIn(challenge: string, code: string, from: SignInFrom = NOWHERE) {
-    const userId = verifyMfaChallenge(challenge);
-    if (!userId) {
-      unauthenticated('That sign-in has expired. Enter your password again.');
-    }
-    const user = await runAsPlatform(() => UserModel.findById(userId));
-    if (!user?.isActive || user.isBlocked) {
-      unauthenticated(INVALID_CREDENTIALS);
-    }
-    const address = signInAddress(user.email);
-    await assertSignInAllowed(address, from.ip);
-    if (!(await verifySecondFactor(user.id, code))) {
-      await recordSignInFailure(address, from.ip);
-      unauthenticated('That code is not right.');
-    }
-    await recordSignInSuccess(address);
-    await assertWorkspaceOpen(organizationOf(user));
-    return this.issueSession(user, from);
+    return this.issueSession(await proveSecondFactor(challenge, code, from.ip), from);
   }
 
   async me(id: string) {

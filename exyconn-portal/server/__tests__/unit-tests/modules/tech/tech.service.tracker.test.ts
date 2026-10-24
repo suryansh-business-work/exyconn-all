@@ -44,6 +44,20 @@ describe('tracker builds', () => {
     expect(dispatch).toHaveBeenCalledWith('staging', {
       platforms: 'macos,linux',
       slack_channels: '',
+      bump: 'none',
+    });
+  });
+
+  it('asks the workflow to raise the version first when a bump is chosen', async () => {
+    const dispatch = jest.spyOn(githubActions, 'dispatchTrackerBuild').mockResolvedValue();
+    await techService.saveTrackerBuildSettings(['C001', 'C002']);
+
+    await techService.startTrackerBuild(['ANDROID'], 'main', 'MINOR');
+
+    expect(dispatch).toHaveBeenCalledWith('main', {
+      platforms: 'android',
+      slack_channels: 'C001,C002',
+      bump: 'minor',
     });
   });
 

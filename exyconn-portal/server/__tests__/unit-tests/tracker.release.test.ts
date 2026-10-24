@@ -26,6 +26,7 @@ const asset = (name: string) => ({
 });
 
 const release = {
+  id: 130,
   tag_name: 'tracker-v1.3.0',
   name: 'Exyconn Tracker 1.3.0',
   body: 'Notes',

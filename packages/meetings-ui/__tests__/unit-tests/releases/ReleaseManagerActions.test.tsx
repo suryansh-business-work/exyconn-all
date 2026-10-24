@@ -6,6 +6,7 @@ import {
   useMaReleaseSettingsQuery,
   useMaReleaseSlackChannelsQuery,
   useMaStartExtensionBuildMutation,
+  useMaUpdateReleaseRetentionMutation,
   useMaUpdateReleaseSettingsMutation,
 } from '@exyconn/shell/graphql/generated';
 import { ReleaseManagerActions } from '../../../src/releases/ReleaseManagerActions';
@@ -17,16 +18,19 @@ vi.mock('@exyconn/shell/graphql/generated', async (orig) => ({
   useMaReleaseSettingsQuery: vi.fn(),
   useMaReleaseSlackChannelsQuery: vi.fn(),
   useMaUpdateReleaseSettingsMutation: vi.fn(),
+  useMaUpdateReleaseRetentionMutation: vi.fn(),
 }));
 
 const startBuild = vi.fn();
 const save = vi.fn();
+const saveRetention = vi.fn();
 const SETTINGS = {
   allowedRepository: 'acme/portal',
   slackChannelId: 'C1',
   slackChannelName: 'releases',
   notifyOnNewBuild: false,
   slackConfigured: true,
+  keepLatestBuilds: 4,
   updatedByName: '',
   updatedAt: null,
 };
@@ -50,6 +54,10 @@ beforeEach(() => {
   save.mockReset().mockResolvedValue({ data: {} });
   vi.mocked(useMaStartExtensionBuildMutation).mockReturnValue(mutationTuple(startBuild) as never);
   vi.mocked(useMaUpdateReleaseSettingsMutation).mockReturnValue(mutationTuple(save) as never);
+  saveRetention.mockReset().mockResolvedValue({ data: {} });
+  vi.mocked(useMaUpdateReleaseRetentionMutation).mockReturnValue(
+    mutationTuple(saveRetention) as never,
+  );
   settings();
   slackChannels(queryResult({ maReleaseSlackChannels: CHANNELS }));
 });
@@ -163,8 +171,26 @@ describe('ReleaseManagerActions — release settings', () => {
       await screen.findByText('That Slack channel is not visible to the Exyconn Slack app.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    // The settings form's Cancel; the retention form below has its own.
+    await user.click(within(dialog).getAllByRole('button', { name: 'Cancel' })[0]);
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('keeps the newest builds the release manager sets, and reads the settings again', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ReleaseManagerActions />);
+    const dialog = await openSettings(user);
+    const field = within(dialog).getByLabelText(/^Builds to keep/);
+    expect(field).toHaveValue(4);
+    await user.clear(field);
+    await user.type(field, '8');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() =>
+      expect(saveRetention).toHaveBeenCalledWith({ variables: { keepLatestBuilds: 8 } }),
+    );
+    expect(vi.mocked(useMaUpdateReleaseRetentionMutation).mock.lastCall?.[0]).toEqual({
+      refetchQueries: ['MaReleaseSettings'],
+    });
   });
 
   it('says where to set Slack up when it is not, and offers no channel', async () => {

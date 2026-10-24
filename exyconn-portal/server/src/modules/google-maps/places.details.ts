@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import { isValidObjectId } from 'mongoose';
 import { ROLES } from '../../constants/roles';
 import { assertPermission } from '../../lib/permissions';
@@ -101,10 +102,15 @@ export function toGoogleBusiness(place: DetailsPayload) {
 }
 
 async function fetchDetails(placeId: string): Promise<DetailsPayload> {
-  const response = await fetch(`${DETAILS_URL}/${encodeURIComponent(placeId)}`, {
-    headers: { 'X-Goog-Api-Key': await activeServerKey(), 'X-Goog-FieldMask': FIELD_MASK },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  const response = await meteredFetch(
+    'GOOGLE_MAPS',
+    'places:details',
+    `${DETAILS_URL}/${encodeURIComponent(placeId)}`,
+    {
+      headers: { 'X-Goog-Api-Key': await activeServerKey(), 'X-Goog-FieldMask': FIELD_MASK },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    },
+  );
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 300);
     throw new Error(`Google Places details failed (${response.status}): ${detail}`);

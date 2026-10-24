@@ -15,6 +15,7 @@ const asset = (name: string, size = 100) => ({
 });
 
 const release = (version: string, names: string[], extra: Partial<Payload> = {}): Payload => ({
+  id: Number(version.replaceAll('.', '')),
   tag_name: `${TRACKER_TAG_PREFIX}${version}`,
   name: `Tracker ${version}`,
   body: `Notes ${version}`,
@@ -51,6 +52,7 @@ describe('toTrackerRelease', () => {
   it('reshapes a release and keeps only installer assets', () => {
     const shaped = toTrackerRelease(release('1.2.0', ['a.exe', 'latest.yml']));
     expect(shaped).toEqual({
+      id: '120',
       version: '1.2.0',
       tag: 'tracker-v1.2.0',
       name: 'Tracker 1.2.0',

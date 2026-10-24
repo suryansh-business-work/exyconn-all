@@ -22,7 +22,8 @@ export function describeOAuthClientSchema(spec: Readonly<OAuthClientSchemaSpec>)
     ...overrides,
   });
   const messages = (hasSecret: boolean, overrides: Record<string, unknown>) =>
-    spec.make(hasSecret)
+    spec
+      .make(hasSecret)
       .safeParse(values(overrides))
       .error?.issues.map((issue) => issue.message) ?? [];
 

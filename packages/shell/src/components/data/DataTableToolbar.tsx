@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useT } from '@exyconn/i18n';
@@ -11,10 +12,15 @@ interface DataTableToolbarProps {
   onRefresh?: () => Promise<unknown>;
   /** Present when rows can be ticked and deleted together. */
   bulk?: DataTableBulk;
+  /** The page's own buttons for the ticked rows. */
+  selectionActions?: (selectedIds: readonly string[]) => ReactNode;
 }
 
 /** What is selected and what can be done to it, announced politely as it changes. */
-function SelectionControls({ bulk }: Readonly<{ bulk: DataTableBulk }>) {
+function SelectionControls({
+  bulk,
+  selectionActions,
+}: Readonly<Pick<DataTableToolbarProps, 'selectionActions'> & { bulk: DataTableBulk }>) {
   const t = useT();
   const count = bulk.selectedIds.length;
   return (
@@ -24,6 +30,7 @@ function SelectionControls({ bulk }: Readonly<{ bulk: DataTableBulk }>) {
       </Typography>
       {count > 0 && (
         <>
+          {selectionActions?.(bulk.selectedIds)}
           <Button
             size="small"
             color="error"
@@ -48,7 +55,12 @@ function SelectionControls({ bulk }: Readonly<{ bulk: DataTableBulk }>) {
  * The strip above a {@link DataTable}: with selection on, the selected count, "Delete selected"
  * and a running bulk job's progress; then the Refresh button when the page can re-run its query.
  */
-export function DataTableToolbar({ loading, onRefresh, bulk }: Readonly<DataTableToolbarProps>) {
+export function DataTableToolbar({
+  loading,
+  onRefresh,
+  bulk,
+  selectionActions,
+}: Readonly<DataTableToolbarProps>) {
   if (!onRefresh && !bulk) {
     return null;
   }
@@ -63,7 +75,7 @@ export function DataTableToolbar({ loading, onRefresh, bulk }: Readonly<DataTabl
         mb: 0.5,
       }}
     >
-      {bulk && <SelectionControls bulk={bulk} />}
+      {bulk && <SelectionControls bulk={bulk} selectionActions={selectionActions} />}
       {onRefresh && (
         <TableRefreshButton
           disabled={loading}

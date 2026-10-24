@@ -1,3 +1,4 @@
+import { metered } from '../modules/tech/usage/usage.meter';
 import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
 import { env } from '../config/env';
@@ -113,7 +114,9 @@ class Mailer {
     if (errors.length) {
       logger.error({ errors }, `MJML compilation produced errors for "${subject}"`);
     }
-    await transporter.sendMail({ from: fromAddress, to, subject, html, ...extras });
+    await metered('SMTP', 'transactional', () =>
+      transporter.sendMail({ from: fromAddress, to, subject, html, ...extras }),
+    );
     logger.info(`Email "${subject}" sent to ${maskEmail(to)}`);
   }
 
@@ -143,18 +146,20 @@ class Mailer {
    */
   async sendMarketingEmail(payload: MarketingEmailPayload): Promise<void> {
     const { transporter, fromAddress } = await this.getTransport();
-    await transporter.sendMail({
-      from: { name: payload.fromName, address: fromAddress },
-      to: payload.to,
-      replyTo: payload.replyTo || undefined,
-      subject: payload.subject,
-      html: payload.html,
-      text: payload.text,
-      headers: {
-        'List-Unsubscribe': `<${payload.listUnsubscribeUrl}>`,
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-      },
-    });
+    await metered('SMTP', 'marketing', () =>
+      transporter.sendMail({
+        from: { name: payload.fromName, address: fromAddress },
+        to: payload.to,
+        replyTo: payload.replyTo || undefined,
+        subject: payload.subject,
+        html: payload.html,
+        text: payload.text,
+        headers: {
+          'List-Unsubscribe': `<${payload.listUnsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+      }),
+    );
     logger.info(`Marketing email "${payload.subject}" sent to ${maskEmail(payload.to)}`);
   }
 
@@ -199,7 +204,9 @@ class Mailer {
     if (errors.length) {
       logger.error({ errors }, 'MJML compilation produced errors for test email');
     }
-    await transporter.sendMail({ from: fromAddress, to, subject, html });
+    await metered('SMTP', 'test', () =>
+      transporter.sendMail({ from: fromAddress, to, subject, html }),
+    );
     logger.info(`Test email sent to ${maskEmail(to)} via config "${config.label}"`);
   }
 }

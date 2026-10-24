@@ -198,7 +198,7 @@ describe('popup', () => {
   it('asks to sign in when signed out', async () => {
     workerAnswering({ 'state/get': SIGNED_OUT });
     render(<PopupApp tabId={null} logger={testLogger()} />);
-    expect(await screen.findByRole('button', { name: 'Sign in with Exyconn' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Open portal/ })).toHaveAttribute(
       'href',
       'http://localhost:4021/me/meetings',
@@ -224,7 +224,7 @@ describe('popup', () => {
     chrome.tabs.query.mockRejectedValueOnce(new Error('no tabs'));
     const logger = testLogger();
     render(<PopupRoot logger={logger} />);
-    expect(await screen.findByRole('button', { name: 'Sign in with Exyconn' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
     expect(logger.warn).toHaveBeenCalledWith('Could not read the active tab', expect.any(Error));
   });
 
@@ -232,7 +232,7 @@ describe('popup', () => {
     const chrome = workerAnswering({ 'state/get': SIGNED_OUT });
     chrome.tabs.query.mockResolvedValueOnce([{} as chrome.tabs.Tab]);
     render(<PopupRoot logger={testLogger()} />);
-    expect(await screen.findByRole('button', { name: 'Sign in with Exyconn' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
     expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: 'state/get' });
   });
 

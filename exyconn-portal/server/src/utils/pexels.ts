@@ -1,3 +1,4 @@
+import { metered } from '../modules/tech/usage/usage.meter';
 import { PexelsConfigModel, type PexelsConfigDocument } from '../modules/tech/pexels-config.model';
 import { ConfigurationError } from './errors';
 
@@ -78,15 +79,18 @@ function bestVideoFile(files: VideoFilePayload[]): VideoFilePayload | undefined 
  * normalised to `PexelsMedia` so photos and videos render through the same grid.
  */
 class PexelsClient {
-  private async request<T>(apiKey: string, path: string): Promise<T> {
-    const response = await fetch(`${PEXELS_API_URL}${path}`, {
-      headers: { Authorization: apiKey },
+  private request<T>(apiKey: string, path: string): Promise<T> {
+    // Counted by endpoint (the search words would make every search its own row).
+    return metered('PEXELS', path.split('?')[0], async () => {
+      const response = await fetch(`${PEXELS_API_URL}${path}`, {
+        headers: { Authorization: apiKey },
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(`Pexels ${path} failed (${response.status}): ${detail.slice(0, 200)}`);
+      }
+      return (await response.json()) as T;
     });
-    if (!response.ok) {
-      const detail = await response.text();
-      throw new Error(`Pexels ${path} failed (${response.status}): ${detail.slice(0, 200)}`);
-    }
-    return (await response.json()) as T;
   }
 
   /** Loads the single active Pexels config, or throws. */

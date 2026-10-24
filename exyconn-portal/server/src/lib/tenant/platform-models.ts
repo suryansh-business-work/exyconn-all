@@ -65,6 +65,18 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   // NOTE: the support mailbox (InboundMailConfig) is deliberately NOT here — a company reads
   // its own mailbox into its own tickets, so each configures one in Tech.
   'AiModelPrice',
+  // What each integration was used for (Tech > Environment Variables dashboard), the exchange
+  // rates its costs are read in, and the extra keys that read a provider's real bill.
+  'IntegrationUsage',
+  'FxRates',
+  'BillingKeyConfig',
+  // The CRM MCP server's OAuth sign-in (Claude's custom connector): registered clients, sign-ins
+  // in progress, their one-time codes and the connections they open. Each connection names the
+  // person and company it acts for; the tool calls it makes (McpCall) are that company's own.
+  'McpClient',
+  'McpAuthRequest',
+  'McpAuthCode',
+  'McpToken',
   // Exyconn's own site and public status page — not a customer's data.
   'BlogPost',
   'CaseStudy',

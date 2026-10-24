@@ -1,0 +1,61 @@
+import { MockedProvider } from '@apollo/client/testing/react';
+import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
+import { StartBuildForm } from './start-build.form';
+import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { theme } from '@exyconn/shell/config/theme';
+
+const mount = () =>
+  cy.mount(
+    <MockedProvider mocks={[]}>
+      <ThemeProvider theme={theme}>
+        <NotificationProvider>
+          <StartBuildForm channelCount={2} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
+        </NotificationProvider>
+      </ThemeProvider>
+    </MockedProvider>,
+  );
+
+describe('StartBuildForm', () => {
+  it('refuses a build that would produce no installer', () => {
+    mount();
+    cy.contains('button', 'Start build').click();
+    cy.contains('Choose at least one installer to build').should('be.visible');
+  });
+
+  it('offers the phone builds and says what each one produces', () => {
+    mount();
+    cy.contains('Android produces an APK').should('be.visible');
+    cy.get('input[name="platforms"]').parent().find('[role="combobox"]').click();
+    cy.get('li[role="option"]').contains('Android').should('be.visible');
+    cy.get('li[role="option"]').contains('iOS').click();
+    cy.get('body').type('{esc}');
+    cy.contains('Unsigned app (.ipa)').should('be.visible');
+  });
+
+  it('starts from a default branch rather than an empty one', () => {
+    mount();
+    cy.get('input[name="ref"]').should('not.have.value', '');
+  });
+
+  it('raises the patch version unless told otherwise, and offers every bump', () => {
+    mount();
+    cy.get('input[name="bump"]').should('have.value', 'PATCH');
+    cy.get('input[name="bump"]').parent().find('[role="combobox"]').click();
+    cy.get('li[role="option"]').contains('Major').should('be.visible');
+    cy.get('li[role="option"]').contains('Keep the current version').click();
+    cy.get('input[name="bump"]').should('have.value', 'NONE');
+  });
+
+  it('requires a branch to build from', () => {
+    mount();
+    cy.get('input[name="ref"]').clear();
+    cy.contains('button', 'Start build').click();
+    cy.contains('Branch is required').should('be.visible');
+  });
+
+  it('invokes onCancel when Cancel is clicked', () => {
+    mount();
+    cy.contains('button', 'Cancel').click();
+    cy.get('@cancel').should('have.been.called');
+  });
+});

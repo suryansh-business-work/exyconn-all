@@ -11,6 +11,8 @@ const trackerBuildSettingsSchema = new Schema(
     slackChannels: { type: [String], required: true, default: [] },
     /** Slack channel ids a status incident opening or resolving is posted to. */
     statusAlertChannels: { type: [String], required: true, default: [] },
+    /** How many of the newest builds the retention loop keeps; 0 keeps every build. */
+    keepLatestBuilds: { type: Number, required: true, min: 0, default: 0 },
   },
   { timestamps: true },
 );

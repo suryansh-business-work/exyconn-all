@@ -13,6 +13,7 @@ import {
 } from './pages/tracker';
 import { TrackerDownloadPage } from './pages/download';
 import { TrackerOverviewPage } from './pages/overview';
+import { BuildDetailsPage, TrackerBuildsPage } from './pages/builds';
 
 /** Time Tracker micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -27,6 +28,8 @@ export function App() {
       <Route path="/tracker/messages/:tab?" element={<TrackerMessagesPage />} />
       <Route path="/tracker/settings" element={<TrackerSettingsPage />} />
       <Route path="/tracker/download" element={<TrackerDownloadPage />} />
+      <Route path="/tracker/builds/release/:id" element={<BuildDetailsPage />} />
+      <Route path="/tracker/builds/:tab?" element={<TrackerBuildsPage />} />
     </PortalApp>
   );
 }

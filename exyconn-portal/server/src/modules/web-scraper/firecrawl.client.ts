@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import { trimTrailing } from '../../utils/textTrim';
 
 /**
@@ -31,7 +32,7 @@ export async function firecrawlScrape(
   if (apiKey) {
     headers.Authorization = `Bearer ${apiKey}`;
   }
-  const response = await fetch(scrapeUrlOf(baseUrl), {
+  const response = await meteredFetch('FIRECRAWL', 'scrape', scrapeUrlOf(baseUrl), {
     method: 'POST',
     headers,
     body: JSON.stringify({ url, formats: ['markdown'], onlyMainContent: true }),

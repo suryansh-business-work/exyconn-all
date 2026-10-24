@@ -89,6 +89,13 @@ jest.mock('../../src/modules/calling-bot-demo', () => ({
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/table-transfer', () => ({ startTableBulkJobs: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
+jest.mock('../../src/modules/tech/tracker-releases.service', () => ({
+  startTrackerBuildRetention: jest.fn(),
+}));
+jest.mock('../../src/modules/meeting-assistant/releases.cleanup', () => ({
+  startReleaseRetention: jest.fn(),
+}));
+jest.mock('../../src/modules/tech/fx/fx.service', () => ({ startFxRates: jest.fn() }));
 jest.mock('../../../../demos/whatsapp-demo/server/src', () => ({
   ensureWhatsappDemoSeeds: jest.fn(),
 }));
@@ -130,6 +137,9 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/status', 'startStatusMonitor'],
   ['../../src/modules/payroll', 'startPayrollDispatch'],
   ['../../src/modules/tracker', 'startTrackerRetention'],
+  ['../../src/modules/tech/tracker-releases.service', 'startTrackerBuildRetention'],
+  ['../../src/modules/meeting-assistant/releases.cleanup', 'startReleaseRetention'],
+  ['../../src/modules/tech/fx/fx.service', 'startFxRates'],
   ['../../src/modules/tracker', 'startTrackerDigest'],
   ['../../src/modules/tracker', 'startEmployeeReports'],
   ['../../src/modules/marketing', 'startCampaignSchedule'],

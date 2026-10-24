@@ -1,6 +1,4 @@
-import { PORTAL_CONNECT_PATH, PORTAL_URL } from '../config';
-import { buildConnectUrl, readAuthRedirect } from '../services/auth-redirect';
-import { createPkcePair } from '../utils/pkce';
+import type { SignInStep } from '../services/auth';
 import { clearOrg, getOrg } from './org';
 import { auth, logger, registry } from './services';
 import { publish } from './state';
@@ -17,31 +15,31 @@ async function publishAll(): Promise<void> {
   await Promise.all(sessions.map((session) => publish(session.tabId)));
 }
 
+/** Once a step has signed the extension in, loads the company's settings and tells every tab. */
+async function finish(step: SignInStep): Promise<SignInStep> {
+  if (step.mfaChallenge === null) {
+    await getOrg(true);
+    logger.info('Extension signed in');
+    await publishAll();
+  }
+  return step;
+}
+
 /**
- * Signs the extension in through the portal (authorization code + PKCE). The browser shows
- * the portal's own sign-in; the extension never sees a password.
+ * Signs the extension in with the person's portal email and password, typed into the
+ * extension. With two-factor on, it answers the challenge to send back with the code.
  */
-export async function signIn(): Promise<void> {
-  const pkce = await createPkcePair();
-  const redirectUri = chrome.identity.getRedirectURL('auth');
-  const url = buildConnectUrl({
-    portalUrl: PORTAL_URL,
-    connectPath: PORTAL_CONNECT_PATH,
-    extensionId: chrome.runtime.id,
-    redirectUri,
-    pkce,
-  });
-  const responseUrl = await chrome.identity.launchWebAuthFlow({ url, interactive: true });
-  const code = readAuthRedirect(responseUrl, pkce.state);
-  await auth.exchangeCode({
-    code,
-    verifier: pkce.verifier,
-    redirectUri,
-    deviceLabel: await deviceLabel(),
-  });
-  await getOrg(true);
-  logger.info('Extension signed in');
-  await publishAll();
+export async function signIn(email: string, password: string): Promise<SignInStep> {
+  return finish(
+    await auth.signInWithPassword({ email, password, deviceLabel: await deviceLabel() }),
+  );
+}
+
+/** The second half of a two-factor sign-in: the code from the authenticator app. */
+export async function completeSecondFactor(challenge: string, code: string): Promise<SignInStep> {
+  return finish(
+    await auth.completeSecondFactor({ challenge, code, deviceLabel: await deviceLabel() }),
+  );
 }
 
 /** Stops every capture, revokes the sign-in on the server and forgets it locally. */

@@ -4,7 +4,7 @@ name: Tracker Release
 # macOS (.dmg) and Linux (.AppImage), and the phone app for Android (.apk + .aab) and iOS
 # (.ipa) — publishes them on one GitHub Release tagged tracker-v<version>, and uploads the
 # files to Slack. Runs when tracker code lands on main, and on demand from the portal's
-# Tech > Tracker Build screen, which chooses the platforms and the Slack channels.
+# Tracker > Builds screen, which chooses the platforms, the version bump and the Slack channels.
 #
 # Nothing is ever built on a developer's machine: this workflow is the only place a tracker
 # binary comes from.
@@ -12,21 +12,26 @@ on:
   push:
     branches: [main]
     paths:
-      - 'exyconn-tracker-app/**'
-      - 'exyconn-tracker-mobile/**'
-      - 'packages/tracker-core/**'
-      - '.github/workflows/tracker-release.yml'
-      - '.github/scripts/slack-upload-files.sh'
+      - "exyconn-tracker-app/**"
+      - "exyconn-tracker-mobile/**"
+      - "packages/tracker-core/**"
+      - ".github/workflows/tracker-release.yml"
+      - ".github/scripts/slack-upload-files.sh"
   workflow_dispatch:
     inputs:
       platforms:
-        description: 'Builds to make, comma-separated: windows, macos, linux, android, ios'
+        description: "Builds to make, comma-separated: windows, macos, linux, android, ios"
         required: false
-        default: 'windows,macos,linux,android,ios'
+        default: "windows,macos,linux,android,ios"
       slack_channels:
-        description: 'Slack channel ids to post the installers to, comma-separated'
+        description: "Slack channel ids to post the installers to, comma-separated"
         required: false
-        default: ''
+        default: ""
+      bump:
+        description: "Raise the tracker version before building and commit it to the branch"
+        type: choice
+        options: [none, patch, minor, major]
+        default: none
 
 concurrency:
   group: tracker-release
@@ -40,15 +45,39 @@ jobs:
   # A push builds everything; a dispatch builds only what was asked for. The matrix
   # is computed here rather than filtered per job, so a platform that was not chosen
   # never shows up as a skipped job in the run.
+  #
+  # A dispatch can also raise the version first (Tracker > Builds > Create build): the bump is
+  # committed to the branch, and every job below builds that commit, so the version stamped on
+  # the installers is the one in the repository. A GITHUB_TOKEN push starts no workflow, so the
+  # bump commit does not trigger this run again.
   plan:
     name: Plan builds
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       matrix: ${{ steps.pick.outputs.matrix }}
       desktop: ${{ steps.pick.outputs.desktop }}
       android: ${{ steps.pick.outputs.android }}
       ios: ${{ steps.pick.outputs.ios }}
+      sha: ${{ steps.version.outputs.sha }}
     steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - id: version
+        env:
+          BUMP: ${{ github.event_name == 'workflow_dispatch' && inputs.bump || 'none' }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ "$BUMP" != "none" ]; then
+            node scripts/bump-version.mjs "$BUMP"
+            version=$(node -p "require('./exyconn-tracker-app/package.json').version")
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add exyconn-tracker-app/package.json exyconn-tracker-mobile/package.json
+            git commit -m "Tracker $version ($BUMP bump from Tracker > Builds)"
+            git push origin "HEAD:$BRANCH"
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - id: pick
         env:
           PLATFORMS: ${{ github.event_name == 'workflow_dispatch' && inputs.platforms || 'windows,macos,linux,android,ios' }}
@@ -91,6 +120,8 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: false
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 9.15.0
@@ -122,6 +153,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 9.15.0
@@ -180,6 +213,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 9.15.0
@@ -231,6 +266,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
       - name: Read app version
         id: app
         run: echo "version=$(node -p "require('./exyconn-tracker-app/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -245,7 +282,7 @@ jobs:
         with:
           tag_name: tracker-v${{ steps.app.outputs.version }}
           name: Exyconn Tracker ${{ steps.app.outputs.version }}
-          target_commitish: ${{ github.sha }}
+          target_commitish: ${{ needs.plan.outputs.sha }}
           files: installers/*
           make_latest: true
       # Posting to Slack needs a bot token (an incoming webhook cannot carry files).

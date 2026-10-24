@@ -20,6 +20,12 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PublicIcon from '@mui/icons-material/Public';
 import MapIcon from '@mui/icons-material/Map';
 import WebIcon from '@mui/icons-material/Web';
+import InsightsIcon from '@mui/icons-material/Insights';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import { IntegrationProvider } from '@exyconn/shell/graphql/generated';
+import { BillingKeysPanel } from './BillingKeysPanel';
+import { IntegrationsDashboard } from './usage/IntegrationsDashboard';
+import { IntegrationUsageCard } from './usage/IntegrationUsageCard';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { GoogleMapsConfigsPanel } from './GoogleMapsConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
@@ -46,7 +52,18 @@ export interface EnvironmentVariablesSection extends PageSideNavItem {
   panel: ReactNode;
 }
 
+/** An integration's page: its usage and billing over the period, then its configs. */
+function withUsage(provider: IntegrationProvider, panel: ReactNode): ReactNode {
+  return (
+    <>
+      <IntegrationUsageCard provider={provider} />
+      {panel}
+    </>
+  );
+}
+
 /** Category names (English sources), in the order the menu groups them. */
+const OVERVIEW = 'Overview';
 const MESSAGING = 'Messaging & email';
 const GOOGLE = 'Google';
 const MEDIA = 'Media';
@@ -58,18 +75,32 @@ const DEVELOPER = 'Developer tools';
 /** Every integration, grouped by category; the first one opens when the address names none. */
 export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSection[] = [
   {
+    slug: 'dashboard',
+    label: 'Dashboard',
+    category: OVERVIEW,
+    icon: <InsightsIcon />,
+    panel: <IntegrationsDashboard />,
+  },
+  {
+    slug: 'billing-keys',
+    label: 'Billing keys',
+    category: OVERVIEW,
+    icon: <ReceiptLongIcon />,
+    panel: <BillingKeysPanel />,
+  },
+  {
     slug: 'slack',
     label: 'Slack',
     category: MESSAGING,
     icon: <ChatIcon />,
-    panel: <SlackConfigsPanel />,
+    panel: withUsage(IntegrationProvider.Slack, <SlackConfigsPanel />),
   },
   {
     slug: 'smtp',
     label: 'SMTP',
     category: MESSAGING,
     icon: <EmailIcon />,
-    panel: <EmailConfigsPanel />,
+    panel: withUsage(IntegrationProvider.Smtp, <EmailConfigsPanel />),
   },
   {
     slug: 'inbound-mail',
@@ -105,28 +136,28 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     label: 'Google Maps',
     category: GOOGLE,
     icon: <MapIcon />,
-    panel: <GoogleMapsConfigsPanel />,
+    panel: withUsage(IntegrationProvider.GoogleMaps, <GoogleMapsConfigsPanel />),
   },
   {
     slug: 'imagekit',
     label: 'ImageKit',
     category: MEDIA,
     icon: <ImageIcon />,
-    panel: <ImageConfigsPanel />,
+    panel: withUsage(IntegrationProvider.Imagekit, <ImageConfigsPanel />),
   },
   {
     slug: 'pexels',
     label: 'Pexels',
     category: MEDIA,
     icon: <PhotoLibraryIcon />,
-    panel: <PexelsConfigsPanel />,
+    panel: withUsage(IntegrationProvider.Pexels, <PexelsConfigsPanel />),
   },
   {
     slug: 'openai',
     label: 'OpenAI',
     category: AI,
     icon: <SmartToyIcon />,
-    panel: <OpenAiConfigsPanel />,
+    panel: withUsage(IntegrationProvider.Openai, <OpenAiConfigsPanel />),
   },
   {
     slug: 'ai-pricing',
@@ -140,7 +171,7 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     label: 'Firecrawl',
     category: AI,
     icon: <WebIcon />,
-    panel: <FirecrawlConfigsPanel />,
+    panel: withUsage(IntegrationProvider.Firecrawl, <FirecrawlConfigsPanel />),
   },
   {
     slug: 'stripe',
@@ -189,7 +220,7 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     label: 'GitHub',
     category: DEVELOPER,
     icon: <GitHubIcon />,
-    panel: <GithubConfigsPanel />,
+    panel: withUsage(IntegrationProvider.Github, <GithubConfigsPanel />),
   },
   {
     slug: 'sonarqube',

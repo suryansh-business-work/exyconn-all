@@ -148,13 +148,48 @@ describe('POST /auth/token', () => {
       code: 'x',
       code_verifier: 'short',
     });
-    const badType = await token({ grant_type: 'password' });
+    const badType = await token({ grant_type: 'client_credentials' });
     const noBody = await request(app).post(`${MA_REST_PATH}/auth/token`);
 
     expect([badGrant.status, badGrant.body.error]).toEqual([401, 'invalid_grant']);
     expect([badRequest.status, badRequest.body.error]).toEqual([400, 'invalid_request']);
     expect([badType.status, badType.body.error]).toEqual([400, 'unsupported_grant_type']);
     expect(noBody.status).toBe(400);
+  });
+
+  it('signs in with a password, or asks for the second factor and then takes it', async () => {
+    const tokens = { access_token: 'a', token_type: 'Bearer', refresh_token: 'r' };
+    const password = jest
+      .spyOn(extensionAuth, 'signInWithPassword')
+      .mockResolvedValueOnce({ mfa_required: true, mfa_challenge: 'c1' });
+    const second = jest
+      .spyOn(extensionAuth, 'completeMfaSignIn')
+      .mockResolvedValueOnce(tokens as never);
+
+    const first = await token({
+      grant_type: 'password',
+      email: 'ravi@exyconn.com',
+      password: `pw-${Date.now()}`,
+      extension_id: EXTENSION_ID,
+      device_label: 'Laptop',
+    });
+    const done = await token({
+      grant_type: 'mfa',
+      mfa_challenge: 'c1',
+      code: '123456',
+      extension_id: EXTENSION_ID,
+    });
+
+    expect(first.body).toEqual({ mfa_required: true, mfa_challenge: 'c1' });
+    expect(password).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'ravi@exyconn.com', extensionId: EXTENSION_ID }),
+      expect.objectContaining({ deviceLabel: 'Laptop' }),
+    );
+    expect(second).toHaveBeenCalledWith(
+      expect.objectContaining({ challenge: 'c1', code: '123456', extensionId: EXTENSION_ID }),
+      expect.objectContaining({ deviceLabel: '' }),
+    );
+    expect(done.body).toEqual(tokens);
   });
 
   it('answers 500 without detail when sign-in fails unexpectedly', async () => {
@@ -167,7 +202,7 @@ describe('POST /auth/token', () => {
 
   it('slows down a burst of sign-in attempts', async () => {
     const responses = await Promise.all(
-      Array.from({ length: 32 }, () => token({ grant_type: 'password' })),
+      Array.from({ length: 32 }, () => token({ grant_type: 'client_credentials' })),
     );
 
     expect(responses.some((response) => response.status === 429)).toBe(true);

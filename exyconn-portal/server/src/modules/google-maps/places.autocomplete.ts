@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import type { LatLng } from '../../utils/geo';
 
 /**
@@ -49,7 +50,7 @@ export async function suggestLocations(
   apiKey: string,
   input: string,
 ): Promise<LocationSuggestion[]> {
-  const response = await fetch(AUTOCOMPLETE_URL, {
+  const response = await meteredFetch('GOOGLE_MAPS', 'places:autocomplete', AUTOCOMPLETE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey },
     body: JSON.stringify({ input, includedPrimaryTypes: ['(regions)'] }),
@@ -78,10 +79,15 @@ export const isPlaceId = (placeId: string): boolean => PLACE_ID_PATTERN.test(pla
 
 /** Where a suggested place is, read from Place Details with only the location field (billed by mask). */
 export async function locatePlace(apiKey: string, placeId: string): Promise<LatLng> {
-  const response = await fetch(`${PLACE_URL}/${encodeURIComponent(placeId)}`, {
-    headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'location' },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  const response = await meteredFetch(
+    'GOOGLE_MAPS',
+    'places:location',
+    `${PLACE_URL}/${encodeURIComponent(placeId)}`,
+    {
+      headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'location' },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    },
+  );
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 300);
     throw new Error(`Google Places location failed (${response.status}): ${detail}`);

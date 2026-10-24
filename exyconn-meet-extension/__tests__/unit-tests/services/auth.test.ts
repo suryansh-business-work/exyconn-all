@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createAuth, type AuthOptions } from '../../../src/services/auth';
-import { buildConnectUrl, readAuthRedirect } from '../../../src/services/auth-redirect';
 import { createTokenStore } from '../../../src/storage/tokens';
 import { MemoryArea, jsonResponse } from '../chrome-mock';
 
@@ -37,26 +36,23 @@ function setup(...responses: Array<Response | Error>) {
   return { auth, fetchImpl, store, now, body };
 }
 
+const PASSWORD = `pw-${NOW}`;
+const credentials = { email: 'ravi@exyconn.com', password: PASSWORD, deviceLabel: 'Chrome on mac' };
+
 async function signedIn(...responses: Array<Response | Error>) {
   const context = setup(jsonResponse(200, tokens(1)), ...responses);
-  await context.auth.exchangeCode({
-    code: 'c',
-    verifier: 'v',
-    redirectUri: 'https://ext.chromiumapp.org/auth',
-    deviceLabel: 'Chrome on mac',
-  });
+  await context.auth.signInWithPassword(credentials);
   return context;
 }
 
-describe('code exchange', () => {
-  it('posts the PKCE exchange and stores both tokens with their expiry', async () => {
+describe('password sign-in', () => {
+  it('posts the email and password and stores both tokens with their expiry', async () => {
     const { auth, store, body, fetchImpl } = await signedIn();
     expect(fetchImpl.mock.calls[0][0]).toBe('https://api.test/meet-assistant/auth/token');
     expect(body(0)).toEqual({
-      grant_type: 'authorization_code',
-      code: 'c',
-      code_verifier: 'v',
-      redirect_uri: 'https://ext.chromiumapp.org/auth',
+      grant_type: 'password',
+      email: 'ravi@exyconn.com',
+      password: PASSWORD,
       device_label: 'Chrome on mac',
       extension_id: 'ext',
       extension_version: '1.0.0',
@@ -69,19 +65,45 @@ describe('code exchange', () => {
     await expect(auth.isSignedIn()).resolves.toBe(true);
   });
 
-  it('rejects a refused or malformed exchange', async () => {
-    const refused = setup(jsonResponse(400, { error: 'invalid_grant' }));
+  it('hands back the two-factor challenge, storing nothing, then signs in with the code', async () => {
+    const { auth, store, body } = setup(
+      jsonResponse(200, { mfa_required: true, mfa_challenge: 'c1' }),
+      jsonResponse(200, tokens(1)),
+    );
+    await expect(auth.signInWithPassword(credentials)).resolves.toEqual({ mfaChallenge: 'c1' });
+    await expect(store.readAccess()).resolves.toBeNull();
+
     await expect(
-      refused.auth.exchangeCode({ code: 'c', verifier: 'v', redirectUri: 'r', deviceLabel: 'd' }),
-    ).rejects.toMatchObject({ code: 'invalid_grant' });
+      auth.completeSecondFactor({ challenge: 'c1', code: '123456', deviceLabel: 'Chrome on mac' }),
+    ).resolves.toEqual({ mfaChallenge: null });
+    expect(body(1)).toEqual({
+      grant_type: 'mfa',
+      mfa_challenge: 'c1',
+      code: '123456',
+      device_label: 'Chrome on mac',
+      extension_id: 'ext',
+      extension_version: '1.0.0',
+    });
+    await expect(auth.isSignedIn()).resolves.toBe(true);
+  });
+
+  it("rejects with the portal's own words, or a plain refusal, or a malformed answer", async () => {
+    const refused = setup(
+      jsonResponse(401, { error: 'invalid_grant', error_description: 'Invalid email or password' }),
+    );
+    await expect(refused.auth.signInWithPassword(credentials)).rejects.toMatchObject({
+      code: 'invalid_grant',
+      message: 'Invalid email or password',
+    });
     const odd = setup(jsonResponse(500, 'down'));
-    await expect(
-      odd.auth.exchangeCode({ code: 'c', verifier: 'v', redirectUri: 'r', deviceLabel: 'd' }),
-    ).rejects.toMatchObject({ code: 'server_error' });
-    const malformed = setup(jsonResponse(200, { access_token: 'a' }));
-    await expect(
-      malformed.auth.exchangeCode({ code: 'c', verifier: 'v', redirectUri: 'r', deviceLabel: 'd' }),
-    ).rejects.toMatchObject({ code: 'invalid_response' });
+    await expect(odd.auth.signInWithPassword(credentials)).rejects.toMatchObject({
+      code: 'server_error',
+      message: 'The sign-in was refused',
+    });
+    const malformed = setup(jsonResponse(200, { access_token: 'a', mfa_required: 'yes' }));
+    await expect(malformed.auth.signInWithPassword(credentials)).rejects.toMatchObject({
+      code: 'invalid_response',
+    });
   });
 });
 
@@ -165,44 +187,5 @@ describe('sign-out', () => {
     const { auth, fetchImpl } = setup();
     await expect(auth.signOut()).resolves.toBe(true);
     expect(fetchImpl).not.toHaveBeenCalled();
-  });
-});
-
-describe('connect URL and redirect', () => {
-  const pkce = { verifier: 'v', challenge: 'chal', state: 'st' };
-
-  it('builds the portal sign-in URL with PKCE S256', () => {
-    const url = new URL(
-      buildConnectUrl({
-        portalUrl: 'https://employee.test',
-        connectPath: '/me/meetings/connect-extension',
-        extensionId: 'ext',
-        redirectUri: 'https://ext.chromiumapp.org/auth',
-        pkce,
-      }),
-    );
-    expect(url.origin + url.pathname).toBe('https://employee.test/me/meetings/connect-extension');
-    expect(Object.fromEntries(url.searchParams)).toEqual({
-      client_id: 'ext',
-      redirect_uri: 'https://ext.chromiumapp.org/auth',
-      code_challenge: 'chal',
-      code_challenge_method: 'S256',
-      state: 'st',
-    });
-  });
-
-  it('accepts the code only with the matching state', () => {
-    expect(readAuthRedirect('https://ext.chromiumapp.org/auth?code=abc&state=st', 'st')).toBe(
-      'abc',
-    );
-    expect(() =>
-      readAuthRedirect('https://ext.chromiumapp.org/auth?code=abc&state=other', 'st'),
-    ).toThrow('did not match');
-    expect(() => readAuthRedirect(undefined, 'st')).toThrow('cancelled');
-    expect(() => readAuthRedirect('', 'st')).toThrow('cancelled');
-    expect(() => readAuthRedirect('https://x/auth?error=access_denied&state=st', 'st')).toThrow(
-      'did not allow',
-    );
-    expect(() => readAuthRedirect('https://x/auth?state=st', 'st')).toThrow('no sign-in code');
   });
 });

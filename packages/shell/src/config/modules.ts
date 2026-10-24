@@ -190,7 +190,7 @@ const MEETING_ASSISTANT_NAV: ModuleChild[] = [
   { key: 'ma-logs', label: 'Logs', path: `${MA}/logs`, icon: HistoryIcon },
   {
     key: 'ma-releases',
-    label: 'Releases',
+    label: 'Builds',
     path: `${MA}/releases`,
     icon: NewReleasesIcon,
     role: ROLES.ADMIN,
@@ -601,19 +601,19 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Tools',
       },
       {
+        // What Claude did in the CRM through the MCP connector (AI > MCP Servers).
+        key: 'crm-claude-activity',
+        label: 'Claude (MCP) activity',
+        path: '/claude-activity',
+        icon: HubIcon,
+        group: 'Tools',
+      },
+      {
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
         label: 'Custom Properties',
         path: '/settings/properties',
         icon: TuneIcon,
-        group: 'Configuration',
-      },
-      {
-        // The company's calling and SMS accounts, and the mailboxes the CRM emails from.
-        key: 'crm-integrations',
-        label: 'Integrations',
-        path: '/integrations',
-        icon: PhoneInTalkIcon,
         group: 'Configuration',
       },
     ],
@@ -1220,6 +1220,14 @@ export const MODULES: ModuleDefinition[] = [
         path: '/ai/prompts',
         icon: AutoAwesomeIcon,
       },
+      {
+        // The CRM as an MCP server for Claude: connect, tools, usage and connections.
+        key: 'ai-mcp',
+        label: 'MCP Servers',
+        path: '/ai/mcp',
+        icon: HubIcon,
+        role: ROLES.CRM,
+      },
       ...MEETING_ASSISTANT_NAV,
     ],
   },
@@ -1273,6 +1281,16 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tracker/billing',
         icon: PaymentsIcon,
         group: 'Administration',
+      },
+      {
+        key: 'tracker-builds',
+        label: 'Builds',
+        path: '/tracker/builds',
+        icon: BuildIcon,
+        group: 'Administration',
+        // The builds are the platform's (one repository for every company): the server lets
+        // only platform staff holding TECH read or change them, so only they see the page.
+        role: ROLES.TECH,
       },
       {
         key: 'tracker-download',
@@ -1402,13 +1420,6 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tech/logs',
         icon: BugReportIcon,
         group: 'Operations',
-      },
-      {
-        key: 'tech-tracker-build',
-        label: 'Tracker Build',
-        path: '/tech/tracker-build',
-        icon: BuildIcon,
-        group: 'Releases',
       },
       {
         key: 'tech-security-ssl',

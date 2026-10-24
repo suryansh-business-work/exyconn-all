@@ -6,6 +6,7 @@ import { GithubConfigModel } from './github-config.model';
 import { PexelsConfigModel } from './pexels-config.model';
 import { OpenAiConfigModel } from './openai-config.model';
 import { TrackerBuildSettingsModel } from './tracker-build-settings.model';
+import type { TrackerVersionBump } from './tracker-releases.service';
 import { badRequest, notFound } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { imageUploader } from '../../utils/imagekit';
@@ -331,7 +332,11 @@ class TechService {
    * settings are passed to the workflow as inputs, so the run publishes exactly
    * the installers that were asked for and posts them where they are wanted.
    */
-  async startTrackerBuild(platforms: TrackerPlatform[], ref: string) {
+  async startTrackerBuild(
+    platforms: TrackerPlatform[],
+    ref: string,
+    bump: TrackerVersionBump = 'NONE',
+  ) {
     if (platforms.length === 0) {
       badRequest('Choose at least one platform to build.');
     }
@@ -339,6 +344,7 @@ class TechService {
     await githubActions.dispatchTrackerBuild(ref, {
       platforms: platforms.map((p) => p.toLowerCase()).join(','),
       slack_channels: settings.slackChannels.join(','),
+      bump: bump.toLowerCase(),
     });
     return true;
   }

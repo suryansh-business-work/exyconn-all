@@ -55,11 +55,11 @@ describe('TechOverviewPage', () => {
     expect(gql.reports).toHaveBeenCalledWith();
     expect(props().title).toBe('Tech');
     expect(props().links?.map((link) => link.to)).toEqual([
+      '/tech/environment-variables/dashboard',
       '/tech/environment-variables',
       '/tech/email',
       '/tech/status-monitors',
       '/tech/problem-reports',
-      '/tech/tracker-build',
     ]);
   });
 

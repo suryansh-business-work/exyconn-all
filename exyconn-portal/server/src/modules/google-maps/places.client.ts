@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import { ConfigurationError } from '../../utils/errors';
 import { GoogleMapsConfigModel } from './google-maps-config.model';
 import { boundsOf, insidePolygon, type LatLngPoint } from './search-area';
@@ -185,7 +186,7 @@ function withPaging(input: LeadSearchInput, body: Record<string, unknown>) {
 
 /** One page of Text Search with the given key. Google's own error message is kept. */
 export async function searchText(apiKey: string, input: LeadSearchInput): Promise<LeadSearchPage> {
-  const response = await fetch(SEARCH_URL, {
+  const response = await meteredFetch('GOOGLE_MAPS', 'places:searchText', SEARCH_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

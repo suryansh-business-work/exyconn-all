@@ -13,6 +13,7 @@ export const JOB_KEYS = {
   statusMonitor: 'statusMonitor',
   payrollDispatch: 'payrollDispatch',
   trackerRetention: 'trackerRetention',
+  trackerBuildRetention: 'trackerBuildRetention',
   trackerDigest: 'trackerDigest',
   trackerEmployeeReports: 'trackerEmployeeReports',
   recurringInvoices: 'recurringInvoices',
@@ -30,6 +31,8 @@ export const JOB_KEYS = {
   tableBulkJobs: 'tableBulkJobs',
   meetingAssistant: 'meetingAssistant',
   meetingAssistantRetention: 'meetingAssistantRetention',
+  meetingAssistantReleaseRetention: 'meetingAssistantReleaseRetention',
+  fxRates: 'fxRates',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

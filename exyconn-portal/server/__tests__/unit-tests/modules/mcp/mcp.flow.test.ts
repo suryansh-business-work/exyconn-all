@@ -1,0 +1,326 @@
+import { createHash, randomBytes } from 'node:crypto';
+import express from 'express';
+import request from 'supertest';
+import gql from 'graphql-tag';
+import { ApolloServer } from '@apollo/server';
+import { useTestOrganization } from '../../../helpers';
+import { mcpRouter } from '../../../../src/modules/mcp/mcp.router';
+import { mcpSchemaPlugin, useSchema, liveSchema } from '../../../../src/modules/mcp/mcp.crm';
+import {
+  approveAuthorization,
+  denyAuthorization,
+  describeAuthorization,
+} from '../../../../src/modules/mcp/mcp.connect';
+import { McpCallModel, McpTokenModel } from '../../../../src/modules/mcp/mcp.models';
+import { UserModel } from '../../../../src/modules/admin/user.model';
+import { AuditLogModel } from '../../../../src/modules/audit';
+import { runAsPlatform } from '../../../../src/lib/tenant';
+import { ROLES } from '../../../../src/constants/roles';
+import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { codeOf } from '../codeOf';
+
+const organizationId = useTestOrganization();
+
+const REDIRECT = 'https://claude.ai/api/mcp/auth_callback';
+const ACCEPT = 'application/json, text/event-stream';
+
+/** A small stand-in for the CRM: one read, one delete, one that always fails. */
+const typeDefs = gql`
+  type Pong {
+    id: ID!
+    text: String!
+  }
+  type Query {
+    "Says hello as the caller."
+    crmPing(name: String!): Pong!
+    crmBig: String!
+  }
+  type Mutation {
+    deleteThing(id: ID!): Boolean!
+    failing: Int!
+  }
+`;
+const resolvers = {
+  Query: {
+    crmPing: (_p: unknown, { name }: { name: string }, ctx: GraphQLContext) => ({
+      id: '1',
+      text: `hi ${name} from ${ctx.user?.email}`,
+    }),
+    crmBig: () => 'x'.repeat(70_000),
+  },
+  Mutation: {
+    deleteThing: () => true,
+    failing: () => {
+      throw new Error('nope');
+    },
+  },
+};
+
+const app = express();
+app.set('trust proxy', 1);
+app.use(mcpRouter());
+
+let user: { id: string; email: string };
+let ctx: GraphQLContext;
+
+beforeAll(async () => {
+  const apollo = new ApolloServer<GraphQLContext>({
+    typeDefs,
+    resolvers,
+    plugins: [mcpSchemaPlugin],
+  });
+  await apollo.start();
+  useSchema(liveSchema(), {
+    query: new Set(['crmPing', 'crmBig']),
+    mutation: new Set(['deleteThing', 'failing']),
+  });
+});
+
+beforeEach(async () => {
+  const created = await UserModel.create({
+    name: 'Asha',
+    email: 'asha@exyconn.com',
+    passwordHash: `hash-${Date.now()}`,
+    roles: [ROLES.CRM],
+    isActive: true,
+  });
+  user = { id: String(created._id), email: created.email };
+  ctx = {
+    user: { id: user.id, email: user.email, roles: [ROLES.CRM], organizationId },
+    organizationId,
+  };
+});
+
+function pkce() {
+  const verifier = randomBytes(32).toString('base64url');
+  return { verifier, challenge: createHash('sha256').update(verifier).digest('base64url') };
+}
+
+async function register(): Promise<string> {
+  const answer = await request(app)
+    .post('/register')
+    .send({
+      client_name: 'Claude',
+      redirect_uris: [REDIRECT],
+      token_endpoint_auth_method: 'none',
+      grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code'],
+    });
+  expect(answer.status).toBe(201);
+  return answer.body.client_id as string;
+}
+
+/** Register, authorize, allow and trade the code: the tokens Claude ends up holding. */
+async function connect() {
+  const clientId = await register();
+  const { verifier, challenge } = pkce();
+  const authorize = await request(app).get('/authorize').query({
+    response_type: 'code',
+    client_id: clientId,
+    redirect_uri: REDIRECT,
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    state: 'st-1',
+    scope: 'crm',
+  });
+  expect(authorize.status).toBe(302);
+  const consent = new URL(authorize.headers.location);
+  expect(consent.pathname).toBe('/ai/mcp/connect');
+  const id = consent.searchParams.get('request') ?? '';
+  expect(await describeAuthorization(ctx, id)).toMatchObject({
+    clientName: 'Claude',
+    redirectHost: 'claude.ai',
+    scopes: ['crm'],
+  });
+  const back = new URL(await approveAuthorization(ctx, id));
+  expect(back.searchParams.get('state')).toBe('st-1');
+  const token = await request(app)
+    .post('/token')
+    .type('form')
+    .send({
+      grant_type: 'authorization_code',
+      code: back.searchParams.get('code'),
+      code_verifier: verifier,
+      client_id: clientId,
+      redirect_uri: REDIRECT,
+    });
+  expect(token.status).toBe(200);
+  return { clientId, tokens: token.body as { access_token: string; refresh_token: string } };
+}
+
+const rpc = (token: string, method: string, params: Record<string, unknown> = {}) =>
+  request(app)
+    .post('/mcp')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Accept', ACCEPT)
+    .send({ jsonrpc: '2.0', id: 1, method, params });
+
+describe('Claude connecting to the CRM', () => {
+  it('publishes its sign-in settings for any origin', async () => {
+    const server = await request(app)
+      .get('/.well-known/oauth-authorization-server')
+      .set('Origin', 'https://claude.ai');
+    expect(server.status).toBe(200);
+    expect(server.headers['access-control-allow-origin']).toBe('*');
+    expect(server.body).toMatchObject({
+      authorization_endpoint: expect.stringMatching(/\/authorize$/),
+      token_endpoint: expect.stringMatching(/\/token$/),
+      registration_endpoint: expect.stringMatching(/\/register$/),
+      code_challenge_methods_supported: ['S256'],
+    });
+    const resource = await request(app).get('/.well-known/oauth-protected-resource/mcp');
+    expect(resource.body.resource).toMatch(/\/mcp$/);
+  });
+
+  it('turns away an MCP request without a token, pointing at the sign-in settings', async () => {
+    const answer = await request(app).post('/mcp').set('Accept', ACCEPT).send({});
+    expect(answer.status).toBe(401);
+    expect(answer.headers['www-authenticate']).toMatch(/resource_metadata=/);
+    expect((await request(app).get('/mcp')).status).toBe(405);
+    expect((await request(app).delete('/mcp')).status).toBe(405);
+  });
+
+  it('connects, lists the tools and runs them as the person who allowed it', async () => {
+    const { tokens } = await connect();
+
+    const init = await rpc(tokens.access_token, 'initialize', {
+      protocolVersion: '2025-06-18',
+      capabilities: {},
+      clientInfo: { name: 'claude', version: '1' },
+    });
+    expect(init.status).toBe(200);
+    expect(init.body.result.serverInfo.name).toBe('exyconn-crm');
+
+    const list = await rpc(tokens.access_token, 'tools/list');
+    const names = list.body.result.tools.map((tool: { name: string }) => tool.name);
+    expect(names).toEqual(['crmBig', 'crmPing', 'deleteThing', 'failing']);
+    const ping = list.body.result.tools.find((tool: { name: string }) => tool.name === 'crmPing');
+    expect(ping.annotations).toEqual({ readOnlyHint: true, destructiveHint: false });
+    expect(ping.inputSchema.required).toEqual(['name']);
+
+    const called = await rpc(tokens.access_token, 'tools/call', {
+      name: 'crmPing',
+      arguments: { name: 'Ravi' },
+    });
+    expect(JSON.parse(called.body.result.content[0].text)).toEqual({
+      id: '1',
+      text: 'hi Ravi from asha@exyconn.com',
+    });
+
+    const deleted = await rpc(tokens.access_token, 'tools/call', {
+      name: 'deleteThing',
+      arguments: { id: 'x1' },
+    });
+    expect(deleted.body.result.content[0].text).toBe('true');
+
+    const failed = await rpc(tokens.access_token, 'tools/call', { name: 'failing' });
+    expect(failed.body.result).toMatchObject({ isError: true, content: [{ text: 'nope' }] });
+
+    const unknown = await rpc(tokens.access_token, 'tools/call', { name: 'nothing' });
+    expect(unknown.body.result.content[0].text).toBe('There is no CRM tool named nothing.');
+
+    const missing = await rpc(tokens.access_token, 'tools/call', { name: 'crmPing' });
+    expect(missing.body.result.isError).toBe(true);
+
+    const big = await rpc(tokens.access_token, 'tools/call', { name: 'crmBig' });
+    expect(big.body.result.content[0].text).toMatch(/ask for fewer rows/);
+
+    const calls = await McpCallModel.find().sort({ at: 1 }).lean();
+    expect(calls.map((call) => [call.tool, call.ok])).toEqual([
+      ['crmPing', true],
+      ['deleteThing', true],
+      ['failing', false],
+      ['crmPing', false],
+      ['crmBig', true],
+    ]);
+    expect(calls[0]).toMatchObject({ userName: 'Asha', clientName: 'Claude', kind: 'QUERY' });
+    const audits = await runAsPlatform(() =>
+      AuditLogModel.find({ module: 'CRM (Claude MCP)' }).lean(),
+    );
+    expect(audits.map((entry) => entry.action).sort((a, b) => a.localeCompare(b))).toEqual([
+      'DELETE',
+      'LOGIN',
+    ]);
+  });
+
+  it('rotates the refresh token, and a signed-out connection or person loses access', async () => {
+    const { clientId, tokens } = await connect();
+    const refreshed = await request(app).post('/token').type('form').send({
+      grant_type: 'refresh_token',
+      refresh_token: tokens.refresh_token,
+      client_id: clientId,
+    });
+    expect(refreshed.status).toBe(200);
+    const again = await request(app).post('/token').type('form').send({
+      grant_type: 'refresh_token',
+      refresh_token: tokens.refresh_token,
+      client_id: clientId,
+    });
+    expect(again.status).toBe(400);
+    expect((await rpc(tokens.access_token, 'tools/list')).status).toBe(401);
+
+    const fresh = refreshed.body.access_token as string;
+    await UserModel.updateOne({ _id: user.id }, { isActive: false });
+    expect((await rpc(fresh, 'tools/list')).status).toBe(401);
+
+    const revoked = await request(app).post('/revoke').type('form').send({
+      token: refreshed.body.refresh_token,
+      client_id: clientId,
+    });
+    expect(revoked.status).toBe(200);
+    expect(await runAsPlatform(() => McpTokenModel.countDocuments({ revokedAt: null }))).toBe(0);
+  });
+
+  it('refuses a code used twice, or by another client', async () => {
+    const clientId = await register();
+    const other = await register();
+    const { verifier, challenge } = pkce();
+    const authorize = await request(app).get('/authorize').query({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: REDIRECT,
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+    });
+    const id = new URL(authorize.headers.location).searchParams.get('request') ?? '';
+    const code = new URL(await approveAuthorization(ctx, id)).searchParams.get('code');
+    const trade = (client: string) =>
+      request(app).post('/token').type('form').send({
+        grant_type: 'authorization_code',
+        code,
+        code_verifier: verifier,
+        client_id: client,
+        redirect_uri: REDIRECT,
+      });
+    expect((await trade(other)).status).toBe(400);
+    expect((await trade(clientId)).status).toBe(400);
+  });
+
+  it('sends a declined sign-in back with access_denied, and only for CRM users', async () => {
+    const clientId = await register();
+    const { challenge } = pkce();
+    const authorize = await request(app).get('/authorize').query({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: REDIRECT,
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      state: 'st-2',
+    });
+    const id = new URL(authorize.headers.location).searchParams.get('request') ?? '';
+    const outsider: GraphQLContext = {
+      user: { id: user.id, email: user.email, roles: [ROLES.EMPLOYEE], organizationId },
+      organizationId,
+    };
+    expect(await codeOf(describeAuthorization(outsider, id))).toBe('FORBIDDEN');
+    const platform: GraphQLContext = { ...ctx, organizationId: null };
+    expect(await codeOf(approveAuthorization(platform, id))).toBe('BAD_USER_INPUT');
+    const back = new URL(await denyAuthorization(ctx, id));
+    expect([back.searchParams.get('error'), back.searchParams.get('state')]).toEqual([
+      'access_denied',
+      'st-2',
+    ]);
+    expect(await codeOf(describeAuthorization(ctx, id))).toBe('NOT_FOUND');
+    expect(await codeOf(describeAuthorization(ctx, 'not-an-id'))).toBe('NOT_FOUND');
+  });
+});

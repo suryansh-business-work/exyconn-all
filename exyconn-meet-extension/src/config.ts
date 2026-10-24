@@ -16,5 +16,3 @@ export const EXTENSION_VERSION: string = __VERSION__;
 
 /** Where "Open portal" lands: the employee's meetings. */
 export const PORTAL_MEETINGS_PATH = '/me/meetings';
-/** The portal page that runs the extension's PKCE sign-in. */
-export const PORTAL_CONNECT_PATH = '/me/meetings/connect-extension';

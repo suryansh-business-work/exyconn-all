@@ -8,6 +8,10 @@ import { recordAudit } from '../audit';
 import { MaAuthCodeModel, MaExtensionSessionModel } from './models';
 import { getMaSettings } from './settings.service';
 import { MA_AUDIT_MODULE } from './ma.enums';
+import { proveSecondFactor, verifyCredentials } from '../auth/auth.service';
+import { assertWorkspaceOpen } from '../auth/workspace-status';
+import { mfaIsOn } from '../auth/mfa.service';
+import { signMfaChallenge } from '../../utils/jwt';
 import type { MaActor } from './ma.access';
 
 /** A one-time code is worth this long: the browser hands it straight back to the extension. */
@@ -40,10 +44,15 @@ export interface AuthorizeInput {
   state: string;
 }
 
+/** One of the extension builds this portal trusts. */
+function extensionTrusted(extensionId: string): boolean {
+  return env.meetAssistant.extensionIds.includes(extensionId);
+}
+
 /** The redirect a Chrome extension's identity flow listens on, for exactly this extension. */
 export function extensionRedirectAllowed(extensionId: string, redirectUri: string): boolean {
   return (
-    env.meetAssistant.extensionIds.includes(extensionId) &&
+    extensionTrusted(extensionId) &&
     redirectUri.startsWith(`https://${extensionId}.chromiumapp.org/`)
   );
 }
@@ -166,12 +175,22 @@ export async function exchangeCode(grant: CodeGrant, device: DeviceInfo): Promis
   if (!code || !matches || !organizationId) {
     throw new TokenRefusal('invalid_grant', 'The sign-in code is invalid or has expired.');
   }
+  return startSession(code.userId, organizationId, grant.extensionId, device);
+}
+
+/** A new extension session for someone who has proved who they are, with its first tokens. */
+function startSession(
+  userId: string,
+  organizationId: string,
+  extensionId: string,
+  device: DeviceInfo,
+): Promise<TokenResponse> {
   return runForOrganization(organizationId, async () => {
-    await usableAccount(code.userId);
+    await usableAccount(userId);
     const refresh = randomSecret();
     const session = await MaExtensionSessionModel.create({
-      userId: code.userId,
-      extensionId: grant.extensionId,
+      userId,
+      extensionId,
       refreshHash: hashOf(refresh),
       ...device,
       lastSeenAt: new Date(),
@@ -185,11 +204,88 @@ export async function exchangeCode(grant: CodeGrant, device: DeviceInfo): Promis
         entityId: session._id,
         entityLabel: device.deviceLabel || 'Chrome extension',
         summary: `Signed in to the Meeting Assistant Chrome extension (${device.extensionVersion || 'unknown version'})`,
-        actor: { id: code.userId },
+        actor: { id: userId },
       },
     );
-    return issue(session._id.toHexString(), code.userId, organizationId, refresh);
+    return issue(session._id.toHexString(), userId, organizationId, refresh);
   });
+}
+
+/** With two-factor on, a password buys only this: a five-minute challenge for the code. */
+export interface MfaRequired {
+  mfa_required: true;
+  mfa_challenge: string;
+}
+
+/** What a sign-in step answers: tokens, or a demand for the second factor. */
+export type SignInStep = TokenResponse | MfaRequired;
+
+/**
+ * Runs one of the portal's own sign-in checks and answers its refusal as OAuth's
+ * `invalid_grant`, keeping the portal's message (wrong password, locked, expired code).
+ */
+async function proved<T>(check: () => Promise<T>): Promise<T> {
+  try {
+    return await check();
+  } catch (error) {
+    if (error instanceof Error && 'extensions' in error) {
+      throw new TokenRefusal('invalid_grant', error.message);
+    }
+    throw error;
+  }
+}
+
+function assertTrusted(extensionId: string): void {
+  if (!extensionTrusted(extensionId)) {
+    throw new TokenRefusal('invalid_request', 'This extension is not one this portal trusts.');
+  }
+}
+
+export interface PasswordGrant {
+  email: string;
+  password: string;
+  extensionId: string;
+  ip: string;
+}
+
+/**
+ * Signs the extension in with the person's portal email and password, typed into the
+ * extension itself. The same checks as the portal sign-in apply — throttling, lockout, a
+ * suspended company — and two-factor, when it is on, still has to be passed.
+ */
+export async function signInWithPassword(
+  grant: PasswordGrant,
+  device: DeviceInfo,
+): Promise<SignInStep> {
+  assertTrusted(grant.extensionId);
+  const user = await proved(() => verifyCredentials(grant.email, grant.password, grant.ip));
+  const organizationId = organizationOf(user);
+  await proved(() => assertWorkspaceOpen(organizationId));
+  if (!organizationId) {
+    throw new TokenRefusal('access_denied', 'This account cannot sign in.');
+  }
+  if (await mfaIsOn(user.id)) {
+    return { mfa_required: true, mfa_challenge: signMfaChallenge(user.id) };
+  }
+  return startSession(user.id, organizationId, grant.extensionId, device);
+}
+
+export interface MfaGrant {
+  challenge: string;
+  code: string;
+  extensionId: string;
+  ip: string;
+}
+
+/** The second half of a two-factor sign-in from the extension (see proveSecondFactor). */
+export async function completeMfaSignIn(grant: MfaGrant, device: DeviceInfo): Promise<SignInStep> {
+  assertTrusted(grant.extensionId);
+  const user = await proved(() => proveSecondFactor(grant.challenge, grant.code, grant.ip));
+  const organizationId = organizationOf(user);
+  if (!organizationId) {
+    throw new TokenRefusal('access_denied', 'This account cannot sign in.');
+  }
+  return startSession(user.id, organizationId, grant.extensionId, device);
 }
 
 /**

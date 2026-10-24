@@ -66,7 +66,12 @@ bump `package.json` only for a notable change.
 | `notifications` | the optional "transcription is off" reminder                     |
 | `tabCapture`    | the call audio, after the user's click on the toolbar button      |
 | `offscreen`     | the recorder document (AudioWorklet, 16 kHz PCM WAV)              |
-| `identity`      | the portal sign-in (`launchWebAuthFlow`, OAuth code + PKCE S256)  |
+
+Sign-in needs no permission of its own: the person types their portal email and password (and
+the two-factor code, when it is on) into the panel, popup or options page. The form hands them
+to the worker in one message; the worker posts them to `/meet-assistant/auth/token`
+(`grant_type=password`, then `grant_type=mfa`) and never stores them — only the tokens it gets
+back. No portal page or browser pop-up is opened.
 
 Host access: `https://meet.google.com/*` and the mode's API origin only.
 

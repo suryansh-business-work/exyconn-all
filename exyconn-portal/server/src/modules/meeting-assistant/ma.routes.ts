@@ -8,11 +8,14 @@ import { UserModel } from '../admin/user.model';
 import type { GraphQLContext } from '../../middleware/auth';
 import { assertMaUser, ownedMeeting, type MaActor } from './ma.access';
 import {
+  completeMfaSignIn,
   exchangeCode,
   extensionSessionIsLive,
   refreshSession,
   revokeByRefreshToken,
+  signInWithPassword,
   TokenRefusal,
+  type DeviceInfo,
 } from './extension.auth';
 import { AudioRejection, transcribeChunk } from './transcription.service';
 import { readDownloadToken, MA_DOWNLOAD_PATH } from './download-links';
@@ -33,6 +36,13 @@ const text = (value: unknown, max = 2000) => (typeof value === 'string' ? value.
 const int = (value: unknown) =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : -1;
 
+/** Which browser a sign-in came from, as the extension describes itself. */
+const deviceOf = (req: Request, body: Record<string, unknown>): DeviceInfo => ({
+  deviceLabel: text(body.device_label, 200),
+  extensionVersion: text(body.extension_version, 40),
+  userAgent: text(req.headers['user-agent'], 500),
+});
+
 /** OAuth's token endpoint shape: 200 with tokens, or 400/401 with { error, error_description }. */
 async function tokenEndpoint(req: Request, res: Response): Promise<void> {
   res.set('Cache-Control', 'no-store');
@@ -50,13 +60,37 @@ async function tokenEndpoint(req: Request, res: Response): Promise<void> {
           redirectUri: text(body.redirect_uri, 500),
           extensionId: text(body.extension_id, 64),
         },
-        {
-          deviceLabel: text(body.device_label, 200),
-          extensionVersion: text(body.extension_version, 40),
-          userAgent: text(req.headers['user-agent'], 500),
-        },
+        deviceOf(req, body),
       );
       res.json(tokens);
+      return;
+    }
+    if (body.grant_type === 'password') {
+      res.json(
+        await signInWithPassword(
+          {
+            email: text(body.email, 320),
+            password: text(body.password, 200),
+            extensionId: text(body.extension_id, 64),
+            ip: req.ip ?? 'unknown',
+          },
+          deviceOf(req, body),
+        ),
+      );
+      return;
+    }
+    if (body.grant_type === 'mfa') {
+      res.json(
+        await completeMfaSignIn(
+          {
+            challenge: text(body.mfa_challenge, 2000),
+            code: text(body.code, 20),
+            extensionId: text(body.extension_id, 64),
+            ip: req.ip ?? 'unknown',
+          },
+          deviceOf(req, body),
+        ),
+      );
       return;
     }
     if (body.grant_type === 'refresh_token') {

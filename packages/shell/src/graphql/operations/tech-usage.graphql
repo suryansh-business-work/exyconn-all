@@ -1,0 +1,90 @@
+fragment IntegrationUsageTotals on IntegrationUsageSummary {
+  provider
+  calls
+  failures
+  inputTokens
+  outputTokens
+  costUsd
+}
+
+query IntegrationUsage($days: Int!) {
+  integrationUsage(days: $days) {
+    ...IntegrationUsageTotals
+    days {
+      day
+      calls
+      failures
+      costUsd
+    }
+    actions {
+      action
+      calls
+      failures
+      inputTokens
+      outputTokens
+      costUsd
+    }
+  }
+}
+
+query FxRates {
+  fxRates {
+    base
+    date
+    rates {
+      currency
+      rate
+    }
+  }
+}
+
+query BillingKeyConfigs {
+  billingKeyConfigs {
+    id
+    provider
+    label
+    hasKey
+    keyHint
+    isActive
+    updatedAt
+  }
+}
+
+query ProviderBilling($provider: BillingProvider!, $days: Int!) {
+  providerBilling(provider: $provider, days: $days) {
+    provider
+    totalUsd
+    days {
+      day
+      amountUsd
+    }
+  }
+}
+
+mutation CreateBillingKeyConfig($input: BillingKeyConfigInput!) {
+  createBillingKeyConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateBillingKeyConfig($id: ID!, $input: BillingKeyConfigInput!) {
+  updateBillingKeyConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteBillingKeyConfig($id: ID!) {
+  deleteBillingKeyConfig(id: $id)
+}
+
+mutation TestBillingKeyConfig($id: ID!) {
+  testBillingKeyConfig(id: $id)
+}
+
+mutation RevealAllTechSecrets {
+  revealAllTechSecrets {
+    secret
+    id
+    value
+  }
+}

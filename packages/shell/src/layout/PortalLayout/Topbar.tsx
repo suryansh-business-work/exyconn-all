@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Avatar,
@@ -7,8 +6,6 @@ import {
   borderWidth,
   fontSize,
   IconButton,
-  Menu,
-  MenuItem,
   Toolbar,
   Typography,
   useMediaQuery,
@@ -31,8 +28,8 @@ import { ApprovalsBell } from './ApprovalsBell';
 import { AllAppsButton } from './AllAppsButton';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useT } from '@exyconn/i18n';
-import { useInstallPrompt } from '@/pwa';
 import { TopbarUser } from './TopbarUser';
+import { AccountMenu } from './AccountMenu';
 import { currentPortalName } from '@/config/modules';
 import { env } from '@/config/env';
 
@@ -60,31 +57,13 @@ interface TopbarProps {
  * the page's own ground over a hairline, with ghost icon buttons (the theme's IconButton).
  */
 export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { mode, toggle } = useColorMode();
-  const install = useInstallPrompt();
   const t = useT();
   const theme = useTheme();
   const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const palette = useCommandPalette();
-
-  const go = (path: string) => () => {
-    setAnchorEl(null);
-    navigate(path);
-  };
-
-  const handleInstall = () => {
-    setAnchorEl(null);
-    install.install();
-  };
-
-  const handleSignOut = () => {
-    setAnchorEl(null);
-    signOut();
-    navigate('/login', { replace: true });
-  };
 
   return (
     <AppBar
@@ -164,14 +143,7 @@ export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
             {user?.name?.charAt(0).toUpperCase()}
           </Avatar>
         </IconButton>
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-          <MenuItem disabled>{user?.email}</MenuItem>
-          <MenuItem onClick={go('/profile')}>{t('Profile')}</MenuItem>
-          <MenuItem onClick={go('/settings')}>{t('Settings')}</MenuItem>
-          {/* Only where the browser has told us it would take: see useInstallPrompt. */}
-          {install.available && <MenuItem onClick={handleInstall}>{t('Install app')}</MenuItem>}
-          <MenuItem onClick={handleSignOut}>{t('Sign out')}</MenuItem>
-        </Menu>
+        <AccountMenu anchorEl={anchorEl} onClose={() => setAnchorEl(null)} />
       </Toolbar>
       {/* Mounted whatever the screen size: the shortcut works on a keyboard attached to a
           phone-width window, and the trigger button is only hidden, not the feature. */}

@@ -1112,6 +1112,37 @@ export type BenefitPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type BilledDay = {
+  __typename?: 'BilledDay';
+  amountUsd: Scalars['Float']['output'];
+  day: Scalars['String']['output'];
+};
+
+/** An extra key that reads a provider's real bill (OpenAI's Admin key). Write-only, sealed at rest. */
+export type BillingKeyConfig = {
+  __typename?: 'BillingKeyConfig';
+  hasKey: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  keyHint?: Maybe<Scalars['String']['output']>;
+  label: Scalars['String']['output'];
+  provider: BillingProvider;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BillingKeyConfigInput = {
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Required when adding. Leave empty when editing to keep the stored key. */
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  provider: BillingProvider;
+};
+
+/** A provider whose real bill a billing key can read. */
+export enum BillingProvider {
+  Openai = 'OPENAI'
+}
+
 export type BlogAuthor = {
   __typename?: 'BlogAuthor';
   initials: Scalars['String']['output'];
@@ -5349,6 +5380,22 @@ export type FirecrawlConfigInput = {
   label: Scalars['String']['input'];
 };
 
+export type FxRate = {
+  __typename?: 'FxRate';
+  currency: Scalars['String']['output'];
+  /** Units of the currency one US dollar buys. */
+  rate: Scalars['Float']['output'];
+};
+
+/** The newest daily exchange rates from US dollars, which every cost is recorded in. */
+export type FxRates = {
+  __typename?: 'FxRates';
+  base: Scalars['String']['output'];
+  /** The day the rates were published for; empty until the first refresh. */
+  date: Scalars['String']['output'];
+  rates: Array<FxRate>;
+};
+
 /** Whether a gateway account talks to the gateway's test environment or takes real money. */
 export enum GatewayMode {
   Live = 'LIVE',
@@ -5900,6 +5947,54 @@ export type InfrastructureOverview = {
   database: DatabaseInfo;
   docker: DockerHost;
   runtime: ServerRuntime;
+};
+
+/** An integration whose calls are counted on the Environment Variables dashboard. */
+export enum IntegrationProvider {
+  Firecrawl = 'FIRECRAWL',
+  Github = 'GITHUB',
+  GoogleMaps = 'GOOGLE_MAPS',
+  Imagekit = 'IMAGEKIT',
+  Openai = 'OPENAI',
+  Pexels = 'PEXELS',
+  Slack = 'SLACK',
+  Smtp = 'SMTP'
+}
+
+/** One kind of call (an OpenAI model, a Slack method, an upload kind) over the window. */
+export type IntegrationUsageAction = {
+  __typename?: 'IntegrationUsageAction';
+  action: Scalars['String']['output'];
+  calls: Scalars['Int']['output'];
+  costUsd: Scalars['Float']['output'];
+  failures: Scalars['Int']['output'];
+  inputTokens: Scalars['Float']['output'];
+  outputTokens: Scalars['Float']['output'];
+};
+
+/** One day of an integration's calls. costUsd is priced from the AI price table (OpenAI only). */
+export type IntegrationUsageDay = {
+  __typename?: 'IntegrationUsageDay';
+  calls: Scalars['Int']['output'];
+  costUsd: Scalars['Float']['output'];
+  day: Scalars['String']['output'];
+  failures: Scalars['Int']['output'];
+  inputTokens: Scalars['Float']['output'];
+  outputTokens: Scalars['Float']['output'];
+};
+
+/** An integration's usage over the window, the whole platform's. */
+export type IntegrationUsageSummary = {
+  __typename?: 'IntegrationUsageSummary';
+  actions: Array<IntegrationUsageAction>;
+  calls: Scalars['Int']['output'];
+  costUsd: Scalars['Float']['output'];
+  /** A point for every day of the window, oldest first. */
+  days: Array<IntegrationUsageDay>;
+  failures: Scalars['Int']['output'];
+  inputTokens: Scalars['Float']['output'];
+  outputTokens: Scalars['Float']['output'];
+  provider: IntegrationProvider;
 };
 
 /**
@@ -7998,6 +8093,8 @@ export type MaReleaseSettings = {
   __typename?: 'MaReleaseSettings';
   /** The owner/repo whose release workflow may upload builds (GitHub Actions OIDC, main only). */
   allowedRepository: Scalars['String']['output'];
+  /** How many of the newest builds the hourly retention pass keeps; 0 keeps every build. */
+  keepLatestBuilds: Scalars['Int']['output'];
   /** Also post when a new build arrives for QA. */
   notifyOnNewBuild: Scalars['Boolean']['output'];
   /** The Slack channel published builds are announced in; empty for none. */
@@ -8386,6 +8483,105 @@ export type MarketingSuppressionsResult = {
   invalid: Array<Scalars['String']['output']>;
 };
 
+/** A sign-in waiting for the person to allow it. */
+export type McpAuthorizationRequest = {
+  __typename?: 'McpAuthorizationRequest';
+  clientName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** Where the client gets the answer, e.g. claude.ai. */
+  redirectHost: Scalars['String']['output'];
+  scopes: Array<Scalars['String']['output']>;
+};
+
+/** One tool call made through MCP, for the CRM's activity log. */
+export type McpCall = {
+  __typename?: 'McpCall';
+  at: Scalars['DateTime']['output'];
+  clientName: Scalars['String']['output'];
+  durationMs: Scalars['Int']['output'];
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: McpToolKind;
+  ok: Scalars['Boolean']['output'];
+  tool: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+};
+
+/** A connected Claude (or other MCP client) acting for one person in this company. */
+export type McpConnection = {
+  __typename?: 'McpConnection';
+  clientName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  userName: Scalars['String']['output'];
+};
+
+/** What a person needs to connect Claude to the CRM. */
+export type McpOverview = {
+  __typename?: 'McpOverview';
+  mutationCount: Scalars['Int']['output'];
+  queryCount: Scalars['Int']['output'];
+  /** The address to paste into Claude as a custom connector. */
+  serverUrl: Scalars['String']['output'];
+  toolCount: Scalars['Int']['output'];
+};
+
+export type McpPersonUsage = {
+  __typename?: 'McpPersonUsage';
+  calls: Scalars['Int']['output'];
+  userName: Scalars['String']['output'];
+};
+
+/** One CRM operation Claude can call. */
+export type McpTool = {
+  __typename?: 'McpTool';
+  arguments: Array<McpToolArgument>;
+  description: Scalars['String']['output'];
+  kind: McpToolKind;
+  name: Scalars['String']['output'];
+};
+
+export type McpToolArgument = {
+  __typename?: 'McpToolArgument';
+  description: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  required: Scalars['Boolean']['output'];
+  /** The GraphQL type, e.g. String! or [ID!]. */
+  type: Scalars['String']['output'];
+};
+
+export enum McpToolKind {
+  Mutation = 'MUTATION',
+  Query = 'QUERY'
+}
+
+export type McpToolUsage = {
+  __typename?: 'McpToolUsage';
+  averageMs: Scalars['Float']['output'];
+  calls: Scalars['Int']['output'];
+  failures: Scalars['Int']['output'];
+  tool: Scalars['String']['output'];
+};
+
+/** The company's MCP calls over a window. */
+export type McpUsage = {
+  __typename?: 'McpUsage';
+  calls: Scalars['Int']['output'];
+  days: Array<McpUsageDay>;
+  failures: Scalars['Int']['output'];
+  people: Scalars['Int']['output'];
+  tools: Array<McpToolUsage>;
+  users: Array<McpPersonUsage>;
+};
+
+export type McpUsageDay = {
+  __typename?: 'McpUsageDay';
+  calls: Scalars['Int']['output'];
+  day: Scalars['String']['output'];
+  failures: Scalars['Int']['output'];
+};
+
 export type MeetingBooking = {
   __typename?: 'MeetingBooking';
   contactId: Scalars['String']['output'];
@@ -8686,6 +8882,8 @@ export type Mutation = {
   analyzeWebScrape: WebScrape;
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
+  /** Allows the sign-in; answers the address to send the browser back to. */
+  approveMcpAuthorization: Scalars['String']['output'];
   archivePolicy: Policy;
   /** HR or LEGAL: hands these items to an employee. Already-held items are left as they are. */
   assignLegalItems: Array<LegalAssignment>;
@@ -8741,6 +8939,7 @@ export type Mutation = {
   /** Saves the audience; a fixed one is frozen at the moment it is saved. */
   createAudienceList: AudienceList;
   createBenefit: Benefit;
+  createBillingKeyConfig: BillingKeyConfig;
   createBlogPost: BlogPost;
   createBudget: Budget;
   createBug: Bug;
@@ -8933,6 +9132,7 @@ export type Mutation = {
   deleteAsset: Scalars['Boolean']['output'];
   deleteAudienceList: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
+  deleteBillingKeyConfig: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
@@ -9010,6 +9210,8 @@ export type Mutation = {
   deleteLegalGroup: Scalars['Boolean']['output'];
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
+  /** Deletes one extension build and its ZIP. Installed copies keep working. */
+  deleteMaRelease: Scalars['Boolean']['output'];
   deleteManagementReview: Scalars['Boolean']['output'];
   deleteMeetingType: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
@@ -9062,6 +9264,8 @@ export type Mutation = {
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
+  /** Deletes one published tracker build: its GitHub release and its tag. */
+  deleteTrackerBuildRelease: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
   deleteWebScrape: Scalars['Boolean']['output'];
@@ -9073,6 +9277,8 @@ export type Mutation = {
   deleteWhatsappChannel: Scalars['Boolean']['output'];
   deleteWhatsappDemoVisitor: Scalars['Boolean']['output'];
   deleteWhatsappWorkflow: Scalars['Boolean']['output'];
+  /** Declines the sign-in; answers the address to send the browser back to. */
+  denyMcpAuthorization: Scalars['String']['output'];
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
   /** Puts the published graph back into the draft. */
@@ -9169,6 +9375,8 @@ export type Mutation = {
   maUpdateMeeting: MaMeeting;
   /** Saves edited notes. expectedVersion must match, so two editors never overwrite each other. */
   maUpdateNotes: MaNotes;
+  /** Sets how many of the newest builds the retention pass keeps (0 keeps every build). */
+  maUpdateReleaseRetention: MaReleaseSettings;
   maUpdateReleaseSettings: MaReleaseSettings;
   maUpdateSettings: MaSettings;
   markAllNotificationsRead: Scalars['Int']['output'];
@@ -9258,6 +9466,11 @@ export type Mutation = {
   restoreCmsPageRevision: CmsPage;
   /** Sends the latest run's failed copies again; nobody gets a second copy. */
   retryCampaignFailures: CampaignSendSummary;
+  /**
+   * Every saved credential on Environment Variables, in full — what the page holds in memory so
+   * the eye button needs no further request. One audit entry per call.
+   */
+  revealAllTechSecrets: Array<TechSecretValue>;
   /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
   revealCallingBotSecret: Scalars['String']['output'];
   /** One saved credential of the config with this id, in full. Each reveal is audited. */
@@ -9275,6 +9488,8 @@ export type Mutation = {
   revokeContractSignature: Scalars['Boolean']['output'];
   /** Public. True when the link was live and the key matched; the stored estimate is dropped. */
   revokeGccShare: Scalars['Boolean']['output'];
+  /** Signs one connection out; Claude has to connect again. */
+  revokeMcpConnection: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -9333,6 +9548,8 @@ export type Mutation = {
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
+  /** Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build). */
+  saveTrackerBuildRetention: TrackerBuildSettings;
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
@@ -9498,7 +9715,10 @@ export type Mutation = {
   startSprint: Sprint;
   /** Queues a delete, archive or restore of up to 50,000 rows; the job reports its progress. */
   startTableBulkJob: TableBulkJob;
-  /** Asks GitHub to build the chosen installers off the given branch. */
+  /**
+   * Asks GitHub to build the chosen installers off the given branch, first raising the tracker
+   * version by the given bump and committing it there.
+   */
   startTrackerBuild: Scalars['Boolean']['output'];
   /**
    * The manager's half, by the employee's manager or HR. Allowed only once the employee
@@ -9528,6 +9748,7 @@ export type Mutation = {
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
+  testBillingKeyConfig: Scalars['String']['output'];
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
@@ -9649,6 +9870,7 @@ export type Mutation = {
   updateAsset: Asset;
   updateAudienceList: AudienceList;
   updateBenefit: Benefit;
+  updateBillingKeyConfig: BillingKeyConfig;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
   updateBudget: Budget;
@@ -9902,6 +10124,11 @@ export type MutationApplyLeaveArgs = {
 };
 
 
+export type MutationApproveMcpAuthorizationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationArchivePolicyArgs = {
   id: Scalars['ID']['input'];
 };
@@ -10073,6 +10300,11 @@ export type MutationCreateAudienceListArgs = {
 
 export type MutationCreateBenefitArgs = {
   input: BenefitInput;
+};
+
+
+export type MutationCreateBillingKeyConfigArgs = {
+  input: BillingKeyConfigInput;
 };
 
 
@@ -10860,6 +11092,11 @@ export type MutationDeleteBenefitArgs = {
 };
 
 
+export type MutationDeleteBillingKeyConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteBlogPostArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11231,6 +11468,11 @@ export type MutationDeleteLocationArgs = {
 };
 
 
+export type MutationDeleteMaReleaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteManagementReviewArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11471,6 +11713,11 @@ export type MutationDeleteToolCategoryArgs = {
 };
 
 
+export type MutationDeleteTrackerBuildReleaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTrainingArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11517,6 +11764,11 @@ export type MutationDeleteWhatsappDemoVisitorArgs = {
 
 
 export type MutationDeleteWhatsappWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDenyMcpAuthorizationArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -11814,6 +12066,11 @@ export type MutationMaUpdateNotesArgs = {
 };
 
 
+export type MutationMaUpdateReleaseRetentionArgs = {
+  keepLatestBuilds: Scalars['Int']['input'];
+};
+
+
 export type MutationMaUpdateReleaseSettingsArgs = {
   input: MaReleaseSettingsInput;
 };
@@ -12065,6 +12322,11 @@ export type MutationRevokeGccShareArgs = {
 };
 
 
+export type MutationRevokeMcpConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRevokeProjectShareArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12200,6 +12462,11 @@ export type MutationSaveProjectWorkflowGraphArgs = {
 
 export type MutationSaveSocialAppConfigArgs = {
   input: SocialAppConfigInput;
+};
+
+
+export type MutationSaveTrackerBuildRetentionArgs = {
+  keepLatestBuilds: Scalars['Int']['input'];
 };
 
 
@@ -12624,6 +12891,7 @@ export type MutationStartTableBulkJobArgs = {
 
 
 export type MutationStartTrackerBuildArgs = {
+  bump?: InputMaybe<TrackerVersionBump>;
   platforms: Array<TrackerPlatform>;
   ref: Scalars['String']['input'];
 };
@@ -12670,6 +12938,11 @@ export type MutationSyncCrmMailArgs = {
 
 
 export type MutationSyncSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestBillingKeyConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -12954,6 +13227,12 @@ export type MutationUpdateAudienceListArgs = {
 export type MutationUpdateBenefitArgs = {
   id: Scalars['ID']['input'];
   input: BenefitInput;
+};
+
+
+export type MutationUpdateBillingKeyConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: BillingKeyConfigInput;
 };
 
 
@@ -15336,6 +15615,14 @@ export type PromptVariableInput = {
   value: Scalars['String']['input'];
 };
 
+/** What the provider itself billed, read with its active billing key. */
+export type ProviderBilling = {
+  __typename?: 'ProviderBilling';
+  days: Array<BilledDay>;
+  provider: BillingProvider;
+  totalUsd: Scalars['Float']['output'];
+};
+
 /** A company's booking page: every meeting it takes bookings for. */
 export type PublicBookingPage = {
   __typename?: 'PublicBookingPage';
@@ -15528,6 +15815,7 @@ export type Query = {
   audienceResolution: AudienceResolution;
   /** TECH: every background loop, with what its last pass did. */
   backgroundJobs: Array<BackgroundJob>;
+  billingKeyConfigs: Array<BillingKeyConfig>;
   branding: Branding;
   /**
    * Budget against actual per cost centre between two dates, both bounds inclusive of the
@@ -15702,6 +15990,8 @@ export type Query = {
   firecrawlConfigs: Array<FirecrawlConfig>;
   /** Whether the website scraper can run: an active Firecrawl config with a key, or a self-hosted one that needs none. */
   firecrawlReady: Scalars['Boolean']['output'];
+  /** The newest exchange rates from US dollars. */
+  fxRates: FxRates;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -15808,6 +16098,8 @@ export type Query = {
   hrDashboard: HrDashboard;
   /** Host, this process and the database in one read — the Infrastructure overview. */
   infrastructureOverview: InfrastructureOverview;
+  /** Every integration's usage over the last days (1 to 366), today included. Platform staff (TECH). */
+  integrationUsage: Array<IntegrationUsageSummary>;
   /** What the stock on ACTIVE products cost: sum of averageCost × stock. */
   inventoryValue: Scalars['Float']['output'];
   /** Payments against one invoice, newest first. */
@@ -16219,6 +16511,18 @@ export type Query = {
   marketingSuppressionHistory: Array<AuditLog>;
   marketingSuppressionLookup: MarketingSuppressionLookup;
   marketingSuppressionSummary: MarketingSuppressionSummary;
+  /** The newest MCP calls in this company, for the CRM activity log (CRM role). */
+  mcpActivity: Array<McpCall>;
+  /** The sign-in a connector is waiting on, for the consent page (CRM role). */
+  mcpAuthorizationRequest: McpAuthorizationRequest;
+  /** Every live connection in this company (CRM role). */
+  mcpConnections: Array<McpConnection>;
+  /** The connector address and how many CRM tools it offers (CRM role). */
+  mcpOverview: McpOverview;
+  /** Every CRM tool, with its arguments (CRM role). */
+  mcpTools: Array<McpTool>;
+  /** This company's MCP calls over the last days, 1 to 180 (CRM role). */
+  mcpUsage: McpUsage;
   me: User;
   /** The path of this company's booking page inside its CRM address: /book/<page>. */
   meetingBookingPagePath: Scalars['String']['output'];
@@ -16394,6 +16698,8 @@ export type Query = {
   projectWorkflow: ProjectWorkflow;
   /** Every workflow, most recently changed first. Nodes and edges are empty in this list. */
   projectWorkflows: Array<ProjectWorkflow>;
+  /** The provider's real bill over the last days (1 to 180); null with no active billing key. */
+  providerBilling?: Maybe<ProviderBilling>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
   /** Public: a company's booking page (/organization/<org>/book/<page>). */
@@ -16530,6 +16836,8 @@ export type Query = {
    * budget. TRACKER, FINANCE or PROJECTS. Pass projectId to read one project.
    */
   trackerBillingByProject: Array<ProjectBillingRow>;
+  /** Every published tracker build, newest first. */
+  trackerBuildReleases: Array<TrackerBuildRelease>;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
@@ -17486,6 +17794,11 @@ export type QueryGetWebsiteSubmissionArgs = {
 };
 
 
+export type QueryIntegrationUsageArgs = {
+  days: Scalars['Int']['input'];
+};
+
+
 export type QueryInvoicePaymentsArgs = {
   invoiceId: Scalars['ID']['input'];
 };
@@ -18147,6 +18460,22 @@ export type QueryMarketingSuppressionLookupArgs = {
 };
 
 
+export type QueryMcpActivityArgs = {
+  days: Scalars['Int']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryMcpAuthorizationRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryMcpUsageArgs = {
+  days: Scalars['Int']['input'];
+};
+
+
 export type QueryMeetingBookingsArgs = {
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
@@ -18393,6 +18722,12 @@ export type QueryProjectTimeLogSessionsArgs = {
 
 export type QueryProjectWorkflowArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryProviderBillingArgs = {
+  days: Scalars['Int']['input'];
+  provider: BillingProvider;
 };
 
 
@@ -20925,6 +21260,7 @@ export type TechEmailTemplateOption = {
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
 export enum TechSecret {
+  BillingKey = 'BILLING_KEY',
   CloudflareApiToken = 'CLOUDFLARE_API_TOKEN',
   EmailPassword = 'EMAIL_PASSWORD',
   EmailVerifierProxyPassword = 'EMAIL_VERIFIER_PROXY_PASSWORD',
@@ -20950,6 +21286,15 @@ export enum TechSecret {
   StripeSecretKey = 'STRIPE_SECRET_KEY',
   StripeWebhookSecret = 'STRIPE_WEBHOOK_SECRET'
 }
+
+/** One saved credential, in full, as the bulk reveal returns it. */
+export type TechSecretValue = {
+  __typename?: 'TechSecretValue';
+  /** The config the value belongs to (its id, or its key for keyed configs). */
+  id: Scalars['ID']['output'];
+  secret: TechSecret;
+  value: Scalars['String']['output'];
+};
 
 /** How a ticket reached the desk. */
 export enum TicketChannel {
@@ -21150,8 +21495,24 @@ export type TrackerBuild = {
   url: Scalars['String']['output'];
 };
 
+/** One published tracker build: a tracker-v release and the installers on it. */
+export type TrackerBuildRelease = {
+  __typename?: 'TrackerBuildRelease';
+  assets: Array<TrackerReleaseAsset>;
+  /** GitHub's release id. */
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  tag: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  version: Scalars['String']['output'];
+};
+
 export type TrackerBuildSettings = {
   __typename?: 'TrackerBuildSettings';
+  /** How many of the newest builds the hourly retention pass keeps; 0 keeps every build. */
+  keepLatestBuilds: Scalars['Int']['output'];
   slackChannels: Array<Scalars['String']['output']>;
   /** Where a status incident opening or resolving is announced. */
   statusAlertChannels: Array<Scalars['String']['output']>;
@@ -21724,6 +22085,15 @@ export type TrackerTotals = {
   screenshots: Scalars['Int']['output'];
   sessions: Scalars['Int']['output'];
 };
+
+/** Which part of the tracker version a build raises before it is built. */
+export enum TrackerVersionBump {
+  Major = 'MAJOR',
+  Minor = 'MINOR',
+  /** Build the version already committed. */
+  None = 'NONE',
+  Patch = 'PATCH'
+}
 
 export type TrackerWindowUsageInput = {
   appName: Scalars['String']['input'];
@@ -27920,6 +28290,64 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
+export type McpOverviewQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type McpOverviewQuery = { __typename?: 'Query', mcpOverview: { __typename?: 'McpOverview', serverUrl: string, toolCount: number, queryCount: number, mutationCount: number } };
+
+export type McpToolsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type McpToolsQuery = { __typename?: 'Query', mcpTools: Array<{ __typename?: 'McpTool', name: string, kind: McpToolKind, description: string, arguments: Array<{ __typename?: 'McpToolArgument', name: string, type: string, required: boolean, description: string }> }> };
+
+export type McpUsageQueryVariables = Exact<{
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type McpUsageQuery = { __typename?: 'Query', mcpUsage: { __typename?: 'McpUsage', calls: number, failures: number, people: number, days: Array<{ __typename?: 'McpUsageDay', day: string, calls: number, failures: number }>, tools: Array<{ __typename?: 'McpToolUsage', tool: string, calls: number, failures: number, averageMs: number }>, users: Array<{ __typename?: 'McpPersonUsage', userName: string, calls: number }> } };
+
+export type McpActivityQueryVariables = Exact<{
+  days: Scalars['Int']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type McpActivityQuery = { __typename?: 'Query', mcpActivity: Array<{ __typename?: 'McpCall', id: string, at: string, userName: string, clientName: string, tool: string, kind: McpToolKind, ok: boolean, error: string, durationMs: number }> };
+
+export type McpConnectionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type McpConnectionsQuery = { __typename?: 'Query', mcpConnections: Array<{ __typename?: 'McpConnection', id: string, clientName: string, userName: string, createdAt: string, lastUsedAt?: string | null }> };
+
+export type McpAuthorizationRequestQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type McpAuthorizationRequestQuery = { __typename?: 'Query', mcpAuthorizationRequest: { __typename?: 'McpAuthorizationRequest', id: string, clientName: string, redirectHost: string, scopes: Array<string> } };
+
+export type ApproveMcpAuthorizationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ApproveMcpAuthorizationMutation = { __typename?: 'Mutation', approveMcpAuthorization: string };
+
+export type DenyMcpAuthorizationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DenyMcpAuthorizationMutation = { __typename?: 'Mutation', denyMcpAuthorization: string };
+
+export type RevokeMcpConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RevokeMcpConnectionMutation = { __typename?: 'Mutation', revokeMcpConnection: boolean };
+
 export type MaCalendarQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -27941,12 +28369,12 @@ export type MaReleaseOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MaReleaseOverviewQuery = { __typename?: 'Query', maReleaseOverview: { __typename?: 'MaReleaseOverview', releaseManager: boolean, registered: number, awaitingApproval: number } };
 
-export type MaReleaseSettingsFieldsFragment = { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null };
+export type MaReleaseSettingsFieldsFragment = { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null };
 
 export type MaReleaseSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MaReleaseSettingsQuery = { __typename?: 'Query', maReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null } };
+export type MaReleaseSettingsQuery = { __typename?: 'Query', maReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null } };
 
 export type MaReleaseSlackChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -27958,7 +28386,7 @@ export type MaUpdateReleaseSettingsMutationVariables = Exact<{
 }>;
 
 
-export type MaUpdateReleaseSettingsMutation = { __typename?: 'Mutation', maUpdateReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null } };
+export type MaUpdateReleaseSettingsMutation = { __typename?: 'Mutation', maUpdateReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null } };
 
 export type MaApproveReleaseMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -27974,6 +28402,20 @@ export type MaStartExtensionBuildMutationVariables = Exact<{
 
 
 export type MaStartExtensionBuildMutation = { __typename?: 'Mutation', maStartExtensionBuild: boolean };
+
+export type MaUpdateReleaseRetentionMutationVariables = Exact<{
+  keepLatestBuilds: Scalars['Int']['input'];
+}>;
+
+
+export type MaUpdateReleaseRetentionMutation = { __typename?: 'Mutation', maUpdateReleaseRetention: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null } };
+
+export type DeleteMaReleaseMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteMaReleaseMutation = { __typename?: 'Mutation', deleteMaRelease: boolean };
 
 export type MaMeetingRowFragment = { __typename?: 'MaMeeting', id: string, meetingCode: string, title: string, ownerId: string, ownerName: string, language: MaLanguage, startedAt: string, endedAt?: string | null, durationSeconds: number, status: MaMeetingStatus, participantCount: number, transcriptionState: MaTranscriptionState, summaryStatus: MaStepStatus, emailStatus: MaEmailStatus, actionItemCount: number, openActionCount: number };
 
@@ -31040,6 +31482,67 @@ export type TableBulkJobQueryVariables = Exact<{
 
 export type TableBulkJobQuery = { __typename?: 'Query', tableBulkJob?: { __typename?: 'TableBulkJob', id: string, action: TableBulkAction, status: TableBulkJobStatus, total: number, processed: number, succeeded: number, failedCount: number, error?: string | null, failures: Array<{ __typename?: 'TableBulkFailure', id: string, message: string }> } | null };
 
+export type IntegrationUsageTotalsFragment = { __typename?: 'IntegrationUsageSummary', provider: IntegrationProvider, calls: number, failures: number, inputTokens: number, outputTokens: number, costUsd: number };
+
+export type IntegrationUsageQueryVariables = Exact<{
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type IntegrationUsageQuery = { __typename?: 'Query', integrationUsage: Array<{ __typename?: 'IntegrationUsageSummary', provider: IntegrationProvider, calls: number, failures: number, inputTokens: number, outputTokens: number, costUsd: number, days: Array<{ __typename?: 'IntegrationUsageDay', day: string, calls: number, failures: number, costUsd: number }>, actions: Array<{ __typename?: 'IntegrationUsageAction', action: string, calls: number, failures: number, inputTokens: number, outputTokens: number, costUsd: number }> }> };
+
+export type FxRatesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FxRatesQuery = { __typename?: 'Query', fxRates: { __typename?: 'FxRates', base: string, date: string, rates: Array<{ __typename?: 'FxRate', currency: string, rate: number }> } };
+
+export type BillingKeyConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BillingKeyConfigsQuery = { __typename?: 'Query', billingKeyConfigs: Array<{ __typename?: 'BillingKeyConfig', id: string, provider: BillingProvider, label: string, hasKey: boolean, keyHint?: string | null, isActive: boolean, updatedAt: string }> };
+
+export type ProviderBillingQueryVariables = Exact<{
+  provider: BillingProvider;
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type ProviderBillingQuery = { __typename?: 'Query', providerBilling?: { __typename?: 'ProviderBilling', provider: BillingProvider, totalUsd: number, days: Array<{ __typename?: 'BilledDay', day: string, amountUsd: number }> } | null };
+
+export type CreateBillingKeyConfigMutationVariables = Exact<{
+  input: BillingKeyConfigInput;
+}>;
+
+
+export type CreateBillingKeyConfigMutation = { __typename?: 'Mutation', createBillingKeyConfig: { __typename?: 'BillingKeyConfig', id: string } };
+
+export type UpdateBillingKeyConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: BillingKeyConfigInput;
+}>;
+
+
+export type UpdateBillingKeyConfigMutation = { __typename?: 'Mutation', updateBillingKeyConfig: { __typename?: 'BillingKeyConfig', id: string } };
+
+export type DeleteBillingKeyConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteBillingKeyConfigMutation = { __typename?: 'Mutation', deleteBillingKeyConfig: boolean };
+
+export type TestBillingKeyConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestBillingKeyConfigMutation = { __typename?: 'Mutation', testBillingKeyConfig: string };
+
+export type RevealAllTechSecretsMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RevealAllTechSecretsMutation = { __typename?: 'Mutation', revealAllTechSecrets: Array<{ __typename?: 'TechSecretValue', secret: TechSecret, id: string, value: string }> };
+
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -31227,15 +31730,35 @@ export type ListTrackerBuildsQuery = { __typename?: 'Query', listTrackerBuilds: 
 export type TrackerBuildSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerBuildSettingsQuery = { __typename?: 'Query', trackerBuildSettings: { __typename?: 'TrackerBuildSettings', slackChannels: Array<string>, statusAlertChannels: Array<string> } };
+export type TrackerBuildSettingsQuery = { __typename?: 'Query', trackerBuildSettings: { __typename?: 'TrackerBuildSettings', slackChannels: Array<string>, statusAlertChannels: Array<string>, keepLatestBuilds: number } };
+
+export type TrackerBuildReleasesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerBuildReleasesQuery = { __typename?: 'Query', trackerBuildReleases: Array<{ __typename?: 'TrackerBuildRelease', id: string, version: string, tag: string, name: string, url: string, publishedAt: string, assets: Array<{ __typename?: 'TrackerReleaseAsset', name: string, platform: string, sizeBytes: number, downloadCount: number, url: string }> }> };
 
 export type StartTrackerBuildMutationVariables = Exact<{
   platforms: Array<TrackerPlatform> | TrackerPlatform;
   ref: Scalars['String']['input'];
+  bump?: InputMaybe<TrackerVersionBump>;
 }>;
 
 
 export type StartTrackerBuildMutation = { __typename?: 'Mutation', startTrackerBuild: boolean };
+
+export type DeleteTrackerBuildReleaseMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTrackerBuildReleaseMutation = { __typename?: 'Mutation', deleteTrackerBuildRelease: boolean };
+
+export type SaveTrackerBuildRetentionMutationVariables = Exact<{
+  keepLatestBuilds: Scalars['Int']['input'];
+}>;
+
+
+export type SaveTrackerBuildRetentionMutation = { __typename?: 'Mutation', saveTrackerBuildRetention: { __typename?: 'TrackerBuildSettings', keepLatestBuilds: number } };
 
 export type SaveTrackerBuildSettingsMutationVariables = Exact<{
   slackChannels: Array<Scalars['String']['input']> | Scalars['String']['input'];
@@ -34162,6 +34685,7 @@ export const MaReleaseSettingsFieldsFragmentDoc = gql`
   slackChannelName
   notifyOnNewBuild
   slackConfigured
+  keepLatestBuilds
   updatedByName
   updatedAt
 }
@@ -35225,6 +35749,16 @@ export const TableBulkJobFieldsFragmentDoc = gql`
     message
   }
   error
+}
+    `;
+export const IntegrationUsageTotalsFragmentDoc = gql`
+    fragment IntegrationUsageTotals on IntegrationUsageSummary {
+  provider
+  calls
+  failures
+  inputTokens
+  outputTokens
+  costUsd
 }
     `;
 export const PexelsMediaFieldsFragmentDoc = gql`
@@ -63891,6 +64425,395 @@ export function useCampaignMetricsSuspenseQuery(baseOptions?: ApolloReactHooks.S
 export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
 export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
 export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
+export const McpOverviewDocument = gql`
+    query McpOverview {
+  mcpOverview {
+    serverUrl
+    toolCount
+    queryCount
+    mutationCount
+  }
+}
+    `;
+
+/**
+ * __useMcpOverviewQuery__
+ *
+ * To run a query within a React component, call `useMcpOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpOverviewQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMcpOverviewQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpOverviewQuery, McpOverviewQueryVariables>(McpOverviewDocument, options);
+      }
+export function useMcpOverviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpOverviewQuery, McpOverviewQueryVariables>(McpOverviewDocument, options);
+        }
+// @ts-ignore
+export function useMcpOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpOverviewQuery, McpOverviewQueryVariables>;
+// @ts-ignore
+export function useMcpOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpOverviewQuery | undefined, McpOverviewQueryVariables>;
+export function useMcpOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpOverviewQuery, McpOverviewQueryVariables>(McpOverviewDocument, options);
+        }
+export type McpOverviewQueryHookResult = ReturnType<typeof useMcpOverviewQuery>;
+export type McpOverviewLazyQueryHookResult = ReturnType<typeof useMcpOverviewLazyQuery>;
+export type McpOverviewSuspenseQueryHookResult = ReturnType<typeof useMcpOverviewSuspenseQuery>;
+export const McpToolsDocument = gql`
+    query McpTools {
+  mcpTools {
+    name
+    kind
+    description
+    arguments {
+      name
+      type
+      required
+      description
+    }
+  }
+}
+    `;
+
+/**
+ * __useMcpToolsQuery__
+ *
+ * To run a query within a React component, call `useMcpToolsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpToolsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpToolsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMcpToolsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpToolsQuery, McpToolsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpToolsQuery, McpToolsQueryVariables>(McpToolsDocument, options);
+      }
+export function useMcpToolsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpToolsQuery, McpToolsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpToolsQuery, McpToolsQueryVariables>(McpToolsDocument, options);
+        }
+// @ts-ignore
+export function useMcpToolsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpToolsQuery, McpToolsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpToolsQuery, McpToolsQueryVariables>;
+// @ts-ignore
+export function useMcpToolsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpToolsQuery, McpToolsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpToolsQuery | undefined, McpToolsQueryVariables>;
+export function useMcpToolsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpToolsQuery, McpToolsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpToolsQuery, McpToolsQueryVariables>(McpToolsDocument, options);
+        }
+export type McpToolsQueryHookResult = ReturnType<typeof useMcpToolsQuery>;
+export type McpToolsLazyQueryHookResult = ReturnType<typeof useMcpToolsLazyQuery>;
+export type McpToolsSuspenseQueryHookResult = ReturnType<typeof useMcpToolsSuspenseQuery>;
+export const McpUsageDocument = gql`
+    query McpUsage($days: Int!) {
+  mcpUsage(days: $days) {
+    calls
+    failures
+    people
+    days {
+      day
+      calls
+      failures
+    }
+    tools {
+      tool
+      calls
+      failures
+      averageMs
+    }
+    users {
+      userName
+      calls
+    }
+  }
+}
+    `;
+
+/**
+ * __useMcpUsageQuery__
+ *
+ * To run a query within a React component, call `useMcpUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpUsageQuery({
+ *   variables: {
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useMcpUsageQuery(baseOptions: ApolloReactHooks.QueryHookOptions<McpUsageQuery, McpUsageQueryVariables> & ({ variables: McpUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpUsageQuery, McpUsageQueryVariables>(McpUsageDocument, options);
+      }
+export function useMcpUsageLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpUsageQuery, McpUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpUsageQuery, McpUsageQueryVariables>(McpUsageDocument, options);
+        }
+// @ts-ignore
+export function useMcpUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpUsageQuery, McpUsageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpUsageQuery, McpUsageQueryVariables>;
+// @ts-ignore
+export function useMcpUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpUsageQuery, McpUsageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpUsageQuery | undefined, McpUsageQueryVariables>;
+export function useMcpUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpUsageQuery, McpUsageQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpUsageQuery, McpUsageQueryVariables>(McpUsageDocument, options);
+        }
+export type McpUsageQueryHookResult = ReturnType<typeof useMcpUsageQuery>;
+export type McpUsageLazyQueryHookResult = ReturnType<typeof useMcpUsageLazyQuery>;
+export type McpUsageSuspenseQueryHookResult = ReturnType<typeof useMcpUsageSuspenseQuery>;
+export const McpActivityDocument = gql`
+    query McpActivity($days: Int!, $limit: Int) {
+  mcpActivity(days: $days, limit: $limit) {
+    id
+    at
+    userName
+    clientName
+    tool
+    kind
+    ok
+    error
+    durationMs
+  }
+}
+    `;
+
+/**
+ * __useMcpActivityQuery__
+ *
+ * To run a query within a React component, call `useMcpActivityQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpActivityQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpActivityQuery({
+ *   variables: {
+ *      days: // value for 'days'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useMcpActivityQuery(baseOptions: ApolloReactHooks.QueryHookOptions<McpActivityQuery, McpActivityQueryVariables> & ({ variables: McpActivityQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpActivityQuery, McpActivityQueryVariables>(McpActivityDocument, options);
+      }
+export function useMcpActivityLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpActivityQuery, McpActivityQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpActivityQuery, McpActivityQueryVariables>(McpActivityDocument, options);
+        }
+// @ts-ignore
+export function useMcpActivitySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpActivityQuery, McpActivityQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpActivityQuery, McpActivityQueryVariables>;
+// @ts-ignore
+export function useMcpActivitySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpActivityQuery, McpActivityQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpActivityQuery | undefined, McpActivityQueryVariables>;
+export function useMcpActivitySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpActivityQuery, McpActivityQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpActivityQuery, McpActivityQueryVariables>(McpActivityDocument, options);
+        }
+export type McpActivityQueryHookResult = ReturnType<typeof useMcpActivityQuery>;
+export type McpActivityLazyQueryHookResult = ReturnType<typeof useMcpActivityLazyQuery>;
+export type McpActivitySuspenseQueryHookResult = ReturnType<typeof useMcpActivitySuspenseQuery>;
+export const McpConnectionsDocument = gql`
+    query McpConnections {
+  mcpConnections {
+    id
+    clientName
+    userName
+    createdAt
+    lastUsedAt
+  }
+}
+    `;
+
+/**
+ * __useMcpConnectionsQuery__
+ *
+ * To run a query within a React component, call `useMcpConnectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpConnectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpConnectionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMcpConnectionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpConnectionsQuery, McpConnectionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpConnectionsQuery, McpConnectionsQueryVariables>(McpConnectionsDocument, options);
+      }
+export function useMcpConnectionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpConnectionsQuery, McpConnectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpConnectionsQuery, McpConnectionsQueryVariables>(McpConnectionsDocument, options);
+        }
+// @ts-ignore
+export function useMcpConnectionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpConnectionsQuery, McpConnectionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpConnectionsQuery, McpConnectionsQueryVariables>;
+// @ts-ignore
+export function useMcpConnectionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpConnectionsQuery, McpConnectionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpConnectionsQuery | undefined, McpConnectionsQueryVariables>;
+export function useMcpConnectionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpConnectionsQuery, McpConnectionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpConnectionsQuery, McpConnectionsQueryVariables>(McpConnectionsDocument, options);
+        }
+export type McpConnectionsQueryHookResult = ReturnType<typeof useMcpConnectionsQuery>;
+export type McpConnectionsLazyQueryHookResult = ReturnType<typeof useMcpConnectionsLazyQuery>;
+export type McpConnectionsSuspenseQueryHookResult = ReturnType<typeof useMcpConnectionsSuspenseQuery>;
+export const McpAuthorizationRequestDocument = gql`
+    query McpAuthorizationRequest($id: ID!) {
+  mcpAuthorizationRequest(id: $id) {
+    id
+    clientName
+    redirectHost
+    scopes
+  }
+}
+    `;
+
+/**
+ * __useMcpAuthorizationRequestQuery__
+ *
+ * To run a query within a React component, call `useMcpAuthorizationRequestQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpAuthorizationRequestQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpAuthorizationRequestQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useMcpAuthorizationRequestQuery(baseOptions: ApolloReactHooks.QueryHookOptions<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables> & ({ variables: McpAuthorizationRequestQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>(McpAuthorizationRequestDocument, options);
+      }
+export function useMcpAuthorizationRequestLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>(McpAuthorizationRequestDocument, options);
+        }
+// @ts-ignore
+export function useMcpAuthorizationRequestSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>;
+// @ts-ignore
+export function useMcpAuthorizationRequestSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpAuthorizationRequestQuery | undefined, McpAuthorizationRequestQueryVariables>;
+export function useMcpAuthorizationRequestSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpAuthorizationRequestQuery, McpAuthorizationRequestQueryVariables>(McpAuthorizationRequestDocument, options);
+        }
+export type McpAuthorizationRequestQueryHookResult = ReturnType<typeof useMcpAuthorizationRequestQuery>;
+export type McpAuthorizationRequestLazyQueryHookResult = ReturnType<typeof useMcpAuthorizationRequestLazyQuery>;
+export type McpAuthorizationRequestSuspenseQueryHookResult = ReturnType<typeof useMcpAuthorizationRequestSuspenseQuery>;
+export const ApproveMcpAuthorizationDocument = gql`
+    mutation ApproveMcpAuthorization($id: ID!) {
+  approveMcpAuthorization(id: $id)
+}
+    `;
+
+/**
+ * __useApproveMcpAuthorizationMutation__
+ *
+ * To run a mutation, you first call `useApproveMcpAuthorizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveMcpAuthorizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveMcpAuthorizationMutation, { data, loading, error }] = useApproveMcpAuthorizationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useApproveMcpAuthorizationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ApproveMcpAuthorizationMutation, ApproveMcpAuthorizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ApproveMcpAuthorizationMutation, ApproveMcpAuthorizationMutationVariables>(ApproveMcpAuthorizationDocument, options);
+      }
+export type ApproveMcpAuthorizationMutationHookResult = ReturnType<typeof useApproveMcpAuthorizationMutation>;
+export const DenyMcpAuthorizationDocument = gql`
+    mutation DenyMcpAuthorization($id: ID!) {
+  denyMcpAuthorization(id: $id)
+}
+    `;
+
+/**
+ * __useDenyMcpAuthorizationMutation__
+ *
+ * To run a mutation, you first call `useDenyMcpAuthorizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDenyMcpAuthorizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [denyMcpAuthorizationMutation, { data, loading, error }] = useDenyMcpAuthorizationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDenyMcpAuthorizationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DenyMcpAuthorizationMutation, DenyMcpAuthorizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DenyMcpAuthorizationMutation, DenyMcpAuthorizationMutationVariables>(DenyMcpAuthorizationDocument, options);
+      }
+export type DenyMcpAuthorizationMutationHookResult = ReturnType<typeof useDenyMcpAuthorizationMutation>;
+export const RevokeMcpConnectionDocument = gql`
+    mutation RevokeMcpConnection($id: ID!) {
+  revokeMcpConnection(id: $id)
+}
+    `;
+
+/**
+ * __useRevokeMcpConnectionMutation__
+ *
+ * To run a mutation, you first call `useRevokeMcpConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeMcpConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeMcpConnectionMutation, { data, loading, error }] = useRevokeMcpConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRevokeMcpConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevokeMcpConnectionMutation, RevokeMcpConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevokeMcpConnectionMutation, RevokeMcpConnectionMutationVariables>(RevokeMcpConnectionDocument, options);
+      }
+export type RevokeMcpConnectionMutationHookResult = ReturnType<typeof useRevokeMcpConnectionMutation>;
 export const MaCalendarDocument = gql`
     query MaCalendar($from: DateTime!, $to: DateTime!, $scope: MaScope) {
   maCalendar(from: $from, to: $to, scope: $scope) {
@@ -64231,6 +65154,64 @@ export function useMaStartExtensionBuildMutation(baseOptions?: ApolloReactHooks.
         return ApolloReactHooks.useMutation<MaStartExtensionBuildMutation, MaStartExtensionBuildMutationVariables>(MaStartExtensionBuildDocument, options);
       }
 export type MaStartExtensionBuildMutationHookResult = ReturnType<typeof useMaStartExtensionBuildMutation>;
+export const MaUpdateReleaseRetentionDocument = gql`
+    mutation MaUpdateReleaseRetention($keepLatestBuilds: Int!) {
+  maUpdateReleaseRetention(keepLatestBuilds: $keepLatestBuilds) {
+    ...MaReleaseSettingsFields
+  }
+}
+    ${MaReleaseSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useMaUpdateReleaseRetentionMutation__
+ *
+ * To run a mutation, you first call `useMaUpdateReleaseRetentionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMaUpdateReleaseRetentionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [maUpdateReleaseRetentionMutation, { data, loading, error }] = useMaUpdateReleaseRetentionMutation({
+ *   variables: {
+ *      keepLatestBuilds: // value for 'keepLatestBuilds'
+ *   },
+ * });
+ */
+export function useMaUpdateReleaseRetentionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MaUpdateReleaseRetentionMutation, MaUpdateReleaseRetentionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MaUpdateReleaseRetentionMutation, MaUpdateReleaseRetentionMutationVariables>(MaUpdateReleaseRetentionDocument, options);
+      }
+export type MaUpdateReleaseRetentionMutationHookResult = ReturnType<typeof useMaUpdateReleaseRetentionMutation>;
+export const DeleteMaReleaseDocument = gql`
+    mutation DeleteMaRelease($id: ID!) {
+  deleteMaRelease(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteMaReleaseMutation__
+ *
+ * To run a mutation, you first call `useDeleteMaReleaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMaReleaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMaReleaseMutation, { data, loading, error }] = useDeleteMaReleaseMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteMaReleaseMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteMaReleaseMutation, DeleteMaReleaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteMaReleaseMutation, DeleteMaReleaseMutationVariables>(DeleteMaReleaseDocument, options);
+      }
+export type DeleteMaReleaseMutationHookResult = ReturnType<typeof useDeleteMaReleaseMutation>;
 export const MaDashboardDocument = gql`
     query MaDashboard($filter: MaDashboardFilter) {
   maDashboard(filter: $filter) {
@@ -80596,6 +81577,359 @@ export function useTableBulkJobSuspenseQuery(baseOptions?: ApolloReactHooks.Skip
 export type TableBulkJobQueryHookResult = ReturnType<typeof useTableBulkJobQuery>;
 export type TableBulkJobLazyQueryHookResult = ReturnType<typeof useTableBulkJobLazyQuery>;
 export type TableBulkJobSuspenseQueryHookResult = ReturnType<typeof useTableBulkJobSuspenseQuery>;
+export const IntegrationUsageDocument = gql`
+    query IntegrationUsage($days: Int!) {
+  integrationUsage(days: $days) {
+    ...IntegrationUsageTotals
+    days {
+      day
+      calls
+      failures
+      costUsd
+    }
+    actions {
+      action
+      calls
+      failures
+      inputTokens
+      outputTokens
+      costUsd
+    }
+  }
+}
+    ${IntegrationUsageTotalsFragmentDoc}`;
+
+/**
+ * __useIntegrationUsageQuery__
+ *
+ * To run a query within a React component, call `useIntegrationUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIntegrationUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIntegrationUsageQuery({
+ *   variables: {
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useIntegrationUsageQuery(baseOptions: ApolloReactHooks.QueryHookOptions<IntegrationUsageQuery, IntegrationUsageQueryVariables> & ({ variables: IntegrationUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<IntegrationUsageQuery, IntegrationUsageQueryVariables>(IntegrationUsageDocument, options);
+      }
+export function useIntegrationUsageLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<IntegrationUsageQuery, IntegrationUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<IntegrationUsageQuery, IntegrationUsageQueryVariables>(IntegrationUsageDocument, options);
+        }
+// @ts-ignore
+export function useIntegrationUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<IntegrationUsageQuery, IntegrationUsageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<IntegrationUsageQuery, IntegrationUsageQueryVariables>;
+// @ts-ignore
+export function useIntegrationUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<IntegrationUsageQuery, IntegrationUsageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<IntegrationUsageQuery | undefined, IntegrationUsageQueryVariables>;
+export function useIntegrationUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<IntegrationUsageQuery, IntegrationUsageQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<IntegrationUsageQuery, IntegrationUsageQueryVariables>(IntegrationUsageDocument, options);
+        }
+export type IntegrationUsageQueryHookResult = ReturnType<typeof useIntegrationUsageQuery>;
+export type IntegrationUsageLazyQueryHookResult = ReturnType<typeof useIntegrationUsageLazyQuery>;
+export type IntegrationUsageSuspenseQueryHookResult = ReturnType<typeof useIntegrationUsageSuspenseQuery>;
+export const FxRatesDocument = gql`
+    query FxRates {
+  fxRates {
+    base
+    date
+    rates {
+      currency
+      rate
+    }
+  }
+}
+    `;
+
+/**
+ * __useFxRatesQuery__
+ *
+ * To run a query within a React component, call `useFxRatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFxRatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFxRatesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useFxRatesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<FxRatesQuery, FxRatesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<FxRatesQuery, FxRatesQueryVariables>(FxRatesDocument, options);
+      }
+export function useFxRatesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FxRatesQuery, FxRatesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<FxRatesQuery, FxRatesQueryVariables>(FxRatesDocument, options);
+        }
+// @ts-ignore
+export function useFxRatesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<FxRatesQuery, FxRatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<FxRatesQuery, FxRatesQueryVariables>;
+// @ts-ignore
+export function useFxRatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<FxRatesQuery, FxRatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<FxRatesQuery | undefined, FxRatesQueryVariables>;
+export function useFxRatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<FxRatesQuery, FxRatesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<FxRatesQuery, FxRatesQueryVariables>(FxRatesDocument, options);
+        }
+export type FxRatesQueryHookResult = ReturnType<typeof useFxRatesQuery>;
+export type FxRatesLazyQueryHookResult = ReturnType<typeof useFxRatesLazyQuery>;
+export type FxRatesSuspenseQueryHookResult = ReturnType<typeof useFxRatesSuspenseQuery>;
+export const BillingKeyConfigsDocument = gql`
+    query BillingKeyConfigs {
+  billingKeyConfigs {
+    id
+    provider
+    label
+    hasKey
+    keyHint
+    isActive
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useBillingKeyConfigsQuery__
+ *
+ * To run a query within a React component, call `useBillingKeyConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBillingKeyConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBillingKeyConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBillingKeyConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>(BillingKeyConfigsDocument, options);
+      }
+export function useBillingKeyConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>(BillingKeyConfigsDocument, options);
+        }
+// @ts-ignore
+export function useBillingKeyConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>;
+// @ts-ignore
+export function useBillingKeyConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BillingKeyConfigsQuery | undefined, BillingKeyConfigsQueryVariables>;
+export function useBillingKeyConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<BillingKeyConfigsQuery, BillingKeyConfigsQueryVariables>(BillingKeyConfigsDocument, options);
+        }
+export type BillingKeyConfigsQueryHookResult = ReturnType<typeof useBillingKeyConfigsQuery>;
+export type BillingKeyConfigsLazyQueryHookResult = ReturnType<typeof useBillingKeyConfigsLazyQuery>;
+export type BillingKeyConfigsSuspenseQueryHookResult = ReturnType<typeof useBillingKeyConfigsSuspenseQuery>;
+export const ProviderBillingDocument = gql`
+    query ProviderBilling($provider: BillingProvider!, $days: Int!) {
+  providerBilling(provider: $provider, days: $days) {
+    provider
+    totalUsd
+    days {
+      day
+      amountUsd
+    }
+  }
+}
+    `;
+
+/**
+ * __useProviderBillingQuery__
+ *
+ * To run a query within a React component, call `useProviderBillingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProviderBillingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProviderBillingQuery({
+ *   variables: {
+ *      provider: // value for 'provider'
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useProviderBillingQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ProviderBillingQuery, ProviderBillingQueryVariables> & ({ variables: ProviderBillingQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ProviderBillingQuery, ProviderBillingQueryVariables>(ProviderBillingDocument, options);
+      }
+export function useProviderBillingLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ProviderBillingQuery, ProviderBillingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ProviderBillingQuery, ProviderBillingQueryVariables>(ProviderBillingDocument, options);
+        }
+// @ts-ignore
+export function useProviderBillingSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ProviderBillingQuery, ProviderBillingQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProviderBillingQuery, ProviderBillingQueryVariables>;
+// @ts-ignore
+export function useProviderBillingSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProviderBillingQuery, ProviderBillingQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProviderBillingQuery | undefined, ProviderBillingQueryVariables>;
+export function useProviderBillingSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProviderBillingQuery, ProviderBillingQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ProviderBillingQuery, ProviderBillingQueryVariables>(ProviderBillingDocument, options);
+        }
+export type ProviderBillingQueryHookResult = ReturnType<typeof useProviderBillingQuery>;
+export type ProviderBillingLazyQueryHookResult = ReturnType<typeof useProviderBillingLazyQuery>;
+export type ProviderBillingSuspenseQueryHookResult = ReturnType<typeof useProviderBillingSuspenseQuery>;
+export const CreateBillingKeyConfigDocument = gql`
+    mutation CreateBillingKeyConfig($input: BillingKeyConfigInput!) {
+  createBillingKeyConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateBillingKeyConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateBillingKeyConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBillingKeyConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBillingKeyConfigMutation, { data, loading, error }] = useCreateBillingKeyConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateBillingKeyConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateBillingKeyConfigMutation, CreateBillingKeyConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateBillingKeyConfigMutation, CreateBillingKeyConfigMutationVariables>(CreateBillingKeyConfigDocument, options);
+      }
+export type CreateBillingKeyConfigMutationHookResult = ReturnType<typeof useCreateBillingKeyConfigMutation>;
+export const UpdateBillingKeyConfigDocument = gql`
+    mutation UpdateBillingKeyConfig($id: ID!, $input: BillingKeyConfigInput!) {
+  updateBillingKeyConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateBillingKeyConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateBillingKeyConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBillingKeyConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBillingKeyConfigMutation, { data, loading, error }] = useUpdateBillingKeyConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBillingKeyConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateBillingKeyConfigMutation, UpdateBillingKeyConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateBillingKeyConfigMutation, UpdateBillingKeyConfigMutationVariables>(UpdateBillingKeyConfigDocument, options);
+      }
+export type UpdateBillingKeyConfigMutationHookResult = ReturnType<typeof useUpdateBillingKeyConfigMutation>;
+export const DeleteBillingKeyConfigDocument = gql`
+    mutation DeleteBillingKeyConfig($id: ID!) {
+  deleteBillingKeyConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteBillingKeyConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteBillingKeyConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBillingKeyConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBillingKeyConfigMutation, { data, loading, error }] = useDeleteBillingKeyConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteBillingKeyConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteBillingKeyConfigMutation, DeleteBillingKeyConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteBillingKeyConfigMutation, DeleteBillingKeyConfigMutationVariables>(DeleteBillingKeyConfigDocument, options);
+      }
+export type DeleteBillingKeyConfigMutationHookResult = ReturnType<typeof useDeleteBillingKeyConfigMutation>;
+export const TestBillingKeyConfigDocument = gql`
+    mutation TestBillingKeyConfig($id: ID!) {
+  testBillingKeyConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestBillingKeyConfigMutation__
+ *
+ * To run a mutation, you first call `useTestBillingKeyConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestBillingKeyConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testBillingKeyConfigMutation, { data, loading, error }] = useTestBillingKeyConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestBillingKeyConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestBillingKeyConfigMutation, TestBillingKeyConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestBillingKeyConfigMutation, TestBillingKeyConfigMutationVariables>(TestBillingKeyConfigDocument, options);
+      }
+export type TestBillingKeyConfigMutationHookResult = ReturnType<typeof useTestBillingKeyConfigMutation>;
+export const RevealAllTechSecretsDocument = gql`
+    mutation RevealAllTechSecrets {
+  revealAllTechSecrets {
+    secret
+    id
+    value
+  }
+}
+    `;
+
+/**
+ * __useRevealAllTechSecretsMutation__
+ *
+ * To run a mutation, you first call `useRevealAllTechSecretsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevealAllTechSecretsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revealAllTechSecretsMutation, { data, loading, error }] = useRevealAllTechSecretsMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useRevealAllTechSecretsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevealAllTechSecretsMutation, RevealAllTechSecretsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevealAllTechSecretsMutation, RevealAllTechSecretsMutationVariables>(RevealAllTechSecretsDocument, options);
+      }
+export type RevealAllTechSecretsMutationHookResult = ReturnType<typeof useRevealAllTechSecretsMutation>;
 export const ListEmailConfigsDocument = gql`
     query ListEmailConfigs {
   listEmailConfigs {
@@ -81536,6 +82870,7 @@ export const TrackerBuildSettingsDocument = gql`
   trackerBuildSettings {
     slackChannels
     statusAlertChannels
+    keepLatestBuilds
   }
 }
     `;
@@ -81575,9 +82910,64 @@ export function useTrackerBuildSettingsSuspenseQuery(baseOptions?: ApolloReactHo
 export type TrackerBuildSettingsQueryHookResult = ReturnType<typeof useTrackerBuildSettingsQuery>;
 export type TrackerBuildSettingsLazyQueryHookResult = ReturnType<typeof useTrackerBuildSettingsLazyQuery>;
 export type TrackerBuildSettingsSuspenseQueryHookResult = ReturnType<typeof useTrackerBuildSettingsSuspenseQuery>;
+export const TrackerBuildReleasesDocument = gql`
+    query TrackerBuildReleases {
+  trackerBuildReleases {
+    id
+    version
+    tag
+    name
+    url
+    publishedAt
+    assets {
+      name
+      platform
+      sizeBytes
+      downloadCount
+      url
+    }
+  }
+}
+    `;
+
+/**
+ * __useTrackerBuildReleasesQuery__
+ *
+ * To run a query within a React component, call `useTrackerBuildReleasesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerBuildReleasesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerBuildReleasesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTrackerBuildReleasesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>(TrackerBuildReleasesDocument, options);
+      }
+export function useTrackerBuildReleasesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>(TrackerBuildReleasesDocument, options);
+        }
+// @ts-ignore
+export function useTrackerBuildReleasesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>;
+// @ts-ignore
+export function useTrackerBuildReleasesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerBuildReleasesQuery | undefined, TrackerBuildReleasesQueryVariables>;
+export function useTrackerBuildReleasesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>(TrackerBuildReleasesDocument, options);
+        }
+export type TrackerBuildReleasesQueryHookResult = ReturnType<typeof useTrackerBuildReleasesQuery>;
+export type TrackerBuildReleasesLazyQueryHookResult = ReturnType<typeof useTrackerBuildReleasesLazyQuery>;
+export type TrackerBuildReleasesSuspenseQueryHookResult = ReturnType<typeof useTrackerBuildReleasesSuspenseQuery>;
 export const StartTrackerBuildDocument = gql`
-    mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!) {
-  startTrackerBuild(platforms: $platforms, ref: $ref)
+    mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!, $bump: TrackerVersionBump) {
+  startTrackerBuild(platforms: $platforms, ref: $ref, bump: $bump)
 }
     `;
 
@@ -81596,6 +82986,7 @@ export const StartTrackerBuildDocument = gql`
  *   variables: {
  *      platforms: // value for 'platforms'
  *      ref: // value for 'ref'
+ *      bump: // value for 'bump'
  *   },
  * });
  */
@@ -81604,6 +82995,64 @@ export function useStartTrackerBuildMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<StartTrackerBuildMutation, StartTrackerBuildMutationVariables>(StartTrackerBuildDocument, options);
       }
 export type StartTrackerBuildMutationHookResult = ReturnType<typeof useStartTrackerBuildMutation>;
+export const DeleteTrackerBuildReleaseDocument = gql`
+    mutation DeleteTrackerBuildRelease($id: ID!) {
+  deleteTrackerBuildRelease(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteTrackerBuildReleaseMutation__
+ *
+ * To run a mutation, you first call `useDeleteTrackerBuildReleaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTrackerBuildReleaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTrackerBuildReleaseMutation, { data, loading, error }] = useDeleteTrackerBuildReleaseMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTrackerBuildReleaseMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteTrackerBuildReleaseMutation, DeleteTrackerBuildReleaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteTrackerBuildReleaseMutation, DeleteTrackerBuildReleaseMutationVariables>(DeleteTrackerBuildReleaseDocument, options);
+      }
+export type DeleteTrackerBuildReleaseMutationHookResult = ReturnType<typeof useDeleteTrackerBuildReleaseMutation>;
+export const SaveTrackerBuildRetentionDocument = gql`
+    mutation SaveTrackerBuildRetention($keepLatestBuilds: Int!) {
+  saveTrackerBuildRetention(keepLatestBuilds: $keepLatestBuilds) {
+    keepLatestBuilds
+  }
+}
+    `;
+
+/**
+ * __useSaveTrackerBuildRetentionMutation__
+ *
+ * To run a mutation, you first call `useSaveTrackerBuildRetentionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveTrackerBuildRetentionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveTrackerBuildRetentionMutation, { data, loading, error }] = useSaveTrackerBuildRetentionMutation({
+ *   variables: {
+ *      keepLatestBuilds: // value for 'keepLatestBuilds'
+ *   },
+ * });
+ */
+export function useSaveTrackerBuildRetentionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveTrackerBuildRetentionMutation, SaveTrackerBuildRetentionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveTrackerBuildRetentionMutation, SaveTrackerBuildRetentionMutationVariables>(SaveTrackerBuildRetentionDocument, options);
+      }
+export type SaveTrackerBuildRetentionMutationHookResult = ReturnType<typeof useSaveTrackerBuildRetentionMutation>;
 export const SaveTrackerBuildSettingsDocument = gql`
     mutation SaveTrackerBuildSettings($slackChannels: [String!]!, $statusAlertChannels: [String!]) {
   saveTrackerBuildSettings(

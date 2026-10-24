@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Alert, Link } from '@exyconn/shell/components/ui';
+import { Alert, Divider, Link, Text } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
@@ -8,7 +8,10 @@ import { appUrl } from '@exyconn/shell/config/apps';
 import {
   useMaReleaseSettingsQuery,
   useMaReleaseSlackChannelsQuery,
+  useMaUpdateReleaseRetentionMutation,
 } from '@exyconn/shell/graphql/generated';
+import { BuildRetentionForm } from '@exyconn/shell/components/form/build-retention';
+
 import { LoadError } from '../lib/LoadError';
 import { ReleaseSettingsForm } from '../forms/release-settings';
 
@@ -49,6 +52,10 @@ export function ReleaseSettingsDialog({
     ];
   }, [slack.data, t]);
   const current = settings.data?.maReleaseSettings;
+  // The settings have no id, so the cache cannot match the saved row to the query: read it again.
+  const [saveRetention] = useMaUpdateReleaseRetentionMutation({
+    refetchQueries: ['MaReleaseSettings'],
+  });
 
   let body;
   if (settings.error) {
@@ -67,6 +74,14 @@ export function ReleaseSettingsDialog({
           channels={channels}
           onDone={onClose}
           onCancel={onClose}
+        />
+        <Divider sx={{ my: 3 }} />
+        <Text component="h3" size="sm" weight="bold" sx={{ mb: 1.5 }}>
+          {t('Build retention')}
+        </Text>
+        <BuildRetentionForm
+          keepLatestBuilds={current.keepLatestBuilds}
+          save={(keepLatestBuilds) => saveRetention({ variables: { keepLatestBuilds } })}
         />
       </>
     );

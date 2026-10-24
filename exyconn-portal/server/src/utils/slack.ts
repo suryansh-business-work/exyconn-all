@@ -1,3 +1,4 @@
+import { metered } from '../modules/tech/usage/usage.meter';
 import { SlackConfigModel, type SlackConfigDocument } from '../modules/tech/slack-config.model';
 import { logger } from './logger';
 import { ConfigurationError } from './errors';
@@ -74,19 +75,21 @@ class SlackNotifier {
     method: string,
     body: Record<string, unknown>,
   ): Promise<T> {
-    const response = await fetch(`${SLACK_API_URL}/${method}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${config.botToken}`,
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      body: JSON.stringify(body),
+    return metered('SLACK', method, async () => {
+      const response = await fetch(`${SLACK_API_URL}/${method}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${config.botToken}`,
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: JSON.stringify(body),
+      });
+      const payload = (await response.json()) as T;
+      if (!payload.ok) {
+        throw new Error(`Slack ${method} failed: ${payload.error ?? 'unknown error'}`);
+      }
+      return payload;
     });
-    const payload = (await response.json()) as T;
-    if (!payload.ok) {
-      throw new Error(`Slack ${method} failed: ${payload.error ?? 'unknown error'}`);
-    }
-    return payload;
   }
 
   /** Loads the single active Slack config, or throws. */

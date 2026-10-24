@@ -19,7 +19,7 @@ describe('page entries', () => {
     workerAnswering({ 'state/get': SIGNED_OUT });
     document.body.innerHTML = '<div id="root"></div>';
     await import(path);
-    expect(await screen.findByRole('button', { name: 'Sign in with Exyconn' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 
   it.each([['../../../src/popup/main'], ['../../../src/options/main']])(
