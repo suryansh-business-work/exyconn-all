@@ -70,6 +70,13 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'IntegrationUsage',
   'FxRates',
   'BillingKeyConfig',
+  // The CRM MCP server's OAuth sign-in (Claude's custom connector): registered clients, sign-ins
+  // in progress, their one-time codes and the connections they open. Each connection names the
+  // person and company it acts for; the tool calls it makes (McpCall) are that company's own.
+  'McpClient',
+  'McpAuthRequest',
+  'McpAuthCode',
+  'McpToken',
   // Exyconn's own site and public status page — not a customer's data.
   'BlogPost',
   'CaseStudy',

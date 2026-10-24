@@ -601,6 +601,14 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Tools',
       },
       {
+        // What Claude did in the CRM through the MCP connector (AI > MCP Servers).
+        key: 'crm-claude-activity',
+        label: 'Claude (MCP) activity',
+        path: '/claude-activity',
+        icon: HubIcon,
+        group: 'Tools',
+      },
+      {
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
         label: 'Custom Properties',
@@ -1211,6 +1219,14 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Prompt Library',
         path: '/ai/prompts',
         icon: AutoAwesomeIcon,
+      },
+      {
+        // The CRM as an MCP server for Claude: connect, tools, usage and connections.
+        key: 'ai-mcp',
+        label: 'MCP Servers',
+        path: '/ai/mcp',
+        icon: HubIcon,
+        role: ROLES.CRM,
       },
       ...MEETING_ASSISTANT_NAV,
     ],

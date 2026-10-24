@@ -124,6 +124,7 @@ import {
   techUsageResolvers,
 } from '../modules/tech';
 import { dnsTypeDefs, dnsResolvers } from '../modules/dns';
+import { mcpTypeDefs, mcpResolvers } from '../modules/mcp';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
 import { recruitingTypeDefs, recruitingResolvers } from '../modules/recruiting';
 import { infraTypeDefs, infraResolvers } from '../modules/infra';
@@ -316,6 +317,7 @@ export const typeDefs = [
   techTypeDefs,
   techRevealTypeDefs,
   techUsageTypeDefs,
+  mcpTypeDefs,
   dnsTypeDefs,
   ...websiteTypeDefs,
   trackerTypeDefs,
@@ -429,6 +431,7 @@ export const resolvers = mergeResolvers([
   techResolvers,
   techRevealResolvers,
   techUsageResolvers,
+  mcpResolvers,
   dnsResolvers,
   websiteResolvers,
   trackerResolvers,

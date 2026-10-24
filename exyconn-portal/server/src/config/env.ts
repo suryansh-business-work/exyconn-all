@@ -216,6 +216,18 @@ export const env = Object.freeze({
     ratesUrl: process.env.FX_RATES_URL ?? 'https://api.frankfurter.dev/v1/latest?base=USD',
     timeoutMs: Number(process.env.FX_RATES_TIMEOUT_MS ?? 10_000),
   },
+  /**
+   * The CRM MCP server Claude connects to (AI > MCP Servers): its own OAuth sign-in, whose consent
+   * page lives in the AI portal, and how long the tokens it hands Claude last.
+   */
+  mcp: {
+    consentUrl: (process.env.MCP_CONSENT_URL ?? 'https://ai.exyconn.com/ai/mcp/connect').replace(
+      /\/$/,
+      '',
+    ),
+    accessTokenTtlSeconds: Number(process.env.MCP_ACCESS_TOKEN_TTL_SECONDS ?? 3600),
+    refreshTokenTtlDays: Number(process.env.MCP_REFRESH_TOKEN_TTL_DAYS ?? 30),
+  },
   /** OpenAI's Costs API, read with the Admin key saved in Tech > Environment Variables > Billing keys. */
   openAiBilling: {
     costsUrl: process.env.OPENAI_COSTS_URL ?? 'https://api.openai.com/v1/organization/costs',

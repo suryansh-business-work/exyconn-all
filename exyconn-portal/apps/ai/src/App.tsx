@@ -18,6 +18,7 @@ import {
   TranscriptsPage,
 } from '@exyconn/meetings-ui';
 import { AiOverviewPage, AiPage, PromptLibraryPage } from './pages/ai';
+import { MCP_CONNECT_PATH, McpConnectPage, McpServersPage } from './pages/mcp';
 
 /** Where the Meeting Assistant lives in this app; it covers the whole company here. */
 const MEETINGS = { scope: 'ALL', basePath: '/ai/meeting-assistant' } as const;
@@ -29,6 +30,8 @@ export function App() {
       <Route path="/ai" element={<AiOverviewPage />} />
       <Route path="/ai/jobs" element={<AiPage />} />
       <Route path="/ai/prompts" element={<PromptLibraryPage />} />
+      <Route path={MCP_CONNECT_PATH} element={<McpConnectPage />} />
+      <Route path="/ai/mcp/:tab?" element={<McpServersPage />} />
       <Route path="/ai/meeting-assistant" element={<MeetingDashboardPage {...MEETINGS} />} />
       <Route path="/ai/meeting-assistant/meetings" element={<MeetingsListPage {...MEETINGS} />} />
       <Route

@@ -26,6 +26,7 @@
     "@exyconn/gcc-cost": "workspace:*",
     "@exyconn/wa-flow": "workspace:*",
     "@exyconn/whatsapp-demo-server": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "argon2": "^0.45.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

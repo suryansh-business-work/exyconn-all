@@ -413,6 +413,18 @@ export type BenefitKind =
   | 'PF'
   | 'WELLNESS';
 
+export type BillingKeyConfigInput = {
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  /** Required when adding. Leave empty when editing to keep the stored key. */
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  provider: BillingProvider;
+};
+
+/** A provider whose real bill a billing key can read. */
+export type BillingProvider =
+  | 'OPENAI';
+
 export type BlogAuthorInput = {
   initials: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
@@ -2058,6 +2070,17 @@ export type IncidentUpdateStatus =
   | 'MONITORING'
   | 'RESOLVED';
 
+/** An integration whose calls are counted on the Environment Variables dashboard. */
+export type IntegrationProvider =
+  | 'FIRECRAWL'
+  | 'GITHUB'
+  | 'GOOGLE_MAPS'
+  | 'IMAGEKIT'
+  | 'OPENAI'
+  | 'PEXELS'
+  | 'SLACK'
+  | 'SMTP';
+
 export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
   conclusion: Scalars['String']['input'];
@@ -2917,6 +2940,10 @@ export type MarketingSuppressionsInput = {
   note: InputMaybe<Scalars['String']['input']>;
   reason: SuppressionReason;
 };
+
+export type McpToolKind =
+  | 'MUTATION'
+  | 'QUERY';
 
 export type MeetingBookingStatus =
   | 'CANCELLED'
@@ -4260,6 +4287,7 @@ export type TeamInput = {
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
 export type TechSecret =
+  | 'BILLING_KEY'
   | 'CLOUDFLARE_API_TOKEN'
   | 'EMAIL_PASSWORD'
   | 'EMAIL_VERIFIER_PROXY_PASSWORD'

@@ -6,6 +6,7 @@ import { Login } from '@exyconn/login';
 import { ProtectedRoute } from '@exyconn/shell/routes/ProtectedRoute';
 import { App } from '../../src/App';
 import { AiOverviewPage, AiPage, PromptLibraryPage } from '../../src/pages/ai';
+import { McpConnectPage, McpServersPage } from '../../src/pages/mcp';
 import * as meetings from '@exyconn/meetings-ui';
 
 interface PortalProps {
@@ -48,12 +49,14 @@ describe('App', () => {
     render(<App />);
     expect(
       routes()
-        .slice(0, 3)
+        .slice(0, 5)
         .map((route) => [route.path, route.element.type]),
     ).toEqual([
       ['/ai', AiOverviewPage],
       ['/ai/jobs', AiPage],
       ['/ai/prompts', PromptLibraryPage],
+      ['/ai/mcp/connect', McpConnectPage],
+      ['/ai/mcp/:tab?', McpServersPage],
     ]);
   });
 
@@ -62,7 +65,7 @@ describe('App', () => {
     const company = { scope: 'ALL', basePath: '/ai/meeting-assistant' };
     expect(
       routes()
-        .slice(3)
+        .slice(5)
         .map((route) => [route.path, route.element.type, route.element.props]),
     ).toEqual([
       ['/ai/meeting-assistant', meetings.MeetingDashboardPage, company],
