@@ -17,6 +17,7 @@ import {
 } from '@modelcontextprotocol/sdk/server/auth/errors.js';
 import { env } from '../../config/env';
 import { runAsPlatform } from '../../lib/tenant';
+import { open, seal } from '../../utils/secretBox';
 import { McpAuthCodeModel, McpAuthRequestModel, McpClientModel, McpTokenModel } from './mcp.models';
 
 /** The one scope a connection asks for: the CRM, as the signed-in person may use it. */
@@ -29,33 +30,42 @@ const hashOf = (value: string) => createHash('sha256').update(value).digest('hex
 const secret = () => randomBytes(32).toString('base64url');
 const platform = <T>(run: () => Promise<T>) => runAsPlatform(run);
 
-/** Registered clients (RFC 7591), kept so Claude registers once per connector. */
+/**
+ * Registered clients (RFC 7591), kept so Claude registers once per connector. A client is kept
+ * exactly as it registered — public (PKCE only, `none`) or confidential (`client_secret_post`,
+ * the secret sealed at rest) — so the token endpoint checks it the way the client authenticates.
+ */
 const clientsStore: OAuthRegisteredClientsStore = {
   async getClient(clientId) {
     const row = await platform(() => McpClientModel.findOne({ clientId }).lean());
     if (!row) return undefined;
+    // Registrations from before secrets were kept apart carry theirs in the metadata: never read.
+    const metadata = { ...(row.metadata as Record<string, unknown>) };
+    delete metadata.client_secret;
     return {
-      ...(row.metadata as object),
+      ...metadata,
       client_id: row.clientId,
       client_name: row.clientName || undefined,
       redirect_uris: row.redirectUris,
+      ...(row.clientSecret ? { client_secret: open(row.clientSecret) } : {}),
     } as OAuthClientInformationFull;
   },
   async registerClient(client) {
     const clientId = randomUUID();
+    const { client_secret: secretOfClient, ...metadata } = client;
     await platform(() =>
       McpClientModel.create({
         clientId,
+        clientSecret: secretOfClient ? seal(secretOfClient) : '',
         clientName: client.client_name ?? '',
         redirectUris: client.redirect_uris.map(String),
-        metadata: { ...client, token_endpoint_auth_method: 'none' },
+        metadata,
       }),
     );
     return {
       ...client,
       client_id: clientId,
       client_id_issued_at: Math.floor(Date.now() / 1000),
-      token_endpoint_auth_method: 'none',
     };
   },
 };

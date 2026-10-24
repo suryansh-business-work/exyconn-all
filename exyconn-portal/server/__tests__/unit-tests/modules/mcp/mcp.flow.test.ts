@@ -11,7 +11,11 @@ import {
   denyAuthorization,
   describeAuthorization,
 } from '../../../../src/modules/mcp/mcp.connect';
-import { McpCallModel, McpTokenModel } from '../../../../src/modules/mcp/mcp.models';
+import {
+  McpCallModel,
+  McpClientModel,
+  McpTokenModel,
+} from '../../../../src/modules/mcp/mcp.models';
 import { UserModel } from '../../../../src/modules/admin/user.model';
 import { AuditLogModel } from '../../../../src/modules/audit';
 import { runAsPlatform } from '../../../../src/lib/tenant';
@@ -300,15 +304,12 @@ describe('Claude connecting to the CRM', () => {
 
   it('logs a refused step without its secrets', async () => {
     const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
-    const answer = await request(app)
-      .post('/token')
-      .type('form')
-      .send({
-        grant_type: 'authorization_code',
-        code: 'nope',
-        code_verifier: 'x',
-        client_id: 'none',
-      });
+    const answer = await request(app).post('/token').type('form').send({
+      grant_type: 'authorization_code',
+      code: 'nope',
+      code_verifier: 'x',
+      client_id: 'none',
+    });
     expect(answer.status).toBeGreaterThanOrEqual(400);
     expect(warn).toHaveBeenCalledWith(
       expect.objectContaining({ path: '/token', status: answer.status, clientId: 'none' }),
@@ -316,6 +317,57 @@ describe('Claude connecting to the CRM', () => {
     );
     expect(JSON.stringify(warn.mock.calls)).not.toContain('nope');
     warn.mockRestore();
+  });
+
+  it('connects a client that registered with a secret, and refuses its token request without it', async () => {
+    const registered = await request(app)
+      .post('/register')
+      .send({
+        client_name: 'Claude',
+        redirect_uris: [REDIRECT],
+        token_endpoint_auth_method: 'client_secret_post',
+        grant_types: ['authorization_code', 'refresh_token'],
+        response_types: ['code'],
+      });
+    expect(registered.status).toBe(201);
+    expect(registered.body.token_endpoint_auth_method).toBe('client_secret_post');
+    const { client_id: clientId, client_secret: clientSecret } = registered.body as {
+      client_id: string;
+      client_secret: string;
+    };
+    expect(clientSecret).toHaveLength(64);
+    const stored = await runAsPlatform(() => McpClientModel.findOne({ clientId }).lean());
+    expect(stored?.clientSecret).not.toBe(clientSecret);
+    expect(JSON.stringify(stored?.metadata)).not.toContain(clientSecret);
+
+    const { verifier, challenge } = pkce();
+    const code = async () => {
+      const authorize = await request(app).get('/authorize').query({
+        response_type: 'code',
+        client_id: clientId,
+        redirect_uri: REDIRECT,
+        code_challenge: challenge,
+        code_challenge_method: 'S256',
+      });
+      const id = new URL(authorize.headers.location).searchParams.get('request') ?? '';
+      return new URL(await approveAuthorization(ctx, id)).searchParams.get('code');
+    };
+    const trade = async (secret?: string) =>
+      request(app)
+        .post('/token')
+        .type('form')
+        .send({
+          grant_type: 'authorization_code',
+          code: await code(),
+          code_verifier: verifier,
+          client_id: clientId,
+          redirect_uri: REDIRECT,
+          ...(secret ? { client_secret: secret } : {}),
+        });
+    expect((await trade()).status).toBe(400);
+    const ok = await trade(clientSecret);
+    expect(ok.status).toBe(200);
+    expect(ok.body.access_token).toEqual(expect.any(String));
   });
 
   it('refuses a code used twice, or by another client', async () => {
