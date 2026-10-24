@@ -235,12 +235,6 @@ async function proved<T>(check: () => Promise<T>): Promise<T> {
   }
 }
 
-function assertTrusted(extensionId: string): void {
-  if (!extensionTrusted(extensionId)) {
-    throw new TokenRefusal('invalid_request', 'This extension is not one this portal trusts.');
-  }
-}
-
 export interface PasswordGrant {
   email: string;
   password: string;
@@ -252,12 +246,16 @@ export interface PasswordGrant {
  * Signs the extension in with the person's portal email and password, typed into the
  * extension itself. The same checks as the portal sign-in apply — throttling, lockout, a
  * suspended company — and two-factor, when it is on, still has to be passed.
+ *
+ * The extension id is not checked here: the caller states it in the request body, so it
+ * proves nothing (anyone can send a listed id), and an unpacked build's id follows its folder
+ * path. The password is the proof, exactly as on the portal sign-in. The id only guards the
+ * redirect flow above, where Chrome binds it to the extension's own chromiumapp.org address.
  */
 export async function signInWithPassword(
   grant: PasswordGrant,
   device: DeviceInfo,
 ): Promise<SignInStep> {
-  assertTrusted(grant.extensionId);
   const user = await proved(() => verifyCredentials(grant.email, grant.password, grant.ip));
   const organizationId = organizationOf(user);
   await proved(() => assertWorkspaceOpen(organizationId));
@@ -279,7 +277,6 @@ export interface MfaGrant {
 
 /** The second half of a two-factor sign-in from the extension (see proveSecondFactor). */
 export async function completeMfaSignIn(grant: MfaGrant, device: DeviceInfo): Promise<SignInStep> {
-  assertTrusted(grant.extensionId);
   const user = await proved(() => proveSecondFactor(grant.challenge, grant.code, grant.ip));
   const organizationId = organizationOf(user);
   if (!organizationId) {
