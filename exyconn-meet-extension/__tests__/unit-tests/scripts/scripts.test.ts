@@ -236,11 +236,12 @@ describe('bundle scan', () => {
     ]);
   });
 
-  it('flags plain-http hosts in production but not XML or JSON Schema identifiers', () => {
+  it('flags plain-http hosts in production but not identifiers or zod’s IPv6 parse template', () => {
     const text =
-      'a="http://www.w3.org/2000/svg";b="http://json-schema.org/draft-07/schema#";c="http://localhost:4004"';
+      'a="http://www.w3.org/2000/svg";b="http://json-schema.org/draft-07/schema#";c="http://localhost:4004";d=`http://[${e}]`;f="http://[::1]"';
     expect(bundleErrors('a.js', text, { production: true })).toEqual([
       'a.js references plain-http "http://localhost:4004" in a production build',
+      'a.js references plain-http "http://[::1]" in a production build',
     ]);
     expect(bundleErrors('a.js', text, { production: false })).toEqual([]);
   });

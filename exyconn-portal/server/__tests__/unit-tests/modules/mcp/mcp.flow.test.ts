@@ -17,6 +17,7 @@ import { AuditLogModel } from '../../../../src/modules/audit';
 import { runAsPlatform } from '../../../../src/lib/tenant';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { logger } from '../../../../src/utils/logger';
 import { codeOf } from '../codeOf';
 
 const organizationId = useTestOrganization();
@@ -271,6 +272,52 @@ describe('Claude connecting to the CRM', () => {
     expect(await runAsPlatform(() => McpTokenModel.countDocuments({ revokedAt: null }))).toBe(0);
   });
 
+  it('connects a platform administrator, in their own company, from the platform view', async () => {
+    const clientId = await register();
+    const { verifier, challenge } = pkce();
+    const authorize = await request(app).get('/authorize').query({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: REDIRECT,
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+    });
+    const id = new URL(authorize.headers.location).searchParams.get('request') ?? '';
+    const platformView: GraphQLContext = { ...ctx, organizationId: null };
+    const code = new URL(await approveAuthorization(platformView, id)).searchParams.get('code');
+    const token = await request(app).post('/token').type('form').send({
+      grant_type: 'authorization_code',
+      code,
+      code_verifier: verifier,
+      client_id: clientId,
+      redirect_uri: REDIRECT,
+      resource: 'https://portal-server.exyconn.com/mcp',
+    });
+    expect(token.status).toBe(200);
+    const row = await runAsPlatform(() => McpTokenModel.findOne({ clientId }).lean());
+    expect(row?.organizationId).toBe(organizationId);
+  });
+
+  it('logs a refused step without its secrets', async () => {
+    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const answer = await request(app)
+      .post('/token')
+      .type('form')
+      .send({
+        grant_type: 'authorization_code',
+        code: 'nope',
+        code_verifier: 'x',
+        client_id: 'none',
+      });
+    expect(answer.status).toBeGreaterThanOrEqual(400);
+    expect(warn).toHaveBeenCalledWith(
+      expect.objectContaining({ path: '/token', status: answer.status, clientId: 'none' }),
+      'MCP connector request refused',
+    );
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('nope');
+    warn.mockRestore();
+  });
+
   it('refuses a code used twice, or by another client', async () => {
     const clientId = await register();
     const other = await register();
@@ -313,8 +360,12 @@ describe('Claude connecting to the CRM', () => {
       organizationId,
     };
     expect(await codeOf(describeAuthorization(outsider, id))).toBe('FORBIDDEN');
-    const platform: GraphQLContext = { ...ctx, organizationId: null };
-    expect(await codeOf(approveAuthorization(platform, id))).toBe('BAD_USER_INPUT');
+    // Nobody in any company has no CRM to connect Claude to.
+    const nowhere: GraphQLContext = {
+      user: { id: '0123456789abcdef01234567', email: 'x@x.com', roles: [ROLES.CRM] },
+      organizationId: null,
+    };
+    expect(await codeOf(approveAuthorization(nowhere, id))).toBe('BAD_USER_INPUT');
     const back = new URL(await denyAuthorization(ctx, id));
     expect([back.searchParams.get('error'), back.searchParams.get('state')]).toEqual([
       'access_denied',

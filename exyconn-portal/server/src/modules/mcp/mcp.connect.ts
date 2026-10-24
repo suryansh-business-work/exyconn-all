@@ -2,7 +2,8 @@ import { Types } from 'mongoose';
 import type { GraphQLContext } from '../../middleware/auth';
 import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
-import { runAsPlatform } from '../../lib/tenant';
+import { organizationOf, runAsPlatform } from '../../lib/tenant';
+import { UserModel } from '../admin/user.model';
 import { badRequest, notFound } from '../../utils/errors';
 import { recordAudit } from '../audit';
 import { McpAuthCodeModel, McpAuthRequestModel, McpClientModel } from './mcp.models';
@@ -19,6 +20,17 @@ export interface McpAuthorizationRequest {
   clientName: string;
   redirectHost: string;
   scopes: string[];
+}
+
+/**
+ * The company a person belongs to — what a connection acts in when they allow it from the
+ * platform view (a platform administrator with no company open). Null for an account in none.
+ */
+async function homeOrganization(userId: string): Promise<string | null> {
+  const user = await runAsPlatform(() =>
+    UserModel.findById(userId).select('organizationId').lean(),
+  );
+  return user ? organizationOf(user) : null;
 }
 
 /** The redirect address with the outcome added, as OAuth returns it to the client. */
@@ -63,7 +75,7 @@ export async function describeAuthorization(
  */
 export async function approveAuthorization(ctx: GraphQLContext, id: string): Promise<string> {
   const user = assertRole(ctx, [ROLES.CRM]);
-  const organizationId = ctx.organizationId ?? null;
+  const organizationId = ctx.organizationId ?? (await homeOrganization(user.id));
   if (!organizationId) {
     badRequest('Open the CRM in a company before connecting Claude to it.');
   }
