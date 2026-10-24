@@ -11,3 +11,5 @@ export { OpenAiConfigModel } from './openai-config.model';
 export { TrackerBuildSettingsModel } from './tracker-build-settings.model';
 export { techRevealTypeDefs } from './tech.reveal.typeDefs';
 export { techRevealResolvers } from './tech.reveal';
+export { techUsageTypeDefs } from './tech.usage.typeDefs';
+export { techUsageResolvers } from './tech.usage.resolvers';

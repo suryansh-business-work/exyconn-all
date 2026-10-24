@@ -17,6 +17,7 @@ import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startEmployeeReports, startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startTrackerBuildRetention } from './modules/tech/tracker-releases.service';
 import { startReleaseRetention } from './modules/meeting-assistant/releases.cleanup';
+import { startFxRates } from './modules/tech/fx/fx.service';
 import { startCampaignSchedule } from './modules/marketing';
 import { startOverdueSweep, startRecurringInvoiceSchedule } from './modules/finance';
 import { startSocialSchedule } from './modules/social-accounts';
@@ -176,6 +177,8 @@ async function bootstrap(): Promise<void> {
   // Old tracker builds go on the count set in Tracker > Builds, whether or not anyone looks.
   startTrackerBuildRetention();
   startReleaseRetention();
+  // The cost dashboards read every USD cost in the currency Tech picks, at today's rate.
+  startFxRates();
   // The daily/weekly tracker summary is a scheduled email like the payslips above, so it
   // needs the loop running whether or not anyone opens the portal.
   startTrackerDigest();

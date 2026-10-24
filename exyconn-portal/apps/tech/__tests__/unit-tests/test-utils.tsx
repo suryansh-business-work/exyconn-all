@@ -8,6 +8,7 @@ import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
 import { ColorModeProvider } from '@exyconn/shell/theme/ColorModeContext';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { ConfirmProvider } from '@exyconn/shell/components/feedback/ConfirmProvider';
+import { TechSecretsProvider } from '../../src/pages/environment-variables/TechSecretsProvider';
 
 /** Provider options. They mirror what the shell's `PortalApp` puts above every Tech page. */
 export interface ProviderOptions {
@@ -51,7 +52,9 @@ export function createWrapper({
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <NotificationProvider>
                 <ConfirmProvider>
-                  <MemoryRouter initialEntries={[route]}>{content}</MemoryRouter>
+                  <TechSecretsProvider>
+                    <MemoryRouter initialEntries={[route]}>{content}</MemoryRouter>
+                  </TechSecretsProvider>
                 </ConfirmProvider>
               </NotificationProvider>
             </LocalizationProvider>

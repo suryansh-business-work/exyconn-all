@@ -89,9 +89,7 @@ describe('GoogleSignInPanel', () => {
     renderWith();
     expect(testButton()).toBeEnabled();
     await userEvent.click(testButton());
-    await waitFor(() =>
-      expect(notify).toHaveBeenCalledWith('Google knows this client', 'success'),
-    );
+    await waitFor(() => expect(notify).toHaveBeenCalledWith('Google knows this client', 'success'));
   });
 
   it('says Google answered when the test gives no detail', async () => {

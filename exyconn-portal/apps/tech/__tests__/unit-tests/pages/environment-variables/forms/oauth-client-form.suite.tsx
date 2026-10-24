@@ -69,7 +69,10 @@ export function describeOAuthClientForm(spec: Readonly<OAuthClientFormSpec>) {
       fill(spec.clientIdLabel, 'x'.repeat(301));
       fill('Client secret', 'y'.repeat(501));
       await press('Save changes');
-      await expectMessages('That is too long for a client ID', 'That is too long for a client secret');
+      await expectMessages(
+        'That is too long for a client ID',
+        'That is too long for a client secret',
+      );
       expect(spec.save).not.toHaveBeenCalled();
     });
 
@@ -82,7 +85,12 @@ export function describeOAuthClientForm(spec: Readonly<OAuthClientFormSpec>) {
       await waitFor(() => expect(notify).toHaveBeenCalledWith(spec.saved, 'success'));
       expect(spec.save).toHaveBeenCalledWith({
         variables: {
-          input: { clientId: spec.validClientId, clientSecret: secret, enabled: true, ...spec.extraInput },
+          input: {
+            clientId: spec.validClientId,
+            clientSecret: secret,
+            enabled: true,
+            ...spec.extraInput,
+          },
         },
       });
       expect(screen.getByLabelText('Client secret')).toHaveValue('');
@@ -94,7 +102,9 @@ export function describeOAuthClientForm(spec: Readonly<OAuthClientFormSpec>) {
       spec.save.mockRejectedValue(failure);
       renderWithProviders(spec.render({}));
       await press('Save changes');
-      await waitFor(() => expect(notify).toHaveBeenCalledWith('Server refused the client', 'error'));
+      await waitFor(() =>
+        expect(notify).toHaveBeenCalledWith('Server refused the client', 'error'),
+      );
       expect(spec.logger.warn).toHaveBeenCalledWith(spec.saveFailedLog, failure);
     });
 

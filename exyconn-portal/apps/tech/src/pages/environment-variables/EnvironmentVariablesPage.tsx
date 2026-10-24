@@ -4,6 +4,7 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { PageSideNav } from '@exyconn/shell/components/navigation/PageSideNav';
 import { useTabberSlug } from '@exyconn/tabber';
 import { ENVIRONMENT_VARIABLES_SECTIONS } from './environmentVariables.sections';
+import { TechSecretsProvider } from './TechSecretsProvider';
 
 /** Route the integrations live under; each one is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -20,13 +21,15 @@ export function EnvironmentVariablesPage() {
   const active = ENVIRONMENT_VARIABLES_SECTIONS.find((section) => section.slug === slug);
 
   return (
-    <PageSideNav
-      items={ENVIRONMENT_VARIABLES_SECTIONS}
-      selected={slug}
-      onSelect={selectSlug}
-      ariaLabel="Integration credentials"
-    >
-      {active && <Box sx={readingPanel}>{active.panel}</Box>}
-    </PageSideNav>
+    <TechSecretsProvider>
+      <PageSideNav
+        items={ENVIRONMENT_VARIABLES_SECTIONS}
+        selected={slug}
+        onSelect={selectSlug}
+        ariaLabel="Integration credentials"
+      >
+        {active && <Box sx={readingPanel}>{active.panel}</Box>}
+      </PageSideNav>
+    </TechSecretsProvider>
   );
 }

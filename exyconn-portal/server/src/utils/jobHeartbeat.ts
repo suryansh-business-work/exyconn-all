@@ -32,6 +32,7 @@ export const JOB_KEYS = {
   meetingAssistant: 'meetingAssistant',
   meetingAssistantRetention: 'meetingAssistantRetention',
   meetingAssistantReleaseRetention: 'meetingAssistantReleaseRetention',
+  fxRates: 'fxRates',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

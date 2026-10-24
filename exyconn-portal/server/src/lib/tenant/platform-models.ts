@@ -65,6 +65,11 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   // NOTE: the support mailbox (InboundMailConfig) is deliberately NOT here — a company reads
   // its own mailbox into its own tickets, so each configures one in Tech.
   'AiModelPrice',
+  // What each integration was used for (Tech > Environment Variables dashboard), the exchange
+  // rates its costs are read in, and the extra keys that read a provider's real bill.
+  'IntegrationUsage',
+  'FxRates',
+  'BillingKeyConfig',
   // Exyconn's own site and public status page — not a customer's data.
   'BlogPost',
   'CaseStudy',

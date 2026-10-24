@@ -1,6 +1,16 @@
 import { GithubConfigModel, type GithubConfigDocument } from '../modules/tech/github-config.model';
 import { logger } from './logger';
 import { ConfigurationError } from './errors';
+import { metered } from '../modules/tech/usage/usage.meter';
+
+/** A GitHub path as one kind of call: ids and versions out, so each endpoint counts as one row. */
+export function githubAction(method: string, path: string): string {
+  const endpoint = path
+    .split('?')[0]
+    .replaceAll(/\/\d+(?=\/|$)/g, '/:id')
+    .replaceAll(/\/tags\/[^/]+$/g, '/tags/:tag');
+  return `${method} ${endpoint}`;
+}
 
 const GITHUB_API_URL = 'https://api.github.com';
 
@@ -161,10 +171,20 @@ interface RunPayload {
  * Variables screen, so rotating the token never needs a redeploy.
  */
 class GithubActions {
-  private async request<T>(
+  private request<T>(
     config: GithubConfigDocument,
     path: string,
     init: RequestInit = {},
+  ): Promise<T | null> {
+    return metered('GITHUB', githubAction(init.method ?? 'GET', path), () =>
+      this.send<T>(config, path, init),
+    );
+  }
+
+  private async send<T>(
+    config: GithubConfigDocument,
+    path: string,
+    init: RequestInit,
   ): Promise<T | null> {
     const response = await fetch(`${GITHUB_API_URL}/repos/${config.owner}/${config.repo}${path}`, {
       ...init,

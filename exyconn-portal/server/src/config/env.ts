@@ -207,6 +207,20 @@ export const env = Object.freeze({
    * `statusmonitors` collection on this interval; a reachable endpoint slower than
    * `degradedMs` is reported as degraded rather than operational.
    */
+  /**
+   * Daily exchange rates from US dollars for the cost dashboards (Tech > Environment Variables).
+   * Any source answering `{ date, rates: { CODE: number } }` for a USD base works; the default
+   * is the ECB reference rates through Frankfurter, which needs no key.
+   */
+  fx: {
+    ratesUrl: process.env.FX_RATES_URL ?? 'https://api.frankfurter.dev/v1/latest?base=USD',
+    timeoutMs: Number(process.env.FX_RATES_TIMEOUT_MS ?? 10_000),
+  },
+  /** OpenAI's Costs API, read with the Admin key saved in Tech > Environment Variables > Billing keys. */
+  openAiBilling: {
+    costsUrl: process.env.OPENAI_COSTS_URL ?? 'https://api.openai.com/v1/organization/costs',
+    timeoutMs: Number(process.env.OPENAI_COSTS_TIMEOUT_MS ?? 15_000),
+  },
   status: {
     enabled: (process.env.STATUS_MONITOR_ENABLED ?? 'true') !== 'false',
     /** Platform domain the seeded monitor URLs hang off. */

@@ -28,6 +28,7 @@ import { InboundMailConfigModel } from './inbound-mail-config.model';
 import { OpenAiConfigModel } from './openai-config.model';
 import { PexelsConfigModel } from './pexels-config.model';
 import { SlackConfigModel } from './slack-config.model';
+import { BillingKeyModel } from './billing/billing-key.model';
 
 /**
  * The eye button on Tech > Environment Variables. A saved credential is never listed; staff who
@@ -105,6 +106,7 @@ const SECRETS: Readonly<Record<string, SecretSource>> = {
   SOCIAL_APP_CLIENT_SECRET: source(SocialAppConfigModel, 'clientSecret', 'client secret', {
     keyField: 'app',
   }),
+  BILLING_KEY: source(BillingKeyModel, 'key', 'billing key', { sealed: true }),
 };
 
 const findRow = (secret: SecretSource, id: string): Promise<StoredRow | null> => {
@@ -133,6 +135,44 @@ async function revealTechSecret(ctx: GraphQLContext, id: string, kind: string): 
     summary: `Revealed the saved ${secret.name}`,
   });
   return secret.sealed && stored !== '' ? open(stored) : stored;
+}
+
+/** Every saved value of one kind of credential, by the config it belongs to, opened when sealed. */
+async function valuesOf(secret: SecretSource): Promise<Array<{ id: string; value: string }>> {
+  const key = secret.keyField ?? '_id';
+  const query = () =>
+    secret.model
+      .find({ [secret.field]: { $nin: ['', null] } })
+      .select(`${key} ${secret.field}`)
+      .lean<StoredRow[]>()
+      .exec();
+  const rows = secret.companyScoped ? await query() : await runAsPlatform(query);
+  return rows.map((row) => {
+    const stored = String(row[secret.field]);
+    return { id: String(row[key]), value: secret.sealed ? open(stored) : stored };
+  });
+}
+
+/**
+ * Every saved credential on the page, in full, for the eye button to show without asking again.
+ * Platform staff only — the support mailbox, a company's own, comes from the caller's company —
+ * and one audit entry per call, naming how many values went out.
+ */
+export async function revealAllTechSecrets(ctx: GraphQLContext) {
+  await assertPlatformStaff(ctx, TECH_MODULE, [ROLES.TECH], 'EDIT');
+  const perKind = await Promise.all(
+    Object.entries(SECRETS).map(async ([secret, source]) =>
+      (await valuesOf(source)).map((value) => ({ secret, ...value })),
+    ),
+  );
+  const values = perKind.flat();
+  await recordAudit(ctx, {
+    action: 'ACCESS',
+    module: TECH_MODULE,
+    entityLabel: 'Environment variables',
+    summary: `Revealed every saved credential on Environment Variables (${values.length} values)`,
+  });
+  return values;
 }
 
 export const techRevealResolvers = {

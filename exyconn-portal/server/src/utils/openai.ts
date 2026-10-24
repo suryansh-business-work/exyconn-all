@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto';
 import type { OpenAiConfigDocument } from '../modules/tech/openai-config.model';
+import { metered } from '../modules/tech/usage/usage.meter';
 
 const OPENAI_API_URL = 'https://api.openai.com';
 
@@ -15,6 +16,7 @@ interface CompletionResponse {
 
 interface EmbeddingResponse {
   data: Array<{ index: number; embedding: number[] }>;
+  usage?: { prompt_tokens?: number };
 }
 
 /** One diarized stretch of speech, as gpt-4o-transcribe-diarize reports it (seconds). */
@@ -128,7 +130,17 @@ class OpenAiClient {
    * Speech to text (`/v1/audio/transcriptions`, multipart). A diarize model is asked for
    * speaker-labelled stretches; any other model returns the chunk's text as one stretch.
    */
-  async transcribe(request: TranscriptionRequest): Promise<TranscriptionResult> {
+  transcribe(request: TranscriptionRequest): Promise<TranscriptionResult> {
+    // Counted on Tech > Environment Variables: one call per chunk, with its audio tokens.
+    return metered(
+      'OPENAI',
+      request.model,
+      () => this.runTranscription(request),
+      (result) => ({ inputTokens: result.promptTokens, outputTokens: result.completionTokens }),
+    );
+  }
+
+  private async runTranscription(request: TranscriptionRequest): Promise<TranscriptionResult> {
     const diarize = isDiarizeModel(request.model);
     const form = new FormData();
     const extension = request.mimeType.split('/')[1]?.split(';')[0] ?? 'webm';
@@ -203,11 +215,11 @@ class OpenAiClient {
     input: string[],
     signal?: AbortSignal,
   ): Promise<number[][]> {
-    const body = await this.request<EmbeddingResponse>(
-      apiKey,
-      '/v1/embeddings',
-      { model, input },
-      signal,
+    const body = await metered(
+      'OPENAI',
+      model,
+      () => this.request<EmbeddingResponse>(apiKey, '/v1/embeddings', { model, input }, signal),
+      (answer) => ({ inputTokens: answer.usage?.prompt_tokens ?? 0, outputTokens: 0 }),
     );
     // The response is ours to reorder: sorting it in place changes nothing anybody else holds.
     body.data.sort((a, b) => a.index - b.index);
@@ -227,11 +239,20 @@ class OpenAiClient {
       ...(system ? [{ role: 'system', content: system }] : []),
       { role: 'user', content: prompt },
     ];
-    const body = await this.request<CompletionResponse>(
-      apiKey,
-      '/v1/chat/completions',
-      { model, messages, ...(json ? { response_format: { type: 'json_object' } } : {}) },
-      signal,
+    const body = await metered(
+      'OPENAI',
+      model,
+      () =>
+        this.request<CompletionResponse>(
+          apiKey,
+          '/v1/chat/completions',
+          { model, messages, ...(json ? { response_format: { type: 'json_object' } } : {}) },
+          signal,
+        ),
+      (answer) => ({
+        inputTokens: answer.usage?.prompt_tokens ?? 0,
+        outputTokens: answer.usage?.completion_tokens ?? 0,
+      }),
     );
     const text = body.choices[0]?.message?.content ?? '';
     return {
