@@ -8,3 +8,4 @@ export {
   type CommsRequest,
 } from './commsStore';
 export { emailsOf, phonesOf } from './recordChannels';
+export { openComposeEmail } from './composeDock';

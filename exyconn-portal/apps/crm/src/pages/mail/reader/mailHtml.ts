@@ -1,4 +1,5 @@
 import { sanitizeRichHtml } from '@exyconn/shell/utils/sanitizeHtml';
+import { visibleText } from '@exyconn/shell/utils/visibleText';
 
 /** The colours and font a message body is drawn with inside its frame. */
 export interface MailFrameStyle {
@@ -8,35 +9,66 @@ export interface MailFrameStyle {
   link: string;
 }
 
-/**
- * A message's HTML as the reader shows it. The server has cleaned it already; it is cleaned
- * again here (the portal's DOMPurify allow-list), remote images lose their address unless
- * the person chose to show them (a remote image tells the sender the mail was opened), and
- * every link opens in a new tab. Returns how many images the message has.
- */
-export function prepareMailHtml(html: string, showImages: boolean) {
+/** Cleaned with the portal's allow-list, every link opening in a new tab. */
+function cleanMailHtml(html: string) {
   const doc = new DOMParser().parseFromString(sanitizeRichHtml(html), 'text/html');
-  const images = [...doc.querySelectorAll('img[src]')];
-  if (!showImages) {
-    for (const image of images) {
-      image.removeAttribute('src');
-    }
-  }
   for (const link of doc.querySelectorAll('a[href]')) {
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
   }
-  return { html: doc.body.innerHTML, images: images.length };
+  return doc.body.innerHTML;
+}
+
+/** Where mail clients put the message being answered: Gmail, Yahoo and Apple Mail's cite. */
+const QUOTE_SELECTOR = '.gmail_quote, .yahoo_quoted, blockquote[type="cite"]';
+/** Outlook's "From: … Sent: …" header; the quoted message follows it. */
+const OUTLOOK_REPLY = '#divRplyFwdMsg';
+
+/** Takes the quoted earlier mail out of the document and returns it as HTML. */
+function cutQuotes(doc: Document): string {
+  const parts: string[] = [];
+  const outlook = doc.querySelector(OUTLOOK_REPLY);
+  let next: Element | null = outlook;
+  while (next) {
+    const current = next;
+    next = current.nextElementSibling;
+    parts.push(current.outerHTML);
+    current.remove();
+  }
+  for (const quote of doc.querySelectorAll(QUOTE_SELECTOR)) {
+    // A quote inside one already taken went with it.
+    if (quote.isConnected) {
+      parts.push(quote.outerHTML);
+      quote.remove();
+    }
+  }
+  return parts.join('');
 }
 
 /**
- * The whole document the sandboxed frame shows: a policy that allows no script, no request
- * but https images (and none while they are hidden), and the message's own styles kept inside
- * the frame so they never reach the portal.
+ * A message's HTML as the reader shows it. The server has cleaned it already; it is cleaned
+ * again here (the portal's DOMPurify allow-list), and every link opens in a new tab. The
+ * earlier mail it quotes comes back apart, to fold behind "⋯" as Gmail does; a message that
+ * is nothing but quote stays whole.
  */
-export function mailDocument(body: string, style: MailFrameStyle, showImages: boolean) {
-  const images = showImages ? 'https: data:' : 'data:';
-  const policy = `default-src 'none'; img-src ${images}; style-src 'unsafe-inline'`;
+export function prepareMailHtml(html: string) {
+  // Cut first: cleaning drops the ids Outlook marks its quote with. Parsing runs no script.
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const quoted = cutQuotes(doc);
+  const main = cleanMailHtml(doc.body.innerHTML);
+  if (visibleText(main) === '') {
+    return { main: cleanMailHtml(html), quoted: '' };
+  }
+  return { main, quoted: quoted && cleanMailHtml(quoted) };
+}
+
+/**
+ * The whole document the sandboxed frame shows: a policy that allows no script and no request
+ * but images (https and inline), and the message's own styles kept inside the frame so they
+ * never reach the portal.
+ */
+export function mailDocument(body: string, style: MailFrameStyle) {
+  const policy = "default-src 'none'; img-src https: data:; style-src 'unsafe-inline'";
   const css = [
     `body{margin:0;padding:12px;font-family:${style.font};font-size:14px;line-height:1.5;color:${style.ink};background:${style.paper};overflow-wrap:anywhere}`,
     `a{color:${style.link}}`,

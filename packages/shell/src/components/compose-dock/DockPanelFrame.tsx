@@ -87,7 +87,7 @@ export function DockPanelFrame({
       sx={{
         position: 'fixed',
         ...dockPlacement({ theme, isPhone, maximized, position, size, abovePills }),
-        zIndex: theme.zIndex.appBar + 1,
+        zIndex: theme.zIndex.drawer + 1,
         display: 'flex',
         flexDirection: 'column',
         border: 1,

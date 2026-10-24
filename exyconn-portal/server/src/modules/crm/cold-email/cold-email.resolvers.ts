@@ -82,6 +82,11 @@ const audit = (
 export const coldEmailResolvers = {
   ColdEmailDraft: {
     variantCount: (row: { variants?: unknown[] }) => row.variants?.length ?? 0,
+    // lean() reads leave out defaults, so a draft from before briefs has none.
+    brief: (row: { brief?: { about?: string; fit?: string[] } | null }) => ({
+      about: row.brief?.about ?? '',
+      fit: row.brief?.fit ?? [],
+    }),
     maxVariants: () => MAX_VARIANTS,
   },
   ColdEmailVariant: {

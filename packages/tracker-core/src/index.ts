@@ -25,6 +25,7 @@ export * from './location-text';
 export * from './location-access';
 export * from './off-day';
 export * from './format';
+export * from './day-progress';
 export * from './logger';
 export * from './outbox';
 export * from './presence';

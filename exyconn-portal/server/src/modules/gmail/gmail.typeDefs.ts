@@ -83,6 +83,43 @@ export const gmailTypeDefs = gql`
     messages: [CrmEmailMessage!]!
   }
 
+  enum CrmEmailThreadSort {
+    NEWEST
+    OLDEST
+    SUBJECT
+  }
+
+  input CrmEmailThreadPageInput {
+    "Words in the subject, preview, body or addresses."
+    search: String
+    "Threads with at least one message sent (OUT) or received (IN)."
+    direction: CrmEmailDirection
+    "One connected mailbox's account id."
+    accountId: String
+    "The latest message is on or after this moment."
+    after: DateTime
+    "The latest message is on or before this moment."
+    before: DateTime
+    sort: CrmEmailThreadSort
+    "Zero-based."
+    page: Int!
+    "Up to 100."
+    pageSize: Int!
+  }
+
+  "A connected mailbox the record's mail is in."
+  type CrmEmailMailbox {
+    accountId: String!
+    mailbox: String!
+  }
+
+  type CrmEmailThreadPage {
+    rows: [CrmEmailThread!]!
+    totalCount: Int!
+    "Every mailbox with mail of the record, whatever the filters."
+    mailboxes: [CrmEmailMailbox!]!
+  }
+
   input SendCrmEmailInput {
     "The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM."
     fromAccountId: ID!
@@ -90,6 +127,8 @@ export const gmailTypeDefs = gql`
     cc: [String!]
     subject: String!
     body: String!
+    "The body is rich text (HTML) from the editor, cleaned before sending; plain text otherwise."
+    html: Boolean
     "Replying: Gmail's thread id and the Message-ID being answered."
     threadId: String
     inReplyTo: String
@@ -107,6 +146,12 @@ export const gmailTypeDefs = gql`
     gmailConfig: GmailConfig!
     "The record's Gmail threads across every enabled account, synced from Gmail first."
     crmEmailThreads(object: CrmTimelineObject!, id: ID!): [CrmEmailThread!]!
+    "One page of the record's synced threads, searched, filtered and sorted; it does not reach Gmail."
+    crmEmailThreadPage(
+      object: CrmTimelineObject!
+      id: ID!
+      input: CrmEmailThreadPageInput!
+    ): CrmEmailThreadPage!
     "Whether the company's CRM can email through Gmail (one of its accounts is enabled)."
     crmGmailReady: Boolean!
     "The Gmail accounts connected to the CRM, newest first."
@@ -132,6 +177,8 @@ export const gmailTypeDefs = gql`
     "Reads every enabled mailbox's address with its stored connection."
     testGmailConfig: String!
     sendCrmEmail(input: SendCrmEmailInput!): CrmEmailMessage!
+    "Reads the record's newest threads from every enabled mailbox into the CRM."
+    syncCrmEmails(object: CrmTimelineObject!, id: ID!): Boolean!
     "An AI draft of a new email or a reply, from the record and its thread."
     draftCrmEmail(input: DraftCrmEmailInput!): String!
     "An AI summary of everything that happened with the record."

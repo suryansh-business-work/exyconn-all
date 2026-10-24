@@ -196,3 +196,33 @@ describe('listing CRM > Mail', () => {
     ]);
   });
 });
+
+describe('sorting and filtering CRM > Mail', () => {
+  const all = (input: Partial<Parameters<typeof listMailThreads>[1]>) =>
+    asOperator(async () =>
+      listMailThreads([await mailbox()], { folder: 'ALL', page: 0, pageSize: 25, ...input }),
+    );
+
+  beforeEach(async () => {
+    await connectAccount(operatorId, SALES);
+    fakeMail({ [SALES]: salesBox() });
+    await asOperator(async () => syncMailbox(await mailbox()));
+  });
+
+  it('sorts newest first by default, or oldest first, by subject or by sender', async () => {
+    expect(threadIdsOf(await all({}))).toEqual(['t1', 't2', 't3']);
+    expect(threadIdsOf(await all({ sort: 'OLDEST' }))).toEqual(['t3', 't2', 't1']);
+    expect(threadIdsOf(await all({ sort: 'SUBJECT' }))).toEqual(['t3', 't1', 't2']);
+    expect(threadIdsOf(await all({ sort: 'SENDER' }))[0]).toBe('t2');
+  });
+
+  it('keeps only unread conversations, or those in a date range', async () => {
+    expect(threadIdsOf(await all({ unreadOnly: true }))).toEqual(['t1']);
+    expect(
+      threadIdsOf(
+        await all({ after: '2026-10-02T00:00:00Z', before: new Date('2026-10-04T23:00:00Z') }),
+      ),
+    ).toEqual(['t2']);
+    expect((await all({ withAttachments: true })).totalCount).toBe(0);
+  });
+});

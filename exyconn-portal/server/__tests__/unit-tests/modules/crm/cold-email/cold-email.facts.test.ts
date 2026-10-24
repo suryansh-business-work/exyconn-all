@@ -233,6 +233,7 @@ describe('recordFacts', () => {
 describe('the cold email prompt', () => {
   it('tells the model to speak to the role and never to quote internal records', () => {
     const prompt = coldEmailPrompt({
+      offering: '',
       senderName: 'Asha',
       organizationName: 'Exyconn',
       recipientName: 'Ravi',

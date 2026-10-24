@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
@@ -6,11 +5,11 @@ import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { useCrmMailOverviewQuery } from '@exyconn/shell/graphql/generated';
-import { ComposeMailDialog } from './ComposeMailDialog';
+import { openComposeEmail } from '../../records/comms';
 import { MailEmptyState } from './MailEmptyState';
 import { MailLayout } from './MailLayout';
 import { MailRail } from './MailRail';
-import { MailSearchBar } from './MailSearchBar';
+import { MailListHeader } from './MailListHeader';
 import { MailThreadList } from './MailThreadList';
 import { MailReader } from './reader/MailReader';
 import { useMailRoute } from './useMailRoute';
@@ -24,7 +23,6 @@ import { useMailSync } from './useMailSync';
 export function MailPage() {
   const t = useT();
   const route = useMailRoute();
-  const [composing, setComposing] = useState(false);
   const overview = useCrmMailOverviewQuery({
     variables: { accountId: route.mailbox || null },
     fetchPolicy: 'cache-and-network',
@@ -61,57 +59,63 @@ export function MailPage() {
     return <MailEmptyState mailboxes={mailboxes} />;
   }
 
-  const { folder, mailbox, search, page, thread } = route;
+  const { folder, mailbox, search, sort, filters, listFilters, page, thread } = route;
   const closeReader = () => route.change({ thread: null });
   return (
-    <>
-      <MailLayout
-        reading={thread !== null}
-        rail={
-          <MailRail
+    <MailLayout
+      reading={thread !== null}
+      rail={
+        <MailRail
+          folder={folder}
+          mailbox={mailbox}
+          mailboxes={mailboxes}
+          counts={overview.data.crmMailOverview.folders}
+          sync={sync}
+          onCompose={() =>
+            openComposeEmail({
+              object: 'CONTACT',
+              id: '',
+              to: [],
+              fromAccountId: mailbox || readable[0].id,
+            })
+          }
+          onMailbox={(id) => route.change({ mailbox: id, page: null, thread: null })}
+        />
+      }
+      list={
+        <>
+          <MailListHeader
+            key={folder.slug}
+            search={search}
+            sort={sort}
+            filters={filters}
+            onSearch={(q) => route.change({ q, page: null })}
+            onSort={(next) => route.change({ sort: next, page: null })}
+            onFilters={(next) => route.change({ filters: next, page: null })}
+          />
+          <MailThreadList
+            key={[folder.slug, mailbox, search, sort, JSON.stringify(listFilters), page].join('|')}
             folder={folder}
             mailbox={mailbox}
-            mailboxes={mailboxes}
-            counts={overview.data.crmMailOverview.folders}
-            sync={sync}
-            onCompose={() => setComposing(true)}
-            onMailbox={(id) => route.change({ mailbox: id, page: null, thread: null })}
+            search={search}
+            sort={sort}
+            filters={listFilters}
+            page={page}
+            open={thread}
+            onOpen={(next) => route.change({ thread: next })}
+            onPageChange={(next) => route.change({ page: next })}
           />
-        }
-        list={
-          <>
-            <MailSearchBar
-              key={folder.slug}
-              value={search}
-              onSearch={(q) => route.change({ q, page: null })}
-            />
-            <MailThreadList
-              key={`${folder.slug}|${mailbox}|${search}|${page}`}
-              folder={folder}
-              mailbox={mailbox}
-              search={search}
-              page={page}
-              open={thread}
-              onOpen={(next) => route.change({ thread: next })}
-              onPageChange={(next) => route.change({ page: next })}
-            />
-          </>
-        }
-        reader={
-          thread && (
-            <MailReader
-              key={`${thread.accountId}:${thread.threadId}`}
-              open={thread}
-              onClose={closeReader}
-            />
-          )
-        }
-      />
-      <ComposeMailDialog
-        open={composing}
-        fromAccountId={mailbox || readable[0].id}
-        onClose={() => setComposing(false)}
-      />
-    </>
+        </>
+      }
+      reader={
+        thread && (
+          <MailReader
+            key={`${thread.accountId}:${thread.threadId}`}
+            open={thread}
+            onClose={closeReader}
+          />
+        )
+      }
+    />
   );
 }

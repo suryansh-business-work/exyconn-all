@@ -5,6 +5,9 @@ import * as translate from '../../../../src/modules/i18n/i18n.translate';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 
+// The shipped UI strings are thousands; these tests fill from the catalogue alone.
+jest.mock('../../../../src/modules/i18n/ui-sources', () => ({ shippedSources: [] }));
+
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const I18N = i18nResolvers.Mutation as unknown as Record<string, Resolver>;
 

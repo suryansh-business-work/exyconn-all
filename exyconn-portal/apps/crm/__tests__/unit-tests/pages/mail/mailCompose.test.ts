@@ -15,7 +15,7 @@ describe('composeFor', () => {
       to: ['asha@globex.io'],
       cc: [],
       subject: 'Re: Pricing',
-      body: '\n\nOn Tuesday, Asha wrote:\n> Can you share\n> the price list?',
+      quote: 'On Tuesday, Asha wrote:\nCan you share\nthe price list?',
       threadId: 't1',
       inReplyTo: '<m1@globex.io>',
     });
@@ -50,7 +50,7 @@ describe('composeFor', () => {
       fromAccountId: 'g1',
       to: [],
       subject: 'Fwd: Pricing',
-      body: '\n\n--- Forwarded ---\nCan you share\nthe price list?',
+      quote: '--- Forwarded ---\nCan you share\nthe price list?',
     });
     expect(
       composeFor(thread({ subject: 'Fwd: x' }), open.messages[0], 'forward', words).subject,

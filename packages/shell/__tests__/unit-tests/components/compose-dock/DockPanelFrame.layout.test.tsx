@@ -56,7 +56,7 @@ describe('DockPanelFrame maximize and resize', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Restore size' }));
 
     expect(dialog).toHaveStyle({ left: '120px', top: '40px', width: '480px', height: '360px' });
-    expect(dialog.querySelectorAll('[data-resize-edge]')).toHaveLength(3);
+    expect(dialog.querySelectorAll('[data-resize-edge]')).toHaveLength(6);
   });
 
   it('toggles maximize on a double-click of the title bar, but not of its buttons', () => {

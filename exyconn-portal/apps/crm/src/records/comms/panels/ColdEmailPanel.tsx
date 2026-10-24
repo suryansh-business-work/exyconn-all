@@ -1,6 +1,6 @@
 import {
   ColdEmailDraftsDocument,
-  CrmEmailThreadsDocument,
+  CrmEmailThreadPageDocument,
   CrmTimelineDocument,
   useSendColdEmailVariantMutation,
 } from '@exyconn/shell/graphql/generated';
@@ -20,7 +20,7 @@ interface ColdEmailPanelProps {
  */
 export function ColdEmailPanel({ panel, coldEmail, onClose }: Readonly<ColdEmailPanelProps>) {
   const [sendVariant] = useSendColdEmailVariantMutation({
-    refetchQueries: [CrmEmailThreadsDocument, CrmTimelineDocument, ColdEmailDraftsDocument],
+    refetchQueries: [CrmEmailThreadPageDocument, CrmTimelineDocument, ColdEmailDraftsDocument],
   });
   const send = async (values: ComposeEmailValues) => {
     await sendVariant({

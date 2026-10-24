@@ -64,6 +64,15 @@ describe('DrawArea', () => {
     );
   });
 
+  it('draws no outline before the first corner (an empty polygon has no path to listen on)', () => {
+    const area = fakeArea({ drawing: true, points: [] });
+    const { map } = renderOnMap(area);
+
+    expect(screen.queryByTestId('polygon')).not.toBeInTheDocument();
+    act(() => map.fire('click', { latLng: { toJSON: () => ({ lat: 1, lng: 2 }) } }));
+    expect(area.addPoint).toHaveBeenCalledWith({ lat: 1, lng: 2 });
+  });
+
   it('stops taking clicks and restores the cursor once drawing ends', () => {
     const area = fakeArea({ drawing: true, points: corners(3) });
     const { map, rerender } = renderOnMap(area);

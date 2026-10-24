@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Box, Stack, Text } from '@exyconn/shell/components/ui';
+import { Flex, Stack, Text } from '@exyconn/shell/components/ui';
 import { useCrmIntegrationStatusQuery } from '@exyconn/shell/graphql/generated';
 import { openComms, type CommsChannel, type CommsRequest } from './commsStore';
 import { ReachOutButton } from './ReachOutButton';
@@ -62,13 +62,7 @@ export function ReachOutActions({ record, onOpen }: Readonly<ReachOutActionsProp
       <Text id={`reach-out-${record.id}`} component="h2" size="label" weight="bold">
         {t('Reach out')}
       </Text>
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 1,
-          gridTemplateColumns: (theme) => `repeat(auto-fit, minmax(${theme.spacing(12)}, 1fr))`,
-        }}
-      >
+      <Flex direction="row" spacing={1} flexWrap="wrap" useFlexGap>
         {CHANNEL_ORDER.map((channel) => (
           <ReachOutButton
             key={channel}
@@ -77,7 +71,7 @@ export function ReachOutActions({ record, onOpen }: Readonly<ReachOutActionsProp
             onClick={() => open(channel)}
           />
         ))}
-      </Box>
+      </Flex>
     </Stack>
   );
 }

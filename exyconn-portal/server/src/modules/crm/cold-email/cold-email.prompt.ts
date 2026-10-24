@@ -21,6 +21,19 @@ const replySchema = z.object({
 
 export type ColdEmailText = z.infer<typeof replySchema>;
 
+/** The longest "about them" summary and fit line kept from the model. */
+export const MAX_ABOUT_CHARS = 600;
+export const MAX_FIT_CHARS = 240;
+const MAX_FIT_LINES = 5;
+
+/** What the AI made of the prospect: their business in brief, and what of ours fits them. */
+const briefSchema = z.object({
+  about: z.string().trim().max(MAX_ABOUT_CHARS),
+  fit: z.array(z.string().trim().min(1).max(MAX_FIT_CHARS)).max(MAX_FIT_LINES),
+});
+
+export type ColdEmailBrief = z.infer<typeof briefSchema>;
+
 /** The answer to a prompt for several versions at once; single items are checked one by one. */
 const batchSchema = z.object({ versions: z.array(z.unknown()).min(1) });
 
@@ -41,6 +54,8 @@ export const MAX_BATCH = ANGLES.length;
 export interface ColdEmailPromptInput {
   /** Who and what the record is, and what we know about their business. */
   context: string;
+  /** Passages of our own website about what we offer that fits them; may be empty. */
+  offering: string;
   recipientName: string;
   senderName: string;
   organizationName: string;
@@ -53,15 +68,20 @@ export interface ColdEmailPromptInput {
   count?: number;
 }
 
+const BRIEF_FORMAT =
+  '"brief": {"about": "two or three sentences on what their business does, from their website and profile", "fit": ["one line per thing of ours that fits them, and why"]}';
+
 function answerFormat(count: number): string[] {
   const one = '{"subject": "...", "body": "..."}';
   if (count === 1) {
-    return [`Answer with JSON only, exactly {"versions": [${one}]}, and nothing else.`];
+    return [
+      `Answer with JSON only, exactly {${BRIEF_FORMAT}, "versions": [${one}]}, and nothing else.`,
+    ];
   }
   return [
     `Write ${count} clearly different versions of it. Each version:`,
     ...ANGLES.slice(0, count).map((angle, index) => `- Version ${index + 1} ${angle}.`),
-    `Answer with JSON only, exactly {"versions": [${one}, ...]} with ${count} items, and nothing else.`,
+    `Answer with JSON only, exactly {${BRIEF_FORMAT}, "versions": [${one}, ...]} with ${count} versions, and nothing else.`,
   ];
 }
 
@@ -74,6 +94,11 @@ export function coldEmailPrompt(input: ColdEmailPromptInput): string {
     "- Speak to the person's role and the company's industry, size and situation where the context gives them.",
     '- Our internal notes, tags, deal stages and lead details are background only: never quote them or say we keep records on them.',
     '- At most 150 words in the body, plain text, paragraphs separated by blank lines.',
+    ...(input.offering
+      ? [
+          '- Say which of what we offer fits them and why, from "What we offer" below; offer nothing it does not list.',
+        ]
+      : []),
     '- One clear call to action.',
     '- No invented facts, numbers, clients or results; use only what the context says.',
     `- No placeholders such as [Name] or {{company}}: use the real names given here, and sign off as ${input.senderName}.`,
@@ -90,6 +115,9 @@ export function coldEmailPrompt(input: ColdEmailPromptInput): string {
       `Make it clearly different from the earlier versions: ${input.earlierSubjects.join(' | ')}`,
     );
   }
+  if (input.offering) {
+    lines.push('', 'What we offer, from our own website:', input.offering);
+  }
   lines.push('', 'Business context:', input.context);
   return lines.join('\n');
 }
@@ -104,24 +132,33 @@ function parseVersion(raw: unknown): ColdEmailText | null {
   return PLACEHOLDER.test(subject) || PLACEHOLDER.test(body) ? null : parsed.data;
 }
 
+/** The JSON object in the model's answer, code fences tolerated; null when there is none. */
+function answerJson(response: string): unknown {
+  const start = response.indexOf('{');
+  const end = response.lastIndexOf('}');
+  if (start < 0 || end <= start) {
+    return null;
+  }
+  try {
+    return JSON.parse(response.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
+/** The brief in the model's answer, or null when it gave none (or not in the shape asked). */
+export function parseColdEmailBrief(response: string): ColdEmailBrief | null {
+  const parsed = z.object({ brief: briefSchema }).safeParse(answerJson(response));
+  return parsed.success ? parsed.data.brief : null;
+}
+
 /**
  * The usable versions in the model's answer: an empty list when it is not the JSON asked for;
  * a version that is out of bounds or still carries a placeholder is left out. Code fences
  * around the JSON are tolerated.
  */
 export function parseColdEmails(response: string): ColdEmailText[] {
-  const start = response.indexOf('{');
-  const end = response.lastIndexOf('}');
-  if (start < 0 || end <= start) {
-    return [];
-  }
-  let raw: unknown;
-  try {
-    raw = JSON.parse(response.slice(start, end + 1));
-  } catch {
-    return [];
-  }
-  const parsed = batchSchema.safeParse(raw);
+  const parsed = batchSchema.safeParse(answerJson(response));
   if (!parsed.success) {
     return [];
   }

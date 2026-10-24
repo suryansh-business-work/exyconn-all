@@ -16,6 +16,7 @@ import {
   EmailThreads,
   RecordDetailSkeleton,
   Timeline,
+  activityTabs,
 } from '../../../records/detail';
 import { COLD_EMAILS_TAB, RecordColdEmails } from '../../../records/cold-email';
 import { emailsOf } from '../../../records/comms';
@@ -66,6 +67,11 @@ export function CompanyDetailPage() {
       label: 'Activity',
       content: <Timeline object={CrmTimelineObject.Company} id={company.id} limit={200} />,
     },
+    ...activityTabs(CrmTimelineObject.Company, {
+      relatedType: 'COMPANY',
+      relatedId: company.id,
+      relatedName: company.name,
+    }),
     { slug: 'people', label: 'People', content: <CompanyPeople companyId={company.id} /> },
     ...(company.placeId
       ? [

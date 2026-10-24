@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { badRequest } from '../../utils/errors';
-import { assertCompanyCrm, checkedRecipients, type SendCrmEmailInput } from '../gmail/gmail.crm';
+import {
+  assertCompanyCrm,
+  checkedBody,
+  checkedRecipients,
+  type SendCrmEmailInput,
+} from '../gmail/gmail.crm';
 import { keepRecord, type EmailRecord } from '../gmail/gmail.sync';
 import { graph, refreshMailbox, type MicrosoftMailbox } from './microsoft.client';
 import { enabledMicrosoftMailboxes, noteMicrosoftOutcome } from './microsoft.accounts';
@@ -71,13 +76,14 @@ async function sendingMicrosoftMailbox(accountId: string): Promise<MicrosoftMail
 export async function sendMicrosoftCrmEmail(input: SendCrmEmailInput, sentByName: string) {
   assertCompanyCrm();
   const { to, cc, subject } = checkedRecipients(input);
+  const { body, html, text } = checkedBody(input);
   const mailbox = await sendingMicrosoftMailbox(input.fromAccountId);
   await sendThroughMicrosoft(mailbox, {
     to,
     cc,
     subject,
-    body: input.body,
-    contentType: 'Text',
+    body,
+    contentType: html ? 'HTML' : 'Text',
   });
   const localId = `microsoft:${randomUUID()}`;
   const record: EmailRecord = {
@@ -92,8 +98,8 @@ export async function sendMicrosoftCrmEmail(input: SendCrmEmailInput, sentByName
     cc,
     participants: [...new Set([mailbox.email, ...to, ...cc])],
     subject,
-    snippet: input.body.slice(0, 200),
-    bodyText: input.body.slice(0, 50_000),
+    snippet: text.slice(0, 200),
+    bodyText: text.slice(0, 50_000),
     sentAt: new Date(),
   };
   await keepRecord(record, sentByName);

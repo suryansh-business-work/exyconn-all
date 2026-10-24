@@ -2792,9 +2792,20 @@ export enum CmsSiteStatus {
   Draft = 'DRAFT'
 }
 
+/** What the AI made of the prospect before writing: their business, and what of ours fits them. */
+export type ColdEmailBrief = {
+  __typename?: 'ColdEmailBrief';
+  /** Two or three sentences on what their business does. */
+  about: Scalars['String']['output'];
+  /** One line per thing we offer that fits them, and why. */
+  fit: Array<Scalars['String']['output']>;
+};
+
 /** A cold email being prepared for one contact or company, with every version written so far. */
 export type ColdEmailDraft = {
   __typename?: 'ColdEmailDraft';
+  /** Empty on drafts written before briefs, until they are rewritten. */
+  brief: ColdEmailBrief;
   createdAt: Scalars['DateTime']['output'];
   createdByName: Scalars['String']['output'];
   /** What we are offering, in the person's words; empty means an introduction to the company. */
@@ -3586,6 +3597,13 @@ export enum CrmEmailDirection {
   Out = 'OUT'
 }
 
+/** A connected mailbox the record's mail is in. */
+export type CrmEmailMailbox = {
+  __typename?: 'CrmEmailMailbox';
+  accountId: Scalars['String']['output'];
+  mailbox: Scalars['String']['output'];
+};
+
 export type CrmEmailMessage = {
   __typename?: 'CrmEmailMessage';
   /** The connected account it was read from or sent by; empty on mail from before accounts. */
@@ -3638,6 +3656,38 @@ export type CrmEmailThread = {
   subject: Scalars['String']['output'];
   threadId: Scalars['ID']['output'];
 };
+
+export type CrmEmailThreadPage = {
+  __typename?: 'CrmEmailThreadPage';
+  /** Every mailbox with mail of the record, whatever the filters. */
+  mailboxes: Array<CrmEmailMailbox>;
+  rows: Array<CrmEmailThread>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CrmEmailThreadPageInput = {
+  /** One connected mailbox's account id. */
+  accountId?: InputMaybe<Scalars['String']['input']>;
+  /** The latest message is on or after this moment. */
+  after?: InputMaybe<Scalars['DateTime']['input']>;
+  /** The latest message is on or before this moment. */
+  before?: InputMaybe<Scalars['DateTime']['input']>;
+  /** Threads with at least one message sent (OUT) or received (IN). */
+  direction?: InputMaybe<CrmEmailDirection>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  /** Up to 100. */
+  pageSize: Scalars['Int']['input'];
+  /** Words in the subject, preview, body or addresses. */
+  search?: InputMaybe<Scalars['String']['input']>;
+  sort?: InputMaybe<CrmEmailThreadSort>;
+};
+
+export enum CrmEmailThreadSort {
+  Newest = 'NEWEST',
+  Oldest = 'OLDEST',
+  Subject = 'SUBJECT'
+}
 
 export type CrmFilterGroup = {
   __typename?: 'CrmFilterGroup';
@@ -3793,6 +3843,13 @@ export type CrmMailRecordLink = {
   object: CrmTimelineObject;
 };
 
+export enum CrmMailSort {
+  Newest = 'NEWEST',
+  Oldest = 'OLDEST',
+  Sender = 'SENDER',
+  Subject = 'SUBJECT'
+}
+
 export type CrmMailSyncResult = {
   __typename?: 'CrmMailSyncResult';
   accountId: Scalars['ID']['output'];
@@ -3856,12 +3913,21 @@ export type CrmMailThreadSummary = {
 export type CrmMailThreadsInput = {
   /** One mailbox; every readable one when empty. */
   accountId?: InputMaybe<Scalars['ID']['input']>;
+  /** The newest message is on or after / on or before these. */
+  after?: InputMaybe<Scalars['DateTime']['input']>;
+  before?: InputMaybe<Scalars['DateTime']['input']>;
   folder: CrmMailFolder;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
   /** Matches subject, preview and people, and Gmail's own search of each mailbox. */
   search?: InputMaybe<Scalars['String']['input']>;
+  /** Newest first unless chosen. */
+  sort?: InputMaybe<CrmMailSort>;
+  /** Only conversations with unread mail. */
+  unreadOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Only conversations with files attached. */
+  withAttachments?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** A mailbox turned on for the CRM, as CRM > Mail lists it. */
@@ -4202,6 +4268,8 @@ export type CrmTimelineItem = {
   kind: CrmTimelineKind;
   /** Whether url is this entry's own page (View details goes there); otherwise View details opens crmTimelineDetail. */
   opensPage: Scalars['Boolean']['output'];
+  /** When a task's reminder is emailed; null for everything that is not a reminder. */
+  remindAt?: Maybe<Scalars['DateTime']['output']>;
   status: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -9452,6 +9520,8 @@ export type Mutation = {
    */
   subscribeToStatus: Scalars['Boolean']['output'];
   syncAllSocialAccounts: Array<SocialSyncResult>;
+  /** Reads the record's newest threads from every enabled mailbox into the CRM. */
+  syncCrmEmails: Scalars['Boolean']['output'];
   /** Reads the newest mail of one mailbox, or of every readable one, from Gmail. */
   syncCrmMail: Array<CrmMailSyncResult>;
   /** Reads one account's posts and numbers from the network now. MARKETING. */
@@ -12588,6 +12658,12 @@ export type MutationSubscribeToStatusArgs = {
 };
 
 
+export type MutationSyncCrmEmailsArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+};
+
+
 export type MutationSyncCrmMailArgs = {
   accountId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -15566,6 +15642,8 @@ export type Query = {
   crmEmailSender?: Maybe<Scalars['ID']['output']>;
   /** Every Gmail and Microsoft mailbox of the company a CRM email may go from. */
   crmEmailSenders: Array<CrmEmailSenderOption>;
+  /** One page of the record's synced threads, searched, filtered and sorted; it does not reach Gmail. */
+  crmEmailThreadPage: CrmEmailThreadPage;
   /** The record's Gmail threads across every enabled account, synced from Gmail first. */
   crmEmailThreads: Array<CrmEmailThread>;
   /** Whether the company's CRM can email through Gmail (one of its accounts is enabled). */
@@ -16823,6 +16901,13 @@ export type QueryCrmDashboardArgs = {
 
 export type QueryCrmEmailSenderArgs = {
   id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+};
+
+
+export type QueryCrmEmailThreadPageArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmEmailThreadPageInput;
   object: CrmTimelineObject;
 };
 
@@ -19193,6 +19278,8 @@ export type SendCrmEmailInput = {
   cc?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM. */
   fromAccountId: Scalars['ID']['input'];
+  /** The body is rich text (HTML) from the editor, cleaned before sending; plain text otherwise. */
+  html?: InputMaybe<Scalars['Boolean']['input']>;
   inReplyTo?: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
@@ -24730,30 +24817,30 @@ export type CrmCalendarQuery = { __typename?: 'Query', crmCalendar: Array<{ __ty
 
 export type ColdEmailVariantFieldsFragment = { __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string };
 
-export type ColdEmailDraftRowFieldsFragment = { __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string };
+export type ColdEmailDraftRowFieldsFragment = { __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string };
 
-export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
+export type ColdEmailDraftFieldsFragment = { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> };
 
 export type ColdEmailDraftsQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ColdEmailDraftsQuery = { __typename?: 'Query', coldEmailDrafts: { __typename?: 'ColdEmailDraftPage', totalCount: number, rows: Array<{ __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string }> } };
+export type ColdEmailDraftsQuery = { __typename?: 'Query', coldEmailDrafts: { __typename?: 'ColdEmailDraftPage', totalCount: number, rows: Array<{ __typename?: 'ColdEmailDraft', id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string }> } };
 
 export type ColdEmailDraftQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type ColdEmailDraftQuery = { __typename?: 'Query', coldEmailDraft: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type CreateColdEmailDraftMutationVariables = Exact<{
   input: CreateColdEmailDraftInput;
 }>;
 
 
-export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type CreateColdEmailDraftMutation = { __typename?: 'Mutation', createColdEmailDraft: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type AddColdEmailVariantMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24762,7 +24849,7 @@ export type AddColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type AddColdEmailVariantMutation = { __typename?: 'Mutation', addColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type RewriteColdEmailDraftMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24770,7 +24857,7 @@ export type RewriteColdEmailDraftMutationVariables = Exact<{
 }>;
 
 
-export type RewriteColdEmailDraftMutation = { __typename?: 'Mutation', rewriteColdEmailDraft: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type RewriteColdEmailDraftMutation = { __typename?: 'Mutation', rewriteColdEmailDraft: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type UpdateColdEmailVariantMutationVariables = Exact<{
   draftId: Scalars['ID']['input'];
@@ -24780,7 +24867,7 @@ export type UpdateColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type UpdateColdEmailVariantMutation = { __typename?: 'Mutation', updateColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type DeleteColdEmailVariantMutationVariables = Exact<{
   draftId: Scalars['ID']['input'];
@@ -24788,7 +24875,7 @@ export type DeleteColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type DeleteColdEmailVariantMutation = { __typename?: 'Mutation', deleteColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type DeleteColdEmailDraftMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24802,7 +24889,7 @@ export type SendColdEmailVariantMutationVariables = Exact<{
 }>;
 
 
-export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', goal: string, tone: ColdEmailTone, createdAt: string, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, updatedAt: string, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
+export type SendColdEmailVariantMutation = { __typename?: 'Mutation', sendColdEmailVariant: { __typename?: 'ColdEmailDraft', tone: ColdEmailTone, maxVariants: number, id: string, object: CrmTimelineObject, recordId: string, recordName: string, toEmail: string, status: ColdEmailStatus, variantCount: number, createdByName: string, goal: string, createdAt: string, updatedAt: string, brief: { __typename?: 'ColdEmailBrief', about: string, fit: Array<string> }, variants: Array<{ __typename?: 'ColdEmailVariant', id: string, subject: string, body: string, instruction: string, tone: ColdEmailTone, costUsd: number, createdAt: string, sentAt?: string | null, sentMessageId: string }> } };
 
 export type CrmDashboardQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
@@ -25019,7 +25106,7 @@ export type CrmTimelineQueryVariables = Exact<{
 }>;
 
 
-export type CrmTimelineQuery = { __typename?: 'Query', crmTimeline: Array<{ __typename?: 'CrmTimelineItem', id: string, kind: CrmTimelineKind, at: string, title: string, summary: string, actor: string, status: string, url: string, opensPage: boolean, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> };
+export type CrmTimelineQuery = { __typename?: 'Query', crmTimeline: Array<{ __typename?: 'CrmTimelineItem', id: string, kind: CrmTimelineKind, at: string, title: string, summary: string, actor: string, status: string, url: string, opensPage: boolean, remindAt?: string | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string }> }> };
 
 export type CrmTimelineDetailQueryVariables = Exact<{
   object: CrmTimelineObject;
@@ -25197,6 +25284,8 @@ export type CrmMailThreadActionMutationVariables = Exact<{
 
 
 export type CrmMailThreadActionMutation = { __typename?: 'Mutation', crmMailThreadAction: number };
+
+export type CrmMailThreadPreviewFragment = { __typename?: 'CrmMailThreadSummary', id: string, mailbox: string, subject: string, snippet: string, fromName: string, fromAddress: string, lastAt: string };
 
 export type CrmPropertyInfoFieldsFragment = { __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, filterOnly: boolean, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
 
@@ -26439,13 +26528,22 @@ export type CrmEmailSenderQueryVariables = Exact<{
 
 export type CrmEmailSenderQuery = { __typename?: 'Query', crmEmailSender?: string | null };
 
-export type CrmEmailThreadsQueryVariables = Exact<{
+export type CrmEmailThreadPageQueryVariables = Exact<{
+  object: CrmTimelineObject;
+  id: Scalars['ID']['input'];
+  input: CrmEmailThreadPageInput;
+}>;
+
+
+export type CrmEmailThreadPageQuery = { __typename?: 'Query', crmEmailThreadPage: { __typename?: 'CrmEmailThreadPage', totalCount: number, mailboxes: Array<{ __typename?: 'CrmEmailMailbox', accountId: string, mailbox: string }>, rows: Array<{ __typename?: 'CrmEmailThread', threadId: string, accountId: string, mailbox: string, subject: string, lastAt: string, messages: Array<{ __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string, accountId: string, mailbox: string }> }> } };
+
+export type SyncCrmEmailsMutationVariables = Exact<{
   object: CrmTimelineObject;
   id: Scalars['ID']['input'];
 }>;
 
 
-export type CrmEmailThreadsQuery = { __typename?: 'Query', crmEmailThreads: Array<{ __typename?: 'CrmEmailThread', threadId: string, accountId: string, mailbox: string, subject: string, lastAt: string, messages: Array<{ __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string, accountId: string, mailbox: string }> }> };
+export type SyncCrmEmailsMutation = { __typename?: 'Mutation', syncCrmEmails: boolean };
 
 export type SendCrmEmailMutationVariables = Exact<{
   input: SendCrmEmailInput;
@@ -33049,6 +33147,8 @@ export const ColdEmailDraftRowFieldsFragmentDoc = gql`
   status
   variantCount
   createdByName
+  goal
+  createdAt
   updatedAt
 }
     `;
@@ -33068,10 +33168,12 @@ export const ColdEmailVariantFieldsFragmentDoc = gql`
 export const ColdEmailDraftFieldsFragmentDoc = gql`
     fragment ColdEmailDraftFields on ColdEmailDraft {
   ...ColdEmailDraftRowFields
-  goal
   tone
-  createdAt
   maxVariants
+  brief {
+    about
+    fit
+  }
   variants {
     ...ColdEmailVariantFields
   }
@@ -33273,6 +33375,17 @@ export const CrmMailRecordLinkFieldsFragmentDoc = gql`
   object
   id
   name
+}
+    `;
+export const CrmMailThreadPreviewFragmentDoc = gql`
+    fragment CrmMailThreadPreview on CrmMailThreadSummary {
+  id
+  mailbox
+  subject
+  snippet
+  fromName
+  fromAddress
+  lastAt
 }
     `;
 export const CrmPropertyInfoFieldsFragmentDoc = gql`
@@ -47724,6 +47837,7 @@ export const CrmTimelineDocument = gql`
     status
     url
     opensPage
+    remindAt
     attachments {
       url
       name
@@ -55723,58 +55837,95 @@ export function useCrmEmailSenderSuspenseQuery(baseOptions?: ApolloReactHooks.Sk
 export type CrmEmailSenderQueryHookResult = ReturnType<typeof useCrmEmailSenderQuery>;
 export type CrmEmailSenderLazyQueryHookResult = ReturnType<typeof useCrmEmailSenderLazyQuery>;
 export type CrmEmailSenderSuspenseQueryHookResult = ReturnType<typeof useCrmEmailSenderSuspenseQuery>;
-export const CrmEmailThreadsDocument = gql`
-    query CrmEmailThreads($object: CrmTimelineObject!, $id: ID!) {
-  crmEmailThreads(object: $object, id: $id) {
-    threadId
-    accountId
-    mailbox
-    subject
-    lastAt
-    messages {
-      ...CrmEmailMessageFields
+export const CrmEmailThreadPageDocument = gql`
+    query CrmEmailThreadPage($object: CrmTimelineObject!, $id: ID!, $input: CrmEmailThreadPageInput!) {
+  crmEmailThreadPage(object: $object, id: $id, input: $input) {
+    totalCount
+    mailboxes {
+      accountId
+      mailbox
+    }
+    rows {
+      threadId
+      accountId
+      mailbox
+      subject
+      lastAt
+      messages {
+        ...CrmEmailMessageFields
+      }
     }
   }
 }
     ${CrmEmailMessageFieldsFragmentDoc}`;
 
 /**
- * __useCrmEmailThreadsQuery__
+ * __useCrmEmailThreadPageQuery__
  *
- * To run a query within a React component, call `useCrmEmailThreadsQuery` and pass it any options that fit your needs.
- * When your component renders, `useCrmEmailThreadsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useCrmEmailThreadPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmEmailThreadPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCrmEmailThreadsQuery({
+ * const { data, loading, error } = useCrmEmailThreadPageQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCrmEmailThreadPageQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables> & ({ variables: CrmEmailThreadPageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>(CrmEmailThreadPageDocument, options);
+      }
+export function useCrmEmailThreadPageLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>(CrmEmailThreadPageDocument, options);
+        }
+// @ts-ignore
+export function useCrmEmailThreadPageSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>;
+// @ts-ignore
+export function useCrmEmailThreadPageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailThreadPageQuery | undefined, CrmEmailThreadPageQueryVariables>;
+export function useCrmEmailThreadPageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmEmailThreadPageQuery, CrmEmailThreadPageQueryVariables>(CrmEmailThreadPageDocument, options);
+        }
+export type CrmEmailThreadPageQueryHookResult = ReturnType<typeof useCrmEmailThreadPageQuery>;
+export type CrmEmailThreadPageLazyQueryHookResult = ReturnType<typeof useCrmEmailThreadPageLazyQuery>;
+export type CrmEmailThreadPageSuspenseQueryHookResult = ReturnType<typeof useCrmEmailThreadPageSuspenseQuery>;
+export const SyncCrmEmailsDocument = gql`
+    mutation SyncCrmEmails($object: CrmTimelineObject!, $id: ID!) {
+  syncCrmEmails(object: $object, id: $id)
+}
+    `;
+
+/**
+ * __useSyncCrmEmailsMutation__
+ *
+ * To run a mutation, you first call `useSyncCrmEmailsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSyncCrmEmailsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [syncCrmEmailsMutation, { data, loading, error }] = useSyncCrmEmailsMutation({
  *   variables: {
  *      object: // value for 'object'
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useCrmEmailThreadsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables> & ({ variables: CrmEmailThreadsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useSyncCrmEmailsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SyncCrmEmailsMutation, SyncCrmEmailsMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>(CrmEmailThreadsDocument, options);
+        return ApolloReactHooks.useMutation<SyncCrmEmailsMutation, SyncCrmEmailsMutationVariables>(SyncCrmEmailsDocument, options);
       }
-export function useCrmEmailThreadsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>(CrmEmailThreadsDocument, options);
-        }
-// @ts-ignore
-export function useCrmEmailThreadsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>;
-// @ts-ignore
-export function useCrmEmailThreadsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailThreadsQuery | undefined, CrmEmailThreadsQueryVariables>;
-export function useCrmEmailThreadsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>) {
-          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-// @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>(CrmEmailThreadsDocument, options);
-        }
-export type CrmEmailThreadsQueryHookResult = ReturnType<typeof useCrmEmailThreadsQuery>;
-export type CrmEmailThreadsLazyQueryHookResult = ReturnType<typeof useCrmEmailThreadsLazyQuery>;
-export type CrmEmailThreadsSuspenseQueryHookResult = ReturnType<typeof useCrmEmailThreadsSuspenseQuery>;
+export type SyncCrmEmailsMutationHookResult = ReturnType<typeof useSyncCrmEmailsMutation>;
 export const SendCrmEmailDocument = gql`
     mutation SendCrmEmail($input: SendCrmEmailInput!) {
   sendCrmEmail(input: $input) {

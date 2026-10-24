@@ -1,14 +1,16 @@
 import { fireEvent, screen } from '@testing-library/react';
-import type { WorkProfile, Workday } from '@exyconn/tracker-core';
-import { describe, expect, it } from 'vitest';
-import { DayProgress } from '../../../../src/components/dashboard/DayProgress';
-import { ProgressRing } from '../../../../src/components/dashboard/ProgressRing';
 import {
   dayFigures,
   dayProgressLabel,
   daySummary,
   dayTargetSource,
-} from '../../../../src/lib/dashboard/day-progress';
+  type WorkProfile,
+  type Workday,
+} from '@exyconn/tracker-core';
+import { describe, expect, it } from 'vitest';
+import { DayProgress } from '../../../../src/components/dashboard/DayProgress';
+import { ProgressRing } from '../../../../src/components/dashboard/ProgressRing';
+import { t } from '../../translator';
 import { ringDiameter } from '../../../../src/lib/dashboard/ring-size';
 import { renderWithProviders } from '../../test-utils';
 import { getByA11yLabel } from '../state';
@@ -45,10 +47,10 @@ describe('DayProgress', () => {
     const figures = dayFigures(WORKDAY, null, 4 * HOUR);
     expect(screen.getByText('Worked today')).toBeInTheDocument();
     expect(screen.getByText('50%')).toBeInTheDocument();
-    expect(screen.getByText('4h 0m')).toBeInTheDocument();
-    expect(screen.getByText('of 8h 0m')).toBeInTheDocument();
-    expect(screen.getByText(daySummary(figures))).toBeInTheDocument();
-    expect(getByA11yLabel(dayProgressLabel(figures, 4 * HOUR))).toBeInTheDocument();
+    expect(screen.getByText('04:00:00')).toBeInTheDocument();
+    expect(screen.getByText('of 08:00:00')).toBeInTheDocument();
+    expect(screen.getByText(daySummary(figures, t))).toBeInTheDocument();
+    expect(getByA11yLabel(dayProgressLabel(figures, 4 * HOUR, t))).toBeInTheDocument();
   });
 
   it('draws the same number as a ring when the employee prefers one', () => {
@@ -57,10 +59,10 @@ describe('DayProgress', () => {
     );
     const figures = dayFigures(WORKDAY, null, 2 * HOUR);
     expect(screen.getAllByText('25%')).toHaveLength(2);
-    expect(screen.getByText('2h 0m')).toBeInTheDocument();
-    expect(screen.getByText(daySummary(figures))).toBeInTheDocument();
+    expect(screen.getByText('02:00:00')).toBeInTheDocument();
+    expect(screen.getByText(daySummary(figures, t))).toBeInTheDocument();
     expect(container.querySelectorAll('circle')).toHaveLength(2);
-    expect(getByA11yLabel('25%. 2h 0m')).toBeInTheDocument();
+    expect(getByA11yLabel('25%. 02:00:00')).toBeInTheDocument();
   });
 
   it('falls back to HR’s contracted day when the portal has no workday yet', () => {
@@ -68,7 +70,7 @@ describe('DayProgress', () => {
       <DayProgress workday={null} workProfile={PROFILE} activeMs={3 * HOUR} style="bar" />,
     );
     expect(screen.getByText('50%')).toBeInTheDocument();
-    expect(screen.getByText('of 6h 0m')).toBeInTheDocument();
+    expect(screen.getByText('of 06:00:00')).toBeInTheDocument();
   });
 
   it('says the day is complete once the target is met', () => {
@@ -76,7 +78,7 @@ describe('DayProgress', () => {
       <DayProgress workday={WORKDAY} workProfile={PROFILE} activeMs={9 * HOUR} style="ring" />,
     );
     expect(screen.getAllByText('100%')).toHaveLength(2);
-    expect(screen.getByText('Full 6h day complete.')).toBeInTheDocument();
+    expect(screen.getByText('Full 6h day complete — -01:00:00 left.')).toBeInTheDocument();
   });
 
   it('shows an empty day with no target as 0% and no arc', () => {
@@ -92,7 +94,7 @@ describe('DayProgress', () => {
       <DayProgress workday={WORKDAY} workProfile={PROFILE} activeMs={HOUR} style="bar" />,
     );
     const about = screen.getByRole('button', { name: 'About your working day' });
-    const source = dayTargetSource(dayFigures(WORKDAY, PROFILE, HOUR));
+    const source = dayTargetSource(dayFigures(WORKDAY, PROFILE, HOUR), t);
     expect(about).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByText(source)).toBeNull();
 

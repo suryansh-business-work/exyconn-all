@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import ImageIcon from '@mui/icons-material/Image';
-import { useT } from '@exyconn/i18n';
-import { Alert, Box, Button, Text, useTheme } from '@exyconn/shell/components/ui';
+import { Box, Stack, Text, useTheme } from '@exyconn/shell/components/ui';
+import { FoldedQuote } from '../../../records/detail/email/FoldedQuote';
+import { TrimmedButton } from '../../../records/detail/email/TrimmedButton';
+import { splitQuoted } from '../../../records/detail/email/quotedText';
 import { mailDocument, prepareMailHtml } from './mailHtml';
 
 interface MailBodyProps {
@@ -14,27 +15,32 @@ interface MailBodyProps {
 /** Tall enough to show a short message before the frame has measured its content. */
 const INITIAL_HEIGHT = 120;
 
+/** A plain-text message, with the earlier mail it quotes folded behind "⋯". */
+function PlainBody({ text }: Readonly<{ text: string }>) {
+  const { main, quoted } = splitQuoted(text);
+  return (
+    <Stack spacing={1}>
+      <Text size="sm" sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+        {main}
+      </Text>
+      {quoted && <FoldedQuote text={quoted} />}
+    </Stack>
+  );
+}
+
 /**
  * A message's body. HTML is shown in a sandboxed frame — no script runs, no form submits, and
- * its styles stay inside — with remote images hidden until "Show images". A plain-text
- * message is shown as text.
+ * its styles stay inside — with its images loaded as it opens and the earlier mail it quotes
+ * folded behind "⋯", as Gmail does. A plain-text message is shown as text.
  */
 export function MailBody({ html, text, label }: Readonly<MailBodyProps>) {
-  const t = useT();
   const theme = useTheme();
-  const [showImages, setShowImages] = useState(false);
   const [height, setHeight] = useState(INITIAL_HEIGHT);
-  const prepared = useMemo(
-    () => (html ? prepareMailHtml(html, showImages) : null),
-    [html, showImages],
-  );
+  const [showQuoted, setShowQuoted] = useState(false);
+  const prepared = useMemo(() => (html ? prepareMailHtml(html) : null), [html]);
 
   if (!prepared) {
-    return (
-      <Text size="sm" sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-        {text}
-      </Text>
-    );
+    return <PlainBody text={text} />;
   }
 
   const style = {
@@ -49,28 +55,15 @@ export function MailBody({ html, text, label }: Readonly<MailBodyProps>) {
       setHeight(content);
     }
   };
+  const shown = showQuoted ? prepared.main + prepared.quoted : prepared.main;
 
   return (
-    <Box>
-      {prepared.images > 0 && !showImages && (
-        <Alert
-          severity="info"
-          icon={<ImageIcon fontSize="small" />}
-          sx={{ mb: 1 }}
-          action={
-            <Button color="inherit" size="small" onClick={() => setShowImages(true)}>
-              {t('Show images')}
-            </Button>
-          }
-        >
-          {t('Images are hidden so the sender cannot tell you opened this.')}
-        </Alert>
-      )}
+    <Stack spacing={1}>
       <Box
         component="iframe"
         title={label}
         sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        srcDoc={mailDocument(prepared.html, style, showImages)}
+        srcDoc={mailDocument(shown, style)}
         onLoad={(event) => measure(event.currentTarget as HTMLIFrameElement)}
         sx={{
           display: 'block',
@@ -82,6 +75,9 @@ export function MailBody({ html, text, label }: Readonly<MailBodyProps>) {
           bgcolor: 'common.white',
         }}
       />
-    </Box>
+      {prepared.quoted && (
+        <TrimmedButton open={showQuoted} onToggle={() => setShowQuoted(!showQuoted)} />
+      )}
+    </Stack>
   );
 }

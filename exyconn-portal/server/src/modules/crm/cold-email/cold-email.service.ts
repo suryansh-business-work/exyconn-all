@@ -6,12 +6,14 @@ import { sendFromAnyMailbox } from '../../crm-integrations/crm-integrations.emai
 import { forCrmUser } from '../../gmail/gmail.client';
 import { timelineTarget } from '../timeline/crm.timeline';
 import { businessContext, organizationName } from './cold-email.context';
+import { ourOffering } from './cold-email.offering';
 import { ColdEmailDraftModel, type ColdEmailObject, type ColdEmailTone } from './cold-email.model';
 import {
   MAX_BATCH,
   MAX_BODY_CHARS,
   MAX_SUBJECT_CHARS,
   coldEmailPrompt,
+  parseColdEmailBrief,
   parseColdEmails,
   type ColdEmailText,
 } from './cold-email.prompt';
@@ -109,12 +111,16 @@ interface GenerateArgs {
 /** One AI run and the usable versions in its answer. */
 async function ask(prompt: string, count: number, author: ColdEmailAuthor) {
   const job = await runAssistJob('Draft cold email', prompt, author);
-  return { costUsd: job.costUsd ?? 0, texts: parseColdEmails(job.response).slice(0, count) };
+  return {
+    costUsd: job.costUsd ?? 0,
+    texts: parseColdEmails(job.response).slice(0, count),
+    brief: parseColdEmailBrief(job.response),
+  };
 }
 
 /**
- * Versions written by the AI in one call from the record's current business context, each
- * validated. The usable versions are kept (a short answer is accepted); an answer with none is
+ * Versions written by the AI in one call from the record's current business context and what
+ * of ours fits them (from our own website), each validated, with the AI's brief on them. The usable versions are kept (a short answer is accepted); an answer with none is
  * retried once, then a clear error. The run's cost is split across the versions.
  */
 async function generate(args: GenerateArgs, author: ColdEmailAuthor) {
@@ -122,8 +128,10 @@ async function generate(args: GenerateArgs, author: ColdEmailAuthor) {
     businessContext(args.object, args.recordId, args.readWebsite, author),
     organizationName(),
   ]);
+  const offering = await ourOffering(`${args.goal}\n${business.context}`);
   const prompt = coldEmailPrompt({
     context: business.context,
+    offering,
     recipientName: business.name,
     senderName: author.displayName,
     organizationName: organization,
@@ -137,7 +145,8 @@ async function generate(args: GenerateArgs, author: ColdEmailAuthor) {
   // One retry when nothing usable came back; it depends on the first, so it cannot run alongside.
   const retry = first.texts.length === 0 ? await ask(prompt, args.count, author) : null;
   const costUsd = first.costUsd + (retry?.costUsd ?? 0);
-  const texts = retry?.texts ?? first.texts;
+  const answer = retry ?? first;
+  const texts = answer.texts;
   if (texts.length === 0) {
     return badRequest('The AI did not return a usable email. Try generating it again.');
   }
@@ -145,6 +154,7 @@ async function generate(args: GenerateArgs, author: ColdEmailAuthor) {
   return {
     recordName: business.name,
     variants: texts.map((text) => ({ ...text, costUsd: share })),
+    brief: answer.brief,
   };
 }
 
@@ -157,7 +167,7 @@ export const coldEmails = {
     const count = checkedCount(input.variantCount);
     const toEmail = await assertRecordAddress(input.object, input.recordId, input.toEmail);
     const goal = bounded(input.goal, MAX_GOAL_CHARS, 'goal');
-    const { recordName, variants } = await generate(
+    const { recordName, variants, brief } = await generate(
       {
         object: input.object,
         recordId: input.recordId,
@@ -178,6 +188,7 @@ export const coldEmails = {
       goal,
       tone: input.tone,
       variants: variants.map((variant) => ({ ...variant, tone: input.tone })),
+      ...(brief ? { brief } : {}),
       createdById: author.id,
       createdByName: author.displayName,
     });
@@ -242,7 +253,7 @@ export const coldEmails = {
         `This draft already holds ${MAX_VARIANTS} versions, the most it can. Delete some to rewrite it.`,
       );
     }
-    const { variants } = await generate(
+    const { variants, brief } = await generate(
       {
         object: draft.object,
         recordId: draft.recordId,
@@ -262,6 +273,8 @@ export const coldEmails = {
         $push: {
           variants: { $each: variants.map((variant) => ({ ...variant, tone: draft.tone })) },
         },
+        // Rewriting reads them again, so the brief follows what was read.
+        ...(brief ? { $set: { brief } } : {}),
       },
       { new: true },
     ).lean();

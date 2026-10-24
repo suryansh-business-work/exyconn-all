@@ -79,7 +79,7 @@ describe('DetailActions and LogActivityForm', () => {
 
   it('offers the quick actions', () => {
     renderActions();
-    for (const name of ['Note', 'Log call', 'Task', 'Meeting', 'Add reminder']) {
+    for (const name of ['Add note', 'Log call', 'Add task', 'Log meeting', 'Add reminder']) {
       expect(screen.getByRole('button', { name })).toBeInTheDocument();
     }
   });
@@ -123,7 +123,7 @@ describe('DetailActions and LogActivityForm', () => {
   it('logs a task with its due date against a company, with no owner when signed out', async () => {
     gql.user.mockReturnValue(null);
     renderActions({ relatedType: 'COMPANY', relatedId: 'company-1', relatedName: 'Acme' });
-    const dialog = await openLog('Task');
+    const dialog = await openLog('Add task');
     expect(
       within(dialog).queryByRole('textbox', { name: 'Duration (minutes)' }),
     ).not.toBeInTheDocument();
@@ -148,7 +148,7 @@ describe('DetailActions and LogActivityForm', () => {
 
   it('switches the type inside the form', async () => {
     renderActions();
-    const dialog = await openLog('Note');
+    const dialog = await openLog('Add note');
     expect(
       within(dialog).queryByRole('textbox', { name: 'Duration (minutes)' }),
     ).not.toBeInTheDocument();
@@ -162,7 +162,7 @@ describe('DetailActions and LogActivityForm', () => {
   it('keeps the dialog open when saving failed, and cancels', async () => {
     gql.create.mockRejectedValue(new Error('Offline'));
     renderActions();
-    const dialog = await openLog('Note');
+    const dialog = await openLog('Add note');
     fireEvent.change(within(dialog).getByRole('textbox', { name: 'Subject' }), {
       target: { value: 'Note' },
     });

@@ -1,14 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { activityPercent, formatClock, formatCount, formatHoursMinutes } from '../../src/format';
+import {
+  activityPercent,
+  formatClock,
+  formatCount,
+  formatHoursMinutes,
+  formatSignedClock,
+} from '../../src/format';
 
 describe('formatClock', () => {
   it('splits a duration into hours, minutes and seconds', () => {
-    expect(formatClock(3_661_000)).toBe('1h 1m 1s');
-    expect(formatClock(59_999)).toBe('0h 0m 59s');
+    expect(formatClock(3_661_000)).toBe('01:01:01');
+    expect(formatClock(59_999)).toBe('00:00:59');
+    expect(formatClock(360_000_000)).toBe('100:00:00');
   });
 
   it('never shows a negative clock', () => {
-    expect(formatClock(-5000)).toBe('0h 0m 0s');
+    expect(formatClock(-5000)).toBe('00:00:00');
   });
 });
 
@@ -40,5 +47,13 @@ describe('formatCount', () => {
   it('groups digits the way the runtime locale does', () => {
     expect(formatCount(12_304)).toBe((12_304).toLocaleString());
     expect(formatCount(7)).toBe('7');
+  });
+});
+
+describe('formatSignedClock', () => {
+  it('keeps running below zero once the time left is used up', () => {
+    expect(formatSignedClock(754_000)).toBe('00:12:34');
+    expect(formatSignedClock(-754_000)).toBe('-00:12:34');
+    expect(formatSignedClock(0)).toBe('00:00:00');
   });
 });

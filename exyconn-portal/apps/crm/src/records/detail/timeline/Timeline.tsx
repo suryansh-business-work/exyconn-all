@@ -34,16 +34,17 @@ const RAIL_SX = {
 interface TimelineListProps {
   rows: TimelineRow[];
   loading: boolean;
+  emptyText: string;
   onViewDetails: (row: TimelineRow) => void;
 }
 
-function TimelineList({ rows, loading, onViewDetails }: Readonly<TimelineListProps>) {
+function TimelineList({ rows, loading, emptyText, onViewDetails }: Readonly<TimelineListProps>) {
   const t = useT();
   if (loading) {
     return <ListSkeleton toolbar={false} rows={4} columns={3} label="Loading the activity" />;
   }
   if (rows.length === 0) {
-    return <Text color="text.secondary">{t('Nothing has happened with this record yet.')}</Text>;
+    return <Text color="text.secondary">{t(emptyText)}</Text>;
   }
   return (
     <MuiTimeline sx={RAIL_SX}>
@@ -65,10 +66,21 @@ interface TimelineProps {
   /** Only the newest few, for the overview; the Activity tab shows everything with filters. */
   limit?: number;
   filters?: boolean;
+  /** Only these entries (a record's Notes or Reminders tab); the kind chips are then hidden. */
+  match?: (row: TimelineRow) => boolean;
+  /** What an empty list says. */
+  emptyText?: string;
 }
 
 /** Everything that happened with the contact or company, newest first. */
-export function Timeline({ object, id, limit, filters = true }: Readonly<TimelineProps>) {
+export function Timeline({
+  object,
+  id,
+  limit,
+  filters = true,
+  match,
+  emptyText = 'Nothing has happened with this record yet.',
+}: Readonly<TimelineProps>) {
   const t = useT();
   const [filter, setFilter] = useState(KIND_FILTERS[0]);
   const [view, setView] = useTimelineView();
@@ -78,7 +90,10 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
     fetchPolicy: 'cache-and-network',
   });
   const kinds = useMemo(() => new Set(filter.kinds), [filter]);
-  const rows = (data?.crmTimeline ?? []).filter((row) => kinds.has(row.kind));
+  const rows = (data?.crmTimeline ?? []).filter((row) =>
+    match ? match(row) : kinds.has(row.kind),
+  );
+  const chips = filters && !match;
 
   if (error && !data) {
     return (
@@ -96,10 +111,10 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
   }
 
   const loadingFirst = loading && !data;
-  const table = filters && view === 'table';
+  const table = chips && view === 'table';
   return (
     <Stack spacing={2}>
-      {filters && (
+      {chips && (
         <Flex
           direction={{ xs: 'column', sm: 'row' }}
           justifyContent="space-between"
@@ -136,7 +151,12 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
           onViewDetails={setViewing}
         />
       ) : (
-        <TimelineList rows={rows} loading={loadingFirst} onViewDetails={setViewing} />
+        <TimelineList
+          rows={rows}
+          loading={loadingFirst}
+          emptyText={emptyText}
+          onViewDetails={setViewing}
+        />
       )}
       <TimelineDetailsDialog
         object={object}

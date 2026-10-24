@@ -38,6 +38,8 @@ export const crmTimelineTypeDefs = gql`
     "Whether url is this entry's own page (View details goes there); otherwise View details opens crmTimelineDetail."
     opensPage: Boolean!
     attachments: [FileAttachment!]!
+    "When a task's reminder is emailed; null for everything that is not a reminder."
+    remindAt: DateTime
   }
 
   enum CrmTimelineFieldType {

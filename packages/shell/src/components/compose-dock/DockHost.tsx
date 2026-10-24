@@ -52,7 +52,7 @@ export function DockHost() {
             right: theme.spacing(2),
             bottom: theme.spacing(2),
             left: { xs: theme.spacing(2), sm: 'auto' },
-            zIndex: theme.zIndex.appBar + 1,
+            zIndex: theme.zIndex.drawer + 1,
           }}
         >
           {pills.map((panel) => (

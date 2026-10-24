@@ -18,11 +18,39 @@ const GMAIL_SEARCH_RESULTS = 20;
 const SEARCH_CACHE_MS = 60_000;
 const SEARCH_CACHE_SIZE = 500;
 
+export type MailSort = 'NEWEST' | 'OLDEST' | 'SUBJECT' | 'SENDER';
+
 export interface MailListInput {
   folder: MailFolder;
   search?: string | null;
+  unreadOnly?: boolean | null;
+  withAttachments?: boolean | null;
+  after?: Date | string | null;
+  before?: Date | string | null;
+  sort?: MailSort | null;
   page: number;
   pageSize: number;
+}
+
+/** Each order ends on the newest first, so equal subjects or senders keep a stable order. */
+const SORTS: Record<MailSort, Record<string, 1 | -1>> = {
+  NEWEST: { lastAt: -1 },
+  OLDEST: { lastAt: 1 },
+  SUBJECT: { subject: 1, lastAt: -1 },
+  SENDER: { fromName: 1, fromAddress: 1, lastAt: -1 },
+};
+
+/** The filters besides the folder and the search: unread, attachments and a date range. */
+function refinements(input: MailListInput) {
+  const lastAt = {
+    ...(input.after ? { $gte: new Date(input.after) } : {}),
+    ...(input.before ? { $lte: new Date(input.before) } : {}),
+  };
+  return {
+    ...(input.unreadOnly ? { unread: true } : {}),
+    ...(input.withAttachments ? { hasAttachments: true } : {}),
+    ...(Object.keys(lastAt).length > 0 ? { lastAt } : {}),
+  };
 }
 
 /** Gmail's answer to one search in one mailbox, kept briefly: typing repeats searches. */
@@ -91,7 +119,7 @@ function listFilter(
   };
 }
 
-/** One page of the folder across the mailboxes, newest first, with each one's CRM record. */
+/** One page of the folder across the mailboxes, filtered and sorted, with each one's CRM record. */
 export async function listMailThreads(mailboxes: AccountMailbox[], input: MailListInput) {
   const search = (input.search ?? '').trim().slice(0, 200);
   const pageSize = Math.min(Math.max(Math.trunc(input.pageSize), 1), MAX_PAGE_SIZE);
@@ -101,10 +129,10 @@ export async function listMailThreads(mailboxes: AccountMailbox[], input: MailLi
       ? []
       : await Promise.all(mailboxes.map((mailbox) => searchGmail(mailbox, search)));
   const found = searched.map((hit, index) => ({ accountId: mailboxes[index].id, ids: hit.ids }));
-  const filter = listFilter(mailboxes, input.folder, search, found);
+  const filter = { ...listFilter(mailboxes, input.folder, search, found), ...refinements(input) };
   const [rows, totalCount] = await Promise.all([
     CrmMailThreadModel.find(filter)
-      .sort({ lastAt: -1 })
+      .sort(SORTS[input.sort ?? 'NEWEST'])
       .skip(page * pageSize)
       .limit(pageSize)
       .lean(),

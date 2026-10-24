@@ -30,6 +30,14 @@ export const coldEmailTypeDefs = gql`
     sentMessageId: String!
   }
 
+  "What the AI made of the prospect before writing: their business, and what of ours fits them."
+  type ColdEmailBrief {
+    "Two or three sentences on what their business does."
+    about: String!
+    "One line per thing we offer that fits them, and why."
+    fit: [String!]!
+  }
+
   "A cold email being prepared for one contact or company, with every version written so far."
   type ColdEmailDraft {
     id: ID!
@@ -43,6 +51,8 @@ export const coldEmailTypeDefs = gql`
     tone: ColdEmailTone!
     status: ColdEmailStatus!
     variants: [ColdEmailVariant!]!
+    "Empty on drafts written before briefs, until they are rewritten."
+    brief: ColdEmailBrief!
     variantCount: Int!
     "The most versions one draft may hold; generating stops there."
     maxVariants: Int!

@@ -42,13 +42,13 @@ export function ContactProfile({
       <DetailActions
         target={{ relatedType: 'CONTACT', relatedId: contact.id, relatedName: contact.name }}
       />
+      <ReachOutActions record={reachOut} />
       <Divider />
       <Text component="h2" size="label" weight="bold">
         {t('Contact details')}
       </Text>
       <ContactFields contact={contact} onEmail={(address) => composeEmailTo(reachOut, address)} />
       <TagsEditor object={CrmTagObject.Contact} id={contact.id} tags={contact.tags} />
-      <ReachOutActions record={reachOut} />
       <GoogleMapCard target={contact} title={contact.name} />
     </Stack>
   );

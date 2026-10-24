@@ -98,17 +98,32 @@ query CrmEmailSender($object: CrmTimelineObject!, $id: ID!) {
   crmEmailSender(object: $object, id: $id)
 }
 
-query CrmEmailThreads($object: CrmTimelineObject!, $id: ID!) {
-  crmEmailThreads(object: $object, id: $id) {
-    threadId
-    accountId
-    mailbox
-    subject
-    lastAt
-    messages {
-      ...CrmEmailMessageFields
+query CrmEmailThreadPage(
+  $object: CrmTimelineObject!
+  $id: ID!
+  $input: CrmEmailThreadPageInput!
+) {
+  crmEmailThreadPage(object: $object, id: $id, input: $input) {
+    totalCount
+    mailboxes {
+      accountId
+      mailbox
+    }
+    rows {
+      threadId
+      accountId
+      mailbox
+      subject
+      lastAt
+      messages {
+        ...CrmEmailMessageFields
+      }
     }
   }
+}
+
+mutation SyncCrmEmails($object: CrmTimelineObject!, $id: ID!) {
+  syncCrmEmails(object: $object, id: $id)
 }
 
 mutation SendCrmEmail($input: SendCrmEmailInput!) {

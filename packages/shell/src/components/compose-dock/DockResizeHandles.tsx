@@ -14,7 +14,7 @@ interface DockResizeHandlesProps {
 }
 
 /**
- * Invisible grab strips on the panel's right and bottom edges and its bottom-right corner.
+ * Invisible grab strips on all four edges of the panel and its top-left and bottom-right corners.
  * They are pointer-only (hidden from assistive tech): the maximize button is the keyboard way
  * to make the panel bigger.
  */
@@ -23,6 +23,13 @@ export function DockResizeHandles({ panelRef }: Readonly<DockResizeHandlesProps>
   const grip = theme.spacing(1);
   const corner = theme.spacing(2);
   const handles: HandleSpec[] = [
+    { edge: 'left', cursor: 'ew-resize', area: { top: corner, left: 0, bottom: 0, width: grip } },
+    { edge: 'top', cursor: 'ns-resize', area: { top: 0, left: corner, right: 0, height: grip } },
+    {
+      edge: 'top-left',
+      cursor: 'nwse-resize',
+      area: { top: 0, left: 0, width: corner, height: corner },
+    },
     { edge: 'right', cursor: 'ew-resize', area: { top: 0, right: 0, bottom: corner, width: grip } },
     {
       edge: 'bottom',

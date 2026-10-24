@@ -53,7 +53,7 @@ describe('ReachOutActions', () => {
     renderActions();
 
     expect(screen.getByRole('group', { name: 'Reach out' })).toBeInTheDocument();
-    expect(screen.getAllByRole('button').map((item) => item.textContent)).toEqual([
+    expect(screen.getAllByRole('button').map((item) => item.getAttribute('aria-label'))).toEqual([
       'Call',
       'SMS',
       'Email',

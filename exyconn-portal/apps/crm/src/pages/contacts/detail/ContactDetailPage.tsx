@@ -16,6 +16,7 @@ import {
   EmailThreads,
   RecordDetailSkeleton,
   Timeline,
+  activityTabs,
 } from '../../../records/detail';
 import { COLD_EMAILS_TAB, RecordColdEmails } from '../../../records/cold-email';
 import { emailsOf } from '../../../records/comms';
@@ -64,6 +65,11 @@ export function ContactDetailPage() {
       label: 'Activity',
       content: <Timeline object={CrmTimelineObject.Contact} id={contact.id} limit={200} />,
     },
+    ...activityTabs(CrmTimelineObject.Contact, {
+      relatedType: 'CONTACT',
+      relatedId: contact.id,
+      relatedName: contact.name,
+    }),
     {
       slug: COLD_EMAILS_TAB,
       label: 'Cold emails',

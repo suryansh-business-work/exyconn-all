@@ -48,6 +48,7 @@ async function activities(target: TimelineTarget): Promise<TimelineItem[]> {
       url: draftPath,
       // A drafted cold email opens on its record's Cold emails tab; the rest open in place.
       opensPage: Boolean(draftPath),
+      remindAt: row.remindAt ?? null,
     });
   });
 }

@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Button, Tooltip, useTheme } from '@exyconn/shell/components/ui';
+import { IconButton, Tooltip, useTheme } from '@exyconn/shell/components/ui';
 import { CHANNELS } from './channels';
 import type { CommsChannel } from './commsStore';
 
@@ -11,35 +11,28 @@ interface ReachOutButtonProps {
 }
 
 /**
- * One Reach out button. A blocked one stays focusable (aria-disabled, not disabled) so the
- * tooltip saying why can be reached from the keyboard and is read out as its description.
+ * One Reach out icon; its tooltip names the channel, or says why it cannot be used yet. A
+ * blocked one stays focusable (aria-disabled, not disabled) so that reason can be reached from
+ * the keyboard and is read out as its description.
  */
 export function ReachOutButton({ channel, blockedReason, onClick }: Readonly<ReachOutButtonProps>) {
   const t = useT();
   const theme = useTheme();
   const { label, icon } = CHANNELS[channel];
   const blocked = Boolean(blockedReason);
-  const button = (
-    <Button
-      size="small"
-      variant="outlined"
-      startIcon={icon}
-      aria-disabled={blocked || undefined}
-      onClick={blocked ? undefined : onClick}
-      sx={[
-        { whiteSpace: 'nowrap' },
-        blocked && { opacity: theme.palette.action.disabledOpacity, cursor: 'not-allowed' },
-      ]}
-    >
-      {t(label)}
-    </Button>
-  );
-  if (!blockedReason) {
-    return button;
-  }
   return (
-    <Tooltip title={t(blockedReason)} describeChild>
-      {button}
+    <Tooltip title={t(blockedReason ?? label)} describeChild={blocked}>
+      <IconButton
+        aria-label={t(label)}
+        aria-disabled={blocked || undefined}
+        onClick={blocked ? undefined : onClick}
+        sx={[
+          { border: 1, borderColor: 'divider' },
+          blocked && { opacity: theme.palette.action.disabledOpacity, cursor: 'not-allowed' },
+        ]}
+      >
+        {icon}
+      </IconButton>
     </Tooltip>
   );
 }

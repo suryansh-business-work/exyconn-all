@@ -57,6 +57,7 @@ const CONNECTION_TESTS: ReadonlySet<string> = new Set([
   'sendCrmEmail',
   'sendColdEmailVariant',
   'crmEmailThreads',
+  'syncCrmEmails',
   'testCallingBotConfig',
   'testCallingBotKey',
   'testWhatsappChannel',

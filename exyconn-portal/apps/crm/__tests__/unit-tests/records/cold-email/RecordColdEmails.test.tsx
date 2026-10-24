@@ -96,7 +96,7 @@ describe('RecordColdEmails', () => {
   it('holds the place while the drafts load', () => {
     gql.drafts.mockReturnValue({ data: undefined, loading: true, error: undefined });
     renderSection();
-    expect(screen.getByLabelText('Loading the cold emails')).toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).not.toBeNull();
   });
 
   it('says why the drafts could not load', () => {
@@ -123,9 +123,10 @@ describe('RecordColdEmails', () => {
 
   it('lists the drafts, and opens one in place with its id in the address', async () => {
     renderSection();
-    const [first, second] = screen.getAllByRole('button', { expanded: false });
+    const [, first, second] = screen.getAllByRole('row');
     expect(first).toHaveTextContent('hello@acme.com');
-    expect(second).toHaveTextContent(/2 versions · Sent · updated/);
+    expect(second).toHaveTextContent('sales@acme.com');
+    expect(second).toHaveTextContent('Sent');
     expect(opened()).toBeNull();
 
     await userEvent.click(first);
@@ -135,8 +136,8 @@ describe('RecordColdEmails', () => {
       variables: { id: 'draft-1' },
       fetchPolicy: 'cache-and-network',
     });
-    expect(first).toHaveAttribute('aria-expanded', 'true');
-    expect(within(opened()!).getByText('To hello@acme.com · 2 versions')).toBeInTheDocument();
+    expect(within(opened()!).getByText('To hello@acme.com')).toBeInTheDocument();
+    expect(within(opened()!).getByText('2 versions')).toBeInTheDocument();
     expect(within(opened()!).getByRole('heading', { name: 'Subject v1' })).toBeInTheDocument();
   });
 
@@ -148,7 +149,7 @@ describe('RecordColdEmails', () => {
     expect(opened()).toBeNull();
     expect(url()).toBe('/companies/co-1/cold-emails?tab=x');
 
-    const [first] = screen.getAllByRole('button', { expanded: false });
+    const [, first] = screen.getAllByRole('row');
     await userEvent.click(first);
     expect(opened()).not.toBeNull();
     await userEvent.click(first);

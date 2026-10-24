@@ -5,7 +5,12 @@ import type { TrackerLocationInput } from '@exyconn/tracker-core';
 
 type Listener = (event: unknown, result: LocationResult) => void;
 
-const { listeners } = vi.hoisted(() => ({ listeners: new Map<string, Listener>() }));
+const { listeners, windowsFix } = vi.hoisted(() => ({
+  listeners: new Map<string, Listener>(),
+  windowsFix: vi.fn(),
+}));
+
+vi.mock('../../../src/main/windows-location', () => ({ readWindowsLocation: windowsFix }));
 
 vi.mock('../../../src/main/web-security', () => ({
   onTrusted: (channel: string, fn: Listener) => listeners.set(channel, fn),
@@ -113,5 +118,20 @@ describe('systemLocation', () => {
     answer({ id: requestOf(first.send).id, location: FIX, error: null });
 
     await expect(Promise.all([a, b])).resolves.toEqual([FIX, moved]);
+  });
+});
+
+describe('systemLocation on Windows', () => {
+  it('reads Windows Location Services in main instead of asking the window', async () => {
+    const realPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    windowsFix.mockResolvedValue(FIX);
+    const { win, send } = rendererWindow();
+    try {
+      await expect(systemLocation(() => win).current()).resolves.toEqual(FIX);
+    } finally {
+      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+    }
+    expect(send).not.toHaveBeenCalled();
   });
 });

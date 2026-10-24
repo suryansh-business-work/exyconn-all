@@ -2,11 +2,16 @@ import { useLayoutEffect, type PointerEvent as ReactPointerEvent, type RefObject
 import { moveDock, resizeDock, type DockPosition, type DockSize } from './dockStore';
 import { place } from './useDockDrag';
 
-/** The side of the panel being pulled: its right edge, its bottom edge, or the corner. */
-export type ResizeEdge = 'right' | 'bottom' | 'corner';
+/** The side of the panel being pulled: an edge, the bottom-right corner or the top-left one. */
+export type ResizeEdge = 'left' | 'top' | 'right' | 'bottom' | 'corner' | 'top-left';
 
-/** The smallest the panel can be made: the header and a field or two still fit. */
-export const MIN_DOCK_SIZE: DockSize = { width: 320, height: 240 };
+/** The smallest the panel can be made: the header and a form's fields still fit. */
+export const MIN_DOCK_SIZE: DockSize = { width: 400, height: 240 };
+
+const GROWS_LEFT: ReadonlySet<ResizeEdge> = new Set(['left', 'top-left']);
+const GROWS_UP: ReadonlySet<ResizeEdge> = new Set(['top', 'top-left']);
+const GROWS_RIGHT: ReadonlySet<ResizeEdge> = new Set(['right', 'corner']);
+const GROWS_DOWN: ReadonlySet<ResizeEdge> = new Set(['bottom', 'corner']);
 
 /** The styles a drag or a resize writes straight on the element. */
 const LIVE_STYLES = ['left', 'top', 'right', 'bottom', 'width', 'height', 'maxHeight'] as const;
@@ -16,10 +21,28 @@ function clampSide(wanted: number, min: number, room: number) {
   return Math.max(min, Math.min(wanted, room));
 }
 
+/** One axis of a resize: where the panel starts and how long it is after the pointer moved. */
+function resizeAxis(
+  start: number,
+  length: number,
+  moved: number,
+  grows: { before: boolean; after: boolean; min: number; room: number },
+) {
+  if (grows.before) {
+    const next = clampSide(length - moved, grows.min, start + length);
+    return { start: start + length - next, length: next };
+  }
+  if (grows.after) {
+    return { start, length: clampSide(length + moved, grows.min, grows.room - start) };
+  }
+  return { start, length };
+}
+
 /**
- * Resizes the dock panel from its right edge, bottom edge or bottom-right corner with pointer
- * events, between {@link MIN_DOCK_SIZE} and the window's edge. The panel is pinned by its
- * top-left corner first, so it grows towards the pointer; the result goes to the store.
+ * Resizes the dock panel from any of its edges or its two outer corners with pointer events,
+ * between {@link MIN_DOCK_SIZE} and the window's edges, so a panel in the bottom-right corner
+ * can grow left and up to the whole width. The panel is pinned by its top-left corner, which
+ * moves with a left or top edge; the result goes to the store.
  */
 export function startDockResize(
   panel: HTMLElement | null,
@@ -32,26 +55,29 @@ export function startDockResize(
   event.preventDefault();
   const handle = event.currentTarget;
   const rect = panel.getBoundingClientRect();
-  const corner: DockPosition = { x: rect.left, y: rect.top };
+  let corner: DockPosition = { x: rect.left, y: rect.top };
   const startX = event.clientX;
   const startY = event.clientY;
-  const growsWidth = edge !== 'bottom';
-  const growsHeight = edge !== 'right';
   let last: DockSize = { width: rect.width, height: rect.height };
   place(panel, corner);
   handle.setPointerCapture(event.pointerId);
 
   const onMove = (move: PointerEvent) => {
-    const roomX = globalThis.innerWidth - rect.left;
-    const roomY = globalThis.innerHeight - rect.top;
-    last = {
-      width: growsWidth
-        ? clampSide(rect.width + move.clientX - startX, MIN_DOCK_SIZE.width, roomX)
-        : rect.width,
-      height: growsHeight
-        ? clampSide(rect.height + move.clientY - startY, MIN_DOCK_SIZE.height, roomY)
-        : rect.height,
-    };
+    const x = resizeAxis(rect.left, rect.width, move.clientX - startX, {
+      before: GROWS_LEFT.has(edge),
+      after: GROWS_RIGHT.has(edge),
+      min: MIN_DOCK_SIZE.width,
+      room: globalThis.innerWidth,
+    });
+    const y = resizeAxis(rect.top, rect.height, move.clientY - startY, {
+      before: GROWS_UP.has(edge),
+      after: GROWS_DOWN.has(edge),
+      min: MIN_DOCK_SIZE.height,
+      room: globalThis.innerHeight,
+    });
+    corner = { x: x.start, y: y.start };
+    last = { width: x.length, height: y.length };
+    place(panel, corner);
     panel.style.width = `${last.width}px`;
     panel.style.height = `${last.height}px`;
     panel.style.maxHeight = 'none';

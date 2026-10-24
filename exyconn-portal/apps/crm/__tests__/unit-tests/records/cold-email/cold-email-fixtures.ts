@@ -41,6 +41,7 @@ export const draft = (
   goal: 'A checkout audit',
   tone: ColdEmailTone.Friendly,
   createdAt: '2026-10-19T09:00:00.000Z',
+  brief: { about: '', fit: [] },
   variants,
   ...overrides,
 });

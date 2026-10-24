@@ -5,6 +5,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Flex,
   IconButton,
   Skeleton,
@@ -19,6 +20,7 @@ import {
   type ColdEmailVariantFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { ColdEmailBriefCard } from './ColdEmailBriefCard';
 import { EditVariantDialog } from './EditVariantDialog';
 import { RewriteDraftButton } from './RewriteDraftButton';
 import { VariantCard } from './VariantCard';
@@ -44,12 +46,20 @@ function DraftBody({ draft }: Readonly<{ draft: ColdEmailDraftFieldsFragment }>)
   }
   return (
     <Stack spacing={1.5}>
-      <Text component="p" size="caption" color="text.secondary" sx={{ m: 0 }}>
-        {t('To {email} · {count} versions', {
-          email: draft.toEmail,
-          count: draft.variants.length,
-        })}
-      </Text>
+      <Flex direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+        <Chip size="small" label={t('To {email}', { email: draft.toEmail })} />
+        <Chip
+          size="small"
+          variant="outlined"
+          label={t('{count} versions', { count: draft.variants.length })}
+        />
+        {draft.goal && (
+          <Text size="caption" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
+            {t('Offering: {goal}', { goal: draft.goal })}
+          </Text>
+        )}
+      </Flex>
+      <ColdEmailBriefCard draft={draft} />
       <VariantSwitcher
         variants={draft.variants}
         selectedId={selected.id}
