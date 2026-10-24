@@ -365,5 +365,10 @@ export const techResolvers = {
       return techService.saveTrackerBuildSettings(slackChannels, statusAlertChannels);
     },
   },
+  TrackerBuildSettings: {
+    // A row saved before retention existed has no count; lean reads skip schema defaults.
+    keepLatestBuilds: (settings: { keepLatestBuilds?: number | null }) =>
+      settings.keepLatestBuilds ?? 0,
+  },
   ...techSecretResolvers,
 };

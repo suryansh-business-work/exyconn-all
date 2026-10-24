@@ -67,6 +67,17 @@ describe('tracker build releases', () => {
   });
 });
 
+describe('the stored retention count', () => {
+  const Settings = (
+    techResolvers as unknown as Record<string, Record<string, (s: object) => unknown>>
+  ).TrackerBuildSettings;
+
+  it('reads as 0 on a settings row saved before retention existed', () => {
+    expect(Settings.keepLatestBuilds({})).toBe(0);
+    expect(Settings.keepLatestBuilds({ keepLatestBuilds: 7 })).toBe(7);
+  });
+});
+
 describe('starting a build', () => {
   it('builds the committed version when no bump is sent', async () => {
     const { techService } = jest.requireActual<
