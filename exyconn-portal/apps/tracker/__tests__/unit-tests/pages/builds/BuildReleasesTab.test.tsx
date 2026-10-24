@@ -23,7 +23,10 @@ vi.mock('@exyconn/shell/components/feedback/NotificationProvider', async (import
   ...(await importOriginal<object>()),
   useNotify: () => state.notify,
 }));
-vi.mock('../../../../src/pages/builds/downloadFiles', () => ({ downloadFiles: state.download }));
+vi.mock('@exyconn/shell/utils/file', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  downloadUrls: state.download,
+}));
 
 function answer(result: Record<string, unknown>) {
   state.releases.mockReturnValue({

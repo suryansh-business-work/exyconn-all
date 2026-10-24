@@ -77,17 +77,21 @@ describe('App', () => {
       ['/ai/meeting-assistant/settings', meetings.MeetingSettingsPage, {}],
       ['/ai/meeting-assistant/logs', meetings.LogsPage, company],
       ['/ai/meeting-assistant/releases', ProtectedRoute, expect.anything()],
+      ['/ai/meeting-assistant/releases/:id', ProtectedRoute, expect.anything()],
     ]);
   });
 
-  it('keeps the extension releases to administrators', () => {
+  it.each([
+    ['/ai/meeting-assistant/releases', meetings.ReleasesPage],
+    ['/ai/meeting-assistant/releases/:id', meetings.ReleaseDetailsPage],
+  ])('keeps %s to administrators', (path, page) => {
     render(<App />);
-    const releases = routes().find((route) => route.path === '/ai/meeting-assistant/releases');
+    const releases = routes().find((route) => route.path === path);
     const guard = releases?.element as ReactElement<{
       requiredRole: string;
       children: ReactElement;
     }>;
     expect(guard.props.requiredRole).toBe(ROLES.ADMIN);
-    expect(guard.props.children.type).toBe(meetings.ReleasesPage);
+    expect(guard.props.children.type).toBe(page);
   });
 });

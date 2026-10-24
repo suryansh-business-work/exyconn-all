@@ -88,25 +88,24 @@ describe('service worker: reminders', () => {
 });
 
 describe('service worker: sign-in', () => {
-  it('signs in through the portal with PKCE and loads the company context', async () => {
-    const worker = await startWorker({ signedIn: false });
-    worker.chrome.identity.launchWebAuthFlow.mockImplementation(({ url }) => {
-      const state = new URL(url).searchParams.get('state');
-      return Promise.resolve(
-        `https://test-extension-id.chromiumapp.org/auth?code=abc&state=${state}`,
-      );
-    });
-    await joinCall(worker);
-    await expect(worker.send({ type: 'auth/sign-in' })).resolves.toEqual({ ok: true, data: null });
-    const url = new URL(worker.chrome.identity.launchWebAuthFlow.mock.calls[0][0].url);
-    expect(url.pathname).toBe('/me/meetings/connect-extension');
-    expect(url.searchParams.get('code_challenge_method')).toBe('S256');
-    const exchange = JSON.parse(
-      String(worker.portal.fetchMock.mock.calls.find(([u]) => u.endsWith('/auth/token'))?.[1].body),
+  const PASSWORD = `pw-${Date.now()}`;
+  const tokenBody = (worker: Awaited<ReturnType<typeof startWorker>>, n: number) =>
+    JSON.parse(
+      String(
+        worker.portal.fetchMock.mock.calls.filter(([u]) => u.endsWith('/auth/token'))[n]?.[1].body,
+      ),
     );
-    expect(exchange).toMatchObject({
-      grant_type: 'authorization_code',
-      code: 'abc',
+
+  it('signs in with the email and password typed into the extension, then loads the company', async () => {
+    const worker = await startWorker({ signedIn: false });
+    await joinCall(worker);
+    await expect(
+      worker.send({ type: 'auth/sign-in', email: 'ravi@exyconn.com', password: PASSWORD }),
+    ).resolves.toEqual({ ok: true, data: { mfaChallenge: null } });
+    expect(tokenBody(worker, 0)).toMatchObject({
+      grant_type: 'password',
+      email: 'ravi@exyconn.com',
+      password: PASSWORD,
       device_label: 'Chrome on mac',
     });
     await expect(worker.send({ type: 'state/get' })).resolves.toMatchObject({
@@ -114,13 +113,36 @@ describe('service worker: sign-in', () => {
     });
   });
 
-  it('reports a cancelled sign-in', async () => {
+  it('asks for the two-factor code before signing in when the account has it on', async () => {
     const worker = await startWorker({ signedIn: false });
-    worker.chrome.identity.launchWebAuthFlow.mockResolvedValue(undefined);
-    await expect(worker.send({ type: 'auth/sign-in' })).resolves.toEqual({
-      ok: false,
-      error: 'Sign-in was cancelled',
+    worker.portal.tokenReplies.push(jsonResponse(200, { mfa_required: true, mfa_challenge: 'c1' }));
+    await expect(
+      worker.send({ type: 'auth/sign-in', email: 'ravi@exyconn.com', password: PASSWORD }),
+    ).resolves.toEqual({ ok: true, data: { mfaChallenge: 'c1' } });
+    await expect(worker.send({ type: 'state/get' })).resolves.toMatchObject({
+      data: { auth: { signedIn: false } },
     });
+    await expect(
+      worker.send({ type: 'auth/mfa', challenge: 'c1', code: '123456' }),
+    ).resolves.toEqual({ ok: true, data: { mfaChallenge: null } });
+    expect(tokenBody(worker, 1)).toMatchObject({
+      grant_type: 'mfa',
+      mfa_challenge: 'c1',
+      code: '123456',
+    });
+    await expect(worker.send({ type: 'state/get' })).resolves.toMatchObject({
+      data: { auth: { signedIn: true, org: ORG } },
+    });
+  });
+
+  it("reports the portal's refusal of a wrong password", async () => {
+    const worker = await startWorker({ signedIn: false });
+    worker.portal.tokenReplies.push(
+      jsonResponse(401, { error: 'invalid_grant', error_description: 'Invalid email or password' }),
+    );
+    await expect(
+      worker.send({ type: 'auth/sign-in', email: 'ravi@exyconn.com', password: PASSWORD }),
+    ).resolves.toEqual({ ok: false, error: 'Invalid email or password' });
   });
 
   it('signs out: revokes, forgets the sign-in and the company context', async () => {

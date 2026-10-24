@@ -7997,6 +7997,8 @@ export type MaReleaseSettings = {
   __typename?: 'MaReleaseSettings';
   /** The owner/repo whose release workflow may upload builds (GitHub Actions OIDC, main only). */
   allowedRepository: Scalars['String']['output'];
+  /** How many of the newest builds the hourly retention pass keeps; 0 keeps every build. */
+  keepLatestBuilds: Scalars['Int']['output'];
   /** Also post when a new build arrives for QA. */
   notifyOnNewBuild: Scalars['Boolean']['output'];
   /** The Slack channel published builds are announced in; empty for none. */
@@ -9009,6 +9011,8 @@ export type Mutation = {
   deleteLegalGroup: Scalars['Boolean']['output'];
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
+  /** Deletes one extension build and its ZIP. Installed copies keep working. */
+  deleteMaRelease: Scalars['Boolean']['output'];
   deleteManagementReview: Scalars['Boolean']['output'];
   deleteMeetingType: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
@@ -9170,6 +9174,8 @@ export type Mutation = {
   maUpdateMeeting: MaMeeting;
   /** Saves edited notes. expectedVersion must match, so two editors never overwrite each other. */
   maUpdateNotes: MaNotes;
+  /** Sets how many of the newest builds the retention pass keeps (0 keeps every build). */
+  maUpdateReleaseRetention: MaReleaseSettings;
   maUpdateReleaseSettings: MaReleaseSettings;
   maUpdateSettings: MaSettings;
   markAllNotificationsRead: Scalars['Int']['output'];
@@ -11237,6 +11243,11 @@ export type MutationDeleteLocationArgs = {
 };
 
 
+export type MutationDeleteMaReleaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteManagementReviewArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11822,6 +11833,11 @@ export type MutationMaUpdateNotesArgs = {
   content: MaNotesContentInput;
   expectedVersion: Scalars['Int']['input'];
   meetingId: Scalars['ID']['input'];
+};
+
+
+export type MutationMaUpdateReleaseRetentionArgs = {
+  keepLatestBuilds: Scalars['Int']['input'];
 };
 
 
@@ -29720,6 +29736,7 @@ export type MaReleaseOverviewResolvers<ContextType = GraphQLContext, ParentType 
 
 export type MaReleaseSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MaReleaseSettings'] = ResolversParentTypes['MaReleaseSettings']> = ResolversObject<{
   allowedRepository?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keepLatestBuilds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   notifyOnNewBuild?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   slackChannelId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slackChannelName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -30353,6 +30370,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLegalGroup?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLegalGroupArgs, 'id'>>;
   deleteLicence?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLicenceArgs, 'id'>>;
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
+  deleteMaRelease?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMaReleaseArgs, 'id'>>;
   deleteManagementReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteManagementReviewArgs, 'id'>>;
   deleteMeetingType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMeetingTypeArgs, 'id'>>;
   deleteMilestone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMilestoneArgs, 'id'>>;
@@ -30467,6 +30485,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   maUpdateActionItem?: Resolver<ResolversTypes['MaActionItem'], ParentType, ContextType, RequireFields<MutationMaUpdateActionItemArgs, 'id' | 'input'>>;
   maUpdateMeeting?: Resolver<ResolversTypes['MaMeeting'], ParentType, ContextType, RequireFields<MutationMaUpdateMeetingArgs, 'id' | 'input'>>;
   maUpdateNotes?: Resolver<ResolversTypes['MaNotes'], ParentType, ContextType, RequireFields<MutationMaUpdateNotesArgs, 'content' | 'expectedVersion' | 'meetingId'>>;
+  maUpdateReleaseRetention?: Resolver<ResolversTypes['MaReleaseSettings'], ParentType, ContextType, RequireFields<MutationMaUpdateReleaseRetentionArgs, 'keepLatestBuilds'>>;
   maUpdateReleaseSettings?: Resolver<ResolversTypes['MaReleaseSettings'], ParentType, ContextType, RequireFields<MutationMaUpdateReleaseSettingsArgs, 'input'>>;
   maUpdateSettings?: Resolver<ResolversTypes['MaSettings'], ParentType, ContextType, RequireFields<MutationMaUpdateSettingsArgs, 'input'>>;
   markAllNotificationsRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

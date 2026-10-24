@@ -12,7 +12,10 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useTrackerBuildReleasesQuery: state.releases,
 }));
-vi.mock('../../../../src/pages/builds/downloadFiles', () => ({ downloadFiles: state.download }));
+vi.mock('@exyconn/shell/utils/file', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  downloadUrls: state.download,
+}));
 
 function Page() {
   return (

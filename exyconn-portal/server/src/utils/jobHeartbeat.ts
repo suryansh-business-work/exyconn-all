@@ -31,6 +31,7 @@ export const JOB_KEYS = {
   tableBulkJobs: 'tableBulkJobs',
   meetingAssistant: 'meetingAssistant',
   meetingAssistantRetention: 'meetingAssistantRetention',
+  meetingAssistantReleaseRetention: 'meetingAssistantReleaseRetention',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

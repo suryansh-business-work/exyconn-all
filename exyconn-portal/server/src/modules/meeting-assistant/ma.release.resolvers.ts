@@ -17,11 +17,19 @@ import {
   type ReleaseSettingsInput,
 } from './releases.settings';
 import type { MaReleaseSettingsDocument } from './models';
+import { deleteRelease, saveReleaseRetention } from './releases.cleanup';
+import { recordAudit } from '../audit';
+import { MA_AUDIT_MODULE } from './ma.enums';
 
 type Ctx = GraphQLContext;
 
 async function presentSettings(settings: MaReleaseSettingsDocument) {
-  return { ...settings, slackConfigured: await slackNotifier.isConfigured() };
+  return {
+    ...settings,
+    // A row saved before retention existed has no count; lean reads skip schema defaults.
+    keepLatestBuilds: settings.keepLatestBuilds ?? 0,
+    slackConfigured: await slackNotifier.isConfigured(),
+  };
 }
 
 export const maReleaseQueries = {
@@ -68,5 +76,25 @@ export const maReleaseMutations = {
   ) => {
     const user = await assertReleaseManager(ctx);
     return presentSettings(await updateReleaseSettings(input, user.email));
+  },
+  maUpdateReleaseRetention: async (
+    _p: unknown,
+    { keepLatestBuilds }: { keepLatestBuilds: number },
+    ctx: Ctx,
+  ) => {
+    const user = await assertReleaseManager(ctx);
+    return presentSettings(await saveReleaseRetention(keepLatestBuilds, user.email));
+  },
+  deleteMaRelease: async (_p: unknown, { id }: { id: string }, ctx: Ctx) => {
+    await assertReleaseManager(ctx);
+    const release = await deleteRelease(id);
+    await recordAudit(ctx, {
+      action: 'DELETE',
+      module: MA_AUDIT_MODULE,
+      entityId: id,
+      entityLabel: release.version,
+      summary: `Deleted extension build ${release.version}`,
+    });
+    return true;
   },
 };

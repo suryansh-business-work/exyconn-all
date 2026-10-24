@@ -190,7 +190,7 @@ const MEETING_ASSISTANT_NAV: ModuleChild[] = [
   { key: 'ma-logs', label: 'Logs', path: `${MA}/logs`, icon: HistoryIcon },
   {
     key: 'ma-releases',
-    label: 'Releases',
+    label: 'Builds',
     path: `${MA}/releases`,
     icon: NewReleasesIcon,
     role: ROLES.ADMIN,

@@ -7998,6 +7998,8 @@ export type MaReleaseSettings = {
   __typename?: 'MaReleaseSettings';
   /** The owner/repo whose release workflow may upload builds (GitHub Actions OIDC, main only). */
   allowedRepository: Scalars['String']['output'];
+  /** How many of the newest builds the hourly retention pass keeps; 0 keeps every build. */
+  keepLatestBuilds: Scalars['Int']['output'];
   /** Also post when a new build arrives for QA. */
   notifyOnNewBuild: Scalars['Boolean']['output'];
   /** The Slack channel published builds are announced in; empty for none. */
@@ -9010,6 +9012,8 @@ export type Mutation = {
   deleteLegalGroup: Scalars['Boolean']['output'];
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
+  /** Deletes one extension build and its ZIP. Installed copies keep working. */
+  deleteMaRelease: Scalars['Boolean']['output'];
   deleteManagementReview: Scalars['Boolean']['output'];
   deleteMeetingType: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
@@ -9171,6 +9175,8 @@ export type Mutation = {
   maUpdateMeeting: MaMeeting;
   /** Saves edited notes. expectedVersion must match, so two editors never overwrite each other. */
   maUpdateNotes: MaNotes;
+  /** Sets how many of the newest builds the retention pass keeps (0 keeps every build). */
+  maUpdateReleaseRetention: MaReleaseSettings;
   maUpdateReleaseSettings: MaReleaseSettings;
   maUpdateSettings: MaSettings;
   markAllNotificationsRead: Scalars['Int']['output'];
@@ -11238,6 +11244,11 @@ export type MutationDeleteLocationArgs = {
 };
 
 
+export type MutationDeleteMaReleaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteManagementReviewArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11823,6 +11834,11 @@ export type MutationMaUpdateNotesArgs = {
   content: MaNotesContentInput;
   expectedVersion: Scalars['Int']['input'];
   meetingId: Scalars['ID']['input'];
+};
+
+
+export type MutationMaUpdateReleaseRetentionArgs = {
+  keepLatestBuilds: Scalars['Int']['input'];
 };
 
 
@@ -27986,12 +28002,12 @@ export type MaReleaseOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MaReleaseOverviewQuery = { __typename?: 'Query', maReleaseOverview: { __typename?: 'MaReleaseOverview', releaseManager: boolean, registered: number, awaitingApproval: number } };
 
-export type MaReleaseSettingsFieldsFragment = { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null };
+export type MaReleaseSettingsFieldsFragment = { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null };
 
 export type MaReleaseSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MaReleaseSettingsQuery = { __typename?: 'Query', maReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null } };
+export type MaReleaseSettingsQuery = { __typename?: 'Query', maReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null } };
 
 export type MaReleaseSlackChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -28003,7 +28019,7 @@ export type MaUpdateReleaseSettingsMutationVariables = Exact<{
 }>;
 
 
-export type MaUpdateReleaseSettingsMutation = { __typename?: 'Mutation', maUpdateReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, updatedByName: string, updatedAt?: string | null } };
+export type MaUpdateReleaseSettingsMutation = { __typename?: 'Mutation', maUpdateReleaseSettings: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null } };
 
 export type MaApproveReleaseMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -28019,6 +28035,20 @@ export type MaStartExtensionBuildMutationVariables = Exact<{
 
 
 export type MaStartExtensionBuildMutation = { __typename?: 'Mutation', maStartExtensionBuild: boolean };
+
+export type MaUpdateReleaseRetentionMutationVariables = Exact<{
+  keepLatestBuilds: Scalars['Int']['input'];
+}>;
+
+
+export type MaUpdateReleaseRetentionMutation = { __typename?: 'Mutation', maUpdateReleaseRetention: { __typename?: 'MaReleaseSettings', allowedRepository: string, slackChannelId: string, slackChannelName: string, notifyOnNewBuild: boolean, slackConfigured: boolean, keepLatestBuilds: number, updatedByName: string, updatedAt?: string | null } };
+
+export type DeleteMaReleaseMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteMaReleaseMutation = { __typename?: 'Mutation', deleteMaRelease: boolean };
 
 export type MaMeetingRowFragment = { __typename?: 'MaMeeting', id: string, meetingCode: string, title: string, ownerId: string, ownerName: string, language: MaLanguage, startedAt: string, endedAt?: string | null, durationSeconds: number, status: MaMeetingStatus, participantCount: number, transcriptionState: MaTranscriptionState, summaryStatus: MaStepStatus, emailStatus: MaEmailStatus, actionItemCount: number, openActionCount: number };
 
@@ -34227,6 +34257,7 @@ export const MaReleaseSettingsFieldsFragmentDoc = gql`
   slackChannelName
   notifyOnNewBuild
   slackConfigured
+  keepLatestBuilds
   updatedByName
   updatedAt
 }
@@ -64296,6 +64327,64 @@ export function useMaStartExtensionBuildMutation(baseOptions?: ApolloReactHooks.
         return ApolloReactHooks.useMutation<MaStartExtensionBuildMutation, MaStartExtensionBuildMutationVariables>(MaStartExtensionBuildDocument, options);
       }
 export type MaStartExtensionBuildMutationHookResult = ReturnType<typeof useMaStartExtensionBuildMutation>;
+export const MaUpdateReleaseRetentionDocument = gql`
+    mutation MaUpdateReleaseRetention($keepLatestBuilds: Int!) {
+  maUpdateReleaseRetention(keepLatestBuilds: $keepLatestBuilds) {
+    ...MaReleaseSettingsFields
+  }
+}
+    ${MaReleaseSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useMaUpdateReleaseRetentionMutation__
+ *
+ * To run a mutation, you first call `useMaUpdateReleaseRetentionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMaUpdateReleaseRetentionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [maUpdateReleaseRetentionMutation, { data, loading, error }] = useMaUpdateReleaseRetentionMutation({
+ *   variables: {
+ *      keepLatestBuilds: // value for 'keepLatestBuilds'
+ *   },
+ * });
+ */
+export function useMaUpdateReleaseRetentionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MaUpdateReleaseRetentionMutation, MaUpdateReleaseRetentionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MaUpdateReleaseRetentionMutation, MaUpdateReleaseRetentionMutationVariables>(MaUpdateReleaseRetentionDocument, options);
+      }
+export type MaUpdateReleaseRetentionMutationHookResult = ReturnType<typeof useMaUpdateReleaseRetentionMutation>;
+export const DeleteMaReleaseDocument = gql`
+    mutation DeleteMaRelease($id: ID!) {
+  deleteMaRelease(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteMaReleaseMutation__
+ *
+ * To run a mutation, you first call `useDeleteMaReleaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMaReleaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMaReleaseMutation, { data, loading, error }] = useDeleteMaReleaseMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteMaReleaseMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteMaReleaseMutation, DeleteMaReleaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteMaReleaseMutation, DeleteMaReleaseMutationVariables>(DeleteMaReleaseDocument, options);
+      }
+export type DeleteMaReleaseMutationHookResult = ReturnType<typeof useDeleteMaReleaseMutation>;
 export const MaDashboardDocument = gql`
     query MaDashboard($filter: MaDashboardFilter) {
   maDashboard(filter: $filter) {

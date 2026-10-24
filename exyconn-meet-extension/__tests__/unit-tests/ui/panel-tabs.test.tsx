@@ -81,13 +81,17 @@ describe('PanelState', () => {
 });
 
 describe('OverviewTab', () => {
-  it('asks a signed-out user to sign in, and signs in from the panel', async () => {
-    const chrome = workerAnswering({});
+  it('asks a signed-out user to sign in right in the panel, and signs in there', async () => {
+    const chrome = workerAnswering({ 'auth/sign-in': { mfaChallenge: null } });
     render(<OverviewTab {...props({ state: SIGNED_OUT })} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Sign in with Exyconn' }));
-    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: 'auth/sign-in' });
+    expect(screen.getByLabelText(/^Password/)).toHaveAttribute('type', 'password');
+    await userEvent.type(screen.getByLabelText(/^Email/), 'ravi@exyconn.com');
+    await userEvent.type(screen.getByLabelText(/^Password/), `pw-${Date.now()}`);
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Sign in with Exyconn' })).toBeEnabled(),
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'auth/sign-in', email: 'ravi@exyconn.com' }),
+      ),
     );
   });
 

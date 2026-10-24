@@ -140,10 +140,6 @@ export function createChrome() {
       Reason: { USER_MEDIA: 'USER_MEDIA' },
     },
     tabCapture: { getMediaStreamId: vi.fn(() => Promise.resolve('stream-1')) },
-    identity: {
-      getRedirectURL: (path: string) => `https://test-extension-id.chromiumapp.org/${path}`,
-      launchWebAuthFlow: vi.fn<(details: { url: string }) => Promise<string | undefined>>(),
-    },
     i18n: { getUILanguage: () => 'en-US' },
   };
 }

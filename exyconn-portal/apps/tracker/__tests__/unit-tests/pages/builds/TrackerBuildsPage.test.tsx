@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router-dom';
+import { TrackerBuildSettingsDocument } from '@exyconn/shell/graphql/generated';
 import { TrackerBuildsPage } from '../../../../src/pages/builds/TrackerBuildsPage';
 import { renderWithProviders, useCurrentUrl } from '../../test-utils';
 import { resetRecorded, tabberProps } from '../tracker/tracker.mocks';
@@ -12,6 +13,8 @@ const state = vi.hoisted(() => ({
   refetchQueries: vi.fn(),
   logError: vi.fn(),
   retention: vi.fn(),
+  saveRetention: vi.fn(),
+  saveOptions: vi.fn(),
 }));
 
 vi.mock('@exyconn/tabber', async () =>
@@ -20,6 +23,10 @@ vi.mock('@exyconn/tabber', async () =>
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useTrackerBuildSettingsQuery: state.settings,
+  useSaveTrackerBuildRetentionMutation: (options: unknown) => {
+    state.saveOptions(options);
+    return [state.saveRetention];
+  },
 }));
 vi.mock('@apollo/client/react', async (importOriginal) => ({
   ...(await importOriginal<object>()),
@@ -34,10 +41,17 @@ vi.mock('../../../../src/pages/builds/BuildReleasesTab', () => ({
 vi.mock('../../../../src/pages/builds/BuildRunsTab', () => ({
   BuildRunsTab: () => <p>Runs here</p>,
 }));
-vi.mock('../../../../src/pages/builds/forms/build-retention', () => ({
-  BuildRetentionForm: ({ keepLatestBuilds }: Readonly<{ keepLatestBuilds: number }>) => {
+vi.mock('@exyconn/shell/components/form/build-retention', () => ({
+  BuildRetentionForm: ({
+    keepLatestBuilds,
+    save,
+  }: Readonly<{ keepLatestBuilds: number; save: (n: number) => Promise<unknown> }>) => {
     state.retention(keepLatestBuilds);
-    return <p>Retention form here</p>;
+    return (
+      <button type="button" onClick={() => save(9)}>
+        Retention form here
+      </button>
+    );
   },
 }));
 vi.mock('../../../../src/pages/builds/forms/start-build', async () => ({
@@ -92,6 +106,15 @@ describe('TrackerBuildsPage', () => {
     expect(screen.getByText('Runs here')).toBeInTheDocument();
     expect(screen.getByText('Retention form here')).toBeInTheDocument();
     expect(state.retention).toHaveBeenCalledWith(4);
+  });
+
+  it('saves the retention count, then reads the settings again', async () => {
+    renderPage();
+    await userEvent.click(screen.getByRole('button', { name: 'Retention form here' }));
+    expect(state.saveRetention).toHaveBeenCalledWith({ variables: { keepLatestBuilds: 9 } });
+    expect(state.saveOptions).toHaveBeenCalledWith({
+      refetchQueries: [TrackerBuildSettingsDocument],
+    });
   });
 
   it('keeps no builds back before the settings load', async () => {

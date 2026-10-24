@@ -13,6 +13,7 @@ import {
   MeetingSettingsPage,
   MeetingsListPage,
   ParticipantsPage,
+  ReleaseDetailsPage,
   ReleasesPage,
   TranscriptsPage,
 } from '@exyconn/meetings-ui';
@@ -56,6 +57,14 @@ export function App() {
         element={
           <ProtectedRoute requiredRole={ROLES.ADMIN}>
             <ReleasesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai/meeting-assistant/releases/:id"
+        element={
+          <ProtectedRoute requiredRole={ROLES.ADMIN}>
+            <ReleaseDetailsPage />
           </ProtectedRoute>
         }
       />

@@ -4,7 +4,6 @@ import { buildOutcome } from '../../../../src/pages/builds/buildRun.status';
 import {
   BUILD_PLATFORMS,
   DEFAULT_BUILD_REF,
-  MAX_KEEP_LATEST_BUILDS,
   MOBILE_BUILD_HINT,
   VERSION_BUMPS,
 } from '../../../../src/pages/builds/builds.constants';
@@ -59,10 +58,6 @@ describe('tracker build constants', () => {
       TrackerVersionBump.None,
     ]);
     expect(new Set(values).size).toBe(Object.values(TrackerVersionBump).length);
-  });
-
-  it('keeps at most as many builds as the server allows', () => {
-    expect(MAX_KEEP_LATEST_BUILDS).toBe(500);
   });
 
   it('builds off main and explains the phone builds', () => {

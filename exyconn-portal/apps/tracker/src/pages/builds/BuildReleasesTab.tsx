@@ -12,7 +12,7 @@ import {
   useTrackerBuildReleasesQuery,
 } from '@exyconn/shell/graphql/generated';
 import { PLATFORMS } from '../download/download.config';
-import { downloadFiles } from './downloadFiles';
+import { downloadUrls } from '@exyconn/shell/utils/file';
 import { buildDetailsPath, installerUrls, type TrackerBuildReleaseRow } from './builds.types';
 
 const PLATFORM_LABELS = new Map<string, string>(PLATFORMS.map((p) => [p.key, p.label]));
@@ -58,7 +58,7 @@ export function BuildReleasesTab() {
       icon: <DownloadIcon fontSize="small" />,
       tooltip: 'Download every installer',
       ariaLabel: 'Download every installer',
-      onClick: (row) => downloadFiles(installerUrls([row])),
+      onClick: (row) => downloadUrls(installerUrls([row])),
     },
   ];
 
@@ -92,7 +92,7 @@ export function BuildReleasesTab() {
         size="small"
         variant="outlined"
         startIcon={<DownloadIcon />}
-        onClick={() => downloadFiles(installerUrls(rows.filter((row) => picked.has(row.id))))}
+        onClick={() => downloadUrls(installerUrls(rows.filter((row) => picked.has(row.id))))}
       >
         {t('Download selected')}
       </Button>

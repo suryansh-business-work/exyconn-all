@@ -1,5 +1,5 @@
 import type { OffscreenReport, WorkerReply, WorkerRequest } from '../types/messages';
-import { signIn, signOut } from './auth-flow';
+import { completeSecondFactor, signIn, signOut } from './auth-flow';
 import {
   handleOffscreenReport,
   pauseCapture,
@@ -82,7 +82,9 @@ async function handle(
     case 'state/get':
       return stateFor(tabId === null || (await registry.get(tabId)) === null ? null : tabId);
     case 'auth/sign-in':
-      return signIn();
+      return signIn(request.email, request.password);
+    case 'auth/mfa':
+      return completeSecondFactor(request.challenge, request.code);
     case 'auth/sign-out':
       return signOut();
     case 'log/batch':

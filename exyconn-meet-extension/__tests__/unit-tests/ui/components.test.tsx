@@ -11,6 +11,7 @@ import { extensionTheme } from '../../../src/theme/theme';
 import { STATUS_COLORS } from '../../../src/theme/status-colors';
 import { ORG } from '../fake-portal';
 import {
+  SIGNED_IN,
   SIGNED_OUT,
   TAB_SNAPSHOT,
   installBrowserGaps,
@@ -31,14 +32,79 @@ function Boom(): never {
 }
 
 describe('AccountCard', () => {
-  it('signs in through the worker and reports when it fails', async () => {
-    const chrome = workerAnswering({ 'auth/sign-in': new Error('Sign-in was cancelled') });
+  const PASSWORD = `pw-${Date.now()}`;
+
+  async function typeCredentials() {
+    await userEvent.type(screen.getByLabelText(/^Email/), 'ravi@exyconn.com');
+    await userEvent.type(screen.getByLabelText(/^Password/), PASSWORD);
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  }
+
+  it('signs in with the email and password through the worker', async () => {
+    const chrome = workerAnswering({ 'auth/sign-in': { mfaChallenge: null } });
     const onChanged = vi.fn();
     render(<AccountCard auth={SIGNED_OUT.auth} logger={testLogger()} onChanged={onChanged} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Sign in with Exyconn' }));
-    expect(await screen.findByText('Sign-in was cancelled')).toBeInTheDocument();
-    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: 'auth/sign-in' });
+    await typeCredentials();
+    await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(1));
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+      type: 'auth/sign-in',
+      email: 'ravi@exyconn.com',
+      password: PASSWORD,
+    });
+  });
+
+  it('asks for the two-factor code, then signs in with it', async () => {
+    const chrome = workerAnswering({
+      'auth/sign-in': { mfaChallenge: 'c1' },
+      'auth/mfa': { mfaChallenge: null },
+    });
+    const onChanged = vi.fn();
+    render(<AccountCard auth={SIGNED_OUT.auth} logger={testLogger()} onChanged={onChanged} />);
+    await typeCredentials();
+    await userEvent.type(await screen.findByLabelText(/^Code/), '123456');
+    await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
+    await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(1));
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+      type: 'auth/mfa',
+      challenge: 'c1',
+      code: '123456',
+    });
+  });
+
+  it('starts over from the code step with a different account', async () => {
+    workerAnswering({ 'auth/sign-in': { mfaChallenge: 'c1' } });
+    render(<AccountCard auth={SIGNED_OUT.auth} logger={testLogger()} onChanged={vi.fn()} />);
+    await typeCredentials();
+    await userEvent.click(await screen.findByRole('button', { name: 'Use a different account' }));
+    expect(screen.getByLabelText(/^Email/)).toHaveValue('');
+  });
+
+  it('shows a refused password or code, logging the failure but never the password', async () => {
+    workerAnswering({
+      'auth/sign-in': new Error('Invalid email or password'),
+    });
+    const logger = testLogger();
+    const onChanged = vi.fn();
+    render(<AccountCard auth={SIGNED_OUT.auth} logger={logger} onChanged={onChanged} />);
+    await typeCredentials();
+    expect(await screen.findByText('Invalid email or password')).toBeInTheDocument();
+    expect(logger.warn).toHaveBeenCalledWith('Sign-in failed', expect.any(Error));
+    expect(JSON.stringify(vi.mocked(logger.warn).mock.calls)).not.toContain(PASSWORD);
     expect(onChanged).not.toHaveBeenCalled();
+  });
+
+  it('shows a refused two-factor code', async () => {
+    workerAnswering({
+      'auth/sign-in': { mfaChallenge: 'c1' },
+      'auth/mfa': new Error('That code is not right.'),
+    });
+    const logger = testLogger();
+    render(<AccountCard auth={SIGNED_OUT.auth} logger={logger} onChanged={vi.fn()} />);
+    await typeCredentials();
+    await userEvent.type(await screen.findByLabelText(/^Code/), '000000');
+    await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
+    expect(await screen.findByText('That code is not right.')).toBeInTheDocument();
+    expect(logger.warn).toHaveBeenCalledWith('Two-factor sign-in failed', expect.any(Error));
   });
 
   it('shows the account, warns when the company turned it off, and signs out', async () => {
@@ -58,6 +124,17 @@ describe('AccountCard', () => {
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
     await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(1));
+  });
+
+  it('shows why a sign-out failed and stays signed in', async () => {
+    workerAnswering({ 'auth/sign-out': new Error('The extension did not answer') });
+    const logger = testLogger();
+    const onChanged = vi.fn();
+    render(<AccountCard auth={SIGNED_IN.auth} logger={logger} onChanged={onChanged} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(await screen.findByText('The extension did not answer')).toBeInTheDocument();
+    expect(logger.warn).toHaveBeenCalledWith('Sign-out failed', expect.any(Error));
+    expect(onChanged).not.toHaveBeenCalled();
   });
 });
 

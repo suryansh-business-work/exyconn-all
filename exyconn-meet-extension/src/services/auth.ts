@@ -17,11 +17,22 @@ export interface AuthOptions {
   now: () => number;
 }
 
-export interface CodeExchange {
-  code: string;
-  verifier: string;
-  redirectUri: string;
+export interface PasswordSignIn {
+  email: string;
+  password: string;
   deviceLabel: string;
+}
+
+export interface SecondFactor {
+  challenge: string;
+  code: string;
+  deviceLabel: string;
+}
+
+/** Where a sign-in step left things: signed in, or waiting for the two-factor code. */
+export interface SignInStep {
+  /** The challenge to send back with the code; null once signed in. */
+  mfaChallenge: string | null;
 }
 
 interface TokenResponse {
@@ -53,9 +64,23 @@ function oauthError(body: unknown): string {
   return isRecord(body) && typeof body.error === 'string' ? body.error : 'server_error';
 }
 
+/** The portal's own words for a refusal (wrong password, locked account), when it gave any. */
+function refusalText(body: unknown): string {
+  return isRecord(body) && typeof body.error_description === 'string'
+    ? body.error_description
+    : 'The sign-in was refused';
+}
+
+/** The two-factor challenge a password step answers with instead of tokens, or null. */
+function mfaChallengeOf(body: unknown): string | null {
+  return isRecord(body) && body.mfa_required === true && typeof body.mfa_challenge === 'string'
+    ? body.mfa_challenge
+    : null;
+}
+
 /**
- * The extension's sign-in: the authorization-code exchange, the access token and its
- * refresh, and sign-out. Refresh tokens rotate on every use, so refreshes are single-flight —
+ * The extension's sign-in: the person's portal email and password (and two-factor code, when
+ * it is on), the access token and its refresh, and sign-out. Refresh tokens rotate on every use, so refreshes are single-flight —
  * two callers needing a token at once share one exchange instead of spending the same refresh
  * token twice (the second would fail and sign the user out).
  */
@@ -63,7 +88,8 @@ export function createAuth(options: AuthOptions) {
   const { store, now } = options;
   let refreshing: Promise<string | null> | null = null;
 
-  async function postToken(payload: Record<string, unknown>): Promise<TokenResponse> {
+  /** Asks the token endpoint; answers its JSON body, or throws the portal's refusal. */
+  async function requestToken(payload: Record<string, unknown>): Promise<unknown> {
     const response = await fetchWithTimeout(
       options.fetchImpl,
       `${options.apiUrl}/meet-assistant/auth/token`,
@@ -79,13 +105,31 @@ export function createAuth(options: AuthOptions) {
     );
     const body = await readJson(response);
     if (!response.ok) {
-      throw new ApiError('The sign-in was refused', oauthError(body), response.status);
+      throw new ApiError(refusalText(body), oauthError(body), response.status);
     }
+    return body;
+  }
+
+  function tokensOf(body: unknown): TokenResponse {
     const tokens = parseTokenResponse(body);
     if (tokens === null) {
-      throw new ApiError('The sign-in answer was malformed', 'invalid_response', response.status);
+      throw new ApiError('The sign-in answer was malformed', 'invalid_response');
     }
     return tokens;
+  }
+
+  async function postToken(payload: Record<string, unknown>): Promise<TokenResponse> {
+    return tokensOf(await requestToken(payload));
+  }
+
+  /** Keeps the tokens a sign-in step returned, or hands back its two-factor challenge. */
+  async function signInStep(payload: Record<string, unknown>): Promise<SignInStep> {
+    const body = await requestToken(payload);
+    const mfaChallenge = mfaChallengeOf(body);
+    if (mfaChallenge === null) {
+      await keep(tokensOf(body));
+    }
+    return { mfaChallenge };
   }
 
   async function keep(tokens: TokenResponse): Promise<string> {
@@ -126,16 +170,22 @@ export function createAuth(options: AuthOptions) {
   }
 
   return {
-    async exchangeCode(exchange: CodeExchange): Promise<void> {
-      await keep(
-        await postToken({
-          grant_type: 'authorization_code',
-          code: exchange.code,
-          code_verifier: exchange.verifier,
-          redirect_uri: exchange.redirectUri,
-          device_label: exchange.deviceLabel,
-        }),
-      );
+    signInWithPassword(input: PasswordSignIn): Promise<SignInStep> {
+      return signInStep({
+        grant_type: 'password',
+        email: input.email,
+        password: input.password,
+        device_label: input.deviceLabel,
+      });
+    },
+
+    completeSecondFactor(input: SecondFactor): Promise<SignInStep> {
+      return signInStep({
+        grant_type: 'mfa',
+        mfa_challenge: input.challenge,
+        code: input.code,
+        device_label: input.deviceLabel,
+      });
     },
 
     /** A usable access token, refreshing it first if needed; null when signed out. */

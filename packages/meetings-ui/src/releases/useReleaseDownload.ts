@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { downloadUrls } from '@exyconn/shell/utils/file';
 import { useMaReleaseDownloadLinkMutation } from '@exyconn/shell/graphql/generated';
 
 /**
@@ -28,5 +29,26 @@ export function useReleaseDownload() {
     },
     [createLink, notify],
   );
-  return { download, loading };
+
+  /** Several builds at once: a link for each, then every file saved in one go. */
+  const downloadMany = useCallback(
+    async (ids: readonly string[]) => {
+      try {
+        const urls: string[] = [];
+        for (const id of ids) {
+          const result = await createLink({ variables: { id } });
+          const url = result.data?.maReleaseDownloadLink.url;
+          if (url) {
+            urls.push(url);
+          }
+        }
+        downloadUrls(urls);
+        notify('Downloading {count} builds', 'info', { count: urls.length });
+      } catch (error) {
+        notify(errorMessage(error, 'The download could not be started.'), 'error');
+      }
+    },
+    [createLink, notify],
+  );
+  return { download, downloadMany, loading };
 }

@@ -3,6 +3,7 @@ import { logger } from '../../utils/logger';
 import { badRequest } from '../../utils/errors';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { runAsPlatform } from '../../lib/tenant';
+import { beyondRetention } from '../../utils/retention';
 import { registerBackgroundJob } from './jobs.registry';
 import { TrackerBuildSettingsModel } from './tracker-build-settings.model';
 
@@ -28,21 +29,9 @@ export function releasesBeyondRetention(
   releases: readonly TrackerRelease[],
   keep: number,
 ): TrackerRelease[] {
-  if (keep <= 0) {
-    return [];
-  }
-  const newestPerPlatform = new Set<string>();
-  const claimed = new Set<string>();
-  for (const release of releases) {
-    const platforms = release.assets.map((asset) => asset.platform);
-    if (platforms.some((platform) => !claimed.has(platform))) {
-      newestPerPlatform.add(release.id);
-    }
-    for (const platform of platforms) {
-      claimed.add(platform);
-    }
-  }
-  return releases.slice(keep).filter((release) => !newestPerPlatform.has(release.id));
+  return beyondRetention(releases, keep, (release) =>
+    release.assets.map((asset) => asset.platform),
+  );
 }
 
 /** Published tracker builds: listing, deleting, and keeping only the newest. */

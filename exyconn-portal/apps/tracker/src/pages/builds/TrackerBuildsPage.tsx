@@ -10,14 +10,16 @@ import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import {
   ListTrackerBuildsDocument,
+  TrackerBuildSettingsDocument,
+  useSaveTrackerBuildRetentionMutation,
   useTrackerBuildSettingsQuery,
 } from '@exyconn/shell/graphql/generated';
+import { BuildRetentionForm } from '@exyconn/shell/components/form/build-retention';
 import { useApolloClient } from '@apollo/client/react';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { BuildReleasesTab } from './BuildReleasesTab';
 import { BuildRunsTab } from './BuildRunsTab';
 import { StartBuildForm } from './forms/start-build';
-import { BuildRetentionForm } from './forms/build-retention';
 
 /** Where the page lives; each tab is a slug under it. */
 const BASE_PATH = '/tracker/builds';
@@ -33,6 +35,10 @@ export function TrackerBuildsPage() {
   const [starting, setStarting] = useState(false);
   const settings = useTrackerBuildSettingsQuery({ fetchPolicy: 'cache-and-network' });
   const stored = settings.data?.trackerBuildSettings;
+  // The settings have no id, so the cache cannot match the saved row to the query: read it again.
+  const [saveRetention] = useSaveTrackerBuildRetentionMutation({
+    refetchQueries: [TrackerBuildSettingsDocument],
+  });
 
   const onStarted = () => {
     setStarting(false);
@@ -74,7 +80,10 @@ export function TrackerBuildsPage() {
       icon: <TuneIcon />,
       content: (
         <Card variant="outlined" sx={{ p: 2 }}>
-          <BuildRetentionForm keepLatestBuilds={stored?.keepLatestBuilds ?? 0} />
+          <BuildRetentionForm
+            keepLatestBuilds={stored?.keepLatestBuilds ?? 0}
+            save={(keepLatestBuilds) => saveRetention({ variables: { keepLatestBuilds } })}
+          />
         </Card>
       ),
     },

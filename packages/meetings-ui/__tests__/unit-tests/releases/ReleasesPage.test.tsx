@@ -8,9 +8,11 @@ import {
   useMaReleaseDownloadLinkMutation,
   useMaReleasesQuery,
   useMaSetReleaseStatusMutation,
+  useDeleteMaReleaseMutation,
 } from '@exyconn/shell/graphql/generated';
 import { ReleasesPage } from '../../../src/releases/ReleasesPage';
 import { makeRelease } from '../fixtures';
+import { downloadUrls } from '@exyconn/shell/utils/file';
 import { mutationTuple, queryResult, renderWithProviders, stubLocationAssign } from '../test-utils';
 
 vi.mock('@exyconn/shell/graphql/generated', async (orig) => ({
@@ -19,11 +21,17 @@ vi.mock('@exyconn/shell/graphql/generated', async (orig) => ({
   useMaSetReleaseStatusMutation: vi.fn(),
   useMaReleaseDownloadLinkMutation: vi.fn(),
   useMaApproveReleaseMutation: vi.fn(),
+  useDeleteMaReleaseMutation: vi.fn(),
+}));
+vi.mock('@exyconn/shell/utils/file', async (orig) => ({
+  ...(await orig<object>()),
+  downloadUrls: vi.fn(),
 }));
 
 const setStatus = vi.fn();
 const link = vi.fn();
 const approve = vi.fn();
+const remove = vi.fn();
 
 beforeEach(() => {
   setStatus.mockReset().mockResolvedValue({ data: {} });
@@ -40,6 +48,9 @@ beforeEach(() => {
     },
   });
   vi.mocked(useMaSetReleaseStatusMutation).mockReturnValue(mutationTuple(setStatus) as never);
+  remove.mockReset().mockResolvedValue({ data: { deleteMaRelease: true } });
+  vi.mocked(useDeleteMaReleaseMutation).mockReturnValue(mutationTuple(remove) as never);
+  vi.mocked(downloadUrls).mockReset();
   vi.mocked(useMaReleaseDownloadLinkMutation).mockReturnValue(mutationTuple(link) as never);
   vi.mocked(useMaReleasesQuery).mockReturnValue(
     queryResult({
@@ -277,5 +288,71 @@ describe('ReleasesPage', () => {
     renderWithProviders(<ReleasesPage />);
     expect(screen.getByText('No release available yet.')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
+  });
+});
+
+describe('ReleasesPage — builds', () => {
+  async function confirm(name: string) {
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.click(within(dialog).getByRole('button', { name }));
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  }
+
+  it('opens a build on row click', async () => {
+    renderWithProviders(<ReleasesPage />);
+    await userEvent.click(screen.getByText('1.4.0'));
+    expect(screen.getByLabelText('location')).toHaveTextContent(
+      '/ai/meeting-assistant/releases/release-1',
+    );
+  });
+
+  it('deletes a build once confirmed, dropping it from the cache', async () => {
+    renderWithProviders(<ReleasesPage />);
+    await userEvent.click(within(rowOf('1.4.0')).getByRole('button', { name: 'delete' }));
+    expect(await screen.findByText('Delete version 1.4.0?')).toBeInTheDocument();
+    await confirm('Delete');
+    expect(remove).toHaveBeenCalledTimes(1);
+    const call = remove.mock.calls[0][0];
+    expect(call.variables).toEqual({ id: 'release-1' });
+    const cache = { identify: vi.fn(() => 'MaRelease:release-1'), evict: vi.fn(), gc: vi.fn() };
+    call.update(cache);
+    expect(cache.evict).toHaveBeenCalledWith({ id: 'MaRelease:release-1' });
+    expect(cache.gc).toHaveBeenCalled();
+    expect(await screen.findByText('Release 1.4.0 deleted')).toBeInTheDocument();
+  });
+
+  it('keeps a build when the delete is cancelled', async () => {
+    renderWithProviders(<ReleasesPage />);
+    await userEvent.click(within(rowOf('1.4.0')).getByRole('button', { name: 'delete' }));
+    await confirm('Cancel');
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it('downloads the ticked builds that can be downloaded, together', async () => {
+    renderWithProviders(<ReleasesPage />);
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Download selected' }));
+    await vi.waitFor(() =>
+      expect(downloadUrls).toHaveBeenCalledWith(['https://files.example.com/r.zip']),
+    );
+    expect(link).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Downloading 1 builds')).toBeInTheDocument();
+  });
+
+  it('offers no download when none of the ticked builds can be downloaded', async () => {
+    renderWithProviders(<ReleasesPage />);
+    await userEvent.click(within(rowOf('1.3.0')).getByRole('checkbox', { name: 'Select row' }));
+    expect(screen.getByRole('button', { name: 'Download selected' })).toBeDisabled();
+  });
+
+  it('reports a download link the server refuses, and skips one it does not give', async () => {
+    link.mockReset().mockResolvedValueOnce({ data: undefined });
+    renderWithProviders(<ReleasesPage />);
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Download selected' }));
+    await vi.waitFor(() => expect(downloadUrls).toHaveBeenCalledWith([]));
+    link.mockRejectedValueOnce(new Error('Not downloadable'));
+    await userEvent.click(screen.getByRole('button', { name: 'Download selected' }));
+    expect(await screen.findByText('Not downloadable')).toBeInTheDocument();
   });
 });

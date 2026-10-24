@@ -15,7 +15,7 @@ import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useTrackerBuildReleasesQuery } from '@exyconn/shell/graphql/generated';
 import { PLATFORMS, type PlatformConfig } from '../download/download.config';
 import { DownloadButtons } from '../download/DownloadButtons';
-import { downloadFiles } from './downloadFiles';
+import { downloadUrls } from '@exyconn/shell/utils/file';
 import { installerUrls, type TrackerBuildReleaseRow } from './builds.types';
 
 /** Back to the published list. */
@@ -70,7 +70,7 @@ export function BuildDetailsPage() {
             variant="contained"
             startIcon={<DownloadIcon />}
             disabled={release.assets.length === 0}
-            onClick={() => downloadFiles(installerUrls([release]))}
+            onClick={() => downloadUrls(installerUrls([release]))}
           >
             {t('Download all')}
           </Button>

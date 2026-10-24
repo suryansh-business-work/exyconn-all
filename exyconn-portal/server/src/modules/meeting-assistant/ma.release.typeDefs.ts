@@ -23,6 +23,8 @@ export const maReleaseTypeDefs = gql`
     notifyOnNewBuild: Boolean!
     "Whether Tech has an active Slack config."
     slackConfigured: Boolean!
+    "How many of the newest builds the hourly retention pass keeps; 0 keeps every build."
+    keepLatestBuilds: Int!
     updatedByName: String!
     updatedAt: DateTime
   }
@@ -46,5 +48,9 @@ export const maReleaseTypeDefs = gql`
     "Starts the extension build workflow; the run uploads the build here for approval."
     maStartExtensionBuild(channel: MaReleaseChannel!): Boolean!
     maUpdateReleaseSettings(input: MaReleaseSettingsInput!): MaReleaseSettings!
+    "Sets how many of the newest builds the retention pass keeps (0 keeps every build)."
+    maUpdateReleaseRetention(keepLatestBuilds: Int!): MaReleaseSettings!
+    "Deletes one extension build and its ZIP. Installed copies keep working."
+    deleteMaRelease(id: ID!): Boolean!
   }
 `;

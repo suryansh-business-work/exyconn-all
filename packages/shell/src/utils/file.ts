@@ -45,3 +45,21 @@ export function downloadBase64File(filename: string, contentType: string, base64
   anchor.click();
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Starts a browser download for each URL — several builds or installers at once. Each URL must
+ * be served as an attachment (a GitHub release asset, a signed download link), so following it
+ * saves the file rather than navigating away; the browser may ask once whether this page may
+ * download several files.
+ */
+export function downloadUrls(urls: readonly string[]): void {
+  for (const url of urls) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.rel = 'noopener';
+    link.download = '';
+    document.body.append(link);
+    link.click();
+    link.remove();
+  }
+}

@@ -4,7 +4,6 @@ import { base64ToBytes, base64Url, bytesToBase64 } from '../../../src/utils/base
 import { chunkArray } from '../../../src/utils/batch';
 import { debounce } from '../../../src/utils/debounce';
 import { clampPosition, cornerPosition, moveByKey } from '../../../src/utils/floating-position';
-import { createPkcePair, pkceChallenge, randomToken } from '../../../src/utils/pkce';
 
 describe('backoffDelay', () => {
   const options = { baseMs: 1000, maxMs: 8000 };
@@ -32,24 +31,6 @@ describe('base64', () => {
   });
   it('makes URL-safe text without padding', () => {
     expect(base64Url(Uint8Array.from([0xfb, 0xff]))).toBe('-_8');
-  });
-});
-
-describe('PKCE', () => {
-  it('derives the RFC 7636 S256 challenge', async () => {
-    // Appendix B of RFC 7636.
-    await expect(pkceChallenge('dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk')).resolves.toBe(
-      'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
-    );
-  });
-  it('creates a fresh verifier, matching challenge and state each time', async () => {
-    const a = await createPkcePair();
-    const b = await createPkcePair();
-    expect(a.verifier).toHaveLength(64);
-    expect(a.challenge).toBe(await pkceChallenge(a.verifier));
-    expect(a.verifier).not.toBe(b.verifier);
-    expect(a.state).not.toBe(b.state);
-    expect(randomToken(16)).toMatch(/^[\w-]{22}$/);
   });
 });
 

@@ -37,6 +37,3 @@ export const VERSION_BUMPS: ReadonlyArray<{ value: TrackerVersionBump; label: st
 export const VERSION_BUMP_HINT =
   'The new version is committed to the branch before building. Installed trackers only ' +
   'update to a higher version, so keep the current one only to rebuild a failed platform.';
-
-/** The most builds retention can keep — the server's own limit (MAX_KEEP_LATEST_BUILDS). */
-export const MAX_KEEP_LATEST_BUILDS = 500;

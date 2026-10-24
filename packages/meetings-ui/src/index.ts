@@ -15,5 +15,6 @@ export { ExtensionPage } from './extension/ExtensionPage';
 export { ConnectExtensionPage } from './connect/ConnectExtensionPage';
 export { MeetingSettingsPage } from './settings/MeetingSettingsPage';
 export { ReleasesPage } from './releases/ReleasesPage';
+export { ReleaseDetailsPage } from './releases/ReleaseDetailsPage';
 export { LogsPage } from './events/LogsPage';
 export { meetingPaths, type MeetingPageProps, type MeetingScope } from './lib/scope';
