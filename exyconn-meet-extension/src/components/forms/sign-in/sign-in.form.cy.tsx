@@ -37,6 +37,7 @@ describe('SignInForm', () => {
     cy.get('@password').should('have.been.calledOnceWith', {
       email: 'ravi@exyconn.com',
       password: PASSWORD,
+      remember: true,
     });
     cy.get('@signedIn').should('have.been.calledOnce');
   });
@@ -50,7 +51,7 @@ describe('SignInForm', () => {
     cy.contains('Enter the six-digit code from your authenticator app').should('be.visible');
     cy.get('input[name="code"]').type('123456');
     cy.contains('button', 'Verify').click();
-    cy.get('@code').should('have.been.calledOnceWith', 'c1', '123456');
+    cy.get('@code').should('have.been.calledOnceWith', 'c1', '123456', true);
     cy.get('@signedIn').should('have.been.calledOnce');
   });
 

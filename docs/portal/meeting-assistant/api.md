@@ -40,7 +40,7 @@ never calls OpenAI again. Audio is never sent through GraphQL.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `MEET_ASSISTANT_EXTENSION_IDS` | empty (sign-in refused) | Comma-separated extension ids allowed to sign in (internal fixed id, store item id) |
+| `MEET_ASSISTANT_EXTENSION_IDS` | empty (portal-redirect sign-in refused) | Comma-separated extension ids allowed on the portal-redirect sign-in (internal fixed id, store item id). Email and password sign-in does not check the id |
 | `MEET_ASSISTANT_PORTAL_URL` | `https://employee.exyconn.com` | Links in emails and the extension |
 | `MEET_ASSISTANT_AUDIO_LIMIT` | `12mb` | JSON body limit of one audio upload (decoded WAV capped at 8 MB) |
 | `API_PUBLIC_URL` | existing | Base of signed download links and the Google callback |

@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
-import { TextField } from '@exyconn/ui';
+import { IconButton, InputAdornment, TextField } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 interface Props<T extends FieldValues> {
   control: Control<T>;
@@ -10,6 +13,29 @@ interface Props<T extends FieldValues> {
   type?: 'text' | 'email' | 'password';
   autoComplete?: string;
   autoFocus?: boolean;
+}
+
+interface EyeProps {
+  shown: boolean;
+  onToggle: () => void;
+}
+
+/** The eye at the end of a password field: shows or hides what was typed. */
+function PasswordEye({ shown, onToggle }: Readonly<EyeProps>) {
+  const t = useT();
+  return (
+    <InputAdornment position="end">
+      <IconButton
+        edge="end"
+        size="small"
+        aria-label={shown ? t('Hide password') : t('Show password')}
+        aria-pressed={shown}
+        onClick={onToggle}
+      >
+        {shown ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+      </IconButton>
+    </InputAdornment>
+  );
 }
 
 /** A labelled text field bound to a string field, with hint and error text. */
@@ -23,6 +49,12 @@ export function RhfTextField<T extends FieldValues>({
   autoFocus = false,
 }: Readonly<Props<T>>) {
   const t = useT();
+  const [shown, setShown] = useState(false);
+  const isPassword = type === 'password';
+  const inputType = isPassword && shown ? 'text' : type;
+  const endAdornment = isPassword ? (
+    <PasswordEye shown={shown} onToggle={() => setShown((value) => !value)} />
+  ) : undefined;
   return (
     <Controller
       control={control}
@@ -32,7 +64,7 @@ export function RhfTextField<T extends FieldValues>({
           fullWidth
           size="small"
           id={name}
-          type={type}
+          type={inputType}
           label={t(label)}
           name={field.name}
           value={field.value}
@@ -43,6 +75,7 @@ export function RhfTextField<T extends FieldValues>({
           autoFocus={autoFocus}
           error={fieldState.error !== undefined}
           helperText={t(fieldState.error?.message ?? hint)}
+          slotProps={{ input: { endAdornment } }}
         />
       )}
     />

@@ -7,12 +7,14 @@ import { Alert, Button, Link, Stack, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import LoginIcon from '@mui/icons-material/Login';
 import { errorText } from '../../../utils/errors';
+import { RhfCheckbox } from '../../form/RhfCheckbox';
 import { RhfTextField } from '../../form/RhfTextField';
 import type { CodeValues, PasswordValues, SignInFormProps } from './sign-in.types';
 
 const passwordSchema = z.object({
   email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
   password: z.string().min(1, 'Password is required'),
+  remember: z.boolean(),
 });
 
 /** Six digits from the app, or a recovery code from the printout — the portal takes both. */
@@ -35,7 +37,7 @@ function PasswordStep({ onSubmit, error }: Readonly<PasswordStepProps>) {
   const { control, handleSubmit, formState } = useForm<PasswordValues>({
     mode: 'onTouched',
     resolver: zodResolver(passwordSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: '', password: '', remember: true },
   });
   return (
     <Stack component="form" spacing={1.5} noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -58,6 +60,12 @@ function PasswordStep({ onSubmit, error }: Readonly<PasswordStepProps>) {
         hint="Your portal password"
         type="password"
         autoComplete="current-password"
+      />
+      <RhfCheckbox
+        control={control}
+        name="remember"
+        label="Remember me on this computer"
+        disabled={formState.isSubmitting}
       />
       <Button
         type="submit"
@@ -117,6 +125,7 @@ function CodeStep({ onSubmit, onStartOver, error }: Readonly<CodeStepProps>) {
 export function SignInForm({ submitPassword, submitCode, onSignedIn }: Readonly<SignInFormProps>) {
   const [challenge, setChallenge] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [remember, setRemember] = useState(true);
 
   const settle = async (step: Promise<{ mfaChallenge: string | null }>) => {
     setError(null);
@@ -137,13 +146,21 @@ export function SignInForm({ submitPassword, submitCode, onSignedIn }: Readonly<
   };
 
   if (challenge === null) {
-    return <PasswordStep error={error} onSubmit={(values) => settle(submitPassword(values))} />;
+    return (
+      <PasswordStep
+        error={error}
+        onSubmit={(values) => {
+          setRemember(values.remember);
+          return settle(submitPassword(values));
+        }}
+      />
+    );
   }
   return (
     <CodeStep
       error={error}
       onStartOver={startOver}
-      onSubmit={({ code }) => settle(submitCode(challenge, code))}
+      onSubmit={({ code }) => settle(submitCode(challenge, code, remember))}
     />
   );
 }

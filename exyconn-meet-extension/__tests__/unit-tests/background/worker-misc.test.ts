@@ -100,7 +100,12 @@ describe('service worker: sign-in', () => {
     const worker = await startWorker({ signedIn: false });
     await joinCall(worker);
     await expect(
-      worker.send({ type: 'auth/sign-in', email: 'ravi@exyconn.com', password: PASSWORD }),
+      worker.send({
+        type: 'auth/sign-in',
+        email: 'ravi@exyconn.com',
+        password: PASSWORD,
+        remember: true,
+      }),
     ).resolves.toEqual({ ok: true, data: { mfaChallenge: null } });
     expect(tokenBody(worker, 0)).toMatchObject({
       grant_type: 'password',
@@ -117,13 +122,18 @@ describe('service worker: sign-in', () => {
     const worker = await startWorker({ signedIn: false });
     worker.portal.tokenReplies.push(jsonResponse(200, { mfa_required: true, mfa_challenge: 'c1' }));
     await expect(
-      worker.send({ type: 'auth/sign-in', email: 'ravi@exyconn.com', password: PASSWORD }),
+      worker.send({
+        type: 'auth/sign-in',
+        email: 'ravi@exyconn.com',
+        password: PASSWORD,
+        remember: true,
+      }),
     ).resolves.toEqual({ ok: true, data: { mfaChallenge: 'c1' } });
     await expect(worker.send({ type: 'state/get' })).resolves.toMatchObject({
       data: { auth: { signedIn: false } },
     });
     await expect(
-      worker.send({ type: 'auth/mfa', challenge: 'c1', code: '123456' }),
+      worker.send({ type: 'auth/mfa', challenge: 'c1', code: '123456', remember: true }),
     ).resolves.toEqual({ ok: true, data: { mfaChallenge: null } });
     expect(tokenBody(worker, 1)).toMatchObject({
       grant_type: 'mfa',
@@ -141,7 +151,12 @@ describe('service worker: sign-in', () => {
       jsonResponse(401, { error: 'invalid_grant', error_description: 'Invalid email or password' }),
     );
     await expect(
-      worker.send({ type: 'auth/sign-in', email: 'ravi@exyconn.com', password: PASSWORD }),
+      worker.send({
+        type: 'auth/sign-in',
+        email: 'ravi@exyconn.com',
+        password: PASSWORD,
+        remember: true,
+      }),
     ).resolves.toEqual({ ok: false, error: 'Invalid email or password' });
   });
 

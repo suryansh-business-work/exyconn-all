@@ -25,7 +25,7 @@ jest.mock('../../../../src/config/env', () =>
 
 useTestOrganization();
 
-const UNTRUSTED = 'pppppppppppppppppppppppppppppppp';
+const UNLISTED = 'pppppppppppppppppppppppppppppppp';
 const password = () => `pw-${Date.now()}`;
 
 /** The OAuth refusal a sign-in step settles with, as [code, message]. */
@@ -93,13 +93,14 @@ describe('signing the extension in with a password', () => {
     expect(await MaExtensionSessionModel.countDocuments()).toBe(0);
   });
 
-  it('refuses an extension this portal does not trust before checking anything', async () => {
-    const check = jest.spyOn(authService, 'verifyCredentials');
-    expect(await refusalOf(signInWithPassword(grant(UNTRUSTED), DEVICE))).toEqual([
-      'invalid_request',
-      'This extension is not one this portal trusts.',
-    ]);
-    expect(check).not.toHaveBeenCalled();
+  it('signs in an unpacked build whose id is not listed: the password is the proof', async () => {
+    await passwordAccepted();
+    const step = (await signInWithPassword(grant(UNLISTED), DEVICE)) as TokenResponse;
+
+    expect(verifyToken(step.access_token)?.esid).toBeTruthy();
+    expect(await MaExtensionSessionModel.findOne({ userId: actor.id }).lean()).toMatchObject({
+      extensionId: UNLISTED,
+    });
   });
 
   it('refuses a suspended company', async () => {
@@ -156,10 +157,7 @@ describe('the second factor', () => {
     ]);
   });
 
-  it('refuses an untrusted extension, and an account outside any company', async () => {
-    expect((await refusalOf(completeMfaSignIn(mfaGrant(UNTRUSTED), DEVICE)))[0]).toBe(
-      'invalid_request',
-    );
+  it('refuses an account outside any company', async () => {
     const user = await UserModel.findById(actor.id);
     jest
       .spyOn(authService, 'proveSecondFactor')

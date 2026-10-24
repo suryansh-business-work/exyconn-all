@@ -29,16 +29,29 @@ async function finish(step: SignInStep): Promise<SignInStep> {
  * Signs the extension in with the person's portal email and password, typed into the
  * extension. With two-factor on, it answers the challenge to send back with the code.
  */
-export async function signIn(email: string, password: string): Promise<SignInStep> {
+export async function signIn(
+  email: string,
+  password: string,
+  remember: boolean,
+): Promise<SignInStep> {
   return finish(
-    await auth.signInWithPassword({ email, password, deviceLabel: await deviceLabel() }),
+    await auth.signInWithPassword({ email, password, remember, deviceLabel: await deviceLabel() }),
   );
 }
 
 /** The second half of a two-factor sign-in: the code from the authenticator app. */
-export async function completeSecondFactor(challenge: string, code: string): Promise<SignInStep> {
+export async function completeSecondFactor(
+  challenge: string,
+  code: string,
+  remember: boolean,
+): Promise<SignInStep> {
   return finish(
-    await auth.completeSecondFactor({ challenge, code, deviceLabel: await deviceLabel() }),
+    await auth.completeSecondFactor({
+      challenge,
+      code,
+      remember,
+      deviceLabel: await deviceLabel(),
+    }),
   );
 }
 

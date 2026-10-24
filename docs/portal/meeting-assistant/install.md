@@ -16,8 +16,9 @@ are loaded unpacked; the public build comes from the Chrome Web Store once it is
 
 To update: download the new ZIP, replace the folder's contents and click the reload icon on the
 extension's card in `chrome://extensions`. Internal builds keep a fixed extension id when the
-build was made with `MEET_EXTENSION_PUBLIC_KEY`; otherwise the id depends on the folder path and
-must be listed in the server's `MEET_ASSISTANT_EXTENSION_IDS` (see [api.md](api.md)).
+build was made with `MEET_EXTENSION_PUBLIC_KEY`; otherwise the id depends on the folder path.
+Signing in with the portal email and password works with any id; only the portal-redirect
+sign-in needs the id listed in the server's `MEET_ASSISTANT_EXTENSION_IDS` (see [api.md](api.md)).
 
 ## Using it in a meeting
 
@@ -35,7 +36,7 @@ must be listed in the server's `MEET_ASSISTANT_EXTENSION_IDS` (see [api.md](api.
 
 | Symptom | Cause and fix |
 | --- | --- |
-| "This extension is not one this portal trusts" on sign-in | Its id is not in `MEET_ASSISTANT_EXTENSION_IDS`. Add it (shown in `chrome://extensions`) and redeploy, or use a build made with the fixed key. |
+| "This extension is not one this portal trusts" on the portal-redirect sign-in | Its id is not in `MEET_ASSISTANT_EXTENSION_IDS`. Add it (shown in `chrome://extensions`) and redeploy, or use a build made with the fixed key. Email and password sign-in does not check the id. |
 | Sign-in window closes with no result | Pop-ups blocked or the portal session expired: sign in to employee.exyconn.com first, then retry. |
 | "Start" says tab capture was refused | Open the extension from the toolbar while on the Meet tab, then Start. |
 | Microphone not captured | Allow the microphone for the extension when Chrome asks; check `chrome://settings/content/microphone`. |

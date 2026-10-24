@@ -21,12 +21,15 @@ export interface PasswordSignIn {
   email: string;
   password: string;
   deviceLabel: string;
+  /** Keep the sign-in past this browser session ("Remember me"). */
+  remember: boolean;
 }
 
 export interface SecondFactor {
   challenge: string;
   code: string;
   deviceLabel: string;
+  remember: boolean;
 }
 
 /** Where a sign-in step left things: signed in, or waiting for the two-factor code. */
@@ -123,20 +126,24 @@ export function createAuth(options: AuthOptions) {
   }
 
   /** Keeps the tokens a sign-in step returned, or hands back its two-factor challenge. */
-  async function signInStep(payload: Record<string, unknown>): Promise<SignInStep> {
+  async function signInStep(
+    payload: Record<string, unknown>,
+    remember: boolean,
+  ): Promise<SignInStep> {
     const body = await requestToken(payload);
     const mfaChallenge = mfaChallengeOf(body);
     if (mfaChallenge === null) {
-      await keep(tokensOf(body));
+      await keep(tokensOf(body), remember);
     }
     return { mfaChallenge };
   }
 
-  async function keep(tokens: TokenResponse): Promise<string> {
+  async function keep(tokens: TokenResponse, remember: boolean): Promise<string> {
     const at = now();
     await store.save(
       { token: tokens.access_token, expiresAt: at + tokens.expires_in * 1000 },
       { token: tokens.refresh_token, expiresAt: at + tokens.refresh_expires_in * 1000 },
+      remember,
     );
     return tokens.access_token;
   }
@@ -152,6 +159,7 @@ export function createAuth(options: AuthOptions) {
     try {
       return await keep(
         await postToken({ grant_type: 'refresh_token', refresh_token: stored.token }),
+        stored.remembered,
       );
     } catch (error) {
       if (error instanceof ApiError && TERMINAL_ERRORS.has(error.code)) {
@@ -171,21 +179,27 @@ export function createAuth(options: AuthOptions) {
 
   return {
     signInWithPassword(input: PasswordSignIn): Promise<SignInStep> {
-      return signInStep({
-        grant_type: 'password',
-        email: input.email,
-        password: input.password,
-        device_label: input.deviceLabel,
-      });
+      return signInStep(
+        {
+          grant_type: 'password',
+          email: input.email,
+          password: input.password,
+          device_label: input.deviceLabel,
+        },
+        input.remember,
+      );
     },
 
     completeSecondFactor(input: SecondFactor): Promise<SignInStep> {
-      return signInStep({
-        grant_type: 'mfa',
-        mfa_challenge: input.challenge,
-        code: input.code,
-        device_label: input.deviceLabel,
-      });
+      return signInStep(
+        {
+          grant_type: 'mfa',
+          mfa_challenge: input.challenge,
+          code: input.code,
+          device_label: input.deviceLabel,
+        },
+        input.remember,
+      );
     },
 
     /** A usable access token, refreshing it first if needed; null when signed out. */
