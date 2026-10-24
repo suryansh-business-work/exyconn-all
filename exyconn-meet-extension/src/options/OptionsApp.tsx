@@ -2,6 +2,7 @@ import { Alert, CircularProgress, Container, Paper, Stack, Typography } from '@e
 import { useT } from '@exyconn/i18n';
 import type { Logger } from '@exyconn/logger';
 import { AccountCard } from '../components/AccountCard';
+import { VersionText } from '../components/VersionText';
 import { useWorkerState } from '../hooks/useWorkerState';
 import { createPrefsStore, type ExtensionPrefs } from '../storage/prefs';
 import { ExtensionSettingsForm } from './forms/extension-settings';
@@ -39,9 +40,12 @@ export function OptionsApp({ prefs, prefsError, logger }: Readonly<Props>) {
   return (
     <Container component="main" maxWidth="sm" sx={{ py: 4 }}>
       <Stack spacing={3}>
-        <Typography variant="h5" component="h1">
-          {t('Exyconn Meeting Assistant')}
-        </Typography>
+        <Stack spacing={0}>
+          <Typography variant="h5" component="h1">
+            {t('Exyconn Meeting Assistant')}
+          </Typography>
+          <VersionText />
+        </Stack>
         <Paper sx={{ p: 2 }} component="section" aria-labelledby="account-title">
           <Stack spacing={1.5}>
             <Typography id="account-title" variant="h6" component="h2">

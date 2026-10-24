@@ -8,6 +8,7 @@ import { requestMicrophone } from '../../../src/options/microphone';
 import { intervalOptions } from '../../../src/options/settings-options';
 import { PopupApp } from '../../../src/popup/PopupApp';
 import { PopupRoot } from '../../../src/popup/PopupRoot';
+import { EXTENSION_VERSION } from '../../../src/config';
 import { DEFAULT_PREFS } from '../../../src/storage/prefs';
 import { ORG } from '../fake-portal';
 import {
@@ -166,6 +167,7 @@ describe('options page', () => {
     const chrome = workerAnswering({ 'state/get': SIGNED_IN, 'i18n/messages': {} });
     render(<OptionsRoot logger={testLogger()} />);
     expect(await screen.findByText('Asha Rao')).toBeInTheDocument();
+    expect(screen.getByText(`Version ${EXTENSION_VERSION}`)).toBeInTheDocument();
     await userEvent.click(await screen.findByRole('button', { name: 'Save settings' }));
     await waitFor(() => expect(chrome.storage.sync.data.get('prefs')).toEqual(DEFAULT_PREFS));
   });
@@ -199,6 +201,7 @@ describe('popup', () => {
     workerAnswering({ 'state/get': SIGNED_OUT });
     render(<PopupApp tabId={null} logger={testLogger()} />);
     expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getByText(`Version ${EXTENSION_VERSION}`)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Open portal/ })).toHaveAttribute(
       'href',
       'http://localhost:4021/me/meetings',

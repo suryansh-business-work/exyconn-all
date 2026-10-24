@@ -37,7 +37,12 @@ function setup(...responses: Array<Response | Error>) {
 }
 
 const PASSWORD = `pw-${NOW}`;
-const credentials = { email: 'ravi@exyconn.com', password: PASSWORD, deviceLabel: 'Chrome on mac' };
+const credentials = {
+  email: 'ravi@exyconn.com',
+  password: PASSWORD,
+  deviceLabel: 'Chrome on mac',
+  remember: true,
+};
 
 async function signedIn(...responses: Array<Response | Error>) {
   const context = setup(jsonResponse(200, tokens(1)), ...responses);
@@ -74,8 +79,14 @@ describe('password sign-in', () => {
     await expect(store.readAccess()).resolves.toBeNull();
 
     await expect(
-      auth.completeSecondFactor({ challenge: 'c1', code: '123456', deviceLabel: 'Chrome on mac' }),
+      auth.completeSecondFactor({
+        challenge: 'c1',
+        code: '123456',
+        deviceLabel: 'Chrome on mac',
+        remember: false,
+      }),
     ).resolves.toEqual({ mfaChallenge: null });
+    expect(await store.readRefresh()).toMatchObject({ remembered: false });
     expect(body(1)).toEqual({
       grant_type: 'mfa',
       mfa_challenge: 'c1',
@@ -114,6 +125,14 @@ describe('refresh', () => {
     await expect(auth.getAccessToken()).resolves.toBe('access-2');
     expect(body(1)).toMatchObject({ grant_type: 'refresh_token', refresh_token: 'refresh-1' });
     expect((await store.readRefresh())?.token).toBe('refresh-2');
+  });
+
+  it('keeps a sign-in that was not remembered for this browser session only', async () => {
+    const { auth, now, store } = setup(jsonResponse(200, tokens(1)), jsonResponse(200, tokens(2)));
+    await auth.signInWithPassword({ ...credentials, remember: false });
+    now.mockReturnValue(NOW + 900_000);
+    await auth.getAccessToken();
+    expect(await store.readRefresh()).toMatchObject({ token: 'refresh-2', remembered: false });
   });
 
   it('serialises concurrent refreshes into ONE exchange', async () => {

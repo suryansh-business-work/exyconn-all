@@ -27,21 +27,25 @@ export function useAuthActions(logger: Logger, onDone: () => void) {
   }, [logger, onDone]);
 
   const submitPassword = useCallback(
-    ({ email, password }: PasswordValues) =>
-      askWorker<SignInStep>({ type: 'auth/sign-in', email, password }).catch((error: unknown) => {
-        // Never the password: only that the step failed.
-        logger.warn('Sign-in failed', error);
-        throw error;
-      }),
+    ({ email, password, remember }: PasswordValues) =>
+      askWorker<SignInStep>({ type: 'auth/sign-in', email, password, remember }).catch(
+        (error: unknown) => {
+          // Never the password: only that the step failed.
+          logger.warn('Sign-in failed', error);
+          throw error;
+        },
+      ),
     [logger],
   );
 
   const submitCode = useCallback(
-    (challenge: string, code: string) =>
-      askWorker<SignInStep>({ type: 'auth/mfa', challenge, code }).catch((error: unknown) => {
-        logger.warn('Two-factor sign-in failed', error);
-        throw error;
-      }),
+    (challenge: string, code: string, remember: boolean) =>
+      askWorker<SignInStep>({ type: 'auth/mfa', challenge, code, remember }).catch(
+        (error: unknown) => {
+          logger.warn('Two-factor sign-in failed', error);
+          throw error;
+        },
+      ),
     [logger],
   );
 

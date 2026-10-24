@@ -16,6 +16,7 @@ import { PORTAL_MEETINGS_PATH, PORTAL_URL } from '../config';
 import { AccountCard } from '../components/AccountCard';
 import { CaptureControls } from '../components/CaptureControls';
 import { MeetingStatus } from '../components/MeetingStatus';
+import { VersionText } from '../components/VersionText';
 import { useWorkerState } from '../hooks/useWorkerState';
 import type { WorkerState } from '../types/messages';
 import { logTo } from '../services/logger';
@@ -68,9 +69,12 @@ export function PopupApp({ tabId, logger }: Readonly<Props>) {
   return (
     <Box component="main" sx={{ width: POPUP_WIDTH, p: 2 }}>
       <Stack spacing={2}>
-        <Typography variant="h6" component="h1">
-          {t('Exyconn Meeting Assistant')}
-        </Typography>
+        <Stack spacing={0}>
+          <Typography variant="h6" component="h1">
+            {t('Exyconn Meeting Assistant')}
+          </Typography>
+          <VersionText />
+        </Stack>
         {state === null ? (
           <CircularProgress aria-label={t('Loading')} size={24} />
         ) : (

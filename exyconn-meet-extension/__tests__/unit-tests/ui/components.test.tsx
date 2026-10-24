@@ -50,16 +50,18 @@ describe('AccountCard', () => {
       type: 'auth/sign-in',
       email: 'ravi@exyconn.com',
       password: PASSWORD,
+      remember: true,
     });
   });
 
-  it('asks for the two-factor code, then signs in with it', async () => {
+  it('asks for the two-factor code, then signs in with it, keeping "Remember me"', async () => {
     const chrome = workerAnswering({
       'auth/sign-in': { mfaChallenge: 'c1' },
       'auth/mfa': { mfaChallenge: null },
     });
     const onChanged = vi.fn();
     render(<AccountCard auth={SIGNED_OUT.auth} logger={testLogger()} onChanged={onChanged} />);
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Remember me on this computer' }));
     await typeCredentials();
     await userEvent.type(await screen.findByLabelText(/^Code/), '123456');
     await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
@@ -68,7 +70,17 @@ describe('AccountCard', () => {
       type: 'auth/mfa',
       challenge: 'c1',
       code: '123456',
+      remember: false,
     });
+  });
+
+  it('shows and hides the password with the eye', async () => {
+    render(<AccountCard auth={SIGNED_OUT.auth} logger={testLogger()} onChanged={vi.fn()} />);
+    const field = screen.getByLabelText(/^Password/);
+    await userEvent.click(screen.getByRole('button', { name: 'Show password' }));
+    expect(field).toHaveAttribute('type', 'text');
+    await userEvent.click(screen.getByRole('button', { name: 'Hide password' }));
+    expect(field).toHaveAttribute('type', 'password');
   });
 
   it('starts over from the code step with a different account', async () => {

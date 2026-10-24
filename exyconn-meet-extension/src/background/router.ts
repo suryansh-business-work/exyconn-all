@@ -82,9 +82,9 @@ async function handle(
     case 'state/get':
       return stateFor(tabId === null || (await registry.get(tabId)) === null ? null : tabId);
     case 'auth/sign-in':
-      return signIn(request.email, request.password);
+      return signIn(request.email, request.password, request.remember);
     case 'auth/mfa':
-      return completeSecondFactor(request.challenge, request.code);
+      return completeSecondFactor(request.challenge, request.code, request.remember);
     case 'auth/sign-out':
       return signOut();
     case 'log/batch':

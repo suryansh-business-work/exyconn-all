@@ -40,15 +40,36 @@ describe('token store', () => {
     const session = new MemoryArea();
     const local = new MemoryArea();
     const store = createTokenStore(session, local);
-    await store.save({ token: 'a', expiresAt: 1 }, { token: 'r', expiresAt: 2 });
+    await store.save({ token: 'a', expiresAt: 1 }, { token: 'r', expiresAt: 2 }, true);
     expect(session.data.get('auth.access')).toEqual({ token: 'a', expiresAt: 1 });
     expect(local.data.get('auth.refresh')).toEqual({ token: 'r', expiresAt: 2 });
     expect(local.writes[0]).toHaveProperty('auth.refresh');
     await expect(store.readAccess()).resolves.toEqual({ token: 'a', expiresAt: 1 });
-    await expect(store.readRefresh()).resolves.toEqual({ token: 'r', expiresAt: 2 });
+    await expect(store.readRefresh()).resolves.toEqual({
+      token: 'r',
+      expiresAt: 2,
+      remembered: true,
+    });
     await store.clear();
     await expect(store.readAccess()).resolves.toBeNull();
     await expect(store.readRefresh()).resolves.toBeNull();
+  });
+
+  it('keeps a sign-in without "Remember me" in session storage only', async () => {
+    const session = new MemoryArea();
+    const local = new MemoryArea();
+    const store = createTokenStore(session, local);
+    await store.save({ token: 'a', expiresAt: 1 }, { token: 'r1', expiresAt: 2 }, true);
+    await store.save({ token: 'a', expiresAt: 1 }, { token: 'r2', expiresAt: 2 }, false);
+    expect(local.data.has('auth.refresh')).toBe(false);
+    expect(session.data.get('auth.refresh')).toEqual({ token: 'r2', expiresAt: 2 });
+    await expect(store.readRefresh()).resolves.toEqual({
+      token: 'r2',
+      expiresAt: 2,
+      remembered: false,
+    });
+    await store.clear();
+    expect(session.data.has('auth.refresh')).toBe(false);
   });
 
   it('treats a malformed stored token as signed out', async () => {
