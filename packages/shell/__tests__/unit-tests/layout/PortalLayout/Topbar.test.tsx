@@ -150,6 +150,25 @@ describe('the topbar', () => {
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
   });
 
+  it('opens the CRM integrations from any portal for somebody with CRM access', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...globalThis.location, assign });
+    showTopbar();
+    const user = await openAccountMenu();
+
+    await user.click(screen.getByRole('menuitem', { name: 'Integrations' }));
+
+    expect(assign).toHaveBeenCalledWith(expect.stringMatching(/\/integrations$/));
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+  });
+
+  it('offers no integrations to somebody without CRM access', async () => {
+    showTopbar(makeUser({ roles: [ROLES.EMPLOYEE] }));
+    await openAccountMenu();
+
+    expect(screen.queryByRole('menuitem', { name: 'Integrations' })).not.toBeInTheDocument();
+  });
+
   it('goes to the settings', async () => {
     showTopbar();
     const user = await openAccountMenu();

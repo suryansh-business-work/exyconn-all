@@ -608,14 +608,6 @@ export const MODULES: ModuleDefinition[] = [
         icon: TuneIcon,
         group: 'Configuration',
       },
-      {
-        // The company's calling and SMS accounts, and the mailboxes the CRM emails from.
-        key: 'crm-integrations',
-        label: 'Integrations',
-        path: '/integrations',
-        icon: PhoneInTalkIcon,
-        group: 'Configuration',
-      },
     ],
   },
   {
