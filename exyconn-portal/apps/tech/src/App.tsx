@@ -10,7 +10,6 @@ import {
   SOCIAL_APPS_PATH,
 } from './pages/environment-variables';
 import { EmailPage } from './pages/email';
-import { TrackerBuildPage } from './pages/tracker-build';
 import { SettingsPage } from './pages/settings';
 import { ProblemReportsPage } from './pages/problem-reports';
 import { StatusMonitorsPage } from './pages/status-monitors';
@@ -44,7 +43,6 @@ export function App() {
         element={<Navigate to={EMAIL_ACCOUNTS_PATH} replace />}
       />
       <Route path="/tech/email/:tab?" element={<EmailPage />} />
-      <Route path="/tech/tracker-build" element={<TrackerBuildPage />} />
       <Route path="/tech/problem-reports" element={<ProblemReportsPage />} />
       <Route path="/tech/status-monitors" element={<StatusMonitorsPage />} />
       <Route path="/tech/infrastructure/:tab?" element={<InfrastructurePage />} />

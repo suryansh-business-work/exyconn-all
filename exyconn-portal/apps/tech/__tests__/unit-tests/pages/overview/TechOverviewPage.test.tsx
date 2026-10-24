@@ -59,7 +59,6 @@ describe('TechOverviewPage', () => {
       '/tech/email',
       '/tech/status-monitors',
       '/tech/problem-reports',
-      '/tech/tracker-build',
     ]);
   });
 

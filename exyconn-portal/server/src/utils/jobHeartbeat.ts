@@ -13,6 +13,7 @@ export const JOB_KEYS = {
   statusMonitor: 'statusMonitor',
   payrollDispatch: 'payrollDispatch',
   trackerRetention: 'trackerRetention',
+  trackerBuildRetention: 'trackerBuildRetention',
   trackerDigest: 'trackerDigest',
   trackerEmployeeReports: 'trackerEmployeeReports',
   recurringInvoices: 'recurringInvoices',

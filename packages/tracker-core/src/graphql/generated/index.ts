@@ -4484,6 +4484,14 @@ export type TrackerSettingsInput = {
   weeklyDigestEnabled: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** Which part of the tracker version a build raises before it is built. */
+export type TrackerVersionBump =
+  | 'MAJOR'
+  | 'MINOR'
+  /** Build the version already committed. */
+  | 'NONE'
+  | 'PATCH';
+
 export type TrackerWindowUsageInput = {
   appName: Scalars['String']['input'];
   durationMs: Scalars['Float']['input'];

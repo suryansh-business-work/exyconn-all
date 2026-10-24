@@ -189,11 +189,44 @@ query TrackerBuildSettings {
   trackerBuildSettings {
     slackChannels
     statusAlertChannels
+    keepLatestBuilds
   }
 }
 
-mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!) {
-  startTrackerBuild(platforms: $platforms, ref: $ref)
+query TrackerBuildReleases {
+  trackerBuildReleases {
+    id
+    version
+    tag
+    name
+    url
+    publishedAt
+    assets {
+      name
+      platform
+      sizeBytes
+      downloadCount
+      url
+    }
+  }
+}
+
+mutation StartTrackerBuild(
+  $platforms: [TrackerPlatform!]!
+  $ref: String!
+  $bump: TrackerVersionBump
+) {
+  startTrackerBuild(platforms: $platforms, ref: $ref, bump: $bump)
+}
+
+mutation DeleteTrackerBuildRelease($id: ID!) {
+  deleteTrackerBuildRelease(id: $id)
+}
+
+mutation SaveTrackerBuildRetention($keepLatestBuilds: Int!) {
+  saveTrackerBuildRetention(keepLatestBuilds: $keepLatestBuilds) {
+    keepLatestBuilds
+  }
 }
 
 mutation SaveTrackerBuildSettings($slackChannels: [String!]!, $statusAlertChannels: [String!]) {

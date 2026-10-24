@@ -3,23 +3,32 @@ import { zodResolver } from '@exyconn/shell/components/form/zodResolver';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
-import { RhfMultiSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfMultiSelect, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { TrackerPlatform, useStartTrackerBuildMutation } from '@exyconn/shell/graphql/generated';
+import {
+  TrackerPlatform,
+  TrackerVersionBump,
+  useStartTrackerBuildMutation,
+} from '@exyconn/shell/graphql/generated';
 import {
   BUILD_PLATFORMS,
   DEFAULT_BUILD_REF,
   MOBILE_BUILD_HINT,
-} from '../../trackerBuild.constants';
+  VERSION_BUMPS,
+  VERSION_BUMP_HINT,
+} from '../../builds.constants';
 
 const PLATFORM_OPTIONS = BUILD_PLATFORMS.map((p) => ({
   value: p.value as string,
   label: `${p.label} — ${p.artifact}`,
 }));
 
+const BUMP_OPTIONS = VERSION_BUMPS.map((b) => ({ value: b.value as string, label: b.label }));
+
 const schema = z.object({
   platforms: z.array(z.enum(TrackerPlatform)).min(1, 'Choose at least one installer to build'),
+  bump: z.enum(TrackerVersionBump, { message: 'Choose how to raise the version' }),
   ref: z.string().trim().min(1, 'Branch is required'),
 });
 type Values = z.infer<typeof schema>;
@@ -38,7 +47,7 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
-    defaultValues: { platforms: [], ref: DEFAULT_BUILD_REF },
+    defaultValues: { platforms: [], bump: TrackerVersionBump.Patch, ref: DEFAULT_BUILD_REF },
   });
 
   const intro =
@@ -52,9 +61,9 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
           { count: channelCount },
         );
 
-  const onSubmit = async ({ platforms, ref }: Values) => {
+  const onSubmit = async ({ platforms, bump, ref }: Values) => {
     try {
-      await startBuild({ variables: { platforms, ref } });
+      await startBuild({ variables: { platforms, bump, ref } });
       const started =
         platforms.length === 1
           ? 'Build started for {count} installer on {ref}'
@@ -82,6 +91,12 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
         label="Installers to build"
         options={PLATFORM_OPTIONS}
         helperText={MOBILE_BUILD_HINT}
+      />
+      <RhfSelect
+        name="bump"
+        label="Version"
+        options={BUMP_OPTIONS}
+        helperText={VERSION_BUMP_HINT}
       />
       <RhfTextField name="ref" label="Branch" helperText="The branch the build runs off" />
     </EntityForm>

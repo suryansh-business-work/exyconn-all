@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { TrackerPlatform } from '@exyconn/shell/graphql/generated';
-import { buildOutcome } from '../../../../src/pages/tracker-build/trackerBuild.status';
+import { TrackerPlatform, TrackerVersionBump } from '@exyconn/shell/graphql/generated';
+import { buildOutcome } from '../../../../src/pages/builds/buildRun.status';
 import {
   BUILD_PLATFORMS,
   DEFAULT_BUILD_REF,
+  MAX_KEEP_LATEST_BUILDS,
   MOBILE_BUILD_HINT,
-} from '../../../../src/pages/tracker-build/trackerBuild.constants';
+  VERSION_BUMPS,
+} from '../../../../src/pages/builds/builds.constants';
 
 const run = (status: string, conclusion?: string | null) => ({
   id: 'r1',
@@ -46,6 +48,21 @@ describe('tracker build constants', () => {
       label: 'Windows',
       artifact: 'Installer (.exe)',
     });
+  });
+
+  it('offers every version bump the server takes, patch first', () => {
+    const values = VERSION_BUMPS.map((bump) => bump.value);
+    expect(values).toEqual([
+      TrackerVersionBump.Patch,
+      TrackerVersionBump.Minor,
+      TrackerVersionBump.Major,
+      TrackerVersionBump.None,
+    ]);
+    expect(new Set(values).size).toBe(Object.values(TrackerVersionBump).length);
+  });
+
+  it('keeps at most as many builds as the server allows', () => {
+    expect(MAX_KEEP_LATEST_BUILDS).toBe(500);
   });
 
   it('builds off main and explains the phone builds', () => {

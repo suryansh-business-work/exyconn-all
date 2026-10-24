@@ -1,4 +1,4 @@
-import { TrackerPlatform } from '@exyconn/shell/graphql/generated';
+import { TrackerPlatform, TrackerVersionBump } from '@exyconn/shell/graphql/generated';
 
 /** The installers a build can produce, in the order the form offers them. */
 export const BUILD_PLATFORMS: ReadonlyArray<{
@@ -24,3 +24,19 @@ export const MOBILE_BUILD_HINT =
 
 /** Branch a build runs off by default. Builds are published from the default branch. */
 export const DEFAULT_BUILD_REF = 'main';
+
+/** How a build can raise the tracker version first, in the order the form offers them. */
+export const VERSION_BUMPS: ReadonlyArray<{ value: TrackerVersionBump; label: string }> = [
+  { value: TrackerVersionBump.Patch, label: 'Patch — fixes (1.4.2 → 1.4.3)' },
+  { value: TrackerVersionBump.Minor, label: 'Minor — new features (1.4.2 → 1.5.0)' },
+  { value: TrackerVersionBump.Major, label: 'Major — breaking changes (1.4.2 → 2.0.0)' },
+  { value: TrackerVersionBump.None, label: 'Keep the current version (rebuild it)' },
+];
+
+/** Why the bump matters, under the field. */
+export const VERSION_BUMP_HINT =
+  'The new version is committed to the branch before building. Installed trackers only ' +
+  'update to a higher version, so keep the current one only to rebuild a failed platform.';
+
+/** The most builds retention can keep — the server's own limit (MAX_KEEP_LATEST_BUILDS). */
+export const MAX_KEEP_LATEST_BUILDS = 500;

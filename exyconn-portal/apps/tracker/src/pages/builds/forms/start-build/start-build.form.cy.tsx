@@ -37,6 +37,15 @@ describe('StartBuildForm', () => {
     cy.get('input[name="ref"]').should('not.have.value', '');
   });
 
+  it('raises the patch version unless told otherwise, and offers every bump', () => {
+    mount();
+    cy.get('input[name="bump"]').should('have.value', 'PATCH');
+    cy.get('input[name="bump"]').parent().find('[role="combobox"]').click();
+    cy.get('li[role="option"]').contains('Major').should('be.visible');
+    cy.get('li[role="option"]').contains('Keep the current version').click();
+    cy.get('input[name="bump"]').should('have.value', 'NONE');
+  });
+
   it('requires a branch to build from', () => {
     mount();
     cy.get('input[name="ref"]').clear();

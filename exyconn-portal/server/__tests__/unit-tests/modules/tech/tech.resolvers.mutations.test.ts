@@ -66,7 +66,13 @@ const rows: Row[] = [
   ...configRows('GithubConfig', 'testGithubConnection', {}, 'platform'),
   ...configRows('PexelsConfig', 'testPexelsConnection', {}, 'platform'),
   ...configRows('OpenAiConfig', 'testOpenAiConnection', {}, 'platform'),
-  ['startTrackerBuild', 'platform', 'CREATE', { platforms: ['WINDOWS'], ref: 'main' }, false],
+  [
+    'startTrackerBuild',
+    'platform',
+    'CREATE',
+    { platforms: ['WINDOWS'], ref: 'main', bump: 'MINOR' },
+    false,
+  ],
   [
     'saveTrackerBuildSettings',
     'platform',
@@ -96,7 +102,13 @@ describe('the Tech mutations', () => {
   );
 
   it('every mutation in the module is covered above', () => {
-    const tested = new Set([...rows.map(([name]) => name), 'runBackgroundJob']);
+    // The tracker build releases have their own suite (tech.resolvers.trackerBuilds).
+    const tested = new Set([
+      ...rows.map(([name]) => name),
+      'runBackgroundJob',
+      'deleteTrackerBuildRelease',
+      'saveTrackerBuildRetention',
+    ]);
 
     expect(Object.keys(Mutation).filter((name) => !tested.has(name))).toEqual([]);
   });

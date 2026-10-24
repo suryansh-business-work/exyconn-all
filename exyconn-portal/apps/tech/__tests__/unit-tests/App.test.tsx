@@ -13,7 +13,6 @@ import {
   SOCIAL_APPS_PATH,
 } from '../../src/pages/environment-variables';
 import { EmailPage } from '../../src/pages/email';
-import { TrackerBuildPage } from '../../src/pages/tracker-build';
 import { SettingsPage } from '../../src/pages/settings';
 import { ProblemReportsPage } from '../../src/pages/problem-reports';
 import { StatusMonitorsPage } from '../../src/pages/status-monitors';
@@ -70,7 +69,6 @@ describe('App', () => {
       ['/tech/environment-variables/:tab?', EnvironmentVariablesPage],
       ['/tech/social-apps', SocialAppsPage],
       ['/tech/email/:tab?', EmailPage],
-      ['/tech/tracker-build', TrackerBuildPage],
       ['/tech/problem-reports', ProblemReportsPage],
       ['/tech/status-monitors', StatusMonitorsPage],
       ['/tech/infrastructure/:tab?', InfrastructurePage],

@@ -37,6 +37,8 @@ export interface DataTableViewProps<T extends { id: string }> {
   onRefresh?: () => Promise<unknown>;
   /** Row selection and "Delete selected", when the table offers them. */
   bulk?: DataTableBulk;
+  /** More buttons for the ticked rows, drawn beside "Delete selected" while any are ticked. */
+  selectionActions?: (selectedIds: readonly string[]) => ReactNode;
 }
 
 const HEAD_SX = { fontWeight: fontWeight.bold, color: 'text.secondary', borderColor: 'divider' };
@@ -54,10 +56,18 @@ export function DataTableView<T extends { id: string }>({
   loading = false,
   onRefresh,
   bulk,
+  selectionActions,
 }: Readonly<DataTableViewProps<T>>) {
   const t = useT();
   const hasActions = Boolean(onEdit || onDelete || actions?.length);
-  const toolbar = <DataTableToolbar loading={loading} onRefresh={onRefresh} bulk={bulk} />;
+  const toolbar = (
+    <DataTableToolbar
+      loading={loading}
+      onRefresh={onRefresh}
+      bulk={bulk}
+      selectionActions={selectionActions}
+    />
+  );
 
   if (!loading && rows.length === 0) {
     return (

@@ -145,6 +145,30 @@ export const techTypeDefs = gql`
     slackChannels: [String!]!
     "Where a status incident opening or resolving is announced."
     statusAlertChannels: [String!]!
+    "How many of the newest builds the hourly retention pass keeps; 0 keeps every build."
+    keepLatestBuilds: Int!
+  }
+
+  "One published tracker build: a tracker-v release and the installers on it."
+  type TrackerBuildRelease {
+    "GitHub's release id."
+    id: ID!
+    version: String!
+    tag: String!
+    name: String!
+    notes: String!
+    url: String!
+    publishedAt: DateTime!
+    assets: [TrackerReleaseAsset!]!
+  }
+
+  "Which part of the tracker version a build raises before it is built."
+  enum TrackerVersionBump {
+    "Build the version already committed."
+    NONE
+    PATCH
+    MINOR
+    MAJOR
   }
 
   "The installers a build can produce."
@@ -273,6 +297,8 @@ export const techTypeDefs = gql`
     listSlackChannels: [SlackChannel!]!
     listTrackerBuilds: [TrackerBuild!]!
     trackerBuildSettings: TrackerBuildSettings!
+    "Every published tracker build, newest first."
+    trackerBuildReleases: [TrackerBuildRelease!]!
   }
 
   extend type Mutation {
@@ -313,8 +339,19 @@ export const techTypeDefs = gql`
     updateOpenAiConfig(id: ID!, input: OpenAiConfigInput!): OpenAiConfig!
     deleteOpenAiConfig(id: ID!): Boolean!
     testOpenAiConnection(id: ID!): Boolean!
-    "Asks GitHub to build the chosen installers off the given branch."
-    startTrackerBuild(platforms: [TrackerPlatform!]!, ref: String!): Boolean!
+    """
+    Asks GitHub to build the chosen installers off the given branch, first raising the tracker
+    version by the given bump and committing it there.
+    """
+    startTrackerBuild(
+      platforms: [TrackerPlatform!]!
+      ref: String!
+      bump: TrackerVersionBump
+    ): Boolean!
+    "Deletes one published tracker build: its GitHub release and its tag."
+    deleteTrackerBuildRelease(id: ID!): Boolean!
+    "Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build)."
+    saveTrackerBuildRetention(keepLatestBuilds: Int!): TrackerBuildSettings!
     saveTrackerBuildSettings(
       slackChannels: [String!]!
       statusAlertChannels: [String!]

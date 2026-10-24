@@ -123,7 +123,6 @@ export function TechOverviewPage() {
         { label: 'Email', to: '/tech/email' },
         { label: 'Status monitors', to: '/tech/status-monitors' },
         { label: 'Problem reports', to: '/tech/problem-reports' },
-        { label: 'Tracker build', to: '/tech/tracker-build' },
       ]}
       recentTitle={unhealthy.length > 0 ? 'Not answering normally' : 'Monitored services'}
     >

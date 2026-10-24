@@ -3,6 +3,8 @@ import { assertAuthenticated } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
 import { assertPlatformStaff } from '../../lib/platformAccess';
 import { techSecretResolvers } from './tech.secrets';
+import { trackerReleasesService, type TrackerVersionBump } from './tracker-releases.service';
+import { recordAudit } from '../audit';
 import { describeBackgroundJobs, findBackgroundJob } from './jobs.registry';
 import { forEachOrganization } from '../organizations';
 import { ROLES } from '../../constants/roles';
@@ -116,6 +118,10 @@ export const techResolvers = {
     trackerBuildSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await platformGuard(ctx, 'VIEW');
       return techService.trackerBuildSettings();
+    },
+    trackerBuildReleases: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await platformGuard(ctx, 'VIEW');
+      return trackerReleasesService.list();
     },
   },
   Mutation: {
@@ -317,11 +323,35 @@ export const techResolvers = {
     },
     startTrackerBuild: async (
       _p: unknown,
-      { platforms, ref }: { platforms: TrackerPlatform[]; ref: string },
+      {
+        platforms,
+        ref,
+        bump,
+      }: { platforms: TrackerPlatform[]; ref: string; bump?: TrackerVersionBump | null },
       ctx: GraphQLContext,
     ) => {
       await platformGuard(ctx, 'CREATE');
-      return techService.startTrackerBuild(platforms, ref);
+      return techService.startTrackerBuild(platforms, ref, bump ?? 'NONE');
+    },
+    deleteTrackerBuildRelease: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      await platformGuard(ctx, 'DELETE');
+      const release = await trackerReleasesService.delete(id);
+      await recordAudit(ctx, {
+        action: 'DELETE',
+        module: TECH_MODULE,
+        entityId: id,
+        entityLabel: release.tag,
+        summary: `Deleted tracker build ${release.version}`,
+      });
+      return true;
+    },
+    saveTrackerBuildRetention: async (
+      _p: unknown,
+      { keepLatestBuilds }: { keepLatestBuilds: number },
+      ctx: GraphQLContext,
+    ) => {
+      await platformGuard(ctx, 'EDIT');
+      return trackerReleasesService.saveRetention(keepLatestBuilds);
     },
     saveTrackerBuildSettings: async (
       _p: unknown,

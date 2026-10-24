@@ -9062,6 +9062,8 @@ export type Mutation = {
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
+  /** Deletes one published tracker build: its GitHub release and its tag. */
+  deleteTrackerBuildRelease: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
   deleteWebScrape: Scalars['Boolean']['output'];
@@ -9333,6 +9335,8 @@ export type Mutation = {
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
+  /** Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build). */
+  saveTrackerBuildRetention: TrackerBuildSettings;
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
@@ -9498,7 +9502,10 @@ export type Mutation = {
   startSprint: Sprint;
   /** Queues a delete, archive or restore of up to 50,000 rows; the job reports its progress. */
   startTableBulkJob: TableBulkJob;
-  /** Asks GitHub to build the chosen installers off the given branch. */
+  /**
+   * Asks GitHub to build the chosen installers off the given branch, first raising the tracker
+   * version by the given bump and committing it there.
+   */
   startTrackerBuild: Scalars['Boolean']['output'];
   /**
    * The manager's half, by the employee's manager or HR. Allowed only once the employee
@@ -11471,6 +11478,11 @@ export type MutationDeleteToolCategoryArgs = {
 };
 
 
+export type MutationDeleteTrackerBuildReleaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTrainingArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12203,6 +12215,11 @@ export type MutationSaveSocialAppConfigArgs = {
 };
 
 
+export type MutationSaveTrackerBuildRetentionArgs = {
+  keepLatestBuilds: Scalars['Int']['input'];
+};
+
+
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -12624,6 +12641,7 @@ export type MutationStartTableBulkJobArgs = {
 
 
 export type MutationStartTrackerBuildArgs = {
+  bump?: InputMaybe<TrackerVersionBump>;
   platforms: Array<TrackerPlatform>;
   ref: Scalars['String']['input'];
 };
@@ -16530,6 +16548,8 @@ export type Query = {
    * budget. TRACKER, FINANCE or PROJECTS. Pass projectId to read one project.
    */
   trackerBillingByProject: Array<ProjectBillingRow>;
+  /** Every published tracker build, newest first. */
+  trackerBuildReleases: Array<TrackerBuildRelease>;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
@@ -21150,8 +21170,24 @@ export type TrackerBuild = {
   url: Scalars['String']['output'];
 };
 
+/** One published tracker build: a tracker-v release and the installers on it. */
+export type TrackerBuildRelease = {
+  __typename?: 'TrackerBuildRelease';
+  assets: Array<TrackerReleaseAsset>;
+  /** GitHub's release id. */
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  tag: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  version: Scalars['String']['output'];
+};
+
 export type TrackerBuildSettings = {
   __typename?: 'TrackerBuildSettings';
+  /** How many of the newest builds the hourly retention pass keeps; 0 keeps every build. */
+  keepLatestBuilds: Scalars['Int']['output'];
   slackChannels: Array<Scalars['String']['output']>;
   /** Where a status incident opening or resolving is announced. */
   statusAlertChannels: Array<Scalars['String']['output']>;
@@ -21724,6 +21760,15 @@ export type TrackerTotals = {
   screenshots: Scalars['Int']['output'];
   sessions: Scalars['Int']['output'];
 };
+
+/** Which part of the tracker version a build raises before it is built. */
+export enum TrackerVersionBump {
+  Major = 'MAJOR',
+  Minor = 'MINOR',
+  /** Build the version already committed. */
+  None = 'NONE',
+  Patch = 'PATCH'
+}
 
 export type TrackerWindowUsageInput = {
   appName: Scalars['String']['input'];
@@ -31227,15 +31272,35 @@ export type ListTrackerBuildsQuery = { __typename?: 'Query', listTrackerBuilds: 
 export type TrackerBuildSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerBuildSettingsQuery = { __typename?: 'Query', trackerBuildSettings: { __typename?: 'TrackerBuildSettings', slackChannels: Array<string>, statusAlertChannels: Array<string> } };
+export type TrackerBuildSettingsQuery = { __typename?: 'Query', trackerBuildSettings: { __typename?: 'TrackerBuildSettings', slackChannels: Array<string>, statusAlertChannels: Array<string>, keepLatestBuilds: number } };
+
+export type TrackerBuildReleasesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerBuildReleasesQuery = { __typename?: 'Query', trackerBuildReleases: Array<{ __typename?: 'TrackerBuildRelease', id: string, version: string, tag: string, name: string, url: string, publishedAt: string, assets: Array<{ __typename?: 'TrackerReleaseAsset', name: string, platform: string, sizeBytes: number, downloadCount: number, url: string }> }> };
 
 export type StartTrackerBuildMutationVariables = Exact<{
   platforms: Array<TrackerPlatform> | TrackerPlatform;
   ref: Scalars['String']['input'];
+  bump?: InputMaybe<TrackerVersionBump>;
 }>;
 
 
 export type StartTrackerBuildMutation = { __typename?: 'Mutation', startTrackerBuild: boolean };
+
+export type DeleteTrackerBuildReleaseMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTrackerBuildReleaseMutation = { __typename?: 'Mutation', deleteTrackerBuildRelease: boolean };
+
+export type SaveTrackerBuildRetentionMutationVariables = Exact<{
+  keepLatestBuilds: Scalars['Int']['input'];
+}>;
+
+
+export type SaveTrackerBuildRetentionMutation = { __typename?: 'Mutation', saveTrackerBuildRetention: { __typename?: 'TrackerBuildSettings', keepLatestBuilds: number } };
 
 export type SaveTrackerBuildSettingsMutationVariables = Exact<{
   slackChannels: Array<Scalars['String']['input']> | Scalars['String']['input'];
@@ -81536,6 +81601,7 @@ export const TrackerBuildSettingsDocument = gql`
   trackerBuildSettings {
     slackChannels
     statusAlertChannels
+    keepLatestBuilds
   }
 }
     `;
@@ -81575,9 +81641,64 @@ export function useTrackerBuildSettingsSuspenseQuery(baseOptions?: ApolloReactHo
 export type TrackerBuildSettingsQueryHookResult = ReturnType<typeof useTrackerBuildSettingsQuery>;
 export type TrackerBuildSettingsLazyQueryHookResult = ReturnType<typeof useTrackerBuildSettingsLazyQuery>;
 export type TrackerBuildSettingsSuspenseQueryHookResult = ReturnType<typeof useTrackerBuildSettingsSuspenseQuery>;
+export const TrackerBuildReleasesDocument = gql`
+    query TrackerBuildReleases {
+  trackerBuildReleases {
+    id
+    version
+    tag
+    name
+    url
+    publishedAt
+    assets {
+      name
+      platform
+      sizeBytes
+      downloadCount
+      url
+    }
+  }
+}
+    `;
+
+/**
+ * __useTrackerBuildReleasesQuery__
+ *
+ * To run a query within a React component, call `useTrackerBuildReleasesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerBuildReleasesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerBuildReleasesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTrackerBuildReleasesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>(TrackerBuildReleasesDocument, options);
+      }
+export function useTrackerBuildReleasesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>(TrackerBuildReleasesDocument, options);
+        }
+// @ts-ignore
+export function useTrackerBuildReleasesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>;
+// @ts-ignore
+export function useTrackerBuildReleasesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TrackerBuildReleasesQuery | undefined, TrackerBuildReleasesQueryVariables>;
+export function useTrackerBuildReleasesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TrackerBuildReleasesQuery, TrackerBuildReleasesQueryVariables>(TrackerBuildReleasesDocument, options);
+        }
+export type TrackerBuildReleasesQueryHookResult = ReturnType<typeof useTrackerBuildReleasesQuery>;
+export type TrackerBuildReleasesLazyQueryHookResult = ReturnType<typeof useTrackerBuildReleasesLazyQuery>;
+export type TrackerBuildReleasesSuspenseQueryHookResult = ReturnType<typeof useTrackerBuildReleasesSuspenseQuery>;
 export const StartTrackerBuildDocument = gql`
-    mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!) {
-  startTrackerBuild(platforms: $platforms, ref: $ref)
+    mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!, $bump: TrackerVersionBump) {
+  startTrackerBuild(platforms: $platforms, ref: $ref, bump: $bump)
 }
     `;
 
@@ -81596,6 +81717,7 @@ export const StartTrackerBuildDocument = gql`
  *   variables: {
  *      platforms: // value for 'platforms'
  *      ref: // value for 'ref'
+ *      bump: // value for 'bump'
  *   },
  * });
  */
@@ -81604,6 +81726,64 @@ export function useStartTrackerBuildMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<StartTrackerBuildMutation, StartTrackerBuildMutationVariables>(StartTrackerBuildDocument, options);
       }
 export type StartTrackerBuildMutationHookResult = ReturnType<typeof useStartTrackerBuildMutation>;
+export const DeleteTrackerBuildReleaseDocument = gql`
+    mutation DeleteTrackerBuildRelease($id: ID!) {
+  deleteTrackerBuildRelease(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteTrackerBuildReleaseMutation__
+ *
+ * To run a mutation, you first call `useDeleteTrackerBuildReleaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTrackerBuildReleaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTrackerBuildReleaseMutation, { data, loading, error }] = useDeleteTrackerBuildReleaseMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTrackerBuildReleaseMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteTrackerBuildReleaseMutation, DeleteTrackerBuildReleaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteTrackerBuildReleaseMutation, DeleteTrackerBuildReleaseMutationVariables>(DeleteTrackerBuildReleaseDocument, options);
+      }
+export type DeleteTrackerBuildReleaseMutationHookResult = ReturnType<typeof useDeleteTrackerBuildReleaseMutation>;
+export const SaveTrackerBuildRetentionDocument = gql`
+    mutation SaveTrackerBuildRetention($keepLatestBuilds: Int!) {
+  saveTrackerBuildRetention(keepLatestBuilds: $keepLatestBuilds) {
+    keepLatestBuilds
+  }
+}
+    `;
+
+/**
+ * __useSaveTrackerBuildRetentionMutation__
+ *
+ * To run a mutation, you first call `useSaveTrackerBuildRetentionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveTrackerBuildRetentionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveTrackerBuildRetentionMutation, { data, loading, error }] = useSaveTrackerBuildRetentionMutation({
+ *   variables: {
+ *      keepLatestBuilds: // value for 'keepLatestBuilds'
+ *   },
+ * });
+ */
+export function useSaveTrackerBuildRetentionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveTrackerBuildRetentionMutation, SaveTrackerBuildRetentionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveTrackerBuildRetentionMutation, SaveTrackerBuildRetentionMutationVariables>(SaveTrackerBuildRetentionDocument, options);
+      }
+export type SaveTrackerBuildRetentionMutationHookResult = ReturnType<typeof useSaveTrackerBuildRetentionMutation>;
 export const SaveTrackerBuildSettingsDocument = gql`
     mutation SaveTrackerBuildSettings($slackChannels: [String!]!, $statusAlertChannels: [String!]) {
   saveTrackerBuildSettings(

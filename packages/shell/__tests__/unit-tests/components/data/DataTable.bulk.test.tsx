@@ -1,3 +1,4 @@
+import type React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { InMemoryCache } from '@apollo/client';
@@ -49,7 +50,11 @@ function job(status: TableBulkJobStatus, failures: Array<{ id: string; message: 
 
 function renderBulkTable(
   mocks: ReadonlyArray<MockLink.MockedResponse> = [],
-  extra: { loading?: boolean; tableRows?: Holiday[] } = {},
+  extra: {
+    loading?: boolean;
+    tableRows?: Holiday[];
+    selectionActions?: (ids: readonly string[]) => React.ReactNode;
+  } = {},
 ) {
   const cache = new InMemoryCache();
   const evict = vi.spyOn(cache, 'evict');
@@ -67,6 +72,7 @@ function renderBulkTable(
               onDelete={vi.fn()}
               onRowClick={onRowClick}
               bulkEntity="Holiday"
+              selectionActions={extra.selectionActions}
             />
           </ConfirmProvider>
         </NotificationProvider>
@@ -115,6 +121,21 @@ describe('DataTable bulk delete', () => {
     fireEvent.click(selectAll());
     fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
     expect(screen.queryByRole('button', { name: 'Delete selected' })).not.toBeInTheDocument();
+  });
+
+  it("draws the page's own buttons for the ticked rows, only while any are ticked", () => {
+    const picked = vi.fn();
+    renderBulkTable([], {
+      selectionActions: (ids) => (
+        <button type="button" onClick={() => picked(ids)}>
+          Export selected
+        </button>
+      ),
+    });
+    expect(screen.queryByRole('button', { name: 'Export selected' })).not.toBeInTheDocument();
+    fireEvent.click(rowBoxes()[1]);
+    fireEvent.click(screen.getByRole('button', { name: 'Export selected' }));
+    expect(picked).toHaveBeenCalledWith(['h2']);
   });
 
   it('deletes the selection as one job, then drops the rows that went from the cache', async () => {

@@ -1275,6 +1275,16 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Administration',
       },
       {
+        key: 'tracker-builds',
+        label: 'Builds',
+        path: '/tracker/builds',
+        icon: BuildIcon,
+        group: 'Administration',
+        // The builds are the platform's (one repository for every company): the server lets
+        // only platform staff holding TECH read or change them, so only they see the page.
+        role: ROLES.TECH,
+      },
+      {
         key: 'tracker-download',
         label: 'Download',
         path: '/tracker/download',
@@ -1402,13 +1412,6 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tech/logs',
         icon: BugReportIcon,
         group: 'Operations',
-      },
-      {
-        key: 'tech-tracker-build',
-        label: 'Tracker Build',
-        path: '/tech/tracker-build',
-        icon: BuildIcon,
-        group: 'Releases',
       },
       {
         key: 'tech-security-ssl',

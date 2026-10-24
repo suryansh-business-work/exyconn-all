@@ -9061,6 +9061,8 @@ export type Mutation = {
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
+  /** Deletes one published tracker build: its GitHub release and its tag. */
+  deleteTrackerBuildRelease: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
   deleteWebScrape: Scalars['Boolean']['output'];
@@ -9332,6 +9334,8 @@ export type Mutation = {
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
+  /** Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build). */
+  saveTrackerBuildRetention: TrackerBuildSettings;
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
@@ -9497,7 +9501,10 @@ export type Mutation = {
   startSprint: Sprint;
   /** Queues a delete, archive or restore of up to 50,000 rows; the job reports its progress. */
   startTableBulkJob: TableBulkJob;
-  /** Asks GitHub to build the chosen installers off the given branch. */
+  /**
+   * Asks GitHub to build the chosen installers off the given branch, first raising the tracker
+   * version by the given bump and committing it there.
+   */
   startTrackerBuild: Scalars['Boolean']['output'];
   /**
    * The manager's half, by the employee's manager or HR. Allowed only once the employee
@@ -11470,6 +11477,11 @@ export type MutationDeleteToolCategoryArgs = {
 };
 
 
+export type MutationDeleteTrackerBuildReleaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTrainingArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12202,6 +12214,11 @@ export type MutationSaveSocialAppConfigArgs = {
 };
 
 
+export type MutationSaveTrackerBuildRetentionArgs = {
+  keepLatestBuilds: Scalars['Int']['input'];
+};
+
+
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -12623,6 +12640,7 @@ export type MutationStartTableBulkJobArgs = {
 
 
 export type MutationStartTrackerBuildArgs = {
+  bump?: InputMaybe<TrackerVersionBump>;
   platforms: Array<TrackerPlatform>;
   ref: Scalars['String']['input'];
 };
@@ -16529,6 +16547,8 @@ export type Query = {
    * budget. TRACKER, FINANCE or PROJECTS. Pass projectId to read one project.
    */
   trackerBillingByProject: Array<ProjectBillingRow>;
+  /** Every published tracker build, newest first. */
+  trackerBuildReleases: Array<TrackerBuildRelease>;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
@@ -21149,8 +21169,24 @@ export type TrackerBuild = {
   url: Scalars['String']['output'];
 };
 
+/** One published tracker build: a tracker-v release and the installers on it. */
+export type TrackerBuildRelease = {
+  __typename?: 'TrackerBuildRelease';
+  assets: Array<TrackerReleaseAsset>;
+  /** GitHub's release id. */
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  tag: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  version: Scalars['String']['output'];
+};
+
 export type TrackerBuildSettings = {
   __typename?: 'TrackerBuildSettings';
+  /** How many of the newest builds the hourly retention pass keeps; 0 keeps every build. */
+  keepLatestBuilds: Scalars['Int']['output'];
   slackChannels: Array<Scalars['String']['output']>;
   /** Where a status incident opening or resolving is announced. */
   statusAlertChannels: Array<Scalars['String']['output']>;
@@ -21723,6 +21759,15 @@ export type TrackerTotals = {
   screenshots: Scalars['Int']['output'];
   sessions: Scalars['Int']['output'];
 };
+
+/** Which part of the tracker version a build raises before it is built. */
+export enum TrackerVersionBump {
+  Major = 'MAJOR',
+  Minor = 'MINOR',
+  /** Build the version already committed. */
+  None = 'NONE',
+  Patch = 'PATCH'
+}
 
 export type TrackerWindowUsageInput = {
   appName: Scalars['String']['input'];
@@ -24115,6 +24160,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerBilling: ResolverTypeWrapper<TrackerBilling>;
   TrackerBillingRow: ResolverTypeWrapper<TrackerBillingRow>;
   TrackerBuild: ResolverTypeWrapper<TrackerBuild>;
+  TrackerBuildRelease: ResolverTypeWrapper<TrackerBuildRelease>;
   TrackerBuildSettings: ResolverTypeWrapper<TrackerBuildSettings>;
   TrackerConsentPolicy: ResolverTypeWrapper<TrackerConsentPolicy>;
   TrackerDay: ResolverTypeWrapper<TrackerDay>;
@@ -24154,6 +24200,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerSettingsInput: TrackerSettingsInput;
   TrackerTask: ResolverTypeWrapper<TrackerTask>;
   TrackerTotals: ResolverTypeWrapper<TrackerTotals>;
+  TrackerVersionBump: TrackerVersionBump;
   TrackerWindowUsageInput: TrackerWindowUsageInput;
   TrackerWorkProfile: ResolverTypeWrapper<TrackerWorkProfile>;
   TrackerWorkday: ResolverTypeWrapper<TrackerWorkday>;
@@ -25133,6 +25180,7 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerBilling: TrackerBilling;
   TrackerBillingRow: TrackerBillingRow;
   TrackerBuild: TrackerBuild;
+  TrackerBuildRelease: TrackerBuildRelease;
   TrackerBuildSettings: TrackerBuildSettings;
   TrackerConsentPolicy: TrackerConsentPolicy;
   TrackerDay: TrackerDay;
@@ -30353,6 +30401,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
   deleteToolCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolCategoryArgs, 'id'>>;
+  deleteTrackerBuildRelease?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrackerBuildReleaseArgs, 'id'>>;
   deleteTraining?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainingArgs, 'id'>>;
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebScrape?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebScrapeArgs, 'id'>>;
@@ -30490,6 +30539,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveMicrosoftMailConfig?: Resolver<ResolversTypes['MicrosoftMailConfig'], ParentType, ContextType, RequireFields<MutationSaveMicrosoftMailConfigArgs, 'input'>>;
   saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
+  saveTrackerBuildRetention?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildRetentionArgs, 'keepLatestBuilds'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   saveWhatsappChannel?: Resolver<ResolversTypes['WhatsappChannel'], ParentType, ContextType, RequireFields<MutationSaveWhatsappChannelArgs, 'input'>>;
   saveWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationSaveWhatsappWorkflowDraftArgs, 'id' | 'input'>>;
@@ -32422,6 +32472,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBilling?: Resolver<ResolversTypes['TrackerBilling'], ParentType, ContextType, RequireFields<QueryTrackerBillingArgs, 'from' | 'to'>>;
   trackerBillingByProject?: Resolver<Array<ResolversTypes['ProjectBillingRow']>, ParentType, ContextType, RequireFields<QueryTrackerBillingByProjectArgs, 'from' | 'to'>>;
+  trackerBuildReleases?: Resolver<Array<ResolversTypes['TrackerBuildRelease']>, ParentType, ContextType>;
   trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
   trackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryTrackerCalendarArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryTrackerDayArgs, 'end' | 'start' | 'userId'>>;
@@ -33692,7 +33743,20 @@ export type TrackerBuildResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TrackerBuildReleaseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerBuildRelease'] = ResolversParentTypes['TrackerBuildRelease']> = ResolversObject<{
+  assets?: Resolver<Array<ResolversTypes['TrackerReleaseAsset']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  tag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TrackerBuildSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerBuildSettings'] = ResolversParentTypes['TrackerBuildSettings']> = ResolversObject<{
+  keepLatestBuilds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slackChannels?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   statusAlertChannels?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -35274,6 +35338,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerBilling?: TrackerBillingResolvers<ContextType>;
   TrackerBillingRow?: TrackerBillingRowResolvers<ContextType>;
   TrackerBuild?: TrackerBuildResolvers<ContextType>;
+  TrackerBuildRelease?: TrackerBuildReleaseResolvers<ContextType>;
   TrackerBuildSettings?: TrackerBuildSettingsResolvers<ContextType>;
   TrackerConsentPolicy?: TrackerConsentPolicyResolvers<ContextType>;
   TrackerDay?: TrackerDayResolvers<ContextType>;

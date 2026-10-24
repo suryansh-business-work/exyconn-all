@@ -1,20 +1,15 @@
 import { DEFAULT_FORMAT_SETTINGS, formatDateTime } from '@exyconn/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { TrackerBuildPage } from '../../../../src/pages/tracker-build';
+import { BuildRunsTab } from '../../../../src/pages/builds/BuildRunsTab';
 import { renderWithProviders } from '../../test-utils';
-import { startBuildRenders } from './tracker-build.stubs';
 
-const gql = vi.hoisted(() => ({ builds: vi.fn(), settings: vi.fn(), refetch: vi.fn() }));
+const gql = vi.hoisted(() => ({ builds: vi.fn(), refetch: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useListTrackerBuildsQuery: gql.builds,
-  useTrackerBuildSettingsQuery: gql.settings,
-}));
-vi.mock('../../../../src/pages/tracker-build/forms/start-build', async () => ({
-  StartBuildForm: (await import('./tracker-build.stubs')).StartBuildFormStub,
 }));
 
 const STARTED = '2026-10-04T08:00:00.000Z';
@@ -37,26 +32,19 @@ const RUNS = [
   },
 ];
 
-function answer(builds: Record<string, unknown>, settings: Record<string, unknown> = {}) {
+function answer(builds: Record<string, unknown>) {
   gql.builds.mockReturnValue({ data: undefined, loading: false, refetch: gql.refetch, ...builds });
-  gql.settings.mockReturnValue({ data: undefined, loading: false, ...settings });
 }
 
-const SETTINGS = {
-  data: { trackerBuildSettings: { slackChannels: ['C1', 'C2'], statusAlertChannels: [] } },
-};
-
-describe('TrackerBuildPage', () => {
+describe('BuildRunsTab', () => {
   beforeEach(() => {
     gql.builds.mockReset();
-    gql.settings.mockReset();
     gql.refetch.mockReset().mockResolvedValue({});
-    startBuildRenders.mockReset();
   });
 
   it('lists the recent runs with their outcome and a link to each', () => {
     answer({ data: { listTrackerBuilds: RUNS } });
-    renderWithProviders(<TrackerBuildPage />);
+    renderWithProviders(<BuildRunsTab />);
     expect(gql.builds).toHaveBeenCalledWith({ fetchPolicy: 'cache-and-network' });
     expect(
       screen.getByText('The most recent runs of the tracker build workflow.'),
@@ -75,20 +63,20 @@ describe('TrackerBuildPage', () => {
 
   it('says when no build has run yet', () => {
     answer({ data: { listTrackerBuilds: [] } });
-    renderWithProviders(<TrackerBuildPage />);
+    renderWithProviders(<BuildRunsTab />);
     expect(screen.getByText('No builds yet.')).toBeInTheDocument();
   });
 
   it('holds placeholder rows while the runs load', () => {
     answer({ loading: true });
-    const { container } = renderWithProviders(<TrackerBuildPage />);
+    const { container } = renderWithProviders(<BuildRunsTab />);
     expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Refresh table' })).toBeDisabled();
   });
 
   it('shows why the runs could not be listed', () => {
     answer({ error: new Error('GitHub token expired'), data: { listTrackerBuilds: [] } });
-    renderWithProviders(<TrackerBuildPage />);
+    renderWithProviders(<BuildRunsTab />);
     expect(screen.getByText('GitHub token expired')).toBeInTheDocument();
     expect(
       screen.queryByText('The most recent runs of the tracker build workflow.'),
@@ -97,38 +85,8 @@ describe('TrackerBuildPage', () => {
 
   it('re-reads the runs on Refresh', async () => {
     answer({ data: { listTrackerBuilds: RUNS } });
-    renderWithProviders(<TrackerBuildPage />);
+    renderWithProviders(<BuildRunsTab />);
     await userEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
     expect(gql.refetch).toHaveBeenCalledTimes(1);
-  });
-
-  it('opens the build form with the number of channels it will post to', async () => {
-    answer({ data: { listTrackerBuilds: RUNS } }, SETTINGS);
-    renderWithProviders(<TrackerBuildPage />);
-    await userEvent.click(screen.getByRole('button', { name: 'Create build' }));
-    expect(screen.getByRole('heading', { name: 'Create tracker build' })).toBeInTheDocument();
-    expect(screen.getByText('Announced in 2 channel(s)')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Back to Tracker Build' }));
-    expect(screen.getByRole('heading', { name: 'Tracker Build' })).toBeInTheDocument();
-  });
-
-  it('counts no channels before the settings load', async () => {
-    answer({ data: { listTrackerBuilds: [] } });
-    renderWithProviders(<TrackerBuildPage />);
-    await userEvent.click(screen.getByRole('button', { name: 'Create build' }));
-    expect(startBuildRenders.mock.lastCall?.[0].channelCount).toBe(0);
-    await userEvent.click(screen.getByRole('button', { name: 'Abandon build' }));
-    expect(screen.getByRole('button', { name: 'Create build' })).toBeInTheDocument();
-    expect(gql.refetch).not.toHaveBeenCalled();
-  });
-
-  it('returns to the list and re-reads it once a build starts', async () => {
-    gql.refetch.mockRejectedValue(new Error('offline'));
-    answer({ data: { listTrackerBuilds: RUNS } }, SETTINGS);
-    renderWithProviders(<TrackerBuildPage />);
-    await userEvent.click(screen.getByRole('button', { name: 'Create build' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Build started' }));
-    expect(screen.getByRole('heading', { name: 'Tracker Build' })).toBeInTheDocument();
-    await waitFor(() => expect(gql.refetch).toHaveBeenCalledTimes(1));
   });
 });

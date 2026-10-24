@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { inSequence } from '@exyconn/shell/utils/inSequence';
-import { TrackerPlatform } from '@exyconn/shell/graphql/generated';
-import { StartBuildForm } from '../../../../../../src/pages/tracker-build/forms/start-build';
+import { TrackerPlatform, TrackerVersionBump } from '@exyconn/shell/graphql/generated';
+import { StartBuildForm } from '../../../../../../src/pages/builds/forms/start-build';
 import { renderWithProviders } from '../../../../test-utils';
 
 const gql = vi.hoisted(() => ({ start: vi.fn(), notify: vi.fn() }));
@@ -84,7 +84,7 @@ describe('StartBuildForm', () => {
     await clickStart();
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.start).toHaveBeenCalledWith({
-      variables: { platforms: [TrackerPlatform.Ios], ref: 'main' },
+      variables: { platforms: [TrackerPlatform.Ios], bump: TrackerVersionBump.Patch, ref: 'main' },
     });
     expect(gql.notify).toHaveBeenCalledWith(
       'Build started for {count} installer on {ref}',
@@ -103,7 +103,11 @@ describe('StartBuildForm', () => {
     await clickStart();
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.start).toHaveBeenCalledWith({
-      variables: { platforms: [TrackerPlatform.Windows, TrackerPlatform.Android], ref: 'staging' },
+      variables: {
+        platforms: [TrackerPlatform.Windows, TrackerPlatform.Android],
+        bump: TrackerVersionBump.Patch,
+        ref: 'staging',
+      },
     });
     expect(gql.notify).toHaveBeenCalledWith(
       'Build started for {count} installers on {ref}',
@@ -113,6 +117,18 @@ describe('StartBuildForm', () => {
         ref: 'staging',
       },
     );
+  });
+
+  it('raises the chosen part of the version', async () => {
+    renderForm();
+    await pick('Windows — Installer (.exe)');
+    await userEvent.click(screen.getByRole('combobox', { name: /Version/ }));
+    await userEvent.click(screen.getByRole('option', { name: /Major/ }));
+    await clickStart();
+    await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
+    expect(gql.start).toHaveBeenCalledWith({
+      variables: { platforms: [TrackerPlatform.Windows], bump: TrackerVersionBump.Major, ref: 'main' },
+    });
   });
 
   it('reports a build GitHub refuses and stays open', async () => {
