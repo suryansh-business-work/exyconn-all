@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { TechSecret } from '@exyconn/shell/graphql/generated';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { useTechSecretReveal } from '../../../../src/pages/environment-variables/useTechSecretReveal';
+import { forgetTechSecrets } from '../../../../src/pages/environment-variables/techSecretsCache';
 import { renderHookWithProviders } from '../../test-utils';
 
 const gql = vi.hoisted(() => ({ revealAll: vi.fn(), options: vi.fn() }));
@@ -25,6 +27,7 @@ const SAVED = {
 
 describe('useTechSecretReveal', () => {
   beforeEach(() => {
+    forgetTechSecrets();
     gql.revealAll.mockReset().mockResolvedValue(SAVED);
     gql.options.mockReset();
   });
@@ -61,10 +64,10 @@ describe('useTechSecretReveal', () => {
     await expect(result.current(TechSecret.GmailClientSecret)?.()).resolves.toBe('');
   });
 
-  it('refuses to run outside the Environment Variables page', () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    expect(() => renderHook(() => useTechSecretReveal('cfg-1'))).toThrow(
-      'useTechSecrets is used outside TechSecretsProvider',
-    );
+  it('works on any page, with no provider around it', async () => {
+    const { result } = renderHook(() => useTechSecretReveal('cfg-1'), {
+      wrapper: ({ children }) => <MockedProvider>{children}</MockedProvider>,
+    });
+    await expect(result.current(TechSecret.GoogleMapsServerKey)?.()).resolves.toBe('server-key');
   });
 });

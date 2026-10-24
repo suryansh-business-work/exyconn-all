@@ -2,7 +2,6 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
-import { TechSecretsProvider } from '../../TechSecretsProvider';
 import { BillingKeyConfigForm } from './billing-key-config.form';
 
 const mount = () =>
@@ -10,13 +9,11 @@ const mount = () =>
     <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
-          <TechSecretsProvider>
-            <BillingKeyConfigForm
-              initial={null}
-              onDone={cy.stub()}
-              onCancel={cy.stub().as('cancel')}
-            />
-          </TechSecretsProvider>
+          <BillingKeyConfigForm
+            initial={null}
+            onDone={cy.stub()}
+            onCancel={cy.stub().as('cancel')}
+          />
         </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
