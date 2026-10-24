@@ -1,4 +1,4 @@
-import express, { Router, type Request, type Response } from 'express';
+import express, { Router, type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import {
   getOAuthProtectedResourceMetadataUrl,
@@ -22,6 +22,33 @@ const OPEN_PATHS = ['/.well-known', '/authorize', '/token', '/register', '/revok
 
 /** The connector's own body limit: tool arguments, never files. */
 const BODY_LIMIT = '1mb';
+
+/**
+ * Logs every refused or failed answer on the connector's paths — the step, the status and the
+ * OAuth error code, never a token or code — so a failed "Connect" in Claude can be traced in
+ * Tech > Logs. The SDK's OAuth handlers answer their errors without logging them.
+ */
+function logRefusals(req: Request, res: Response, next: NextFunction): void {
+  const json = res.json.bind(res);
+  res.json = (body: unknown) => {
+    if (res.statusCode >= 400) {
+      const error = (body ?? {}) as { error?: unknown; error_description?: unknown };
+      logger.warn(
+        {
+          path: req.originalUrl.split('?')[0],
+          status: res.statusCode,
+          error: typeof error.error === 'string' ? error.error : undefined,
+          description:
+            typeof error.error_description === 'string' ? error.error_description : undefined,
+          clientId: typeof req.body?.client_id === 'string' ? req.body.client_id : undefined,
+        },
+        'MCP connector request refused',
+      );
+    }
+    return json(body);
+  };
+  next();
+}
 
 const jsonRpcError = (res: Response, status: number, message: string) =>
   res.status(status).json({ jsonrpc: '2.0', error: { code: -32000, message }, id: null });
@@ -60,6 +87,7 @@ export function mcpRouter(): Router {
       origin: '*',
       exposedHeaders: ['Mcp-Session-Id', 'Mcp-Protocol-Version', 'WWW-Authenticate'],
     }),
+    logRefusals,
   );
   router.use(
     mcpAuthRouter({
