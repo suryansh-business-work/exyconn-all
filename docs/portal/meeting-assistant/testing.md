@@ -4,9 +4,9 @@
 
 | Where | Runner | Covers |
 | --- | --- | --- |
-| `exyconn-meet-extension/__tests__/unit-tests` | vitest (100% gate on logic dirs) | Meet code parsing, meeting state machine, transcription-state and participant adapters on fixture DOM, reminder scheduling (intervals, caps, snooze/dismiss), WAV encoder, upload queue (retry/backoff/dedupe/backpressure), PKCE + rotating refresh, multi-tab isolation, manifest/bundle verify rules, consent-before-capture |
+| `exyconn-meet-extension/__tests__/unit-tests` | vitest (100% gate on logic dirs) | Meet code parsing, meeting state machine, transcription-state and participant adapters on fixture DOM, reminder scheduling (intervals, caps, snooze/dismiss), in-page recorder (tab share, WebM segments, screen pieces), upload queues (retry/backoff/dedupe/backpressure), PKCE + rotating refresh, multi-tab isolation, manifest/bundle verify rules, consent-before-capture |
 | `exyconn-meet-extension/src/options/forms/**.cy.tsx` | Cypress CT + axe | Extension settings form validation and accessibility |
-| `exyconn-portal/server/__tests__/unit-tests/modules/meeting-assistant` | jest + in-memory Mongo | Lifecycle idempotency and reconnects, participants, WAV checks, transcription exactly-once and recording storage, evidence-checked analysis and dedupe on regenerate, email exactly-once, PKCE sign-in and refresh reuse detection, access scopes and the extension field fence, signed links, release registry rules, worker backoff and retention |
+| `exyconn-portal/server/__tests__/unit-tests/modules/meeting-assistant` | jest + in-memory Mongo | Lifecycle idempotency and reconnects, participants, WAV and WebM checks, Hinglish model choice, transcription exactly-once, recording and screen-piece storage, evidence-checked analysis and dedupe on regenerate, email exactly-once, PKCE sign-in and refresh reuse detection, access scopes and the extension field fence, signed links, release registry rules, worker backoff and retention |
 | `packages/meetings-ui/__tests__` + `*.form.cy.tsx` | vitest (100% gate) + Cypress CT | Portal screens and forms |
 
 ```bash
@@ -30,11 +30,12 @@ Record pass/fail with the Chrome version, Meet UI language and date in the relea
 | 3 | Participant (not host), cannot see controls | Status UNKNOWN, no reminder |
 | 4 | Workspace edition without transcripts / personal account | Official import FAILED or none → notes from AI transcript |
 | 5 | English meeting | Accurate transcript, notes in English |
-| 6 | Hindi meeting | Hindi transcript (Devanagari), English notes quoting terms |
-| 7 | Hinglish meeting | Mixed transcript as spoken, no translation |
+| 6 | Hindi meeting (language HINDI) | Hindi transcript (Devanagari), English notes quoting terms |
+| 7 | Hinglish meeting (AUTO or HINGLISH) | Hindi words in Roman script, English as spoken, no translation |
 | 8 | Single speaker / several speakers (diarization on) | Labels Speaker A/B…, never names until confirmed |
 | 9 | Microphone permission denied | Tab audio only, clear message |
-| 10 | Tab capture refused (Start from the in-page panel) | Message to start from the toolbar |
+| 10 | "Share this tab" cancelled, or shared without tab audio | Clear message, nothing recorded |
+| 10a | Screen recording (saveRecordings on) | Video plays in the portal's Recording tab; a Stop then Start makes a second part |
 | 11 | Network drop for 1–2 minutes while recording | Uploads retry, capture pauses rather than drops, no duplicate lines |
 | 12 | Browser reload mid-call | Same meeting resumes, capture must be restarted, consent kept |
 | 13 | Service worker restart (`chrome://serviceworker-internals` stop) | Session recovered from storage, alarms continue |

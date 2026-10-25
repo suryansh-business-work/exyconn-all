@@ -157,7 +157,7 @@ describe('MeetingStatus', () => {
     );
     expect(screen.getByRole('status')).toHaveTextContent('In the meeting');
     expect(screen.getByText('Recording')).toBeInTheDocument();
-    expect(screen.getByText('Processing 2 audio chunks')).toBeInTheDocument();
+    expect(screen.getByText('Uploading 2 recording chunks')).toBeInTheDocument();
   });
 
   it('names the capture state when not recording', () => {
@@ -168,7 +168,7 @@ describe('MeetingStatus', () => {
     );
     expect(screen.getByText('Paused')).toBeInTheDocument();
     expect(screen.getByText('Meet transcription is off')).toBeInTheDocument();
-    expect(screen.queryByText(/Processing/)).toBeNull();
+    expect(screen.queryByText(/Uploading/)).toBeNull();
   });
 });
 
@@ -211,10 +211,11 @@ describe('CaptureControls actions', () => {
     ]);
   });
 
-  it('shows an error state and keeps the consent dialog open when consent fails', async () => {
-    workerAnswering({
-      'capture/consent': new Error('Join the call before starting transcription'),
-    });
+  it('shows an error state, and the failure when recording consent fails', async () => {
+    workerAnswering({});
+    const onStart = vi.fn(() =>
+      Promise.reject(new Error('Join the call before starting transcription')),
+    );
     render(
       <CaptureControls
         tab={{
@@ -224,6 +225,7 @@ describe('CaptureControls actions', () => {
           captureError: 'Audio could not be uploaded',
         }}
         logger={testLogger()}
+        onStart={onStart}
       />,
     );
     expect(screen.getByText('Audio could not be uploaded')).toBeInTheDocument();
@@ -232,22 +234,26 @@ describe('CaptureControls actions', () => {
     expect(
       await screen.findByText('Join the call before starting transcription'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(onStart).toHaveBeenCalledWith(true);
+    expect(screen.queryByText('Audio could not be uploaded')).toBeNull();
   });
 });
 
 describe('CaptureControls consent', () => {
   it('closes the consent dialog without recording when cancelled', async () => {
-    const chrome = workerAnswering({});
+    workerAnswering({});
+    const onStart = vi.fn(() => Promise.resolve());
     render(
-      <CaptureControls tab={{ ...TAB_SNAPSHOT, consentRecorded: false }} logger={testLogger()} />,
+      <CaptureControls
+        tab={{ ...TAB_SNAPSHOT, consentRecorded: false }}
+        logger={testLogger()}
+        onStart={onStart}
+      />,
     );
     await userEvent.click(screen.getByRole('button', { name: 'Start transcription' }));
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'capture/consent' }),
-    );
+    expect(onStart).not.toHaveBeenCalled();
   });
 });
 

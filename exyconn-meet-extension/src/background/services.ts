@@ -4,6 +4,7 @@ import { createAudioUploader } from '../services/audio-upload';
 import { createAuth } from '../services/auth';
 import { createExtensionLogger } from '../services/logger';
 import { createMeetApi } from '../services/meet-api';
+import { createVideoUploader } from '../services/video-upload';
 import { createLayoutStore } from '../storage/layout';
 import { createPrefsStore } from '../storage/prefs';
 import { createSessionRegistry } from '../storage/session-registry';
@@ -45,6 +46,13 @@ const client = createGraphqlClient({
 export const api = createMeetApi(client);
 
 export const uploadAudio = createAudioUploader({
+  apiUrl: API_URL,
+  fetchImpl,
+  getAccessToken: () => auth.getAccessToken(),
+  refreshAccessToken: () => auth.refresh(),
+});
+
+export const uploadVideo = createVideoUploader({
   apiUrl: API_URL,
   fetchImpl,
   getAccessToken: () => auth.getAccessToken(),

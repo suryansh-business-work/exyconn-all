@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ExtensionSettingsForm } from '../../../src/options/forms/extension-settings';
 import { OptionsApp } from '../../../src/options/OptionsApp';
 import { OptionsRoot } from '../../../src/options/OptionsRoot';
-import { requestMicrophone } from '../../../src/options/microphone';
 import { intervalOptions } from '../../../src/options/settings-options';
 import { PopupApp } from '../../../src/popup/PopupApp';
 import { PopupRoot } from '../../../src/popup/PopupRoot';
@@ -39,7 +38,6 @@ function renderForm(overrides: Partial<Parameters<typeof ExtensionSettingsForm>[
     initial: DEFAULT_PREFS,
     org: ORG_SWITCHES,
     onSave: vi.fn(() => Promise.resolve()),
-    requestMicrophone: vi.fn(() => Promise.resolve(true)),
     ...overrides,
   };
   render(<ExtensionSettingsForm {...props} />);
@@ -84,29 +82,17 @@ describe('ExtensionSettingsForm', () => {
     );
   });
 
-  it('asks for the microphone before turning it on, and explains a refusal', async () => {
-    const granted = renderForm();
-    await userEvent.click(screen.getByRole('switch', { name: 'Also record my microphone' }));
+  it('turns the microphone switch on and off without asking for a permission', async () => {
+    const props = renderForm();
+    const mic = () => screen.getByRole('switch', { name: 'Also record my microphone' });
+    await userEvent.click(mic());
+    expect(mic()).toBeChecked();
+    await userEvent.click(mic());
+    expect(mic()).not.toBeChecked();
+    await userEvent.click(mic());
+    await userEvent.click(screen.getByRole('button', { name: 'Save settings' }));
     await waitFor(() =>
-      expect(screen.getByRole('switch', { name: 'Also record my microphone' })).toBeChecked(),
-    );
-    expect(granted.requestMicrophone).toHaveBeenCalledTimes(1);
-    await userEvent.click(screen.getByRole('switch', { name: 'Also record my microphone' }));
-    expect(screen.getByRole('switch', { name: 'Also record my microphone' })).not.toBeChecked();
-  });
-
-  it('keeps the microphone off when permission is refused or the prompt fails', async () => {
-    renderForm({ requestMicrophone: vi.fn(() => Promise.resolve(false)) });
-    await userEvent.click(screen.getByRole('switch', { name: 'Also record my microphone' }));
-    expect(await screen.findByText(/Microphone permission was denied/)).toBeInTheDocument();
-    expect(screen.getByRole('switch', { name: 'Also record my microphone' })).not.toBeChecked();
-  });
-
-  it('turns the switch back off when the permission prompt itself fails', async () => {
-    renderForm({ requestMicrophone: vi.fn(() => Promise.reject(new Error('blocked'))) });
-    await userEvent.click(screen.getByRole('switch', { name: 'Also record my microphone' }));
-    await waitFor(() =>
-      expect(screen.getByRole('switch', { name: 'Also record my microphone' })).not.toBeChecked(),
+      expect(props.onSave).toHaveBeenCalledWith({ ...DEFAULT_PREFS, captureMicrophone: true }),
     );
   });
 
@@ -134,7 +120,7 @@ describe('ExtensionSettingsForm', () => {
   });
 });
 
-describe('settings options and microphone', () => {
+describe('settings options', () => {
   it('labels the company default with its minutes when known', () => {
     expect(intervalOptions(5)[0]).toEqual({
       value: 'org',
@@ -149,16 +135,6 @@ describe('settings options and microphone', () => {
       '5',
       '10',
     ]);
-  });
-
-  it('asks Chrome for the microphone and releases it at once', async () => {
-    const stop = vi.fn();
-    const getUserMedia = vi.fn(() => Promise.resolve({ getTracks: () => [{ stop }] }));
-    vi.stubGlobal('navigator', { mediaDevices: { getUserMedia } });
-    await expect(requestMicrophone()).resolves.toBe(true);
-    expect(stop).toHaveBeenCalledTimes(1);
-    getUserMedia.mockRejectedValueOnce(new Error('denied'));
-    await expect(requestMicrophone()).resolves.toBe(false);
   });
 });
 
@@ -187,7 +163,12 @@ describe('popup', () => {
   it('shows the call on the active tab with its controls', async () => {
     const chrome = workerAnswering({ 'state/get': SIGNED_IN, 'i18n/messages': {} });
     render(<PopupRoot logger={testLogger()} />);
-    expect(await screen.findByRole('button', { name: 'Start transcription' })).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        'Start transcription from the assistant panel in your Google Meet tab',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Start transcription' })).toBeNull();
     expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: 'state/get', tabId: 7 });
     expect(screen.getByRole('link', { name: /Open portal/ })).toHaveAttribute(
       'href',

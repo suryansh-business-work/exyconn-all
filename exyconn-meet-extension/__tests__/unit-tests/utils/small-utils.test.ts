@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { backoffDelay } from '../../../src/utils/backoff';
-import { base64ToBytes, base64Url, bytesToBase64 } from '../../../src/utils/base64';
+import {
+  base64DecodedLength,
+  base64ToBytes,
+  base64Url,
+  bytesToBase64,
+} from '../../../src/utils/base64';
 import { chunkArray } from '../../../src/utils/batch';
 import { debounce } from '../../../src/utils/debounce';
 import { clampPosition, cornerPosition, moveByKey } from '../../../src/utils/floating-position';
@@ -31,6 +36,12 @@ describe('base64', () => {
   });
   it('makes URL-safe text without padding', () => {
     expect(base64Url(Uint8Array.from([0xfb, 0xff]))).toBe('-_8');
+  });
+  it('measures the decoded size with two, one or no padding characters', () => {
+    for (const length of [1, 2, 3, 6]) {
+      const text = bytesToBase64(new Uint8Array(length));
+      expect(base64DecodedLength(text)).toBe(length);
+    }
   });
 });
 

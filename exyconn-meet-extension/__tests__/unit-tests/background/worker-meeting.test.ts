@@ -29,26 +29,27 @@ describe('service worker: startup and routing', () => {
     });
   });
 
-  it('ignores other extensions, broadcasts and offscreen commands', async () => {
+  it('ignores other extensions, broadcasts and recorder commands', async () => {
     const worker = await startWorker();
     await expect(
       worker.send({ type: 'state/get' }, { id: 'someone-else' }),
     ).resolves.toBeUndefined();
     await expect(worker.send({ type: 'state/changed' })).resolves.toBeUndefined();
     await expect(
-      worker.send({ target: 'offscreen', type: 'offscreen/stop' }),
+      worker.send({ target: 'recorder', type: 'recorder/stop' }),
     ).resolves.toBeUndefined();
     await expect(worker.send('not an object')).resolves.toBeUndefined();
   });
 
-  it('refuses recorder reports that do not come from the offscreen page', async () => {
+  it('refuses recorder reports that do not come from a Meet tab', async () => {
     const worker = await startWorker();
-    await expect(
-      worker.fromTab({ type: 'offscreen/notice', sessionKey: 'k', reason: 'stopped' }),
-    ).resolves.toEqual({
+    await expect(worker.send({ type: 'recorder/prepare' })).resolves.toEqual({
       ok: false,
-      error: 'Refused: not from the recorder',
+      error: 'Refused: not from a Meet tab',
     });
+    await expect(
+      worker.send({ type: 'recorder/notice', reason: 'x', tabId: TAB } as never),
+    ).resolves.toEqual({ ok: false, error: 'Refused: not from a Meet tab' });
   });
 
   it('needs a tab for tab requests', async () => {

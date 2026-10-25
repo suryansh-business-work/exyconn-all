@@ -81,6 +81,8 @@ type MessageListener = (
 export function createChrome() {
   const onChanged = new FakeEvent<ChangeListener>();
   const alarms = new Map<string, chrome.alarms.Alarm>();
+  /** Tabs whose page is gone (closed or reloading): a message to them rejects, as in Chrome. */
+  const goneTabs = new Set<number>();
   return {
     storage: {
       session: new MemoryArea('session', onChanged),
@@ -94,9 +96,7 @@ export function createChrome() {
       onMessage: new FakeEvent<MessageListener>(),
       getURL: (path: string) => `chrome-extension://test-extension-id/${path}`,
       getPlatformInfo: vi.fn(() => Promise.resolve({ os: 'mac' })),
-      getContexts: vi.fn(() => Promise.resolve([] as unknown[])),
       openOptionsPage: vi.fn(() => Promise.resolve()),
-      ContextType: { OFFSCREEN_DOCUMENT: 'OFFSCREEN_DOCUMENT' },
     },
     alarms: {
       store: alarms,
@@ -120,7 +120,15 @@ export function createChrome() {
       onClicked: new FakeEvent<(id: string) => void>(),
     },
     tabs: {
-      sendMessage: vi.fn(() => Promise.resolve(undefined)),
+      goneTabs,
+      /** A live Meet page answers a recorder command as its recorder would; broadcasts get nothing. */
+      sendMessage: vi.fn((tabId: number, message: unknown): Promise<unknown> => {
+        if (goneTabs.has(tabId)) {
+          return Promise.reject(new Error('Could not establish connection'));
+        }
+        const isCommand = (message as { target?: string } | null)?.target === 'recorder';
+        return Promise.resolve(isCommand ? { ok: true, data: null } : undefined);
+      }),
       update: vi.fn((tabId: number) =>
         Promise.resolve({ id: tabId, windowId: 3 } as chrome.tabs.Tab | undefined),
       ),
@@ -134,12 +142,6 @@ export function createChrome() {
       setBadgeTextColor: vi.fn(() => Promise.resolve()),
       setTitle: vi.fn(() => Promise.resolve()),
     },
-    offscreen: {
-      createDocument: vi.fn(() => Promise.resolve()),
-      closeDocument: vi.fn(() => Promise.resolve()),
-      Reason: { USER_MEDIA: 'USER_MEDIA' },
-    },
-    tabCapture: { getMediaStreamId: vi.fn(() => Promise.resolve('stream-1')) },
     i18n: { getUILanguage: () => 'en-US' },
   };
 }

@@ -26,7 +26,7 @@ export function MeetingStatus({ tab }: Readonly<{ tab: TabSnapshot }>) {
           <Chip
             size="small"
             color="info"
-            label={t('Processing {count} audio chunks', { count: tab.pendingUploads })}
+            label={t('Uploading {count} recording chunks', { count: tab.pendingUploads })}
           />
         ) : null}
       </Stack>

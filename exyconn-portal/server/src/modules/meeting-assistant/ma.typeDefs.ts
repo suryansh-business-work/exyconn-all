@@ -102,7 +102,7 @@ export const maMeetingTypeDefs = gql`
     captureState: MaCaptureState!
     consentRecordedAt: DateTime
     segmentCount: Int!
-    "Seconds of saved recording (16 kHz PCM WAV) across both streams."
+    "Seconds of saved WAV audio across both audio streams (the screen recording is counted on its own track)."
     recordingSeconds: Int!
     officialImportStatus: MaStepStatus!
     summaryStatus: MaStepStatus!
@@ -248,7 +248,7 @@ export const maMeetingTypeDefs = gql`
     title: String
   }
 
-  "One saved audio stream of a meeting: the meeting tab or the user's microphone."
+  "One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as WebM video."
   type MaRecordingTrack {
     stream: String!
     chunkCount: Int!
@@ -284,7 +284,7 @@ export const maMeetingTypeDefs = gql`
 
   extend type Query {
     maRecording(meetingId: ID!): [MaRecordingTrack!]!
-    "One saved chunk as a base64 string of a 16 kHz mono 16-bit PCM WAV file."
+    "One saved audio chunk (TAB or MIC) as a base64 string of a 16 kHz mono 16-bit PCM WAV file."
     maRecordingChunkBase64(meetingId: ID!, stream: String!, seq: Int!): String!
     maEventsPaged(input: TableQueryInput!, scope: MaScope, meetingId: ID): MaEventPage!
     maDashboard(filter: MaDashboardFilter): MaDashboard!
@@ -315,7 +315,7 @@ export const maMeetingTypeDefs = gql`
     maRecordParticipantEvents(meetingId: ID!, events: [MaParticipantEventInput!]!): Int!
     "Ends the call and queues the after-meeting pipeline (import, notes, email). Idempotent."
     maFinalizeSession(meetingId: ID!, endedAt: DateTime!): MaMeeting!
-    "A link that downloads one stream of the recording as a single WAV file, valid for a few minutes."
+    "A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes."
     maRecordingDownloadLink(meetingId: ID!, stream: String!): MaDownloadLink!
   }
 `;

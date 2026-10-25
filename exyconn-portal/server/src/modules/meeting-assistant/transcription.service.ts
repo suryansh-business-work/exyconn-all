@@ -24,6 +24,8 @@ export class AudioRejection extends Error {
 }
 
 export type AudioStream = 'TAB' | 'MIC';
+/** WAV from older extension builds; self-contained WebM/Opus files from newer ones. */
+export type AudioMimeType = 'audio/wav' | 'audio/webm';
 
 export interface AudioChunk {
   meetingId: string;
@@ -31,7 +33,8 @@ export interface AudioChunk {
   seq: number;
   startMs: number;
   durationMs: number;
-  /** A 16 kHz mono PCM16 WAV file (decoded from the upload's base64). */
+  mimeType: AudioMimeType;
+  /** A 16 kHz mono PCM16 WAV file or a self-contained WebM file (decoded from base64). */
   audio: Buffer;
 }
 
@@ -49,10 +52,20 @@ const MAX_CONCURRENT = 4;
 let running = 0;
 const TRANSCRIBE_TIMEOUT_MS = 90_000;
 const BUSY_RETRY_MS = 3_000;
-/** Hint for mixed-language calls; never asks the model to translate. */
-const MIXED_LANGUAGE_PROMPT =
-  'The speakers may mix Hindi and English (Hinglish). Transcribe exactly what is said, ' +
-  'in the language it is spoken. Do not translate.';
+/**
+ * Hint for mixed-language calls: Hindi written in Roman letters, the way Hinglish is typed in
+ * chat. Whisper-family models copy the prompt's script and style, hence the example sentence.
+ * Never asks the model to translate.
+ */
+export const HINGLISH_PROMPT =
+  'The speakers mix Hindi and English (Hinglish). Write every Hindi word in Roman (Latin) ' +
+  'letters, never in Devanagari, the way Hinglish is typed in chat, for example: ' +
+  '"Haan, main kal tak deck bhej dunga, phir hum Monday ko review kar lenge." ' +
+  'Transcribe exactly what is said. Never translate.';
+const DIARIZE_MODEL = 'gpt-4o-transcribe-diarize';
+/** A WebM file starts with the EBML magic number. */
+const EBML_MAGIC = Buffer.from([0x1a, 0x45, 0xdf, 0xa3]);
+const MAX_WEBM_CHUNK_MS = 60_000;
 
 const DUPLICATE_KEY = 11000;
 
@@ -63,6 +76,20 @@ type LeanMeeting = MaMeetingDocument & { _id: unknown };
 interface Acceptance {
   model: string;
   saveRecording: boolean;
+}
+
+/**
+ * The diarize model ignores prompts, so it is used only where speaker labels add something
+ * and no romanization hint is needed: the meeting tab, unless the call is set to Hinglish.
+ * The microphone is one known speaker.
+ */
+function modelFor(
+  settings: { diarization: boolean; transcriptionModel: string },
+  meeting: LeanMeeting,
+  stream: AudioStream,
+): string {
+  const diarize = settings.diarization && stream === 'TAB' && meeting.language !== 'HINGLISH';
+  return diarize ? DIARIZE_MODEL : settings.transcriptionModel;
 }
 
 /** The meeting may take audio: live, consented, under the length and budget caps. */
@@ -81,8 +108,9 @@ async function assertAccepts(meeting: LeanMeeting, chunk: AudioChunk): Promise<A
     throw new AudioRejection(403, 'budget_exceeded');
   }
   return {
-    model: settings.diarization ? 'gpt-4o-transcribe-diarize' : settings.transcriptionModel,
-    saveRecording: settings.saveRecordings,
+    model: modelFor(settings, meeting, chunk.stream),
+    // WebM audio is kept by the screen recording instead; the WAV store holds only WAV.
+    saveRecording: settings.saveRecordings && chunk.mimeType === 'audio/wav',
   };
 }
 
@@ -170,9 +198,9 @@ async function callOpenAi(meeting: LeanMeeting, chunk: AudioChunk, model: string
         apiKey: config.apiKey,
         model,
         audio: chunk.audio,
-        mimeType: 'audio/wav',
+        mimeType: chunk.mimeType,
         language,
-        prompt: language ? undefined : MIXED_LANGUAGE_PROMPT,
+        prompt: language ? undefined : HINGLISH_PROMPT,
         signal: AbortSignal.timeout(TRANSCRIBE_TIMEOUT_MS),
       }),
     { attempts: 2, baseDelayMs: 1_500 },
@@ -240,8 +268,25 @@ async function markFailed(meeting: LeanMeeting, chunk: AudioChunk, error: unknow
   logger.warn({ meetingId: chunk.meetingId, seq: chunk.seq, err: message }, 'Meeting chunk failed');
 }
 
-/** The chunk is a 16 kHz mono PCM16 WAV, whose own length is the one that counts. */
+/** A WebM chunk starts with the EBML magic and claims a believable length. */
+function checkedWebm(chunk: AudioChunk): AudioChunk {
+  if (!chunk.audio.subarray(0, EBML_MAGIC.length).equals(EBML_MAGIC)) {
+    throw new AudioRejection(415, 'unsupported_audio');
+  }
+  if (chunk.durationMs < 1 || chunk.durationMs > MAX_WEBM_CHUNK_MS) {
+    throw new AudioRejection(400, 'invalid_duration');
+  }
+  return chunk;
+}
+
+/**
+ * A WAV chunk is a 16 kHz mono PCM16 WAV, whose own length is the one that counts; a WebM
+ * chunk is checked by its magic and keeps the length the client measured.
+ */
 export function checkedChunk(chunk: AudioChunk): AudioChunk {
+  if (chunk.mimeType === 'audio/webm') {
+    return checkedWebm(chunk);
+  }
   const wav = readWav16k(chunk.audio);
   if (!wav) {
     throw new AudioRejection(415, 'unsupported_audio');
@@ -249,7 +294,7 @@ export function checkedChunk(chunk: AudioChunk): AudioChunk {
   return { ...chunk, durationMs: wav.durationMs };
 }
 
-/** Keeps the chunk's audio when the company saves recordings. */
+/** Keeps a WAV chunk's audio when the company saves recordings. */
 async function keepAudio(meeting: LeanMeeting, chunk: AudioChunk): Promise<void> {
   await saveChunk(
     { meetingId: chunk.meetingId, stream: chunk.stream, seq: chunk.seq },

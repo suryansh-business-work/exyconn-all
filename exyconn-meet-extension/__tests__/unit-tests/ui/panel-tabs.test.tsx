@@ -123,6 +123,22 @@ describe('OverviewTab', () => {
     expect(logger.info).toHaveBeenCalledWith('Meet transcription controls not found on the page');
   });
 
+  it('starts recording from the panel, and shows why sharing the tab failed', async () => {
+    workerAnswering({});
+    const getDisplayMedia = vi.fn(() => Promise.reject(new Error('NotAllowedError')));
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getDisplayMedia },
+    });
+    render(<OverviewTab {...props()} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Start transcription' }));
+    expect(
+      await screen.findByText('Sharing this tab was cancelled, so transcription did not start'),
+    ).toBeInTheDocument();
+    expect(getDisplayMedia).toHaveBeenCalledTimes(1);
+    Reflect.deleteProperty(navigator, 'mediaDevices');
+  });
+
   it('hides the controls hint when Meet transcribes', () => {
     workerAnswering({});
     renderMeet(IN_CALL);
@@ -145,20 +161,69 @@ describe('FollowUpCard', () => {
   });
 });
 
+/** A scrolled tab panel 1000px tall showing 400px, scrolled down by `scrollTop`. */
+function tabPanel(scrollTop: number): HTMLElement {
+  const panel = document.createElement('div');
+  panel.setAttribute('role', 'tabpanel');
+  document.body.append(panel);
+  const metrics = { scrollHeight: 1000, clientHeight: 400, scrollTop };
+  for (const [key, value] of Object.entries(metrics)) {
+    Object.defineProperty(panel, key, { configurable: true, value });
+  }
+  return panel;
+}
+
 describe('TranscriptTab', () => {
-  it('merges local and portal lines in time order', async () => {
+  it('merges local and portal lines in time order and groups runs of one speaker', async () => {
     workerAnswering({
       'panel:liveSegments': [
-        { id: 'b', startMs: 65_000, endMs: 66_000, text: 'Second', speakerLabel: null },
+        { id: 'b', startMs: 65_000, endMs: 66_000, text: 'Second', speakerLabel: 'Ravi' },
+        { id: 'c', startMs: 70_000, endMs: 71_000, text: 'Third', speakerLabel: null },
+        { id: 'a', startMs: 1000, endMs: 2000, text: 'First, corrected', speakerLabel: 'Ravi' },
       ],
       'panel:transcript': [
         { id: 'a', startMs: 1000, endMs: 2000, text: 'First', speakerLabel: 'Ravi' },
+        { id: 'd', startMs: 80_000, endMs: 81_000, text: 'Fourth', speakerLabel: null },
       ],
     });
     render(<TranscriptTab {...props()} />);
-    expect(await screen.findByText('Second')).toBeInTheDocument();
+    expect(await screen.findByText('Fourth')).toBeInTheDocument();
     const items = screen.getAllByRole('listitem').map((item) => item.textContent);
-    expect(items).toEqual(['First0:01 · Ravi', 'Second1:05']);
+    expect(items).toEqual(['RRavi0:01First, correctedSecond', 'SSpeaker1:10ThirdFourth']);
+    expect(screen.queryByText('Live')).toBeNull();
+  });
+
+  it('shows a Live chip while recording', async () => {
+    workerAnswering({ 'panel:transcript': [], 'panel:liveSegments': [] });
+    render(<TranscriptTab {...props({ tab: { ...TAB_SNAPSHOT, captureState: 'RECORDING' } })} />);
+    expect(screen.getByText('Live')).toBeInTheDocument();
+    expect(await screen.findByText(/No transcript yet/)).toBeInTheDocument();
+  });
+
+  it('follows new lines only while the reader is near the bottom of the panel', async () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    const line = { id: 'a', startMs: 0, endMs: 900, text: 'Hello', speakerLabel: 'Ravi' };
+    workerAnswering({ 'panel:transcript': [line], 'panel:liveSegments': [] });
+    render(<TranscriptTab {...props()} />, { container: tabPanel(500) });
+    expect(await screen.findByText('Hello')).toBeInTheDocument();
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'end' });
+    cleanup();
+    scrollIntoView.mockClear();
+    render(<TranscriptTab {...props()} />, { container: tabPanel(0) });
+    expect(await screen.findByText('Hello')).toBeInTheDocument();
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+  });
+
+  it('does not scroll outside a tab panel, or where scrolling is unsupported', async () => {
+    workerAnswering({ 'panel:transcript': [], 'panel:liveSegments': [] });
+    expect('scrollIntoView' in Element.prototype).toBe(false);
+    render(<TranscriptTab {...props()} />, { container: tabPanel(600) });
+    expect(await screen.findByText(/No transcript yet/)).toBeInTheDocument();
+    cleanup();
+    render(<TranscriptTab {...props()} />);
+    expect(await screen.findByText(/No transcript yet/)).toBeInTheDocument();
   });
 
   it('shows an empty state, an error with retry, and the off state', async () => {

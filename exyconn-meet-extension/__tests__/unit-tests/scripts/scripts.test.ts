@@ -107,6 +107,13 @@ describe('manifest', () => {
     expect(manifestErrors(manifest, { exists: everyFileExists, production: true })).toEqual([]);
   });
 
+  it('asks only for storage, alarms and notifications: the recorder runs in the Meet page', () => {
+    expect(PERMISSIONS).toEqual(['storage', 'alarms', 'notifications']);
+    const manifest = buildManifest({ version: '1.2.3', apiUrl: API });
+    expect(manifest.permissions).not.toContain('tabCapture');
+    expect(manifest.permissions).not.toContain('offscreen');
+  });
+
   it('names a CI build the way Chrome shows it', () => {
     const manifest = buildManifest({
       version: '1.2.3.57',

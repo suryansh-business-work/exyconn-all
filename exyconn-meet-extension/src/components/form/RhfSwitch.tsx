@@ -8,8 +8,6 @@ interface Props<T extends FieldValues> {
   label: string;
   hint: string;
   disabled?: boolean;
-  /** Runs before the switch turns on; resolving false keeps it off. */
-  beforeEnable?: () => Promise<boolean>;
 }
 
 /** A labelled switch bound to a boolean field, with its hint and any error under it. */
@@ -19,7 +17,6 @@ export function RhfSwitch<T extends FieldValues>({
   label,
   hint,
   disabled,
-  beforeEnable,
 }: Readonly<Props<T>>) {
   const t = useT();
   const hintId = `${name}-hint`;
@@ -37,15 +34,7 @@ export function RhfSwitch<T extends FieldValues>({
                 checked={field.value === true}
                 onBlur={field.onBlur}
                 slotProps={{ input: { ref: field.ref, 'aria-describedby': hintId } }}
-                onChange={(_event, checked) => {
-                  if (!checked || beforeEnable === undefined) {
-                    field.onChange(checked);
-                    return;
-                  }
-                  beforeEnable()
-                    .then((allowed) => field.onChange(allowed))
-                    .catch(() => field.onChange(false));
-                }}
+                onChange={(_event, checked) => field.onChange(checked)}
               />
             }
           />

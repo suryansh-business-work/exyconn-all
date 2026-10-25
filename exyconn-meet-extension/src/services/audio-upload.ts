@@ -1,12 +1,12 @@
 import { isRecord } from '../storage/area';
-import type { AudioStream, LiveSegment } from '../types/meeting';
+import { AUDIO_MIME, type AudioStream, type LiveSegment } from '../types/meeting';
 import { base64DecodedLength } from '../utils/base64';
 import { ApiError, fetchWithTimeout, readJson, type FetchLike } from './http';
 
 /** The server's hard limit per chunk, on the decoded WAV. */
 export const MAX_CHUNK_BYTES = 8 * 1024 * 1024;
-/** Uploading 25 s of audio can take a while on a poor connection. */
-const UPLOAD_TIMEOUT_MS = 60_000;
+/** Uploading a chunk can take a while on a poor connection. */
+export const UPLOAD_TIMEOUT_MS = 60_000;
 
 export interface AudioChunk {
   meetingId: string;
@@ -15,7 +15,7 @@ export interface AudioChunk {
   seq: number;
   startMs: number;
   durationMs: number;
-  /** A 16 kHz mono PCM16 WAV file, base64-encoded. */
+  /** A self-contained WebM/Opus file, base64-encoded. */
   audio: string;
 }
 
@@ -76,39 +76,23 @@ export function classifyUploadResponse(status: number, body: unknown): UploadOut
   return { kind: 'fatal', reason: errorCode(body, `http_${status}`) };
 }
 
-/**
- * Uploads one chunk of 16 kHz mono PCM16 WAV audio as JSON (the server saves it, per the
- * company's retention, and transcribes it). A 401 refreshes the token once; a network failure
- * or timeout is retryable. The chunk's identity (meeting, stream, seq) makes a retry
- * idempotent on the server, which answers DUPLICATE for a chunk it already has.
- */
-export function createAudioUploader(options: AudioUploaderOptions) {
-  async function send(
-    chunk: AudioChunk,
-    token: string,
-  ): Promise<{ status: number; body: unknown }> {
-    const response = await fetchWithTimeout(
-      options.fetchImpl,
-      `${options.apiUrl}/meet-assistant/audio`,
-      {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          meetingId: chunk.meetingId,
-          stream: chunk.stream,
-          seq: chunk.seq,
-          startMs: Math.max(0, Math.round(chunk.startMs)),
-          durationMs: Math.round(chunk.durationMs),
-          audio: chunk.audio,
-        }),
-      },
-      UPLOAD_TIMEOUT_MS,
-    );
-    return { status: response.status, body: await readJson(response) };
-  }
+interface SentRequest {
+  status: number;
+  body: unknown;
+}
 
-  return async function upload(chunk: AudioChunk): Promise<UploadOutcome> {
-    if (base64DecodedLength(chunk.audio) > MAX_CHUNK_BYTES) {
+/**
+ * Wraps one kind of upload with what every upload needs: the size check, the access token,
+ * one refresh after a 401, and a network failure or timeout treated as retryable. The
+ * chunk's identity makes a retry idempotent on the server.
+ */
+export function createUploader<T>(
+  options: AudioUploaderOptions,
+  byteLength: (chunk: T) => number,
+  send: (chunk: T, token: string) => Promise<SentRequest>,
+) {
+  return async function upload(chunk: T): Promise<UploadOutcome> {
+    if (byteLength(chunk) > MAX_CHUNK_BYTES) {
       return { kind: 'fatal', reason: 'too_large' };
     }
     try {
@@ -133,4 +117,36 @@ export function createAudioUploader(options: AudioUploaderOptions) {
       return { kind: 'retry', reason, retryAfterMs: 0 };
     }
   };
+}
+
+/**
+ * Uploads one transcription chunk (a WebM/Opus file) as JSON; the server transcribes it and
+ * answers the lines it heard.
+ */
+export function createAudioUploader(options: AudioUploaderOptions) {
+  return createUploader<AudioChunk>(
+    options,
+    (chunk) => base64DecodedLength(chunk.audio),
+    async (chunk, token) => {
+      const response = await fetchWithTimeout(
+        options.fetchImpl,
+        `${options.apiUrl}/meet-assistant/audio`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            meetingId: chunk.meetingId,
+            stream: chunk.stream,
+            seq: chunk.seq,
+            startMs: Math.max(0, Math.round(chunk.startMs)),
+            durationMs: Math.round(chunk.durationMs),
+            mimeType: AUDIO_MIME,
+            audio: chunk.audio,
+          }),
+        },
+        UPLOAD_TIMEOUT_MS,
+      );
+      return { status: response.status, body: await readJson(response) };
+    },
+  );
 }

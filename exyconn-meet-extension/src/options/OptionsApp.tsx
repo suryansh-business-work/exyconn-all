@@ -6,7 +6,6 @@ import { VersionText } from '../components/VersionText';
 import { useWorkerState } from '../hooks/useWorkerState';
 import { createPrefsStore, type ExtensionPrefs } from '../storage/prefs';
 import { ExtensionSettingsForm } from './forms/extension-settings';
-import { requestMicrophone } from './microphone';
 
 interface Props {
   prefs: ExtensionPrefs | null;
@@ -27,14 +26,7 @@ export function OptionsApp({ prefs, prefsError, logger }: Readonly<Props>) {
   if (prefsError !== null) {
     settings = <Alert severity="error">{t('Could not read your settings')}</Alert>;
   } else if (prefs !== null) {
-    settings = (
-      <ExtensionSettingsForm
-        initial={prefs}
-        org={org}
-        onSave={savePrefs}
-        requestMicrophone={requestMicrophone}
-      />
-    );
+    settings = <ExtensionSettingsForm initial={prefs} org={org} onSave={savePrefs} />;
   }
 
   return (

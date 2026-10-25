@@ -91,8 +91,6 @@ Developer Dashboard by uploading `…-store.zip` by hand.
 | `storage` | Keeps the user's preferences and sign-in tokens in the extension's own storage. |
 | `alarms` | Schedules transcription reminders and heartbeats while the service worker sleeps. |
 | `notifications` | Shows the "transcription is off" reminder when the user enables desktop notifications. |
-| `tabCapture` | Captures the meeting tab's audio, only after the user clicks Start and confirms consent. |
-| `offscreen` | Processes captured audio into 16 kHz WAV in an offscreen document (MV3 has no DOM in the worker). |
 | `identity` | Runs the OAuth (PKCE) sign-in with the user's Exyconn account. |
 | Host `https://meet.google.com/*` | Shows the assistant inside Google Meet and reads the visible meeting state. |
 | Host `https://portal-server.exyconn.com/*` | Sends the user's own meeting data to their Exyconn workspace. |

@@ -63,7 +63,6 @@ await build({
       input: {
         popup: join(SRC_DIR, 'popup.html'),
         options: join(SRC_DIR, 'options.html'),
-        offscreen: join(SRC_DIR, 'offscreen.html'),
         background: join(SRC_DIR, 'background/index.ts'),
       },
       output: {
@@ -86,21 +85,6 @@ await build({
       formats: ['iife'],
       name: 'ExyconnMeetingAssistant',
       fileName: () => 'content.js',
-    },
-  },
-});
-
-// The AudioWorklet: its own packaged file, loaded by URL (no inline or blob code under CSP).
-await build({
-  ...shared,
-  build: {
-    ...output,
-    emptyOutDir: false,
-    copyPublicDir: false,
-    lib: {
-      entry: join(SRC_DIR, 'offscreen/pcm-worklet.ts'),
-      formats: ['es'],
-      fileName: () => 'pcm-worklet.js',
     },
   },
 });

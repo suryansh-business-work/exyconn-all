@@ -50,6 +50,7 @@ const org: OrgContext = {
   liveTranscript: true,
   maxMeetingMinutes: 60,
   portalUrl: 'https://employee.test',
+  saveRecordings: false,
 };
 
 describe('applyReport', () => {
@@ -153,7 +154,12 @@ describe('finalize readiness', () => {
 
 describe('resumeSession', () => {
   it('keeps the meeting, consent and reminders across a reload of the same call', () => {
-    const previous = live({ consentRecorded: true, captureState: 'STOPPED', pendingUploads: 2 });
+    const previous = live({
+      consentRecorded: true,
+      captureState: 'STOPPED',
+      pendingUploads: 2,
+      videoPart: 3,
+    });
     const resumed = resumeSession(
       previous,
       newTabSession(1, 'new-key', { meetingCode: CODE, url: 'u', title: 't' }),
@@ -165,6 +171,7 @@ describe('resumeSession', () => {
       consentRecorded: true,
       captureState: 'STOPPED',
       pendingUploads: 2,
+      videoPart: 3,
     });
   });
 

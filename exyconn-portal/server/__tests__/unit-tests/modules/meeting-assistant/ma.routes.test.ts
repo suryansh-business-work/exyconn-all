@@ -256,6 +256,43 @@ describe('POST /audio', () => {
     });
   });
 
+  it('takes a WebM chunk when the extension says so, and only the two known types', async () => {
+    const webm = Buffer.concat([Buffer.from([0x1a, 0x45, 0xdf, 0xa3]), Buffer.alloc(64)]);
+
+    const done = await upload(
+      bearer,
+      chunkFor(meetingId, {
+        mimeType: 'audio/webm',
+        durationMs: 15_000,
+        audio: webm.toString('base64'),
+      }),
+    );
+    const wavByName = await upload(bearer, chunkFor(meetingId, { seq: 1, mimeType: 'audio/wav' }));
+    const ogg = await upload(bearer, chunkFor(meetingId, { seq: 2, mimeType: 'audio/ogg' }));
+    const notText = await upload(bearer, chunkFor(meetingId, { seq: 2, mimeType: 7 }));
+    const noLength = await upload(
+      bearer,
+      chunkFor(meetingId, {
+        seq: 3,
+        mimeType: 'audio/webm',
+        durationMs: 0,
+        audio: webm.toString('base64'),
+      }),
+    );
+    const wavAsWebm = await upload(
+      bearer,
+      chunkFor(meetingId, { seq: 4, mimeType: 'audio/webm', durationMs: 1000 }),
+    );
+
+    expect(done.status).toBe(200);
+    expect(transcribe).toHaveBeenCalledWith(expect.objectContaining({ mimeType: 'audio/webm' }));
+    expect(wavByName.status).toBe(200);
+    expect([ogg.status, ogg.body.error]).toEqual([400, 'invalid_request']);
+    expect(notText.status).toBe(400);
+    expect([noLength.status, noLength.body.error]).toEqual([400, 'invalid_duration']);
+    expect([wavAsWebm.status, wavAsWebm.body.error]).toEqual([415, 'unsupported_audio']);
+  });
+
   it('answers 401 without a live extension session', async () => {
     const portalToken = signToken({
       id: actor.id,

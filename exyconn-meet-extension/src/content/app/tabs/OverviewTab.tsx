@@ -5,6 +5,7 @@ import { AccountCard } from '../../../components/AccountCard';
 import { CaptureControls } from '../../../components/CaptureControls';
 import { MeetingStatus } from '../../../components/MeetingStatus';
 import { openTranscriptionControls } from '../../meet-adapter';
+import { startRecording } from '../../recorder';
 import { FollowUpCard } from './FollowUpCard';
 import type { TabProps } from './types';
 
@@ -36,7 +37,11 @@ export function OverviewTab({ state, tab, logger }: Readonly<TabProps>) {
           </Button>
         </Stack>
       ) : null}
-      <CaptureControls tab={tab} logger={logger} />
+      <CaptureControls
+        tab={tab}
+        logger={logger}
+        onStart={(needsConsent) => startRecording(needsConsent, logger)}
+      />
       <FollowUpCard enabled={tab.meetingId !== null} logger={logger} />
     </Stack>
   );

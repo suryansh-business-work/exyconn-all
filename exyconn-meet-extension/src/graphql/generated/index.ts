@@ -260,6 +260,13 @@ export type AssetStatus =
   | 'LOST'
   | 'RETIRED';
 
+/** How a tracker mark-in was placed when no location could be read. */
+export type AttendanceLocationFallback =
+  /** Without any location. */
+  | 'NONE'
+  /** At the address on the employee's record. */
+  | 'PROFILE_ADDRESS';
+
 export type AttendanceStatus =
   | 'ABSENT'
   | 'HALF_DAY'
@@ -405,6 +412,18 @@ export type BenefitKind =
   | 'OTHER'
   | 'PF'
   | 'WELLNESS';
+
+export type BillingKeyConfigInput = {
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  /** Required when adding. Leave empty when editing to keep the stored key. */
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  provider: BillingProvider;
+};
+
+/** A provider whose real bill a billing key can read. */
+export type BillingProvider =
+  | 'OPENAI';
 
 export type BlogAuthorInput = {
   initials: InputMaybe<Scalars['String']['input']>;
@@ -621,6 +640,8 @@ export type CampaignChannel =
 export type CampaignDraftInput = {
   blocks: InputMaybe<Scalars['JSON']['input']>;
   budget: InputMaybe<Scalars['Float']['input']>;
+  /** The ISO 4217 currency the budget is set in. A new draft without one takes the company's. */
+  budgetCurrency: InputMaybe<Scalars['String']['input']>;
   campaignType: InputMaybe<CampaignType>;
   channel: InputMaybe<CampaignChannel>;
   editorMode: InputMaybe<EditorMode>;
@@ -644,6 +665,8 @@ export type CampaignDraftInput = {
 export type CampaignInput = {
   body: InputMaybe<Scalars['String']['input']>;
   budget: Scalars['Float']['input'];
+  /** The ISO 4217 currency the budget is set in. */
+  budgetCurrency: Scalars['String']['input'];
   channel: CampaignChannel;
   endDate: Scalars['DateTime']['input'];
   name: Scalars['String']['input'];
@@ -1094,6 +1117,7 @@ export type ContractInput = {
   documentUrl: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
+  groupId: InputMaybe<Scalars['ID']['input']>;
   party: Scalars['String']['input'];
   status: ContractStatus;
   title: Scalars['String']['input'];
@@ -1138,6 +1162,8 @@ export type CreateColdEmailDraftInput = {
   recordId: Scalars['ID']['input'];
   toEmail: Scalars['String']['input'];
   tone: ColdEmailTone;
+  /** How many versions to write straight away, in one AI run: 1 to 4, default 4. */
+  variantCount: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type CreateUserInput = {
@@ -1237,6 +1263,29 @@ export type CrmEmailProvider =
   | 'GMAIL'
   | 'MICROSOFT';
 
+export type CrmEmailThreadPageInput = {
+  /** One connected mailbox's account id. */
+  accountId: InputMaybe<Scalars['String']['input']>;
+  /** The latest message is on or after this moment. */
+  after: InputMaybe<Scalars['DateTime']['input']>;
+  /** The latest message is on or before this moment. */
+  before: InputMaybe<Scalars['DateTime']['input']>;
+  /** Threads with at least one message sent (OUT) or received (IN). */
+  direction: InputMaybe<CrmEmailDirection>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  /** Up to 100. */
+  pageSize: Scalars['Int']['input'];
+  /** Words in the subject, preview, body or addresses. */
+  search: InputMaybe<Scalars['String']['input']>;
+  sort: InputMaybe<CrmEmailThreadSort>;
+};
+
+export type CrmEmailThreadSort =
+  | 'NEWEST'
+  | 'OLDEST'
+  | 'SUBJECT';
+
 /** Conditions in a group must all hold; a record matches when any group does. */
 export type CrmFilterGroupInput = {
   conditions: Array<CrmConditionInput>;
@@ -1268,6 +1317,63 @@ export type CrmInsightKind =
 export type CrmInsightTone =
   | 'POSITIVE'
   | 'WARNING';
+
+export type CrmMailAction =
+  | 'ARCHIVE'
+  | 'MARK_READ'
+  | 'MARK_UNREAD'
+  | 'STAR'
+  /** Moves the conversation to Gmail's trash, where Gmail keeps it for 30 days. */
+  | 'TRASH'
+  | 'UNSTAR';
+
+export type CrmMailFolder =
+  /** Everything except spam and trash. */
+  | 'ALL'
+  | 'INBOX'
+  | 'SENT'
+  | 'STARRED';
+
+export type CrmMailSort =
+  | 'NEWEST'
+  | 'OLDEST'
+  | 'SENDER'
+  | 'SUBJECT';
+
+export type CrmMailThreadRef = {
+  accountId: Scalars['ID']['input'];
+  threadId: Scalars['String']['input'];
+};
+
+export type CrmMailThreadsInput = {
+  /** One mailbox; every readable one when empty. */
+  accountId: InputMaybe<Scalars['ID']['input']>;
+  /** The newest message is on or after / on or before these. */
+  after: InputMaybe<Scalars['DateTime']['input']>;
+  before: InputMaybe<Scalars['DateTime']['input']>;
+  folder: CrmMailFolder;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  /** Matches subject, preview and people, and Gmail's own search of each mailbox. */
+  search: InputMaybe<Scalars['String']['input']>;
+  /** Newest first unless chosen. */
+  sort: InputMaybe<CrmMailSort>;
+  /** Only conversations with unread mail. */
+  unreadOnly: InputMaybe<Scalars['Boolean']['input']>;
+  /** Only conversations with files attached. */
+  withAttachments: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** A circle on the map: only records whose coordinates fall inside it. */
+export type CrmNearInput = {
+  /** Centre latitude, -90 to 90. */
+  lat: Scalars['Float']['input'];
+  /** Centre longitude, -180 to 180. */
+  lng: Scalars['Float']['input'];
+  /** More than 0 and at most 500 kilometres. */
+  radiusKm: Scalars['Float']['input'];
+};
 
 export type CrmObject =
   | 'COMPANY'
@@ -1365,6 +1471,8 @@ export type CrmQueryInput = {
   /** True lists only archived records; otherwise archived records are left out. */
   archived: InputMaybe<Scalars['Boolean']['input']>;
   groups: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Companies and contacts only: records within this circle; records without coordinates are left out. */
+  near: InputMaybe<CrmNearInput>;
   /** Zero-based. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
@@ -1402,6 +1510,13 @@ export type CrmSortInput = {
 export type CrmTagObject =
   | 'COMPANY'
   | 'CONTACT';
+
+export type CrmTimelineFieldType =
+  /** An ISO date-time, shown in the viewer's date and time settings. */
+  | 'DATE'
+  /** An amount in the company's currency. */
+  | 'MONEY'
+  | 'TEXT';
 
 export type CrmTimelineKind =
   | 'CALL'
@@ -1955,6 +2070,17 @@ export type IncidentUpdateStatus =
   | 'MONITORING'
   | 'RESOLVED';
 
+/** An integration whose calls are counted on the Environment Variables dashboard. */
+export type IntegrationProvider =
+  | 'FIRECRAWL'
+  | 'GITHUB'
+  | 'GOOGLE_MAPS'
+  | 'IMAGEKIT'
+  | 'OPENAI'
+  | 'PEXELS'
+  | 'SLACK'
+  | 'SMTP';
+
 export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
   conclusion: Scalars['String']['input'];
@@ -2424,14 +2550,32 @@ export type LeaveStatus =
   | 'PENDING'
   | 'REJECTED';
 
+export type LegalAssignmentItemInput = {
+  itemId: Scalars['ID']['input'];
+  kind: LegalItemKind;
+};
+
 export type LegalDocumentInput = {
   category: DocumentCategory;
   content: InputMaybe<Scalars['String']['input']>;
   fileUrl: InputMaybe<Scalars['String']['input']>;
+  groupId: InputMaybe<Scalars['ID']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
   title: Scalars['String']['input'];
 };
+
+export type LegalGroupInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  kind: LegalItemKind;
+  name: Scalars['String']['input'];
+};
+
+/** The registers Legal keeps: each can be grouped and handed to employees. */
+export type LegalItemKind =
+  | 'CONTRACT'
+  | 'DOCUMENT'
+  | 'POLICY';
 
 export type LicenceBillingCycle =
   | 'MONTHLY'
@@ -2514,6 +2658,18 @@ export type MaBulkActionInput = {
   status: InputMaybe<MaActionStatus>;
 };
 
+/** Whether the viewer's Google Meet events can be shown on the calendar. */
+export type MaCalendarGoogleState =
+  | 'CONNECTED'
+  /** The company has no Google sign-in client in Tech. */
+  | 'NOT_CONFIGURED'
+  /** The viewer has not connected Google Meet. */
+  | 'NOT_CONNECTED'
+  /** The connection predates the calendar scope, or Google no longer accepts it. */
+  | 'RECONNECT_REQUIRED'
+  /** Google could not be read just now; googleError says why. */
+  | 'UNAVAILABLE';
+
 export type MaCaptureState =
   | 'ERROR'
   | 'IDLE'
@@ -2566,6 +2722,11 @@ export type MaMeetingStatus =
   | 'ACTIVE'
   | 'ENDED';
 
+/** What a model is picked for: writing the notes (ANALYSIS) or speech to text (TRANSCRIPTION). */
+export type MaModelPurpose =
+  | 'ANALYSIS'
+  | 'TRANSCRIPTION';
+
 export type MaNotesContentInput = {
   agenda: Array<Scalars['String']['input']>;
   blockers: Array<Scalars['String']['input']>;
@@ -2604,26 +2765,16 @@ export type MaPriority =
   | 'LOW'
   | 'MEDIUM';
 
-export type MaRegisterReleaseInput = {
-  artifactName: Scalars['String']['input'];
-  artifactSize: Scalars['Int']['input'];
-  assetUrl: Scalars['String']['input'];
-  buildNumber: Scalars['Int']['input'];
-  buildRunUrl: Scalars['String']['input'];
-  builtAt: Scalars['DateTime']['input'];
-  channel: MaReleaseChannel;
-  commitSha: Scalars['String']['input'];
-  minChromeVersion: Scalars['String']['input'];
-  releaseNotes: Scalars['String']['input'];
-  releaseUrl: Scalars['String']['input'];
-  sha256: Scalars['String']['input'];
-  version: Scalars['String']['input'];
-};
-
 export type MaReleaseChannel =
   | 'BETA'
   | 'INTERNAL'
   | 'STABLE';
+
+export type MaReleaseSettingsInput = {
+  allowedRepository: Scalars['String']['input'];
+  notifyOnNewBuild: Scalars['Boolean']['input'];
+  slackChannelId: Scalars['String']['input'];
+};
 
 export type MaReleaseStatus =
   | 'BUILDING'
@@ -2789,6 +2940,10 @@ export type MarketingSuppressionsInput = {
   note: InputMaybe<Scalars['String']['input']>;
   reason: SuppressionReason;
 };
+
+export type McpToolKind =
+  | 'MUTATION'
+  | 'QUERY';
 
 export type MeetingBookingStatus =
   | 'CANCELLED'
@@ -3247,6 +3402,7 @@ export type PolicyInput = {
   category: InputMaybe<PolicyCategory>;
   classification: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  groupId: InputMaybe<Scalars['ID']['input']>;
   nextReviewOn: InputMaybe<Scalars['DateTime']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement: InputMaybe<Scalars['Boolean']['input']>;
@@ -3583,6 +3739,8 @@ export type SendCrmEmailInput = {
   cc: InputMaybe<Array<Scalars['String']['input']>>;
   /** The connected Gmail or Microsoft mailbox to send from (crmEmailSenders); it has to be enabled for the CRM. */
   fromAccountId: Scalars['ID']['input'];
+  /** The body is rich text (HTML) from the editor, cleaned before sending; plain text otherwise. */
+  html: InputMaybe<Scalars['Boolean']['input']>;
   inReplyTo: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
@@ -3609,6 +3767,18 @@ export type SendMailInput = {
   /** The body as rich text (HTML). It is sanitised before it is sent. */
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
+};
+
+export type SendMyEmailInput = {
+  bcc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Rich HTML from the editor; sanitized on the server. */
+  body: Scalars['String']['input'];
+  cc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** One of the caller's own mailboxes (myMailboxes); their default one when omitted. */
+  fromMailboxId: InputMaybe<Scalars['ID']['input']>;
+  replyTo: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  to: Array<Scalars['String']['input']>;
 };
 
 export type SendNotificationInput = {
@@ -3654,6 +3824,11 @@ export type SlackConfigInput = {
 export type SlipStatus =
   | 'GENERATED'
   | 'PAID';
+
+/** A person's own account, or an organization's page acting as itself (a LinkedIn company page). */
+export type SocialAccountKind =
+  | 'ORGANIZATION'
+  | 'PERSON';
 
 export type SocialApp =
   | 'LINKEDIN'
@@ -3707,6 +3882,15 @@ export type SocialNetwork =
   | 'THREADS'
   | 'X'
   | 'YOUTUBE';
+
+/** What deleting a published post did on one account. */
+export type SocialPostDeletionOutcome =
+  /** Deleted on the network and in Exyconn. */
+  | 'DELETED'
+  /** The network refused; nothing was deleted. */
+  | 'FAILED'
+  /** Removed from Exyconn; the network does not let apps delete posts, so it stays there. */
+  | 'KEPT_ON_NETWORK';
 
 export type SocialPostInput = {
   body: Scalars['String']['input'];
@@ -4103,6 +4287,7 @@ export type TeamInput = {
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
 export type TechSecret =
+  | 'BILLING_KEY'
   | 'CLOUDFLARE_API_TOKEN'
   | 'EMAIL_PASSWORD'
   | 'EMAIL_VERIFIER_PROXY_PASSWORD'
@@ -4326,6 +4511,14 @@ export type TrackerSettingsInput = {
   webcamEnabled: InputMaybe<Scalars['Boolean']['input']>;
   weeklyDigestEnabled: InputMaybe<Scalars['Boolean']['input']>;
 };
+
+/** Which part of the tracker version a build raises before it is built. */
+export type TrackerVersionBump =
+  | 'MAJOR'
+  | 'MINOR'
+  /** Build the version already committed. */
+  | 'NONE'
+  | 'PATCH';
 
 export type TrackerWindowUsageInput = {
   appName: Scalars['String']['input'];
@@ -4719,7 +4912,7 @@ export type WorkingTime =
 export type MaExtensionContextQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MaExtensionContextQuery = { maExtensionContext: { userId: string, name: string, email: string, organizationName: string, enabled: boolean, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, participantTracking: boolean, liveTranscript: boolean, maxMeetingMinutes: number, portalUrl: string } };
+export type MaExtensionContextQuery = { maExtensionContext: { userId: string, name: string, email: string, organizationName: string, enabled: boolean, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, participantTracking: boolean, liveTranscript: boolean, maxMeetingMinutes: number, portalUrl: string, saveRecordings: boolean } };
 
 export type MaStartSessionMutationVariables = Exact<{
   input: MaStartSessionInput;
@@ -4858,6 +5051,7 @@ export const MaExtensionContextDocument = new TypedDocumentString(`
     liveTranscript
     maxMeetingMinutes
     portalUrl
+    saveRecordings
   }
 }
     `) as unknown as TypedDocumentString<MaExtensionContextQuery, MaExtensionContextQueryVariables>;

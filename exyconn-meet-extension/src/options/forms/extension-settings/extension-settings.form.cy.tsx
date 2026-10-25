@@ -11,15 +11,8 @@ const ORG: ExtensionOrgSwitches = {
 
 function mount(overrides: Partial<ExtensionSettingsFormProps> = {}) {
   const onSave = cy.stub().as('save').resolves();
-  const requestMicrophone = cy.stub().as('mic').resolves(true);
   cy.mount(
-    <ExtensionSettingsForm
-      initial={DEFAULT_PREFS}
-      org={ORG}
-      onSave={onSave}
-      requestMicrophone={requestMicrophone}
-      {...overrides}
-    />,
+    <ExtensionSettingsForm initial={DEFAULT_PREFS} org={ORG} onSave={onSave} {...overrides} />,
   );
 }
 
@@ -58,18 +51,11 @@ describe('ExtensionSettingsForm', () => {
     cy.get('#reminderInterval').should('contain.text', 'Company default (2 min)');
   });
 
-  it('asks for microphone permission and keeps the switch off when refused', () => {
-    mount({ requestMicrophone: cy.stub().as('micDenied').resolves(false) });
-    cy.get('input[name="captureMicrophone"]').click();
-    cy.get('@micDenied').should('have.been.calledOnce');
-    cy.get('input[name="captureMicrophone"]').should('not.be.checked');
-    cy.contains('Microphone permission was denied').should('be.visible');
-  });
-
-  it('turns the microphone on once permission is granted', () => {
+  it('saves the microphone switch once turned on', () => {
     mount();
     cy.get('input[name="captureMicrophone"]').click().should('be.checked');
-    cy.get('@mic').should('have.been.calledOnce');
+    cy.contains('button', 'Save settings').click();
+    cy.get('@save').should('have.been.calledWithMatch', { captureMicrophone: true });
   });
 
   it('locks switches the company has turned off', () => {

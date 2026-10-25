@@ -38,7 +38,7 @@ export function gridFsBucket(bucketName: string): mongoose.mongo.GridFSBucket {
 const bucket = () => gridFsBucket(BUCKET);
 
 /** The company in scope; refusing a platform scope, which owns no recordings. */
-function organization(): string {
+export function organization(): string {
   const organizationId = currentOrganizationId();
   if (!organizationId) {
     forbidden('Recordings belong to a company.');
@@ -46,7 +46,8 @@ function organization(): string {
   return organizationId;
 }
 
-const scoped = (filter: Record<string, unknown>) => ({
+/** A GridFS file filter limited to the company in scope (the tenant plugin cannot see GridFS). */
+export const scoped = (filter: Record<string, unknown>) => ({
   'metadata.organizationId': organization(),
   ...filter,
 });

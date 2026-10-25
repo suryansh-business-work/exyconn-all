@@ -1,11 +1,10 @@
-import type { OffscreenReport, WorkerReply, WorkerRequest } from '../types/messages';
+import type { RecorderReport, WorkerReply, WorkerRequest } from '../types/messages';
 import { completeSecondFactor, signIn, signOut } from './auth-flow';
 import {
-  handleOffscreenReport,
+  handleRecorderReport,
   pauseCapture,
   recordConsent,
   resumeCapture,
-  startCapture,
   stopCapture,
 } from './capture';
 import { handleGone, handleHello, handleReport } from './meeting';
@@ -15,8 +14,6 @@ import { applyReminderChoice } from './reminders';
 import { api, logger, registry } from './services';
 import { stateFor } from './state';
 import { errorText } from '../utils/errors';
-
-const OFFSCREEN_URL = chrome.runtime.getURL('offscreen.html');
 
 /**
  * The tab a request is about. A content script may only speak for its own tab, whatever it
@@ -36,8 +33,8 @@ function requireTab(tabId: number | null): number {
   return tabId;
 }
 
-function isOffscreenReport(request: WorkerRequest): request is OffscreenReport {
-  return request.type.startsWith('offscreen/');
+function isRecorderReport(request: WorkerRequest): request is RecorderReport {
+  return request.type.startsWith('recorder/');
 }
 
 function handleTabRequest(request: WorkerRequest, tabId: number | null): Promise<unknown> {
@@ -48,8 +45,6 @@ function handleTabRequest(request: WorkerRequest, tabId: number | null): Promise
       return handleReport(requireTab(tabId), request.report);
     case 'meet/gone':
       return handleGone(requireTab(tabId));
-    case 'capture/start':
-      return startCapture(requireTab(tabId));
     case 'capture/consent':
       return recordConsent(requireTab(tabId));
     case 'capture/pause':
@@ -72,11 +67,12 @@ async function handle(
   sender: chrome.runtime.MessageSender,
 ): Promise<unknown> {
   const tabId = targetTab(request, sender);
-  if (isOffscreenReport(request)) {
-    if (sender.url !== OFFSCREEN_URL) {
-      throw new Error('Refused: not from the recorder');
+  if (isRecorderReport(request)) {
+    // The recorder runs in the Meet page itself: only a tab may speak for its own recording.
+    if (sender.tab?.id === undefined) {
+      throw new Error('Refused: not from a Meet tab');
     }
-    return handleOffscreenReport(request);
+    return handleRecorderReport(sender.tab.id, request);
   }
   switch (request.type) {
     case 'state/get':
@@ -98,7 +94,7 @@ async function handle(
   }
 }
 
-/** True for a message meant for the worker (not a broadcast or an offscreen command). */
+/** True for a message meant for the worker (not a broadcast or a recorder command). */
 function isWorkerRequest(message: unknown): message is WorkerRequest {
   return (
     typeof message === 'object' &&

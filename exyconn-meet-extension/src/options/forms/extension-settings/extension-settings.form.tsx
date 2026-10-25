@@ -32,11 +32,10 @@ export function ExtensionSettingsForm({
   initial,
   org,
   onSave,
-  requestMicrophone,
 }: Readonly<ExtensionSettingsFormProps>) {
   const t = useT();
   const [outcome, setOutcome] = useState<Outcome>(null);
-  const { control, handleSubmit, reset, setError, formState } = useForm<ExtensionSettingsValues>({
+  const { control, handleSubmit, reset, formState } = useForm<ExtensionSettingsValues>({
     resolver: zodResolver(prefsSchema),
     defaultValues: initial,
     mode: 'onTouched',
@@ -55,16 +54,6 @@ export function ExtensionSettingsForm({
       });
     }
   });
-
-  const allowMicrophone = async (): Promise<boolean> => {
-    const granted = await requestMicrophone();
-    if (!granted) {
-      setError('captureMicrophone', {
-        message: 'Microphone permission was denied. Allow it in Chrome to record your voice too.',
-      });
-    }
-    return granted;
-  };
 
   const trackingOff = org?.participantTracking === false;
   const transcriptOff = org?.liveTranscript === false;
@@ -131,7 +120,6 @@ export function ExtensionSettingsForm({
         name="captureMicrophone"
         label="Also record my microphone"
         hint="Records your voice as a separate stream when you start transcription."
-        beforeEnable={allowMicrophone}
       />
       <Typography variant="subtitle2" component="h3">
         {t('Reminders')}

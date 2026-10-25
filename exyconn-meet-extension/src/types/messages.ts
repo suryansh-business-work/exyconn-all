@@ -9,11 +9,12 @@ import type {
 } from '../graphql/generated';
 import type { ReminderAction } from '../utils/reminders';
 import type {
-  AudioStream,
   CaptureState,
   IconStatus,
   LiveSegment,
   MeetingState,
+  RecordedAudio,
+  RecordedVideo,
   SeenParticipant,
   TranscriptionState,
 } from './meeting';
@@ -91,7 +92,6 @@ export type WorkerRequest =
   | { type: 'auth/sign-in'; email: string; password: string; remember: boolean }
   | { type: 'auth/mfa'; challenge: string; code: string; remember: boolean }
   | { type: 'auth/sign-out' }
-  | { type: 'capture/start'; tabId?: number }
   | { type: 'capture/consent'; tabId?: number }
   | { type: 'capture/pause'; tabId?: number }
   | { type: 'capture/resume'; tabId?: number }
@@ -101,41 +101,26 @@ export type WorkerRequest =
   | { type: 'log/batch'; batch: LogBatch }
   | { type: 'i18n/messages' }
   | { type: 'options/open' }
-  | OffscreenReport;
+  | RecorderReport;
 
-/** From the offscreen recorder back to the worker. */
-export type OffscreenReport =
-  | {
-      type: 'offscreen/chunk';
-      sessionKey: string;
-      meetingId: string;
-      stream: AudioStream;
-      startMs: number;
-      durationMs: number;
-      /** A base64 WAV (16 kHz mono PCM16) — runtime messaging carries JSON only. */
-      audio: string;
-    }
-  /** The recorder stopped on its own (the tab stream ended); `reason` is an English source string. */
-  | { type: 'offscreen/error'; sessionKey: string; reason: string }
-  /** `stopped` once a stop has been flushed; otherwise an English source string to show. */
-  | { type: 'offscreen/notice'; sessionKey: string; reason: string };
+/** From the recorder in the Meet page to the worker. Accepted only from that tab itself. */
+export type RecorderReport =
+  /** May this tab start? Answers the CapturePlan the recorder follows. */
+  | { type: 'recorder/prepare' }
+  /** The tab is shared and every recorder runs. */
+  | { type: 'recorder/started'; micEnabled: boolean }
+  | { type: 'recorder/audio'; chunk: RecordedAudio }
+  | { type: 'recorder/video'; piece: RecordedVideo }
+  /** Everything is flushed and released; `reason` (an English source string) when it stopped on its own. */
+  | { type: 'recorder/ended'; reason: string | null }
+  /** Something to tell the user while recording goes on, e.g. the microphone is unavailable. */
+  | { type: 'recorder/notice'; reason: string };
 
-/** From the worker to the offscreen document. */
-export type OffscreenCommand =
-  | {
-      target: 'offscreen';
-      type: 'offscreen/start';
-      sessionKey: string;
-      tabId: number;
-      meetingId: string;
-      streamId: string;
-      meetingStartedAtMs: number;
-      captureMic: boolean;
-      chunkMs: number;
-    }
-  | { target: 'offscreen'; type: 'offscreen/pause'; sessionKey: string }
-  | { target: 'offscreen'; type: 'offscreen/resume'; sessionKey: string }
-  | { target: 'offscreen'; type: 'offscreen/stop'; sessionKey: string };
+/** From the worker to the recorder in a Meet tab. */
+export interface RecorderCommand {
+  target: 'recorder';
+  type: 'recorder/pause' | 'recorder/resume' | 'recorder/stop';
+}
 
 /** Pushed by the worker to a Meet tab and to an open popup whenever the tab's state changes. */
 export interface StateBroadcast {

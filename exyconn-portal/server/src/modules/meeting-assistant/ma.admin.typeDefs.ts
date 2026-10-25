@@ -95,6 +95,8 @@ export const maAdminTypeDefs = gql`
     participantTracking: Boolean!
     liveTranscript: Boolean!
     maxMeetingMinutes: Int!
+    "Whether the company keeps recordings: the screen recording is uploaded only when true."
+    saveRecordings: Boolean!
     googleConnected: Boolean!
     portalUrl: String!
   }

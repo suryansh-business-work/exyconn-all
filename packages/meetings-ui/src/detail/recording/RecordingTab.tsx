@@ -6,7 +6,10 @@ import { useMaRecordingQuery } from '@exyconn/shell/graphql/generated';
 import { LoadError } from '../../lib/LoadError';
 import { RecordingTrack } from './RecordingTrack';
 
-/** The call's saved audio, one track per stream (the meeting tab and the owner's microphone). */
+/**
+ * The call's saved recording, one track per stream: the meeting tab and the owner's microphone
+ * as audio, and the screen recording as video (one track per time it was started).
+ */
 export function RecordingTab({ meetingId }: Readonly<{ meetingId: string }>) {
   const { data, error, refetch } = useMaRecordingQuery({ variables: { meetingId } });
   if (error) {
@@ -20,7 +23,7 @@ export function RecordingTab({ meetingId }: Readonly<{ meetingId: string }>) {
       <EmptyState
         icon={<MicOffIcon />}
         title="No recording saved"
-        description="Audio is saved only when the owner starts recording and confirms everyone was told — and only while saving recordings is switched on in the settings."
+        description="Audio and the screen recording are saved only when the owner starts recording and confirms everyone was told — and only while saving recordings is switched on in the settings."
       />
     );
   }
