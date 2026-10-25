@@ -190,6 +190,7 @@ describe('the extension and its sessions', () => {
       organizationName: 'Test Co',
       googleConnected: false,
       enabled: true,
+      saveRecordings: true,
     });
     expect(
       (await maAdminQueries.maExtensionContext(null, {}, ctxOf(employee, [ROLES.EMPLOYEE])))

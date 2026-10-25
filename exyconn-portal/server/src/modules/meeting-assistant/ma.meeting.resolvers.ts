@@ -32,6 +32,7 @@ import {
 } from './meeting.lifecycle';
 import { recordParticipantEvents, type ParticipantEvent } from './participants.service';
 import { deleteMeetingData } from './meeting.delete';
+import { startDueSteps } from './ma.worker';
 import { MaMeetingModel, type MaMeetingDocument } from './models';
 import type { MaLanguage } from './ma.enums';
 
@@ -236,6 +237,7 @@ export const maMeetingMutations = {
     const before = await ownedMeeting(actor, args.meetingId);
     const meeting = await finalizeSession(before, new Date(args.endedAt));
     if (before.status === 'ACTIVE') {
+      startDueSteps();
       await recordMaActivity(ctx, actor, {
         type: 'SESSION_ENDED',
         action: 'UPDATE',

@@ -7814,6 +7814,8 @@ export type MaExtensionContext = {
   preferredLanguage: MaLanguage;
   reminderIntervalMinutes: Scalars['Int']['output'];
   remindersEnabled: Scalars['Boolean']['output'];
+  /** Whether the company keeps recordings: the screen recording is uploaded only when true. */
+  saveRecordings: Scalars['Boolean']['output'];
   userId: Scalars['String']['output'];
 };
 
@@ -7890,7 +7892,7 @@ export type MaMeeting = {
   ownerName: Scalars['String']['output'];
   participantCount: Scalars['Int']['output'];
   previousMeetingId?: Maybe<Scalars['String']['output']>;
-  /** Seconds of saved recording (16 kHz PCM WAV) across both streams. */
+  /** Seconds of saved WAV audio across both audio streams (the screen recording is counted on its own track). */
   recordingSeconds: Scalars['Int']['output'];
   segmentCount: Scalars['Int']['output'];
   speakerMappings: Array<MaSpeakerMapping>;
@@ -8029,7 +8031,7 @@ export enum MaPriority {
   Medium = 'MEDIUM'
 }
 
-/** One saved audio stream of a meeting: the meeting tab or the user's microphone. */
+/** One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as WebM video. */
 export type MaRecordingTrack = {
   __typename?: 'MaRecordingTrack';
   chunkCount: Scalars['Int']['output'];
@@ -9354,7 +9356,7 @@ export type Mutation = {
   /** The owner confirms participants were told the call is being transcribed. */
   maRecordConsent: MaMeeting;
   maRecordParticipantEvents: Scalars['Int']['output'];
-  /** A link that downloads one stream of the recording as a single WAV file, valid for a few minutes. */
+  /** A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes. */
   maRecordingDownloadLink: MaDownloadLink;
   /** Queues a fresh analysis. Existing actions keep their ids, statuses and every edit. */
   maRegenerateNotes: MaMeeting;
@@ -16493,7 +16495,7 @@ export type Query = {
   maParticipants: Array<MaParticipant>;
   maParticipantsPaged: MaParticipantPage;
   maRecording: Array<MaRecordingTrack>;
-  /** One saved chunk as a base64 string of a 16 kHz mono 16-bit PCM WAV file. */
+  /** One saved audio chunk (TAB or MIC) as a base64 string of a 16 kHz mono 16-bit PCM WAV file. */
   maRecordingChunkBase64: Scalars['String']['output'];
   maReleaseOverview: MaReleaseOverview;
   maReleaseSettings: MaReleaseSettings;

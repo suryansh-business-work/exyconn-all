@@ -29,8 +29,9 @@ operations: `packages/shell/src/graphql/operations/meeting-assistant.graphql` (p
 | --- | --- | --- | --- |
 | POST | `/meet-assistant/auth/token` | none (PKCE) | `{grant_type:"authorization_code", code, code_verifier, redirect_uri, extension_id, device_label, extension_version}` or `{grant_type:"refresh_token", refresh_token, extension_id, extension_version}` → `{access_token, token_type, expires_in, refresh_token, refresh_expires_in}`; errors `{error, error_description}` (400/401/429) |
 | POST | `/meet-assistant/auth/revoke` | none | `{refresh_token}` → 204 |
-| POST | `/meet-assistant/audio` | Bearer extension token | `{meetingId, stream:"TAB"\|"MIC", seq, startMs, durationMs, audio:<base64 16 kHz mono PCM16 WAV>}` → `{status:"DONE"\|"DUPLICATE", segments[]}`; 400, 401, 403 `budget_exceeded`/`disabled`, 404, 409 `consent_required`/`meeting_ended`/`too_long`, 413, 415 `unsupported_audio`, 429 `busy`/`rate_limited` (+`retryAfterMs`), 502 `transcription_failed`, 503 `not_configured` |
-| GET | `/meet-assistant/download?token=…` | signed link | release ZIP or merged recording WAV |
+| POST | `/meet-assistant/audio` | Bearer extension token | `{meetingId, stream:"TAB"\|"MIC", seq, startMs, durationMs, mimeType?:"audio/webm"\|"audio/wav" (default wav), audio:<base64 WebM/Opus file, or 16 kHz mono PCM16 WAV>}` (WebM: 1–60000 ms, else 400 `invalid_duration`) → `{status:"DONE"\|"DUPLICATE", segments[]}`; 400, 401, 403 `budget_exceeded`/`disabled`, 404, 409 `consent_required`/`meeting_ended`/`too_long`, 413, 415 `unsupported_audio`, 429 `busy`/`rate_limited` (+`retryAfterMs`), 502 `transcription_failed`, 503 `not_configured` |
+| POST | `/meet-assistant/video/:meetingId/:seq?part=&durationMs=` | Bearer extension token | raw `video/webm` piece (≤ 8 MB), streamed into GridFS; same `(meeting, part, seq)` replaces → `{ok:true}`; 400 `invalid_request`, 401, 403 `disabled`, 404, 409 `consent_required`/`meeting_ended` (> 15 min after the end)/`recording_off`, 413 `too_large`, 415 `unsupported_media`, 429 `rate_limited` |
+| GET | `/meet-assistant/download?token=…` | signed link | release ZIP, merged recording WAV, or a screen-recording part as one WebM |
 | GET | `/oauth/google-meet/callback` | OAuth state | Google's redirect after consent |
 
 `seq` is per meeting and stream; re-sending a finished `seq` returns the stored segments and

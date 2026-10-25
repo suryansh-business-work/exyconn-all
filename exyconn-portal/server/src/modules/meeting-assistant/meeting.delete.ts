@@ -11,15 +11,17 @@ import {
   MaSegmentModel,
 } from './models';
 import { deleteRecordings } from './recording.store';
+import { deleteScreenPieces } from './screen.store';
 
 /**
- * Deletes a meeting and everything recorded for it: saved audio, transcript, participants,
- * notes, decisions, actions, email deliveries, queued steps and its log. The audit log keeps
- * its own line that the deletion happened.
+ * Deletes a meeting and everything recorded for it: saved audio, the screen recording,
+ * transcript, participants, notes, decisions, actions, email deliveries, queued steps and its
+ * log. The audit log keeps its own line that the deletion happened.
  */
 export async function deleteMeetingData(meetingId: string): Promise<void> {
   await MaJobModel.deleteMany({ meetingId });
   await deleteRecordings({ meetingId });
+  await deleteScreenPieces({ meetingId });
   const byMeeting = { meetingId };
   await Promise.all([
     MaSegmentModel.deleteMany(byMeeting),

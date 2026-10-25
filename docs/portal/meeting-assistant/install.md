@@ -27,10 +27,14 @@ sign-in needs the id listed in the server's `MEET_ASSISTANT_EXTENSION_IDS` (see 
   Processing, Error.
 - If Meet transcription is off, a banner (and, if enabled, a notification) reminds you at the
   company's interval, at most the company's maximum per meeting. Remind later, Snooze, Dismiss.
-- To record: open the extension **from the toolbar on that tab** (Chrome requires it for tab
-  audio), click **Start**, and confirm participants were told the call is being recorded,
-  saved and transcribed. Pause/Stop at any time; recording stops on its own when you leave.
-- After the call the notes, decisions and checklist appear in the portal within minutes.
+- To record: open the assistant panel in the Meet tab, click **Start transcription**, confirm
+  participants were told the call is being recorded, saved and transcribed, then choose
+  **Share** in Chrome's "Share this tab" dialog (keep "Also share tab audio" ticked). The live
+  transcript fills in a few seconds after people speak; the screen recording uploads while
+  the call runs. Pause/Stop at any time; recording stops on its own when you leave or click
+  Chrome's "Stop sharing".
+- When the call ends, processing starts at once: the notes, decisions and checklist appear in
+  the portal within minutes, and the screen recording under the meeting's Recording tab.
 
 ## Troubleshooting
 
@@ -38,8 +42,9 @@ sign-in needs the id listed in the server's `MEET_ASSISTANT_EXTENSION_IDS` (see 
 | --- | --- |
 | "This extension is not one this portal trusts" on the portal-redirect sign-in | Its id is not in `MEET_ASSISTANT_EXTENSION_IDS`. Add it (shown in `chrome://extensions`) and redeploy, or use a build made with the fixed key. Email and password sign-in does not check the id. |
 | Sign-in window closes with no result | Pop-ups blocked or the portal session expired: sign in to employee.exyconn.com first, then retry. |
-| "Start" says tab capture was refused | Open the extension from the toolbar while on the Meet tab, then Start. |
-| Microphone not captured | Allow the microphone for the extension when Chrome asks; check `chrome://settings/content/microphone`. |
+| "Sharing this tab was cancelled" | Click Start again and choose **Share** in Chrome's dialog. |
+| "Keep Also share tab audio ticked" | The tab was shared without its audio. Start again with the audio box ticked. |
+| Microphone not captured | Allow the microphone for meet.google.com (the site's own permission); check `chrome://settings/content/microphone`. |
 | Status stays UNKNOWN | Meet's controls are not visible or the UI changed/is not in English. Reminders only fire for a verified OFF. |
 | "Consent required" on upload | Confirm the consent dialog again; recording never starts without it. |
 | "Budget exceeded" / recording stops | The company's monthly AI budget or maximum meeting length was reached (AI › Meeting Assistant › Settings). |

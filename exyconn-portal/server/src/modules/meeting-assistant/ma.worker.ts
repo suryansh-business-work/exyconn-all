@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { forEachOrganization } from '../organizations';
+import { currentOrganizationId, runForOrganization } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { registerBackgroundJob } from '../tech/jobs.registry';
@@ -7,6 +8,7 @@ import { MaChunkModel, MaEventModel, MaSegmentModel } from './models';
 import { recoverStaleSessions } from './meeting.lifecycle';
 import { requeueAbandonedJobs, runNextMaJob } from './jobs.runner';
 import { deleteRecordings } from './recording.store';
+import { deleteScreenPieces } from './screen.store';
 import { getMaSettings } from './settings.service';
 
 /** How often the pipeline looks for due steps and silent sessions. */
@@ -25,6 +27,22 @@ async function drain(left: number): Promise<number> {
     return 0;
   }
   return 1 + (await drain(left - 1));
+}
+
+/**
+ * Runs what is due now for the company in scope, without waiting for the next tick: called
+ * right after a call ends so its notes start at once. The claim in runNextMaJob is atomic, so
+ * a tick running at the same moment never takes the same step.
+ */
+export function startDueSteps(): void {
+  const organizationId = currentOrganizationId();
+  if (!organizationId) {
+    return;
+  }
+  // Its own scope: the request that asked may finish (and its scope change) before this does.
+  runForOrganization(organizationId, () => drain(STEPS_PER_TICK)).catch((error: unknown) =>
+    logger.error(error, 'Meeting assistant steps failed to start'),
+  );
 }
 
 /** One pass for the company in scope: requeue, recover, then run what is due. */
@@ -49,19 +67,25 @@ export async function runRetentionPass(now = new Date()): Promise<number> {
     removed += (await MaChunkModel.deleteMany({ createdAt: { $lt: before } })).deletedCount;
   }
   if (settings.audioRetentionDays > 0) {
-    removed += await deleteRecordings({
-      before: new Date(now.getTime() - settings.audioRetentionDays * DAY_MS),
-    });
+    const before = new Date(now.getTime() - settings.audioRetentionDays * DAY_MS);
+    removed += await deleteRecordings({ before });
+    removed += await deleteScreenPieces({ before });
   }
   return removed;
 }
 
-/** GridFS is not a Mongoose model, so its company-scoped lookup index is made here. */
+/** GridFS is not a Mongoose model, so its company-scoped lookup indexes are made here. */
 async function ensureRecordingIndex(): Promise<void> {
   await mongoose.connection.db?.collection('ma_recordings.files').createIndex({
     'metadata.organizationId': 1,
     'metadata.meetingId': 1,
     'metadata.stream': 1,
+    'metadata.seq': 1,
+  });
+  await mongoose.connection.db?.collection('ma_screen.files').createIndex({
+    'metadata.organizationId': 1,
+    'metadata.meetingId': 1,
+    'metadata.part': 1,
     'metadata.seq': 1,
   });
 }
@@ -107,6 +131,7 @@ registerBackgroundJob({
 registerBackgroundJob({
   key: JOB_KEYS.meetingAssistantRetention,
   label: 'Meeting assistant retention',
-  description: 'Deletes meeting transcripts, logs and saved audio past their retention windows.',
+  description:
+    'Deletes meeting transcripts, logs, saved audio and screen recordings past their retention windows.',
   runOnce: () => runRetentionPass(),
 });

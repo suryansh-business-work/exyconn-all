@@ -19,7 +19,53 @@ type Track = MaRecordingQuery['maRecording'][number];
 const STREAM_LABELS: Readonly<Record<string, string>> = {
   TAB: 'Meeting audio',
   MIC: 'Your microphone',
+  SCREEN: 'Screen recording',
 };
+/** Each restart of the screen recording is its own track: SCREEN_2, SCREEN_3… */
+const SCREEN_PART_PREFIX = 'SCREEN_';
+
+const isScreen = (stream: string) => stream === 'SCREEN' || stream.startsWith(SCREEN_PART_PREFIX);
+
+function useTrackLabel(stream: string): string {
+  const t = useT();
+  if (stream.startsWith(SCREEN_PART_PREFIX)) {
+    return t('Screen recording (part {part})', {
+      part: stream.slice(SCREEN_PART_PREFIX.length),
+    });
+  }
+  return t(STREAM_LABELS[stream] ?? stream);
+}
+
+interface PlayerProps {
+  src: string;
+  label: string;
+  video: boolean;
+}
+
+/** The track's player: video for the screen recording, audio for the rest. */
+function Player({ src, label, video }: Readonly<PlayerProps>) {
+  const t = useT();
+  const name = t('Play {label}', { label });
+  // No caption file exists for a call; the Transcript tab is its text alternative.
+  if (video) {
+    return (
+      <Box
+        component="video"
+        controls
+        src={src}
+        aria-label={name}
+        sx={{ display: 'block', width: '100%', maxWidth: '100%', borderRadius: 1 }}
+      >
+        <track kind="captions" />
+      </Box>
+    );
+  }
+  return (
+    <Box component="audio" controls src={src} aria-label={name}>
+      <track kind="captions" />
+    </Box>
+  );
+}
 
 interface RecordingTrackProps {
   meetingId: string;
@@ -27,15 +73,17 @@ interface RecordingTrackProps {
 }
 
 /**
- * One saved stream: how long and how large it is, a WAV download, and a player fed the same
- * short-lived signed link (fetched only when someone asks to listen).
+ * One saved stream: how long and how large it is, a download (WAV for audio, WebM for the
+ * screen recording), and a player fed the same short-lived signed link (fetched only when
+ * someone asks to play it).
  */
 export function RecordingTrack({ meetingId, track }: Readonly<RecordingTrackProps>) {
   const t = useT();
   const notify = useNotify();
   const [createLink, { loading }] = useMaRecordingDownloadLinkMutation();
   const [playUrl, setPlayUrl] = useState<string | null>(null);
-  const label = t(STREAM_LABELS[track.stream] ?? track.stream);
+  const label = useTrackLabel(track.stream);
+  const video = isScreen(track.stream);
 
   const fetchUrl = async () => {
     try {
@@ -75,16 +123,13 @@ export function RecordingTrack({ meetingId, track }: Readonly<RecordingTrackProp
           onClick={download}
           loading={loading}
         >
-          {t('Download WAV')}
+          {video ? t('Download video') : t('Download WAV')}
         </Button>
         {playUrl ? (
-          <Box component="audio" controls src={playUrl} aria-label={t('Play {label}', { label })}>
-            {/* No caption file exists for a call; the Transcript tab is its text alternative. */}
-            <track kind="captions" />
-          </Box>
+          <Player src={playUrl} label={label} video={video} />
         ) : (
           <Button size="small" startIcon={<PlayArrowIcon />} onClick={listen}>
-            {t('Listen')}
+            {video ? t('Watch') : t('Listen')}
           </Button>
         )}
       </Flex>

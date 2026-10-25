@@ -32,6 +32,7 @@ import {
 import { announcePublished } from './releases.notify';
 import { signedDownloadUrl } from './download-links';
 import { chunkBase64, recordingTracks } from './recording.store';
+import { screenPartOf, screenTracks } from './screen.store';
 import {
   MaExtensionSessionModel,
   MaGoogleConnectionModel,
@@ -57,6 +58,23 @@ function checkedStream(stream: string): string {
     badRequest('The stream is TAB or MIC.');
   }
   return stream;
+}
+
+/** An audio stream, or a part of the screen recording (SCREEN, SCREEN_2…). */
+function checkedDownloadStream(stream: string): string {
+  return screenPartOf(stream) === null ? checkedStream(stream) : stream;
+}
+
+/** The download's file name, and what the audit line says was downloaded. */
+function downloadOf(meetingId: string, stream: string) {
+  const part = screenPartOf(stream);
+  const base = `meeting-${meetingId}-${stream.toLowerCase()}`;
+  if (part !== null) {
+    const which = part === 0 ? '' : ` (part ${part + 1})`;
+    return { fileName: `${base}.webm`, summary: `Downloaded the screen recording${which}` };
+  }
+  const what = stream === 'MIC' ? 'microphone' : 'meeting';
+  return { fileName: `${base}.wav`, summary: `Downloaded the ${what} recording` };
 }
 
 export const maAdminQueries = {
@@ -116,7 +134,7 @@ export const maAdminQueries = {
   },
   maRecording: async (_p: unknown, { meetingId }: { meetingId: string }, ctx: Ctx) => {
     await readableMeeting(ctx, await assertMaUser(ctx), meetingId);
-    return recordingTracks(meetingId);
+    return [...(await recordingTracks(meetingId)), ...(await screenTracks(meetingId))];
   },
   maRecordingChunkBase64: async (
     _p: unknown,
@@ -234,7 +252,8 @@ export const maAdminMutations = {
   ) => {
     const actor = await assertMaUser(ctx);
     const meeting = await readableMeeting(ctx, actor, args.meetingId);
-    const stream = checkedStream(args.stream);
+    const stream = checkedDownloadStream(args.stream);
+    const file = downloadOf(args.meetingId, stream);
     const link = signedDownloadUrl({
       kind: 'recording',
       id: args.meetingId,
@@ -245,12 +264,12 @@ export const maAdminMutations = {
     await recordMaActivity(ctx, actor, {
       type: 'RECORDING_DOWNLOADED',
       action: 'ACCESS',
-      summary: `Downloaded the ${stream === 'MIC' ? 'microphone' : 'meeting'} recording`,
+      summary: file.summary,
       meeting,
     });
     return {
       ...link,
-      fileName: `meeting-${args.meetingId}-${stream.toLowerCase()}.wav`,
+      fileName: file.fileName,
       sha256: '',
     };
   },

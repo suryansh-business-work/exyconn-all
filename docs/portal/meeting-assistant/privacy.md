@@ -17,7 +17,8 @@
 
 | Data | Where | Retention |
 | --- | --- | --- |
-| Saved audio (16 kHz PCM WAV, when `saveRecordings` is on) | MongoDB GridFS `ma_recordings`, company-scoped | `audioRetentionDays` (default 90; 0 = until the meeting is deleted) |
+| Saved audio from older extension builds (16 kHz PCM WAV, when `saveRecordings` is on) | MongoDB GridFS `ma_recordings`, company-scoped | `audioRetentionDays` (default 90; 0 = until the meeting is deleted) |
+| Screen recording (tab video + call audio, WebM, when `saveRecordings` is on) | MongoDB GridFS `ma_screen`, company-scoped | `audioRetentionDays`, same as saved audio |
 | Transcript lines, event log, chunk receipts | MongoDB, company-scoped | `transcriptRetentionDays` (default 180) |
 | Notes, decisions, actions, deliveries | MongoDB, company-scoped | Until the meeting is deleted |
 | Google refresh token | MongoDB, AES-256-GCM sealed | Until the user disconnects |
@@ -48,7 +49,9 @@ default under OpenAI's API terms; companies should confirm this fits their own p
 - Company isolation: tenant plugin on every model; GridFS reads/writes filtered by
   `organizationId` explicitly; non-AI users see only meetings they own or were matched to.
 - Downloads: HMAC-signed, five-minute links bound to one file and one person.
-- Uploads: base64 JSON capped at 12 MB, WAV header validated (16 kHz mono PCM16 only), rate
-  limited per user, transcription concurrency bounded per process.
+- Uploads: transcription chunks as base64 JSON capped at 12 MB (WebM magic bytes or a
+  16 kHz mono PCM16 WAV header validated); screen pieces as raw `video/webm` streamed into
+  GridFS with an 8 MB cap per piece. Both rate limited per user; transcription concurrency
+  bounded per process.
 - Logs (pino + event log) never contain audio, transcript text, tokens or email bodies.
 - Extension CSP `script-src 'self'`; no remote code; bundle scanned in CI for eval/secrets.

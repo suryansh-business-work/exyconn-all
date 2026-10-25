@@ -11,6 +11,7 @@ import {
 import {
   runPipelinePass,
   runRetentionPass,
+  startDueSteps,
   startMeetingAssistantWorker,
 } from '../../../../src/modules/meeting-assistant/ma.worker';
 import { enqueueMaJob } from '../../../../src/modules/meeting-assistant/jobs.queue';
@@ -33,6 +34,7 @@ import {
   MaSegmentModel,
 } from '../../../../src/modules/meeting-assistant/models';
 import { AuditLogModel } from '../../../../src/modules/audit';
+import { runAsPlatform } from '../../../../src/lib/tenant';
 import {
   actorNamed,
   seedMeeting,
@@ -102,6 +104,12 @@ async function endedMeeting(overrides: Record<string, unknown> = {}): Promise<Le
 const jobOf = async (meeting: LeanMeeting, kind: string) =>
   MaJobModel.findOne({ meetingId: String(meeting._id), kind }).lean();
 const meetingNow = async (meeting: LeanMeeting) => MaMeetingModel.findById(meeting._id).lean();
+/** Polls until `done` holds (a step started in the background), for up to five seconds. */
+async function waitFor(done: () => Promise<boolean>): Promise<void> {
+  for (let tries = 0; tries < 100 && !(await done()); tries += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
 /** A clock far enough ahead that every queued step is due. */
 const later = (ms = DAY) => new Date(Date.now() + ms);
 
@@ -510,6 +518,30 @@ describe('the worker', () => {
     expect(await requeueAbandonedJobs()).toBe(1);
     expect((await MaJobModel.findOne({ key: 'a' }).lean())?.status).toBe('QUEUED');
     expect((await MaJobModel.findOne({ key: 'b' }).lean())?.status).toBe('RUNNING');
+  });
+
+  it('starts what is due at once when a call ends, without waiting for the next tick', async () => {
+    const meeting = await endedMeeting();
+    await enqueueMaJob('ANALYZE', String(meeting._id));
+    complete.mockResolvedValue(analysisReply);
+
+    startDueSteps();
+
+    await waitFor(async () => (await jobOf(meeting, 'ANALYZE'))?.status === 'DONE');
+    expect((await meetingNow(meeting))?.summaryStatus).toBe('READY');
+    // The step ran once: a pass straight after finds nothing left to do.
+    expect(await runNextMaJob(later())).toBe(false);
+    expect(complete).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts nothing outside a company', async () => {
+    const meeting = await endedMeeting();
+    await enqueueMaJob('ANALYZE', String(meeting._id));
+
+    await runAsPlatform(() => startDueSteps());
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect((await jobOf(meeting, 'ANALYZE'))?.status).toBe('QUEUED');
   });
 
   it('recovers silent sessions and runs what is due in one pass', async () => {

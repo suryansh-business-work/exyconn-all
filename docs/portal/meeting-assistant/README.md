@@ -19,17 +19,21 @@ in the AI portal (whole company) and the employee portal (my meetings).
 
 ```
 Google Meet tab ── content script (Shadow DOM floating assistant, visible-UI adapter)
+      │           recorder: "Share this tab" (getDisplayMedia) → MediaRecorder
+      │             · WebM/Opus file every ~15 s per stream (call, optional mic) → transcript
+      │             · tab video + mixed audio, one WebM in ~5 s pieces → screen recording
       │ chrome.runtime messages
 Service worker ── auth (PKCE + rotating refresh), session registry per tab, reminders (alarms),
-      │           upload queue (retry/backoff/backpressure), heartbeats, finalize
-Offscreen doc ── tab audio (+ optional mic) → AudioWorklet → 16 kHz mono PCM16 WAV chunks
+      │           two upload queues (retry/backoff/backpressure), heartbeats, finalize
       │ HTTPS: GraphQL /graphql (extension token, allow-listed fields)
-      │        REST  /meet-assistant/auth/token · /auth/revoke · /audio (base64 WAV in JSON)
+      │        REST  /meet-assistant/auth/token · /auth/revoke · /audio (base64 WebM in JSON)
+      │              · /video/:meetingId/:seq (raw WebM piece, streamed into GridFS)
 Portal server (modules/meeting-assistant)
   ├─ lifecycle: one session per person per call (idempotent start, reconnect window, stale recovery)
-  ├─ transcription: WAV check → save chunk (GridFS) → gpt-4o-transcribe(-diarize) → segments
+  ├─ transcription: WebM/WAV check → gpt-4o-transcribe(-diarize) → segments (Hinglish in Roman script)
+  ├─ screen recording: pieces streamed into GridFS `ma_screen`, one track per recording start
   ├─ Google Meet API import (optional, per user): official transcript + participants
-  ├─ worker (15 s tick): IMPORT_OFFICIAL → ANALYZE (GPT-4o, JSON, evidence-checked) → EMAIL
+  ├─ worker (15 s tick, and at once on finalize): IMPORT_OFFICIAL → ANALYZE (GPT-4o, JSON, evidence-checked) → EMAIL
   ├─ email: exactly once per recipient per notes version (delivery rows)
   ├─ event log (MaEvent) + audit log (person's Activity) for every step
   └─ release registry (platform model) + signed, expiring downloads
@@ -47,7 +51,7 @@ Portals: packages/meetings-ui mounted in apps/ai (/ai/meeting-assistant/*, scope
 | Participants during the call | Extension DOM (People panel / tiles), marked `MEET_UI`, confidence 0.6 | Best effort; no emails |
 | Participants after the call | Official Google Meet API (`GOOGLE_MEET_API`) | Authoritative; replaces UI rows |
 | The signed-in user | Portal account (`EXTENSION_USER`) | Verified identity and email |
-| Audio capture | Chrome `tabCapture` + `offscreen` (+ microphone permission) | Needs a user click on that tab |
+| Audio and screen capture | Chrome "Share this tab" (`getDisplayMedia`) in the Meet page; mic through Meet's own permission | Needs a click on Start in the in-Meet panel |
 | Transcript (independent) | OpenAI `gpt-4o-transcribe` / `-diarize` via the server | Hindi, English, Hinglish; diarization gives labels, never names |
 | Transcript (official) | Google Meet REST API v2 (`meetings.space.readonly`) | Only where the Workspace edition, organizer and language allow it; Hindi is not assumed |
 | Notes, decisions, actions | OpenAI GPT-4o (JSON mode + Zod) via the server | Items without valid transcript evidence are dropped |

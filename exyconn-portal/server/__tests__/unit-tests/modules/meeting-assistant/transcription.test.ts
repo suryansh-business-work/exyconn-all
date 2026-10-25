@@ -5,6 +5,7 @@ import { OpenAiConfigModel } from '../../../../src/modules/tech/openai-config.mo
 import { openAiClient, type TranscriptionResult } from '../../../../src/utils/openai';
 import {
   AudioRejection,
+  HINGLISH_PROMPT,
   checkedChunk,
   transcribeChunk,
   type AudioChunk,
@@ -59,9 +60,14 @@ const chunkFor = (meeting: LeanMeeting, overrides: Partial<AudioChunk> = {}): Au
   seq: 0,
   startMs: 0,
   durationMs: 0,
+  mimeType: 'audio/wav',
   audio: wavOf(ONE_SECOND),
   ...overrides,
 });
+
+/** A WebM file as MediaRecorder writes one: the EBML magic, then (here) filler. */
+const webmOf = (bytes = 64) =>
+  Buffer.concat([Buffer.from([0x1a, 0x45, 0xdf, 0xa3]), Buffer.alloc(bytes, 9)]);
 
 const result = (overrides: Partial<TranscriptionResult> = {}): TranscriptionResult => ({
   text: '',
@@ -123,10 +129,61 @@ describe('readWav16k', () => {
       seq: 0,
       startMs: 0,
       durationMs: 999_999,
+      mimeType: 'audio/wav',
       audio: wavOf(ONE_SECOND * 2),
     });
 
     expect(chunk.durationMs).toBe(2000);
+  });
+});
+
+describe('checking WebM chunks', () => {
+  const webm = (overrides: Partial<AudioChunk> = {}): AudioChunk => ({
+    meetingId: 'm',
+    stream: 'TAB',
+    seq: 0,
+    startMs: 0,
+    durationMs: 15_000,
+    mimeType: 'audio/webm',
+    audio: webmOf(),
+    ...overrides,
+  });
+  const refusalOf = (chunk: AudioChunk) => {
+    try {
+      checkedChunk(chunk);
+    } catch (error) {
+      return { status: (error as AudioRejection).status, code: (error as AudioRejection).code };
+    }
+    return null;
+  };
+
+  it('keeps the length the client measured, from 1 ms up to a minute', () => {
+    expect(checkedChunk(webm()).durationMs).toBe(15_000);
+    expect(checkedChunk(webm({ durationMs: 1 })).durationMs).toBe(1);
+    expect(checkedChunk(webm({ durationMs: 60_000 })).durationMs).toBe(60_000);
+  });
+
+  it('answers 415 without the EBML magic and 400 for an unbelievable length', () => {
+    expect(refusalOf(webm({ audio: wavOf(ONE_SECOND) }))).toEqual({
+      status: 415,
+      code: 'unsupported_audio',
+    });
+    expect(refusalOf(webm({ audio: Buffer.from([0x1a, 0x45]) }))).toEqual({
+      status: 415,
+      code: 'unsupported_audio',
+    });
+    expect(refusalOf(webm({ durationMs: 0 }))).toEqual({ status: 400, code: 'invalid_duration' });
+    expect(refusalOf(webm({ durationMs: 60_001 }))).toEqual({
+      status: 400,
+      code: 'invalid_duration',
+    });
+  });
+
+  it('never reads a WebM file as WAV', () => {
+    expect(refusalOf({ ...webm(), mimeType: 'audio/wav' })).toEqual({
+      status: 415,
+      code: 'unsupported_audio',
+    });
   });
 });
 
@@ -306,6 +363,64 @@ describe('transcribing a chunk', () => {
     expect(request.prompt).toContain('Hinglish');
   });
 
+  it('asks for Hindi in Roman letters, with a romanized example and no translation', () => {
+    expect(HINGLISH_PROMPT).toContain('Roman (Latin) letters');
+    expect(HINGLISH_PROMPT).toContain('main kal tak deck bhej dunga');
+    expect(HINGLISH_PROMPT).toContain('Never translate.');
+    expect(HINGLISH_PROMPT).not.toMatch(/[\u0900-\u097F]/);
+  });
+
+  it('keeps the romanization hint on Hinglish calls even when diarization is on', async () => {
+    await setMaSettings({ diarization: true, transcriptionModel: 'gpt-4o-mini-transcribe' });
+    const meeting = await seedMeeting(owner, {
+      consentRecordedAt: new Date(),
+      language: 'HINGLISH',
+    });
+    transcribe.mockResolvedValue(result({ text: 'haan theek hai' }));
+
+    await transcribeChunk(meeting, owner, chunkFor(meeting));
+
+    expect(transcribe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'gpt-4o-mini-transcribe',
+        language: undefined,
+        prompt: HINGLISH_PROMPT,
+      }),
+    );
+  });
+
+  it('never diarizes the microphone, and diarizes the tab on a Hindi call', async () => {
+    await setMaSettings({ diarization: true });
+    const meeting = await seedMeeting(owner, { consentRecordedAt: new Date(), language: 'HINDI' });
+    transcribe.mockResolvedValue(result({ text: 'namaste' }));
+
+    await transcribeChunk(meeting, owner, chunkFor(meeting, { stream: 'MIC' }));
+    await transcribeChunk(meeting, owner, chunkFor(meeting, { stream: 'TAB' }));
+
+    const requests = transcribe.mock.calls.map(([request]) => [request.model, request.language]);
+    expect(requests).toEqual([
+      ['gpt-4o-transcribe', 'hi'],
+      ['gpt-4o-transcribe-diarize', 'hi'],
+    ]);
+  });
+
+  it('transcribes a WebM chunk as WebM, on the length the client measured', async () => {
+    const meeting = await liveMeeting();
+    transcribe.mockResolvedValue(result({ text: 'from the page' }));
+
+    const done = await transcribeChunk(
+      meeting,
+      owner,
+      chunkFor(meeting, { mimeType: 'audio/webm', audio: webmOf(), durationMs: 15_000 }),
+    );
+
+    expect(done.segments).toEqual([
+      expect.objectContaining({ text: 'from the page', startMs: 0, endMs: 15_000 }),
+    ]);
+    expect(transcribe).toHaveBeenCalledWith(expect.objectContaining({ mimeType: 'audio/webm' }));
+    expect((await MaMeetingModel.findById(meeting._id).lean())?.audioSeconds).toBe(15);
+  });
+
   it('marks a failed chunk, logs it, and lets the same chunk be retried', async () => {
     const meeting = await liveMeeting();
     transcribe.mockRejectedValueOnce(new Error('socket hang up'));
@@ -390,6 +505,22 @@ describe('saved recordings', () => {
     const meeting = await liveMeeting();
 
     expect(await streamMergedWav(String(meeting._id), 'MIC', new PassThrough())).toBe(false);
+  });
+
+  it('never puts WebM audio in the WAV store: the screen recording keeps it', async () => {
+    const meeting = await liveMeeting();
+
+    await transcribeChunk(
+      meeting,
+      owner,
+      chunkFor(meeting, { mimeType: 'audio/webm', audio: webmOf(), durationMs: 15_000 }),
+    );
+
+    expect(await recordingTracks(String(meeting._id))).toEqual([]);
+    expect(await streamMergedWav(String(meeting._id), 'TAB', new PassThrough())).toBe(false);
+    expect((await MaMeetingModel.findById(meeting._id).lean())?.recordingSeconds).toBe(0);
+    const event = await MaEventModel.findOne({ type: 'CHUNK_TRANSCRIBED' }).lean();
+    expect(JSON.parse(event?.details ?? '{}')).toMatchObject({ saved: false });
   });
 
   it('stores no audio when the company does not save recordings', async () => {
