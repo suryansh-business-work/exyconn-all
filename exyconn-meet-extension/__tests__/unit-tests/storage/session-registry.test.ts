@@ -91,6 +91,15 @@ describe('session registry', () => {
     expect(await createSessionRegistry(area).takeSeq('m1', 'TAB')).toBe(2);
   });
 
+  it('starts a tab with no screen-recording part yet, and keeps the part it is given', async () => {
+    const registry = createSessionRegistry(new MemoryArea());
+    const fresh = newTabSession(4, 'k', page('aaa-bbbb-ccc'));
+    expect(fresh.videoPart).toBe(0);
+    await registry.put(fresh);
+    await registry.update(4, (s) => ({ ...s, videoPart: s.videoPart + 1 }));
+    expect((await registry.get(4))?.videoPart).toBe(1);
+  });
+
   it('counts recording and paused as capturing', () => {
     const session = newTabSession(1, 'k', page('aaa-bbbb-ccc'));
     expect(isCapturing({ ...session, captureState: 'RECORDING' })).toBe(true);

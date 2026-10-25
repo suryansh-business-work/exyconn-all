@@ -89,23 +89,25 @@ export function AssistantPanel({ id, layout, onClose, ...tabProps }: Readonly<Pr
           <CloseIcon fontSize="small" />
         </IconButton>
       </Stack>
-      <Tabs
-        value={selected}
-        onChange={(_event, next: number) => setSelected(next)}
-        variant="scrollable"
-        scrollButtons="auto"
-        aria-label={t('Assistant sections')}
-      >
-        {SECTIONS.map((item, index) => (
-          <Tab
-            key={item.id}
-            label={t(item.label)}
-            id={`${id}-tab-${item.id}`}
-            aria-controls={`${id}-panel-${item.id}`}
-            value={index}
-          />
-        ))}
-      </Tabs>
+      <Box sx={{ px: 1.5, pt: 1, minWidth: 0 }}>
+        <Tabs
+          value={selected}
+          onChange={(_event, next: number) => setSelected(next)}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label={t('Assistant sections')}
+        >
+          {SECTIONS.map((item, index) => (
+            <Tab
+              key={item.id}
+              label={t(item.label)}
+              id={`${id}-tab-${item.id}`}
+              aria-controls={`${id}-panel-${item.id}`}
+              value={index}
+            />
+          ))}
+        </Tabs>
+      </Box>
       <Box
         role="tabpanel"
         id={`${id}-panel-${section.id}`}

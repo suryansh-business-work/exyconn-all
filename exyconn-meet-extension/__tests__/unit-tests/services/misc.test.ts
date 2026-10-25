@@ -38,9 +38,9 @@ describe('askWorker', () => {
   it('throws the worker error or a missing reply', async () => {
     const chrome = installChrome();
     chrome.runtime.sendMessage.mockResolvedValueOnce({ ok: false, error: 'Join the call first' });
-    await expect(askWorker({ type: 'capture/start' })).rejects.toThrow('Join the call first');
+    await expect(askWorker({ type: 'capture/consent' })).rejects.toThrow('Join the call first');
     chrome.runtime.sendMessage.mockResolvedValueOnce(undefined);
-    await expect(askWorker({ type: 'capture/start' })).rejects.toThrow('did not answer');
+    await expect(askWorker({ type: 'capture/consent' })).rejects.toThrow('did not answer');
   });
 });
 

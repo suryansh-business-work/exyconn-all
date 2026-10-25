@@ -12,6 +12,47 @@ export type CaptureState = MaCaptureState;
 /** Which recorded stream a chunk belongs to. */
 export type AudioStream = 'TAB' | 'MIC';
 
+/** How transcription audio is encoded: self-contained WebM/Opus files from MediaRecorder. */
+export const AUDIO_MIME = 'audio/webm';
+/** The screen recording: one continuous WebM (VP8 video, Opus audio) per recording part. */
+export const VIDEO_MIME = 'video/webm';
+
+/** What the worker hands the in-page recorder once a start has been checked. */
+export interface CapturePlan {
+  meetingId: string;
+  /** The meeting's own clock starts here; chunk times are offsets from it. */
+  meetingStartedAtMs: number;
+  captureMic: boolean;
+  /** Length of one transcription chunk. */
+  chunkMs: number;
+  /** Length of one screen-recording piece sent to the portal while the call runs. */
+  pieceMs: number;
+  /** The company keeps recordings: send the screen recording as well. */
+  saveVideo: boolean;
+  /** Which recording of this meeting this is (0 for the first Start, 1 after a restart, …). */
+  videoPart: number;
+}
+
+/** One transcription chunk, as the in-page recorder hands it over. */
+export interface RecordedAudio {
+  meetingId: string;
+  stream: AudioStream;
+  startMs: number;
+  durationMs: number;
+  /** A self-contained WebM/Opus file, base64 (runtime messaging carries JSON only). */
+  audio: string;
+}
+
+/** One piece of the screen recording; concatenated in `seq` order, a part plays as one file. */
+export interface RecordedVideo {
+  meetingId: string;
+  part: number;
+  seq: number;
+  durationMs: number;
+  /** WebM bytes, base64. */
+  data: string;
+}
+
 /** The floating icon's state; each has its own colour AND its own words. */
 export type IconStatus = 'IDLE' | 'ATTENTION' | 'ACTIVE' | 'PROCESSING' | 'ERROR';
 

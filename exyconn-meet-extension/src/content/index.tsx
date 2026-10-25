@@ -5,17 +5,22 @@
  */
 import { createExtensionLogger } from '../services/logger';
 import { relayLogs } from '../services/messaging';
+import { logTo } from '../services/logger';
 import { startController } from './controller';
 import { mountAssistant } from './mount';
+import { listenForCommands, stopOnLeave } from './recorder';
 
 const logger = createExtensionLogger('meet-content', relayLogs);
 
 const stopController = startController(logger);
 const unmount = mountAssistant(logger);
+const stopListening = listenForCommands(logger);
 
 globalThis.addEventListener('pagehide', (event) => {
   // A page kept in the back/forward cache comes back alive; only a real unload tears down.
   if (!event.persisted) {
+    stopOnLeave(logger).catch(logTo(logger, 'Could not hand over the last recording'));
+    stopListening();
     stopController();
     unmount();
   }

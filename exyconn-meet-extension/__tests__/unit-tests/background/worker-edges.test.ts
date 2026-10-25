@@ -67,7 +67,7 @@ describe('worker edge cases', () => {
 
   it('waits before retrying an upload', async () => {
     await startWorker();
-    const { scheduleRetry } = await import('../../../src/background/capture');
+    const { scheduleRetry } = await import('../../../src/background/uploads');
     vi.useFakeTimers();
     const run = vi.fn();
     scheduleRetry(run, 2000);
@@ -89,39 +89,14 @@ describe('worker capture edges', () => {
     const { startCapture: begin } = await import('./harness');
     const worker = await startWorker();
     await begin(worker);
-    const key = (await worker.session())?.sessionKey ?? '';
-    await worker.fromOffscreen({ type: 'offscreen/error', sessionKey: key, reason: 'ended' });
-    const before = worker.chrome.runtime.sendMessage.mock.calls.length;
+    const { failCapture } = await import('../../../src/background/capture');
+    worker.chrome.tabs.goneTabs.add(TAB);
+    await failCapture('m1', 'The meeting audio ended');
+    expect(await worker.session()).toMatchObject({ captureState: 'ERROR', recorderActive: false });
+    worker.chrome.tabs.goneTabs.delete(TAB);
     await worker.send({ type: 'capture/stop', tabId: TAB });
-    const commands = worker.chrome.runtime.sendMessage.mock.calls
-      .slice(before)
-      .filter(([m]) => (m as { target?: string }).target === 'offscreen');
-    expect(commands).toHaveLength(0);
+    expect(worker.recorderCommands()).toEqual(['recorder/stop']);
     expect((await worker.session())?.captureState).toBe('STOPPED');
-  });
-
-  it('keeps the recorder document while another capture still runs', async () => {
-    const { startCapture: begin } = await import('./harness');
-    const worker = await startWorker();
-    await begin(worker);
-    worker.chrome.runtime.getContexts.mockResolvedValue([{}]);
-    await worker.fromOffscreen({
-      type: 'offscreen/notice',
-      sessionKey: 'other',
-      reason: 'stopped',
-    });
-    expect(worker.chrome.offscreen.closeDocument).not.toHaveBeenCalled();
-  });
-
-  it('refreshes the token once when an upload is refused as unauthenticated', async () => {
-    const { startCapture: begin, chunk } = await import('./harness');
-    const { jsonResponse } = await import('../chrome-mock');
-    const worker = await startWorker();
-    await begin(worker);
-    worker.portal.audioReplies.push(jsonResponse(401, {}));
-    await worker.fromOffscreen(chunk(0));
-    await vi.waitFor(() => expect(worker.portal.audio).toHaveLength(2));
-    expect(worker.portal.fetchMock.mock.calls.some(([u]) => u.endsWith('/auth/token'))).toBe(true);
   });
 
   it('keeps an ended call that never reached the server', async () => {

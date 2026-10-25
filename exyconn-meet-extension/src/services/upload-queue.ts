@@ -1,8 +1,15 @@
 import { backoffDelay, type BackoffOptions } from '../utils/backoff';
-import type { AudioChunk, UploadOutcome } from './audio-upload';
+import type { UploadOutcome } from './audio-upload';
 
-export interface UploadQueueOptions {
-  upload: (chunk: AudioChunk) => Promise<UploadOutcome>;
+/** What the queue needs of a chunk: its identity on the server. */
+export interface QueuedChunk {
+  meetingId: string;
+  stream: string;
+  seq: number;
+}
+
+export interface UploadQueueOptions<T extends QueuedChunk> {
+  upload: (chunk: T) => Promise<UploadOutcome>;
   /** Hard limit on queued chunks; a chunk past it is refused. */
   capacity: number;
   /** At this many queued chunks the producer is told to pause. */
@@ -10,9 +17,9 @@ export interface UploadQueueOptions {
   maxAttempts: number;
   backoff: BackoffOptions;
   schedule: (run: () => void, delayMs: number) => void;
-  onUploaded: (chunk: AudioChunk, outcome: Extract<UploadOutcome, { kind: 'done' }>) => void;
+  onUploaded: (chunk: T, outcome: Extract<UploadOutcome, { kind: 'done' }>) => void;
   /** A chunk that can never be uploaded (or ran out of attempts). */
-  onFailed: (chunk: AudioChunk, reason: string) => void;
+  onFailed: (chunk: T, reason: string) => void;
   /** Called after every change in the number of chunks waiting. */
   onSizeChange: (meetingId: string, size: number) => void;
   /** A callback above threw; the queue stops until the next enqueue restarts it. */
@@ -22,32 +29,32 @@ export interface UploadQueueOptions {
 export type EnqueueResult =
   { accepted: true; backpressure: boolean } | { accepted: false; reason: 'duplicate' | 'full' };
 
-interface Entry {
-  chunk: AudioChunk;
+interface Entry<T> {
+  chunk: T;
   attempts: number;
 }
 
 /** A chunk's identity on the server: one meeting, one stream, one sequence number. */
-export function chunkKey(chunk: Pick<AudioChunk, 'meetingId' | 'stream' | 'seq'>): string {
+export function chunkKey(chunk: QueuedChunk): string {
   return `${chunk.meetingId}:${chunk.stream}:${chunk.seq}`;
 }
 
 /**
- * Uploads audio chunks one at a time, in order, with exponential backoff between retries.
+ * Uploads chunks one at a time, in order, with exponential backoff between retries.
  *
  * Nothing is ever dropped to make room: when the queue reaches `highWater` the caller is
  * told (backpressure) and must pause capture, and the queue refuses chunks only past
  * `capacity`. A chunk is never uploaded twice — the key is remembered once accepted.
  */
-export function createUploadQueue(options: UploadQueueOptions) {
-  const entries: Entry[] = [];
+export function createUploadQueue<T extends QueuedChunk>(options: UploadQueueOptions<T>) {
+  const entries: Array<Entry<T>> = [];
   const seen = new Set<string>();
   let running = false;
 
   const countFor = (meetingId: string): number =>
     entries.filter((entry) => entry.chunk.meetingId === meetingId).length;
 
-  function finish(entry: Entry): void {
+  function finish(entry: Entry<T>): void {
     entries.shift();
     options.onSizeChange(entry.chunk.meetingId, countFor(entry.chunk.meetingId));
   }
@@ -91,7 +98,7 @@ export function createUploadQueue(options: UploadQueueOptions) {
   }
 
   return {
-    enqueue(chunk: AudioChunk): EnqueueResult {
+    enqueue(chunk: T): EnqueueResult {
       const key = chunkKey(chunk);
       if (seen.has(key)) {
         return { accepted: false, reason: 'duplicate' };

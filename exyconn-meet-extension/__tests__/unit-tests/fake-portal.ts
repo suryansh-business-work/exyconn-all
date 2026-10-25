@@ -14,6 +14,7 @@ export const ORG = {
   liveTranscript: true,
   maxMeetingMinutes: 60,
   portalUrl: 'https://employee.test',
+  saveRecordings: false,
 };
 
 type Handler = (variables: Record<string, unknown>) => unknown;
@@ -75,17 +76,46 @@ const tokens = (n: number) => ({
   refresh_expires_in: 86_400,
 });
 
+/** One screen-recording piece as the portal received it. */
+export interface ReceivedVideo {
+  meetingId: string;
+  seq: number;
+  part: string | null;
+  durationMs: string | null;
+  contentType: string | null;
+  bytes: Uint8Array;
+}
+
+function receiveVideo(url: string, init: RequestInit): ReceivedVideo {
+  const parsed = new URL(url);
+  const [meetingId, seq] = parsed.pathname.split('/').slice(-2);
+  return {
+    meetingId,
+    seq: Number(seq),
+    part: parsed.searchParams.get('part'),
+    durationMs: parsed.searchParams.get('durationMs'),
+    contentType: new Headers(init.headers).get('Content-Type'),
+    bytes: init.body as Uint8Array,
+  };
+}
+
 /**
  * The portal as the extension sees it: GraphQL by operation name, the token and revoke
- * endpoints, and the audio endpoint (answers queued per test).
+ * endpoints, and the audio and video endpoints (answers queued per test).
  */
 export function fakePortal() {
   const graphql = defaults();
   const calls: Array<{ op: string; variables: Record<string, unknown> }> = [];
   const audio: Array<Record<string, unknown>> = [];
   const audioReplies: Response[] = [];
+  const video: ReceivedVideo[] = [];
+  const videoReplies: Response[] = [];
   const tokenReplies: Response[] = [];
   const fetchMock = vi.fn((url: string, init: RequestInit): Promise<Response> => {
+    if (url.includes('/meet-assistant/video/')) {
+      video.push(receiveVideo(url, init));
+      return Promise.resolve(videoReplies.shift() ?? jsonResponse(200, { status: 'STORED' }));
+    }
     const body =
       init.body === undefined ? {} : (JSON.parse(String(init.body)) as Record<string, unknown>);
     if (url.endsWith('/graphql')) {
@@ -113,7 +143,7 @@ export function fakePortal() {
   });
   vi.stubGlobal('fetch', fetchMock);
   const ops = (op: string) => calls.filter((call) => call.op === op);
-  return { graphql, calls, ops, audio, audioReplies, tokenReplies, fetchMock };
+  return { graphql, calls, ops, audio, audioReplies, video, videoReplies, tokenReplies, fetchMock };
 }
 
 export type FakePortal = ReturnType<typeof fakePortal>;

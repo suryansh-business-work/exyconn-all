@@ -64,8 +64,10 @@ bump `package.json` only for a notable change.
 | `storage`       | settings (sync), sign-in (session/local), per-tab state (session) |
 | `alarms`        | reminders, heartbeats, finalize grace — survive worker suspension |
 | `notifications` | the optional "transcription is off" reminder                     |
-| `tabCapture`    | the call audio, after the user's click on the toolbar button      |
-| `offscreen`     | the recorder document (AudioWorklet, 16 kHz PCM WAV)              |
+
+Recording needs no permission of its own either: **Start transcription** in the in-Meet panel
+opens Chrome's "Share this tab" dialog (`getDisplayMedia`, this tab only, with its audio), and
+the microphone uses the permission Google Meet already holds on the page.
 
 Sign-in needs no permission of its own: the person types their portal email and password (and
 the two-factor code, when it is on) into the panel, popup or options page. The form hands them
@@ -80,14 +82,17 @@ Host access: `https://meet.google.com/*` and the mode's API origin only.
 - `background/` — the module service worker. Sign-in and token refresh (single-flight,
   rotating refresh tokens), the per-tab session registry in `storage.session`, server
   sessions, heartbeats, participant batches (≤ 50), reminders, the upload queue (ordered,
-  exponential backoff, max attempts, backpressure pauses capture — nothing is dropped), the
-  offscreen document and finalization. Pure rules live in `background/logic/`.
+  exponential backoff, max attempts, backpressure pauses capture — nothing is dropped; one
+  queue for transcription audio, one for the screen recording) and finalization, which runs
+  the moment the recorder has flushed and every upload is done. Pure rules live in
+  `background/logic/`.
 - `content/` — the Meet page. `meet-adapter/` reads the VISIBLE UI only (all selectors in
   `selectors.ts`, best-effort; unreadable means UNKNOWN), one debounced MutationObserver.
-  `app/` is the floating icon and side panel in a Shadow DOM.
-- `offscreen/` — tab audio played back through a default-rate AudioContext (so the call stays
-  audible) and captured by a separate 16 kHz context + `pcm-worklet.js`; mic only if enabled
-  and permitted. Each ~25 s becomes a WAV chunk.
+  `app/` is the floating icon and side panel in a Shadow DOM. `recorder/` runs in the page
+  after the user's click: a self-contained WebM/Opus file every ~15 s per stream (the call,
+  and the microphone when enabled) for the live transcript, and — when the company keeps
+  recordings — the tab's video with the mixed audio as one WebM, sent in ~5 s pieces that the
+  portal streams into storage while the call runs.
 - `popup/`, `options/` — React (MUI via `@exyconn/ui`); the settings form is RHF + Zod in
   `options/forms/extension-settings/`.
 - `services/`, `storage/`, `utils/`, `graphql/` — framework-free logic, 100% unit-tested.

@@ -13,7 +13,7 @@ import { createSlot, isRecord, type KeyValueArea } from './area';
 /** Everything the worker knows about one Meet tab. Survives the worker being suspended. */
 export interface TabSession {
   tabId: number;
-  /** Random per page load; stale offscreen chunks from an earlier load carry another key. */
+  /** Random per page load. */
   sessionKey: string;
   meetingCode: string;
   url: string;
@@ -27,8 +27,10 @@ export interface TabSession {
   captureError: string | null;
   consentRecorded: boolean;
   micEnabled: boolean;
-  /** True from `offscreen/start` until the recorder reports it has flushed and stopped. */
+  /** True from `recorder/started` until the page's recorder reports it has flushed and stopped. */
   recorderActive: boolean;
+  /** Starts of capture in this call so far: each start records its own screen-recording part. */
+  videoPart: number;
   pendingUploads: number;
   roster: SeenParticipant[];
   /** Participant changes not yet sent (batched, throttled). */
@@ -60,6 +62,7 @@ export function newTabSession(
     consentRecorded: false,
     micEnabled: false,
     recorderActive: false,
+    videoPart: 0,
     pendingUploads: 0,
     roster: [],
     pendingEvents: [],

@@ -101,5 +101,6 @@ export function resumeSession(previous: TabSession | null, fresh: TabSession): T
     captureState: previous.captureState,
     captureError: previous.captureError,
     pendingUploads: previous.pendingUploads,
+    videoPart: previous.videoPart,
   };
 }

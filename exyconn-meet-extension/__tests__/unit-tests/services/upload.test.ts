@@ -3,6 +3,7 @@ import {
   MAX_CHUNK_BYTES,
   classifyUploadResponse,
   createAudioUploader,
+  createUploader,
   type AudioChunk,
   type AudioUploaderOptions,
   type UploadOutcome,
@@ -12,6 +13,7 @@ import {
   createUploadQueue,
   type UploadQueueOptions,
 } from '../../../src/services/upload-queue';
+import { createVideoUploader, type VideoPiece } from '../../../src/services/video-upload';
 import { jsonResponse } from '../chrome-mock';
 
 const chunk = (seq: number, overrides: Partial<AudioChunk> = {}): AudioChunk => ({
@@ -112,11 +114,27 @@ function uploader(overrides: Partial<AudioUploaderOptions>, ...responses: Array<
     refreshAccessToken: vi.fn(() => Promise.resolve('a2')),
     ...overrides,
   };
-  return { upload: createAudioUploader(options), fetchImpl, options };
+  return {
+    upload: createAudioUploader(options),
+    uploadVideo: createVideoUploader(options),
+    fetchImpl,
+    options,
+  };
 }
 
+const piece = (overrides: Partial<VideoPiece> = {}): VideoPiece => ({
+  meetingId: 'm1',
+  tabId: 1,
+  stream: 'SCREEN-2',
+  part: 2,
+  seq: 4,
+  durationMs: 4999.6,
+  data: 'GkXfow==',
+  ...overrides,
+});
+
 describe('audio uploader', () => {
-  it('posts the WAV chunk as JSON with its identity', async () => {
+  it('posts the WebM chunk as JSON with its identity and type', async () => {
     const { upload, fetchImpl } = uploader({}, jsonResponse(200, { status: 'DONE', segments: [] }));
     await expect(upload(chunk(3, { startMs: -4.2, durationMs: 24_999.6 }))).resolves.toMatchObject({
       kind: 'done',
@@ -133,6 +151,7 @@ describe('audio uploader', () => {
       seq: 3,
       startMs: 0,
       durationMs: 25_000,
+      mimeType: 'audio/webm',
       audio: 'UklGRg==',
     });
   });
@@ -189,13 +208,86 @@ describe('audio uploader', () => {
   });
 });
 
+describe('shared uploader', () => {
+  it('checks the size with the given measure and sends with the token', async () => {
+    const send = vi.fn((_chunk: string, _token: string) =>
+      Promise.resolve({ status: 200, body: { status: 'DONE' } }),
+    );
+    const options: AudioUploaderOptions = {
+      apiUrl: 'https://api.test',
+      fetchImpl: vi.fn(),
+      getAccessToken: () => Promise.resolve('a1'),
+      refreshAccessToken: () => Promise.resolve('a2'),
+    };
+    const upload = createUploader<string>(options, (text) => text.length, send);
+    await expect(upload('small')).resolves.toMatchObject({ kind: 'done' });
+    expect(send).toHaveBeenCalledWith('small', 'a1');
+    await expect(upload('x'.repeat(MAX_CHUNK_BYTES + 1))).resolves.toEqual({
+      kind: 'fatal',
+      reason: 'too_large',
+    });
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('video uploader', () => {
+  it('posts the raw WebM piece to its part and sequence number', async () => {
+    const { uploadVideo, fetchImpl } = uploader({}, jsonResponse(200, { status: 'SAVED' }));
+    await expect(uploadVideo(piece())).resolves.toEqual({
+      kind: 'done',
+      duplicate: false,
+      segments: [],
+    });
+    const [url, init] = fetchImpl.mock.calls[0];
+    const parsed = new URL(url);
+    expect(parsed.origin + parsed.pathname).toBe('https://api.test/meet-assistant/video/m1/4');
+    expect(Object.fromEntries(parsed.searchParams)).toEqual({ part: '2', durationMs: '5000' });
+    expect(init.method).toBe('POST');
+    expect(init.headers).toEqual({ Authorization: 'Bearer a1', 'Content-Type': 'video/webm' });
+    expect(init.body).toEqual(Uint8Array.from([0x1a, 0x45, 0xdf, 0xa3]));
+  });
+
+  it('sends at least 1 ms of duration', async () => {
+    const { uploadVideo, fetchImpl } = uploader({}, jsonResponse(200, {}));
+    await uploadVideo(piece({ durationMs: 0.2 }));
+    expect(new URL(fetchImpl.mock.calls[0][0]).searchParams.get('durationMs')).toBe('1');
+  });
+
+  it('refreshes once on 401, and gives up as signed out without a token', async () => {
+    const { uploadVideo, fetchImpl } = uploader(
+      {},
+      jsonResponse(401, {}),
+      jsonResponse(200, { status: 'SAVED' }),
+    );
+    await expect(uploadVideo(piece())).resolves.toMatchObject({ kind: 'done' });
+    expect(fetchImpl.mock.calls[1][1].headers).toMatchObject({ Authorization: 'Bearer a2' });
+    await expect(
+      uploader(
+        { refreshAccessToken: vi.fn(() => Promise.resolve(null)) },
+        jsonResponse(401, {}),
+      ).uploadVideo(piece()),
+    ).resolves.toEqual({ kind: 'fatal', reason: 'signed_out' });
+  });
+
+  it('refuses a piece over 8 MB decoded, and maps server answers', async () => {
+    const big = 'A'.repeat(Math.ceil((MAX_CHUNK_BYTES + 3) / 3) * 4);
+    const { uploadVideo, fetchImpl } = uploader({}, jsonResponse(413, {}));
+    await expect(uploadVideo(piece({ data: big }))).resolves.toEqual({
+      kind: 'fatal',
+      reason: 'too_large',
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    await expect(uploadVideo(piece())).resolves.toEqual({ kind: 'fatal', reason: 'too_large' });
+  });
+});
+
 /** A queue whose uploads answer from a script and whose timers run when the test says so. */
-function queue(outcomes: UploadOutcome[], overrides: Partial<UploadQueueOptions> = {}) {
+function queue(outcomes: UploadOutcome[], overrides: Partial<UploadQueueOptions<AudioChunk>> = {}) {
   const timers: Array<{ run: () => void; delay: number }> = [];
   const upload = vi.fn((_chunk: AudioChunk): Promise<UploadOutcome> =>
     Promise.resolve(outcomes.shift() ?? { kind: 'done', duplicate: false, segments: [] }),
   );
-  const options: UploadQueueOptions = {
+  const options: UploadQueueOptions<AudioChunk> = {
     upload,
     capacity: 4,
     highWater: 3,
@@ -298,6 +390,32 @@ describe('upload queue', () => {
     timers[0].run();
     await settle();
     expect(q.size()).toBe(0);
+  });
+
+  it('queues any chunk kind by its own identity', async () => {
+    const upload = vi.fn((_piece: VideoPiece) =>
+      Promise.resolve<UploadOutcome>({ kind: 'done', duplicate: false, segments: [] }),
+    );
+    const q = createUploadQueue<VideoPiece>({
+      upload,
+      capacity: 2,
+      highWater: 2,
+      maxAttempts: 1,
+      backoff: { baseMs: 1, maxMs: 1 },
+      schedule: vi.fn(),
+      onUploaded: vi.fn(),
+      onFailed: vi.fn(),
+      onSizeChange: vi.fn(),
+      onError: vi.fn(),
+    });
+    expect(q.enqueue(piece({ seq: 0 }))).toEqual({ accepted: true, backpressure: false });
+    expect(q.enqueue(piece({ seq: 0, stream: 'SCREEN-3' }))).toEqual({
+      accepted: true,
+      backpressure: true,
+    });
+    await settle();
+    expect(upload.mock.calls.map(([p]) => p.stream)).toEqual(['SCREEN-2', 'SCREEN-3']);
+    expect(chunkKey(piece())).toBe('m1:SCREEN-2:4');
   });
 
   it('reports a throwing callback and restarts on the next chunk', async () => {
