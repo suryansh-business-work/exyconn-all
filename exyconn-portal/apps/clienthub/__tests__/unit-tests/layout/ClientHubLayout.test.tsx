@@ -82,7 +82,7 @@ describe('ClientHubLayout', () => {
     expect(logos).toContain('https://cdn/dark.png');
   });
 
-  it('links the eight sections and marks the one in view', () => {
+  it('links the nine sections and marks the one in view', () => {
     renderLayout();
     const nav = within(screen.getByRole('navigation', { name: 'Client hub sections' }));
     const links = nav.getAllByRole('link');
@@ -90,6 +90,7 @@ describe('ClientHubLayout', () => {
       'Overview',
       'Invoices',
       'Transactions',
+      'Refund accounts',
       'Support',
       'Projects',
       'Contracts & documents',
@@ -100,6 +101,7 @@ describe('ClientHubLayout', () => {
       '/dashboard',
       '/invoices',
       '/transactions',
+      '/refund-accounts',
       '/support',
       '/projects',
       '/documents',

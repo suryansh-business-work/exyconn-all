@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useT } from '@exyconn/i18n';
-import { PAYOUT_METHOD_LABELS, fieldsFor, isSecretField, type FieldSpec } from '@exyconn/payout';
+import {
+  PAYOUT_METHOD_LABELS,
+  fieldsFor,
+  isSecretField,
+  type FieldSpec,
+  type PayoutField,
+  type SecretField,
+} from '@exyconn/payout';
+
+/** The details stored as plain text on the account row. */
+type PlainField = Exclude<PayoutField, SecretField>;
 import { Box, Button, Flex, Text } from '@/components/ui';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { errorMessage } from '@/utils/errorMessage';
@@ -20,18 +30,11 @@ function DetailRow({ spec, row, reveal }: Readonly<DetailRowProps>) {
   const notify = useNotify();
   const [shown, setShown] = useState<string | null>(null);
   const { field } = spec;
-  const secret = isSecretField(field);
-  const stored = secret ? row.hints[field] : String(row[field] ?? '');
+  const secret = isSecretField(field) ? field : null;
+  const stored = secret ? row.hints[secret] : String(row[field as PlainField] ?? '');
 
-  const show = async () => {
-    if (!secret) {
-      return;
-    }
-    try {
-      setShown(await reveal(row, SECRET_ENUM[field]));
-    } catch (err) {
-      notify(errorMessage(err, 'Could not show it'), 'error');
-    }
+  const show = async (sealed: SecretField) => {
+    setShown(await reveal(row, SECRET_ENUM[sealed]));
   };
 
   return (
@@ -47,7 +50,9 @@ function DetailRow({ spec, row, reveal }: Readonly<DetailRowProps>) {
           size="small"
           startIcon={<VisibilityIcon fontSize="small" />}
           onClick={() => {
-            show().catch(() => setShown(null));
+            show(secret).catch((err: unknown) =>
+              notify(errorMessage(err, 'Could not show it'), 'error'),
+            );
           }}
           aria-label={t('Show {label}', { label: t(spec.label) })}
         >

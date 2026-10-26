@@ -17,7 +17,14 @@ vi.mock('@exyconn/shell/pages/user-forms/user', async () => ({
   UserForm: (await import('../../harness/form-stub')).FormStub,
 }));
 
-const employee = { id: 'u1', name: 'Asha Rao', email: 'asha@example.com' };
+// The salary accounts panel is tested in the shell; here only where it appears matters.
+vi.mock('@exyconn/shell/pages/UserDetails', () => ({
+  EmployeePayoutPanel: ({ employeeId, country }: { employeeId: string; country: string }) => (
+    <p>{`Salary accounts of ${employeeId} in ${country || 'the company country'}`}</p>
+  ),
+}));
+
+const employee = { id: 'u1', name: 'Asha Rao', email: 'asha@example.com', country: 'IN' };
 
 function renderAt(route: string) {
   renderWithProviders(
@@ -47,6 +54,8 @@ describe('EmployeeFormPage — new employee', () => {
       screen.getByText('Creates the account and emails a temporary password.'),
     ).toBeInTheDocument();
     expect(screen.getByText('Blank form')).toBeInTheDocument();
+    // Accounts are added once the employee exists, against their id.
+    expect(screen.queryByText(/^Salary accounts of/)).toBeNull();
     expect(useGetUserQuery).toHaveBeenCalledWith(
       expect.objectContaining({ variables: { id: '' }, skip: true }),
     );
@@ -87,6 +96,7 @@ describe('EmployeeFormPage — editing', () => {
     ).toBeInTheDocument();
     expect(document.querySelector('[aria-busy="true"]')).toBeNull();
     expect(screen.getByText(`Form for ${JSON.stringify(employee)}`)).toBeInTheDocument();
+    expect(screen.getByText('Salary accounts of u1 in IN')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));
     expect(url()).toHaveTextContent('/hr/employees/u1');

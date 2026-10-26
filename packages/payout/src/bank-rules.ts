@@ -45,10 +45,10 @@ export interface BankRules {
  * Catches every single-digit typo and most transpositions.
  */
 export function abaChecksumValid(routing: string): boolean {
-  const weights = [3, 7, 1];
+  const weights = '371';
   let sum = 0;
   for (let i = 0; i < routing.length; i += 1) {
-    sum += Number(routing[i]) * (weights[i % 3] ?? 0);
+    sum += Number(routing.charAt(i)) * Number(weights.charAt(i % 3));
   }
   return sum % 10 === 0;
 }

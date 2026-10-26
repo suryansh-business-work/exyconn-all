@@ -32,6 +32,7 @@ COPY packages/i18n/package.json packages/i18n/
 COPY packages/kanban/package.json packages/kanban/
 COPY packages/live-editor/package.json packages/live-editor/
 COPY packages/logger/package.json packages/logger/
+COPY packages/payout/package.json packages/payout/
 COPY packages/shell/package.json packages/shell/
 COPY packages/login/package.json packages/login/
 COPY packages/regex/package.json packages/regex/

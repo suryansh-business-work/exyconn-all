@@ -22,12 +22,11 @@ function DetailField({ spec, row, reveal }: Readonly<DetailFieldProps>) {
   if (isSecretField(field)) {
     const stored = Boolean(row?.hints[field]);
     const onReveal = row && stored ? () => reveal(row, SECRET_ENUM[field]) : undefined;
-    const storedHint = stored ? row?.hints[field] : undefined;
     return (
       <RhfSecretField
         name={field}
         label={label}
-        helperText={storedHint ?? hint}
+        helperText={hint}
         required={required && !stored}
         stored={stored}
         onReveal={onReveal}

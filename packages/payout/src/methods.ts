@@ -12,8 +12,11 @@ export const PAYOUT_METHODS = [
 export type PayoutMethod = (typeof PAYOUT_METHODS)[number];
 
 /** Salary is paid to a bank or by UPI; a refund may go back by any method. */
-export const SALARY_METHODS: readonly PayoutMethod[] = ['BANK_TRANSFER', 'UPI'];
-export const REFUND_METHODS: readonly PayoutMethod[] = PAYOUT_METHODS;
+/** The methods one kind of account may use, never empty: the first is a new account's default. */
+export type PayoutMethodList = readonly [PayoutMethod, ...PayoutMethod[]];
+
+export const SALARY_METHODS: PayoutMethodList = ['BANK_TRANSFER', 'UPI'];
+export const REFUND_METHODS: PayoutMethodList = PAYOUT_METHODS;
 
 export const PAYOUT_METHOD_LABELS: Readonly<Record<PayoutMethod, { label: string }>> = {
   BANK_TRANSFER: { label: 'Bank transfer' },
@@ -79,7 +82,9 @@ export interface FieldSpec {
 const spec = (need: Need, copy: Omit<FieldSpec, 'need'>): FieldSpec[] =>
   need === 'none' ? [] : [{ ...copy, need }];
 
-const WALLET_HINTS: Readonly<Record<string, { hint: string }>> = {
+type WalletMethod = 'PAYPAL' | 'WISE' | 'PAYONEER';
+
+const WALLET_HINTS: Readonly<Record<WalletMethod, { hint: string }>> = {
   PAYPAL: { hint: 'The email the PayPal account is registered to.' },
   WISE: { hint: 'The email the Wise account is registered to.' },
   PAYONEER: { hint: 'The email the Payoneer account is registered to.' },
@@ -180,7 +185,9 @@ export function fieldsFor(method: PayoutMethod, country: string): FieldSpec[] {
           hint: 'In international format, e.g. +14155550123.',
         }),
       ];
-    default:
+    case 'PAYPAL':
+    case 'WISE':
+    case 'PAYONEER':
       return [
         ...spec('required', {
           field: 'holderName',
@@ -190,7 +197,7 @@ export function fieldsFor(method: PayoutMethod, country: string): FieldSpec[] {
         ...spec('required', {
           field: 'walletEmail',
           label: 'Account email',
-          hint: WALLET_HINTS[method]?.hint ?? '',
+          hint: WALLET_HINTS[method].hint,
         }),
       ];
   }

@@ -2,12 +2,14 @@ import { useApolloClient } from '@apollo/client/react';
 import {
   PayoutAccountsPanel,
   REFUND_METHODS,
+  fetchSecret,
   type PayoutAccountApi,
 } from '@exyconn/shell/components/payout';
 import {
   ClientPayoutSecretDocument,
   useClientPayoutAccountsQuery,
   type ClientPayoutSecretQuery,
+  type ClientPayoutSecretQueryVariables,
 } from '@exyconn/shell/graphql/generated';
 
 /**
@@ -23,14 +25,13 @@ export function RefundAccountsTab({ clientId }: Readonly<{ clientId: string }>) 
 
   const api: PayoutAccountApi = {
     save: () => Promise.reject(new Error('Refund accounts are managed by the client.')),
-    reveal: async (row, field) => {
-      const { data } = await client.query<ClientPayoutSecretQuery>({
-        query: ClientPayoutSecretDocument,
-        variables: { clientId, id: row.id, field },
-        fetchPolicy: 'no-cache',
-      });
-      return data?.clientPayoutSecret ?? '';
-    },
+    reveal: (row, field) =>
+      fetchSecret<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>(
+        client,
+        ClientPayoutSecretDocument,
+        { clientId, id: row.id, field },
+        (data) => data.clientPayoutSecret,
+      ),
   };
 
   return (

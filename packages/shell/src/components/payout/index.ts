@@ -6,3 +6,4 @@ export { PayoutAccountsPanel } from './PayoutAccountsPanel';
 export { PayoutAccountDetails } from './PayoutAccountDetails';
 export * from './forms/payout-account';
 export { REFUND_METHODS, SALARY_METHODS } from '@exyconn/payout';
+export { fetchSecret } from './fetchSecret';

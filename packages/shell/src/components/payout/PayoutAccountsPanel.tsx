@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useT } from '@exyconn/i18n';
-import { PAYOUT_METHOD_LABELS, type PayoutMethod } from '@exyconn/payout';
+import { PAYOUT_METHOD_LABELS, type PayoutMethodList } from '@exyconn/payout';
 import { Box, Button, Chip, Flex, Heading, Text } from '@/components/ui';
 import { DataTable, type Column, type RowAction } from '@/components/data/DataTable';
 import { CrudDialog } from '@/components/data/CrudDialog';
@@ -27,7 +27,7 @@ interface PayoutAccountsPanelProps {
   error?: string;
   onRefresh: () => Promise<unknown>;
   /** Salary or refund methods. */
-  methods: readonly PayoutMethod[];
+  methods: PayoutMethodList;
   defaultCountry: string;
   defaultCurrency: string;
   api: PayoutAccountApi;
@@ -106,9 +106,7 @@ export function PayoutAccountsPanel(props: Readonly<PayoutAccountsPanelProps>) {
       tooltip: 'Remove',
       ariaLabel: 'remove',
       color: 'error',
-      onClick: (row) => {
-        remove(row).catch((err: unknown) => notify(errorMessage(err, 'Could not remove'), 'error'));
-      },
+      onClick: remove,
     },
   ];
   const actions = editable ? [viewAction, ...editActions] : [viewAction];

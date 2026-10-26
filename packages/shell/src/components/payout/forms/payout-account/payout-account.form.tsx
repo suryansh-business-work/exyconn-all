@@ -4,7 +4,7 @@ import {
   PAYOUT_METHOD_LABELS,
   UPI_COUNTRY,
   UPI_CURRENCY,
-  type PayoutMethod,
+  type PayoutMethodList,
 } from '@exyconn/payout';
 import { zodResolver } from '@/components/form/zodResolver';
 import { RhfAutocomplete, RhfCurrencyField, RhfSelect, RhfSwitch } from '@/components/form/rhf';
@@ -28,7 +28,7 @@ import type {
 interface PayoutAccountFormProps {
   initial: PayoutAccountRow | null;
   /** The methods this kind of account may use: salary or refund. */
-  methods: readonly PayoutMethod[];
+  methods: PayoutMethodList;
   /** Where a new account starts: the payee's country and the company's currency. */
   defaultCountry: string;
   defaultCurrency: string;
@@ -57,12 +57,7 @@ export function PayoutAccountForm({
   const methods = useForm<PayoutAccountFormValues>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
-    defaultValues: toFormValues(
-      initial,
-      allowed[0] ?? 'BANK_TRANSFER',
-      defaultCountry,
-      defaultCurrency,
-    ),
+    defaultValues: toFormValues(initial, allowed[0], defaultCountry, defaultCurrency),
   });
   const method = methods.watch('method');
 

@@ -1,7 +1,7 @@
 import { useApolloClient } from '@apollo/client/react';
 import { SALARY_METHODS } from '@exyconn/payout';
 import { useCompanyCurrency } from '@/components/form/rhf';
-import { PayoutAccountsPanel, type PayoutAccountApi } from '@/components/payout';
+import { PayoutAccountsPanel, fetchSecret, type PayoutAccountApi } from '@/components/payout';
 import { usePermissions } from '@/hooks/usePermissions';
 import {
   EmployeePayoutSecretDocument,
@@ -9,6 +9,7 @@ import {
   useEmployeePayoutAccountsQuery,
   useSaveEmployeePayoutAccountMutation,
   type EmployeePayoutSecretQuery,
+  type EmployeePayoutSecretQueryVariables,
 } from '@/graphql/generated';
 
 /** Re-read after every change: saving one account may move the default off another. */
@@ -44,15 +45,13 @@ export function EmployeePayoutPanel({ employeeId, country }: Readonly<EmployeePa
 
   const api: PayoutAccountApi = {
     save: (id, input) => save({ variables: { employeeId, id, input } }),
-    reveal: async (row, field) => {
-      // Never cached: a full account number must not outlive the moment it was asked for.
-      const { data } = await client.query<EmployeePayoutSecretQuery>({
-        query: EmployeePayoutSecretDocument,
-        variables: { employeeId, id: row.id, field },
-        fetchPolicy: 'no-cache',
-      });
-      return data?.employeePayoutSecret ?? '';
-    },
+    reveal: (row, field) =>
+      fetchSecret<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>(
+        client,
+        EmployeePayoutSecretDocument,
+        { employeeId, id: row.id, field },
+        (data) => data.employeePayoutSecret,
+      ),
   };
 
   return (

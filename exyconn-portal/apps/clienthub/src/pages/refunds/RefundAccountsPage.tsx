@@ -4,6 +4,7 @@ import { useCompanyCurrency } from '@exyconn/shell/components/form/rhf';
 import {
   PayoutAccountsPanel,
   REFUND_METHODS,
+  fetchSecret,
   type PayoutAccountApi,
 } from '@exyconn/shell/components/payout';
 import {
@@ -12,6 +13,7 @@ import {
   useClientHubPayoutAccountsQuery,
   useClientHubSavePayoutAccountMutation,
   type ClientHubPayoutSecretQuery,
+  type ClientHubPayoutSecretQueryVariables,
 } from '@exyconn/shell/graphql/generated';
 import { HubPageHeader } from '../HubPageHeader';
 
@@ -31,14 +33,13 @@ export function RefundAccountsPage() {
 
   const api: PayoutAccountApi = {
     save: (id, input) => save({ variables: { id, input } }),
-    reveal: async (row, field) => {
-      const { data } = await client.query<ClientHubPayoutSecretQuery>({
-        query: ClientHubPayoutSecretDocument,
-        variables: { id: row.id, field },
-        fetchPolicy: 'no-cache',
-      });
-      return data?.clientHubPayoutSecret ?? '';
-    },
+    reveal: (row, field) =>
+      fetchSecret<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>(
+        client,
+        ClientHubPayoutSecretDocument,
+        { id: row.id, field },
+        (data) => data.clientHubPayoutSecret,
+      ),
   };
 
   return (
