@@ -1069,6 +1069,12 @@ export type BackgroundJob = {
   lastRunSummary: Scalars['String']['output'];
 };
 
+/** ISO 20022 cash account type: CURRENT (CACC, checking) or SAVINGS (SVGS). */
+export enum BankAccountType {
+  Current = 'CURRENT',
+  Savings = 'SAVINGS'
+}
+
 export type Benefit = {
   __typename?: 'Benefit';
   coverage: Scalars['String']['output'];
@@ -8903,12 +8909,15 @@ export type Mutation = {
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
   clearRolePermission: Scalars['Boolean']['output'];
+  clientHubDeletePayoutAccount: Scalars['Boolean']['output'];
   /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
   clientHubEmailInvoice: Scalars['Boolean']['output'];
   clientHubOpenTicket: SupportTicket;
   /** Opens the gateway's hosted checkout for the invoice's whole balance. */
   clientHubPayInvoice: ClientHubCheckout;
   clientHubReplyToTicket: SupportReply;
+  /** Adds (no id) or replaces one of the signed-in client's refund accounts. */
+  clientHubSavePayoutAccount: PayoutAccount;
   /** Ends the chat; the visitor is emailed the conversation when the settings say so. */
   closeWebsiteChatSession: WebsiteChatSession;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
@@ -9175,6 +9184,7 @@ export type Mutation = {
   deleteEmailTemplate: Scalars['Boolean']['output'];
   deleteEmailVerifierConfig: Scalars['Boolean']['output'];
   deleteEmployeeDocument: Scalars['Boolean']['output'];
+  deleteEmployeePayoutAccount: Scalars['Boolean']['output'];
   deleteEmployeeRequest: Scalars['Boolean']['output'];
   deleteEmploymentType: Scalars['Boolean']['output'];
   deleteExitRecord: Scalars['Boolean']['output'];
@@ -9533,6 +9543,8 @@ export type Mutation = {
   saveCampaignTemplate: CampaignTemplate;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
+  /** Adds (no id) or replaces an employee's salary account. Nobody edits their own. */
+  saveEmployeePayoutAccount: PayoutAccount;
   /**
    * Creates or replaces ONE employee's salary structure, keyed on the employee.
    *
@@ -10193,6 +10205,11 @@ export type MutationClearRolePermissionArgs = {
 };
 
 
+export type MutationClientHubDeletePayoutAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationClientHubEmailInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -10212,6 +10229,12 @@ export type MutationClientHubPayInvoiceArgs = {
 export type MutationClientHubReplyToTicketArgs = {
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubSavePayoutAccountArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
 };
 
 
@@ -11290,6 +11313,12 @@ export type MutationDeleteEmailVerifierConfigArgs = {
 
 
 export type MutationDeleteEmployeeDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteEmployeePayoutAccountArgs = {
+  employeeId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -12421,6 +12450,13 @@ export type MutationSaveCmsFragmentDraftArgs = {
 export type MutationSaveCmsPageDraftArgs = {
   draft: CmsDraftInput;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveEmployeePayoutAccountArgs = {
+  employeeId: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
 };
 
 
@@ -14723,6 +14759,83 @@ export type PayoneerConfigInput = {
   mode: GatewayMode;
 };
 
+/** Where one payee is paid: an employee's salary account or a client's refund account. */
+export type PayoutAccount = {
+  __typename?: 'PayoutAccount';
+  accountType?: Maybe<BankAccountType>;
+  bankName: Scalars['String']['output'];
+  /** ISO 9362 BIC / SWIFT code. */
+  bic: Scalars['String']['output'];
+  branchName: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  /** ISO 3166-1 alpha-2. */
+  country: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** ISO 4217. */
+  currency: Scalars['String']['output'];
+  hints: PayoutAccountHints;
+  holderName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPrimary: Scalars['Boolean']['output'];
+  method: PayoutMethod;
+  region: Scalars['String']['output'];
+  /** The country's domestic bank or branch code: IFSC, ABA routing, sort code, BSB, transit. */
+  routingCode: Scalars['String']['output'];
+  /** One masked line naming the account. */
+  summary: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Masked forms of the sealed details; empty where none is stored. */
+export type PayoutAccountHints = {
+  __typename?: 'PayoutAccountHints';
+  accountNumber: Scalars['String']['output'];
+  iban: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  upiId: Scalars['String']['output'];
+  walletEmail: Scalars['String']['output'];
+};
+
+/** A blank sealed detail on an edit keeps the stored one. */
+export type PayoutAccountInput = {
+  accountNumber: Scalars['String']['input'];
+  accountType?: InputMaybe<BankAccountType>;
+  bankName: Scalars['String']['input'];
+  bic: Scalars['String']['input'];
+  branchName: Scalars['String']['input'];
+  city: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  holderName: Scalars['String']['input'];
+  iban: Scalars['String']['input'];
+  isPrimary?: InputMaybe<Scalars['Boolean']['input']>;
+  method: PayoutMethod;
+  phone: Scalars['String']['input'];
+  region: Scalars['String']['input'];
+  routingCode: Scalars['String']['input'];
+  upiId: Scalars['String']['input'];
+  walletEmail: Scalars['String']['input'];
+};
+
+/** How money reaches the payee (the same codes as @exyconn/payout PAYOUT_METHODS). */
+export enum PayoutMethod {
+  BankTransfer = 'BANK_TRANSFER',
+  Payoneer = 'PAYONEER',
+  Paypal = 'PAYPAL',
+  Upi = 'UPI',
+  WesternUnion = 'WESTERN_UNION',
+  Wise = 'WISE'
+}
+
+/** A sealed detail of a payout account, shown in full only on request (and logged). */
+export enum PayoutSecretField {
+  AccountNumber = 'ACCOUNT_NUMBER',
+  Iban = 'IBAN',
+  Phone = 'PHONE',
+  UpiId = 'UPI_ID',
+  WalletEmail = 'WALLET_EMAIL'
+}
+
 /** Exyconn's PayPal account (Tech > Environment Variables). The client secret is write-only. */
 export type PaypalConfig = {
   __typename?: 'PaypalConfig';
@@ -15865,6 +15978,10 @@ export type Query = {
   clientHubPaymentAttempt: PaymentAttempt;
   clientHubPaymentOptions: ClientHubPaymentOptions;
   clientHubPayments: PaymentPage;
+  /** The signed-in client's refund accounts. */
+  clientHubPayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of the signed-in client's refund account in full. */
+  clientHubPayoutSecret: Scalars['String']['output'];
   clientHubProjects: Array<ClientHubProject>;
   clientHubReminders: Array<ClientHubReminder>;
   /** A shared record's text as sanitised HTML. */
@@ -15873,6 +15990,10 @@ export type Query = {
   clientHubTicketReplies: Array<SupportReply>;
   clientHubTickets: SupportTicketPage;
   clientLinks: Array<ClientLink>;
+  /** A client's refund accounts, as the client entered them in the client hub. */
+  clientPayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of a client's refund account in full. Logged. */
+  clientPayoutSecret: Scalars['String']['output'];
   /** Every project, for the Clients form's project picker. */
   clientProjectOptions: Array<ClientProjectOption>;
   /** Legal records of one kind that may be shared with a client (up to 200, latest first). */
@@ -15983,6 +16104,10 @@ export type Query = {
   employeeLocations: Array<TrackerLocation>;
   /** HR, ADMIN or the employee's manager: their location pins from one local day to another (YYYY-MM-DD, both included, at most 31 days), oldest first. */
   employeeLocationsBetween: Array<TrackerLocation>;
+  /** An employee's salary accounts (Payroll: HR or Finance). */
+  employeePayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of an employee's salary account in full. Logged. */
+  employeePayoutSecret: Scalars['String']['output'];
   /**
    * ONE employee's salary structure, looked up by the employee rather than by structure id.
    * Null until HR has set one up. This is what the employee record reads.
@@ -17053,6 +17178,12 @@ export type QueryClientHubPaymentsArgs = {
 };
 
 
+export type QueryClientHubPayoutSecretArgs = {
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryClientHubSharedContentArgs = {
   id: Scalars['ID']['input'];
 };
@@ -17070,6 +17201,18 @@ export type QueryClientHubTicketsArgs = {
 
 export type QueryClientLinksArgs = {
   clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientPayoutAccountsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientPayoutSecretArgs = {
+  clientId: Scalars['ID']['input'];
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -17342,6 +17485,18 @@ export type QueryEmployeeLocationsBetweenArgs = {
   employeeId: Scalars['ID']['input'];
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
+};
+
+
+export type QueryEmployeePayoutAccountsArgs = {
+  employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryEmployeePayoutSecretArgs = {
+  employeeId: Scalars['ID']['input'];
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -23473,6 +23628,7 @@ export type ResolversTypes = ResolversObject<{
   AuditStatus: AuditStatus;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   BackgroundJob: ResolverTypeWrapper<BackgroundJob>;
+  BankAccountType: BankAccountType;
   Benefit: ResolverTypeWrapper<Benefit>;
   BenefitInput: BenefitInput;
   BenefitKind: BenefitKind;
@@ -24221,6 +24377,11 @@ export type ResolversTypes = ResolversObject<{
   PaymentPage: ResolverTypeWrapper<PaymentPage>;
   PayoneerConfig: ResolverTypeWrapper<PayoneerConfig>;
   PayoneerConfigInput: PayoneerConfigInput;
+  PayoutAccount: ResolverTypeWrapper<PayoutAccount>;
+  PayoutAccountHints: ResolverTypeWrapper<PayoutAccountHints>;
+  PayoutAccountInput: PayoutAccountInput;
+  PayoutMethod: PayoutMethod;
+  PayoutSecretField: PayoutSecretField;
   PaypalConfig: ResolverTypeWrapper<PaypalConfig>;
   PaypalConfigInput: PaypalConfigInput;
   PayrollCandidate: ResolverTypeWrapper<PayrollCandidate>;
@@ -25320,6 +25481,9 @@ export type ResolversParentTypes = ResolversObject<{
   PaymentPage: PaymentPage;
   PayoneerConfig: PayoneerConfig;
   PayoneerConfigInput: PayoneerConfigInput;
+  PayoutAccount: PayoutAccount;
+  PayoutAccountHints: PayoutAccountHints;
+  PayoutAccountInput: PayoutAccountInput;
   PaypalConfig: PaypalConfig;
   PaypalConfigInput: PaypalConfigInput;
   PayrollCandidate: PayrollCandidate;
@@ -30628,10 +30792,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   claimWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationClaimWebsiteChatSessionArgs, 'id'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
+  clientHubDeletePayoutAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClientHubDeletePayoutAccountArgs, 'id'>>;
   clientHubEmailInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClientHubEmailInvoiceArgs, 'id'>>;
   clientHubOpenTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationClientHubOpenTicketArgs, 'input'>>;
   clientHubPayInvoice?: Resolver<ResolversTypes['ClientHubCheckout'], ParentType, ContextType, RequireFields<MutationClientHubPayInvoiceArgs, 'gateway' | 'id'>>;
   clientHubReplyToTicket?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationClientHubReplyToTicketArgs, 'body' | 'ticketId'>>;
+  clientHubSavePayoutAccount?: Resolver<ResolversTypes['PayoutAccount'], ParentType, ContextType, RequireFields<MutationClientHubSavePayoutAccountArgs, 'input'>>;
   closeWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationCloseWebsiteChatSessionArgs, 'id'>>;
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
   completeGoogleSignIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationCompleteGoogleSignInArgs, 'ticket'>>;
@@ -30840,6 +31006,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteEmailTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailTemplateArgs, 'id'>>;
   deleteEmailVerifierConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailVerifierConfigArgs, 'id'>>;
   deleteEmployeeDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeDocumentArgs, 'id'>>;
+  deleteEmployeePayoutAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeePayoutAccountArgs, 'employeeId' | 'id'>>;
   deleteEmployeeRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeRequestArgs, 'id'>>;
   deleteEmploymentType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmploymentTypeArgs, 'id'>>;
   deleteExitRecord?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExitRecordArgs, 'id'>>;
@@ -31058,6 +31225,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveCampaignTemplate?: Resolver<ResolversTypes['CampaignTemplate'], ParentType, ContextType, RequireFields<MutationSaveCampaignTemplateArgs, 'input'>>;
   saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
   saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
+  saveEmployeePayoutAccount?: Resolver<ResolversTypes['PayoutAccount'], ParentType, ContextType, RequireFields<MutationSaveEmployeePayoutAccountArgs, 'employeeId' | 'input'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveGmailConfig?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType, RequireFields<MutationSaveGmailConfigArgs, 'input'>>;
   saveGoogleSignInConfig?: Resolver<ResolversTypes['GoogleSignInConfig'], ParentType, ContextType, RequireFields<MutationSaveGoogleSignInConfigArgs, 'input'>>;
@@ -31664,6 +31832,36 @@ export type PayoneerConfigResolvers<ContextType = GraphQLContext, ParentType ext
   merchantCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mode?: Resolver<ResolversTypes['GatewayMode'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PayoutAccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayoutAccount'] = ResolversParentTypes['PayoutAccount']> = ResolversObject<{
+  accountType?: Resolver<Maybe<ResolversTypes['BankAccountType']>, ParentType, ContextType>;
+  bankName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  bic?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  branchName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hints?: Resolver<ResolversTypes['PayoutAccountHints'], ParentType, ContextType>;
+  holderName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isPrimary?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  method?: Resolver<ResolversTypes['PayoutMethod'], ParentType, ContextType>;
+  region?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  routingCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PayoutAccountHintsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayoutAccountHints'] = ResolversParentTypes['PayoutAccountHints']> = ResolversObject<{
+  accountNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  iban?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  upiId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  walletEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -32320,6 +32518,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   clientHubPaymentAttempt?: Resolver<ResolversTypes['PaymentAttempt'], ParentType, ContextType, RequireFields<QueryClientHubPaymentAttemptArgs, 'id'>>;
   clientHubPaymentOptions?: Resolver<ResolversTypes['ClientHubPaymentOptions'], ParentType, ContextType>;
   clientHubPayments?: Resolver<ResolversTypes['PaymentPage'], ParentType, ContextType, RequireFields<QueryClientHubPaymentsArgs, 'input'>>;
+  clientHubPayoutAccounts?: Resolver<Array<ResolversTypes['PayoutAccount']>, ParentType, ContextType>;
+  clientHubPayoutSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubPayoutSecretArgs, 'field' | 'id'>>;
   clientHubProjects?: Resolver<Array<ResolversTypes['ClientHubProject']>, ParentType, ContextType>;
   clientHubReminders?: Resolver<Array<ResolversTypes['ClientHubReminder']>, ParentType, ContextType>;
   clientHubSharedContent?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubSharedContentArgs, 'id'>>;
@@ -32327,6 +32527,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   clientHubTicketReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryClientHubTicketRepliesArgs, 'ticketId'>>;
   clientHubTickets?: Resolver<ResolversTypes['SupportTicketPage'], ParentType, ContextType, RequireFields<QueryClientHubTicketsArgs, 'input'>>;
   clientLinks?: Resolver<Array<ResolversTypes['ClientLink']>, ParentType, ContextType, RequireFields<QueryClientLinksArgs, 'clientId'>>;
+  clientPayoutAccounts?: Resolver<Array<ResolversTypes['PayoutAccount']>, ParentType, ContextType, RequireFields<QueryClientPayoutAccountsArgs, 'clientId'>>;
+  clientPayoutSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientPayoutSecretArgs, 'clientId' | 'field' | 'id'>>;
   clientProjectOptions?: Resolver<Array<ResolversTypes['ClientProjectOption']>, ParentType, ContextType>;
   clientShareOptions?: Resolver<Array<ResolversTypes['ClientShareOption']>, ParentType, ContextType, RequireFields<QueryClientShareOptionsArgs, 'kind'>>;
   clientSharedItems?: Resolver<Array<ResolversTypes['ClientSharedItem']>, ParentType, ContextType, RequireFields<QueryClientSharedItemsArgs, 'clientId'>>;
@@ -32391,6 +32593,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   employeeLegalAssignments?: Resolver<Array<ResolversTypes['LegalAssignment']>, ParentType, ContextType, RequireFields<QueryEmployeeLegalAssignmentsArgs, 'userId'>>;
   employeeLocations?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryEmployeeLocationsArgs, 'date' | 'employeeId'>>;
   employeeLocationsBetween?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryEmployeeLocationsBetweenArgs, 'employeeId' | 'from' | 'to'>>;
+  employeePayoutAccounts?: Resolver<Array<ResolversTypes['PayoutAccount']>, ParentType, ContextType, RequireFields<QueryEmployeePayoutAccountsArgs, 'employeeId'>>;
+  employeePayoutSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryEmployeePayoutSecretArgs, 'employeeId' | 'field' | 'id'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
   firecrawlConfigs?: Resolver<Array<ResolversTypes['FirecrawlConfig']>, ParentType, ContextType>;
   firecrawlReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -35742,6 +35946,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PaymentAttempt?: PaymentAttemptResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
   PayoneerConfig?: PayoneerConfigResolvers<ContextType>;
+  PayoutAccount?: PayoutAccountResolvers<ContextType>;
+  PayoutAccountHints?: PayoutAccountHintsResolvers<ContextType>;
   PaypalConfig?: PaypalConfigResolvers<ContextType>;
   PayrollCandidate?: PayrollCandidateResolvers<ContextType>;
   PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;

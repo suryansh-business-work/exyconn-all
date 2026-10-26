@@ -9,4 +9,5 @@ export const PATHS = {
   links: '/links',
   communications: '/communications',
   documents: '/documents',
+  refundAccounts: '/refund-accounts',
 } as const;

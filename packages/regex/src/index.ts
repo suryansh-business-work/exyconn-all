@@ -347,3 +347,54 @@ export const AI_MODEL_ID = /^[\w.:/-]+$/;
 
 /** A GitHub repository as `owner/name`, e.g. `acme/portal`: letters, digits, `.`, `_` and `-`. */
 export const GITHUB_REPOSITORY = /^[\w.-]{1,100}\/[\w.-]{1,100}$/;
+
+/**
+ * Where money is paid out to — an employee's salary account, a client's refund account. Shapes
+ * only, checked after spaces are removed and letters upper-cased; the check digits (IBAN
+ * mod 97, ABA routing) and which identifiers a country uses live in @exyconn/payout.
+ */
+
+/** An IBAN (ISO 13616): country, two check digits and a basic bank account number of 11–30. */
+export const IBAN = /^[A-Z]{2}\d{2}[A-Z\d]{11,30}$/;
+
+/** A BIC / SWIFT code (ISO 9362): bank, ISO 3166 country, location and an optional branch. */
+export const BIC = /^[A-Z\d]{4}[A-Z]{2}[A-Z\d]{2}(?:[A-Z\d]{3})?$/;
+
+/** An Indian IFSC: four letters for the bank, a zero, then six characters for the branch. */
+export const IFSC = /^[A-Z]{4}0[A-Z\d]{6}$/;
+
+/** A UPI ID (NPCI virtual payment address), e.g. `name@okhdfcbank` — kept as typed, any case. */
+export const UPI_ID = /^[\w.-]{2,256}@[a-z][a-z\d]{2,63}$/i;
+
+/** A US ABA routing transit number: nine digits (the check digit is verified separately). */
+export const ABA_ROUTING = /^\d{9}$/;
+
+/** A UK sort code: six digits, written `12-34-56` and stored without the dashes. */
+export const UK_SORT_CODE = /^\d{6}$/;
+
+/** An Australian BSB: six digits, written `062-000` and stored without the dash. */
+export const AU_BSB = /^\d{6}$/;
+
+/** A Canadian routing number: the three-digit institution, then the five-digit transit. */
+export const CA_ROUTING = /^\d{8}$/;
+
+/** A domestic account number: 4–34 letters or digits (34 is the longest an IBAN can carry). */
+export const BANK_ACCOUNT_NUMBER = /^[A-Z\d]{4,34}$/;
+
+/** An Indian bank account number: 9–18 digits. */
+export const IN_ACCOUNT_NUMBER = /^\d{9,18}$/;
+
+/** A US bank account number: 4–17 digits. */
+export const US_ACCOUNT_NUMBER = /^\d{4,17}$/;
+
+/** A UK bank account number: eight digits. */
+export const GB_ACCOUNT_NUMBER = /^\d{8}$/;
+
+/** A Canadian bank account number: 7–12 digits. */
+export const CA_ACCOUNT_NUMBER = /^\d{7,12}$/;
+
+/** An Australian bank account number: 5–9 digits. */
+export const AU_ACCOUNT_NUMBER = /^\d{5,9}$/;
+
+/** A New Zealand bank account number: bank, branch, account and suffix — 15 or 16 digits. */
+export const NZ_ACCOUNT_NUMBER = /^\d{15,16}$/;

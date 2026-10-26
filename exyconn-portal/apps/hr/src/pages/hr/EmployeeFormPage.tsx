@@ -8,6 +8,7 @@ import { useGetUserQuery } from '@exyconn/shell/graphql/generated';
 import { UserForm } from '@exyconn/shell/pages/user-forms/user';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
+import { EmployeePayoutPanel } from '@exyconn/shell/pages/UserDetails';
 
 const RECORDS_PATH = '/hr/employees';
 
@@ -60,6 +61,12 @@ export function EmployeeFormPage() {
           <UserForm initial={initial} onDone={done} onCancel={() => navigate(RECORDS_PATH)} />
         )}
       </Paper>
+
+      {initial && (
+        <Box sx={{ mt: 3 }}>
+          <EmployeePayoutPanel employeeId={initial.id} country={initial.country ?? ''} />
+        </Box>
+      )}
     </Box>
   );
 }

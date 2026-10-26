@@ -1070,6 +1070,12 @@ export type BackgroundJob = {
   lastRunSummary: Scalars['String']['output'];
 };
 
+/** ISO 20022 cash account type: CURRENT (CACC, checking) or SAVINGS (SVGS). */
+export enum BankAccountType {
+  Current = 'CURRENT',
+  Savings = 'SAVINGS'
+}
+
 export type Benefit = {
   __typename?: 'Benefit';
   coverage: Scalars['String']['output'];
@@ -8904,12 +8910,15 @@ export type Mutation = {
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
   clearRolePermission: Scalars['Boolean']['output'];
+  clientHubDeletePayoutAccount: Scalars['Boolean']['output'];
   /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
   clientHubEmailInvoice: Scalars['Boolean']['output'];
   clientHubOpenTicket: SupportTicket;
   /** Opens the gateway's hosted checkout for the invoice's whole balance. */
   clientHubPayInvoice: ClientHubCheckout;
   clientHubReplyToTicket: SupportReply;
+  /** Adds (no id) or replaces one of the signed-in client's refund accounts. */
+  clientHubSavePayoutAccount: PayoutAccount;
   /** Ends the chat; the visitor is emailed the conversation when the settings say so. */
   closeWebsiteChatSession: WebsiteChatSession;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
@@ -9176,6 +9185,7 @@ export type Mutation = {
   deleteEmailTemplate: Scalars['Boolean']['output'];
   deleteEmailVerifierConfig: Scalars['Boolean']['output'];
   deleteEmployeeDocument: Scalars['Boolean']['output'];
+  deleteEmployeePayoutAccount: Scalars['Boolean']['output'];
   deleteEmployeeRequest: Scalars['Boolean']['output'];
   deleteEmploymentType: Scalars['Boolean']['output'];
   deleteExitRecord: Scalars['Boolean']['output'];
@@ -9534,6 +9544,8 @@ export type Mutation = {
   saveCampaignTemplate: CampaignTemplate;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
+  /** Adds (no id) or replaces an employee's salary account. Nobody edits their own. */
+  saveEmployeePayoutAccount: PayoutAccount;
   /**
    * Creates or replaces ONE employee's salary structure, keyed on the employee.
    *
@@ -10194,6 +10206,11 @@ export type MutationClearRolePermissionArgs = {
 };
 
 
+export type MutationClientHubDeletePayoutAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationClientHubEmailInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -10213,6 +10230,12 @@ export type MutationClientHubPayInvoiceArgs = {
 export type MutationClientHubReplyToTicketArgs = {
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubSavePayoutAccountArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
 };
 
 
@@ -11291,6 +11314,12 @@ export type MutationDeleteEmailVerifierConfigArgs = {
 
 
 export type MutationDeleteEmployeeDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteEmployeePayoutAccountArgs = {
+  employeeId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -12422,6 +12451,13 @@ export type MutationSaveCmsFragmentDraftArgs = {
 export type MutationSaveCmsPageDraftArgs = {
   draft: CmsDraftInput;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveEmployeePayoutAccountArgs = {
+  employeeId: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
 };
 
 
@@ -14724,6 +14760,83 @@ export type PayoneerConfigInput = {
   mode: GatewayMode;
 };
 
+/** Where one payee is paid: an employee's salary account or a client's refund account. */
+export type PayoutAccount = {
+  __typename?: 'PayoutAccount';
+  accountType?: Maybe<BankAccountType>;
+  bankName: Scalars['String']['output'];
+  /** ISO 9362 BIC / SWIFT code. */
+  bic: Scalars['String']['output'];
+  branchName: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  /** ISO 3166-1 alpha-2. */
+  country: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** ISO 4217. */
+  currency: Scalars['String']['output'];
+  hints: PayoutAccountHints;
+  holderName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPrimary: Scalars['Boolean']['output'];
+  method: PayoutMethod;
+  region: Scalars['String']['output'];
+  /** The country's domestic bank or branch code: IFSC, ABA routing, sort code, BSB, transit. */
+  routingCode: Scalars['String']['output'];
+  /** One masked line naming the account. */
+  summary: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Masked forms of the sealed details; empty where none is stored. */
+export type PayoutAccountHints = {
+  __typename?: 'PayoutAccountHints';
+  accountNumber: Scalars['String']['output'];
+  iban: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  upiId: Scalars['String']['output'];
+  walletEmail: Scalars['String']['output'];
+};
+
+/** A blank sealed detail on an edit keeps the stored one. */
+export type PayoutAccountInput = {
+  accountNumber: Scalars['String']['input'];
+  accountType?: InputMaybe<BankAccountType>;
+  bankName: Scalars['String']['input'];
+  bic: Scalars['String']['input'];
+  branchName: Scalars['String']['input'];
+  city: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  holderName: Scalars['String']['input'];
+  iban: Scalars['String']['input'];
+  isPrimary?: InputMaybe<Scalars['Boolean']['input']>;
+  method: PayoutMethod;
+  phone: Scalars['String']['input'];
+  region: Scalars['String']['input'];
+  routingCode: Scalars['String']['input'];
+  upiId: Scalars['String']['input'];
+  walletEmail: Scalars['String']['input'];
+};
+
+/** How money reaches the payee (the same codes as @exyconn/payout PAYOUT_METHODS). */
+export enum PayoutMethod {
+  BankTransfer = 'BANK_TRANSFER',
+  Payoneer = 'PAYONEER',
+  Paypal = 'PAYPAL',
+  Upi = 'UPI',
+  WesternUnion = 'WESTERN_UNION',
+  Wise = 'WISE'
+}
+
+/** A sealed detail of a payout account, shown in full only on request (and logged). */
+export enum PayoutSecretField {
+  AccountNumber = 'ACCOUNT_NUMBER',
+  Iban = 'IBAN',
+  Phone = 'PHONE',
+  UpiId = 'UPI_ID',
+  WalletEmail = 'WALLET_EMAIL'
+}
+
 /** Exyconn's PayPal account (Tech > Environment Variables). The client secret is write-only. */
 export type PaypalConfig = {
   __typename?: 'PaypalConfig';
@@ -15866,6 +15979,10 @@ export type Query = {
   clientHubPaymentAttempt: PaymentAttempt;
   clientHubPaymentOptions: ClientHubPaymentOptions;
   clientHubPayments: PaymentPage;
+  /** The signed-in client's refund accounts. */
+  clientHubPayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of the signed-in client's refund account in full. */
+  clientHubPayoutSecret: Scalars['String']['output'];
   clientHubProjects: Array<ClientHubProject>;
   clientHubReminders: Array<ClientHubReminder>;
   /** A shared record's text as sanitised HTML. */
@@ -15874,6 +15991,10 @@ export type Query = {
   clientHubTicketReplies: Array<SupportReply>;
   clientHubTickets: SupportTicketPage;
   clientLinks: Array<ClientLink>;
+  /** A client's refund accounts, as the client entered them in the client hub. */
+  clientPayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of a client's refund account in full. Logged. */
+  clientPayoutSecret: Scalars['String']['output'];
   /** Every project, for the Clients form's project picker. */
   clientProjectOptions: Array<ClientProjectOption>;
   /** Legal records of one kind that may be shared with a client (up to 200, latest first). */
@@ -15984,6 +16105,10 @@ export type Query = {
   employeeLocations: Array<TrackerLocation>;
   /** HR, ADMIN or the employee's manager: their location pins from one local day to another (YYYY-MM-DD, both included, at most 31 days), oldest first. */
   employeeLocationsBetween: Array<TrackerLocation>;
+  /** An employee's salary accounts (Payroll: HR or Finance). */
+  employeePayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of an employee's salary account in full. Logged. */
+  employeePayoutSecret: Scalars['String']['output'];
   /**
    * ONE employee's salary structure, looked up by the employee rather than by structure id.
    * Null until HR has set one up. This is what the employee record reads.
@@ -17054,6 +17179,12 @@ export type QueryClientHubPaymentsArgs = {
 };
 
 
+export type QueryClientHubPayoutSecretArgs = {
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryClientHubSharedContentArgs = {
   id: Scalars['ID']['input'];
 };
@@ -17071,6 +17202,18 @@ export type QueryClientHubTicketsArgs = {
 
 export type QueryClientLinksArgs = {
   clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientPayoutAccountsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientPayoutSecretArgs = {
+  clientId: Scalars['ID']['input'];
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -17343,6 +17486,18 @@ export type QueryEmployeeLocationsBetweenArgs = {
   employeeId: Scalars['ID']['input'];
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
+};
+
+
+export type QueryEmployeePayoutAccountsArgs = {
+  employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryEmployeePayoutSecretArgs = {
+  employeeId: Scalars['ID']['input'];
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -29561,6 +29716,85 @@ export type TestPayoneerConnectionMutationVariables = Exact<{
 
 export type TestPayoneerConnectionMutation = { __typename?: 'Mutation', testPayoneerConnection: boolean };
 
+export type PayoutAccountFieldsFragment = { __typename?: 'PayoutAccount', id: string, method: PayoutMethod, country: string, currency: string, holderName: string, bankName: string, branchName: string, bic: string, routingCode: string, accountType?: BankAccountType | null, city: string, region: string, summary: string, isPrimary: boolean, updatedAt: string, hints: { __typename?: 'PayoutAccountHints', accountNumber: string, iban: string, upiId: string, phone: string, walletEmail: string } };
+
+export type EmployeePayoutAccountsQueryVariables = Exact<{
+  employeeId: Scalars['ID']['input'];
+}>;
+
+
+export type EmployeePayoutAccountsQuery = { __typename?: 'Query', employeePayoutAccounts: Array<{ __typename?: 'PayoutAccount', id: string, method: PayoutMethod, country: string, currency: string, holderName: string, bankName: string, branchName: string, bic: string, routingCode: string, accountType?: BankAccountType | null, city: string, region: string, summary: string, isPrimary: boolean, updatedAt: string, hints: { __typename?: 'PayoutAccountHints', accountNumber: string, iban: string, upiId: string, phone: string, walletEmail: string } }> };
+
+export type EmployeePayoutSecretQueryVariables = Exact<{
+  employeeId: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
+  field: PayoutSecretField;
+}>;
+
+
+export type EmployeePayoutSecretQuery = { __typename?: 'Query', employeePayoutSecret: string };
+
+export type SaveEmployeePayoutAccountMutationVariables = Exact<{
+  employeeId: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
+}>;
+
+
+export type SaveEmployeePayoutAccountMutation = { __typename?: 'Mutation', saveEmployeePayoutAccount: { __typename?: 'PayoutAccount', id: string, method: PayoutMethod, country: string, currency: string, holderName: string, bankName: string, branchName: string, bic: string, routingCode: string, accountType?: BankAccountType | null, city: string, region: string, summary: string, isPrimary: boolean, updatedAt: string, hints: { __typename?: 'PayoutAccountHints', accountNumber: string, iban: string, upiId: string, phone: string, walletEmail: string } } };
+
+export type DeleteEmployeePayoutAccountMutationVariables = Exact<{
+  employeeId: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteEmployeePayoutAccountMutation = { __typename?: 'Mutation', deleteEmployeePayoutAccount: boolean };
+
+export type ClientPayoutAccountsQueryVariables = Exact<{
+  clientId: Scalars['ID']['input'];
+}>;
+
+
+export type ClientPayoutAccountsQuery = { __typename?: 'Query', clientPayoutAccounts: Array<{ __typename?: 'PayoutAccount', id: string, method: PayoutMethod, country: string, currency: string, holderName: string, bankName: string, branchName: string, bic: string, routingCode: string, accountType?: BankAccountType | null, city: string, region: string, summary: string, isPrimary: boolean, updatedAt: string, hints: { __typename?: 'PayoutAccountHints', accountNumber: string, iban: string, upiId: string, phone: string, walletEmail: string } }> };
+
+export type ClientPayoutSecretQueryVariables = Exact<{
+  clientId: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
+  field: PayoutSecretField;
+}>;
+
+
+export type ClientPayoutSecretQuery = { __typename?: 'Query', clientPayoutSecret: string };
+
+export type ClientHubPayoutAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ClientHubPayoutAccountsQuery = { __typename?: 'Query', clientHubPayoutAccounts: Array<{ __typename?: 'PayoutAccount', id: string, method: PayoutMethod, country: string, currency: string, holderName: string, bankName: string, branchName: string, bic: string, routingCode: string, accountType?: BankAccountType | null, city: string, region: string, summary: string, isPrimary: boolean, updatedAt: string, hints: { __typename?: 'PayoutAccountHints', accountNumber: string, iban: string, upiId: string, phone: string, walletEmail: string } }> };
+
+export type ClientHubPayoutSecretQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  field: PayoutSecretField;
+}>;
+
+
+export type ClientHubPayoutSecretQuery = { __typename?: 'Query', clientHubPayoutSecret: string };
+
+export type ClientHubSavePayoutAccountMutationVariables = Exact<{
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
+}>;
+
+
+export type ClientHubSavePayoutAccountMutation = { __typename?: 'Mutation', clientHubSavePayoutAccount: { __typename?: 'PayoutAccount', id: string, method: PayoutMethod, country: string, currency: string, holderName: string, bankName: string, branchName: string, bic: string, routingCode: string, accountType?: BankAccountType | null, city: string, region: string, summary: string, isPrimary: boolean, updatedAt: string, hints: { __typename?: 'PayoutAccountHints', accountNumber: string, iban: string, upiId: string, phone: string, walletEmail: string } } };
+
+export type ClientHubDeletePayoutAccountMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ClientHubDeletePayoutAccountMutation = { __typename?: 'Mutation', clientHubDeletePayoutAccount: boolean };
+
 export type SalaryStructureFieldsFragment = { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, taxRegimeKey?: string | null, taxExempt: boolean, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string };
 
 export type ListSalaryStructuresPagedQueryVariables = Exact<{
@@ -35137,6 +35371,32 @@ export const PayoneerConfigFieldsFragmentDoc = gql`
   mode
   isActive
   createdAt
+  updatedAt
+}
+    `;
+export const PayoutAccountFieldsFragmentDoc = gql`
+    fragment PayoutAccountFields on PayoutAccount {
+  id
+  method
+  country
+  currency
+  holderName
+  bankName
+  branchName
+  bic
+  routingCode
+  accountType
+  city
+  region
+  hints {
+    accountNumber
+    iban
+    upiId
+    phone
+    walletEmail
+  }
+  summary
+  isPrimary
   updatedAt
 }
     `;
@@ -71228,6 +71488,388 @@ export function useTestPayoneerConnectionMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<TestPayoneerConnectionMutation, TestPayoneerConnectionMutationVariables>(TestPayoneerConnectionDocument, options);
       }
 export type TestPayoneerConnectionMutationHookResult = ReturnType<typeof useTestPayoneerConnectionMutation>;
+export const EmployeePayoutAccountsDocument = gql`
+    query EmployeePayoutAccounts($employeeId: ID!) {
+  employeePayoutAccounts(employeeId: $employeeId) {
+    ...PayoutAccountFields
+  }
+}
+    ${PayoutAccountFieldsFragmentDoc}`;
+
+/**
+ * __useEmployeePayoutAccountsQuery__
+ *
+ * To run a query within a React component, call `useEmployeePayoutAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmployeePayoutAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmployeePayoutAccountsQuery({
+ *   variables: {
+ *      employeeId: // value for 'employeeId'
+ *   },
+ * });
+ */
+export function useEmployeePayoutAccountsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables> & ({ variables: EmployeePayoutAccountsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>(EmployeePayoutAccountsDocument, options);
+      }
+export function useEmployeePayoutAccountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>(EmployeePayoutAccountsDocument, options);
+        }
+// @ts-ignore
+export function useEmployeePayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>;
+// @ts-ignore
+export function useEmployeePayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeePayoutAccountsQuery | undefined, EmployeePayoutAccountsQueryVariables>;
+export function useEmployeePayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmployeePayoutAccountsQuery, EmployeePayoutAccountsQueryVariables>(EmployeePayoutAccountsDocument, options);
+        }
+export type EmployeePayoutAccountsQueryHookResult = ReturnType<typeof useEmployeePayoutAccountsQuery>;
+export type EmployeePayoutAccountsLazyQueryHookResult = ReturnType<typeof useEmployeePayoutAccountsLazyQuery>;
+export type EmployeePayoutAccountsSuspenseQueryHookResult = ReturnType<typeof useEmployeePayoutAccountsSuspenseQuery>;
+export const EmployeePayoutSecretDocument = gql`
+    query EmployeePayoutSecret($employeeId: ID!, $id: ID!, $field: PayoutSecretField!) {
+  employeePayoutSecret(employeeId: $employeeId, id: $id, field: $field)
+}
+    `;
+
+/**
+ * __useEmployeePayoutSecretQuery__
+ *
+ * To run a query within a React component, call `useEmployeePayoutSecretQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmployeePayoutSecretQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmployeePayoutSecretQuery({
+ *   variables: {
+ *      employeeId: // value for 'employeeId'
+ *      id: // value for 'id'
+ *      field: // value for 'field'
+ *   },
+ * });
+ */
+export function useEmployeePayoutSecretQuery(baseOptions: ApolloReactHooks.QueryHookOptions<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables> & ({ variables: EmployeePayoutSecretQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>(EmployeePayoutSecretDocument, options);
+      }
+export function useEmployeePayoutSecretLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>(EmployeePayoutSecretDocument, options);
+        }
+// @ts-ignore
+export function useEmployeePayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>;
+// @ts-ignore
+export function useEmployeePayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmployeePayoutSecretQuery | undefined, EmployeePayoutSecretQueryVariables>;
+export function useEmployeePayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmployeePayoutSecretQuery, EmployeePayoutSecretQueryVariables>(EmployeePayoutSecretDocument, options);
+        }
+export type EmployeePayoutSecretQueryHookResult = ReturnType<typeof useEmployeePayoutSecretQuery>;
+export type EmployeePayoutSecretLazyQueryHookResult = ReturnType<typeof useEmployeePayoutSecretLazyQuery>;
+export type EmployeePayoutSecretSuspenseQueryHookResult = ReturnType<typeof useEmployeePayoutSecretSuspenseQuery>;
+export const SaveEmployeePayoutAccountDocument = gql`
+    mutation SaveEmployeePayoutAccount($employeeId: ID!, $id: ID, $input: PayoutAccountInput!) {
+  saveEmployeePayoutAccount(employeeId: $employeeId, id: $id, input: $input) {
+    ...PayoutAccountFields
+  }
+}
+    ${PayoutAccountFieldsFragmentDoc}`;
+
+/**
+ * __useSaveEmployeePayoutAccountMutation__
+ *
+ * To run a mutation, you first call `useSaveEmployeePayoutAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveEmployeePayoutAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveEmployeePayoutAccountMutation, { data, loading, error }] = useSaveEmployeePayoutAccountMutation({
+ *   variables: {
+ *      employeeId: // value for 'employeeId'
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveEmployeePayoutAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveEmployeePayoutAccountMutation, SaveEmployeePayoutAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveEmployeePayoutAccountMutation, SaveEmployeePayoutAccountMutationVariables>(SaveEmployeePayoutAccountDocument, options);
+      }
+export type SaveEmployeePayoutAccountMutationHookResult = ReturnType<typeof useSaveEmployeePayoutAccountMutation>;
+export const DeleteEmployeePayoutAccountDocument = gql`
+    mutation DeleteEmployeePayoutAccount($employeeId: ID!, $id: ID!) {
+  deleteEmployeePayoutAccount(employeeId: $employeeId, id: $id)
+}
+    `;
+
+/**
+ * __useDeleteEmployeePayoutAccountMutation__
+ *
+ * To run a mutation, you first call `useDeleteEmployeePayoutAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteEmployeePayoutAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteEmployeePayoutAccountMutation, { data, loading, error }] = useDeleteEmployeePayoutAccountMutation({
+ *   variables: {
+ *      employeeId: // value for 'employeeId'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteEmployeePayoutAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteEmployeePayoutAccountMutation, DeleteEmployeePayoutAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteEmployeePayoutAccountMutation, DeleteEmployeePayoutAccountMutationVariables>(DeleteEmployeePayoutAccountDocument, options);
+      }
+export type DeleteEmployeePayoutAccountMutationHookResult = ReturnType<typeof useDeleteEmployeePayoutAccountMutation>;
+export const ClientPayoutAccountsDocument = gql`
+    query ClientPayoutAccounts($clientId: ID!) {
+  clientPayoutAccounts(clientId: $clientId) {
+    ...PayoutAccountFields
+  }
+}
+    ${PayoutAccountFieldsFragmentDoc}`;
+
+/**
+ * __useClientPayoutAccountsQuery__
+ *
+ * To run a query within a React component, call `useClientPayoutAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientPayoutAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientPayoutAccountsQuery({
+ *   variables: {
+ *      clientId: // value for 'clientId'
+ *   },
+ * });
+ */
+export function useClientPayoutAccountsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables> & ({ variables: ClientPayoutAccountsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>(ClientPayoutAccountsDocument, options);
+      }
+export function useClientPayoutAccountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>(ClientPayoutAccountsDocument, options);
+        }
+// @ts-ignore
+export function useClientPayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>;
+// @ts-ignore
+export function useClientPayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientPayoutAccountsQuery | undefined, ClientPayoutAccountsQueryVariables>;
+export function useClientPayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientPayoutAccountsQuery, ClientPayoutAccountsQueryVariables>(ClientPayoutAccountsDocument, options);
+        }
+export type ClientPayoutAccountsQueryHookResult = ReturnType<typeof useClientPayoutAccountsQuery>;
+export type ClientPayoutAccountsLazyQueryHookResult = ReturnType<typeof useClientPayoutAccountsLazyQuery>;
+export type ClientPayoutAccountsSuspenseQueryHookResult = ReturnType<typeof useClientPayoutAccountsSuspenseQuery>;
+export const ClientPayoutSecretDocument = gql`
+    query ClientPayoutSecret($clientId: ID!, $id: ID!, $field: PayoutSecretField!) {
+  clientPayoutSecret(clientId: $clientId, id: $id, field: $field)
+}
+    `;
+
+/**
+ * __useClientPayoutSecretQuery__
+ *
+ * To run a query within a React component, call `useClientPayoutSecretQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientPayoutSecretQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientPayoutSecretQuery({
+ *   variables: {
+ *      clientId: // value for 'clientId'
+ *      id: // value for 'id'
+ *      field: // value for 'field'
+ *   },
+ * });
+ */
+export function useClientPayoutSecretQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables> & ({ variables: ClientPayoutSecretQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>(ClientPayoutSecretDocument, options);
+      }
+export function useClientPayoutSecretLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>(ClientPayoutSecretDocument, options);
+        }
+// @ts-ignore
+export function useClientPayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>;
+// @ts-ignore
+export function useClientPayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientPayoutSecretQuery | undefined, ClientPayoutSecretQueryVariables>;
+export function useClientPayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientPayoutSecretQuery, ClientPayoutSecretQueryVariables>(ClientPayoutSecretDocument, options);
+        }
+export type ClientPayoutSecretQueryHookResult = ReturnType<typeof useClientPayoutSecretQuery>;
+export type ClientPayoutSecretLazyQueryHookResult = ReturnType<typeof useClientPayoutSecretLazyQuery>;
+export type ClientPayoutSecretSuspenseQueryHookResult = ReturnType<typeof useClientPayoutSecretSuspenseQuery>;
+export const ClientHubPayoutAccountsDocument = gql`
+    query ClientHubPayoutAccounts {
+  clientHubPayoutAccounts {
+    ...PayoutAccountFields
+  }
+}
+    ${PayoutAccountFieldsFragmentDoc}`;
+
+/**
+ * __useClientHubPayoutAccountsQuery__
+ *
+ * To run a query within a React component, call `useClientHubPayoutAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubPayoutAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubPayoutAccountsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClientHubPayoutAccountsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>(ClientHubPayoutAccountsDocument, options);
+      }
+export function useClientHubPayoutAccountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>(ClientHubPayoutAccountsDocument, options);
+        }
+// @ts-ignore
+export function useClientHubPayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>;
+// @ts-ignore
+export function useClientHubPayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPayoutAccountsQuery | undefined, ClientHubPayoutAccountsQueryVariables>;
+export function useClientHubPayoutAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubPayoutAccountsQuery, ClientHubPayoutAccountsQueryVariables>(ClientHubPayoutAccountsDocument, options);
+        }
+export type ClientHubPayoutAccountsQueryHookResult = ReturnType<typeof useClientHubPayoutAccountsQuery>;
+export type ClientHubPayoutAccountsLazyQueryHookResult = ReturnType<typeof useClientHubPayoutAccountsLazyQuery>;
+export type ClientHubPayoutAccountsSuspenseQueryHookResult = ReturnType<typeof useClientHubPayoutAccountsSuspenseQuery>;
+export const ClientHubPayoutSecretDocument = gql`
+    query ClientHubPayoutSecret($id: ID!, $field: PayoutSecretField!) {
+  clientHubPayoutSecret(id: $id, field: $field)
+}
+    `;
+
+/**
+ * __useClientHubPayoutSecretQuery__
+ *
+ * To run a query within a React component, call `useClientHubPayoutSecretQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubPayoutSecretQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubPayoutSecretQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      field: // value for 'field'
+ *   },
+ * });
+ */
+export function useClientHubPayoutSecretQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables> & ({ variables: ClientHubPayoutSecretQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>(ClientHubPayoutSecretDocument, options);
+      }
+export function useClientHubPayoutSecretLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>(ClientHubPayoutSecretDocument, options);
+        }
+// @ts-ignore
+export function useClientHubPayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>;
+// @ts-ignore
+export function useClientHubPayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPayoutSecretQuery | undefined, ClientHubPayoutSecretQueryVariables>;
+export function useClientHubPayoutSecretSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubPayoutSecretQuery, ClientHubPayoutSecretQueryVariables>(ClientHubPayoutSecretDocument, options);
+        }
+export type ClientHubPayoutSecretQueryHookResult = ReturnType<typeof useClientHubPayoutSecretQuery>;
+export type ClientHubPayoutSecretLazyQueryHookResult = ReturnType<typeof useClientHubPayoutSecretLazyQuery>;
+export type ClientHubPayoutSecretSuspenseQueryHookResult = ReturnType<typeof useClientHubPayoutSecretSuspenseQuery>;
+export const ClientHubSavePayoutAccountDocument = gql`
+    mutation ClientHubSavePayoutAccount($id: ID, $input: PayoutAccountInput!) {
+  clientHubSavePayoutAccount(id: $id, input: $input) {
+    ...PayoutAccountFields
+  }
+}
+    ${PayoutAccountFieldsFragmentDoc}`;
+
+/**
+ * __useClientHubSavePayoutAccountMutation__
+ *
+ * To run a mutation, you first call `useClientHubSavePayoutAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClientHubSavePayoutAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clientHubSavePayoutAccountMutation, { data, loading, error }] = useClientHubSavePayoutAccountMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClientHubSavePayoutAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClientHubSavePayoutAccountMutation, ClientHubSavePayoutAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClientHubSavePayoutAccountMutation, ClientHubSavePayoutAccountMutationVariables>(ClientHubSavePayoutAccountDocument, options);
+      }
+export type ClientHubSavePayoutAccountMutationHookResult = ReturnType<typeof useClientHubSavePayoutAccountMutation>;
+export const ClientHubDeletePayoutAccountDocument = gql`
+    mutation ClientHubDeletePayoutAccount($id: ID!) {
+  clientHubDeletePayoutAccount(id: $id)
+}
+    `;
+
+/**
+ * __useClientHubDeletePayoutAccountMutation__
+ *
+ * To run a mutation, you first call `useClientHubDeletePayoutAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClientHubDeletePayoutAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clientHubDeletePayoutAccountMutation, { data, loading, error }] = useClientHubDeletePayoutAccountMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useClientHubDeletePayoutAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClientHubDeletePayoutAccountMutation, ClientHubDeletePayoutAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClientHubDeletePayoutAccountMutation, ClientHubDeletePayoutAccountMutationVariables>(ClientHubDeletePayoutAccountDocument, options);
+      }
+export type ClientHubDeletePayoutAccountMutationHookResult = ReturnType<typeof useClientHubDeletePayoutAccountMutation>;
 export const ListSalaryStructuresPagedDocument = gql`
     query ListSalaryStructuresPaged($input: TableQueryInput!) {
   listSalaryStructuresPaged(input: $input) {

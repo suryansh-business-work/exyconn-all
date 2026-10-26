@@ -6,6 +6,7 @@ import { InvoicesTab, PaymentsTab, TicketsTab } from './tabs/LedgerTabs';
 import { CommunicationsTab } from './tabs/CommunicationsTab';
 import { LinksTab } from './tabs/LinksTab';
 import { SharedItemsTab } from './tabs/SharedItemsTab';
+import { RefundAccountsTab } from './tabs/RefundAccountsTab';
 import type { ClientCounts, ClientDetail } from './client-detail.types';
 
 /**
@@ -42,6 +43,11 @@ export function clientTabs(
     },
     { slug: 'invoices', label: 'Invoices', content: <InvoicesTab clientId={clientId} /> },
     { slug: 'payments', label: 'Payments', content: <PaymentsTab clientId={clientId} /> },
+    {
+      slug: 'refund-accounts',
+      label: 'Refund accounts',
+      content: <RefundAccountsTab clientId={clientId} />,
+    },
     { slug: 'tickets', label: 'Support tickets', content: <TicketsTab clientId={clientId} /> },
     { slug: 'projects', label: 'Projects', content: <ClientProjectsPicker clientId={clientId} /> },
   ];

@@ -25,6 +25,7 @@
     "@exyconn/csv": "workspace:*",
     "@exyconn/i18n": "workspace:*",
     "@exyconn/logger": "workspace:*",
+    "@exyconn/payout": "workspace:*",
     "@exyconn/regex": "workspace:*",
     "@exyconn/rich-text": "workspace:*",
     "@exyconn/tracker-core": "workspace:*",

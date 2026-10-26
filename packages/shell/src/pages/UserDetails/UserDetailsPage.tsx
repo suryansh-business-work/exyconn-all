@@ -8,6 +8,7 @@ import { EmployeeLeavePanel } from './EmployeeLeavePanel';
 import { EmployeeAttendancePanel } from './EmployeeAttendancePanel';
 import { EmployeeLeaveBalancePanel } from './EmployeeLeaveBalancePanel';
 import { EmployeeEarningsPanel } from './EmployeeEarningsPanel';
+import { EmployeePayoutPanel } from './EmployeePayoutPanel';
 import { EmployeeLegalPanel } from './EmployeeLegalPanel';
 import { EmployeeLocationsPanel } from './employee-locations';
 import { EmployeeActivityPanel } from './EmployeeActivityPanel';
@@ -89,6 +90,9 @@ export function UserDetailsPage() {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <EmployeeEarningsPanel employeeId={user.id} />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <EmployeePayoutPanel employeeId={user.id} country={user.country ?? ''} />
             </Grid>
             <Grid size={{ xs: 12 }}>
               <EmployeeLegalPanel employeeId={user.id} />

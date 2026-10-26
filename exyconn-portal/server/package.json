@@ -24,6 +24,7 @@
     "@exyconn/cms": "workspace:*",
     "@exyconn/csv": "workspace:*",
     "@exyconn/gcc-cost": "workspace:*",
+    "@exyconn/payout": "workspace:*",
     "@exyconn/wa-flow": "workspace:*",
     "@exyconn/whatsapp-demo-server": "workspace:*",
     "@modelcontextprotocol/sdk": "1.32.1",

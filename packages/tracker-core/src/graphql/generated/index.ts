@@ -394,6 +394,11 @@ export type AuditStatus =
   | 'PLANNED'
   | 'REPORTED';
 
+/** ISO 20022 cash account type: CURRENT (CACC, checking) or SAVINGS (SVGS). */
+export type BankAccountType =
+  | 'CURRENT'
+  | 'SAVINGS';
+
 export type BenefitInput = {
   coverage: Scalars['String']['input'];
   documentUrl: InputMaybe<Scalars['String']['input']>;
@@ -3281,6 +3286,44 @@ export type PayoneerConfigInput = {
   merchantCode: Scalars['String']['input'];
   mode: GatewayMode;
 };
+
+/** A blank sealed detail on an edit keeps the stored one. */
+export type PayoutAccountInput = {
+  accountNumber: Scalars['String']['input'];
+  accountType: InputMaybe<BankAccountType>;
+  bankName: Scalars['String']['input'];
+  bic: Scalars['String']['input'];
+  branchName: Scalars['String']['input'];
+  city: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  holderName: Scalars['String']['input'];
+  iban: Scalars['String']['input'];
+  isPrimary: InputMaybe<Scalars['Boolean']['input']>;
+  method: PayoutMethod;
+  phone: Scalars['String']['input'];
+  region: Scalars['String']['input'];
+  routingCode: Scalars['String']['input'];
+  upiId: Scalars['String']['input'];
+  walletEmail: Scalars['String']['input'];
+};
+
+/** How money reaches the payee (the same codes as @exyconn/payout PAYOUT_METHODS). */
+export type PayoutMethod =
+  | 'BANK_TRANSFER'
+  | 'PAYONEER'
+  | 'PAYPAL'
+  | 'UPI'
+  | 'WESTERN_UNION'
+  | 'WISE';
+
+/** A sealed detail of a payout account, shown in full only on request (and logged). */
+export type PayoutSecretField =
+  | 'ACCOUNT_NUMBER'
+  | 'IBAN'
+  | 'PHONE'
+  | 'UPI_ID'
+  | 'WALLET_EMAIL';
 
 export type PaypalConfigInput = {
   clientId: Scalars['String']['input'];
