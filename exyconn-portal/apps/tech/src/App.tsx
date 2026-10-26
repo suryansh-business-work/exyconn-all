@@ -20,6 +20,7 @@ import { JobsPage } from './pages/jobs';
 import { CallingBotPage, WebsiteBotPage, WhatsappBotPage } from './pages/demos';
 import { CloudflarePage } from './pages/security/cloudflare';
 import { SonarPage, SslCertificatesPage } from './pages/security';
+import { TechVaultGate } from './pages/environment-variables/vault/TechVaultGate';
 
 /** Tech micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -27,7 +28,14 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.TECH} homePath="/tech">
       <Route path="/tech" element={<TechOverviewPage />} />
       <Route path="/tech/environment-variables/:tab?" element={<EnvironmentVariablesPage />} />
-      <Route path="/tech/social-apps" element={<SocialAppsPage />} />
+      <Route
+        path="/tech/social-apps"
+        element={
+          <TechVaultGate>
+            <SocialAppsPage />
+          </TechVaultGate>
+        }
+      />
       {/* It was an Environment Variables tab first; that address still lands on it. */}
       <Route
         path="/tech/environment-variables/social-apps"

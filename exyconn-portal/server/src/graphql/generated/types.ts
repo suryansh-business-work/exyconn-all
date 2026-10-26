@@ -9344,6 +9344,8 @@ export type Mutation = {
   itProvisionOnboarding: Array<ItAccessRequest>;
   /** Opens a pre-approved REVOKE for everything the leaver still holds. */
   itRevokeAllAccess: Array<ItAccessRequest>;
+  /** Locks Environment Variables again now. */
+  lockTechVault: Scalars['Boolean']['output'];
   login: AuthPayload;
   maAddActionComment: MaActionItem;
   /** Approves a build waiting for review, offers it on the channel and announces it in Slack. */
@@ -9466,6 +9468,8 @@ export type Mutation = {
    * Always true, so the answer does not reveal which addresses have accounts.
    */
   requestPasswordReset: Scalars['Boolean']['output'];
+  /** Emails a one-time code to the address the caller signs in with. */
+  requestTechVaultCode: Scalars['Boolean']['output'];
   /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
   requestWhatsappDemoCode: Scalars['Boolean']['output'];
   /** Sets a new password from an emailed link. The link works once. */
@@ -9865,6 +9869,8 @@ export type Mutation = {
   triageWebsiteSubmission: WebsiteSubmission;
   /** HR or LEGAL: takes one item back. */
   unassignLegalItem: Scalars['Boolean']['output'];
+  /** Opens Environment Variables for 30 minutes. */
+  unlockTechVault: TechVaultSession;
   unpublishCmsPage: CmsPage;
   unshareWithClient: Scalars['Boolean']['output'];
   /**
@@ -13197,6 +13203,11 @@ export type MutationTriageWebsiteSubmissionArgs = {
 
 export type MutationUnassignLegalItemArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationUnlockTechVaultArgs = {
+  input: UnlockTechVaultInput;
 };
 
 
@@ -16951,6 +16962,12 @@ export type Query = {
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
+  /** What was changed or revealed in Tech configuration during one session. */
+  techVaultSessionActivity: Array<AuditLog>;
+  /** Every unlock, newest first. */
+  techVaultSessionsPaged: TechVaultSessionPage;
+  /** The caller's open Environment Variables session; null while locked. */
+  techVaultStatus?: Maybe<TechVaultSession>;
   trackerAccessList: Array<TrackerAccess>;
   /**
    * Billing for tracked time over a range. Active time only — idle minutes are time at a
@@ -19193,6 +19210,16 @@ export type QueryTaskByKeyArgs = {
 
 export type QueryTaskCommentsArgs = {
   taskId: Scalars['ID']['input'];
+};
+
+
+export type QueryTechVaultSessionActivityArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryTechVaultSessionsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -21452,6 +21479,29 @@ export type TechSecretValue = {
   value: Scalars['String']['output'];
 };
 
+/** One unlock of Tech > Environment Variables: who, why, from where, and until when. */
+export type TechVaultSession = {
+  __typename?: 'TechVaultSession';
+  email: Scalars['String']['output'];
+  endReason?: Maybe<VaultEndReason>;
+  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  ip: Scalars['String']['output'];
+  location: VaultLocation;
+  reason: Scalars['String']['output'];
+  unlockedAt: Scalars['DateTime']['output'];
+  userAgent: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+};
+
+export type TechVaultSessionPage = {
+  __typename?: 'TechVaultSessionPage';
+  rows: Array<TechVaultSession>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** How a ticket reached the desk. */
 export enum TicketChannel {
   /** Typed into the console by an agent, usually off a call. */
@@ -22384,6 +22434,12 @@ export type TranslationRow = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type UnlockTechVaultInput = {
+  code: Scalars['String']['input'];
+  location: VaultLocationInput;
+  reason: Scalars['String']['input'];
+};
+
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
@@ -22613,6 +22669,34 @@ export type UserSocialLinksInput = {
   twitter?: InputMaybe<Scalars['String']['input']>;
   website?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum VaultEndReason {
+  Expired = 'EXPIRED',
+  Locked = 'LOCKED'
+}
+
+export type VaultLocation = {
+  __typename?: 'VaultLocation';
+  /** Metres, as the browser reported it. */
+  accuracy?: Maybe<Scalars['Float']['output']>;
+  latitude?: Maybe<Scalars['Float']['output']>;
+  longitude?: Maybe<Scalars['Float']['output']>;
+  state: VaultLocationState;
+};
+
+export type VaultLocationInput = {
+  accuracy?: InputMaybe<Scalars['Float']['input']>;
+  latitude?: InputMaybe<Scalars['Float']['input']>;
+  longitude?: InputMaybe<Scalars['Float']['input']>;
+  state: VaultLocationState;
+};
+
+/** Whether the browser shared the device's position when the vault was opened. */
+export enum VaultLocationState {
+  Denied = 'DENIED',
+  Granted = 'GRANTED',
+  Unavailable = 'UNAVAILABLE'
+}
 
 /** A web page read through Firecrawl, kept as markdown, with the last AI answer about it. */
 export type WebScrape = {
@@ -24657,6 +24741,8 @@ export type ResolversTypes = ResolversObject<{
   TechEmailTemplateOption: ResolverTypeWrapper<TechEmailTemplateOption>;
   TechSecret: TechSecret;
   TechSecretValue: ResolverTypeWrapper<TechSecretValue>;
+  TechVaultSession: ResolverTypeWrapper<TechVaultSession>;
+  TechVaultSessionPage: ResolverTypeWrapper<TechVaultSessionPage>;
   TicketChannel: TicketChannel;
   Tool: ResolverTypeWrapper<Tool>;
   ToolCategory: ResolverTypeWrapper<ToolCategory>;
@@ -24723,6 +24809,7 @@ export type ResolversTypes = ResolversObject<{
   TranslationFill: ResolverTypeWrapper<TranslationFill>;
   TranslationPage: ResolverTypeWrapper<TranslationPage>;
   TranslationRow: ResolverTypeWrapper<TranslationRow>;
+  UnlockTechVaultInput: UnlockTechVaultInput;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
@@ -24733,6 +24820,10 @@ export type ResolversTypes = ResolversObject<{
   UserSession: ResolverTypeWrapper<UserSession>;
   UserSocialLinks: ResolverTypeWrapper<UserSocialLinks>;
   UserSocialLinksInput: UserSocialLinksInput;
+  VaultEndReason: VaultEndReason;
+  VaultLocation: ResolverTypeWrapper<VaultLocation>;
+  VaultLocationInput: VaultLocationInput;
+  VaultLocationState: VaultLocationState;
   WebScrape: ResolverTypeWrapper<WebScrape>;
   WebScrapeAiEstimate: ResolverTypeWrapper<WebScrapeAiEstimate>;
   WebScrapePage: ResolverTypeWrapper<WebScrapePage>;
@@ -25701,6 +25792,8 @@ export type ResolversParentTypes = ResolversObject<{
   TeamPage: TeamPage;
   TechEmailTemplateOption: TechEmailTemplateOption;
   TechSecretValue: TechSecretValue;
+  TechVaultSession: TechVaultSession;
+  TechVaultSessionPage: TechVaultSessionPage;
   Tool: Tool;
   ToolCategory: ToolCategory;
   ToolCategoryInput: ToolCategoryInput;
@@ -25756,6 +25849,7 @@ export type ResolversParentTypes = ResolversObject<{
   TranslationFill: TranslationFill;
   TranslationPage: TranslationPage;
   TranslationRow: TranslationRow;
+  UnlockTechVaultInput: UnlockTechVaultInput;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
@@ -25766,6 +25860,8 @@ export type ResolversParentTypes = ResolversObject<{
   UserSession: UserSession;
   UserSocialLinks: UserSocialLinks;
   UserSocialLinksInput: UserSocialLinksInput;
+  VaultLocation: VaultLocation;
+  VaultLocationInput: VaultLocationInput;
   WebScrape: WebScrape;
   WebScrapeAiEstimate: WebScrapeAiEstimate;
   WebScrapePage: WebScrapePage;
@@ -31129,6 +31225,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
   itRevokeAllAccess?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItRevokeAllAccessArgs, 'employeeId'>>;
+  lockTechVault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   login?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   maAddActionComment?: Resolver<ResolversTypes['MaActionItem'], ParentType, ContextType, RequireFields<MutationMaAddActionCommentArgs, 'id' | 'text'>>;
   maApproveRelease?: Resolver<ResolversTypes['MaRelease'], ParentType, ContextType, RequireFields<MutationMaApproveReleaseArgs, 'channel' | 'id'>>;
@@ -31192,6 +31289,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestEmployeeEmailCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestEmployeeEmailCodeArgs, 'employeeId' | 'kind'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
+  requestTechVaultCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
@@ -31362,6 +31460,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   translateMissing?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType, RequireFields<MutationTranslateMissingArgs, 'locale' | 'sources'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
   unassignLegalItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnassignLegalItemArgs, 'id'>>;
+  unlockTechVault?: Resolver<ResolversTypes['TechVaultSession'], ParentType, ContextType, RequireFields<MutationUnlockTechVaultArgs, 'input'>>;
   unpublishCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationUnpublishCmsPageArgs, 'id'>>;
   unshareWithClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnshareWithClientArgs, 'id'>>;
   unsubscribeFromMarketing?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromMarketingArgs, 'token'>>;
@@ -33219,6 +33318,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   teamPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   teamRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
   techEmailTemplateOptions?: Resolver<Array<ResolversTypes['TechEmailTemplateOption']>, ParentType, ContextType>;
+  techVaultSessionActivity?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryTechVaultSessionActivityArgs, 'id'>>;
+  techVaultSessionsPaged?: Resolver<ResolversTypes['TechVaultSessionPage'], ParentType, ContextType, RequireFields<QueryTechVaultSessionsPagedArgs, 'input'>>;
+  techVaultStatus?: Resolver<Maybe<ResolversTypes['TechVaultSession']>, ParentType, ContextType>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBilling?: Resolver<ResolversTypes['TrackerBilling'], ParentType, ContextType, RequireFields<QueryTrackerBillingArgs, 'from' | 'to'>>;
   trackerBillingByProject?: Resolver<Array<ResolversTypes['ProjectBillingRow']>, ParentType, ContextType, RequireFields<QueryTrackerBillingByProjectArgs, 'from' | 'to'>>;
@@ -34373,6 +34475,28 @@ export type TechSecretValueResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TechVaultSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechVaultSession'] = ResolversParentTypes['TechVaultSession']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endReason?: Resolver<Maybe<ResolversTypes['VaultEndReason']>, ParentType, ContextType>;
+  endedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  ip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['VaultLocation'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unlockedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  userAgent?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TechVaultSessionPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechVaultSessionPage'] = ResolversParentTypes['TechVaultSessionPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['TechVaultSession']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ToolResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Tool'] = ResolversParentTypes['Tool']> = ResolversObject<{
   categorySlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -34976,6 +35100,14 @@ export type UserSocialLinksResolvers<ContextType = GraphQLContext, ParentType ex
   linkedin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   twitter?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type VaultLocationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['VaultLocation'] = ResolversParentTypes['VaultLocation']> = ResolversObject<{
+  accuracy?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  latitude?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  longitude?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['VaultLocationState'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -36106,6 +36238,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TeamPage?: TeamPageResolvers<ContextType>;
   TechEmailTemplateOption?: TechEmailTemplateOptionResolvers<ContextType>;
   TechSecretValue?: TechSecretValueResolvers<ContextType>;
+  TechVaultSession?: TechVaultSessionResolvers<ContextType>;
+  TechVaultSessionPage?: TechVaultSessionPageResolvers<ContextType>;
   Tool?: ToolResolvers<ContextType>;
   ToolCategory?: ToolCategoryResolvers<ContextType>;
   ToolPage?: ToolPageResolvers<ContextType>;
@@ -36155,6 +36289,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   UserPage?: UserPageResolvers<ContextType>;
   UserSession?: UserSessionResolvers<ContextType>;
   UserSocialLinks?: UserSocialLinksResolvers<ContextType>;
+  VaultLocation?: VaultLocationResolvers<ContextType>;
   WebScrape?: WebScrapeResolvers<ContextType>;
   WebScrapeAiEstimate?: WebScrapeAiEstimateResolvers<ContextType>;
   WebScrapePage?: WebScrapePageResolvers<ContextType>;

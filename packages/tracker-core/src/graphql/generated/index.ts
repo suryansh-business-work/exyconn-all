@@ -4586,6 +4586,12 @@ export type TrainingStatus =
   | 'COMPLETED'
   | 'IN_PROGRESS';
 
+export type UnlockTechVaultInput = {
+  code: Scalars['String']['input'];
+  location: VaultLocationInput;
+  reason: Scalars['String']['input'];
+};
+
 export type UpdateProfileInput = {
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
@@ -4672,6 +4678,23 @@ export type UserSocialLinksInput = {
   twitter: InputMaybe<Scalars['String']['input']>;
   website: InputMaybe<Scalars['String']['input']>;
 };
+
+export type VaultEndReason =
+  | 'EXPIRED'
+  | 'LOCKED';
+
+export type VaultLocationInput = {
+  accuracy: InputMaybe<Scalars['Float']['input']>;
+  latitude: InputMaybe<Scalars['Float']['input']>;
+  longitude: InputMaybe<Scalars['Float']['input']>;
+  state: VaultLocationState;
+};
+
+/** Whether the browser shared the device's position when the vault was opened. */
+export type VaultLocationState =
+  | 'DENIED'
+  | 'GRANTED'
+  | 'UNAVAILABLE';
 
 export type WebsiteCaptchaAnswer = {
   answer: Scalars['String']['input'];

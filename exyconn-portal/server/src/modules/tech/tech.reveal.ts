@@ -29,6 +29,7 @@ import { OpenAiConfigModel } from './openai-config.model';
 import { PexelsConfigModel } from './pexels-config.model';
 import { SlackConfigModel } from './slack-config.model';
 import { BillingKeyModel } from './billing/billing-key.model';
+import { assertVaultOpen } from './vault/vault.gate';
 
 /**
  * The eye button on Tech > Environment Variables. A saved credential is never listed; staff who
@@ -115,10 +116,15 @@ const findRow = (secret: SecretSource, id: string): Promise<StoredRow | null> =>
   return secret.companyScoped ? query() : runAsPlatform(query);
 };
 
-const guardFor = (ctx: GraphQLContext, secret: SecretSource) =>
-  secret.companyScoped
-    ? assertPermission(ctx, TECH_MODULE, [ROLES.TECH], 'EDIT')
-    : assertPlatformStaff(ctx, TECH_MODULE, [ROLES.TECH], 'EDIT');
+/** The platform guard checks the vault itself; a company's own mailbox is checked here. */
+const guardFor = async (ctx: GraphQLContext, secret: SecretSource) => {
+  if (!secret.companyScoped) {
+    return assertPlatformStaff(ctx, TECH_MODULE, [ROLES.TECH], 'EDIT');
+  }
+  const user = await assertPermission(ctx, TECH_MODULE, [ROLES.TECH], 'EDIT');
+  await assertVaultOpen(user.id);
+  return user;
+};
 
 /** The stored value of one credential, opened when it is sealed. */
 async function revealTechSecret(ctx: GraphQLContext, id: string, kind: string): Promise<string> {

@@ -9345,6 +9345,8 @@ export type Mutation = {
   itProvisionOnboarding: Array<ItAccessRequest>;
   /** Opens a pre-approved REVOKE for everything the leaver still holds. */
   itRevokeAllAccess: Array<ItAccessRequest>;
+  /** Locks Environment Variables again now. */
+  lockTechVault: Scalars['Boolean']['output'];
   login: AuthPayload;
   maAddActionComment: MaActionItem;
   /** Approves a build waiting for review, offers it on the channel and announces it in Slack. */
@@ -9467,6 +9469,8 @@ export type Mutation = {
    * Always true, so the answer does not reveal which addresses have accounts.
    */
   requestPasswordReset: Scalars['Boolean']['output'];
+  /** Emails a one-time code to the address the caller signs in with. */
+  requestTechVaultCode: Scalars['Boolean']['output'];
   /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
   requestWhatsappDemoCode: Scalars['Boolean']['output'];
   /** Sets a new password from an emailed link. The link works once. */
@@ -9866,6 +9870,8 @@ export type Mutation = {
   triageWebsiteSubmission: WebsiteSubmission;
   /** HR or LEGAL: takes one item back. */
   unassignLegalItem: Scalars['Boolean']['output'];
+  /** Opens Environment Variables for 30 minutes. */
+  unlockTechVault: TechVaultSession;
   unpublishCmsPage: CmsPage;
   unshareWithClient: Scalars['Boolean']['output'];
   /**
@@ -13198,6 +13204,11 @@ export type MutationTriageWebsiteSubmissionArgs = {
 
 export type MutationUnassignLegalItemArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationUnlockTechVaultArgs = {
+  input: UnlockTechVaultInput;
 };
 
 
@@ -16952,6 +16963,12 @@ export type Query = {
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
+  /** What was changed or revealed in Tech configuration during one session. */
+  techVaultSessionActivity: Array<AuditLog>;
+  /** Every unlock, newest first. */
+  techVaultSessionsPaged: TechVaultSessionPage;
+  /** The caller's open Environment Variables session; null while locked. */
+  techVaultStatus?: Maybe<TechVaultSession>;
   trackerAccessList: Array<TrackerAccess>;
   /**
    * Billing for tracked time over a range. Active time only — idle minutes are time at a
@@ -19194,6 +19211,16 @@ export type QueryTaskByKeyArgs = {
 
 export type QueryTaskCommentsArgs = {
   taskId: Scalars['ID']['input'];
+};
+
+
+export type QueryTechVaultSessionActivityArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryTechVaultSessionsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -21453,6 +21480,29 @@ export type TechSecretValue = {
   value: Scalars['String']['output'];
 };
 
+/** One unlock of Tech > Environment Variables: who, why, from where, and until when. */
+export type TechVaultSession = {
+  __typename?: 'TechVaultSession';
+  email: Scalars['String']['output'];
+  endReason?: Maybe<VaultEndReason>;
+  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  ip: Scalars['String']['output'];
+  location: VaultLocation;
+  reason: Scalars['String']['output'];
+  unlockedAt: Scalars['DateTime']['output'];
+  userAgent: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+};
+
+export type TechVaultSessionPage = {
+  __typename?: 'TechVaultSessionPage';
+  rows: Array<TechVaultSession>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** How a ticket reached the desk. */
 export enum TicketChannel {
   /** Typed into the console by an agent, usually off a call. */
@@ -22385,6 +22435,12 @@ export type TranslationRow = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type UnlockTechVaultInput = {
+  code: Scalars['String']['input'];
+  location: VaultLocationInput;
+  reason: Scalars['String']['input'];
+};
+
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
@@ -22614,6 +22670,34 @@ export type UserSocialLinksInput = {
   twitter?: InputMaybe<Scalars['String']['input']>;
   website?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum VaultEndReason {
+  Expired = 'EXPIRED',
+  Locked = 'LOCKED'
+}
+
+export type VaultLocation = {
+  __typename?: 'VaultLocation';
+  /** Metres, as the browser reported it. */
+  accuracy?: Maybe<Scalars['Float']['output']>;
+  latitude?: Maybe<Scalars['Float']['output']>;
+  longitude?: Maybe<Scalars['Float']['output']>;
+  state: VaultLocationState;
+};
+
+export type VaultLocationInput = {
+  accuracy?: InputMaybe<Scalars['Float']['input']>;
+  latitude?: InputMaybe<Scalars['Float']['input']>;
+  longitude?: InputMaybe<Scalars['Float']['input']>;
+  state: VaultLocationState;
+};
+
+/** Whether the browser shared the device's position when the vault was opened. */
+export enum VaultLocationState {
+  Denied = 'DENIED',
+  Granted = 'GRANTED',
+  Unavailable = 'UNAVAILABLE'
+}
 
 /** A web page read through Firecrawl, kept as markdown, with the last AI answer about it. */
 export type WebScrape = {
@@ -32131,6 +32215,44 @@ export type TestGoogleSignInConfigMutationVariables = Exact<{ [key: string]: nev
 
 export type TestGoogleSignInConfigMutation = { __typename?: 'Mutation', testGoogleSignInConfig: string };
 
+export type TechVaultSessionFieldsFragment = { __typename?: 'TechVaultSession', id: string, userId: string, userName: string, email: string, reason: string, ip: string, userAgent: string, unlockedAt: string, expiresAt: string, endedAt?: string | null, endReason?: VaultEndReason | null, location: { __typename?: 'VaultLocation', state: VaultLocationState, latitude?: number | null, longitude?: number | null, accuracy?: number | null } };
+
+export type TechVaultStatusQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TechVaultStatusQuery = { __typename?: 'Query', techVaultStatus?: { __typename?: 'TechVaultSession', id: string, userId: string, userName: string, email: string, reason: string, ip: string, userAgent: string, unlockedAt: string, expiresAt: string, endedAt?: string | null, endReason?: VaultEndReason | null, location: { __typename?: 'VaultLocation', state: VaultLocationState, latitude?: number | null, longitude?: number | null, accuracy?: number | null } } | null };
+
+export type TechVaultSessionsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type TechVaultSessionsPagedQuery = { __typename?: 'Query', techVaultSessionsPaged: { __typename?: 'TechVaultSessionPage', totalCount: number, rows: Array<{ __typename?: 'TechVaultSession', id: string, userId: string, userName: string, email: string, reason: string, ip: string, userAgent: string, unlockedAt: string, expiresAt: string, endedAt?: string | null, endReason?: VaultEndReason | null, location: { __typename?: 'VaultLocation', state: VaultLocationState, latitude?: number | null, longitude?: number | null, accuracy?: number | null } }> } };
+
+export type TechVaultSessionActivityQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TechVaultSessionActivityQuery = { __typename?: 'Query', techVaultSessionActivity: Array<{ __typename?: 'AuditLog', id: string, action: AuditAction, entityLabel: string, summary: string, createdAt: string }> };
+
+export type RequestTechVaultCodeMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RequestTechVaultCodeMutation = { __typename?: 'Mutation', requestTechVaultCode: boolean };
+
+export type UnlockTechVaultMutationVariables = Exact<{
+  input: UnlockTechVaultInput;
+}>;
+
+
+export type UnlockTechVaultMutation = { __typename?: 'Mutation', unlockTechVault: { __typename?: 'TechVaultSession', id: string, userId: string, userName: string, email: string, reason: string, ip: string, userAgent: string, unlockedAt: string, expiresAt: string, endedAt?: string | null, endReason?: VaultEndReason | null, location: { __typename?: 'VaultLocation', state: VaultLocationState, latitude?: number | null, longitude?: number | null, accuracy?: number | null } } };
+
+export type LockTechVaultMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LockTechVaultMutation = { __typename?: 'Mutation', lockTechVault: boolean };
+
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
@@ -36043,6 +36165,27 @@ export const GoogleSignInConfigFieldsFragmentDoc = gql`
   redirectUri
   updatedAt
   updatedByName
+}
+    `;
+export const TechVaultSessionFieldsFragmentDoc = gql`
+    fragment TechVaultSessionFields on TechVaultSession {
+  id
+  userId
+  userName
+  email
+  reason
+  ip
+  userAgent
+  location {
+    state
+    latitude
+    longitude
+    accuracy
+  }
+  unlockedAt
+  expiresAt
+  endedAt
+  endReason
 }
     `;
 export const TrackerAccessFieldsFragmentDoc = gql`
@@ -84357,6 +84500,228 @@ export function useTestGoogleSignInConfigMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<TestGoogleSignInConfigMutation, TestGoogleSignInConfigMutationVariables>(TestGoogleSignInConfigDocument, options);
       }
 export type TestGoogleSignInConfigMutationHookResult = ReturnType<typeof useTestGoogleSignInConfigMutation>;
+export const TechVaultStatusDocument = gql`
+    query TechVaultStatus {
+  techVaultStatus {
+    ...TechVaultSessionFields
+  }
+}
+    ${TechVaultSessionFieldsFragmentDoc}`;
+
+/**
+ * __useTechVaultStatusQuery__
+ *
+ * To run a query within a React component, call `useTechVaultStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTechVaultStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTechVaultStatusQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTechVaultStatusQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<TechVaultStatusQuery, TechVaultStatusQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TechVaultStatusQuery, TechVaultStatusQueryVariables>(TechVaultStatusDocument, options);
+      }
+export function useTechVaultStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TechVaultStatusQuery, TechVaultStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TechVaultStatusQuery, TechVaultStatusQueryVariables>(TechVaultStatusDocument, options);
+        }
+// @ts-ignore
+export function useTechVaultStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TechVaultStatusQuery, TechVaultStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechVaultStatusQuery, TechVaultStatusQueryVariables>;
+// @ts-ignore
+export function useTechVaultStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechVaultStatusQuery, TechVaultStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechVaultStatusQuery | undefined, TechVaultStatusQueryVariables>;
+export function useTechVaultStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechVaultStatusQuery, TechVaultStatusQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TechVaultStatusQuery, TechVaultStatusQueryVariables>(TechVaultStatusDocument, options);
+        }
+export type TechVaultStatusQueryHookResult = ReturnType<typeof useTechVaultStatusQuery>;
+export type TechVaultStatusLazyQueryHookResult = ReturnType<typeof useTechVaultStatusLazyQuery>;
+export type TechVaultStatusSuspenseQueryHookResult = ReturnType<typeof useTechVaultStatusSuspenseQuery>;
+export const TechVaultSessionsPagedDocument = gql`
+    query TechVaultSessionsPaged($input: TableQueryInput!) {
+  techVaultSessionsPaged(input: $input) {
+    totalCount
+    rows {
+      ...TechVaultSessionFields
+    }
+  }
+}
+    ${TechVaultSessionFieldsFragmentDoc}`;
+
+/**
+ * __useTechVaultSessionsPagedQuery__
+ *
+ * To run a query within a React component, call `useTechVaultSessionsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTechVaultSessionsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTechVaultSessionsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTechVaultSessionsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables> & ({ variables: TechVaultSessionsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>(TechVaultSessionsPagedDocument, options);
+      }
+export function useTechVaultSessionsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>(TechVaultSessionsPagedDocument, options);
+        }
+// @ts-ignore
+export function useTechVaultSessionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>;
+// @ts-ignore
+export function useTechVaultSessionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechVaultSessionsPagedQuery | undefined, TechVaultSessionsPagedQueryVariables>;
+export function useTechVaultSessionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TechVaultSessionsPagedQuery, TechVaultSessionsPagedQueryVariables>(TechVaultSessionsPagedDocument, options);
+        }
+export type TechVaultSessionsPagedQueryHookResult = ReturnType<typeof useTechVaultSessionsPagedQuery>;
+export type TechVaultSessionsPagedLazyQueryHookResult = ReturnType<typeof useTechVaultSessionsPagedLazyQuery>;
+export type TechVaultSessionsPagedSuspenseQueryHookResult = ReturnType<typeof useTechVaultSessionsPagedSuspenseQuery>;
+export const TechVaultSessionActivityDocument = gql`
+    query TechVaultSessionActivity($id: ID!) {
+  techVaultSessionActivity(id: $id) {
+    id
+    action
+    entityLabel
+    summary
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useTechVaultSessionActivityQuery__
+ *
+ * To run a query within a React component, call `useTechVaultSessionActivityQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTechVaultSessionActivityQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTechVaultSessionActivityQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTechVaultSessionActivityQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables> & ({ variables: TechVaultSessionActivityQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>(TechVaultSessionActivityDocument, options);
+      }
+export function useTechVaultSessionActivityLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>(TechVaultSessionActivityDocument, options);
+        }
+// @ts-ignore
+export function useTechVaultSessionActivitySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>;
+// @ts-ignore
+export function useTechVaultSessionActivitySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechVaultSessionActivityQuery | undefined, TechVaultSessionActivityQueryVariables>;
+export function useTechVaultSessionActivitySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TechVaultSessionActivityQuery, TechVaultSessionActivityQueryVariables>(TechVaultSessionActivityDocument, options);
+        }
+export type TechVaultSessionActivityQueryHookResult = ReturnType<typeof useTechVaultSessionActivityQuery>;
+export type TechVaultSessionActivityLazyQueryHookResult = ReturnType<typeof useTechVaultSessionActivityLazyQuery>;
+export type TechVaultSessionActivitySuspenseQueryHookResult = ReturnType<typeof useTechVaultSessionActivitySuspenseQuery>;
+export const RequestTechVaultCodeDocument = gql`
+    mutation RequestTechVaultCode {
+  requestTechVaultCode
+}
+    `;
+
+/**
+ * __useRequestTechVaultCodeMutation__
+ *
+ * To run a mutation, you first call `useRequestTechVaultCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestTechVaultCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestTechVaultCodeMutation, { data, loading, error }] = useRequestTechVaultCodeMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useRequestTechVaultCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RequestTechVaultCodeMutation, RequestTechVaultCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RequestTechVaultCodeMutation, RequestTechVaultCodeMutationVariables>(RequestTechVaultCodeDocument, options);
+      }
+export type RequestTechVaultCodeMutationHookResult = ReturnType<typeof useRequestTechVaultCodeMutation>;
+export const UnlockTechVaultDocument = gql`
+    mutation UnlockTechVault($input: UnlockTechVaultInput!) {
+  unlockTechVault(input: $input) {
+    ...TechVaultSessionFields
+  }
+}
+    ${TechVaultSessionFieldsFragmentDoc}`;
+
+/**
+ * __useUnlockTechVaultMutation__
+ *
+ * To run a mutation, you first call `useUnlockTechVaultMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnlockTechVaultMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unlockTechVaultMutation, { data, loading, error }] = useUnlockTechVaultMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUnlockTechVaultMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UnlockTechVaultMutation, UnlockTechVaultMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UnlockTechVaultMutation, UnlockTechVaultMutationVariables>(UnlockTechVaultDocument, options);
+      }
+export type UnlockTechVaultMutationHookResult = ReturnType<typeof useUnlockTechVaultMutation>;
+export const LockTechVaultDocument = gql`
+    mutation LockTechVault {
+  lockTechVault
+}
+    `;
+
+/**
+ * __useLockTechVaultMutation__
+ *
+ * To run a mutation, you first call `useLockTechVaultMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLockTechVaultMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [lockTechVaultMutation, { data, loading, error }] = useLockTechVaultMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLockTechVaultMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LockTechVaultMutation, LockTechVaultMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<LockTechVaultMutation, LockTechVaultMutationVariables>(LockTechVaultDocument, options);
+      }
+export type LockTechVaultMutationHookResult = ReturnType<typeof useLockTechVaultMutation>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {
