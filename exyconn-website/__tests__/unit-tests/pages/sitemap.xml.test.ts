@@ -25,9 +25,9 @@ const site = (overrides: Partial<CmsSite>) => ({
 
 const DEFAULT_HEADERS = { host: "exyconn.com" };
 
-const sitemap = async (headers: Record<string, string> = DEFAULT_HEADERS) => {
+const sitemap = async (headers: Record<string, string> = DEFAULT_HEADERS, query = "") => {
   const response = await GET(
-    routeContext(new Request("https://exyconn.com/sitemap.xml", { headers }))
+    routeContext(new Request(`https://exyconn.com/sitemap.xml${query}`, { headers }))
   );
   return { response, xml: await response.text() };
 };
@@ -45,11 +45,37 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+const marketSitemap = (market: string) => sitemap(DEFAULT_HEADERS, `?market=${market}`);
+
 describe("GET /sitemap.xml on the market site", () => {
-  it("lists every page in every market, the CMS's pages once beside the site's own", async () => {
-    mocks.publishedPaths.mockResolvedValue({ site: null, paths: ["/about-us", "/landing"] });
+  it("is an index of one sitemap per market", async () => {
+    mocks.publishedPaths.mockResolvedValue({ site: null, paths: [] });
 
     const { response, xml } = await sitemap();
+
+    expect(response.status).toBe(200);
+    expect(xml).toContain("<sitemapindex");
+    expect(xml.match(/<sitemap>/g)?.length).toBe(MARKETS.length);
+    expect(xml).toContain(
+      "<loc>https://exyconn.com/sitemap.xml?market=fr-ca</loc>\n    <lastmod>2026-10-07</lastmod>"
+    );
+    expect(urls(xml)).toBe(0);
+    expect(mocks.aiServicePaths).not.toHaveBeenCalled();
+  });
+
+  it("answers 404 for a market that does not exist", async () => {
+    mocks.publishedPaths.mockResolvedValue({ site: null, paths: [] });
+
+    const { response, xml } = await marketSitemap("xx-xx");
+
+    expect(response.status).toBe(404);
+    expect(urls(xml)).toBe(0);
+  });
+
+  it("lists every page of one market, the CMS's pages once beside the site's own", async () => {
+    mocks.publishedPaths.mockResolvedValue({ site: null, paths: ["/about-us", "/landing"] });
+
+    const { response, xml } = await marketSitemap("fr-ca");
 
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("application/xml");
@@ -57,14 +83,15 @@ describe("GET /sitemap.xml on the market site", () => {
     expect(mocks.publishedPaths).toHaveBeenCalledWith("exyconn.com");
     expect(mocks.aiServicePaths).toHaveBeenCalledWith(undefined);
     const pages = sitePages(["/ai-services/voice-agents"]).length + 1;
-    expect(urls(xml)).toBe(pages * MARKETS.length);
+    expect(urls(xml)).toBe(pages);
     expect(xml).toContain("<loc>https://exyconn.com/fr-ca/landing</loc>");
-    expect(xml).toContain("<loc>https://exyconn.com/en-in/ai-services/voice-agents</loc>");
+    expect(xml).toContain("<loc>https://exyconn.com/fr-ca/ai-services/voice-agents</loc>");
+    expect(xml).not.toContain("<loc>https://exyconn.com/en-in/");
   });
 
   it("ranks home first, top-level pages next and deeper pages last", async () => {
     mocks.publishedPaths.mockResolvedValue({ site: null, paths: [] });
-    const { xml } = await sitemap();
+    const { xml } = await marketSitemap("en-us");
 
     expect(xml).toContain(
       "<loc>https://exyconn.com/en-us</loc>\n    <lastmod>2026-10-07</lastmod>\n" +
@@ -82,7 +109,7 @@ describe("GET /sitemap.xml on the market site", () => {
 
   it("lists every market, and the default as x-default, as alternates of each page", async () => {
     mocks.publishedPaths.mockResolvedValue({ site: null, paths: [] });
-    const { xml } = await sitemap();
+    const { xml } = await marketSitemap("en-us");
 
     expect(xml).toContain(
       '<xhtml:link rel="alternate" hreflang="fr-CA" href="https://exyconn.com/fr-ca/contact" />'
@@ -94,7 +121,7 @@ describe("GET /sitemap.xml on the market site", () => {
 
   it("reads the AI pages of the site the host serves, and a request without a host", async () => {
     mocks.publishedPaths.mockResolvedValue({ site: site({}), paths: [] });
-    await sitemap({});
+    await sitemap({}, "?market=en-us");
 
     expect(mocks.publishedPaths).toHaveBeenCalledWith("");
     expect(mocks.aiServicePaths).toHaveBeenCalledWith("site-1");
@@ -102,7 +129,7 @@ describe("GET /sitemap.xml on the market site", () => {
 
   it("keeps market URLs for a site without markets that has no domain of its own", async () => {
     mocks.publishedPaths.mockResolvedValue({ site: site({ markets: false }), paths: [] });
-    const { xml } = await sitemap();
+    const { xml } = await marketSitemap("en-us");
     expect(xml).toContain("<loc>https://exyconn.com/en-us</loc>");
   });
 });

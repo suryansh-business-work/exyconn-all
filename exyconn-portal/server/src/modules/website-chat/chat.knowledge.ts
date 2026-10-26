@@ -24,10 +24,10 @@ interface KnowledgeRow {
 
 const marketPrefix = `/${env.chatKnowledgeMarket}`;
 
-/** The sitemap's pages in the one market the bot reads. */
+/** The pages of the one market the bot reads, from that market's sitemap. */
 async function sitemapPages(): Promise<string[]> {
   const response = await safeFetch(
-    `${env.websiteUrl}/sitemap.xml`,
+    `${env.websiteUrl}/sitemap.xml?market=${env.chatKnowledgeMarket}`,
     {},
     { maxBytes: 8 * 1024 * 1024 },
   );
