@@ -93,7 +93,16 @@ Tools are generated, never written by hand, so a module's MCP server follows its
 - Renaming or removing a field renames or removes the tool; check prompts or docs that name it.
 - Fields whose name contains `Config`, `Secret`, `Token`, `Password`, `ApiKey` or `Vault` are
   credentials, settings or the Tech vault that guards them, never offered (`EXCLUDED` in
-  `mcp.tools.ts`). Creating an API key or resetting a password stays in the portal.
+  `core/mcp.tools.ts`). Creating an API key or resetting a password stays in the portal.
+- **Shared tools** every portal offers — global `search` and the table tools (`tableExport`,
+  `importTableRows`, `startTableBulkJob` and their helpers) — are added to every server by
+  `servers/shared.ts`; `/mcp/all` lists each once. They run with the caller's roles through the
+  module's own operations, and export still needs the EXPORT permission.
+- **Never offered by any server** (listed in `servers/shared.ts`): sign-in, MFA, sessions and the
+  profile (a connection is already signed in), MCP's own consent and connections (Claude never
+  approves itself), and the WhatsApp channel (it holds
+  the Meta access token). Every other Query and Mutation field belongs to some server.
+- The WhatsApp demo bot studio is part of **Tech**; WhatsApp Leads (demo visitors) of **Website**.
 - `mcp.tools.test.ts` validates every generated tool's operation against the real schema, for
   every server in `MCP_SERVERS`; a module change that breaks one fails CI.
 - The MCP portal routes each server explicitly in `apps/mcp/src/App.tsx` (the shell's nav coverage

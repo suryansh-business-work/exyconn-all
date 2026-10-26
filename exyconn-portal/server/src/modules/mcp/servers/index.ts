@@ -18,6 +18,7 @@ import { SUPPORT_MCP } from './support.server';
 import { TECH_MCP } from './tech.server';
 import { TRACKER_MCP } from './tracker.server';
 import { WEBSITE_MCP } from './website.server';
+import { SHARED_TYPEDEFS } from './shared';
 import type { McpEndpointKey, McpServerSpec } from './spec';
 
 export type { McpEndpointKey, McpServerKey, McpServerSpec } from './spec';
@@ -40,6 +41,12 @@ export { SUPPORT_MCP } from './support.server';
 export { TECH_MCP } from './tech.server';
 export { TRACKER_MCP } from './tracker.server';
 export { WEBSITE_MCP } from './website.server';
+
+/** A module's server with the operations every portal shares (see shared.ts). */
+const withShared = (spec: McpServerSpec): McpServerSpec => ({
+  ...spec,
+  typeDefs: [...spec.typeDefs, ...SHARED_TYPEDEFS],
+});
 
 /**
  * Every module offered to Claude as its own MCP server. A new module's server is one entry here
@@ -65,7 +72,7 @@ export const MCP_SERVERS: readonly McpServerSpec[] = [
   TECH_MCP,
   TRACKER_MCP,
   WEBSITE_MCP,
-];
+].map(withShared);
 
 /** The global server: every tool of every module the person may use, behind one connection. */
 export const GLOBAL_MCP = {
