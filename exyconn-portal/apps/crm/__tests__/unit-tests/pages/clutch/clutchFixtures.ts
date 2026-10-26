@@ -1,0 +1,73 @@
+import {
+  ClutchEngine,
+  ClutchRunStatus,
+  type ClutchCompanyFieldsFragment,
+  type ClutchRunQuery,
+} from '@exyconn/shell/graphql/generated';
+
+export const company = (
+  patch: Partial<ClutchCompanyFieldsFragment> = {},
+): ClutchCompanyFieldsFragment => ({
+  key: '1',
+  name: 'rtCamp',
+  profileUrl: 'https://clutch.co/profile/rtcamp',
+  website: 'https://rtcamp.com',
+  logoUrl: '',
+  tagline: 'WordPress experts',
+  description: 'An agency.',
+  rating: 4.8,
+  reviewCount: 17,
+  verification: 'premier',
+  hourlyRate: '$50 - $99',
+  minProjectSize: '$10,000',
+  employees: '',
+  founded: '2009',
+  headquarters: 'Atlanta, United States',
+  locations: ['Pune, India'],
+  phone: '+1 555 0100',
+  emails: [],
+  services: ['Web Development'],
+  people: [{ name: 'Sam', title: 'CEO', email: 'sam@rtcamp.com', phone: '' }],
+  reviews: [
+    {
+      title: 'Rebuild',
+      rating: 5,
+      comment: 'Fast',
+      reviewer: 'Jo',
+      reviewerTitle: 'CTO',
+      industry: 'Media',
+      projectSize: '$50k',
+      date: '2026-08-20',
+    },
+  ],
+  portfolio: [{ title: 'Site', description: 'A news site', imageUrl: 'https://img/p.png' }],
+  ...patch,
+});
+
+export const run = (
+  patch: Partial<ClutchRunQuery['clutchRun']> = {},
+): ClutchRunQuery['clutchRun'] => ({
+  id: 'r1',
+  engine: ClutchEngine.Mcp,
+  status: ClutchRunStatus.Succeeded,
+  keyword: 'Web Development',
+  location: 'Pune',
+  industry: '',
+  profileUrls: [],
+  includeDetails: true,
+  includeReviews: true,
+  includePortfolio: false,
+  maxItems: 20,
+  companyCount: 2,
+  error: '',
+  notes: ['Clutch’s own server returns its top matches.'],
+  startedByName: 'Asha',
+  createdAt: '2026-10-26T10:00:00.000Z',
+  finishedAt: '2026-10-26T10:00:05.000Z',
+  filedKeys: ['2'],
+  companies: [
+    company(),
+    company({ key: '2', name: 'Acme', rating: null, reviews: [], portfolio: [], people: [] }),
+  ],
+  ...patch,
+});

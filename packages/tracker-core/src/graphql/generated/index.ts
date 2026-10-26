@@ -893,6 +893,31 @@ export type CloudflareConfigInput = {
   label: Scalars['String']['input'];
 };
 
+/** Which engine a Clutch search ran on: Clutch's own MCP server (free) or an Apify scraper. */
+export type ClutchEngine =
+  | 'APIFY'
+  | 'MCP';
+
+export type ClutchRunStatus =
+  | 'FAILED'
+  | 'RUNNING'
+  | 'SUCCEEDED';
+
+export type ClutchSearchInput = {
+  engine: ClutchEngine;
+  includeDetails: Scalars['Boolean']['input'];
+  includePortfolio: Scalars['Boolean']['input'];
+  includeReviews: Scalars['Boolean']['input'];
+  industry: Scalars['String']['input'];
+  /** What to search for, e.g. Web Development or 'api development'. */
+  keyword: Scalars['String']['input'];
+  location: Scalars['String']['input'];
+  /** 1 to 200. */
+  maxItems: Scalars['Int']['input'];
+  /** Clutch profile links to read in full (https://clutch.co/profile/…). */
+  profileUrls: Array<Scalars['String']['input']>;
+};
+
 export type CmsAssetUploadInput = {
   alt: InputMaybe<Scalars['String']['input']>;
   /** A data: URL (image or PDF, up to 12 MB). */
@@ -1407,6 +1432,7 @@ export type CrmOp =
   | 'STARTS_WITH';
 
 export type CrmOriginSource =
+  | 'CLUTCH'
   | 'GOOGLE_PLACES'
   | 'LEAD_CONVERSION'
   | 'MEETING_BOOKING'
@@ -2077,7 +2103,9 @@ export type IncidentUpdateStatus =
 
 /** An integration whose calls are counted on the Environment Variables dashboard. */
 export type IntegrationProvider =
+  | 'APIFY'
   | 'CLOUDFLARE'
+  | 'CLUTCH'
   | 'EMAIL_VERIFIER'
   | 'FIRECRAWL'
   | 'GITHUB'
@@ -2522,6 +2550,12 @@ export type LeadSource =
   | 'EVENT'
   | 'REFERRAL'
   | 'WEBSITE';
+
+export type LeadSourceSettingsInput = {
+  /** Blank keeps the stored token. */
+  apifyToken: Scalars['String']['input'];
+  clutchActorId: Scalars['String']['input'];
+};
 
 export type LeadStage =
   | 'CONTACTED'

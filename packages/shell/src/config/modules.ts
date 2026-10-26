@@ -64,6 +64,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import EmailIcon from '@mui/icons-material/Email';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import ReviewsIcon from '@mui/icons-material/Reviews';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -585,12 +586,21 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Tools',
       },
       {
-        // Businesses found on Google Places, enriched and filed as CRM companies.
+        // Businesses found on Google Places (Google Business), enriched and filed as CRM companies.
         key: 'crm-lead-generator',
-        label: 'Lead generator',
-        path: '/tools/lead-generator',
+        label: 'Google Business',
+        path: '/tools/lead-generators/google-business',
         icon: TravelExploreIcon,
-        group: 'Tools',
+        group: 'Lead generators',
+      },
+      {
+        // B2B service providers on Clutch.co — search, profiles, reviews, portfolio — via Clutch's
+        // own MCP server or an Apify scraper, filed as CRM companies and contacts.
+        key: 'crm-clutch',
+        label: 'Clutch',
+        path: '/tools/lead-generators/clutch',
+        icon: ReviewsIcon,
+        group: 'Lead generators',
       },
       {
         // Public web pages read through Firecrawl, kept as text and handed to the AI on request.

@@ -29,6 +29,8 @@ export const techUsageTypeDefs = gql`
     SOCIAL
     GOOGLE_CALENDAR
     EMAIL_VERIFIER
+    CLUTCH
+    APIFY
   }
 
   "One call made with an Environment Variables credential: what, by whom, how long, what it cost."

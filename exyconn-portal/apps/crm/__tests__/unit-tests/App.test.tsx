@@ -14,6 +14,7 @@ import { DealsListPage, DealsPage } from '../../src/pages/deals';
 import { ActivitiesPage } from '../../src/pages/activities';
 import { EmailVerifierPage } from '../../src/pages/email-verifier';
 import { LeadGeneratorPage } from '../../src/pages/lead-generator';
+import { ClutchPage } from '../../src/pages/clutch';
 import { WebsiteScraperPage } from '../../src/pages/website-scraper';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
@@ -101,7 +102,9 @@ describe('App', () => {
       ['/meetings/:tab?', MeetingsPage],
       ['/cold-emails/*', Navigate],
       ['/tools/email-verifier/:tab?', EmailVerifierPage],
-      ['/tools/lead-generator', LeadGeneratorPage],
+      ['/tools/lead-generators/google-business', LeadGeneratorPage],
+      ['/tools/lead-generators/clutch/:runId?', ClutchPage],
+      ['/tools/lead-generator', Navigate],
       ['/tools/website-scraper', WebsiteScraperPage],
       ['/settings/properties/:object?', PropertiesPage],
       ['/settings/gmail', Navigate],
@@ -114,6 +117,13 @@ describe('App', () => {
 
     const old = declaredRoute('/settings/gmail');
     expect(old?.element.props).toEqual({ to: '/integrations/email', replace: true });
+  });
+
+  it('sends the old Lead generator address to Lead generators > Google Business', () => {
+    render(<App />);
+
+    const old = declaredRoute('/tools/lead-generator');
+    expect(old?.element.props).toEqual({ to: '/tools/lead-generators/google-business', replace: true });
   });
 
   it('sends old Cold emails links to Contacts, where each record has its own tab', () => {

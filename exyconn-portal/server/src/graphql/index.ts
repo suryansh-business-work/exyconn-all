@@ -198,6 +198,7 @@ import { payoutTypeDefs, payoutResolvers } from '../modules/payout';
 import { techVaultTypeDefs, techVaultResolvers } from '../modules/tech/vault';
 import { providerProfileTypeDefs, providerProfileResolvers } from '../modules/tech/providers';
 import { techTransferTypeDefs, techTransferResolvers } from '../modules/tech/transfer';
+import { clutchTypeDefs, clutchResolvers } from '../modules/lead-sources';
 import {
   cmsTypeDefs,
   cmsContentTypeDefs,
@@ -374,6 +375,7 @@ export const typeDefs = [
   techVaultTypeDefs,
   providerProfileTypeDefs,
   techTransferTypeDefs,
+  clutchTypeDefs,
   websiteChatTypeDefs,
   websiteChatLibraryTypeDefs,
   gccTypeDefs,
@@ -489,6 +491,7 @@ export const resolvers = mergeResolvers([
   techVaultResolvers,
   providerProfileResolvers,
   techTransferResolvers,
+  clutchResolvers,
   websiteChatResolvers,
   websiteChatLibraryResolvers,
   gccResolvers,

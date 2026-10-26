@@ -8,6 +8,7 @@ export const crmRecordMetaTypeDefs = gql`
     GOOGLE_PLACES
     MEETING_BOOKING
     LEAD_CONVERSION
+    CLUTCH
   }
 
   enum CrmTagObject {

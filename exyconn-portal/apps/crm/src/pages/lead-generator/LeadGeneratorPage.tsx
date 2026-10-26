@@ -11,7 +11,7 @@ import { PlacesNotConfigured } from './PlacesNotConfigured';
 const logFailure = (what: string) => (error: unknown) => portalLogger.warn(`crm: ${what}`, error);
 
 /**
- * CRM > Tools > Lead generator: find businesses on Google Places, read their websites for
+ * CRM > Lead generators > Google Business: find businesses on Google Places, read their websites for
  * email addresses, and file the chosen ones as CRM companies with their phone, address and map.
  */
 export function LeadGeneratorPage() {
@@ -49,7 +49,7 @@ export function LeadGeneratorPage() {
   return (
     <Box>
       <PageHeader
-        title="Lead generator"
+        title="Google Business"
         subtitle="Find businesses on Google Places and add them to the CRM as companies"
       />
       {body}

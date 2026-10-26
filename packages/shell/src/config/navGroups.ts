@@ -5,6 +5,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import BuildIcon from '@mui/icons-material/Build';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import BusinessIcon from '@mui/icons-material/Business';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -57,6 +58,7 @@ export const NAV_GROUP_ICONS = {
   Growth: TrendingUpIcon,
   'Hiring & onboarding': PersonAddIcon,
   Inbox: InboxIcon,
+  'Lead generators': TravelExploreIcon,
   Leave: BeachAccessIcon,
   'MCP servers': HubIcon,
   'Meeting Assistant': VoiceChatIcon,

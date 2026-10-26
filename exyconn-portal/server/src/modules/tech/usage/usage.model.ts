@@ -27,6 +27,8 @@ export const INTEGRATION_PROVIDERS = [
   'SOCIAL',
   'GOOGLE_CALENDAR',
   'EMAIL_VERIFIER',
+  'CLUTCH',
+  'APIFY',
 ] as const;
 
 export type IntegrationProvider = (typeof INTEGRATION_PROVIDERS)[number];

@@ -33,6 +33,8 @@ export const USAGE_PROVIDERS: Readonly<
   [IntegrationProvider.Vobiz]: { label: 'Vobiz', slug: USAGE_HISTORY_SLUG },
   [IntegrationProvider.Sarvam]: { label: 'Sarvam AI', slug: USAGE_HISTORY_SLUG },
   [IntegrationProvider.Social]: { label: 'Social networks', slug: USAGE_HISTORY_SLUG },
+  [IntegrationProvider.Clutch]: { label: 'Clutch (MCP)', slug: USAGE_HISTORY_SLUG },
+  [IntegrationProvider.Apify]: { label: 'Apify', slug: USAGE_HISTORY_SLUG },
   [IntegrationProvider.GoogleCalendar]: {
     label: 'Google Calendar and Meet',
     slug: USAGE_HISTORY_SLUG,

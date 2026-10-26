@@ -2460,6 +2460,144 @@ export type CloudflareZone = {
   status: Scalars['String']['output'];
 };
 
+/** One Clutch.co company as a search found it. */
+export type ClutchCompany = {
+  __typename?: 'ClutchCompany';
+  description: Scalars['String']['output'];
+  emails: Array<Scalars['String']['output']>;
+  employees: Scalars['String']['output'];
+  founded: Scalars['String']['output'];
+  headquarters: Scalars['String']['output'];
+  hourlyRate: Scalars['String']['output'];
+  /** Clutch's id, or the profile URL. */
+  key: Scalars['String']['output'];
+  locations: Array<Scalars['String']['output']>;
+  logoUrl: Scalars['String']['output'];
+  minProjectSize: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  people: Array<ClutchPerson>;
+  phone: Scalars['String']['output'];
+  portfolio: Array<ClutchPortfolioItem>;
+  profileUrl: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  reviewCount?: Maybe<Scalars['Int']['output']>;
+  reviews: Array<ClutchReview>;
+  services: Array<Scalars['String']['output']>;
+  tagline: Scalars['String']['output'];
+  verification: Scalars['String']['output'];
+  website: Scalars['String']['output'];
+};
+
+/** Which engine a Clutch search ran on: Clutch's own MCP server (free) or an Apify scraper. */
+export enum ClutchEngine {
+  Apify = 'APIFY',
+  Mcp = 'MCP'
+}
+
+export type ClutchImportFiled = {
+  __typename?: 'ClutchImportFiled';
+  companyId: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+};
+
+export type ClutchImportResult = {
+  __typename?: 'ClutchImportResult';
+  /** People with an email, filed as contacts of their company. */
+  contactsCreated: Scalars['Int']['output'];
+  created: Scalars['Int']['output'];
+  filed: Array<ClutchImportFiled>;
+  skipped: Scalars['Int']['output'];
+  skips: Array<ClutchImportSkip>;
+};
+
+export type ClutchImportSkip = {
+  __typename?: 'ClutchImportSkip';
+  companyId?: Maybe<Scalars['ID']['output']>;
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  reason: Scalars['String']['output'];
+};
+
+/** A person listed at the company, with a way to reach them. */
+export type ClutchPerson = {
+  __typename?: 'ClutchPerson';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ClutchPortfolioItem = {
+  __typename?: 'ClutchPortfolioItem';
+  description: Scalars['String']['output'];
+  imageUrl: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ClutchReview = {
+  __typename?: 'ClutchReview';
+  comment: Scalars['String']['output'];
+  date: Scalars['String']['output'];
+  industry: Scalars['String']['output'];
+  projectSize: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  reviewer: Scalars['String']['output'];
+  reviewerTitle: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** One Clutch search and what it found (CRM > Lead generators > Clutch). */
+export type ClutchRun = {
+  __typename?: 'ClutchRun';
+  companies: Array<ClutchCompany>;
+  companyCount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  engine: ClutchEngine;
+  error: Scalars['String']['output'];
+  /** Keys of the companies already filed into the CRM. */
+  filedKeys: Array<Scalars['String']['output']>;
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  includeDetails: Scalars['Boolean']['output'];
+  includePortfolio: Scalars['Boolean']['output'];
+  includeReviews: Scalars['Boolean']['output'];
+  industry: Scalars['String']['output'];
+  keyword: Scalars['String']['output'];
+  location: Scalars['String']['output'];
+  maxItems: Scalars['Int']['output'];
+  notes: Array<Scalars['String']['output']>;
+  profileUrls: Array<Scalars['String']['output']>;
+  startedByName: Scalars['String']['output'];
+  status: ClutchRunStatus;
+};
+
+export type ClutchRunPage = {
+  __typename?: 'ClutchRunPage';
+  rows: Array<ClutchRun>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ClutchRunStatus {
+  Failed = 'FAILED',
+  Running = 'RUNNING',
+  Succeeded = 'SUCCEEDED'
+}
+
+export type ClutchSearchInput = {
+  engine: ClutchEngine;
+  includeDetails: Scalars['Boolean']['input'];
+  includePortfolio: Scalars['Boolean']['input'];
+  includeReviews: Scalars['Boolean']['input'];
+  industry: Scalars['String']['input'];
+  /** What to search for, e.g. Web Development or 'api development'. */
+  keyword: Scalars['String']['input'];
+  location: Scalars['String']['input'];
+  /** 1 to 200. */
+  maxItems: Scalars['Int']['input'];
+  /** Clutch profile links to read in full (https://clutch.co/profile/…). */
+  profileUrls: Array<Scalars['String']['input']>;
+};
+
 export type CmsARecord = {
   __typename?: 'CmsARecord';
   ip: Scalars['String']['output'];
@@ -4031,6 +4169,7 @@ export enum CrmOp {
 }
 
 export enum CrmOriginSource {
+  Clutch = 'CLUTCH',
   GooglePlaces = 'GOOGLE_PLACES',
   LeadConversion = 'LEAD_CONVERSION',
   MeetingBooking = 'MEETING_BOOKING',
@@ -5985,7 +6124,9 @@ export type IntegrationCallPage = {
 
 /** An integration whose calls are counted on the Environment Variables dashboard. */
 export enum IntegrationProvider {
+  Apify = 'APIFY',
   Cloudflare = 'CLOUDFLARE',
+  Clutch = 'CLUTCH',
   EmailVerifier = 'EMAIL_VERIFIER',
   Firecrawl = 'FIRECRAWL',
   Github = 'GITHUB',
@@ -7219,6 +7360,22 @@ export enum LeadSource {
   Referral = 'REFERRAL',
   Website = 'WEBSITE'
 }
+
+/** The company's Apify account for lead generators. The token itself is never returned. */
+export type LeadSourceSettings = {
+  __typename?: 'LeadSourceSettings';
+  apifyTokenHint: Scalars['String']['output'];
+  /** e.g. scrapeai/clutch-co-scraper. */
+  clutchActorId: Scalars['String']['output'];
+  hasApifyToken: Scalars['Boolean']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type LeadSourceSettingsInput = {
+  /** Blank keeps the stored token. */
+  apifyToken: Scalars['String']['input'];
+  clutchActorId: Scalars['String']['input'];
+};
 
 export enum LeadStage {
   Contacted = 'CONTACTED',
@@ -8977,6 +9134,8 @@ export type Mutation = {
   changePassword: Scalars['Boolean']['output'];
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
+  /** Removes the Apify token: Clutch searches use Clutch's own server. */
+  clearApifyToken: LeadSourceSettings;
   clearRolePermission: Scalars['Boolean']['output'];
   clientHubDeletePayoutAccount: Scalars['Boolean']['output'];
   /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
@@ -9226,6 +9385,7 @@ export type Mutation = {
   deleteClientContact: Scalars['Boolean']['output'];
   deleteClientLink: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
+  deleteClutchRun: Scalars['Boolean']['output'];
   deleteCmsAsset: Scalars['Boolean']['output'];
   deleteCmsDesignSystem: Scalars['Boolean']['output'];
   deleteCmsFragment: Scalars['Boolean']['output'];
@@ -9395,6 +9555,8 @@ export type Mutation = {
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
+  /** Files the chosen companies of a search as CRM companies, and their listed people as contacts. */
+  importClutchCompanies: ClutchImportResult;
   importCrmRecords: CrmImportResult;
   /** Files the chosen places as CRM companies. Duplicates are skipped, or, when listed in mergeInto, get their extra details added without overwriting anything. */
   importLeadsToCrm: LeadImportResult;
@@ -9635,6 +9797,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
+  saveLeadSourceConfig: LeadSourceSettings;
   saveMarketingFooter: MarketingFooter;
   /** Changing the booking page address stops the old one working. */
   saveMeetingSettings: MeetingSettings;
@@ -9787,6 +9950,8 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
+  /** Starts a Clutch search; it finishes in the background (poll clutchRun). */
+  startClutchSearch: ClutchRun;
   /** Click-to-call: rings the caller's own phone, then bridges to the record's number. */
   startCrmCall: CrmCallResult;
   /** Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. loginHint is the address being reconnected. */
@@ -11275,6 +11440,11 @@ export type MutationDeleteCloudflareConfigArgs = {
 };
 
 
+export type MutationDeleteClutchRunArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteCmsAssetArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11988,6 +12158,12 @@ export type MutationGrantTrackerAccessArgs = {
 };
 
 
+export type MutationImportClutchCompaniesArgs = {
+  keys: Array<Scalars['String']['input']>;
+  runId: Scalars['ID']['input'];
+};
+
+
 export type MutationImportCrmRecordsArgs = {
   input: CrmImportInput;
 };
@@ -12578,6 +12754,11 @@ export type MutationSaveGoogleSignInConfigArgs = {
 };
 
 
+export type MutationSaveLeadSourceConfigArgs = {
+  input: LeadSourceSettingsInput;
+};
+
+
 export type MutationSaveMarketingFooterArgs = {
   input: MarketingFooterInput;
 };
@@ -12990,6 +13171,11 @@ export type MutationSocialMediaInsightsArgs = {
 
 export type MutationStartCallingBotCallArgs = {
   input: StartCallingBotCallInput;
+};
+
+
+export type MutationStartClutchSearchArgs = {
+  input: ClutchSearchInput;
 };
 
 
@@ -16202,6 +16388,10 @@ export type Query = {
    * and the address they raised it from. Null unless both match.
    */
   clientSupportTicketStatus?: Maybe<ClientTicketStatus>;
+  /** One Clutch search with everything it found. */
+  clutchRun: ClutchRun;
+  /** Every Clutch search, newest first. */
+  clutchRunsPaged: ClutchRunPage;
   cmsAssets: CmsAssetPage;
   /** The dynamic components an editor can drop into a page. */
   cmsComponents: Array<CmsComponentDef>;
@@ -16443,6 +16633,8 @@ export type Query = {
   itSettings: ItSettings;
   /** Cities, areas and postcodes matching what was typed in Where (2-100 characters). */
   leadLocationSuggestions: Array<LeadLocationSuggestion>;
+  /** The Apify settings. Named Config so the CRM MCP never offers it to Claude. */
+  leadSourceConfig: LeadSourceSettings;
   /** How many leads carry this campaign's attribution. */
   leadsByCampaign: Scalars['Int']['output'];
   /** HR/ADMIN: a specific employee's leave requests. */
@@ -17450,6 +17642,16 @@ export type QueryClientSummaryArgs = {
 export type QueryClientSupportTicketStatusArgs = {
   email: Scalars['String']['input'];
   reference: Scalars['String']['input'];
+};
+
+
+export type QueryClutchRunArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClutchRunsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -25190,6 +25392,63 @@ export type SetClientProjectsMutationVariables = Exact<{
 
 
 export type SetClientProjectsMutation = { __typename?: 'Mutation', setClientProjects: boolean };
+
+export type ClutchCompanyFieldsFragment = { __typename?: 'ClutchCompany', key: string, name: string, profileUrl: string, website: string, logoUrl: string, tagline: string, description: string, rating?: number | null, reviewCount?: number | null, verification: string, hourlyRate: string, minProjectSize: string, employees: string, founded: string, headquarters: string, locations: Array<string>, phone: string, emails: Array<string>, services: Array<string>, people: Array<{ __typename?: 'ClutchPerson', name: string, title: string, email: string, phone: string }>, reviews: Array<{ __typename?: 'ClutchReview', title: string, rating?: number | null, comment: string, reviewer: string, reviewerTitle: string, industry: string, projectSize: string, date: string }>, portfolio: Array<{ __typename?: 'ClutchPortfolioItem', title: string, description: string, imageUrl: string }> };
+
+export type ClutchRunSummaryFieldsFragment = { __typename?: 'ClutchRun', id: string, engine: ClutchEngine, status: ClutchRunStatus, keyword: string, location: string, industry: string, profileUrls: Array<string>, includeDetails: boolean, includeReviews: boolean, includePortfolio: boolean, maxItems: number, companyCount: number, error: string, notes: Array<string>, startedByName: string, createdAt: string, finishedAt?: string | null };
+
+export type ClutchRunQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ClutchRunQuery = { __typename?: 'Query', clutchRun: { __typename?: 'ClutchRun', filedKeys: Array<string>, id: string, engine: ClutchEngine, status: ClutchRunStatus, keyword: string, location: string, industry: string, profileUrls: Array<string>, includeDetails: boolean, includeReviews: boolean, includePortfolio: boolean, maxItems: number, companyCount: number, error: string, notes: Array<string>, startedByName: string, createdAt: string, finishedAt?: string | null, companies: Array<{ __typename?: 'ClutchCompany', key: string, name: string, profileUrl: string, website: string, logoUrl: string, tagline: string, description: string, rating?: number | null, reviewCount?: number | null, verification: string, hourlyRate: string, minProjectSize: string, employees: string, founded: string, headquarters: string, locations: Array<string>, phone: string, emails: Array<string>, services: Array<string>, people: Array<{ __typename?: 'ClutchPerson', name: string, title: string, email: string, phone: string }>, reviews: Array<{ __typename?: 'ClutchReview', title: string, rating?: number | null, comment: string, reviewer: string, reviewerTitle: string, industry: string, projectSize: string, date: string }>, portfolio: Array<{ __typename?: 'ClutchPortfolioItem', title: string, description: string, imageUrl: string }> }> } };
+
+export type ClutchRunsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ClutchRunsPagedQuery = { __typename?: 'Query', clutchRunsPaged: { __typename?: 'ClutchRunPage', totalCount: number, rows: Array<{ __typename?: 'ClutchRun', id: string, engine: ClutchEngine, status: ClutchRunStatus, keyword: string, location: string, industry: string, profileUrls: Array<string>, includeDetails: boolean, includeReviews: boolean, includePortfolio: boolean, maxItems: number, companyCount: number, error: string, notes: Array<string>, startedByName: string, createdAt: string, finishedAt?: string | null }> } };
+
+export type LeadSourceConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LeadSourceConfigQuery = { __typename?: 'Query', leadSourceConfig: { __typename?: 'LeadSourceSettings', hasApifyToken: boolean, apifyTokenHint: string, clutchActorId: string, updatedByName: string } };
+
+export type StartClutchSearchMutationVariables = Exact<{
+  input: ClutchSearchInput;
+}>;
+
+
+export type StartClutchSearchMutation = { __typename?: 'Mutation', startClutchSearch: { __typename?: 'ClutchRun', id: string, engine: ClutchEngine, status: ClutchRunStatus, keyword: string, location: string, industry: string, profileUrls: Array<string>, includeDetails: boolean, includeReviews: boolean, includePortfolio: boolean, maxItems: number, companyCount: number, error: string, notes: Array<string>, startedByName: string, createdAt: string, finishedAt?: string | null } };
+
+export type DeleteClutchRunMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteClutchRunMutation = { __typename?: 'Mutation', deleteClutchRun: boolean };
+
+export type ImportClutchCompaniesMutationVariables = Exact<{
+  runId: Scalars['ID']['input'];
+  keys: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type ImportClutchCompaniesMutation = { __typename?: 'Mutation', importClutchCompanies: { __typename?: 'ClutchImportResult', created: number, skipped: number, contactsCreated: number, skips: Array<{ __typename?: 'ClutchImportSkip', key: string, name: string, reason: string, companyId?: string | null }>, filed: Array<{ __typename?: 'ClutchImportFiled', key: string, companyId: string }> } };
+
+export type SaveLeadSourceConfigMutationVariables = Exact<{
+  input: LeadSourceSettingsInput;
+}>;
+
+
+export type SaveLeadSourceConfigMutation = { __typename?: 'Mutation', saveLeadSourceConfig: { __typename?: 'LeadSourceSettings', hasApifyToken: boolean, apifyTokenHint: string, clutchActorId: string, updatedByName: string } };
+
+export type ClearApifyTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ClearApifyTokenMutation = { __typename?: 'Mutation', clearApifyToken: { __typename?: 'LeadSourceSettings', hasApifyToken: boolean, apifyTokenHint: string, clutchActorId: string, updatedByName: string } };
 
 export type CmsSiteFieldsFragment = { __typename?: 'CmsSite', id: string, name: string, slug: string, domains: Array<string>, isDefault: boolean, status: CmsSiteStatus, markets: boolean, defaultLocale: string, faviconUrl: string, headerFragmentId: string, footerFragmentId: string, designSystemId: string, headHtml: string, bodyEndHtml: string, globalCss: string, notFoundPageId: string, updatedAt: string, seo: { __typename?: 'CmsSiteSeo', titleTemplate: string, description: string, ogImageUrl: string } };
 
@@ -34104,6 +34363,71 @@ export const ClientSharedItemFieldsFragmentDoc = gql`
   expiryDate
   signedAt
   signedBy
+}
+    `;
+export const ClutchCompanyFieldsFragmentDoc = gql`
+    fragment ClutchCompanyFields on ClutchCompany {
+  key
+  name
+  profileUrl
+  website
+  logoUrl
+  tagline
+  description
+  rating
+  reviewCount
+  verification
+  hourlyRate
+  minProjectSize
+  employees
+  founded
+  headquarters
+  locations
+  phone
+  emails
+  services
+  people {
+    name
+    title
+    email
+    phone
+  }
+  reviews {
+    title
+    rating
+    comment
+    reviewer
+    reviewerTitle
+    industry
+    projectSize
+    date
+  }
+  portfolio {
+    title
+    description
+    imageUrl
+  }
+}
+    `;
+export const ClutchRunSummaryFieldsFragmentDoc = gql`
+    fragment ClutchRunSummaryFields on ClutchRun {
+  id
+  engine
+  status
+  keyword
+  location
+  industry
+  profileUrls
+  includeDetails
+  includeReviews
+  includePortfolio
+  maxItems
+  companyCount
+  error
+  notes
+  startedByName
+  createdAt
+  finishedAt
 }
     `;
 export const CmsSiteFieldsFragmentDoc = gql`
@@ -45118,6 +45442,314 @@ export function useSetClientProjectsMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<SetClientProjectsMutation, SetClientProjectsMutationVariables>(SetClientProjectsDocument, options);
       }
 export type SetClientProjectsMutationHookResult = ReturnType<typeof useSetClientProjectsMutation>;
+export const ClutchRunDocument = gql`
+    query ClutchRun($id: ID!) {
+  clutchRun(id: $id) {
+    ...ClutchRunSummaryFields
+    filedKeys
+    companies {
+      ...ClutchCompanyFields
+    }
+  }
+}
+    ${ClutchRunSummaryFieldsFragmentDoc}
+${ClutchCompanyFieldsFragmentDoc}`;
+
+/**
+ * __useClutchRunQuery__
+ *
+ * To run a query within a React component, call `useClutchRunQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClutchRunQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClutchRunQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useClutchRunQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClutchRunQuery, ClutchRunQueryVariables> & ({ variables: ClutchRunQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClutchRunQuery, ClutchRunQueryVariables>(ClutchRunDocument, options);
+      }
+export function useClutchRunLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClutchRunQuery, ClutchRunQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClutchRunQuery, ClutchRunQueryVariables>(ClutchRunDocument, options);
+        }
+// @ts-ignore
+export function useClutchRunSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClutchRunQuery, ClutchRunQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClutchRunQuery, ClutchRunQueryVariables>;
+// @ts-ignore
+export function useClutchRunSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClutchRunQuery, ClutchRunQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClutchRunQuery | undefined, ClutchRunQueryVariables>;
+export function useClutchRunSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClutchRunQuery, ClutchRunQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClutchRunQuery, ClutchRunQueryVariables>(ClutchRunDocument, options);
+        }
+export type ClutchRunQueryHookResult = ReturnType<typeof useClutchRunQuery>;
+export type ClutchRunLazyQueryHookResult = ReturnType<typeof useClutchRunLazyQuery>;
+export type ClutchRunSuspenseQueryHookResult = ReturnType<typeof useClutchRunSuspenseQuery>;
+export const ClutchRunsPagedDocument = gql`
+    query ClutchRunsPaged($input: TableQueryInput!) {
+  clutchRunsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ClutchRunSummaryFields
+    }
+  }
+}
+    ${ClutchRunSummaryFieldsFragmentDoc}`;
+
+/**
+ * __useClutchRunsPagedQuery__
+ *
+ * To run a query within a React component, call `useClutchRunsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClutchRunsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClutchRunsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClutchRunsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables> & ({ variables: ClutchRunsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>(ClutchRunsPagedDocument, options);
+      }
+export function useClutchRunsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>(ClutchRunsPagedDocument, options);
+        }
+// @ts-ignore
+export function useClutchRunsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>;
+// @ts-ignore
+export function useClutchRunsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClutchRunsPagedQuery | undefined, ClutchRunsPagedQueryVariables>;
+export function useClutchRunsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClutchRunsPagedQuery, ClutchRunsPagedQueryVariables>(ClutchRunsPagedDocument, options);
+        }
+export type ClutchRunsPagedQueryHookResult = ReturnType<typeof useClutchRunsPagedQuery>;
+export type ClutchRunsPagedLazyQueryHookResult = ReturnType<typeof useClutchRunsPagedLazyQuery>;
+export type ClutchRunsPagedSuspenseQueryHookResult = ReturnType<typeof useClutchRunsPagedSuspenseQuery>;
+export const LeadSourceConfigDocument = gql`
+    query LeadSourceConfig {
+  leadSourceConfig {
+    hasApifyToken
+    apifyTokenHint
+    clutchActorId
+    updatedByName
+  }
+}
+    `;
+
+/**
+ * __useLeadSourceConfigQuery__
+ *
+ * To run a query within a React component, call `useLeadSourceConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLeadSourceConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLeadSourceConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLeadSourceConfigQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>(LeadSourceConfigDocument, options);
+      }
+export function useLeadSourceConfigLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>(LeadSourceConfigDocument, options);
+        }
+// @ts-ignore
+export function useLeadSourceConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>;
+// @ts-ignore
+export function useLeadSourceConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<LeadSourceConfigQuery | undefined, LeadSourceConfigQueryVariables>;
+export function useLeadSourceConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<LeadSourceConfigQuery, LeadSourceConfigQueryVariables>(LeadSourceConfigDocument, options);
+        }
+export type LeadSourceConfigQueryHookResult = ReturnType<typeof useLeadSourceConfigQuery>;
+export type LeadSourceConfigLazyQueryHookResult = ReturnType<typeof useLeadSourceConfigLazyQuery>;
+export type LeadSourceConfigSuspenseQueryHookResult = ReturnType<typeof useLeadSourceConfigSuspenseQuery>;
+export const StartClutchSearchDocument = gql`
+    mutation StartClutchSearch($input: ClutchSearchInput!) {
+  startClutchSearch(input: $input) {
+    ...ClutchRunSummaryFields
+  }
+}
+    ${ClutchRunSummaryFieldsFragmentDoc}`;
+
+/**
+ * __useStartClutchSearchMutation__
+ *
+ * To run a mutation, you first call `useStartClutchSearchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartClutchSearchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startClutchSearchMutation, { data, loading, error }] = useStartClutchSearchMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useStartClutchSearchMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartClutchSearchMutation, StartClutchSearchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartClutchSearchMutation, StartClutchSearchMutationVariables>(StartClutchSearchDocument, options);
+      }
+export type StartClutchSearchMutationHookResult = ReturnType<typeof useStartClutchSearchMutation>;
+export const DeleteClutchRunDocument = gql`
+    mutation DeleteClutchRun($id: ID!) {
+  deleteClutchRun(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteClutchRunMutation__
+ *
+ * To run a mutation, you first call `useDeleteClutchRunMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteClutchRunMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteClutchRunMutation, { data, loading, error }] = useDeleteClutchRunMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteClutchRunMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteClutchRunMutation, DeleteClutchRunMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteClutchRunMutation, DeleteClutchRunMutationVariables>(DeleteClutchRunDocument, options);
+      }
+export type DeleteClutchRunMutationHookResult = ReturnType<typeof useDeleteClutchRunMutation>;
+export const ImportClutchCompaniesDocument = gql`
+    mutation ImportClutchCompanies($runId: ID!, $keys: [String!]!) {
+  importClutchCompanies(runId: $runId, keys: $keys) {
+    created
+    skipped
+    contactsCreated
+    skips {
+      key
+      name
+      reason
+      companyId
+    }
+    filed {
+      key
+      companyId
+    }
+  }
+}
+    `;
+
+/**
+ * __useImportClutchCompaniesMutation__
+ *
+ * To run a mutation, you first call `useImportClutchCompaniesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useImportClutchCompaniesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [importClutchCompaniesMutation, { data, loading, error }] = useImportClutchCompaniesMutation({
+ *   variables: {
+ *      runId: // value for 'runId'
+ *      keys: // value for 'keys'
+ *   },
+ * });
+ */
+export function useImportClutchCompaniesMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ImportClutchCompaniesMutation, ImportClutchCompaniesMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ImportClutchCompaniesMutation, ImportClutchCompaniesMutationVariables>(ImportClutchCompaniesDocument, options);
+      }
+export type ImportClutchCompaniesMutationHookResult = ReturnType<typeof useImportClutchCompaniesMutation>;
+export const SaveLeadSourceConfigDocument = gql`
+    mutation SaveLeadSourceConfig($input: LeadSourceSettingsInput!) {
+  saveLeadSourceConfig(input: $input) {
+    hasApifyToken
+    apifyTokenHint
+    clutchActorId
+    updatedByName
+  }
+}
+    `;
+
+/**
+ * __useSaveLeadSourceConfigMutation__
+ *
+ * To run a mutation, you first call `useSaveLeadSourceConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveLeadSourceConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveLeadSourceConfigMutation, { data, loading, error }] = useSaveLeadSourceConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveLeadSourceConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveLeadSourceConfigMutation, SaveLeadSourceConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveLeadSourceConfigMutation, SaveLeadSourceConfigMutationVariables>(SaveLeadSourceConfigDocument, options);
+      }
+export type SaveLeadSourceConfigMutationHookResult = ReturnType<typeof useSaveLeadSourceConfigMutation>;
+export const ClearApifyTokenDocument = gql`
+    mutation ClearApifyToken {
+  clearApifyToken {
+    hasApifyToken
+    apifyTokenHint
+    clutchActorId
+    updatedByName
+  }
+}
+    `;
+
+/**
+ * __useClearApifyTokenMutation__
+ *
+ * To run a mutation, you first call `useClearApifyTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClearApifyTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clearApifyTokenMutation, { data, loading, error }] = useClearApifyTokenMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClearApifyTokenMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClearApifyTokenMutation, ClearApifyTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClearApifyTokenMutation, ClearApifyTokenMutationVariables>(ClearApifyTokenDocument, options);
+      }
+export type ClearApifyTokenMutationHookResult = ReturnType<typeof useClearApifyTokenMutation>;
 export const CmsSitesDocument = gql`
     query CmsSites {
   cmsSites {

@@ -11,6 +11,7 @@ const SOURCE_LABEL: Readonly<Record<CrmOriginSource, string>> = {
   [CrmOriginSource.GooglePlaces]: 'Google Places',
   [CrmOriginSource.MeetingBooking]: 'Meeting booking',
   [CrmOriginSource.LeadConversion]: 'Converted lead',
+  [CrmOriginSource.Clutch]: 'Clutch',
 };
 
 type Origin = Pick<CrmRecordOrigin, 'source' | 'userName' | 'userEmail'>;
