@@ -40,6 +40,8 @@ export function TopbarUser({ name, roles }: Readonly<TopbarUserProps>) {
         open={open}
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
+        // No enter delay: its pending timer survives Escape and would reopen the list.
+        enterDelay={0}
         enterTouchDelay={0}
       >
         <IconButton size="small" aria-label={t('Your roles')} onClick={() => setOpen(true)}>
