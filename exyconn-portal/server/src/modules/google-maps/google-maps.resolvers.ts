@@ -24,7 +24,7 @@ import {
   type LeadMergeInput,
 } from './lead-import.service';
 import { activeServerKey, searchText, type LeadSearchInput } from './places.client';
-import { findWebsiteEmails } from './website-emails';
+import { websiteEmailsOnce } from './website-emails.cache';
 import {
   isPlaceId,
   locatePlace,
@@ -198,9 +198,10 @@ export const googleMapsResolvers = {
     },
     findLeadEmails: async (_p: unknown, { website }: { website: string }, ctx: GraphQLContext) => {
       const user = crmDesk(ctx);
-      await enforceLimit(emailLimiter, user.id, 'website lookups');
       try {
-        return await findWebsiteEmails(website);
+        return await websiteEmailsOnce(website, () =>
+          enforceLimit(emailLimiter, user.id, 'website lookups'),
+        );
       } catch (error) {
         if (error instanceof UnsafeUrlError) {
           return { emails: [], status: 'UNREACHABLE', message: error.message };
