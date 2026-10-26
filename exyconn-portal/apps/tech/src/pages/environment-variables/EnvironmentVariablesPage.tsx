@@ -5,6 +5,7 @@ import { PageSideNav } from '@exyconn/shell/components/navigation/PageSideNav';
 import { useTabberSlug } from '@exyconn/tabber';
 import { ENVIRONMENT_VARIABLES_SECTIONS } from './environmentVariables.sections';
 import { TechVaultGate } from './vault/TechVaultGate';
+import { ProviderAdvanced } from './advanced/ProviderAdvanced';
 
 /** Route the integrations live under; each one is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -28,7 +29,12 @@ export function EnvironmentVariablesPage() {
         onSelect={selectSlug}
         ariaLabel="Integration credentials"
       >
-        {active && <Box sx={readingPanel}>{active.panel}</Box>}
+        {active && (
+          <Box sx={readingPanel}>
+            {active.panel}
+            <ProviderAdvanced key={active.slug} provider={active.slug} />
+          </Box>
+        )}
       </PageSideNav>
     </TechVaultGate>
   );

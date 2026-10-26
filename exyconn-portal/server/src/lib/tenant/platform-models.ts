@@ -27,6 +27,8 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'SonarConfig',
   // Who unlocked Tech > Environment Variables, when, why and from where (30-minute sessions).
   'TechVaultSession',
+  // Each provider's account logins and the team's own links (Environment Variables > Advanced).
+  'TechProviderProfile',
   // Exyconn's own payment gateway accounts, which clients pay invoices through (client hub).
   'StripeConfig',
   'RazorpayConfig',

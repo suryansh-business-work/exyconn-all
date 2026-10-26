@@ -196,6 +196,7 @@ import {
 } from '../modules/clienthub';
 import { payoutTypeDefs, payoutResolvers } from '../modules/payout';
 import { techVaultTypeDefs, techVaultResolvers } from '../modules/tech/vault';
+import { providerProfileTypeDefs, providerProfileResolvers } from '../modules/tech/providers';
 import {
   cmsTypeDefs,
   cmsContentTypeDefs,
@@ -370,6 +371,7 @@ export const typeDefs = [
   walletGatewayTypeDefs,
   payoutTypeDefs,
   techVaultTypeDefs,
+  providerProfileTypeDefs,
   websiteChatTypeDefs,
   websiteChatLibraryTypeDefs,
   gccTypeDefs,
@@ -483,6 +485,7 @@ export const resolvers = mergeResolvers([
   walletGatewayResolvers,
   payoutResolvers,
   techVaultResolvers,
+  providerProfileResolvers,
   websiteChatResolvers,
   websiteChatLibraryResolvers,
   gccResolvers,

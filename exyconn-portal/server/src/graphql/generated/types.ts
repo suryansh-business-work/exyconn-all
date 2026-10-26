@@ -9296,6 +9296,8 @@ export type Mutation = {
   deleteTaxRegime: Scalars['Boolean']['output'];
   deleteTaxSlab: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
+  deleteTechProviderLink: TechProviderProfile;
+  deleteTechProviderLogin: TechProviderProfile;
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
   /** Deletes one published tracker build: its GitHub release and its tag. */
@@ -9588,6 +9590,8 @@ export type Mutation = {
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
+  saveTechProviderLink: TechProviderProfile;
+  saveTechProviderLogin: TechProviderProfile;
   /** Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build). */
   saveTrackerBuildRetention: TrackerBuildSettings;
   saveTrackerBuildSettings: TrackerBuildSettings;
@@ -11762,6 +11766,18 @@ export type MutationDeleteTeamArgs = {
 };
 
 
+export type MutationDeleteTechProviderLinkArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteTechProviderLoginArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
 export type MutationDeleteToolArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12528,6 +12544,20 @@ export type MutationSaveProjectWorkflowGraphArgs = {
 
 export type MutationSaveSocialAppConfigArgs = {
   input: SocialAppConfigInput;
+};
+
+
+export type MutationSaveTechProviderLinkArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLinkInput;
+  provider: Scalars['String']['input'];
+};
+
+
+export type MutationSaveTechProviderLoginArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLoginInput;
+  provider: Scalars['String']['input'];
 };
 
 
@@ -15767,9 +15797,80 @@ export type PromptVariableInput = {
 export type ProviderBilling = {
   __typename?: 'ProviderBilling';
   days: Array<BilledDay>;
+  message: Scalars['String']['output'];
+  need: ProviderBillingNeed;
   provider: BillingProvider;
   totalUsd: Scalars['Float']['output'];
 };
+
+/** Whether reading a provider's bill needs a different key from the one the platform uses. */
+export enum ProviderBillingNeed {
+  NoBillingApi = 'NO_BILLING_API',
+  Permission = 'PERMISSION',
+  Required = 'REQUIRED',
+  SameKey = 'SAME_KEY'
+}
+
+export type ProviderGuideStep = {
+  __typename?: 'ProviderGuideStep';
+  description: Scalars['String']['output'];
+};
+
+export type ProviderLinkEntry = {
+  __typename?: 'ProviderLinkEntry';
+  /** False for the built-in links, which cannot be edited. */
+  custom: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  kind: ProviderLinkKind;
+  label: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ProviderLinkInput = {
+  kind: ProviderLinkKind;
+  label: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export enum ProviderLinkKind {
+  ApiKeys = 'API_KEYS',
+  Billing = 'BILLING',
+  Dashboard = 'DASHBOARD',
+  Docs = 'DOCS',
+  Other = 'OTHER',
+  Usage = 'USAGE'
+}
+
+/** An account a provider's keys were created under. The password is never listed. */
+export type ProviderLogin = {
+  __typename?: 'ProviderLogin';
+  hasPassword: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  passwordHint: Scalars['String']['output'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['output'];
+};
+
+export type ProviderLoginInput = {
+  label: Scalars['String']['input'];
+  notes: Scalars['String']['input'];
+  /** Blank on an edit keeps the stored password. */
+  password: Scalars['String']['input'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['input'];
+};
+
+export enum ProviderSignInMethod {
+  Apple = 'APPLE',
+  EmailPassword = 'EMAIL_PASSWORD',
+  Github = 'GITHUB',
+  Google = 'GOOGLE',
+  Microsoft = 'MICROSOFT',
+  Other = 'OTHER',
+  Sso = 'SSO'
+}
 
 /** A company's booking page: every meeting it takes bookings for. */
 export type PublicBookingPage = {
@@ -16985,6 +17086,10 @@ export type Query = {
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
+  /** One saved account password in full. Logged; needs the vault open. */
+  techProviderLoginPassword: Scalars['String']['output'];
+  /** Null for a section with no provider guide (Dashboard, AI pricing). */
+  techProviderProfile?: Maybe<TechProviderProfile>;
   /** What was changed or revealed in Tech configuration during one session. */
   techVaultSessionActivity: Array<AuditLog>;
   /** Every unlock, newest first. */
@@ -19248,6 +19353,17 @@ export type QueryTaskCommentsArgs = {
 };
 
 
+export type QueryTechProviderLoginPasswordArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
+export type QueryTechProviderProfileArgs = {
+  provider: Scalars['String']['input'];
+};
+
+
 export type QueryTechVaultSessionActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -21474,6 +21590,17 @@ export type TechEmailTemplateOption = {
   key: Scalars['String']['output'];
   mjml: Scalars['String']['output'];
   name: Scalars['String']['output'];
+};
+
+/** Environment Variables > a provider > Advanced. */
+export type TechProviderProfile = {
+  __typename?: 'TechProviderProfile';
+  billing: ProviderBilling;
+  label: Scalars['String']['output'];
+  links: Array<ProviderLinkEntry>;
+  logins: Array<ProviderLogin>;
+  provider: Scalars['String']['output'];
+  steps: Array<ProviderGuideStep>;
 };
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
@@ -24576,6 +24703,14 @@ export type ResolversTypes = ResolversObject<{
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
   ProviderBilling: ResolverTypeWrapper<ProviderBilling>;
+  ProviderBillingNeed: ProviderBillingNeed;
+  ProviderGuideStep: ResolverTypeWrapper<ProviderGuideStep>;
+  ProviderLinkEntry: ResolverTypeWrapper<ProviderLinkEntry>;
+  ProviderLinkInput: ProviderLinkInput;
+  ProviderLinkKind: ProviderLinkKind;
+  ProviderLogin: ResolverTypeWrapper<ProviderLogin>;
+  ProviderLoginInput: ProviderLoginInput;
+  ProviderSignInMethod: ProviderSignInMethod;
   PublicBookingPage: ResolverTypeWrapper<PublicBookingPage>;
   PublicEmailPreferences: ResolverTypeWrapper<PublicEmailPreferences>;
   PublicMeeting: ResolverTypeWrapper<PublicMeeting>;
@@ -24775,6 +24910,7 @@ export type ResolversTypes = ResolversObject<{
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
   TechEmailTemplateOption: ResolverTypeWrapper<TechEmailTemplateOption>;
+  TechProviderProfile: ResolverTypeWrapper<TechProviderProfile>;
   TechSecret: TechSecret;
   TechSecretValue: ResolverTypeWrapper<TechSecretValue>;
   TechVaultSession: ResolverTypeWrapper<TechVaultSession>;
@@ -25670,6 +25806,11 @@ export type ResolversParentTypes = ResolversObject<{
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
   ProviderBilling: ProviderBilling;
+  ProviderGuideStep: ProviderGuideStep;
+  ProviderLinkEntry: ProviderLinkEntry;
+  ProviderLinkInput: ProviderLinkInput;
+  ProviderLogin: ProviderLogin;
+  ProviderLoginInput: ProviderLoginInput;
   PublicBookingPage: PublicBookingPage;
   PublicEmailPreferences: PublicEmailPreferences;
   PublicMeeting: PublicMeeting;
@@ -25827,6 +25968,7 @@ export type ResolversParentTypes = ResolversObject<{
   TeamInput: TeamInput;
   TeamPage: TeamPage;
   TechEmailTemplateOption: TechEmailTemplateOption;
+  TechProviderProfile: TechProviderProfile;
   TechSecretValue: TechSecretValue;
   TechVaultSession: TechVaultSession;
   TechVaultSessionPage: TechVaultSessionPage;
@@ -31230,6 +31372,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteTaxRegime?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaxRegimeArgs, 'id'>>;
   deleteTaxSlab?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaxSlabArgs, 'id'>>;
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
+  deleteTechProviderLink?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationDeleteTechProviderLinkArgs, 'id' | 'provider'>>;
+  deleteTechProviderLogin?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationDeleteTechProviderLoginArgs, 'id' | 'provider'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
   deleteToolCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolCategoryArgs, 'id'>>;
   deleteTrackerBuildRelease?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrackerBuildReleaseArgs, 'id'>>;
@@ -31377,6 +31521,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveMicrosoftMailConfig?: Resolver<ResolversTypes['MicrosoftMailConfig'], ParentType, ContextType, RequireFields<MutationSaveMicrosoftMailConfigArgs, 'input'>>;
   saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
+  saveTechProviderLink?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationSaveTechProviderLinkArgs, 'input' | 'provider'>>;
+  saveTechProviderLogin?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationSaveTechProviderLoginArgs, 'input' | 'provider'>>;
   saveTrackerBuildRetention?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildRetentionArgs, 'keepLatestBuilds'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   saveWhatsappChannel?: Resolver<ResolversTypes['WhatsappChannel'], ParentType, ContextType, RequireFields<MutationSaveWhatsappChannelArgs, 'input'>>;
@@ -32502,8 +32648,35 @@ export type PromptPageResolvers<ContextType = GraphQLContext, ParentType extends
 
 export type ProviderBillingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderBilling'] = ResolversParentTypes['ProviderBilling']> = ResolversObject<{
   days?: Resolver<Array<ResolversTypes['BilledDay']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  need?: Resolver<ResolversTypes['ProviderBillingNeed'], ParentType, ContextType>;
   provider?: Resolver<ResolversTypes['BillingProvider'], ParentType, ContextType>;
   totalUsd?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProviderGuideStepResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderGuideStep'] = ResolversParentTypes['ProviderGuideStep']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProviderLinkEntryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderLinkEntry'] = ResolversParentTypes['ProviderLinkEntry']> = ResolversObject<{
+  custom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['ProviderLinkKind'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProviderLoginResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderLogin'] = ResolversParentTypes['ProviderLogin']> = ResolversObject<{
+  hasPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  passwordHint?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signInMethod?: Resolver<ResolversTypes['ProviderSignInMethod'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -33363,6 +33536,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   teamPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   teamRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
   techEmailTemplateOptions?: Resolver<Array<ResolversTypes['TechEmailTemplateOption']>, ParentType, ContextType>;
+  techProviderLoginPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryTechProviderLoginPasswordArgs, 'id' | 'provider'>>;
+  techProviderProfile?: Resolver<Maybe<ResolversTypes['TechProviderProfile']>, ParentType, ContextType, RequireFields<QueryTechProviderProfileArgs, 'provider'>>;
   techVaultSessionActivity?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryTechVaultSessionActivityArgs, 'id'>>;
   techVaultSessionsPaged?: Resolver<ResolversTypes['TechVaultSessionPage'], ParentType, ContextType, RequireFields<QueryTechVaultSessionsPagedArgs, 'input'>>;
   techVaultStatus?: Resolver<Maybe<ResolversTypes['TechVaultSession']>, ParentType, ContextType>;
@@ -34510,6 +34685,16 @@ export type TechEmailTemplateOptionResolvers<ContextType = GraphQLContext, Paren
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TechProviderProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechProviderProfile'] = ResolversParentTypes['TechProviderProfile']> = ResolversObject<{
+  billing?: Resolver<ResolversTypes['ProviderBilling'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  links?: Resolver<Array<ResolversTypes['ProviderLinkEntry']>, ParentType, ContextType>;
+  logins?: Resolver<Array<ResolversTypes['ProviderLogin']>, ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  steps?: Resolver<Array<ResolversTypes['ProviderGuideStep']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -36169,6 +36354,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   ProviderBilling?: ProviderBillingResolvers<ContextType>;
+  ProviderGuideStep?: ProviderGuideStepResolvers<ContextType>;
+  ProviderLinkEntry?: ProviderLinkEntryResolvers<ContextType>;
+  ProviderLogin?: ProviderLoginResolvers<ContextType>;
   PublicBookingPage?: PublicBookingPageResolvers<ContextType>;
   PublicEmailPreferences?: PublicEmailPreferencesResolvers<ContextType>;
   PublicMeeting?: PublicMeetingResolvers<ContextType>;
@@ -36282,6 +36470,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
   TechEmailTemplateOption?: TechEmailTemplateOptionResolvers<ContextType>;
+  TechProviderProfile?: TechProviderProfileResolvers<ContextType>;
   TechSecretValue?: TechSecretValueResolvers<ContextType>;
   TechVaultSession?: TechVaultSessionResolvers<ContextType>;
   TechVaultSessionPage?: TechVaultSessionPageResolvers<ContextType>;

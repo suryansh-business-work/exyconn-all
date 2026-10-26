@@ -9297,6 +9297,8 @@ export type Mutation = {
   deleteTaxRegime: Scalars['Boolean']['output'];
   deleteTaxSlab: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
+  deleteTechProviderLink: TechProviderProfile;
+  deleteTechProviderLogin: TechProviderProfile;
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
   /** Deletes one published tracker build: its GitHub release and its tag. */
@@ -9589,6 +9591,8 @@ export type Mutation = {
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
+  saveTechProviderLink: TechProviderProfile;
+  saveTechProviderLogin: TechProviderProfile;
   /** Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build). */
   saveTrackerBuildRetention: TrackerBuildSettings;
   saveTrackerBuildSettings: TrackerBuildSettings;
@@ -11763,6 +11767,18 @@ export type MutationDeleteTeamArgs = {
 };
 
 
+export type MutationDeleteTechProviderLinkArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteTechProviderLoginArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
 export type MutationDeleteToolArgs = {
   id: Scalars['ID']['input'];
 };
@@ -12529,6 +12545,20 @@ export type MutationSaveProjectWorkflowGraphArgs = {
 
 export type MutationSaveSocialAppConfigArgs = {
   input: SocialAppConfigInput;
+};
+
+
+export type MutationSaveTechProviderLinkArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLinkInput;
+  provider: Scalars['String']['input'];
+};
+
+
+export type MutationSaveTechProviderLoginArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLoginInput;
+  provider: Scalars['String']['input'];
 };
 
 
@@ -15768,9 +15798,80 @@ export type PromptVariableInput = {
 export type ProviderBilling = {
   __typename?: 'ProviderBilling';
   days: Array<BilledDay>;
+  message: Scalars['String']['output'];
+  need: ProviderBillingNeed;
   provider: BillingProvider;
   totalUsd: Scalars['Float']['output'];
 };
+
+/** Whether reading a provider's bill needs a different key from the one the platform uses. */
+export enum ProviderBillingNeed {
+  NoBillingApi = 'NO_BILLING_API',
+  Permission = 'PERMISSION',
+  Required = 'REQUIRED',
+  SameKey = 'SAME_KEY'
+}
+
+export type ProviderGuideStep = {
+  __typename?: 'ProviderGuideStep';
+  description: Scalars['String']['output'];
+};
+
+export type ProviderLinkEntry = {
+  __typename?: 'ProviderLinkEntry';
+  /** False for the built-in links, which cannot be edited. */
+  custom: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  kind: ProviderLinkKind;
+  label: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ProviderLinkInput = {
+  kind: ProviderLinkKind;
+  label: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export enum ProviderLinkKind {
+  ApiKeys = 'API_KEYS',
+  Billing = 'BILLING',
+  Dashboard = 'DASHBOARD',
+  Docs = 'DOCS',
+  Other = 'OTHER',
+  Usage = 'USAGE'
+}
+
+/** An account a provider's keys were created under. The password is never listed. */
+export type ProviderLogin = {
+  __typename?: 'ProviderLogin';
+  hasPassword: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  passwordHint: Scalars['String']['output'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['output'];
+};
+
+export type ProviderLoginInput = {
+  label: Scalars['String']['input'];
+  notes: Scalars['String']['input'];
+  /** Blank on an edit keeps the stored password. */
+  password: Scalars['String']['input'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['input'];
+};
+
+export enum ProviderSignInMethod {
+  Apple = 'APPLE',
+  EmailPassword = 'EMAIL_PASSWORD',
+  Github = 'GITHUB',
+  Google = 'GOOGLE',
+  Microsoft = 'MICROSOFT',
+  Other = 'OTHER',
+  Sso = 'SSO'
+}
 
 /** A company's booking page: every meeting it takes bookings for. */
 export type PublicBookingPage = {
@@ -16986,6 +17087,10 @@ export type Query = {
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
+  /** One saved account password in full. Logged; needs the vault open. */
+  techProviderLoginPassword: Scalars['String']['output'];
+  /** Null for a section with no provider guide (Dashboard, AI pricing). */
+  techProviderProfile?: Maybe<TechProviderProfile>;
   /** What was changed or revealed in Tech configuration during one session. */
   techVaultSessionActivity: Array<AuditLog>;
   /** Every unlock, newest first. */
@@ -19249,6 +19354,17 @@ export type QueryTaskCommentsArgs = {
 };
 
 
+export type QueryTechProviderLoginPasswordArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
+export type QueryTechProviderProfileArgs = {
+  provider: Scalars['String']['input'];
+};
+
+
 export type QueryTechVaultSessionActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -21475,6 +21591,17 @@ export type TechEmailTemplateOption = {
   key: Scalars['String']['output'];
   mjml: Scalars['String']['output'];
   name: Scalars['String']['output'];
+};
+
+/** Environment Variables > a provider > Advanced. */
+export type TechProviderProfile = {
+  __typename?: 'TechProviderProfile';
+  billing: ProviderBilling;
+  label: Scalars['String']['output'];
+  links: Array<ProviderLinkEntry>;
+  logins: Array<ProviderLogin>;
+  provider: Scalars['String']['output'];
+  steps: Array<ProviderGuideStep>;
 };
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
@@ -32256,6 +32383,57 @@ export type TestGoogleSignInConfigMutationVariables = Exact<{ [key: string]: nev
 
 export type TestGoogleSignInConfigMutation = { __typename?: 'Mutation', testGoogleSignInConfig: string };
 
+export type TechProviderProfileFieldsFragment = { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> };
+
+export type TechProviderProfileQueryVariables = Exact<{
+  provider: Scalars['String']['input'];
+}>;
+
+
+export type TechProviderProfileQuery = { __typename?: 'Query', techProviderProfile?: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } | null };
+
+export type TechProviderLoginPasswordQueryVariables = Exact<{
+  provider: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TechProviderLoginPasswordQuery = { __typename?: 'Query', techProviderLoginPassword: string };
+
+export type SaveTechProviderLoginMutationVariables = Exact<{
+  provider: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLoginInput;
+}>;
+
+
+export type SaveTechProviderLoginMutation = { __typename?: 'Mutation', saveTechProviderLogin: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+
+export type DeleteTechProviderLoginMutationVariables = Exact<{
+  provider: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTechProviderLoginMutation = { __typename?: 'Mutation', deleteTechProviderLogin: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+
+export type SaveTechProviderLinkMutationVariables = Exact<{
+  provider: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLinkInput;
+}>;
+
+
+export type SaveTechProviderLinkMutation = { __typename?: 'Mutation', saveTechProviderLink: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+
+export type DeleteTechProviderLinkMutationVariables = Exact<{
+  provider: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTechProviderLinkMutation = { __typename?: 'Mutation', deleteTechProviderLink: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+
 export type TechVaultSessionFieldsFragment = { __typename?: 'TechVaultSession', id: string, userId: string, userName: string, email: string, reason: string, ip: string, userAgent: string, unlockedAt: string, expiresAt: string, endedAt?: string | null, endReason?: VaultEndReason | null, location: { __typename?: 'VaultLocation', state: VaultLocationState, latitude?: number | null, longitude?: number | null, accuracy?: number | null } };
 
 export type TechVaultStatusQueryVariables = Exact<{ [key: string]: never; }>;
@@ -36206,6 +36384,35 @@ export const GoogleSignInConfigFieldsFragmentDoc = gql`
   redirectUri
   updatedAt
   updatedByName
+}
+    `;
+export const TechProviderProfileFieldsFragmentDoc = gql`
+    fragment TechProviderProfileFields on TechProviderProfile {
+  provider
+  label
+  billing {
+    need
+    message
+  }
+  steps {
+    description
+  }
+  links {
+    id
+    label
+    url
+    kind
+    custom
+  }
+  logins {
+    id
+    label
+    username
+    signInMethod
+    hasPassword
+    passwordHint
+    notes
+  }
 }
     `;
 export const TechVaultSessionFieldsFragmentDoc = gql`
@@ -84554,6 +84761,219 @@ export function useTestGoogleSignInConfigMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<TestGoogleSignInConfigMutation, TestGoogleSignInConfigMutationVariables>(TestGoogleSignInConfigDocument, options);
       }
 export type TestGoogleSignInConfigMutationHookResult = ReturnType<typeof useTestGoogleSignInConfigMutation>;
+export const TechProviderProfileDocument = gql`
+    query TechProviderProfile($provider: String!) {
+  techProviderProfile(provider: $provider) {
+    ...TechProviderProfileFields
+  }
+}
+    ${TechProviderProfileFieldsFragmentDoc}`;
+
+/**
+ * __useTechProviderProfileQuery__
+ *
+ * To run a query within a React component, call `useTechProviderProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTechProviderProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTechProviderProfileQuery({
+ *   variables: {
+ *      provider: // value for 'provider'
+ *   },
+ * });
+ */
+export function useTechProviderProfileQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TechProviderProfileQuery, TechProviderProfileQueryVariables> & ({ variables: TechProviderProfileQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TechProviderProfileQuery, TechProviderProfileQueryVariables>(TechProviderProfileDocument, options);
+      }
+export function useTechProviderProfileLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TechProviderProfileQuery, TechProviderProfileQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TechProviderProfileQuery, TechProviderProfileQueryVariables>(TechProviderProfileDocument, options);
+        }
+// @ts-ignore
+export function useTechProviderProfileSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TechProviderProfileQuery, TechProviderProfileQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechProviderProfileQuery, TechProviderProfileQueryVariables>;
+// @ts-ignore
+export function useTechProviderProfileSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechProviderProfileQuery, TechProviderProfileQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechProviderProfileQuery | undefined, TechProviderProfileQueryVariables>;
+export function useTechProviderProfileSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechProviderProfileQuery, TechProviderProfileQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TechProviderProfileQuery, TechProviderProfileQueryVariables>(TechProviderProfileDocument, options);
+        }
+export type TechProviderProfileQueryHookResult = ReturnType<typeof useTechProviderProfileQuery>;
+export type TechProviderProfileLazyQueryHookResult = ReturnType<typeof useTechProviderProfileLazyQuery>;
+export type TechProviderProfileSuspenseQueryHookResult = ReturnType<typeof useTechProviderProfileSuspenseQuery>;
+export const TechProviderLoginPasswordDocument = gql`
+    query TechProviderLoginPassword($provider: String!, $id: ID!) {
+  techProviderLoginPassword(provider: $provider, id: $id)
+}
+    `;
+
+/**
+ * __useTechProviderLoginPasswordQuery__
+ *
+ * To run a query within a React component, call `useTechProviderLoginPasswordQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTechProviderLoginPasswordQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTechProviderLoginPasswordQuery({
+ *   variables: {
+ *      provider: // value for 'provider'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTechProviderLoginPasswordQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables> & ({ variables: TechProviderLoginPasswordQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>(TechProviderLoginPasswordDocument, options);
+      }
+export function useTechProviderLoginPasswordLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>(TechProviderLoginPasswordDocument, options);
+        }
+// @ts-ignore
+export function useTechProviderLoginPasswordSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>;
+// @ts-ignore
+export function useTechProviderLoginPasswordSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechProviderLoginPasswordQuery | undefined, TechProviderLoginPasswordQueryVariables>;
+export function useTechProviderLoginPasswordSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TechProviderLoginPasswordQuery, TechProviderLoginPasswordQueryVariables>(TechProviderLoginPasswordDocument, options);
+        }
+export type TechProviderLoginPasswordQueryHookResult = ReturnType<typeof useTechProviderLoginPasswordQuery>;
+export type TechProviderLoginPasswordLazyQueryHookResult = ReturnType<typeof useTechProviderLoginPasswordLazyQuery>;
+export type TechProviderLoginPasswordSuspenseQueryHookResult = ReturnType<typeof useTechProviderLoginPasswordSuspenseQuery>;
+export const SaveTechProviderLoginDocument = gql`
+    mutation SaveTechProviderLogin($provider: String!, $id: ID, $input: ProviderLoginInput!) {
+  saveTechProviderLogin(provider: $provider, id: $id, input: $input) {
+    ...TechProviderProfileFields
+  }
+}
+    ${TechProviderProfileFieldsFragmentDoc}`;
+
+/**
+ * __useSaveTechProviderLoginMutation__
+ *
+ * To run a mutation, you first call `useSaveTechProviderLoginMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveTechProviderLoginMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveTechProviderLoginMutation, { data, loading, error }] = useSaveTechProviderLoginMutation({
+ *   variables: {
+ *      provider: // value for 'provider'
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveTechProviderLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveTechProviderLoginMutation, SaveTechProviderLoginMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveTechProviderLoginMutation, SaveTechProviderLoginMutationVariables>(SaveTechProviderLoginDocument, options);
+      }
+export type SaveTechProviderLoginMutationHookResult = ReturnType<typeof useSaveTechProviderLoginMutation>;
+export const DeleteTechProviderLoginDocument = gql`
+    mutation DeleteTechProviderLogin($provider: String!, $id: ID!) {
+  deleteTechProviderLogin(provider: $provider, id: $id) {
+    ...TechProviderProfileFields
+  }
+}
+    ${TechProviderProfileFieldsFragmentDoc}`;
+
+/**
+ * __useDeleteTechProviderLoginMutation__
+ *
+ * To run a mutation, you first call `useDeleteTechProviderLoginMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTechProviderLoginMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTechProviderLoginMutation, { data, loading, error }] = useDeleteTechProviderLoginMutation({
+ *   variables: {
+ *      provider: // value for 'provider'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTechProviderLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteTechProviderLoginMutation, DeleteTechProviderLoginMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteTechProviderLoginMutation, DeleteTechProviderLoginMutationVariables>(DeleteTechProviderLoginDocument, options);
+      }
+export type DeleteTechProviderLoginMutationHookResult = ReturnType<typeof useDeleteTechProviderLoginMutation>;
+export const SaveTechProviderLinkDocument = gql`
+    mutation SaveTechProviderLink($provider: String!, $id: ID, $input: ProviderLinkInput!) {
+  saveTechProviderLink(provider: $provider, id: $id, input: $input) {
+    ...TechProviderProfileFields
+  }
+}
+    ${TechProviderProfileFieldsFragmentDoc}`;
+
+/**
+ * __useSaveTechProviderLinkMutation__
+ *
+ * To run a mutation, you first call `useSaveTechProviderLinkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveTechProviderLinkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveTechProviderLinkMutation, { data, loading, error }] = useSaveTechProviderLinkMutation({
+ *   variables: {
+ *      provider: // value for 'provider'
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveTechProviderLinkMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveTechProviderLinkMutation, SaveTechProviderLinkMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveTechProviderLinkMutation, SaveTechProviderLinkMutationVariables>(SaveTechProviderLinkDocument, options);
+      }
+export type SaveTechProviderLinkMutationHookResult = ReturnType<typeof useSaveTechProviderLinkMutation>;
+export const DeleteTechProviderLinkDocument = gql`
+    mutation DeleteTechProviderLink($provider: String!, $id: ID!) {
+  deleteTechProviderLink(provider: $provider, id: $id) {
+    ...TechProviderProfileFields
+  }
+}
+    ${TechProviderProfileFieldsFragmentDoc}`;
+
+/**
+ * __useDeleteTechProviderLinkMutation__
+ *
+ * To run a mutation, you first call `useDeleteTechProviderLinkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTechProviderLinkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTechProviderLinkMutation, { data, loading, error }] = useDeleteTechProviderLinkMutation({
+ *   variables: {
+ *      provider: // value for 'provider'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTechProviderLinkMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteTechProviderLinkMutation, DeleteTechProviderLinkMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteTechProviderLinkMutation, DeleteTechProviderLinkMutationVariables>(DeleteTechProviderLinkDocument, options);
+      }
+export type DeleteTechProviderLinkMutationHookResult = ReturnType<typeof useDeleteTechProviderLinkMutation>;
 export const TechVaultStatusDocument = gql`
     query TechVaultStatus {
   techVaultStatus {

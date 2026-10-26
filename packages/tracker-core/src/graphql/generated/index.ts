@@ -3607,6 +3607,45 @@ export type PromptVariableInput = {
   value: Scalars['String']['input'];
 };
 
+/** Whether reading a provider's bill needs a different key from the one the platform uses. */
+export type ProviderBillingNeed =
+  | 'NO_BILLING_API'
+  | 'PERMISSION'
+  | 'REQUIRED'
+  | 'SAME_KEY';
+
+export type ProviderLinkInput = {
+  kind: ProviderLinkKind;
+  label: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type ProviderLinkKind =
+  | 'API_KEYS'
+  | 'BILLING'
+  | 'DASHBOARD'
+  | 'DOCS'
+  | 'OTHER'
+  | 'USAGE';
+
+export type ProviderLoginInput = {
+  label: Scalars['String']['input'];
+  notes: Scalars['String']['input'];
+  /** Blank on an edit keeps the stored password. */
+  password: Scalars['String']['input'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['input'];
+};
+
+export type ProviderSignInMethod =
+  | 'APPLE'
+  | 'EMAIL_PASSWORD'
+  | 'GITHUB'
+  | 'GOOGLE'
+  | 'MICROSOFT'
+  | 'OTHER'
+  | 'SSO';
+
 export type PurchaseOrderInput = {
   currency: Scalars['String']['input'];
   expectedDate: InputMaybe<Scalars['DateTime']['input']>;
