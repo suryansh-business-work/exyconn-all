@@ -1,6 +1,7 @@
 import type { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { archivedFilter } from '../lib/archivable';
 import { badRequest } from './errors';
+import { withIds } from './serialize';
 
 /**
  * Reusable server-side table engine shared by every paginated portal grid.
@@ -302,5 +303,6 @@ export async function tableQuery<T>(
     model.countDocuments(filter),
   ]);
 
-  return { rows, totalCount };
+  // Every row carries `id`: a caller that returns the page as it is still answers `id: ID!`.
+  return { rows: withIds(rows as Array<{ _id: unknown }>), totalCount };
 }

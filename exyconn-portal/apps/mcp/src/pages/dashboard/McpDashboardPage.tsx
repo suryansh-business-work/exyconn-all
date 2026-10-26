@@ -87,7 +87,7 @@ export function McpDashboardPage() {
       <EmptyState
         icon={<HubIcon />}
         title="No MCP server for you yet"
-        description="Each module's server opens with that module's role. Ask an administrator for CRM or Marketing access."
+        description="Each module's server opens with that module's role. Ask an administrator for the role of the module you need."
       />
     );
   } else {

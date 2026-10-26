@@ -1,5 +1,6 @@
 import mongoose, { type Schema } from 'mongoose';
 import { archivablePlugin } from '../archivable';
+import { authorshipPlugin } from '../authorship';
 import { PLATFORM_MODELS } from './platform-models';
 import { ORGANIZATION_FIELD, tenantPlugin } from './tenant-plugin';
 
@@ -20,6 +21,10 @@ function installTenantScope(): void {
       schema.plugin(tenantPlugin, { name });
       // A company's records can be archived from their table (lib/archivable).
       schema.plugin(archivablePlugin);
+    }
+    if (schema !== undefined) {
+      // Every record says when and by whom it was created and last changed (lib/authorship).
+      schema.plugin(authorshipPlugin);
     }
     return (original as (...args: unknown[]) => unknown)(name, schema, ...rest);
   };

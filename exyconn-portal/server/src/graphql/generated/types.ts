@@ -8733,11 +8733,28 @@ export type McpConnection = {
   userName: Scalars['String']['output'];
 };
 
-/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+/** An MCP server: one module's (CRM, MARKETING, HR and the rest), or ALL, which combines every module's tools. */
 export enum McpEndpoint {
+  Admin = 'ADMIN',
+  Ai = 'AI',
   All = 'ALL',
+  Clienthub = 'CLIENTHUB',
+  Compliance = 'COMPLIANCE',
   Crm = 'CRM',
-  Marketing = 'MARKETING'
+  Employee = 'EMPLOYEE',
+  Finance = 'FINANCE',
+  Hr = 'HR',
+  It = 'IT',
+  Legal = 'LEGAL',
+  Marketing = 'MARKETING',
+  Products = 'PRODUCTS',
+  Projects = 'PROJECTS',
+  Social = 'SOCIAL',
+  Status = 'STATUS',
+  Support = 'SUPPORT',
+  Tech = 'TECH',
+  Tracker = 'TRACKER',
+  Website = 'WEBSITE'
 }
 
 export type McpPersonUsage = {
@@ -9549,7 +9566,7 @@ export type Mutation = {
    * its escalation level, records the reason as an internal note and tells the assignee.
    */
   escalateSupportTicket: SupportTicket;
-  /** Reads a business website (home and contact pages, robots.txt honoured) for its email addresses. */
+  /** Reads a business website (home and contact pages, robots.txt honoured) for its email addresses. A site read in the last 7 days answers from that result and does not count against the limit of 400 new websites per person per hour. */
   findLeadEmails: LeadEmailResult;
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;

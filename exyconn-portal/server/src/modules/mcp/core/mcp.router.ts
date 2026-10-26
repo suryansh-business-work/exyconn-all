@@ -8,9 +8,9 @@ import {
 } from '@modelcontextprotocol/sdk/server/auth/router.js';
 import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { env } from '../../config/env';
-import { logger } from '../../utils/logger';
-import { MCP_SCOPE, mcpOAuthProvider } from './mcp.oauth';
+import { env } from '../../../config/env';
+import { logger } from '../../../utils/logger';
+import { MCP_SCOPE, mcpOAuthProvider } from '../auth/mcp.oauth';
 import { callerOf, createMcpServer, rolesOf } from './mcp.server';
 import {
   endpointMeta,
@@ -19,7 +19,7 @@ import {
   MCP_ENDPOINTS,
   serversOf,
   type McpEndpointKey,
-} from './servers';
+} from '../servers';
 
 /**
  * Where Claude's custom connectors point: `https://portal-server.exyconn.com/mcp/<server>` for

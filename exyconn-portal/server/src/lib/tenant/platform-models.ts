@@ -96,6 +96,8 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'WebsiteCaptchaUse',
   // Share links to the exyconn.com GCC cost calculator's estimates, made by anonymous visitors.
   'GccShare',
+  // What a business website publishes is public: a site read for one company serves every one.
+  'LeadEmailLookup',
   'Tool',
   'ToolCategory',
   // The website CMS: every site, page, fragment, design system, image and newsletter.

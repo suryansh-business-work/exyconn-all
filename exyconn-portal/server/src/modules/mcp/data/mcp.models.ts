@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
-import { MCP_ENDPOINTS, MCP_SERVERS } from './servers';
+import { MCP_ENDPOINTS, MCP_SERVERS } from '../servers';
 
 /** How long a sign-in in progress, and its one-time code, are worth. */
 const REQUEST_TTL_SECONDS = 10 * 60;

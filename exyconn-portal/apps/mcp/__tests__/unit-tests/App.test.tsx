@@ -44,17 +44,36 @@ describe('App', () => {
     const routes = Children.toArray(portal.props?.children)
       .filter(isValidElement)
       .map((child) => child.props as RouteProps);
+    const servers = [
+      McpEndpoint.Crm,
+      McpEndpoint.Marketing,
+      McpEndpoint.Admin,
+      McpEndpoint.Ai,
+      McpEndpoint.Clienthub,
+      McpEndpoint.Compliance,
+      McpEndpoint.Employee,
+      McpEndpoint.Finance,
+      McpEndpoint.Hr,
+      McpEndpoint.It,
+      McpEndpoint.Legal,
+      McpEndpoint.Products,
+      McpEndpoint.Projects,
+      McpEndpoint.Social,
+      McpEndpoint.Status,
+      McpEndpoint.Support,
+      McpEndpoint.Tech,
+      McpEndpoint.Tracker,
+      McpEndpoint.Website,
+      McpEndpoint.All,
+    ];
+    expect(new Set(servers)).toEqual(new Set(Object.values(McpEndpoint)));
     expect(routes.map((route) => [route.path, route.element.type])).toEqual([
       ['/mcp', McpDashboardPage],
       ['/mcp/connect', McpConnectPage],
-      ['/mcp/crm/:tab?', McpServerPage],
-      ['/mcp/marketing/:tab?', McpServerPage],
-      ['/mcp/all/:tab?', McpServerPage],
+      ...servers.map((endpoint) => [`/mcp/${endpoint.toLowerCase()}/:tab?`, McpServerPage]),
     ]);
-    expect(routes.slice(2).map((route) => route.element.props)).toEqual([
-      { endpoint: McpEndpoint.Crm },
-      { endpoint: McpEndpoint.Marketing },
-      { endpoint: McpEndpoint.All },
-    ]);
+    expect(routes.slice(2).map((route) => route.element.props)).toEqual(
+      servers.map((endpoint) => ({ endpoint })),
+    );
   });
 });

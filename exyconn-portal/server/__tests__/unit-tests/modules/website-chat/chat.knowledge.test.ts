@@ -11,7 +11,7 @@ jest.mock('../../../../src/utils/safeFetch', () => ({ safeFetch: jest.fn() }));
 
 const fetchMock = safeFetch as jest.Mock;
 const site = `${env.websiteUrl}/${env.chatKnowledgeMarket}`;
-const sitemapUrl = `${env.websiteUrl}/sitemap.xml`;
+const sitemapUrl = `${env.websiteUrl}/sitemap.xml?market=${env.chatKnowledgeMarket}`;
 
 const answer = (status: number, body = '') => ({
   ok: status < 400,

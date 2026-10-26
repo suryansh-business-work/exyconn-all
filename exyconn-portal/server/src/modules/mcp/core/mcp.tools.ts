@@ -50,9 +50,10 @@ const MAX_FIELDS_PER_OBJECT = 40;
 const MAX_INPUT_DEPTH = 6;
 /**
  * Credentials and connection settings are the install's or the company's configuration, not a
- * module's work: they are left out of the tools however a module's typeDefs grow.
+ * module's work: they are left out of the tools however a module's typeDefs grow. That covers
+ * operations that hand back a password or an API key, and the Tech vault that guards reveals.
  */
-const EXCLUDED = /Config|Secret|Token/;
+const EXCLUDED = /Config|Secret|Token|Password|ApiKey|Vault/;
 
 const SCALARS: Readonly<Record<string, JsonSchema>> = {
   String: { type: 'string' },

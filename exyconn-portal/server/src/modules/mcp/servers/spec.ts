@@ -2,7 +2,26 @@ import type { DocumentNode } from 'graphql';
 import type { Role } from '../../../constants/roles';
 
 /** A module offered to Claude as its own MCP server. */
-export type McpServerKey = 'crm' | 'marketing';
+export type McpServerKey =
+  | 'crm'
+  | 'marketing'
+  | 'admin'
+  | 'ai'
+  | 'clienthub'
+  | 'compliance'
+  | 'employee'
+  | 'finance'
+  | 'hr'
+  | 'it'
+  | 'legal'
+  | 'products'
+  | 'projects'
+  | 'social'
+  | 'status'
+  | 'support'
+  | 'tech'
+  | 'tracker'
+  | 'website';
 /** Where a connection points: one module's server, or the global one that combines them all. */
 export type McpEndpointKey = McpServerKey | 'all';
 

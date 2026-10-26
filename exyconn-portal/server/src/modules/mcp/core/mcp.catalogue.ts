@@ -1,9 +1,9 @@
 import type { ApolloServerPlugin } from '@apollo/server';
 import type { GraphQLSchema } from 'graphql';
-import type { GraphQLContext } from '../../middleware/auth';
-import type { Role } from '../../constants/roles';
+import type { GraphQLContext } from '../../../middleware/auth';
+import type { Role } from '../../../constants/roles';
 import { declaredFields, moduleTools, type DeclaredFields, type McpTool } from './mcp.tools';
-import { MCP_SERVERS, serversOf, type McpEndpointKey, type McpServerKey } from './servers';
+import { MCP_SERVERS, serversOf, type McpEndpointKey, type McpServerKey } from '../servers';
 
 /** A tool together with the module server it belongs to. */
 export interface McpServerTool extends McpTool {

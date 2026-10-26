@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
-import { runAsPlatform } from '../../lib/tenant';
-import { badRequest, notFound } from '../../utils/errors';
-import { UserModel } from '../admin/user.model';
+import { runAsPlatform } from '../../../lib/tenant';
+import { badRequest, notFound } from '../../../utils/errors';
+import { UserModel } from '../../admin/user.model';
 import { McpCallModel, McpTokenModel } from './mcp.models';
-import type { McpEndpointKey, McpServerKey } from './servers';
+import type { McpEndpointKey, McpServerKey } from '../servers';
 
 /** The longest window the usage dashboard and activity log read. */
 export const MAX_MCP_DAYS = 180;

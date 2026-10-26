@@ -3516,7 +3516,7 @@
   "Each currency may have one rate",
   "Each employee’s basic, HRA, allowances and deductions",
   "Each line must be a host name, e.g. ns1.example.com",
-  "Each module's server opens with that module's role. Ask an administrator for CRM or Marketing access.",
+  "Each module's server opens with that module's role. Ask an administrator for the role of the module you need.",
   "Each person gets a notification linking to this ticket. To show it to somebody without a Projects sign-in, make the ticket Public and send them its public link.",
   "Each portal they may open.",
   "Each role becomes --font-family-<role> on the site (sans for body text, display for headings, mono for code).",

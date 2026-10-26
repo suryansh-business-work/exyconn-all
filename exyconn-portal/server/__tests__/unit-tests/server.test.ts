@@ -86,7 +86,7 @@ jest.mock('../../src/modules/calling-bot-demo', () => ({
   backfillPhoneFields: jest.fn(),
   ensureCallingBotScenarios: jest.fn(),
 }));
-jest.mock('../../src/modules/mcp/mcp.migrate', () => ({ assignLegacyMcpToCrm: jest.fn() }));
+jest.mock('../../src/modules/mcp/data/mcp.migrate', () => ({ assignLegacyMcpToCrm: jest.fn() }));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/table-transfer', () => ({ startTableBulkJobs: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
@@ -126,7 +126,7 @@ const MODULES = {
   marketingMigrate: '../../src/modules/marketing/marketing.migrate',
   dealClosed: '../../src/modules/crm/crm.deal-closed.backfill',
   callingBot: '../../src/modules/calling-bot-demo',
-  mcp: '../../src/modules/mcp/mcp.migrate',
+  mcp: '../../src/modules/mcp/data/mcp.migrate',
 } as const;
 
 type Loaded = Record<keyof typeof MODULES, Mocked> & {

@@ -206,6 +206,11 @@ const MEETING_ASSISTANT_NAV: ModuleChild[] = [
  * Bugs is nested under Projects and Clients under Admin; Tech owns the
  * integration credentials and the desktop tracker builds.
  */
+/** One MCP server's entry under the MCP module: its page opens with the server's module role. */
+function mcpServerNav(key: string, label: string, icon: SvgIconComponent, role: Role): ModuleChild {
+  return { key: `mcp-${key}`, label, path: `/mcp/${key}`, icon, role, group: 'MCP servers' };
+}
+
 export const MODULES: ModuleDefinition[] = [
   {
     key: 'employee',
@@ -1664,22 +1669,25 @@ export const MODULES: ModuleDefinition[] = [
     children: [
       { key: 'mcp-dashboard', label: 'Dashboard', path: '/mcp', icon: DashboardIcon },
       // One entry per server; each opens on its tabs (connect, tools, usage, activity, connections).
-      {
-        key: 'mcp-crm',
-        label: 'CRM',
-        path: '/mcp/crm',
-        icon: HandshakeIcon,
-        role: ROLES.CRM,
-        group: 'MCP servers',
-      },
-      {
-        key: 'mcp-marketing',
-        label: 'Marketing',
-        path: '/mcp/marketing',
-        icon: CampaignIcon,
-        role: ROLES.MARKETING,
-        group: 'MCP servers',
-      },
+      mcpServerNav('crm', 'CRM', HandshakeIcon, ROLES.CRM),
+      mcpServerNav('marketing', 'Marketing', CampaignIcon, ROLES.MARKETING),
+      mcpServerNav('admin', 'Admin', AdminPanelSettingsIcon, ROLES.ADMIN),
+      mcpServerNav('ai', 'AI', SmartToyIcon, ROLES.AI),
+      mcpServerNav('clienthub', 'Client Hub', StorefrontIcon, ROLES.ADMIN),
+      mcpServerNav('compliance', 'Compliance', VerifiedUserIcon, ROLES.COMPLIANCE),
+      mcpServerNav('employee', 'Employee', BadgeIcon, ROLES.EMPLOYEE),
+      mcpServerNav('finance', 'Finance', AccountBalanceIcon, ROLES.FINANCE),
+      mcpServerNav('hr', 'HR', EventAvailableIcon, ROLES.HR),
+      mcpServerNav('it', 'IT', DevicesIcon, ROLES.IT),
+      mcpServerNav('legal', 'Legal', GavelIcon, ROLES.LEGAL),
+      mcpServerNav('products', 'Products', Inventory2Icon, ROLES.PRODUCTS),
+      mcpServerNav('projects', 'Projects', AccountTreeIcon, ROLES.PROJECTS),
+      mcpServerNav('social', 'Social', ForumIcon, ROLES.EMPLOYEE),
+      mcpServerNav('status', 'Status', MonitorHeartIcon, ROLES.TECH),
+      mcpServerNav('support', 'Support', SupportAgentIcon, ROLES.SUPPORT),
+      mcpServerNav('tech', 'Tech', TerminalIcon, ROLES.TECH),
+      mcpServerNav('tracker', 'Tracker', AccessTimeIcon, ROLES.TRACKER),
+      mcpServerNav('website', 'Website', LanguageIcon, ROLES.WEBSITE),
       {
         key: 'mcp-all',
         label: 'All tools (global)',

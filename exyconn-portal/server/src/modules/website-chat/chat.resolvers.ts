@@ -2,7 +2,6 @@ import type { GraphQLContext } from '../../middleware/auth';
 import type { PermissionAction } from '../permissions/permission.model';
 import { notFound } from '../../utils/errors';
 import { tableQuery, tableStats, type TableQueryInput } from '../../utils/tableQuery';
-import { withIds } from '../../utils/serialize';
 import { ChatMessageModel, ChatSessionModel } from './models';
 import { asChatOwner } from './chat.owner';
 import { chatAgentFor, claimSession, type ChatAgent } from './chat.staff';
@@ -70,7 +69,8 @@ export const websiteChatResolvers = {
     ) =>
       asAgent(ctx, 'VIEW', async () => {
         const page = await tableQuery(ChatSessionModel, input, SESSION_TABLE);
-        return { rows: withIds(page.rows as Array<{ _id: unknown }>), totalCount: page.totalCount };
+        const rows = page.rows as Array<Parameters<typeof toStaffSession>[0]>;
+        return { rows: rows.map(toStaffSession), totalCount: page.totalCount };
       }),
     websiteChatSessionStats: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
       asAgent(ctx, 'VIEW', () => tableStats(ChatSessionModel, { countBy: ['status', 'site'] })),

@@ -1,13 +1,13 @@
 import { Types } from 'mongoose';
-import type { GraphQLContext } from '../../middleware/auth';
-import { organizationOf, runAsPlatform } from '../../lib/tenant';
-import { UserModel } from '../admin/user.model';
-import { badRequest, notFound } from '../../utils/errors';
-import { recordAudit } from '../audit';
-import { McpAuthCodeModel, McpAuthRequestModel, McpClientModel } from './mcp.models';
+import type { GraphQLContext } from '../../../middleware/auth';
+import { organizationOf, runAsPlatform } from '../../../lib/tenant';
+import { UserModel } from '../../admin/user.model';
+import { badRequest, notFound } from '../../../utils/errors';
+import { recordAudit } from '../../audit';
+import { McpAuthCodeModel, McpAuthRequestModel, McpClientModel } from '../data/mcp.models';
 import { codeHashOf, newAuthorizationCode } from './mcp.oauth';
 import { assertEndpointAccess } from './mcp.access';
-import { endpointMeta, type McpEndpointKey } from './servers';
+import { endpointMeta, type McpEndpointKey } from '../servers';
 
 const CODE_TTL_MS = 10 * 60 * 1000;
 

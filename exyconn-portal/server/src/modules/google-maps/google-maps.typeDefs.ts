@@ -254,7 +254,7 @@ export const googleMapsTypeDefs = gql`
     "Runs one Places search with the server key; says what worked, or why not."
     testGoogleMapsConfig(id: ID!): String!
     deleteGoogleMapsConfig(id: ID!): Boolean!
-    "Reads a business website (home and contact pages, robots.txt honoured) for its email addresses."
+    "Reads a business website (home and contact pages, robots.txt honoured) for its email addresses. A site read in the last 7 days answers from that result and does not count against the limit of 400 new websites per person per hour."
     findLeadEmails(website: String!): LeadEmailResult!
     "Files the chosen places as CRM companies. Duplicates are skipped, or, when listed in mergeInto, get their extra details added without overwriting anything."
     importLeadsToCrm(leads: [LeadImportInput!]!, mergeInto: [LeadMergeInput!]): LeadImportResult!

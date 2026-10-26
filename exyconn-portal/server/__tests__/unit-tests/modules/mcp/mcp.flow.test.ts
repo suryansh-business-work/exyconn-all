@@ -4,18 +4,22 @@ import request from 'supertest';
 import gql from 'graphql-tag';
 import { ApolloServer } from '@apollo/server';
 import { useTestOrganization } from '../../../helpers';
-import { mcpRouter } from '../../../../src/modules/mcp/mcp.router';
-import { mcpSchemaPlugin, useSchema, liveSchema } from '../../../../src/modules/mcp/mcp.catalogue';
+import { mcpRouter } from '../../../../src/modules/mcp/core/mcp.router';
+import {
+  mcpSchemaPlugin,
+  useSchema,
+  liveSchema,
+} from '../../../../src/modules/mcp/core/mcp.catalogue';
 import {
   approveAuthorization,
   denyAuthorization,
   describeAuthorization,
-} from '../../../../src/modules/mcp/mcp.connect';
+} from '../../../../src/modules/mcp/auth/mcp.connect';
 import {
   McpCallModel,
   McpClientModel,
   McpTokenModel,
-} from '../../../../src/modules/mcp/mcp.models';
+} from '../../../../src/modules/mcp/data/mcp.models';
 import { UserModel } from '../../../../src/modules/admin/user.model';
 import { AuditLogModel } from '../../../../src/modules/audit';
 import { runAsPlatform } from '../../../../src/lib/tenant';

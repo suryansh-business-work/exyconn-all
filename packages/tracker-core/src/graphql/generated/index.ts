@@ -2997,11 +2997,28 @@ export type MarketingSuppressionsInput = {
   reason: SuppressionReason;
 };
 
-/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+/** An MCP server: one module's (CRM, MARKETING, HR and the rest), or ALL, which combines every module's tools. */
 export type McpEndpoint =
+  | 'ADMIN'
+  | 'AI'
   | 'ALL'
+  | 'CLIENTHUB'
+  | 'COMPLIANCE'
   | 'CRM'
-  | 'MARKETING';
+  | 'EMPLOYEE'
+  | 'FINANCE'
+  | 'HR'
+  | 'IT'
+  | 'LEGAL'
+  | 'MARKETING'
+  | 'PRODUCTS'
+  | 'PROJECTS'
+  | 'SOCIAL'
+  | 'STATUS'
+  | 'SUPPORT'
+  | 'TECH'
+  | 'TRACKER'
+  | 'WEBSITE';
 
 export type McpToolKind =
   | 'MUTATION'

@@ -7,10 +7,27 @@ export const mcpTypeDefs = gql`
     MUTATION
   }
 
-  "An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools."
+  "An MCP server: one module's (CRM, MARKETING, HR and the rest), or ALL, which combines every module's tools."
   enum McpEndpoint {
     CRM
     MARKETING
+    ADMIN
+    AI
+    CLIENTHUB
+    COMPLIANCE
+    EMPLOYEE
+    FINANCE
+    HR
+    IT
+    LEGAL
+    PRODUCTS
+    PROJECTS
+    SOCIAL
+    STATUS
+    SUPPORT
+    TECH
+    TRACKER
+    WEBSITE
     ALL
   }
 

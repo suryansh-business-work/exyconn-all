@@ -4,9 +4,9 @@ import type { Role } from '../../constants/roles';
 import { env } from '../../config/env';
 import { badRequest } from '../../utils/errors';
 import { recordAudit } from '../audit';
-import { endpointTools } from './mcp.catalogue';
-import { approveAuthorization, denyAuthorization, describeAuthorization } from './mcp.connect';
-import { assertEndpointAccess, serversInReach } from './mcp.access';
+import { endpointTools } from './core/mcp.catalogue';
+import { approveAuthorization, denyAuthorization, describeAuthorization } from './auth/mcp.connect';
+import { assertEndpointAccess, serversInReach } from './auth/mcp.access';
 import {
   connectionCounts,
   connectionEndpoint,
@@ -14,7 +14,7 @@ import {
   mcpConnections,
   mcpUsage,
   revokeMcpConnection,
-} from './mcp.usage';
+} from './data/mcp.usage';
 import {
   endpointMeta,
   MCP_ENDPOINT_PATHS,

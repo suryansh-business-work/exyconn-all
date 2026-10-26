@@ -63,7 +63,8 @@ export function toStaffSession(doc: WithMeta<ChatSessionDocument>) {
     closedBy: doc.closedBy,
     assignedAt: doc.assignedAt ?? null,
     expiresAt: doc.expiresAt ?? null,
-    slackLinked: doc.slackThreadTs !== '',
+    // Sessions from before the Slack link have no slackThreadTs at all (lean skips defaults).
+    slackLinked: Boolean(doc.slackThreadTs),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
