@@ -217,11 +217,11 @@ export const env = Object.freeze({
     timeoutMs: Number(process.env.FX_RATES_TIMEOUT_MS ?? 10_000),
   },
   /**
-   * The CRM MCP server Claude connects to (AI > MCP Servers): its own OAuth sign-in, whose consent
-   * page lives in the AI portal, and how long the tokens it hands Claude last.
+   * The MCP servers Claude connects to (mcp.exyconn.com): their one OAuth sign-in, whose consent
+   * page lives in the MCP portal, and how long the tokens it hands Claude last.
    */
   mcp: {
-    consentUrl: (process.env.MCP_CONSENT_URL ?? 'https://ai.exyconn.com/ai/mcp/connect').replace(
+    consentUrl: (process.env.MCP_CONSENT_URL ?? 'https://mcp.exyconn.com/mcp/connect').replace(
       /\/$/,
       '',
     ),

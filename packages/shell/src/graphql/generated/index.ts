@@ -8495,13 +8495,16 @@ export type MarketingSuppressionsResult = {
 export type McpAuthorizationRequest = {
   __typename?: 'McpAuthorizationRequest';
   clientName: Scalars['String']['output'];
+  endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   /** Where the client gets the answer, e.g. claude.ai. */
   redirectHost: Scalars['String']['output'];
   scopes: Array<Scalars['String']['output']>;
+  /** The server as people say it, e.g. CRM or All Exyconn tools. */
+  serverLabel: Scalars['String']['output'];
 };
 
-/** One tool call made through MCP, for the CRM's activity log. */
+/** One tool call made through MCP, for a server's activity log. */
 export type McpCall = {
   __typename?: 'McpCall';
   at: Scalars['DateTime']['output'];
@@ -8511,6 +8514,8 @@ export type McpCall = {
   id: Scalars['ID']['output'];
   kind: McpToolKind;
   ok: Scalars['Boolean']['output'];
+  /** The module server the tool belongs to. */
+  server: McpEndpoint;
   tool: Scalars['String']['output'];
   userName: Scalars['String']['output'];
 };
@@ -8520,20 +8525,19 @@ export type McpConnection = {
   __typename?: 'McpConnection';
   clientName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** The server the connection is good for. */
+  endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
   userName: Scalars['String']['output'];
 };
 
-/** What a person needs to connect Claude to the CRM. */
-export type McpOverview = {
-  __typename?: 'McpOverview';
-  mutationCount: Scalars['Int']['output'];
-  queryCount: Scalars['Int']['output'];
-  /** The address to paste into Claude as a custom connector. */
-  serverUrl: Scalars['String']['output'];
-  toolCount: Scalars['Int']['output'];
-};
+/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+export enum McpEndpoint {
+  All = 'ALL',
+  Crm = 'CRM',
+  Marketing = 'MARKETING'
+}
 
 export type McpPersonUsage = {
   __typename?: 'McpPersonUsage';
@@ -8541,13 +8545,32 @@ export type McpPersonUsage = {
   userName: Scalars['String']['output'];
 };
 
-/** One CRM operation Claude can call. */
+/** One MCP server the person may use, and what they need to connect Claude to it. */
+export type McpServer = {
+  __typename?: 'McpServer';
+  /** Live connections to this server in the company. */
+  connectionCount: Scalars['Int']['output'];
+  /** What the server offers, as it tells Claude. */
+  description: Scalars['String']['output'];
+  endpoint: McpEndpoint;
+  /** The server as people say it, e.g. CRM. */
+  label: Scalars['String']['output'];
+  mutationCount: Scalars['Int']['output'];
+  queryCount: Scalars['Int']['output'];
+  /** The address to paste into Claude as a custom connector. */
+  serverUrl: Scalars['String']['output'];
+  toolCount: Scalars['Int']['output'];
+};
+
+/** One module operation Claude can call. */
 export type McpTool = {
   __typename?: 'McpTool';
   arguments: Array<McpToolArgument>;
   description: Scalars['String']['output'];
   kind: McpToolKind;
   name: Scalars['String']['output'];
+  /** The module server the tool belongs to. */
+  server: McpEndpoint;
 };
 
 export type McpToolArgument = {
@@ -16649,17 +16672,17 @@ export type Query = {
   marketingSuppressionHistory: Array<AuditLog>;
   marketingSuppressionLookup: MarketingSuppressionLookup;
   marketingSuppressionSummary: MarketingSuppressionSummary;
-  /** The newest MCP calls in this company, for the CRM activity log (CRM role). */
+  /** The newest calls to a server in this company, for its activity log; ALL covers every server the caller may use. */
   mcpActivity: Array<McpCall>;
-  /** The sign-in a connector is waiting on, for the consent page (CRM role). */
+  /** The sign-in a connector is waiting on, for the consent page (the server's role). */
   mcpAuthorizationRequest: McpAuthorizationRequest;
-  /** Every live connection in this company (CRM role). */
+  /** Live connections to a server in this company; ALL lists every connection the caller may see. */
   mcpConnections: Array<McpConnection>;
-  /** The connector address and how many CRM tools it offers (CRM role). */
-  mcpOverview: McpOverview;
-  /** Every CRM tool, with its arguments (CRM role). */
+  /** Every MCP server the caller may use (its module's role), the global ALL server last. */
+  mcpServers: Array<McpServer>;
+  /** Every tool of a server, with its arguments (the server's role). */
   mcpTools: Array<McpTool>;
-  /** This company's MCP calls over the last days, 1 to 180 (CRM role). */
+  /** This company's calls to a server over the last days, 1 to 180; ALL covers every server the caller may use. */
   mcpUsage: McpUsage;
   me: User;
   /** The path of this company's booking page inside its CRM address: /book/<page>. */
@@ -18636,6 +18659,7 @@ export type QueryMarketingSuppressionLookupArgs = {
 
 export type QueryMcpActivityArgs = {
   days: Scalars['Int']['input'];
+  endpoint: McpEndpoint;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -18645,8 +18669,19 @@ export type QueryMcpAuthorizationRequestArgs = {
 };
 
 
+export type QueryMcpConnectionsArgs = {
+  endpoint: McpEndpoint;
+};
+
+
+export type QueryMcpToolsArgs = {
+  endpoint: McpEndpoint;
+};
+
+
 export type QueryMcpUsageArgs = {
   days: Scalars['Int']['input'];
+  endpoint: McpEndpoint;
 };
 
 
@@ -28531,17 +28566,20 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
-export type McpOverviewQueryVariables = Exact<{ [key: string]: never; }>;
+export type McpServersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type McpOverviewQuery = { __typename?: 'Query', mcpOverview: { __typename?: 'McpOverview', serverUrl: string, toolCount: number, queryCount: number, mutationCount: number } };
+export type McpServersQuery = { __typename?: 'Query', mcpServers: Array<{ __typename?: 'McpServer', endpoint: McpEndpoint, label: string, description: string, serverUrl: string, toolCount: number, queryCount: number, mutationCount: number, connectionCount: number }> };
 
-export type McpToolsQueryVariables = Exact<{ [key: string]: never; }>;
+export type McpToolsQueryVariables = Exact<{
+  endpoint: McpEndpoint;
+}>;
 
 
-export type McpToolsQuery = { __typename?: 'Query', mcpTools: Array<{ __typename?: 'McpTool', name: string, kind: McpToolKind, description: string, arguments: Array<{ __typename?: 'McpToolArgument', name: string, type: string, required: boolean, description: string }> }> };
+export type McpToolsQuery = { __typename?: 'Query', mcpTools: Array<{ __typename?: 'McpTool', server: McpEndpoint, name: string, kind: McpToolKind, description: string, arguments: Array<{ __typename?: 'McpToolArgument', name: string, type: string, required: boolean, description: string }> }> };
 
 export type McpUsageQueryVariables = Exact<{
+  endpoint: McpEndpoint;
   days: Scalars['Int']['input'];
 }>;
 
@@ -28549,24 +28587,27 @@ export type McpUsageQueryVariables = Exact<{
 export type McpUsageQuery = { __typename?: 'Query', mcpUsage: { __typename?: 'McpUsage', calls: number, failures: number, people: number, days: Array<{ __typename?: 'McpUsageDay', day: string, calls: number, failures: number }>, tools: Array<{ __typename?: 'McpToolUsage', tool: string, calls: number, failures: number, averageMs: number }>, users: Array<{ __typename?: 'McpPersonUsage', userName: string, calls: number }> } };
 
 export type McpActivityQueryVariables = Exact<{
+  endpoint: McpEndpoint;
   days: Scalars['Int']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type McpActivityQuery = { __typename?: 'Query', mcpActivity: Array<{ __typename?: 'McpCall', id: string, at: string, userName: string, clientName: string, tool: string, kind: McpToolKind, ok: boolean, error: string, durationMs: number }> };
+export type McpActivityQuery = { __typename?: 'Query', mcpActivity: Array<{ __typename?: 'McpCall', id: string, server: McpEndpoint, at: string, userName: string, clientName: string, tool: string, kind: McpToolKind, ok: boolean, error: string, durationMs: number }> };
 
-export type McpConnectionsQueryVariables = Exact<{ [key: string]: never; }>;
+export type McpConnectionsQueryVariables = Exact<{
+  endpoint: McpEndpoint;
+}>;
 
 
-export type McpConnectionsQuery = { __typename?: 'Query', mcpConnections: Array<{ __typename?: 'McpConnection', id: string, clientName: string, userName: string, createdAt: string, lastUsedAt?: string | null }> };
+export type McpConnectionsQuery = { __typename?: 'Query', mcpConnections: Array<{ __typename?: 'McpConnection', id: string, endpoint: McpEndpoint, clientName: string, userName: string, createdAt: string, lastUsedAt?: string | null }> };
 
 export type McpAuthorizationRequestQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type McpAuthorizationRequestQuery = { __typename?: 'Query', mcpAuthorizationRequest: { __typename?: 'McpAuthorizationRequest', id: string, clientName: string, redirectHost: string, scopes: Array<string> } };
+export type McpAuthorizationRequestQuery = { __typename?: 'Query', mcpAuthorizationRequest: { __typename?: 'McpAuthorizationRequest', id: string, endpoint: McpEndpoint, serverLabel: string, clientName: string, redirectHost: string, scopes: Array<string> } };
 
 export type ApproveMcpAuthorizationMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -64830,55 +64871,60 @@ export function useCampaignMetricsSuspenseQuery(baseOptions?: ApolloReactHooks.S
 export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
 export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
 export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
-export const McpOverviewDocument = gql`
-    query McpOverview {
-  mcpOverview {
+export const McpServersDocument = gql`
+    query McpServers {
+  mcpServers {
+    endpoint
+    label
+    description
     serverUrl
     toolCount
     queryCount
     mutationCount
+    connectionCount
   }
 }
     `;
 
 /**
- * __useMcpOverviewQuery__
+ * __useMcpServersQuery__
  *
- * To run a query within a React component, call `useMcpOverviewQuery` and pass it any options that fit your needs.
- * When your component renders, `useMcpOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useMcpServersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpServersQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useMcpOverviewQuery({
+ * const { data, loading, error } = useMcpServersQuery({
  *   variables: {
  *   },
  * });
  */
-export function useMcpOverviewQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>) {
+export function useMcpServersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpServersQuery, McpServersQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<McpOverviewQuery, McpOverviewQueryVariables>(McpOverviewDocument, options);
+        return ApolloReactHooks.useQuery<McpServersQuery, McpServersQueryVariables>(McpServersDocument, options);
       }
-export function useMcpOverviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>) {
+export function useMcpServersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpServersQuery, McpServersQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<McpOverviewQuery, McpOverviewQueryVariables>(McpOverviewDocument, options);
+          return ApolloReactHooks.useLazyQuery<McpServersQuery, McpServersQueryVariables>(McpServersDocument, options);
         }
 // @ts-ignore
-export function useMcpOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpOverviewQuery, McpOverviewQueryVariables>;
+export function useMcpServersSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpServersQuery, McpServersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpServersQuery, McpServersQueryVariables>;
 // @ts-ignore
-export function useMcpOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpOverviewQuery | undefined, McpOverviewQueryVariables>;
-export function useMcpOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpOverviewQuery, McpOverviewQueryVariables>) {
+export function useMcpServersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpServersQuery, McpServersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpServersQuery | undefined, McpServersQueryVariables>;
+export function useMcpServersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpServersQuery, McpServersQueryVariables>) {
           const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
 // @ts-ignore
-          return ApolloReactHooks.useSuspenseQuery<McpOverviewQuery, McpOverviewQueryVariables>(McpOverviewDocument, options);
+          return ApolloReactHooks.useSuspenseQuery<McpServersQuery, McpServersQueryVariables>(McpServersDocument, options);
         }
-export type McpOverviewQueryHookResult = ReturnType<typeof useMcpOverviewQuery>;
-export type McpOverviewLazyQueryHookResult = ReturnType<typeof useMcpOverviewLazyQuery>;
-export type McpOverviewSuspenseQueryHookResult = ReturnType<typeof useMcpOverviewSuspenseQuery>;
+export type McpServersQueryHookResult = ReturnType<typeof useMcpServersQuery>;
+export type McpServersLazyQueryHookResult = ReturnType<typeof useMcpServersLazyQuery>;
+export type McpServersSuspenseQueryHookResult = ReturnType<typeof useMcpServersSuspenseQuery>;
 export const McpToolsDocument = gql`
-    query McpTools {
-  mcpTools {
+    query McpTools($endpoint: McpEndpoint!) {
+  mcpTools(endpoint: $endpoint) {
+    server
     name
     kind
     description
@@ -64904,10 +64950,11 @@ export const McpToolsDocument = gql`
  * @example
  * const { data, loading, error } = useMcpToolsQuery({
  *   variables: {
+ *      endpoint: // value for 'endpoint'
  *   },
  * });
  */
-export function useMcpToolsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpToolsQuery, McpToolsQueryVariables>) {
+export function useMcpToolsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<McpToolsQuery, McpToolsQueryVariables> & ({ variables: McpToolsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useQuery<McpToolsQuery, McpToolsQueryVariables>(McpToolsDocument, options);
       }
@@ -64928,8 +64975,8 @@ export type McpToolsQueryHookResult = ReturnType<typeof useMcpToolsQuery>;
 export type McpToolsLazyQueryHookResult = ReturnType<typeof useMcpToolsLazyQuery>;
 export type McpToolsSuspenseQueryHookResult = ReturnType<typeof useMcpToolsSuspenseQuery>;
 export const McpUsageDocument = gql`
-    query McpUsage($days: Int!) {
-  mcpUsage(days: $days) {
+    query McpUsage($endpoint: McpEndpoint!, $days: Int!) {
+  mcpUsage(endpoint: $endpoint, days: $days) {
     calls
     failures
     people
@@ -64964,6 +65011,7 @@ export const McpUsageDocument = gql`
  * @example
  * const { data, loading, error } = useMcpUsageQuery({
  *   variables: {
+ *      endpoint: // value for 'endpoint'
  *      days: // value for 'days'
  *   },
  * });
@@ -64989,9 +65037,10 @@ export type McpUsageQueryHookResult = ReturnType<typeof useMcpUsageQuery>;
 export type McpUsageLazyQueryHookResult = ReturnType<typeof useMcpUsageLazyQuery>;
 export type McpUsageSuspenseQueryHookResult = ReturnType<typeof useMcpUsageSuspenseQuery>;
 export const McpActivityDocument = gql`
-    query McpActivity($days: Int!, $limit: Int) {
-  mcpActivity(days: $days, limit: $limit) {
+    query McpActivity($endpoint: McpEndpoint!, $days: Int!, $limit: Int) {
+  mcpActivity(endpoint: $endpoint, days: $days, limit: $limit) {
     id
+    server
     at
     userName
     clientName
@@ -65016,6 +65065,7 @@ export const McpActivityDocument = gql`
  * @example
  * const { data, loading, error } = useMcpActivityQuery({
  *   variables: {
+ *      endpoint: // value for 'endpoint'
  *      days: // value for 'days'
  *      limit: // value for 'limit'
  *   },
@@ -65042,9 +65092,10 @@ export type McpActivityQueryHookResult = ReturnType<typeof useMcpActivityQuery>;
 export type McpActivityLazyQueryHookResult = ReturnType<typeof useMcpActivityLazyQuery>;
 export type McpActivitySuspenseQueryHookResult = ReturnType<typeof useMcpActivitySuspenseQuery>;
 export const McpConnectionsDocument = gql`
-    query McpConnections {
-  mcpConnections {
+    query McpConnections($endpoint: McpEndpoint!) {
+  mcpConnections(endpoint: $endpoint) {
     id
+    endpoint
     clientName
     userName
     createdAt
@@ -65065,10 +65116,11 @@ export const McpConnectionsDocument = gql`
  * @example
  * const { data, loading, error } = useMcpConnectionsQuery({
  *   variables: {
+ *      endpoint: // value for 'endpoint'
  *   },
  * });
  */
-export function useMcpConnectionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpConnectionsQuery, McpConnectionsQueryVariables>) {
+export function useMcpConnectionsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<McpConnectionsQuery, McpConnectionsQueryVariables> & ({ variables: McpConnectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useQuery<McpConnectionsQuery, McpConnectionsQueryVariables>(McpConnectionsDocument, options);
       }
@@ -65092,6 +65144,8 @@ export const McpAuthorizationRequestDocument = gql`
     query McpAuthorizationRequest($id: ID!) {
   mcpAuthorizationRequest(id: $id) {
     id
+    endpoint
+    serverLabel
     clientName
     redirectHost
     scopes

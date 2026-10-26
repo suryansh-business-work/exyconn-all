@@ -85,8 +85,9 @@ export async function createApp(): Promise<Express> {
   // One proxy hop (the host nginx), so `req.ip` is the real caller rather than 127.0.0.1 —
   // the public status-page mutation rate-limits on it.
   app.set('trust proxy', 1);
-  // Claude's custom connector: the CRM MCP server and its OAuth sign-in. Before the portals'
-  // CORS, which would answer a connector's preflight without letting it through.
+  // Claude's custom connectors: every module's MCP server, the global one, and their OAuth
+  // sign-in. Before the portals' CORS, which would answer a connector's preflight without
+  // letting it through.
   app.use(mcpRouter());
   app.use(cors({ origin: env.corsOrigins, credentials: true }));
   app.get('/health', (_req, res) => {

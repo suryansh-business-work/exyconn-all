@@ -1,1 +1,0 @@
-export { McpActivityPage } from './McpActivityPage';

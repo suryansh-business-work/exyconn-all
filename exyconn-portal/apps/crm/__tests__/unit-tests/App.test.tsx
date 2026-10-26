@@ -20,7 +20,6 @@ import { MeetingsPage } from '../../src/pages/meetings';
 import { CalendarPage } from '../../src/pages/calendar';
 import { MailPage } from '../../src/pages/mail';
 import { IntegrationsPage } from '../../src/pages/integrations';
-import { McpActivityPage } from '../../src/pages/mcp-activity';
 import { CommsDockLayout } from '../../src/records/comms';
 
 interface PortalProps {
@@ -107,7 +106,6 @@ describe('App', () => {
       ['/settings/properties/:object?', PropertiesPage],
       ['/settings/gmail', Navigate],
       ['/integrations/:tab?', IntegrationsPage],
-      ['/claude-activity', McpActivityPage],
     ]);
   });
 

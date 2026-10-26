@@ -1,0 +1,1 @@
+export { McpConnectPage } from './McpConnectPage';

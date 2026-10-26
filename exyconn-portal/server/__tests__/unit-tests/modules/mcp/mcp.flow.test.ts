@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { ApolloServer } from '@apollo/server';
 import { useTestOrganization } from '../../../helpers';
 import { mcpRouter } from '../../../../src/modules/mcp/mcp.router';
-import { mcpSchemaPlugin, useSchema, liveSchema } from '../../../../src/modules/mcp/mcp.crm';
+import { mcpSchemaPlugin, useSchema, liveSchema } from '../../../../src/modules/mcp/mcp.catalogue';
 import {
   approveAuthorization,
   denyAuthorization,
@@ -28,6 +28,11 @@ const organizationId = useTestOrganization();
 
 const REDIRECT = 'https://claude.ai/api/mcp/auth_callback';
 const ACCEPT = 'application/json, text/event-stream';
+const HELLO = {
+  protocolVersion: '2025-06-18',
+  capabilities: {},
+  clientInfo: { name: 'claude', version: '1' },
+};
 
 /** A small stand-in for the CRM: one read, one delete, one that always fails. */
 const typeDefs = gql`
@@ -39,6 +44,8 @@ const typeDefs = gql`
     "Says hello as the caller."
     crmPing(name: String!): Pong!
     crmBig: String!
+    "Counts campaigns."
+    campaignCount: Int!
   }
   type Mutation {
     deleteThing(id: ID!): Boolean!
@@ -52,6 +59,7 @@ const resolvers = {
       text: `hi ${name} from ${ctx.user?.email}`,
     }),
     crmBig: () => 'x'.repeat(70_000),
+    campaignCount: () => 3,
   },
   Mutation: {
     deleteThing: () => true,
@@ -76,8 +84,8 @@ beforeAll(async () => {
   });
   await apollo.start();
   useSchema(liveSchema(), {
-    query: new Set(['crmPing', 'crmBig']),
-    mutation: new Set(['deleteThing', 'failing']),
+    crm: { query: new Set(['crmPing', 'crmBig']), mutation: new Set(['deleteThing', 'failing']) },
+    marketing: { query: new Set(['campaignCount']), mutation: new Set() },
   });
 });
 
@@ -115,29 +123,35 @@ async function register(): Promise<string> {
   return answer.body.client_id as string;
 }
 
-/** Register, authorize, allow and trade the code: the tokens Claude ends up holding. */
-async function connect() {
+/**
+ * Register, authorize (for the server at `path`, or with no resource at all), allow and trade
+ * the code: the tokens Claude ends up holding.
+ */
+async function connect(path?: string, as: GraphQLContext = ctx) {
   const clientId = await register();
   const { verifier, challenge } = pkce();
-  const authorize = await request(app).get('/authorize').query({
-    response_type: 'code',
-    client_id: clientId,
-    redirect_uri: REDIRECT,
-    code_challenge: challenge,
-    code_challenge_method: 'S256',
-    state: 'st-1',
-    scope: 'crm',
-  });
+  const authorize = await request(app)
+    .get('/authorize')
+    .query({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: REDIRECT,
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      state: 'st-1',
+      scope: 'crm',
+      ...(path ? { resource: `https://portal-server.exyconn.com${path}` } : {}),
+    });
   expect(authorize.status).toBe(302);
   const consent = new URL(authorize.headers.location);
-  expect(consent.pathname).toBe('/ai/mcp/connect');
+  expect(consent.pathname).toBe('/mcp/connect');
   const id = consent.searchParams.get('request') ?? '';
-  expect(await describeAuthorization(ctx, id)).toMatchObject({
+  expect(await describeAuthorization(as, id)).toMatchObject({
     clientName: 'Claude',
     redirectHost: 'claude.ai',
     scopes: ['crm'],
   });
-  const back = new URL(await approveAuthorization(ctx, id));
+  const back = new URL(await approveAuthorization(as, id));
   expect(back.searchParams.get('state')).toBe('st-1');
   const token = await request(app)
     .post('/token')
@@ -153,9 +167,9 @@ async function connect() {
   return { clientId, tokens: token.body as { access_token: string; refresh_token: string } };
 }
 
-const rpc = (token: string, method: string, params: Record<string, unknown> = {}) =>
+const rpc = (token: string, method: string, params: Record<string, unknown> = {}, path = '/mcp') =>
   request(app)
-    .post('/mcp')
+    .post(path)
     .set('Authorization', `Bearer ${token}`)
     .set('Accept', ACCEPT)
     .send({ jsonrpc: '2.0', id: 1, method, params });
@@ -175,6 +189,15 @@ describe('Claude connecting to the CRM', () => {
     });
     const resource = await request(app).get('/.well-known/oauth-protected-resource/mcp');
     expect(resource.body.resource).toMatch(/\/mcp$/);
+    for (const [path, name] of [
+      ['/mcp/crm', 'Exyconn CRM'],
+      ['/mcp/marketing', 'Exyconn Marketing'],
+      ['/mcp/all', 'Exyconn All Exyconn tools'],
+    ]) {
+      const each = await request(app).get(`/.well-known/oauth-protected-resource${path}`);
+      expect(each.body).toMatchObject({ resource: expect.stringMatching(`${path}$`) });
+      expect(each.body.resource_name).toBe(name);
+    }
   });
 
   it('turns away an MCP request without a token, pointing at the sign-in settings', async () => {
@@ -223,6 +246,8 @@ describe('Claude connecting to the CRM', () => {
 
     const unknown = await rpc(tokens.access_token, 'tools/call', { name: 'nothing' });
     expect(unknown.body.result.content[0].text).toBe('There is no CRM tool named nothing.');
+    const elsewhere = await rpc(tokens.access_token, 'tools/call', { name: 'campaignCount' });
+    expect(elsewhere.body.result.isError).toBe(true);
 
     const missing = await rpc(tokens.access_token, 'tools/call', { name: 'crmPing' });
     expect(missing.body.result.isError).toBe(true);
@@ -238,7 +263,12 @@ describe('Claude connecting to the CRM', () => {
       ['crmPing', false],
       ['crmBig', true],
     ]);
-    expect(calls[0]).toMatchObject({ userName: 'Asha', clientName: 'Claude', kind: 'QUERY' });
+    expect(calls[0]).toMatchObject({
+      server: 'crm',
+      userName: 'Asha',
+      clientName: 'Claude',
+      kind: 'QUERY',
+    });
     const audits = await runAsPlatform(() =>
       AuditLogModel.find({ module: 'CRM (Claude MCP)' }).lean(),
     );
@@ -425,5 +455,102 @@ describe('Claude connecting to the CRM', () => {
     ]);
     expect(await codeOf(describeAuthorization(ctx, id))).toBe('NOT_FOUND');
     expect(await codeOf(describeAuthorization(ctx, 'not-an-id'))).toBe('NOT_FOUND');
+  });
+
+  it('binds a connection to the server it was added at, the CRM one also at /mcp/crm', async () => {
+    const { tokens } = await connect('/mcp/crm');
+    const init = await rpc(tokens.access_token, 'initialize', HELLO, '/mcp/crm');
+    expect(init.body.result.serverInfo.name).toBe('exyconn-crm');
+    const list = await rpc(tokens.access_token, 'tools/list', {}, '/mcp');
+    expect(list.body.result.tools).toHaveLength(4);
+    const marketing = await rpc(tokens.access_token, 'tools/list', {}, '/mcp/marketing');
+    expect(marketing.status).toBe(403);
+    expect(marketing.body.error.message).toMatch(/not for Marketing/);
+    expect((await rpc(tokens.access_token, 'tools/list', {}, '/mcp/all')).status).toBe(403);
+  });
+
+  it('connects Marketing for a marketer, with its own tools and audit module', async () => {
+    await UserModel.updateOne({ _id: user.id }, { roles: [ROLES.MARKETING] });
+    const marketer: GraphQLContext = {
+      ...ctx,
+      user: { ...ctx.user!, roles: [ROLES.MARKETING] },
+    };
+    expect(await codeOf(connect('/mcp/crm', marketer))).toBe('FORBIDDEN');
+    const { tokens } = await connect('/mcp/marketing', marketer);
+    const init = await rpc(
+      tokens.access_token,
+      'initialize',
+      {
+        protocolVersion: '2025-06-18',
+        capabilities: {},
+        clientInfo: { name: 'claude', version: '1' },
+      },
+      '/mcp/marketing',
+    );
+    expect(init.body.result.serverInfo.name).toBe('exyconn-marketing');
+    const list = await rpc(tokens.access_token, 'tools/list', {}, '/mcp/marketing');
+    expect(list.body.result.tools.map((tool: { name: string }) => tool.name)).toEqual([
+      'campaignCount',
+    ]);
+    const called = await rpc(
+      tokens.access_token,
+      'tools/call',
+      { name: 'campaignCount' },
+      '/mcp/marketing',
+    );
+    expect(called.body.result.content[0].text).toBe('3');
+    const row = await McpCallModel.findOne({ tool: 'campaignCount' }).lean();
+    expect(row?.server).toBe('marketing');
+    const audits = await runAsPlatform(() =>
+      AuditLogModel.find({ module: 'Marketing (Claude MCP)' }).lean(),
+    );
+    expect(audits.map((entry) => entry.action)).toEqual(['LOGIN']);
+
+    await UserModel.updateOne({ _id: user.id }, { roles: [ROLES.EMPLOYEE] });
+    const lost = await rpc(tokens.access_token, 'tools/list', {}, '/mcp/marketing');
+    expect(lost.status).toBe(403);
+    expect(lost.body.error.message).toMatch(/do not have access to Marketing/);
+  });
+
+  it('offers every tool the person may use at the global address', async () => {
+    await UserModel.updateOne({ _id: user.id }, { roles: [ROLES.ADMIN] });
+    const admin: GraphQLContext = { ...ctx, user: { ...ctx.user!, roles: [ROLES.ADMIN] } };
+    const { tokens } = await connect('/mcp/all', admin);
+    const init = await rpc(tokens.access_token, 'initialize', HELLO, '/mcp/all');
+    expect(init.body.result.serverInfo.name).toBe('exyconn');
+    const list = await rpc(tokens.access_token, 'tools/list', {}, '/mcp/all');
+    expect(list.body.result.tools.map((tool: { name: string }) => tool.name)).toEqual([
+      'campaignCount',
+      'crmBig',
+      'crmPing',
+      'deleteThing',
+      'failing',
+    ]);
+    const called = await rpc(
+      tokens.access_token,
+      'tools/call',
+      { name: 'campaignCount' },
+      '/mcp/all',
+    );
+    expect(called.body.result.content[0].text).toBe('3');
+    const missing = await rpc(tokens.access_token, 'tools/call', { name: 'none' }, '/mcp/all');
+    expect(missing.body.result.content[0].text).toBe(
+      'There is no All Exyconn tools tool named none.',
+    );
+  });
+
+  it('refuses a sign-in for an address that is no Exyconn server', async () => {
+    const clientId = await register();
+    const { challenge } = pkce();
+    const authorize = await request(app).get('/authorize').query({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: REDIRECT,
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      resource: 'https://portal-server.exyconn.com/mcp/nothing',
+    });
+    expect(authorize.status).toBe(302);
+    expect(new URL(authorize.headers.location).searchParams.get('error')).toBe('invalid_target');
   });
 });

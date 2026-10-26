@@ -8494,13 +8494,16 @@ export type MarketingSuppressionsResult = {
 export type McpAuthorizationRequest = {
   __typename?: 'McpAuthorizationRequest';
   clientName: Scalars['String']['output'];
+  endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   /** Where the client gets the answer, e.g. claude.ai. */
   redirectHost: Scalars['String']['output'];
   scopes: Array<Scalars['String']['output']>;
+  /** The server as people say it, e.g. CRM or All Exyconn tools. */
+  serverLabel: Scalars['String']['output'];
 };
 
-/** One tool call made through MCP, for the CRM's activity log. */
+/** One tool call made through MCP, for a server's activity log. */
 export type McpCall = {
   __typename?: 'McpCall';
   at: Scalars['DateTime']['output'];
@@ -8510,6 +8513,8 @@ export type McpCall = {
   id: Scalars['ID']['output'];
   kind: McpToolKind;
   ok: Scalars['Boolean']['output'];
+  /** The module server the tool belongs to. */
+  server: McpEndpoint;
   tool: Scalars['String']['output'];
   userName: Scalars['String']['output'];
 };
@@ -8519,20 +8524,19 @@ export type McpConnection = {
   __typename?: 'McpConnection';
   clientName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** The server the connection is good for. */
+  endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
   userName: Scalars['String']['output'];
 };
 
-/** What a person needs to connect Claude to the CRM. */
-export type McpOverview = {
-  __typename?: 'McpOverview';
-  mutationCount: Scalars['Int']['output'];
-  queryCount: Scalars['Int']['output'];
-  /** The address to paste into Claude as a custom connector. */
-  serverUrl: Scalars['String']['output'];
-  toolCount: Scalars['Int']['output'];
-};
+/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+export enum McpEndpoint {
+  All = 'ALL',
+  Crm = 'CRM',
+  Marketing = 'MARKETING'
+}
 
 export type McpPersonUsage = {
   __typename?: 'McpPersonUsage';
@@ -8540,13 +8544,32 @@ export type McpPersonUsage = {
   userName: Scalars['String']['output'];
 };
 
-/** One CRM operation Claude can call. */
+/** One MCP server the person may use, and what they need to connect Claude to it. */
+export type McpServer = {
+  __typename?: 'McpServer';
+  /** Live connections to this server in the company. */
+  connectionCount: Scalars['Int']['output'];
+  /** What the server offers, as it tells Claude. */
+  description: Scalars['String']['output'];
+  endpoint: McpEndpoint;
+  /** The server as people say it, e.g. CRM. */
+  label: Scalars['String']['output'];
+  mutationCount: Scalars['Int']['output'];
+  queryCount: Scalars['Int']['output'];
+  /** The address to paste into Claude as a custom connector. */
+  serverUrl: Scalars['String']['output'];
+  toolCount: Scalars['Int']['output'];
+};
+
+/** One module operation Claude can call. */
 export type McpTool = {
   __typename?: 'McpTool';
   arguments: Array<McpToolArgument>;
   description: Scalars['String']['output'];
   kind: McpToolKind;
   name: Scalars['String']['output'];
+  /** The module server the tool belongs to. */
+  server: McpEndpoint;
 };
 
 export type McpToolArgument = {
@@ -16648,17 +16671,17 @@ export type Query = {
   marketingSuppressionHistory: Array<AuditLog>;
   marketingSuppressionLookup: MarketingSuppressionLookup;
   marketingSuppressionSummary: MarketingSuppressionSummary;
-  /** The newest MCP calls in this company, for the CRM activity log (CRM role). */
+  /** The newest calls to a server in this company, for its activity log; ALL covers every server the caller may use. */
   mcpActivity: Array<McpCall>;
-  /** The sign-in a connector is waiting on, for the consent page (CRM role). */
+  /** The sign-in a connector is waiting on, for the consent page (the server's role). */
   mcpAuthorizationRequest: McpAuthorizationRequest;
-  /** Every live connection in this company (CRM role). */
+  /** Live connections to a server in this company; ALL lists every connection the caller may see. */
   mcpConnections: Array<McpConnection>;
-  /** The connector address and how many CRM tools it offers (CRM role). */
-  mcpOverview: McpOverview;
-  /** Every CRM tool, with its arguments (CRM role). */
+  /** Every MCP server the caller may use (its module's role), the global ALL server last. */
+  mcpServers: Array<McpServer>;
+  /** Every tool of a server, with its arguments (the server's role). */
   mcpTools: Array<McpTool>;
-  /** This company's MCP calls over the last days, 1 to 180 (CRM role). */
+  /** This company's calls to a server over the last days, 1 to 180; ALL covers every server the caller may use. */
   mcpUsage: McpUsage;
   me: User;
   /** The path of this company's booking page inside its CRM address: /book/<page>. */
@@ -18635,6 +18658,7 @@ export type QueryMarketingSuppressionLookupArgs = {
 
 export type QueryMcpActivityArgs = {
   days: Scalars['Int']['input'];
+  endpoint: McpEndpoint;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -18644,8 +18668,19 @@ export type QueryMcpAuthorizationRequestArgs = {
 };
 
 
+export type QueryMcpConnectionsArgs = {
+  endpoint: McpEndpoint;
+};
+
+
+export type QueryMcpToolsArgs = {
+  endpoint: McpEndpoint;
+};
+
+
 export type QueryMcpUsageArgs = {
   days: Scalars['Int']['input'];
+  endpoint: McpEndpoint;
 };
 
 
@@ -24369,8 +24404,9 @@ export type ResolversTypes = ResolversObject<{
   McpAuthorizationRequest: ResolverTypeWrapper<McpAuthorizationRequest>;
   McpCall: ResolverTypeWrapper<McpCall>;
   McpConnection: ResolverTypeWrapper<McpConnection>;
-  McpOverview: ResolverTypeWrapper<McpOverview>;
+  McpEndpoint: McpEndpoint;
   McpPersonUsage: ResolverTypeWrapper<McpPersonUsage>;
+  McpServer: ResolverTypeWrapper<McpServer>;
   McpTool: ResolverTypeWrapper<McpTool>;
   McpToolArgument: ResolverTypeWrapper<McpToolArgument>;
   McpToolKind: McpToolKind;
@@ -25498,8 +25534,8 @@ export type ResolversParentTypes = ResolversObject<{
   McpAuthorizationRequest: McpAuthorizationRequest;
   McpCall: McpCall;
   McpConnection: McpConnection;
-  McpOverview: McpOverview;
   McpPersonUsage: McpPersonUsage;
+  McpServer: McpServer;
   McpTool: McpTool;
   McpToolArgument: McpToolArgument;
   McpToolUsage: McpToolUsage;
@@ -30605,9 +30641,11 @@ export type MarketingSuppressionsResultResolvers<ContextType = GraphQLContext, P
 
 export type McpAuthorizationRequestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpAuthorizationRequest'] = ResolversParentTypes['McpAuthorizationRequest']> = ResolversObject<{
   clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   redirectHost?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   scopes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  serverLabel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30619,6 +30657,7 @@ export type McpCallResolvers<ContextType = GraphQLContext, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['McpToolKind'], ParentType, ContextType>;
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   tool?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -30627,17 +30666,10 @@ export type McpCallResolvers<ContextType = GraphQLContext, ParentType extends Re
 export type McpConnectionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpConnection'] = ResolversParentTypes['McpConnection']> = ResolversObject<{
   clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUsedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type McpOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpOverview'] = ResolversParentTypes['McpOverview']> = ResolversObject<{
-  mutationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  queryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  serverUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  toolCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30647,11 +30679,24 @@ export type McpPersonUsageResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type McpServerResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpServer'] = ResolversParentTypes['McpServer']> = ResolversObject<{
+  connectionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mutationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  queryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  serverUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toolCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type McpToolResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpTool'] = ResolversParentTypes['McpTool']> = ResolversObject<{
   arguments?: Resolver<Array<ResolversTypes['McpToolArgument']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['McpToolKind'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -33148,12 +33193,12 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   marketingSuppressionHistory?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryMarketingSuppressionHistoryArgs, 'email'>>;
   marketingSuppressionLookup?: Resolver<ResolversTypes['MarketingSuppressionLookup'], ParentType, ContextType, RequireFields<QueryMarketingSuppressionLookupArgs, 'email'>>;
   marketingSuppressionSummary?: Resolver<ResolversTypes['MarketingSuppressionSummary'], ParentType, ContextType>;
-  mcpActivity?: Resolver<Array<ResolversTypes['McpCall']>, ParentType, ContextType, RequireFields<QueryMcpActivityArgs, 'days'>>;
+  mcpActivity?: Resolver<Array<ResolversTypes['McpCall']>, ParentType, ContextType, RequireFields<QueryMcpActivityArgs, 'days' | 'endpoint'>>;
   mcpAuthorizationRequest?: Resolver<ResolversTypes['McpAuthorizationRequest'], ParentType, ContextType, RequireFields<QueryMcpAuthorizationRequestArgs, 'id'>>;
-  mcpConnections?: Resolver<Array<ResolversTypes['McpConnection']>, ParentType, ContextType>;
-  mcpOverview?: Resolver<ResolversTypes['McpOverview'], ParentType, ContextType>;
-  mcpTools?: Resolver<Array<ResolversTypes['McpTool']>, ParentType, ContextType>;
-  mcpUsage?: Resolver<ResolversTypes['McpUsage'], ParentType, ContextType, RequireFields<QueryMcpUsageArgs, 'days'>>;
+  mcpConnections?: Resolver<Array<ResolversTypes['McpConnection']>, ParentType, ContextType, RequireFields<QueryMcpConnectionsArgs, 'endpoint'>>;
+  mcpServers?: Resolver<Array<ResolversTypes['McpServer']>, ParentType, ContextType>;
+  mcpTools?: Resolver<Array<ResolversTypes['McpTool']>, ParentType, ContextType, RequireFields<QueryMcpToolsArgs, 'endpoint'>>;
+  mcpUsage?: Resolver<ResolversTypes['McpUsage'], ParentType, ContextType, RequireFields<QueryMcpUsageArgs, 'days' | 'endpoint'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   meetingBookingPagePath?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   meetingBookings?: Resolver<ResolversTypes['MeetingBookingPage'], ParentType, ContextType, RequireFields<QueryMeetingBookingsArgs, 'page' | 'pageSize'>>;
@@ -36025,8 +36070,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   McpAuthorizationRequest?: McpAuthorizationRequestResolvers<ContextType>;
   McpCall?: McpCallResolvers<ContextType>;
   McpConnection?: McpConnectionResolvers<ContextType>;
-  McpOverview?: McpOverviewResolvers<ContextType>;
   McpPersonUsage?: McpPersonUsageResolvers<ContextType>;
+  McpServer?: McpServerResolvers<ContextType>;
   McpTool?: McpToolResolvers<ContextType>;
   McpToolArgument?: McpToolArgumentResolvers<ContextType>;
   McpToolUsage?: McpToolUsageResolvers<ContextType>;

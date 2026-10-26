@@ -601,14 +601,6 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Tools',
       },
       {
-        // What Claude did in the CRM through the MCP connector (AI > MCP Servers).
-        key: 'crm-claude-activity',
-        label: 'Claude (MCP) activity',
-        path: '/claude-activity',
-        icon: HubIcon,
-        group: 'Tools',
-      },
-      {
         // The fields every lead, company and contact has, built-in and the company's own.
         key: 'crm-properties',
         label: 'Custom Properties',
@@ -1220,14 +1212,6 @@ export const MODULES: ModuleDefinition[] = [
         path: '/ai/prompts',
         icon: AutoAwesomeIcon,
       },
-      {
-        // The CRM as an MCP server for Claude: connect, tools, usage and connections.
-        key: 'ai-mcp',
-        label: 'MCP Servers',
-        path: '/ai/mcp',
-        icon: HubIcon,
-        role: ROLES.CRM,
-      },
       ...MEETING_ASSISTANT_NAV,
     ],
   },
@@ -1655,6 +1639,44 @@ export const MODULES: ModuleDefinition[] = [
     children: [
       { key: 'social-feed', label: 'Feed', path: '/social', icon: DynamicFeedIcon },
       { key: 'social-profile', label: 'My Profile', path: '/social/me', icon: PersonIcon },
+    ],
+  },
+  {
+    // Claude's connectors: one MCP server per module (each opens with that module's role) and a
+    // global one combining them. Listed for everyone; the pages say which servers they can use.
+    key: 'mcp',
+    label: 'MCP',
+    path: '/mcp',
+    role: ROLES.EMPLOYEE,
+    icon: HubIcon,
+    description: 'Connect Claude to every module, one server each or all in one',
+    accent: color.teal[500],
+    children: [
+      { key: 'mcp-dashboard', label: 'Dashboard', path: '/mcp', icon: DashboardIcon },
+      // One entry per server; each opens on its tabs (connect, tools, usage, activity, connections).
+      {
+        key: 'mcp-crm',
+        label: 'CRM',
+        path: '/mcp/crm',
+        icon: HandshakeIcon,
+        role: ROLES.CRM,
+        group: 'MCP servers',
+      },
+      {
+        key: 'mcp-marketing',
+        label: 'Marketing',
+        path: '/mcp/marketing',
+        icon: CampaignIcon,
+        role: ROLES.MARKETING,
+        group: 'MCP servers',
+      },
+      {
+        key: 'mcp-all',
+        label: 'All tools (global)',
+        path: '/mcp/all',
+        icon: PublicIcon,
+        group: 'MCP servers',
+      },
     ],
   },
   {

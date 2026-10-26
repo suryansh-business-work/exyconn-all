@@ -1,25 +1,25 @@
 import { useT } from '@exyconn/i18n';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { Alert, Box, Button, Skeleton, Stack, Text, TextField } from '@exyconn/shell/components/ui';
+import { Alert, Box, Button, Stack, Text, TextField } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { useMcpOverviewQuery } from '@exyconn/shell/graphql/generated';
+import type { McpEndpoint } from '@exyconn/shell/graphql/generated';
+import { useMcpServer } from './useMcpServer';
 
-/** The steps in Claude, in order, with the address they need filled in. */
+/** The steps in Claude, in order, with the server's name and address filled in. */
 const STEPS = [
   'In Claude (claude.ai or the desktop app), open Settings > Connectors.',
   'Choose Add custom connector.',
-  'Name: Exyconn CRM. MCP server URL: paste the address above. Choose Add.',
+  'Name: Exyconn {server}. MCP server URL: paste the address above. Choose Add.',
   'Choose Connect. Claude opens Exyconn: sign in with your portal account if asked, then choose Allow.',
-  'Back in Claude, the connector shows as connected and every CRM tool is available in chats.',
+  'Back in Claude, the connector shows as connected and every {server} tool is available in chats.',
 ];
 
-/** How to connect Claude: the address to paste, and the steps, one per line. */
-export function McpConnectTab() {
+/** How to connect Claude to one server: the address to paste, and the steps, one per line. */
+export function McpConnectTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>) {
   const t = useT();
   const notify = useNotify();
-  const { data, loading, error } = useMcpOverviewQuery();
-  const overview = data?.mcpOverview;
+  const { server } = useMcpServer(endpoint);
 
   const copy = (url: string) => {
     globalThis.navigator.clipboard
@@ -31,28 +31,27 @@ export function McpConnectTab() {
       });
   };
 
-  if (error) {
-    return <Alert severity="error">{error.message}</Alert>;
-  }
-  if (!overview) {
-    return loading ? <Skeleton variant="rounded" height={220} /> : null;
+  // The server page renders this tab only once the server is known.
+  if (!server) {
+    return null;
   }
   return (
     <Stack spacing={2}>
       <Text size="sm" color="text.secondary">
         {t(
-          'One connector gives Claude every CRM feature ({tools} tools: {queries} to read, {mutations} to change). Claude acts as you, with your permissions, and everything it does is logged.',
+          'One connector gives Claude every {server} feature ({tools} tools: {queries} to read, {mutations} to change). Claude acts as you, with your permissions, and everything it does is logged.',
           {
-            tools: overview.toolCount,
-            queries: overview.queryCount,
-            mutations: overview.mutationCount,
+            server: server.label,
+            tools: server.toolCount,
+            queries: server.queryCount,
+            mutations: server.mutationCount,
           },
         )}
       </Text>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
         <TextField
           label={t('MCP server URL')}
-          value={overview.serverUrl}
+          value={server.serverUrl}
           fullWidth
           size="small"
           slotProps={{ input: { readOnly: true } }}
@@ -60,7 +59,7 @@ export function McpConnectTab() {
         <Button
           variant="contained"
           startIcon={<ContentCopyIcon />}
-          onClick={() => copy(overview.serverUrl)}
+          onClick={() => copy(server.serverUrl)}
         >
           {t('Copy')}
         </Button>
@@ -68,13 +67,13 @@ export function McpConnectTab() {
       <Box component="ol" sx={{ pl: 3, m: 0 }}>
         {STEPS.map((step) => (
           <Box component="li" key={step} sx={{ mb: 1 }}>
-            <Text size="sm">{t(step)}</Text>
+            <Text size="sm">{t(step, { server: server.label })}</Text>
           </Box>
         ))}
       </Box>
       <Alert severity="info">
         {t(
-          'Claude checks the address, then the sign-in settings and the sign-in provider. If it says no server responded, check the address has no typo and ends in /mcp.',
+          'Claude checks the address, then the sign-in settings and the sign-in provider. If it says no server responded, check the address has no typo and is exactly the one above.',
         )}
       </Alert>
     </Stack>

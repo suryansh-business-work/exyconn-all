@@ -1,16 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { McpServersPage } from '../../../../src/pages/mcp/McpServersPage';
-import { McpConnectPage } from '../../../../src/pages/mcp/McpConnectPage';
-import { McpConnectTab } from '../../../../src/pages/mcp/McpConnectTab';
-import { McpToolsTab } from '../../../../src/pages/mcp/McpToolsTab';
-import { McpUsageTab } from '../../../../src/pages/mcp/McpUsageTab';
-import { McpConnectionsTab } from '../../../../src/pages/mcp/McpConnectionsTab';
-import { renderWithProviders } from '../../test-utils';
+import { McpEndpoint } from '@exyconn/shell/graphql/generated';
+import { McpServerPage } from '../../../src/pages/server';
+import { McpConnectPage } from '../../../src/pages/connect';
+import { McpConnectTab } from '../../../src/pages/server/McpConnectTab';
+import { McpToolsTab } from '../../../src/pages/server/McpToolsTab';
+import { McpUsageTab } from '../../../src/pages/server/McpUsageTab';
+import { McpConnectionsTab } from '../../../src/pages/server/McpConnectionsTab';
+import { renderWithProviders } from '../test-utils';
 
 const gql = vi.hoisted(() => ({
-  overview: vi.fn(),
+  servers: vi.fn(),
+  activity: vi.fn(),
   tools: vi.fn(),
   usage: vi.fn(),
   connections: vi.fn(),
@@ -23,7 +25,8 @@ const gql = vi.hoisted(() => ({
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
-  useMcpOverviewQuery: gql.overview,
+  useMcpServersQuery: gql.servers,
+  useMcpActivityQuery: gql.activity,
   useMcpToolsQuery: gql.tools,
   useMcpUsageQuery: gql.usage,
   useMcpConnectionsQuery: gql.connections,
@@ -50,27 +53,35 @@ vi.mock('@exyconn/shell/components/dashboard/MetricChart', () => ({
   ),
 }));
 
-const OVERVIEW = {
-  data: {
-    mcpOverview: {
-      serverUrl: 'https://portal-server.exyconn.com/mcp',
-      toolCount: 3,
-      queryCount: 2,
-      mutationCount: 1,
-    },
-  },
-  loading: false,
+const CRM_SERVER = {
+  endpoint: McpEndpoint.Crm,
+  label: 'CRM',
+  description: 'Exyconn CRM: leads and deals.',
+  serverUrl: 'https://portal-server.exyconn.com/mcp/crm',
+  toolCount: 3,
+  queryCount: 2,
+  mutationCount: 1,
+  connectionCount: 1,
 };
+const SERVERS = { data: { mcpServers: [CRM_SERVER] }, loading: false };
+
 const TOOLS = {
   data: {
     mcpTools: [
       {
+        server: McpEndpoint.Crm,
         name: 'searchLeads',
         kind: 'QUERY',
         description: 'Finds leads.\n\nCRM read',
         arguments: [{ name: 'input', type: 'CrmQueryInput!', required: true, description: '' }],
       },
-      { name: 'deleteDeal', kind: 'MUTATION', description: 'Deletes a deal.', arguments: [] },
+      {
+        server: McpEndpoint.Crm,
+        name: 'deleteDeal',
+        kind: 'MUTATION',
+        description: 'Deletes a deal.',
+        arguments: [],
+      },
     ],
   },
   loading: false,
@@ -92,7 +103,8 @@ const USAGE = {
 
 beforeEach(() => {
   for (const mock of Object.values(gql)) mock.mockReset();
-  gql.overview.mockReturnValue(OVERVIEW);
+  gql.servers.mockReturnValue(SERVERS);
+  gql.activity.mockReturnValue({ data: { mcpActivity: [] }, loading: false, refetch: vi.fn() });
   gql.tools.mockReturnValue(TOOLS);
   gql.usage.mockReturnValue(USAGE);
   gql.connections.mockReturnValue({
@@ -100,6 +112,7 @@ beforeEach(() => {
       mcpConnections: [
         {
           id: 'c1',
+          endpoint: McpEndpoint.Crm,
           clientName: 'Claude',
           userName: 'Asha',
           createdAt: '2026-10-20T10:00:00Z',
@@ -112,13 +125,47 @@ beforeEach(() => {
   });
 });
 
-describe('McpServersPage', () => {
-  it('keeps connect, tools, usage and connections on their own tabs', () => {
-    renderWithProviders(<McpServersPage />, { route: '/ai/mcp/setup', path: '/ai/mcp/:tab?' });
-    expect(screen.getByRole('heading', { name: 'MCP Servers' })).toBeInTheDocument();
-    for (const name of ['Connect', 'Tools', 'Usage & billing', 'Connections']) {
+const PAGE = '/mcp/crm/:tab?';
+
+describe('McpServerPage', () => {
+  it('keeps connect, tools, usage, activity and connections on their own tabs', () => {
+    renderWithProviders(<McpServerPage endpoint={McpEndpoint.Crm} />, {
+      route: '/mcp/crm/setup',
+      path: PAGE,
+    });
+    expect(screen.getByRole('heading', { name: 'CRM MCP server' })).toBeInTheDocument();
+    for (const name of [
+      'Connect',
+      'Tools',
+      'Usage & billing',
+      'Claude (MCP) activity',
+      'Connections',
+    ]) {
       expect(screen.getByRole('tab', { name })).toBeInTheDocument();
     }
+  });
+
+  it('waits, says why the servers could not be read, and refuses a server out of reach', () => {
+    gql.servers.mockReturnValue({ data: undefined, loading: true });
+    const first = renderWithProviders(<McpServerPage endpoint={McpEndpoint.Crm} />, {
+      route: '/mcp/crm',
+      path: PAGE,
+    });
+    expect(first.container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
+    first.unmount();
+    gql.servers.mockReturnValue({ data: undefined, loading: false, error: new Error('Down') });
+    const second = renderWithProviders(<McpServerPage endpoint={McpEndpoint.Crm} />, {
+      route: '/mcp/crm',
+      path: PAGE,
+    });
+    expect(screen.getByText('Down')).toBeInTheDocument();
+    second.unmount();
+    gql.servers.mockReturnValue(SERVERS);
+    renderWithProviders(<McpServerPage endpoint={McpEndpoint.Marketing} />, {
+      route: '/mcp/marketing',
+      path: '/mcp/marketing/:tab?',
+    });
+    expect(screen.getByText('You do not have access to this MCP server.')).toBeInTheDocument();
   });
 });
 
@@ -129,9 +176,14 @@ describe('McpConnectTab', () => {
       .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(new Error('no'));
     vi.stubGlobal('navigator', { ...globalThis.navigator, clipboard: { writeText } });
-    renderWithProviders(<McpConnectTab />);
-    expect(screen.getByDisplayValue('https://portal-server.exyconn.com/mcp')).toBeInTheDocument();
-    expect(screen.getByText(/3 tools: 2 to read, 1 to change/)).toBeInTheDocument();
+    renderWithProviders(<McpConnectTab endpoint={McpEndpoint.Crm} />);
+    expect(
+      screen.getByDisplayValue('https://portal-server.exyconn.com/mcp/crm'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/every CRM feature \(3 tools: 2 to read, 1 to change/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Name: Exyconn CRM\./)).toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(5);
     await userEvent.click(screen.getByRole('button', { name: 'Copy' }));
     await waitFor(() => expect(gql.notify).toHaveBeenCalledWith('Address copied', 'success'));
@@ -145,30 +197,15 @@ describe('McpConnectTab', () => {
     vi.unstubAllGlobals();
   });
 
-  it('waits, and says why the overview could not be read', () => {
-    gql.overview.mockReturnValue({ data: undefined, loading: true });
-    const { container, unmount } = renderWithProviders(<McpConnectTab />);
-    expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
-    unmount();
-    gql.overview.mockReturnValue({
-      data: undefined,
-      loading: false,
-      error: new Error('Forbidden'),
-    });
-    renderWithProviders(<McpConnectTab />);
-    expect(screen.getByText('Forbidden')).toBeInTheDocument();
-  });
-
-  it('renders nothing before an answer arrives', () => {
-    gql.overview.mockReturnValue({ data: undefined, loading: false });
-    const { container } = renderWithProviders(<McpConnectTab />);
+  it('renders nothing for a server the person may not use', () => {
+    const { container } = renderWithProviders(<McpConnectTab endpoint={McpEndpoint.Marketing} />);
     expect(container).toBeEmptyDOMElement();
   });
 });
 
 describe('McpToolsTab', () => {
   it('lists every tool with its arguments and finds one by name', async () => {
-    renderWithProviders(<McpToolsTab />);
+    renderWithProviders(<McpToolsTab endpoint={McpEndpoint.Crm} />);
     const row = screen.getByText('searchLeads').closest('tr') as HTMLElement;
     expect(within(row).getByText('input*: CrmQueryInput!')).toBeInTheDocument();
     expect(within(row).getByText('Finds leads.')).toBeInTheDocument();
@@ -179,20 +216,20 @@ describe('McpToolsTab', () => {
 
   it('says why the tools could not be read, and copes with none', () => {
     gql.tools.mockReturnValue({ data: undefined, loading: false, error: new Error('Forbidden') });
-    const { unmount } = renderWithProviders(<McpToolsTab />);
+    const { unmount } = renderWithProviders(<McpToolsTab endpoint={McpEndpoint.Crm} />);
     expect(screen.getByText('Forbidden')).toBeInTheDocument();
     unmount();
     gql.tools.mockReturnValue({ data: undefined, loading: false, refetch: vi.fn() });
-    renderWithProviders(<McpToolsTab />);
+    renderWithProviders(<McpToolsTab endpoint={McpEndpoint.Crm} />);
     expect(screen.getByText('No tool matches.')).toBeInTheDocument();
   });
 });
 
 describe('McpUsageTab', () => {
   it('shows calls, failures and people, by day, person and tool, over the period picked', async () => {
-    renderWithProviders(<McpUsageTab />);
+    renderWithProviders(<McpUsageTab endpoint={McpEndpoint.Crm} />);
     expect(gql.usage).toHaveBeenCalledWith({
-      variables: { days: 30 },
+      variables: { endpoint: McpEndpoint.Crm, days: 30 },
       fetchPolicy: 'cache-and-network',
     });
     expect(screen.getByText('Calls per day: 5')).toBeInTheDocument();
@@ -201,20 +238,22 @@ describe('McpUsageTab', () => {
     expect(screen.getByText(/Calls through MCP are not billed/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('combobox', { name: 'Period' }));
     await userEvent.click(screen.getByRole('option', { name: 'Last 7 days' }));
-    expect(gql.usage).toHaveBeenLastCalledWith(expect.objectContaining({ variables: { days: 7 } }));
+    expect(gql.usage).toHaveBeenLastCalledWith(
+      expect.objectContaining({ variables: { endpoint: McpEndpoint.Crm, days: 7 } }),
+    );
   });
 
   it('waits, says why usage could not be read, and shows nothing before an answer', () => {
     gql.usage.mockReturnValue({ data: undefined, loading: true });
-    const first = renderWithProviders(<McpUsageTab />);
+    const first = renderWithProviders(<McpUsageTab endpoint={McpEndpoint.Crm} />);
     expect(first.container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
     first.unmount();
     gql.usage.mockReturnValue({ data: undefined, loading: false, error: new Error('Forbidden') });
-    const second = renderWithProviders(<McpUsageTab />);
+    const second = renderWithProviders(<McpUsageTab endpoint={McpEndpoint.Crm} />);
     expect(screen.getByText('Forbidden')).toBeInTheDocument();
     second.unmount();
     gql.usage.mockReturnValue({ data: undefined, loading: false });
-    renderWithProviders(<McpUsageTab />);
+    renderWithProviders(<McpUsageTab endpoint={McpEndpoint.Crm} />);
     expect(screen.queryByText(/Calls per day/)).not.toBeInTheDocument();
   });
 });
@@ -228,7 +267,7 @@ describe('McpConnectionsTab', () => {
 
   it('signs a connection out once confirmed, and keeps it on cancel', async () => {
     gql.revoke.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Gone'));
-    renderWithProviders(<McpConnectionsTab />);
+    renderWithProviders(<McpConnectionsTab endpoint={McpEndpoint.Crm} />);
     expect(screen.getByText('Asha').closest('tr')).toHaveTextContent('—');
     const signOut = () =>
       userEvent.click(screen.getByRole('button', { name: 'Sign this connection out' }));
@@ -240,7 +279,10 @@ describe('McpConnectionsTab', () => {
     await waitFor(() =>
       expect(gql.notify).toHaveBeenCalledWith('Connection signed out', 'success'),
     );
-    expect(gql.revoke).toHaveBeenCalledWith({ variables: { id: 'c1' } });
+    expect(gql.revoke).toHaveBeenCalledWith({
+      variables: { id: 'c1' },
+      refetchQueries: ['McpServers'],
+    });
     await signOut();
     await confirmIn('Sign out');
     await waitFor(() => expect(gql.notify).toHaveBeenCalledWith('Gone', 'error'));
@@ -252,6 +294,7 @@ describe('McpConnectionsTab', () => {
         mcpConnections: [
           {
             id: 'c2',
+            endpoint: McpEndpoint.All,
             clientName: 'Claude',
             userName: 'Ravi',
             createdAt: '2026-10-20T10:00:00Z',
@@ -262,15 +305,17 @@ describe('McpConnectionsTab', () => {
       loading: false,
       refetch: vi.fn(),
     });
-    const { unmount } = renderWithProviders(<McpConnectionsTab />);
+    const { unmount } = renderWithProviders(<McpConnectionsTab endpoint={McpEndpoint.All} />);
     expect(screen.getByText('Ravi').closest('tr')).not.toHaveTextContent('—');
+    expect(screen.getByRole('columnheader', { name: 'Server' })).toBeInTheDocument();
+    expect(screen.getByText('Ravi').closest('tr')).toHaveTextContent('ALL');
     unmount();
     gql.connections.mockReturnValue({
       data: undefined,
       loading: false,
       error: new Error('Forbidden'),
     });
-    renderWithProviders(<McpConnectionsTab />);
+    renderWithProviders(<McpConnectionsTab endpoint={McpEndpoint.Crm} />);
     expect(screen.getByText('Forbidden')).toBeInTheDocument();
   });
 });
@@ -280,6 +325,8 @@ describe('McpConnectPage', () => {
     data: {
       mcpAuthorizationRequest: {
         id: 'r1',
+        endpoint: McpEndpoint.Crm,
+        serverLabel: 'CRM',
         clientName: 'Claude',
         redirectHost: 'claude.ai',
         scopes: ['crm'],
@@ -288,7 +335,7 @@ describe('McpConnectPage', () => {
     loading: false,
   };
   const renderAt = (search = '?request=r1') =>
-    renderWithProviders(<McpConnectPage />, { route: `/ai/mcp/connect${search}` });
+    renderWithProviders(<McpConnectPage />, { route: `/mcp/connect${search}` });
 
   it('sends the browser back to Claude once allowed or declined', async () => {
     const assign = vi.fn();
@@ -301,9 +348,7 @@ describe('McpConnectPage', () => {
       data: { denyMcpAuthorization: 'https://claude.ai/cb?error=access_denied' },
     });
     renderAt();
-    expect(
-      screen.getByRole('heading', { name: 'Claude wants to use your CRM' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Claude wants to use CRM' })).toBeInTheDocument();
     expect(screen.getByText(/goes back to claude\.ai/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Allow' }));
     expect(gql.approve).toHaveBeenCalledWith({ variables: { id: 'r1' } });

@@ -140,6 +140,7 @@ DOMAINS=(
   "whatsapp-demo.exyconn.com"
   "demos.exyconn.com"
   "clienthub.exyconn.com"
+  "mcp.exyconn.com"
   "status.exyconn.com"
 )
 

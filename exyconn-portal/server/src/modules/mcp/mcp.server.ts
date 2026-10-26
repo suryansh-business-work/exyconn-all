@@ -7,14 +7,14 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import type { GraphQLContext } from '../../middleware/auth';
+import type { Role } from '../../constants/roles';
 import { runAsPlatform, runForOrganization } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
 import { UserModel } from '../admin/user.model';
 import { recordAudit, type AuditAction } from '../audit';
-import { liveSchema, mcpTool, mcpTools } from './mcp.crm';
-import type { McpTool } from './mcp.tools';
-import { MCP_AUDIT_MODULE } from './mcp.connect';
+import { endpointTool, endpointTools, liveSchema, type McpServerTool } from './mcp.catalogue';
 import { McpCallModel } from './mcp.models';
+import { endpointMeta, type McpEndpointKey } from './servers';
 
 /** The longest answer handed back to Claude, in characters; longer ones are cut and say so. */
 const MAX_ANSWER_CHARS = 60_000;
@@ -25,6 +25,16 @@ export interface McpCaller {
   organizationId: string;
   userName: string;
   clientName: string;
+  /** The endpoint the connection was allowed for; its token is only good there. */
+  endpoint: McpEndpointKey;
+}
+
+/** What a verified access token carries (see mcp.oauth.ts). */
+export interface McpTokenExtra {
+  userId: string;
+  organizationId: string;
+  clientName: string;
+  endpoint: McpEndpointKey;
 }
 
 /**
@@ -32,7 +42,7 @@ export interface McpCaller {
  * version raised) account can no longer act through Claude. Null when they cannot.
  */
 export async function callerOf(auth: AuthInfo): Promise<McpCaller | null> {
-  const extra = auth.extra as { userId: string; organizationId: string; clientName: string };
+  const extra = auth.extra as unknown as McpTokenExtra;
   const user = await runAsPlatform(() =>
     UserModel.findById(extra.userId)
       .select('name email roles isActive isBlocked tokenVersion')
@@ -56,13 +66,17 @@ export async function callerOf(auth: AuthInfo): Promise<McpCaller | null> {
     organizationId: extra.organizationId,
     userName: user.name,
     clientName: extra.clientName,
+    endpoint: extra.endpoint,
   };
 }
 
-/** The audit action a CRM change reads as, from the tool's name. */
+/** The roles a caller holds. */
+export const rolesOf = (caller: McpCaller): Role[] => (caller.ctx.user?.roles ?? []) as Role[];
+
+/** The audit action a change reads as, from the tool's name. */
 export function auditActionOf(tool: string): AuditAction {
   if (/^(delete|remove|archive)/i.test(tool)) return 'DELETE';
-  if (/^(create|add|import|convert|send|start|book|log)/i.test(tool)) return 'CREATE';
+  if (/^(create|add|import|convert|send|start|book|log|publish|queue)/i.test(tool)) return 'CREATE';
   return 'UPDATE';
 }
 
@@ -80,10 +94,17 @@ function answerOf(value: unknown): string {
   return `${json.slice(0, MAX_ANSWER_CHARS)}\n… (cut: ask for fewer rows or a narrower filter)`;
 }
 
-/** Keeps the call for the CRM activity log and the usage dashboard; never fails the call. */
-async function logCall(caller: McpCaller, tool: McpTool, ok: boolean, error: string, ms: number) {
+/** Keeps the call for the activity log and the usage dashboard; never fails the call. */
+async function logCall(
+  caller: McpCaller,
+  tool: McpServerTool,
+  ok: boolean,
+  error: string,
+  ms: number,
+) {
   try {
     await McpCallModel.create({
+      server: tool.server,
       userId: caller.ctx.user?.id ?? '',
       userName: caller.userName,
       clientName: caller.clientName,
@@ -97,7 +118,7 @@ async function logCall(caller: McpCaller, tool: McpTool, ok: boolean, error: str
     if (ok && tool.kind === 'MUTATION') {
       await recordAudit(caller.ctx, {
         action: auditActionOf(tool.name),
-        module: MCP_AUDIT_MODULE,
+        module: endpointMeta(tool.server).auditModule,
         entityLabel: tool.name,
         summary: `Claude (MCP) ran ${tool.name} for ${caller.userName}`,
       });
@@ -108,12 +129,12 @@ async function logCall(caller: McpCaller, tool: McpTool, ok: boolean, error: str
 }
 
 /**
- * Runs one tool as its caller: the CRM operation through the live schema, inside their company,
- * with the context a portal request of theirs would have — so every guard and permission check
- * applies exactly as it does in the portal.
+ * Runs one tool as its caller: the module's operation through the live schema, inside their
+ * company, with the context a portal request of theirs would have — so every guard and
+ * permission check applies exactly as it does in the portal.
  */
 export async function runTool(
-  tool: McpTool,
+  tool: McpServerTool,
   args: Record<string, unknown>,
   caller: McpCaller,
 ): Promise<CallToolResult> {
@@ -135,19 +156,17 @@ export async function runTool(
   });
 }
 
-/** An MCP server for one request, offering every CRM tool to the caller. */
+/** An MCP server for one request, offering the caller every tool of their endpoint. */
 export function createMcpServer(caller: McpCaller): Server {
+  const meta = endpointMeta(caller.endpoint);
+  const roles = rolesOf(caller);
   const server = new Server(
-    { name: 'exyconn-crm', version: '1.0.0' },
-    {
-      capabilities: { tools: {} },
-      instructions:
-        'Exyconn CRM: leads, companies, contacts, deals, activities, meetings, mail, cold emails, the lead generator, the email verifier and the website scraper. Every tool runs as the signed-in person with their own permissions; read before you change, and confirm with the person before deleting or sending anything.',
-    },
+    { name: meta.name, version: '1.0.0' },
+    { capabilities: { tools: {} }, instructions: meta.instructions },
   );
   server.setRequestHandler(ListToolsRequestSchema, () =>
     Promise.resolve({
-      tools: mcpTools().map((tool) => ({
+      tools: endpointTools(caller.endpoint, roles).map((tool) => ({
         name: tool.name,
         description: tool.description,
         inputSchema: tool.inputSchema as { type: 'object' },
@@ -159,9 +178,9 @@ export function createMcpServer(caller: McpCaller): Server {
     }),
   );
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const tool = mcpTool(request.params.name);
+    const tool = endpointTool(caller.endpoint, roles, request.params.name);
     if (!tool) {
-      return text(`There is no CRM tool named ${request.params.name}.`, true);
+      return text(`There is no ${meta.label} tool named ${request.params.name}.`, true);
     }
     return runTool(tool, request.params.arguments ?? {}, caller);
   });

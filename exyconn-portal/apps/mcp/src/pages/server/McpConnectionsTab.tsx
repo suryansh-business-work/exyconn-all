@@ -6,6 +6,7 @@ import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
+  McpEndpoint,
   useMcpConnectionsQuery,
   useRevokeMcpConnectionMutation,
   type McpConnectionsQuery,
@@ -13,18 +14,25 @@ import {
 
 type ConnectionRow = McpConnectionsQuery['mcpConnections'][number];
 
-/** Every Claude connected to this company's CRM, with who it acts for, and signing one out. */
-export function McpConnectionsTab() {
+/**
+ * Every Claude connected to one server in this company, with who it acts for, and signing one
+ * out. On the global server, every connection the person may see, each naming its server.
+ */
+export function McpConnectionsTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>) {
   const { formatDateTime } = useFormatters();
   const confirm = useConfirm();
   const notify = useNotify();
   const { data, loading, error, refetch } = useMcpConnectionsQuery({
+    variables: { endpoint },
     fetchPolicy: 'cache-and-network',
   });
   const [revoke] = useRevokeMcpConnectionMutation();
   const columns: Column<ConnectionRow>[] = [
     { key: 'clientName', label: 'Client' },
     { key: 'userName', label: 'Acts for' },
+    ...(endpoint === McpEndpoint.All
+      ? [{ key: 'endpoint', label: 'Server', render: (row: ConnectionRow) => row.endpoint }]
+      : []),
     { key: 'createdAt', label: 'Connected', render: (row) => formatDateTime(row.createdAt) },
     {
       key: 'lastUsedAt',
@@ -43,7 +51,7 @@ export function McpConnectionsTab() {
     });
     if (!ok) return;
     try {
-      await revoke({ variables: { id: row.id } });
+      await revoke({ variables: { id: row.id }, refetchQueries: ['McpServers'] });
       notify('Connection signed out', 'success');
       await refetch();
     } catch (err) {

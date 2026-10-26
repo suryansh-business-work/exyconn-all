@@ -1,10 +1,10 @@
 import { buildASTSchema, buildSchema, concatAST, parse, validate } from 'graphql';
 import gql from 'graphql-tag';
 import { typeDefs } from '../../../../src/graphql';
-import { CRM_TYPE_DEFS } from '../../../../src/modules/mcp/mcp.crm';
+import { CRM_MCP, MARKETING_MCP } from '../../../../src/modules/mcp/servers';
 import {
   argumentsSchema,
-  crmTools,
+  moduleTools,
   declaredFields,
   documentOf,
   inputSchemaOf,
@@ -109,10 +109,11 @@ describe('answers', () => {
   });
 
   it('leaves configuration out, and describes each tool by its field or its kind', () => {
-    const tools = crmTools(toy, {
-      query: new Set(['deals', 'count', 'dealConfigs']),
-      mutation: new Set(['deleteDeal']),
-    });
+    const tools = moduleTools(
+      toy,
+      { query: new Set(['deals', 'count', 'dealConfigs']), mutation: new Set(['deleteDeal']) },
+      'CRM',
+    );
     expect(tools.map((tool) => [tool.name, tool.kind])).toEqual([
       ['count', 'QUERY'],
       ['deals', 'QUERY'],
@@ -129,9 +130,10 @@ describe('answers', () => {
   });
 });
 
+const schema = buildASTSchema(concatAST(typeDefs.flat()), { assumeValidSDL: true });
+
 describe('the CRM tools', () => {
-  const schema = buildASTSchema(concatAST(typeDefs.flat()), { assumeValidSDL: true });
-  const tools = crmTools(schema, declaredFields(CRM_TYPE_DEFS));
+  const tools = moduleTools(schema, declaredFields(CRM_MCP.typeDefs), CRM_MCP.label);
 
   it('offers every CRM feature — records, mail, cold email, the lead generator — and no config', () => {
     const names = new Set(tools.map((tool) => tool.name));
@@ -139,6 +141,33 @@ describe('the CRM tools', () => {
     for (const name of ['searchLeads', 'leadLocationSuggestions']) {
       expect(names.has(name)).toBe(true);
     }
+    expect(tools.filter((tool) => /Config|Secret|Token/.test(tool.name))).toEqual([]);
+  });
+
+  it('runs operations the schema accepts, every one of them', () => {
+    const invalid = tools
+      .map((tool) => ({ name: tool.name, errors: validate(schema, parse(tool.document)) }))
+      .filter((result) => result.errors.length > 0)
+      .map((result) => `${result.name}: ${result.errors[0].message}`);
+    expect(invalid).toEqual([]);
+  });
+});
+
+describe('the Marketing tools', () => {
+  const tools = moduleTools(schema, declaredFields(MARKETING_MCP.typeDefs), MARKETING_MCP.label);
+
+  it('offers campaigns, audiences, suppression and social media, and no config', () => {
+    const names = new Set(tools.map((tool) => tool.name));
+    for (const name of [
+      'queueCampaignSend',
+      'createAudienceList',
+      'addMarketingSuppressions',
+      'composeSocialMediaPost',
+      'campaignMetrics',
+    ]) {
+      expect(names.has(name)).toBe(true);
+    }
+    expect(names.has('searchLeads')).toBe(false);
     expect(tools.filter((tool) => /Config|Secret|Token/.test(tool.name))).toEqual([]);
   });
 

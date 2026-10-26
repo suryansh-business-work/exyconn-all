@@ -54,12 +54,15 @@ export function McpConnectPage() {
     body = (
       <Stack spacing={2}>
         <Text component="h1" size="lg" weight="bold">
-          {t('{client} wants to use your CRM', { client: request.clientName })}
+          {t('{client} wants to use {server}', {
+            client: request.clientName,
+            server: request.serverLabel,
+          })}
         </Text>
         <Text size="sm" color="text.secondary">
           {t(
-            'It will act as you, with your permissions: read and change leads, companies, contacts, deals, activities, meetings, mail and cold emails. Everything it does is logged. The answer goes back to {host}.',
-            { host: request.redirectHost },
+            'It will act as you, with your permissions: read and change what you can in {server}. Everything it does is logged. The answer goes back to {host}.',
+            { server: request.serverLabel, host: request.redirectHost },
           )}
         </Text>
         <Stack direction="row" spacing={1}>

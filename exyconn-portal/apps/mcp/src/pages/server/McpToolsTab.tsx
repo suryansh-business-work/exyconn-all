@@ -3,7 +3,11 @@ import { useT } from '@exyconn/i18n';
 import { Alert, Stack, TextField } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { useMcpToolsQuery, type McpToolsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  useMcpToolsQuery,
+  type McpEndpoint,
+  type McpToolsQuery,
+} from '@exyconn/shell/graphql/generated';
 
 type ToolRow = McpToolsQuery['mcpTools'][number] & { id: string };
 
@@ -14,16 +18,17 @@ const argumentsOf = (row: ToolRow) =>
 
 const COLUMNS: Column<ToolRow>[] = [
   { key: 'name', label: 'Tool' },
+  { key: 'server', label: 'Module' },
   { key: 'kind', label: 'Kind', render: (row) => <StatusChip value={row.kind} /> },
   { key: 'arguments', label: 'Arguments', render: argumentsOf },
   { key: 'description', label: 'What it does', render: (row) => row.description.split('\n')[0] },
 ];
 
-/** Every CRM tool Claude can call, searchable by name or description. */
-export function McpToolsTab() {
+/** Every tool of one server Claude can call, searchable by name or description. */
+export function McpToolsTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>) {
   const t = useT();
   const [search, setSearch] = useState('');
-  const { data, loading, error, refetch } = useMcpToolsQuery();
+  const { data, loading, error, refetch } = useMcpToolsQuery({ variables: { endpoint } });
   const rows = useMemo<ToolRow[]>(() => {
     const words = search.trim().toLowerCase();
     return (data?.mcpTools ?? [])

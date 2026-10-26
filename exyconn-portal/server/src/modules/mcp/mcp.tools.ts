@@ -23,14 +23,14 @@ export type ToolKind = 'QUERY' | 'MUTATION';
 /** A JSON Schema, as MCP describes a tool's input. */
 export type JsonSchema = Record<string, unknown>;
 
-/** One CRM operation offered to Claude as a tool. */
+/** One module operation offered to Claude as a tool. */
 export interface McpTool {
   /** The GraphQL field's own name — `searchLeads`, `createDeal`… */
   name: string;
   kind: ToolKind;
   description: string;
   inputSchema: JsonSchema;
-  /** The arguments in brief, for the tool list in the AI portal. */
+  /** The arguments in brief, for the tool list in the MCP portal. */
   args: Array<{ name: string; type: string; required: boolean; description: string }>;
   /** The operation the tool runs, with a variable per argument and the fields it returns. */
   document: string;
@@ -49,8 +49,8 @@ const MAX_FIELDS_PER_OBJECT = 40;
 /** How deep an input object's JSON Schema is spelled out before it is just "an object". */
 const MAX_INPUT_DEPTH = 6;
 /**
- * Credentials and connection settings are the install's or the company's configuration, not CRM
- * work: they are left out of the tools however the CRM's typeDefs grow.
+ * Credentials and connection settings are the install's or the company's configuration, not a
+ * module's work: they are left out of the tools however a module's typeDefs grow.
  */
 const EXCLUDED = /Config|Secret|Token/;
 
@@ -190,13 +190,14 @@ export function documentOf(kind: ToolKind, field: GraphQLField<unknown, unknown>
   return `${head} { ${call}${selection ? ` { ${selection} }` : ''} }`;
 }
 
-function toolOf(kind: ToolKind, field: GraphQLField<unknown, unknown>): McpTool {
+function toolOf(kind: ToolKind, field: GraphQLField<unknown, unknown>, label: string): McpTool {
   const verb = kind === 'QUERY' ? 'Reads' : 'Changes';
-  const summary = field.description?.trim() || `${verb} CRM data (${field.name}).`;
+  const summary = field.description?.trim() || `${verb} ${label} data (${field.name}).`;
+  const access = kind === 'QUERY' ? 'read' : 'write';
   return {
     name: field.name,
     kind,
-    description: `${summary}\n\nCRM ${kind === 'QUERY' ? 'read' : 'write'}: runs as the signed-in person, with their own permissions.`,
+    description: `${summary}\n\n${label} ${access}: runs as the signed-in person, with their own permissions.`,
     inputSchema: argumentsSchema(field.args),
     args: field.args.map((arg) => ({
       name: arg.name,
@@ -209,10 +210,15 @@ function toolOf(kind: ToolKind, field: GraphQLField<unknown, unknown>): McpTool 
 }
 
 /**
- * Every CRM operation in the schema as a tool — built from the live schema at boot, so a field
- * added to the CRM's typeDefs is a tool on the next deploy with nothing else to change.
+ * Every operation a module declares, as a tool — built from the live schema at boot, so a field
+ * added to the module's typeDefs is a tool on the next deploy with nothing else to change.
+ * `label` names the module in each tool's description ("CRM", "Marketing").
  */
-export function crmTools(schema: GraphQLSchema, declared: DeclaredFields): McpTool[] {
+export function moduleTools(
+  schema: GraphQLSchema,
+  declared: DeclaredFields,
+  label: string,
+): McpTool[] {
   const pick = (
     kind: ToolKind,
     root: ReturnType<GraphQLSchema['getQueryType']>,
@@ -220,7 +226,7 @@ export function crmTools(schema: GraphQLSchema, declared: DeclaredFields): McpTo
   ) =>
     Object.values(root?.getFields() ?? {})
       .filter((field) => names.has(field.name) && !EXCLUDED.test(field.name))
-      .map((field) => toolOf(kind, field));
+      .map((field) => toolOf(kind, field, label));
   return [
     ...pick('QUERY', schema.getQueryType(), declared.query),
     ...pick('MUTATION', schema.getMutationType(), declared.mutation),

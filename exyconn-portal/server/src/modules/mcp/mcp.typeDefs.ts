@@ -1,10 +1,17 @@
 import gql from 'graphql-tag';
 
-/** AI > MCP Servers, the connector's consent page, and the CRM's MCP activity log. */
+/** The MCP portal (mcp.exyconn.com): its servers, their tools, usage, activity and connections. */
 export const mcpTypeDefs = gql`
   enum McpToolKind {
     QUERY
     MUTATION
+  }
+
+  "An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools."
+  enum McpEndpoint {
+    CRM
+    MARKETING
+    ALL
   }
 
   type McpToolArgument {
@@ -15,21 +22,30 @@ export const mcpTypeDefs = gql`
     description: String!
   }
 
-  "One CRM operation Claude can call."
+  "One module operation Claude can call."
   type McpTool {
+    "The module server the tool belongs to."
+    server: McpEndpoint!
     name: String!
     kind: McpToolKind!
     description: String!
     arguments: [McpToolArgument!]!
   }
 
-  "What a person needs to connect Claude to the CRM."
-  type McpOverview {
+  "One MCP server the person may use, and what they need to connect Claude to it."
+  type McpServer {
+    endpoint: McpEndpoint!
+    "The server as people say it, e.g. CRM."
+    label: String!
+    "What the server offers, as it tells Claude."
+    description: String!
     "The address to paste into Claude as a custom connector."
     serverUrl: String!
     toolCount: Int!
     queryCount: Int!
     mutationCount: Int!
+    "Live connections to this server in the company."
+    connectionCount: Int!
   }
 
   type McpUsageDay {
@@ -60,9 +76,11 @@ export const mcpTypeDefs = gql`
     users: [McpPersonUsage!]!
   }
 
-  "One tool call made through MCP, for the CRM's activity log."
+  "One tool call made through MCP, for a server's activity log."
   type McpCall {
     id: ID!
+    "The module server the tool belongs to."
+    server: McpEndpoint!
     at: DateTime!
     userName: String!
     clientName: String!
@@ -76,6 +94,8 @@ export const mcpTypeDefs = gql`
   "A connected Claude (or other MCP client) acting for one person in this company."
   type McpConnection {
     id: ID!
+    "The server the connection is good for."
+    endpoint: McpEndpoint!
     clientName: String!
     userName: String!
     createdAt: DateTime!
@@ -85,6 +105,9 @@ export const mcpTypeDefs = gql`
   "A sign-in waiting for the person to allow it."
   type McpAuthorizationRequest {
     id: ID!
+    endpoint: McpEndpoint!
+    "The server as people say it, e.g. CRM or All Exyconn tools."
+    serverLabel: String!
     clientName: String!
     "Where the client gets the answer, e.g. claude.ai."
     redirectHost: String!
@@ -92,17 +115,17 @@ export const mcpTypeDefs = gql`
   }
 
   extend type Query {
-    "The connector address and how many CRM tools it offers (CRM role)."
-    mcpOverview: McpOverview!
-    "Every CRM tool, with its arguments (CRM role)."
-    mcpTools: [McpTool!]!
-    "This company's MCP calls over the last days, 1 to 180 (CRM role)."
-    mcpUsage(days: Int!): McpUsage!
-    "The newest MCP calls in this company, for the CRM activity log (CRM role)."
-    mcpActivity(days: Int!, limit: Int): [McpCall!]!
-    "Every live connection in this company (CRM role)."
-    mcpConnections: [McpConnection!]!
-    "The sign-in a connector is waiting on, for the consent page (CRM role)."
+    "Every MCP server the caller may use (its module's role), the global ALL server last."
+    mcpServers: [McpServer!]!
+    "Every tool of a server, with its arguments (the server's role)."
+    mcpTools(endpoint: McpEndpoint!): [McpTool!]!
+    "This company's calls to a server over the last days, 1 to 180; ALL covers every server the caller may use."
+    mcpUsage(endpoint: McpEndpoint!, days: Int!): McpUsage!
+    "The newest calls to a server in this company, for its activity log; ALL covers every server the caller may use."
+    mcpActivity(endpoint: McpEndpoint!, days: Int!, limit: Int): [McpCall!]!
+    "Live connections to a server in this company; ALL lists every connection the caller may see."
+    mcpConnections(endpoint: McpEndpoint!): [McpConnection!]!
+    "The sign-in a connector is waiting on, for the consent page (the server's role)."
     mcpAuthorizationRequest(id: ID!): McpAuthorizationRequest!
   }
 

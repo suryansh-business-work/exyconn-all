@@ -86,6 +86,7 @@ jest.mock('../../src/modules/calling-bot-demo', () => ({
   backfillPhoneFields: jest.fn(),
   ensureCallingBotScenarios: jest.fn(),
 }));
+jest.mock('../../src/modules/mcp/mcp.migrate', () => ({ assignLegacyMcpToCrm: jest.fn() }));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/table-transfer', () => ({ startTableBulkJobs: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
@@ -125,6 +126,7 @@ const MODULES = {
   marketingMigrate: '../../src/modules/marketing/marketing.migrate',
   dealClosed: '../../src/modules/crm/crm.deal-closed.backfill',
   callingBot: '../../src/modules/calling-bot-demo',
+  mcp: '../../src/modules/mcp/mcp.migrate',
 } as const;
 
 type Loaded = Record<keyof typeof MODULES, Mocked> & {
@@ -235,6 +237,7 @@ describe('server bootstrap', () => {
       'crm-deal-closed-at',
       'calling-bot-phone-provider',
       'calling-bot-phone-fields',
+      'mcp-servers-crm',
     ]);
     expect(m.logs.backfillAppLogGroupUsers).toHaveBeenCalled();
     expect(m.hr.backfillPositionDefaults).toHaveBeenCalled();
@@ -253,6 +256,7 @@ describe('server bootstrap', () => {
     expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
     expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
     expect(m.callingBot.ensureCallingBotScenarios).toHaveBeenCalled();
+    expect(m.mcp.assignLegacyMcpToCrm).toHaveBeenCalled();
     expect(m.organizations.forEachOrganization.mock.calls.map(([, label]) => label)).toEqual([
       'repairStoredCurrencies',
       'ensureEmailDefaults',
@@ -273,7 +277,7 @@ describe('server bootstrap', () => {
     // mailboxes' move into the operator, their per-owner index swap, the company domain index
     // swap, the two calling bot migrations, its example seeds and AI model prices run for the
     // platform rather than for each company.
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(11);
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(12);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {

@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useFormatters, useT } from '@exyconn/i18n';
 import {
   Alert,
@@ -15,21 +14,27 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { MetricChart } from '@exyconn/shell/components/dashboard/MetricChart';
 import { PointChart } from '@exyconn/shell/components/dashboard/PointChart';
 import { StatRow } from '@exyconn/shell/components/dashboard/StatRow';
-import { useMcpUsageQuery, type McpUsageQuery } from '@exyconn/shell/graphql/generated';
+import { appUrl } from '@exyconn/shell/config/apps';
+import {
+  useMcpUsageQuery,
+  type McpEndpoint,
+  type McpUsageQuery,
+} from '@exyconn/shell/graphql/generated';
 
 const WINDOWS = [7, 30, 90, 180] as const;
 type ToolRow = McpUsageQuery['mcpUsage']['tools'][number] & { id: string };
 
 /**
- * What the company used Claude for through MCP: calls and failures per day, the tools used most
- * and by whom. MCP calls themselves are not billed; AI work they start counts in AI spend.
+ * What the company used Claude for through one server: calls and failures per day, the tools
+ * used most and by whom. MCP calls themselves are not billed; AI work they start counts in AI
+ * spend.
  */
-export function McpUsageTab() {
+export function McpUsageTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>) {
   const t = useT();
   const { formatNumber } = useFormatters();
   const [days, setDays] = useState<number>(30);
   const { data, loading, error } = useMcpUsageQuery({
-    variables: { days },
+    variables: { endpoint, days },
     fetchPolicy: 'cache-and-network',
   });
   const usage = data?.mcpUsage;
@@ -89,10 +94,7 @@ export function McpUsageTab() {
           {t(
             'Calls through MCP are not billed. AI work a tool starts counts in the AI spend on the',
           )}{' '}
-          <Link component={RouterLink} to="/ai">
-            {t('AI overview')}
-          </Link>
-          .
+          <Link href={appUrl('ai', '/ai')}>{t('AI overview')}</Link>.
         </Alert>
       </Stack>
     );

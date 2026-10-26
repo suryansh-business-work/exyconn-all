@@ -13,14 +13,20 @@ import type {
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import {
   InvalidGrantError,
+  InvalidTargetError,
   InvalidTokenError,
 } from '@modelcontextprotocol/sdk/server/auth/errors.js';
 import { env } from '../../config/env';
 import { runAsPlatform } from '../../lib/tenant';
 import { open, seal } from '../../utils/secretBox';
 import { McpAuthCodeModel, McpAuthRequestModel, McpClientModel, McpTokenModel } from './mcp.models';
+import { endpointOfResource, type McpEndpointKey } from './servers';
+import type { McpTokenExtra } from './mcp.server';
 
-/** The one scope a connection asks for: the CRM, as the signed-in person may use it. */
+/**
+ * The one scope a connection asks for: the server it connects to, as the signed-in person may
+ * use it. Named `crm` since the CRM was the only server; kept so existing connectors still match.
+ */
 export const MCP_SCOPE = 'crm';
 
 const REQUEST_TTL_MS = 10 * 60 * 1000;
@@ -72,7 +78,13 @@ const clientsStore: OAuthRegisteredClientsStore = {
 
 /** A new pair of tokens for a connection; only their hashes are kept. */
 async function issueTokens(
-  base: { clientId: string; clientName: string; userId: string; organizationId: string },
+  base: {
+    clientId: string;
+    clientName: string;
+    userId: string;
+    organizationId: string;
+    endpoint: McpEndpointKey;
+  },
   scopes: string[],
 ): Promise<OAuthTokens> {
   const access = secret();
@@ -97,20 +109,26 @@ async function issueTokens(
 }
 
 /**
- * The CRM MCP server's OAuth 2.1 sign-in, as the MCP SDK's auth router drives it: dynamic client
- * registration, an authorization request the person allows on the AI portal (signed in there as
- * themselves), a PKCE-bound one-time code, and rotating tokens tied to that person and company.
+ * The MCP servers' OAuth 2.1 sign-in, as the MCP SDK's auth router drives it: dynamic client
+ * registration, an authorization request the person allows on the MCP portal (signed in there as
+ * themselves), a PKCE-bound one-time code, and rotating tokens tied to that person, that company
+ * and the one server (`resource`, RFC 8707) the client connected to.
  */
 export const mcpOAuthProvider: OAuthServerProvider = {
   get clientsStore() {
     return clientsStore;
   },
 
-  /** Keeps the request and sends the browser to the AI portal's consent page. */
+  /** Keeps the request and sends the browser to the MCP portal's consent page. */
   async authorize(client: OAuthClientInformationFull, params: AuthorizationParams, res: Response) {
+    const endpoint = endpointOfResource(params.resource?.href ?? '');
+    if (!endpoint) {
+      throw new InvalidTargetError('There is no Exyconn MCP server at that address.');
+    }
     const request = await platform(() =>
       McpAuthRequestModel.create({
         clientId: client.client_id,
+        endpoint,
         redirectUri: params.redirectUri,
         codeChallenge: params.codeChallenge,
         state: params.state ?? '',
@@ -150,6 +168,7 @@ export const mcpOAuthProvider: OAuthServerProvider = {
         clientName: client.client_name ?? '',
         userId: code.userId,
         organizationId: code.organizationId,
+        endpoint: code.endpoint,
       },
       code.scopes,
     );
@@ -176,6 +195,7 @@ export const mcpOAuthProvider: OAuthServerProvider = {
         clientName: row.clientName,
         userId: row.userId,
         organizationId: row.organizationId,
+        endpoint: row.endpoint,
       },
       row.scopes,
     );
@@ -191,17 +211,19 @@ export const mcpOAuthProvider: OAuthServerProvider = {
       ).lean(),
     );
     if (!row) throw new InvalidTokenError('The access token is invalid or has expired.');
+    const extra: McpTokenExtra & { connectionId: string } = {
+      connectionId: String(row._id),
+      userId: row.userId,
+      organizationId: row.organizationId,
+      clientName: row.clientName,
+      endpoint: row.endpoint,
+    };
     return {
       token,
       clientId: row.clientId,
       scopes: row.scopes,
       expiresAt: Math.floor(row.accessExpiresAt.getTime() / 1000),
-      extra: {
-        connectionId: String(row._id),
-        userId: row.userId,
-        organizationId: row.organizationId,
-        clientName: row.clientName,
-      },
+      extra: { ...extra },
     };
   },
 

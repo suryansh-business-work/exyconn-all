@@ -2946,6 +2946,12 @@ export type MarketingSuppressionsInput = {
   reason: SuppressionReason;
 };
 
+/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+export type McpEndpoint =
+  | 'ALL'
+  | 'CRM'
+  | 'MARKETING';
+
 export type McpToolKind =
   | 'MUTATION'
   | 'QUERY';

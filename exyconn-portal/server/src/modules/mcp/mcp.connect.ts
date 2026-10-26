@@ -1,22 +1,22 @@
 import { Types } from 'mongoose';
 import type { GraphQLContext } from '../../middleware/auth';
-import { assertRole } from '../../middleware/roleGuard';
-import { ROLES } from '../../constants/roles';
 import { organizationOf, runAsPlatform } from '../../lib/tenant';
 import { UserModel } from '../admin/user.model';
 import { badRequest, notFound } from '../../utils/errors';
 import { recordAudit } from '../audit';
 import { McpAuthCodeModel, McpAuthRequestModel, McpClientModel } from './mcp.models';
 import { codeHashOf, newAuthorizationCode } from './mcp.oauth';
-
-/** The audit module MCP connections and the changes made through them are filed under. */
-export const MCP_AUDIT_MODULE = 'CRM (Claude MCP)';
+import { assertEndpointAccess } from './mcp.access';
+import { endpointMeta, type McpEndpointKey } from './servers';
 
 const CODE_TTL_MS = 10 * 60 * 1000;
 
 /** What the consent page shows about a sign-in waiting to be allowed. */
 export interface McpAuthorizationRequest {
   id: string;
+  endpoint: McpEndpointKey;
+  /** The server as people say it: "CRM", "Marketing", "All Exyconn tools". */
+  serverLabel: string;
   clientName: string;
   redirectHost: string;
   scopes: string[];
@@ -51,18 +51,23 @@ async function openRequest(id: string) {
   return request;
 }
 
-/** The sign-in a client asked for, for the consent page to name. Only CRM users may see one. */
+/**
+ * The sign-in a client asked for, for the consent page to name. Only people who may use that
+ * server (its module's role; any module's for the global one) may see one.
+ */
 export async function describeAuthorization(
   ctx: GraphQLContext,
   id: string,
 ): Promise<McpAuthorizationRequest> {
-  assertRole(ctx, [ROLES.CRM]);
   const request = await openRequest(id);
+  assertEndpointAccess(ctx, request.endpoint);
   const client = await runAsPlatform(() =>
     McpClientModel.findOne({ clientId: request.clientId }).lean(),
   );
   return {
     id,
+    endpoint: request.endpoint,
+    serverLabel: endpointMeta(request.endpoint).label,
     clientName: client?.clientName || 'An MCP client',
     redirectHost: new URL(request.redirectUri).host,
     scopes: request.scopes,
@@ -74,17 +79,19 @@ export async function describeAuthorization(
  * the client's PKCE challenge and redirect. Answers where to send the browser.
  */
 export async function approveAuthorization(ctx: GraphQLContext, id: string): Promise<string> {
-  const user = assertRole(ctx, [ROLES.CRM]);
+  const request = await openRequest(id);
+  const user = assertEndpointAccess(ctx, request.endpoint);
   const organizationId = ctx.organizationId ?? (await homeOrganization(user.id));
   if (!organizationId) {
-    badRequest('Open the CRM in a company before connecting Claude to it.');
+    badRequest('Open the portal in a company before connecting Claude to it.');
   }
-  const request = await openRequest(id);
+  const meta = endpointMeta(request.endpoint);
   const code = newAuthorizationCode();
   await runAsPlatform(async () => {
     await McpAuthCodeModel.create({
       codeHash: codeHashOf(code),
       clientId: request.clientId,
+      endpoint: request.endpoint,
       userId: user.id,
       organizationId,
       redirectUri: request.redirectUri,
@@ -96,18 +103,18 @@ export async function approveAuthorization(ctx: GraphQLContext, id: string): Pro
   });
   await recordAudit(ctx, {
     action: 'LOGIN',
-    module: MCP_AUDIT_MODULE,
+    module: meta.auditModule,
     entityId: id,
     entityLabel: new URL(request.redirectUri).host,
-    summary: 'Connected Claude to the CRM through MCP',
+    summary: `Connected Claude to ${meta.label} through MCP`,
   });
   return withParams(request.redirectUri, { code, state: request.state });
 }
 
 /** The person declines: the client hears access_denied, and the request is gone. */
 export async function denyAuthorization(ctx: GraphQLContext, id: string): Promise<string> {
-  assertRole(ctx, [ROLES.CRM]);
   const request = await openRequest(id);
+  assertEndpointAccess(ctx, request.endpoint);
   await runAsPlatform(() => McpAuthRequestModel.deleteOne({ _id: id }));
   return withParams(request.redirectUri, { error: 'access_denied', state: request.state });
 }

@@ -1,14 +1,19 @@
-query McpOverview {
-  mcpOverview {
+query McpServers {
+  mcpServers {
+    endpoint
+    label
+    description
     serverUrl
     toolCount
     queryCount
     mutationCount
+    connectionCount
   }
 }
 
-query McpTools {
-  mcpTools {
+query McpTools($endpoint: McpEndpoint!) {
+  mcpTools(endpoint: $endpoint) {
+    server
     name
     kind
     description
@@ -21,8 +26,8 @@ query McpTools {
   }
 }
 
-query McpUsage($days: Int!) {
-  mcpUsage(days: $days) {
+query McpUsage($endpoint: McpEndpoint!, $days: Int!) {
+  mcpUsage(endpoint: $endpoint, days: $days) {
     calls
     failures
     people
@@ -44,9 +49,10 @@ query McpUsage($days: Int!) {
   }
 }
 
-query McpActivity($days: Int!, $limit: Int) {
-  mcpActivity(days: $days, limit: $limit) {
+query McpActivity($endpoint: McpEndpoint!, $days: Int!, $limit: Int) {
+  mcpActivity(endpoint: $endpoint, days: $days, limit: $limit) {
     id
+    server
     at
     userName
     clientName
@@ -58,9 +64,10 @@ query McpActivity($days: Int!, $limit: Int) {
   }
 }
 
-query McpConnections {
-  mcpConnections {
+query McpConnections($endpoint: McpEndpoint!) {
+  mcpConnections(endpoint: $endpoint) {
     id
+    endpoint
     clientName
     userName
     createdAt
@@ -71,6 +78,8 @@ query McpConnections {
 query McpAuthorizationRequest($id: ID!) {
   mcpAuthorizationRequest(id: $id) {
     id
+    endpoint
+    serverLabel
     clientName
     redirectHost
     scopes

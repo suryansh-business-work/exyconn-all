@@ -14,7 +14,6 @@ import { LeadGeneratorPage } from './pages/lead-generator';
 import { WebsiteScraperPage } from './pages/website-scraper';
 import { PropertiesPage } from './pages/settings';
 import { IntegrationsPage } from './pages/integrations';
-import { McpActivityPage } from './pages/mcp-activity';
 import { EMAIL_INTEGRATIONS_PATH } from './integrations/emailIntegrationsPath';
 import { CommsDockLayout } from './records/comms';
 import { MeetingsPage } from './pages/meetings';
@@ -66,7 +65,6 @@ export function App() {
         {/* Mailboxes are connected in Integrations now; the old Connect Gmail page lands there. */}
         <Route path="/settings/gmail" element={<Navigate to={EMAIL_INTEGRATIONS_PATH} replace />} />
         <Route path="/integrations/:tab?" element={<IntegrationsPage />} />
-        <Route path="/claude-activity" element={<McpActivityPage />} />
       </Route>
       <Route path="/crm/*" element={<LegacyCrmRedirect />} />
     </PortalApp>
