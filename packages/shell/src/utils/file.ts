@@ -38,7 +38,16 @@ export function downloadBase64File(filename: string, contentType: string, base64
     // `index` is always inside the string, so the code point is always defined.
     bytes[index] = Number(binary.codePointAt(index));
   }
-  const url = URL.createObjectURL(new Blob([bytes], { type: contentType }));
+  saveBlob(filename, new Blob([bytes], { type: contentType }));
+}
+
+/** Hands the browser a text file built in the page, e.g. a JSON export. */
+export function downloadTextFile(filename: string, contentType: string, text: string): void {
+  saveBlob(filename, new Blob([text], { type: contentType }));
+}
+
+function saveBlob(filename: string, blob: Blob): void {
+  const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = filename;

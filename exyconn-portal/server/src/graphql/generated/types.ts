@@ -9356,6 +9356,11 @@ export type Mutation = {
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
   importTableRows: TableImportResult;
   /**
+   * Imports an export file into one section (or everywhere). Listed configs arrive switched
+   * off; single configs (Google, Microsoft, social apps) are updated in place.
+   */
+  importTechConfigs: TechImportResult;
+  /**
    * Invites people into a company with the portals they may open; each gets the welcome email
    * with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
    */
@@ -11961,6 +11966,12 @@ export type MutationImportTableRowsArgs = {
   matchField?: InputMaybe<Scalars['String']['input']>;
   mode: TableImportMode;
   rows: Array<Scalars['JSON']['input']>;
+};
+
+
+export type MutationImportTechConfigsArgs = {
+  json: Scalars['String']['input'];
+  section?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -16248,6 +16259,11 @@ export type Query = {
    * Null until HR has set one up. This is what the employee record reads.
    */
   employeeSalary?: Maybe<SalaryStructure>;
+  /**
+   * Environment Variables as a JSON file, every secret in full: one section (or all), or only
+   * the given configs. Needs the vault open; logged.
+   */
+  exportTechConfigs: Scalars['String']['output'];
   firecrawlConfigs: Array<FirecrawlConfig>;
   /** Whether the website scraper can run: an active Firecrawl config with a key, or a self-hosted one that needs none. */
   firecrawlReady: Scalars['Boolean']['output'];
@@ -17085,6 +17101,7 @@ export type Query = {
   teamPerformanceReviews: Array<PerformanceReview>;
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
+  techConfigItems: Array<TechConfigItem>;
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
   /** One saved account password in full. Logged; needs the vault open. */
   techProviderLoginPassword: Scalars['String']['output'];
@@ -17647,6 +17664,12 @@ export type QueryEmployeePayoutSecretArgs = {
 
 export type QueryEmployeeSalaryArgs = {
   employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryExportTechConfigsArgs = {
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  section?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -19350,6 +19373,11 @@ export type QueryTaskByKeyArgs = {
 
 export type QueryTaskCommentsArgs = {
   taskId: Scalars['ID']['input'];
+};
+
+
+export type QueryTechConfigItemsArgs = {
+  section: Scalars['String']['input'];
 };
 
 
@@ -21584,12 +21612,29 @@ export type TeamPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One config in an Environment Variables section, for the per-item export. */
+export type TechConfigItem = {
+  __typename?: 'TechConfigItem';
+  id: Scalars['ID']['output'];
+  kind: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
 /** A Tech > Email template offered as a starting point. */
 export type TechEmailTemplateOption = {
   __typename?: 'TechEmailTemplateOption';
   key: Scalars['String']['output'];
   mjml: Scalars['String']['output'];
   name: Scalars['String']['output'];
+};
+
+export type TechImportResult = {
+  __typename?: 'TechImportResult';
+  created: Scalars['Int']['output'];
+  /** Why each skipped item was skipped. */
+  messages: Array<Scalars['String']['output']>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
 };
 
 /** Environment Variables > a provider > Advanced. */
@@ -24909,7 +24954,9 @@ export type ResolversTypes = ResolversObject<{
   Team: ResolverTypeWrapper<Team>;
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
+  TechConfigItem: ResolverTypeWrapper<TechConfigItem>;
   TechEmailTemplateOption: ResolverTypeWrapper<TechEmailTemplateOption>;
+  TechImportResult: ResolverTypeWrapper<TechImportResult>;
   TechProviderProfile: ResolverTypeWrapper<TechProviderProfile>;
   TechSecret: TechSecret;
   TechSecretValue: ResolverTypeWrapper<TechSecretValue>;
@@ -25967,7 +26014,9 @@ export type ResolversParentTypes = ResolversObject<{
   Team: Team;
   TeamInput: TeamInput;
   TeamPage: TeamPage;
+  TechConfigItem: TechConfigItem;
   TechEmailTemplateOption: TechEmailTemplateOption;
+  TechImportResult: TechImportResult;
   TechProviderProfile: TechProviderProfile;
   TechSecretValue: TechSecretValue;
   TechVaultSession: TechVaultSession;
@@ -31410,6 +31459,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   importLeadsToCrm?: Resolver<ResolversTypes['LeadImportResult'], ParentType, ContextType, RequireFields<MutationImportLeadsToCrmArgs, 'leads'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
   importTableRows?: Resolver<ResolversTypes['TableImportResult'], ParentType, ContextType, RequireFields<MutationImportTableRowsArgs, 'firstRowNumber' | 'list' | 'mode' | 'rows'>>;
+  importTechConfigs?: Resolver<ResolversTypes['TechImportResult'], ParentType, ContextType, RequireFields<MutationImportTechConfigsArgs, 'json'>>;
   inviteOrganizationMembers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationInviteOrganizationMembersArgs, 'members' | 'organizationId'>>;
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
@@ -32913,6 +32963,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   employeePayoutAccounts?: Resolver<Array<ResolversTypes['PayoutAccount']>, ParentType, ContextType, RequireFields<QueryEmployeePayoutAccountsArgs, 'employeeId'>>;
   employeePayoutSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryEmployeePayoutSecretArgs, 'employeeId' | 'field' | 'id'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
+  exportTechConfigs?: Resolver<ResolversTypes['String'], ParentType, ContextType, Partial<QueryExportTechConfigsArgs>>;
   firecrawlConfigs?: Resolver<Array<ResolversTypes['FirecrawlConfig']>, ParentType, ContextType>;
   firecrawlReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   fxRates?: Resolver<ResolversTypes['FxRates'], ParentType, ContextType>;
@@ -33535,6 +33586,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   teamLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
   teamPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   teamRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
+  techConfigItems?: Resolver<Array<ResolversTypes['TechConfigItem']>, ParentType, ContextType, RequireFields<QueryTechConfigItemsArgs, 'section'>>;
   techEmailTemplateOptions?: Resolver<Array<ResolversTypes['TechEmailTemplateOption']>, ParentType, ContextType>;
   techProviderLoginPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryTechProviderLoginPasswordArgs, 'id' | 'provider'>>;
   techProviderProfile?: Resolver<Maybe<ResolversTypes['TechProviderProfile']>, ParentType, ContextType, RequireFields<QueryTechProviderProfileArgs, 'provider'>>;
@@ -34681,10 +34733,25 @@ export type TeamPageResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TechConfigItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechConfigItem'] = ResolversParentTypes['TechConfigItem']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TechEmailTemplateOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechEmailTemplateOption'] = ResolversParentTypes['TechEmailTemplateOption']> = ResolversObject<{
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TechImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechImportResult'] = ResolversParentTypes['TechImportResult']> = ResolversObject<{
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  messages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -36469,7 +36536,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TdsSlab?: TdsSlabResolvers<ContextType>;
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
+  TechConfigItem?: TechConfigItemResolvers<ContextType>;
   TechEmailTemplateOption?: TechEmailTemplateOptionResolvers<ContextType>;
+  TechImportResult?: TechImportResultResolvers<ContextType>;
   TechProviderProfile?: TechProviderProfileResolvers<ContextType>;
   TechSecretValue?: TechSecretValueResolvers<ContextType>;
   TechVaultSession?: TechVaultSessionResolvers<ContextType>;

@@ -9357,6 +9357,11 @@ export type Mutation = {
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
   importTableRows: TableImportResult;
   /**
+   * Imports an export file into one section (or everywhere). Listed configs arrive switched
+   * off; single configs (Google, Microsoft, social apps) are updated in place.
+   */
+  importTechConfigs: TechImportResult;
+  /**
    * Invites people into a company with the portals they may open; each gets the welcome email
    * with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
    */
@@ -11962,6 +11967,12 @@ export type MutationImportTableRowsArgs = {
   matchField?: InputMaybe<Scalars['String']['input']>;
   mode: TableImportMode;
   rows: Array<Scalars['JSON']['input']>;
+};
+
+
+export type MutationImportTechConfigsArgs = {
+  json: Scalars['String']['input'];
+  section?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -16249,6 +16260,11 @@ export type Query = {
    * Null until HR has set one up. This is what the employee record reads.
    */
   employeeSalary?: Maybe<SalaryStructure>;
+  /**
+   * Environment Variables as a JSON file, every secret in full: one section (or all), or only
+   * the given configs. Needs the vault open; logged.
+   */
+  exportTechConfigs: Scalars['String']['output'];
   firecrawlConfigs: Array<FirecrawlConfig>;
   /** Whether the website scraper can run: an active Firecrawl config with a key, or a self-hosted one that needs none. */
   firecrawlReady: Scalars['Boolean']['output'];
@@ -17086,6 +17102,7 @@ export type Query = {
   teamPerformanceReviews: Array<PerformanceReview>;
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
+  techConfigItems: Array<TechConfigItem>;
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
   /** One saved account password in full. Logged; needs the vault open. */
   techProviderLoginPassword: Scalars['String']['output'];
@@ -17648,6 +17665,12 @@ export type QueryEmployeePayoutSecretArgs = {
 
 export type QueryEmployeeSalaryArgs = {
   employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryExportTechConfigsArgs = {
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  section?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -19351,6 +19374,11 @@ export type QueryTaskByKeyArgs = {
 
 export type QueryTaskCommentsArgs = {
   taskId: Scalars['ID']['input'];
+};
+
+
+export type QueryTechConfigItemsArgs = {
+  section: Scalars['String']['input'];
 };
 
 
@@ -21585,12 +21613,29 @@ export type TeamPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One config in an Environment Variables section, for the per-item export. */
+export type TechConfigItem = {
+  __typename?: 'TechConfigItem';
+  id: Scalars['ID']['output'];
+  kind: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
 /** A Tech > Email template offered as a starting point. */
 export type TechEmailTemplateOption = {
   __typename?: 'TechEmailTemplateOption';
   key: Scalars['String']['output'];
   mjml: Scalars['String']['output'];
   name: Scalars['String']['output'];
+};
+
+export type TechImportResult = {
+  __typename?: 'TechImportResult';
+  created: Scalars['Int']['output'];
+  /** Why each skipped item was skipped. */
+  messages: Array<Scalars['String']['output']>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
 };
 
 /** Environment Variables > a provider > Advanced. */
@@ -32433,6 +32478,29 @@ export type DeleteTechProviderLinkMutationVariables = Exact<{
 
 
 export type DeleteTechProviderLinkMutation = { __typename?: 'Mutation', deleteTechProviderLink: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+
+export type TechConfigItemsQueryVariables = Exact<{
+  section: Scalars['String']['input'];
+}>;
+
+
+export type TechConfigItemsQuery = { __typename?: 'Query', techConfigItems: Array<{ __typename?: 'TechConfigItem', id: string, kind: string, label: string }> };
+
+export type ExportTechConfigsQueryVariables = Exact<{
+  section?: InputMaybe<Scalars['String']['input']>;
+  ids?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+}>;
+
+
+export type ExportTechConfigsQuery = { __typename?: 'Query', exportTechConfigs: string };
+
+export type ImportTechConfigsMutationVariables = Exact<{
+  section?: InputMaybe<Scalars['String']['input']>;
+  json: Scalars['String']['input'];
+}>;
+
+
+export type ImportTechConfigsMutation = { __typename?: 'Mutation', importTechConfigs: { __typename?: 'TechImportResult', created: number, updated: number, skipped: number, messages: Array<string> } };
 
 export type TechVaultSessionFieldsFragment = { __typename?: 'TechVaultSession', id: string, userId: string, userName: string, email: string, reason: string, ip: string, userAgent: string, unlockedAt: string, expiresAt: string, endedAt?: string | null, endReason?: VaultEndReason | null, location: { __typename?: 'VaultLocation', state: VaultLocationState, latitude?: number | null, longitude?: number | null, accuracy?: number | null } };
 
@@ -84974,6 +85042,129 @@ export function useDeleteTechProviderLinkMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<DeleteTechProviderLinkMutation, DeleteTechProviderLinkMutationVariables>(DeleteTechProviderLinkDocument, options);
       }
 export type DeleteTechProviderLinkMutationHookResult = ReturnType<typeof useDeleteTechProviderLinkMutation>;
+export const TechConfigItemsDocument = gql`
+    query TechConfigItems($section: String!) {
+  techConfigItems(section: $section) {
+    id
+    kind
+    label
+  }
+}
+    `;
+
+/**
+ * __useTechConfigItemsQuery__
+ *
+ * To run a query within a React component, call `useTechConfigItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTechConfigItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTechConfigItemsQuery({
+ *   variables: {
+ *      section: // value for 'section'
+ *   },
+ * });
+ */
+export function useTechConfigItemsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TechConfigItemsQuery, TechConfigItemsQueryVariables> & ({ variables: TechConfigItemsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TechConfigItemsQuery, TechConfigItemsQueryVariables>(TechConfigItemsDocument, options);
+      }
+export function useTechConfigItemsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TechConfigItemsQuery, TechConfigItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TechConfigItemsQuery, TechConfigItemsQueryVariables>(TechConfigItemsDocument, options);
+        }
+// @ts-ignore
+export function useTechConfigItemsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TechConfigItemsQuery, TechConfigItemsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechConfigItemsQuery, TechConfigItemsQueryVariables>;
+// @ts-ignore
+export function useTechConfigItemsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechConfigItemsQuery, TechConfigItemsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TechConfigItemsQuery | undefined, TechConfigItemsQueryVariables>;
+export function useTechConfigItemsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TechConfigItemsQuery, TechConfigItemsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TechConfigItemsQuery, TechConfigItemsQueryVariables>(TechConfigItemsDocument, options);
+        }
+export type TechConfigItemsQueryHookResult = ReturnType<typeof useTechConfigItemsQuery>;
+export type TechConfigItemsLazyQueryHookResult = ReturnType<typeof useTechConfigItemsLazyQuery>;
+export type TechConfigItemsSuspenseQueryHookResult = ReturnType<typeof useTechConfigItemsSuspenseQuery>;
+export const ExportTechConfigsDocument = gql`
+    query ExportTechConfigs($section: String, $ids: [ID!]) {
+  exportTechConfigs(section: $section, ids: $ids)
+}
+    `;
+
+/**
+ * __useExportTechConfigsQuery__
+ *
+ * To run a query within a React component, call `useExportTechConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useExportTechConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useExportTechConfigsQuery({
+ *   variables: {
+ *      section: // value for 'section'
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useExportTechConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>(ExportTechConfigsDocument, options);
+      }
+export function useExportTechConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>(ExportTechConfigsDocument, options);
+        }
+// @ts-ignore
+export function useExportTechConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>;
+// @ts-ignore
+export function useExportTechConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ExportTechConfigsQuery | undefined, ExportTechConfigsQueryVariables>;
+export function useExportTechConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ExportTechConfigsQuery, ExportTechConfigsQueryVariables>(ExportTechConfigsDocument, options);
+        }
+export type ExportTechConfigsQueryHookResult = ReturnType<typeof useExportTechConfigsQuery>;
+export type ExportTechConfigsLazyQueryHookResult = ReturnType<typeof useExportTechConfigsLazyQuery>;
+export type ExportTechConfigsSuspenseQueryHookResult = ReturnType<typeof useExportTechConfigsSuspenseQuery>;
+export const ImportTechConfigsDocument = gql`
+    mutation ImportTechConfigs($section: String, $json: String!) {
+  importTechConfigs(section: $section, json: $json) {
+    created
+    updated
+    skipped
+    messages
+  }
+}
+    `;
+
+/**
+ * __useImportTechConfigsMutation__
+ *
+ * To run a mutation, you first call `useImportTechConfigsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useImportTechConfigsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [importTechConfigsMutation, { data, loading, error }] = useImportTechConfigsMutation({
+ *   variables: {
+ *      section: // value for 'section'
+ *      json: // value for 'json'
+ *   },
+ * });
+ */
+export function useImportTechConfigsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ImportTechConfigsMutation, ImportTechConfigsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ImportTechConfigsMutation, ImportTechConfigsMutationVariables>(ImportTechConfigsDocument, options);
+      }
+export type ImportTechConfigsMutationHookResult = ReturnType<typeof useImportTechConfigsMutation>;
 export const TechVaultStatusDocument = gql`
     query TechVaultStatus {
   techVaultStatus {

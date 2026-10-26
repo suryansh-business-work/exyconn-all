@@ -1,0 +1,20 @@
+query TechConfigItems($section: String!) {
+  techConfigItems(section: $section) {
+    id
+    kind
+    label
+  }
+}
+
+query ExportTechConfigs($section: String, $ids: [ID!]) {
+  exportTechConfigs(section: $section, ids: $ids)
+}
+
+mutation ImportTechConfigs($section: String, $json: String!) {
+  importTechConfigs(section: $section, json: $json) {
+    created
+    updated
+    skipped
+    messages
+  }
+}

@@ -197,6 +197,7 @@ import {
 import { payoutTypeDefs, payoutResolvers } from '../modules/payout';
 import { techVaultTypeDefs, techVaultResolvers } from '../modules/tech/vault';
 import { providerProfileTypeDefs, providerProfileResolvers } from '../modules/tech/providers';
+import { techTransferTypeDefs, techTransferResolvers } from '../modules/tech/transfer';
 import {
   cmsTypeDefs,
   cmsContentTypeDefs,
@@ -372,6 +373,7 @@ export const typeDefs = [
   payoutTypeDefs,
   techVaultTypeDefs,
   providerProfileTypeDefs,
+  techTransferTypeDefs,
   websiteChatTypeDefs,
   websiteChatLibraryTypeDefs,
   gccTypeDefs,
@@ -486,6 +488,7 @@ export const resolvers = mergeResolvers([
   payoutResolvers,
   techVaultResolvers,
   providerProfileResolvers,
+  techTransferResolvers,
   websiteChatResolvers,
   websiteChatLibraryResolvers,
   gccResolvers,

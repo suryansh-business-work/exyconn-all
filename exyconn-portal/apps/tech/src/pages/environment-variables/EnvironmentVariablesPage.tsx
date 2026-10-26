@@ -6,6 +6,11 @@ import { useTabberSlug } from '@exyconn/tabber';
 import { ENVIRONMENT_VARIABLES_SECTIONS } from './environmentVariables.sections';
 import { TechVaultGate } from './vault/TechVaultGate';
 import { ProviderAdvanced } from './advanced/ProviderAdvanced';
+import { ConfigTransfer } from './advanced/ConfigTransfer';
+import { GlobalTransferBar } from './advanced/GlobalTransferBar';
+
+/** Sections that hold no configs of their own, so they offer no section export. */
+const NO_CONFIGS: ReadonlySet<string> = new Set(['dashboard', 'ai-pricing', 'access-history']);
 
 /** Route the integrations live under; each one is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -23,6 +28,7 @@ export function EnvironmentVariablesPage() {
 
   return (
     <TechVaultGate>
+      <GlobalTransferBar />
       <PageSideNav
         items={ENVIRONMENT_VARIABLES_SECTIONS}
         selected={slug}
@@ -33,6 +39,11 @@ export function EnvironmentVariablesPage() {
           <Box sx={readingPanel}>
             {active.panel}
             <ProviderAdvanced key={active.slug} provider={active.slug} />
+            {!NO_CONFIGS.has(active.slug) && (
+              <Box sx={{ mt: 3 }}>
+                <ConfigTransfer key={active.slug} section={active.slug} />
+              </Box>
+            )}
           </Box>
         )}
       </PageSideNav>

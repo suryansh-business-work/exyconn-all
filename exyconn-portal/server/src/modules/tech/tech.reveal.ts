@@ -39,7 +39,7 @@ const TECH_MODULE = 'TechConfig';
 
 type StoredRow = Record<string, unknown>;
 
-interface SecretSource {
+export interface SecretSource {
   model: Model<StoredRow>;
   field: string;
   /** What the audit summary calls it. */
@@ -55,7 +55,7 @@ interface SecretSource {
 const source = (model: unknown, field: string, name: string, extra: Partial<SecretSource> = {}) =>
   ({ model: model as Model<StoredRow>, field, name, ...extra }) satisfies SecretSource;
 
-const SECRETS: Readonly<Record<string, SecretSource>> = {
+export const SECRETS: Readonly<Record<string, SecretSource>> = {
   EMAIL_PASSWORD: source(EmailConfigModel, 'password', 'SMTP password'),
   INBOUND_MAIL_PASSWORD: source(InboundMailConfigModel, 'password', 'mailbox password', {
     companyScoped: true,
