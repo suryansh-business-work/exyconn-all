@@ -26,8 +26,10 @@ export async function archiveRecords(
   ids: string[],
   archived: boolean,
 ): Promise<number> {
+  // Only the records not already in that state: timestamps stamp updatedAt on every match, so
+  // matching them all would count records that did not change.
   const result = await model.updateMany(
-    { _id: { $in: ids } } as never,
+    { _id: { $in: ids }, ...archivedFilter(!archived) } as never,
     {
       [ARCHIVED_FIELD]: archived ? new Date() : null,
     } as never,
