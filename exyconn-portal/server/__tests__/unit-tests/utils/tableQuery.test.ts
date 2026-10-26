@@ -29,10 +29,10 @@ describe('escapeRegex', () => {
 });
 
 describe('tableQuery', () => {
-  it('returns the rows and total, with the base filter and default sort', async () => {
-    const { model, raw, chain } = fakeModel([{ id: 1 }], 7);
+  it('returns the rows with their id and the total, with the base filter and default sort', async () => {
+    const { model, raw, chain } = fakeModel([{ _id: 'abc', name: 'A' }], 7);
     const result = await tableQuery(model, page(), CONFIG, { organizationId: 'org-1' });
-    expect(result).toEqual({ rows: [{ id: 1 }], totalCount: 7 });
+    expect(result).toEqual({ rows: [{ _id: 'abc', id: 'abc', name: 'A' }], totalCount: 7 });
     expect(raw.find).toHaveBeenCalledWith({ archivedAt: null, organizationId: 'org-1' });
     expect(raw.countDocuments).toHaveBeenCalledWith({ archivedAt: null, organizationId: 'org-1' });
     expect(chain.sort).toHaveBeenCalledWith({ createdAt: -1 });
