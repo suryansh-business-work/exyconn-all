@@ -15853,10 +15853,14 @@ export type PromptVariableInput = {
 export type ProviderBilling = {
   __typename?: 'ProviderBilling';
   days: Array<BilledDay>;
-  message: Scalars['String']['output'];
-  need: ProviderBillingNeed;
   provider: BillingProvider;
   totalUsd: Scalars['Float']['output'];
+};
+
+export type ProviderBillingAdvice = {
+  __typename?: 'ProviderBillingAdvice';
+  message: Scalars['String']['output'];
+  need: ProviderBillingNeed;
 };
 
 /** Whether reading a provider's bill needs a different key from the one the platform uses. */
@@ -21694,7 +21698,7 @@ export type TechImportResult = {
 /** Environment Variables > a provider > Advanced. */
 export type TechProviderProfile = {
   __typename?: 'TechProviderProfile';
-  billing: ProviderBilling;
+  billing: ProviderBillingAdvice;
   label: Scalars['String']['output'];
   links: Array<ProviderLinkEntry>;
   logins: Array<ProviderLogin>;
@@ -24804,6 +24808,7 @@ export type ResolversTypes = ResolversObject<{
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
   ProviderBilling: ResolverTypeWrapper<ProviderBilling>;
+  ProviderBillingAdvice: ResolverTypeWrapper<ProviderBillingAdvice>;
   ProviderBillingNeed: ProviderBillingNeed;
   ProviderGuideStep: ResolverTypeWrapper<ProviderGuideStep>;
   ProviderLinkEntry: ResolverTypeWrapper<ProviderLinkEntry>;
@@ -25911,6 +25916,7 @@ export type ResolversParentTypes = ResolversObject<{
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
   ProviderBilling: ProviderBilling;
+  ProviderBillingAdvice: ProviderBillingAdvice;
   ProviderGuideStep: ProviderGuideStep;
   ProviderLinkEntry: ProviderLinkEntry;
   ProviderLinkInput: ProviderLinkInput;
@@ -32781,10 +32787,14 @@ export type PromptPageResolvers<ContextType = GraphQLContext, ParentType extends
 
 export type ProviderBillingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderBilling'] = ResolversParentTypes['ProviderBilling']> = ResolversObject<{
   days?: Resolver<Array<ResolversTypes['BilledDay']>, ParentType, ContextType>;
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  need?: Resolver<ResolversTypes['ProviderBillingNeed'], ParentType, ContextType>;
   provider?: Resolver<ResolversTypes['BillingProvider'], ParentType, ContextType>;
   totalUsd?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProviderBillingAdviceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderBillingAdvice'] = ResolversParentTypes['ProviderBillingAdvice']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  need?: Resolver<ResolversTypes['ProviderBillingNeed'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -34841,7 +34851,7 @@ export type TechImportResultResolvers<ContextType = GraphQLContext, ParentType e
 }>;
 
 export type TechProviderProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechProviderProfile'] = ResolversParentTypes['TechProviderProfile']> = ResolversObject<{
-  billing?: Resolver<ResolversTypes['ProviderBilling'], ParentType, ContextType>;
+  billing?: Resolver<ResolversTypes['ProviderBillingAdvice'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   links?: Resolver<Array<ResolversTypes['ProviderLinkEntry']>, ParentType, ContextType>;
   logins?: Resolver<Array<ResolversTypes['ProviderLogin']>, ParentType, ContextType>;
@@ -36508,6 +36518,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   ProviderBilling?: ProviderBillingResolvers<ContextType>;
+  ProviderBillingAdvice?: ProviderBillingAdviceResolvers<ContextType>;
   ProviderGuideStep?: ProviderGuideStepResolvers<ContextType>;
   ProviderLinkEntry?: ProviderLinkEntryResolvers<ContextType>;
   ProviderLogin?: ProviderLoginResolvers<ContextType>;

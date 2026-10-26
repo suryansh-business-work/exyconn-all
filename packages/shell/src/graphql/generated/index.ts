@@ -15854,10 +15854,14 @@ export type PromptVariableInput = {
 export type ProviderBilling = {
   __typename?: 'ProviderBilling';
   days: Array<BilledDay>;
-  message: Scalars['String']['output'];
-  need: ProviderBillingNeed;
   provider: BillingProvider;
   totalUsd: Scalars['Float']['output'];
+};
+
+export type ProviderBillingAdvice = {
+  __typename?: 'ProviderBillingAdvice';
+  message: Scalars['String']['output'];
+  need: ProviderBillingNeed;
 };
 
 /** Whether reading a provider's bill needs a different key from the one the platform uses. */
@@ -21695,7 +21699,7 @@ export type TechImportResult = {
 /** Environment Variables > a provider > Advanced. */
 export type TechProviderProfile = {
   __typename?: 'TechProviderProfile';
-  billing: ProviderBilling;
+  billing: ProviderBillingAdvice;
   label: Scalars['String']['output'];
   links: Array<ProviderLinkEntry>;
   logins: Array<ProviderLogin>;
@@ -32494,14 +32498,14 @@ export type TestGoogleSignInConfigMutationVariables = Exact<{ [key: string]: nev
 
 export type TestGoogleSignInConfigMutation = { __typename?: 'Mutation', testGoogleSignInConfig: string };
 
-export type TechProviderProfileFieldsFragment = { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> };
+export type TechProviderProfileFieldsFragment = { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBillingAdvice', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> };
 
 export type TechProviderProfileQueryVariables = Exact<{
   provider: Scalars['String']['input'];
 }>;
 
 
-export type TechProviderProfileQuery = { __typename?: 'Query', techProviderProfile?: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } | null };
+export type TechProviderProfileQuery = { __typename?: 'Query', techProviderProfile?: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBillingAdvice', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } | null };
 
 export type TechProviderLoginPasswordQueryVariables = Exact<{
   provider: Scalars['String']['input'];
@@ -32518,7 +32522,7 @@ export type SaveTechProviderLoginMutationVariables = Exact<{
 }>;
 
 
-export type SaveTechProviderLoginMutation = { __typename?: 'Mutation', saveTechProviderLogin: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+export type SaveTechProviderLoginMutation = { __typename?: 'Mutation', saveTechProviderLogin: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBillingAdvice', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
 
 export type DeleteTechProviderLoginMutationVariables = Exact<{
   provider: Scalars['String']['input'];
@@ -32526,7 +32530,7 @@ export type DeleteTechProviderLoginMutationVariables = Exact<{
 }>;
 
 
-export type DeleteTechProviderLoginMutation = { __typename?: 'Mutation', deleteTechProviderLogin: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+export type DeleteTechProviderLoginMutation = { __typename?: 'Mutation', deleteTechProviderLogin: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBillingAdvice', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
 
 export type SaveTechProviderLinkMutationVariables = Exact<{
   provider: Scalars['String']['input'];
@@ -32535,7 +32539,7 @@ export type SaveTechProviderLinkMutationVariables = Exact<{
 }>;
 
 
-export type SaveTechProviderLinkMutation = { __typename?: 'Mutation', saveTechProviderLink: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+export type SaveTechProviderLinkMutation = { __typename?: 'Mutation', saveTechProviderLink: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBillingAdvice', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
 
 export type DeleteTechProviderLinkMutationVariables = Exact<{
   provider: Scalars['String']['input'];
@@ -32543,7 +32547,7 @@ export type DeleteTechProviderLinkMutationVariables = Exact<{
 }>;
 
 
-export type DeleteTechProviderLinkMutation = { __typename?: 'Mutation', deleteTechProviderLink: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBilling', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
+export type DeleteTechProviderLinkMutation = { __typename?: 'Mutation', deleteTechProviderLink: { __typename?: 'TechProviderProfile', provider: string, label: string, billing: { __typename?: 'ProviderBillingAdvice', need: ProviderBillingNeed, message: string }, steps: Array<{ __typename?: 'ProviderGuideStep', description: string }>, links: Array<{ __typename?: 'ProviderLinkEntry', id: string, label: string, url: string, kind: ProviderLinkKind, custom: boolean }>, logins: Array<{ __typename?: 'ProviderLogin', id: string, label: string, username: string, signInMethod: ProviderSignInMethod, hasPassword: boolean, passwordHint: string, notes: string }> } };
 
 export type TechConfigItemsQueryVariables = Exact<{
   section: Scalars['String']['input'];

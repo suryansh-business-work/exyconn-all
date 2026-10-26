@@ -28,7 +28,7 @@ export const providerProfileTypeDefs = gql`
     OTHER
   }
 
-  type ProviderBilling {
+  type ProviderBillingAdvice {
     need: ProviderBillingNeed!
     message: String!
   }
@@ -61,7 +61,7 @@ export const providerProfileTypeDefs = gql`
   type TechProviderProfile {
     provider: String!
     label: String!
-    billing: ProviderBilling!
+    billing: ProviderBillingAdvice!
     steps: [ProviderGuideStep!]!
     links: [ProviderLinkEntry!]!
     logins: [ProviderLogin!]!
