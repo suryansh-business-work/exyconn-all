@@ -5954,16 +5954,61 @@ export type InfrastructureOverview = {
   runtime: ServerRuntime;
 };
 
+/** One call made with an Environment Variables credential: what, by whom, how long, what it cost. */
+export type IntegrationCall = {
+  __typename?: 'IntegrationCall';
+  action: Scalars['String']['output'];
+  actorEmail: Scalars['String']['output'];
+  actorId: Scalars['String']['output'];
+  companyId: Scalars['String']['output'];
+  /** USD from the price table; null where no price is kept. */
+  costUsd?: Maybe<Scalars['Float']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  durationMs: Scalars['Int']['output'];
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  inputTokens: Scalars['Float']['output'];
+  ok: Scalars['Boolean']['output'];
+  outputTokens: Scalars['Float']['output'];
+  path: Scalars['String']['output'];
+  provider: IntegrationProvider;
+  /** The portal or site that caused it, or Background job. */
+  source: Scalars['String']['output'];
+};
+
+export type IntegrationCallPage = {
+  __typename?: 'IntegrationCallPage';
+  rows: Array<IntegrationCall>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** An integration whose calls are counted on the Environment Variables dashboard. */
 export enum IntegrationProvider {
+  Cloudflare = 'CLOUDFLARE',
+  EmailVerifier = 'EMAIL_VERIFIER',
   Firecrawl = 'FIRECRAWL',
   Github = 'GITHUB',
+  Gmail = 'GMAIL',
+  Godaddy = 'GODADDY',
+  GoogleCalendar = 'GOOGLE_CALENDAR',
   GoogleMaps = 'GOOGLE_MAPS',
+  GoogleSignIn = 'GOOGLE_SIGN_IN',
   Imagekit = 'IMAGEKIT',
+  Microsoft = 'MICROSOFT',
+  Msg91 = 'MSG91',
   Openai = 'OPENAI',
+  Payoneer = 'PAYONEER',
+  Paypal = 'PAYPAL',
   Pexels = 'PEXELS',
+  Razorpay = 'RAZORPAY',
+  Sarvam = 'SARVAM',
   Slack = 'SLACK',
-  Smtp = 'SMTP'
+  Smtp = 'SMTP',
+  Social = 'SOCIAL',
+  Sonarqube = 'SONARQUBE',
+  Stripe = 'STRIPE',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
 }
 
 /** One kind of call (an OpenAI model, a Slack method, an upload kind) over the window. */
@@ -16540,6 +16585,10 @@ export type Query = {
   listHolidaysStats: TableStats;
   listImageConfigs: Array<ImageConfig>;
   listInboundMailConfigs: Array<InboundMailConfig>;
+  /** Every integration call (kept 180 days), server-paged, searched and filtered. */
+  listIntegrationCallsPaged: IntegrationCallPage;
+  /** Calls by provider and outcome, and the summed cost, tokens and time. */
+  listIntegrationCallsStats: TableStats;
   listInternalAudits: Array<InternalAudit>;
   listInternalAuditsPaged: InternalAuditPage;
   listInternalAuditsStats: TableStats;
@@ -18359,6 +18408,11 @@ export type QueryListGradesPagedArgs = {
 
 
 export type QueryListHolidaysPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListIntegrationCallsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -24346,6 +24400,8 @@ export type ResolversTypes = ResolversObject<{
   IncidentUpdateStatus: IncidentUpdateStatus;
   InfrastructureOverview: ResolverTypeWrapper<InfrastructureOverview>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  IntegrationCall: ResolverTypeWrapper<IntegrationCall>;
+  IntegrationCallPage: ResolverTypeWrapper<IntegrationCallPage>;
   IntegrationProvider: IntegrationProvider;
   IntegrationUsageAction: ResolverTypeWrapper<IntegrationUsageAction>;
   IntegrationUsageDay: ResolverTypeWrapper<IntegrationUsageDay>;
@@ -25537,6 +25593,8 @@ export type ResolversParentTypes = ResolversObject<{
   InboundMailConfigInput: InboundMailConfigInput;
   InfrastructureOverview: InfrastructureOverview;
   Int: Scalars['Int']['output'];
+  IntegrationCall: IntegrationCall;
+  IntegrationCallPage: IntegrationCallPage;
   IntegrationUsageAction: IntegrationUsageAction;
   IntegrationUsageDay: IntegrationUsageDay;
   IntegrationUsageSummary: IntegrationUsageSummary;
@@ -29380,6 +29438,31 @@ export type InfrastructureOverviewResolvers<ContextType = GraphQLContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type IntegrationCallResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['IntegrationCall'] = ResolversParentTypes['IntegrationCall']> = ResolversObject<{
+  action?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  actorEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  actorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  costUsd?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  durationMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inputTokens?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  outputTokens?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  path?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['IntegrationProvider'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type IntegrationCallPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['IntegrationCallPage'] = ResolversParentTypes['IntegrationCallPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['IntegrationCall']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type IntegrationUsageActionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['IntegrationUsageAction'] = ResolversParentTypes['IntegrationUsageAction']> = ResolversObject<{
   action?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -33204,6 +33287,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listHolidaysStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listImageConfigs?: Resolver<Array<ResolversTypes['ImageConfig']>, ParentType, ContextType>;
   listInboundMailConfigs?: Resolver<Array<ResolversTypes['InboundMailConfig']>, ParentType, ContextType>;
+  listIntegrationCallsPaged?: Resolver<ResolversTypes['IntegrationCallPage'], ParentType, ContextType, RequireFields<QueryListIntegrationCallsPagedArgs, 'input'>>;
+  listIntegrationCallsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listInternalAudits?: Resolver<Array<ResolversTypes['InternalAudit']>, ParentType, ContextType>;
   listInternalAuditsPaged?: Resolver<ResolversTypes['InternalAuditPage'], ParentType, ContextType, RequireFields<QueryListInternalAuditsPagedArgs, 'input'>>;
   listInternalAuditsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -36193,6 +36278,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ImageConfig?: ImageConfigResolvers<ContextType>;
   InboundMailConfig?: InboundMailConfigResolvers<ContextType>;
   InfrastructureOverview?: InfrastructureOverviewResolvers<ContextType>;
+  IntegrationCall?: IntegrationCallResolvers<ContextType>;
+  IntegrationCallPage?: IntegrationCallPageResolvers<ContextType>;
   IntegrationUsageAction?: IntegrationUsageActionResolvers<ContextType>;
   IntegrationUsageDay?: IntegrationUsageDayResolvers<ContextType>;
   IntegrationUsageSummary?: IntegrationUsageSummaryResolvers<ContextType>;

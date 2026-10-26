@@ -10,6 +10,23 @@ export const INTEGRATION_PROVIDERS = [
   'PEXELS',
   'FIRECRAWL',
   'GOOGLE_MAPS',
+  'STRIPE',
+  'RAZORPAY',
+  'PAYPAL',
+  'PAYONEER',
+  'GODADDY',
+  'CLOUDFLARE',
+  'SONARQUBE',
+  'GMAIL',
+  'MICROSOFT',
+  'GOOGLE_SIGN_IN',
+  'TWILIO',
+  'MSG91',
+  'VOBIZ',
+  'SARVAM',
+  'SOCIAL',
+  'GOOGLE_CALENDAR',
+  'EMAIL_VERIFIER',
 ] as const;
 
 export type IntegrationProvider = (typeof INTEGRATION_PROVIDERS)[number];

@@ -1,3 +1,4 @@
+import { setRequestActor } from '../lib/requestInfo';
 import type { Request } from 'express';
 import { verifyToken, type TokenPayload } from '../utils/jwt';
 import { UserModel } from '../modules/admin/user.model';
@@ -188,6 +189,7 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
     }
     const organizationId = organizationOf(principal);
     setScopeOrganization(organizationId, false);
+    setRequestActor(principal.id, `${principal.name} (API key)`);
     return {
       user: {
         id: principal.id,
@@ -227,6 +229,7 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   setScopeSelf(
     home !== null && home !== organizationId ? { userId: decoded.id, organizationId: home } : null,
   );
+  setRequestActor(decoded.id, decoded.email);
   // Drives "online" on profiles. Not awaited: it never slows or fails the request.
   recordActivity(decoded.id).catch(() => undefined);
 

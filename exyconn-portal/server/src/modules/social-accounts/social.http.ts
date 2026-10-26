@@ -1,3 +1,11 @@
+import { meteredFetch, pathAction } from '../tech/usage/usage.meter';
+
+/** The network and endpoint a social call went to, e.g. api.linkedin.com/v2/ugcPosts. */
+const socialAction = (url: string): string => {
+  const { host, pathname } = new URL(url);
+  return pathAction('', `${host}${pathname}`).trim();
+};
+
 /**
  * The two HTTP calls every provider needs: a form POST for the token exchange, and an
  * authenticated GET. A provider's own error text is kept — "redirect_uri mismatch" is what
@@ -48,7 +56,7 @@ export async function postForm(
   form: Record<string, string>,
   headers: Record<string, string> = {},
 ): Promise<Json> {
-  const response = await fetch(url, {
+  const response = await meteredFetch('SOCIAL', socialAction(url), url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -66,7 +74,7 @@ export async function getJson(
   accessToken?: string,
   headers: Record<string, string> = {},
 ): Promise<Json> {
-  const response = await fetch(url, {
+  const response = await meteredFetch('SOCIAL', socialAction(url), url, {
     headers: {
       Accept: 'application/json',
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
@@ -96,7 +104,7 @@ export async function sendJson(
     headers?: Record<string, string>;
   }>,
 ): Promise<JsonReply> {
-  const response = await fetch(url, {
+  const response = await meteredFetch('SOCIAL', socialAction(url), url, {
     method: init.method,
     headers: {
       Accept: 'application/json',
@@ -117,7 +125,7 @@ export async function postJson(
   accessToken: string,
   headers: Record<string, string> = {},
 ): Promise<Json> {
-  const response = await fetch(url, {
+  const response = await meteredFetch('SOCIAL', socialAction(url), url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

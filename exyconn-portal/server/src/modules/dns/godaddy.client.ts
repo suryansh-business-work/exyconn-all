@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../tech/usage/usage.meter';
 import { ConfigurationError } from '../../utils/errors';
 import { GodaddyConfigModel } from './godaddy-config.model';
 import type { GodaddyRecord } from './dns.records';
@@ -37,14 +38,19 @@ function describeFailure(status: number, body: string): string {
  */
 class GodaddyClient {
   private async request<T>(key: GodaddyKey, path: string, init: RequestInit = {}): Promise<T> {
-    const response = await fetch(`${GODADDY_API_URL}${path}`, {
-      ...init,
-      headers: {
-        Authorization: `sso-key ${key.apiKey}:${key.apiSecret}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+    const response = await meteredFetch(
+      'GODADDY',
+      pathAction(init.method ?? 'GET', path),
+      `${GODADDY_API_URL}${path}`,
+      {
+        ...init,
+        headers: {
+          Authorization: `sso-key ${key.apiKey}:${key.apiSecret}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
       },
-    });
+    );
     if (!response.ok) {
       throw new Error(describeFailure(response.status, await response.text()));
     }

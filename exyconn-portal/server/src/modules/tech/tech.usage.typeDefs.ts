@@ -12,6 +12,49 @@ export const techUsageTypeDefs = gql`
     PEXELS
     FIRECRAWL
     GOOGLE_MAPS
+    STRIPE
+    RAZORPAY
+    PAYPAL
+    PAYONEER
+    GODADDY
+    CLOUDFLARE
+    SONARQUBE
+    GMAIL
+    MICROSOFT
+    GOOGLE_SIGN_IN
+    TWILIO
+    MSG91
+    VOBIZ
+    SARVAM
+    SOCIAL
+    GOOGLE_CALENDAR
+    EMAIL_VERIFIER
+  }
+
+  "One call made with an Environment Variables credential: what, by whom, how long, what it cost."
+  type IntegrationCall {
+    id: ID!
+    provider: IntegrationProvider!
+    action: String!
+    ok: Boolean!
+    durationMs: Int!
+    inputTokens: Float!
+    outputTokens: Float!
+    "USD from the price table; null where no price is kept."
+    costUsd: Float
+    companyId: String!
+    actorId: String!
+    actorEmail: String!
+    "The portal or site that caused it, or Background job."
+    source: String!
+    path: String!
+    error: String!
+    createdAt: DateTime!
+  }
+
+  type IntegrationCallPage {
+    rows: [IntegrationCall!]!
+    totalCount: Int!
   }
 
   "One day of an integration's calls. costUsd is priced from the AI price table (OpenAI only)."
@@ -106,6 +149,10 @@ export const techUsageTypeDefs = gql`
   }
 
   extend type Query {
+    "Every integration call (kept 180 days), server-paged, searched and filtered."
+    listIntegrationCallsPaged(input: TableQueryInput!): IntegrationCallPage!
+    "Calls by provider and outcome, and the summed cost, tokens and time."
+    listIntegrationCallsStats: TableStats!
     "Every integration's usage over the last days (1 to 366), today included. Platform staff (TECH)."
     integrationUsage(days: Int!): [IntegrationUsageSummary!]!
     "The newest exchange rates from US dollars."

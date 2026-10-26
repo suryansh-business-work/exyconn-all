@@ -1,3 +1,4 @@
+import { meteredFetch } from '../../tech/usage/usage.meter';
 import { createHash, randomBytes } from 'node:crypto';
 import { env } from '../../../config/env';
 
@@ -68,7 +69,7 @@ export async function exchangeForTokens(
   codeVerifier: string,
   redirectUri: string,
 ): Promise<GoogleTokens> {
-  const response = await fetch(TOKEN_URL, {
+  const response = await meteredFetch('GOOGLE_SIGN_IN', 'POST oauth token', TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({

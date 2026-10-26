@@ -5955,16 +5955,61 @@ export type InfrastructureOverview = {
   runtime: ServerRuntime;
 };
 
+/** One call made with an Environment Variables credential: what, by whom, how long, what it cost. */
+export type IntegrationCall = {
+  __typename?: 'IntegrationCall';
+  action: Scalars['String']['output'];
+  actorEmail: Scalars['String']['output'];
+  actorId: Scalars['String']['output'];
+  companyId: Scalars['String']['output'];
+  /** USD from the price table; null where no price is kept. */
+  costUsd?: Maybe<Scalars['Float']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  durationMs: Scalars['Int']['output'];
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  inputTokens: Scalars['Float']['output'];
+  ok: Scalars['Boolean']['output'];
+  outputTokens: Scalars['Float']['output'];
+  path: Scalars['String']['output'];
+  provider: IntegrationProvider;
+  /** The portal or site that caused it, or Background job. */
+  source: Scalars['String']['output'];
+};
+
+export type IntegrationCallPage = {
+  __typename?: 'IntegrationCallPage';
+  rows: Array<IntegrationCall>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** An integration whose calls are counted on the Environment Variables dashboard. */
 export enum IntegrationProvider {
+  Cloudflare = 'CLOUDFLARE',
+  EmailVerifier = 'EMAIL_VERIFIER',
   Firecrawl = 'FIRECRAWL',
   Github = 'GITHUB',
+  Gmail = 'GMAIL',
+  Godaddy = 'GODADDY',
+  GoogleCalendar = 'GOOGLE_CALENDAR',
   GoogleMaps = 'GOOGLE_MAPS',
+  GoogleSignIn = 'GOOGLE_SIGN_IN',
   Imagekit = 'IMAGEKIT',
+  Microsoft = 'MICROSOFT',
+  Msg91 = 'MSG91',
   Openai = 'OPENAI',
+  Payoneer = 'PAYONEER',
+  Paypal = 'PAYPAL',
   Pexels = 'PEXELS',
+  Razorpay = 'RAZORPAY',
+  Sarvam = 'SARVAM',
   Slack = 'SLACK',
-  Smtp = 'SMTP'
+  Smtp = 'SMTP',
+  Social = 'SOCIAL',
+  Sonarqube = 'SONARQUBE',
+  Stripe = 'STRIPE',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
 }
 
 /** One kind of call (an OpenAI model, a Slack method, an upload kind) over the window. */
@@ -16541,6 +16586,10 @@ export type Query = {
   listHolidaysStats: TableStats;
   listImageConfigs: Array<ImageConfig>;
   listInboundMailConfigs: Array<InboundMailConfig>;
+  /** Every integration call (kept 180 days), server-paged, searched and filtered. */
+  listIntegrationCallsPaged: IntegrationCallPage;
+  /** Calls by provider and outcome, and the summed cost, tokens and time. */
+  listIntegrationCallsStats: TableStats;
   listInternalAudits: Array<InternalAudit>;
   listInternalAuditsPaged: InternalAuditPage;
   listInternalAuditsStats: TableStats;
@@ -18360,6 +18409,11 @@ export type QueryListGradesPagedArgs = {
 
 
 export type QueryListHolidaysPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListIntegrationCallsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -27841,6 +27895,18 @@ export type DockerStorageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type DockerStorageQuery = { __typename?: 'Query', dockerStorage: { __typename?: 'DockerStorage', images: Array<{ __typename?: 'DockerImage', id: string, repoTags: Array<string>, sizeBytes: number, createdAt: string, containers: number }>, usage: { __typename?: 'DockerDiskUsage', layersBytes: number, containersBytes: number, volumesBytes: number, buildCacheBytes: number } } };
+
+export type ListIntegrationCallsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListIntegrationCallsPagedQuery = { __typename?: 'Query', listIntegrationCallsPaged: { __typename?: 'IntegrationCallPage', totalCount: number, rows: Array<{ __typename?: 'IntegrationCall', id: string, provider: IntegrationProvider, action: string, ok: boolean, durationMs: number, inputTokens: number, outputTokens: number, costUsd?: number | null, companyId: string, actorEmail: string, source: string, path: string, error: string, createdAt: string }> } };
+
+export type ListIntegrationCallsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListIntegrationCallsStatsQuery = { __typename?: 'Query', listIntegrationCallsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type ApiKeyFieldsFragment = { __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string };
 
@@ -60081,6 +60147,120 @@ export function useDockerStorageSuspenseQuery(baseOptions?: ApolloReactHooks.Ski
 export type DockerStorageQueryHookResult = ReturnType<typeof useDockerStorageQuery>;
 export type DockerStorageLazyQueryHookResult = ReturnType<typeof useDockerStorageLazyQuery>;
 export type DockerStorageSuspenseQueryHookResult = ReturnType<typeof useDockerStorageSuspenseQuery>;
+export const ListIntegrationCallsPagedDocument = gql`
+    query ListIntegrationCallsPaged($input: TableQueryInput!) {
+  listIntegrationCallsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      provider
+      action
+      ok
+      durationMs
+      inputTokens
+      outputTokens
+      costUsd
+      companyId
+      actorEmail
+      source
+      path
+      error
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useListIntegrationCallsPagedQuery__
+ *
+ * To run a query within a React component, call `useListIntegrationCallsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListIntegrationCallsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListIntegrationCallsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListIntegrationCallsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables> & ({ variables: ListIntegrationCallsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>(ListIntegrationCallsPagedDocument, options);
+      }
+export function useListIntegrationCallsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>(ListIntegrationCallsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListIntegrationCallsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>;
+// @ts-ignore
+export function useListIntegrationCallsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListIntegrationCallsPagedQuery | undefined, ListIntegrationCallsPagedQueryVariables>;
+export function useListIntegrationCallsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListIntegrationCallsPagedQuery, ListIntegrationCallsPagedQueryVariables>(ListIntegrationCallsPagedDocument, options);
+        }
+export type ListIntegrationCallsPagedQueryHookResult = ReturnType<typeof useListIntegrationCallsPagedQuery>;
+export type ListIntegrationCallsPagedLazyQueryHookResult = ReturnType<typeof useListIntegrationCallsPagedLazyQuery>;
+export type ListIntegrationCallsPagedSuspenseQueryHookResult = ReturnType<typeof useListIntegrationCallsPagedSuspenseQuery>;
+export const ListIntegrationCallsStatsDocument = gql`
+    query ListIntegrationCallsStats {
+  listIntegrationCallsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListIntegrationCallsStatsQuery__
+ *
+ * To run a query within a React component, call `useListIntegrationCallsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListIntegrationCallsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListIntegrationCallsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListIntegrationCallsStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>(ListIntegrationCallsStatsDocument, options);
+      }
+export function useListIntegrationCallsStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>(ListIntegrationCallsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListIntegrationCallsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>;
+// @ts-ignore
+export function useListIntegrationCallsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListIntegrationCallsStatsQuery | undefined, ListIntegrationCallsStatsQueryVariables>;
+export function useListIntegrationCallsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListIntegrationCallsStatsQuery, ListIntegrationCallsStatsQueryVariables>(ListIntegrationCallsStatsDocument, options);
+        }
+export type ListIntegrationCallsStatsQueryHookResult = ReturnType<typeof useListIntegrationCallsStatsQuery>;
+export type ListIntegrationCallsStatsLazyQueryHookResult = ReturnType<typeof useListIntegrationCallsStatsLazyQuery>;
+export type ListIntegrationCallsStatsSuspenseQueryHookResult = ReturnType<typeof useListIntegrationCallsStatsSuspenseQuery>;
 export const ListApiKeysDocument = gql`
     query ListApiKeys {
   listApiKeys {

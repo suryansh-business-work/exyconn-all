@@ -7,6 +7,8 @@ import { billingKeys, type BillingKeyInput } from './billing/billing-keys.servic
 import type { BillingProvider } from './billing/billing-key.model';
 import { getFxRates } from './fx/fx.service';
 import { integrationUsage } from './usage/usage.service';
+import { callLog } from './usage/call-log.service';
+import type { TableQueryInput } from '../../utils/tableQuery';
 import { revealAllTechSecrets } from './tech.reveal';
 
 /** Usage, cost and billing keys are the install's own infrastructure: platform staff with TECH. */
@@ -22,6 +24,18 @@ export const techUsageResolvers = {
     integrationUsage: async (_p: unknown, { days }: { days: number }, ctx: GraphQLContext) => {
       await guard(ctx, 'VIEW');
       return integrationUsage(days);
+    },
+    listIntegrationCallsPaged: async (
+      _p: unknown,
+      { input }: { input: TableQueryInput },
+      ctx: GraphQLContext,
+    ) => {
+      await guard(ctx, 'VIEW');
+      return callLog.page(input);
+    },
+    listIntegrationCallsStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await guard(ctx, 'VIEW');
+      return callLog.stats();
     },
     fxRates: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await guard(ctx, 'VIEW');

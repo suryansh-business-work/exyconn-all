@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import { env } from '../../config/env';
 import type { VerificationStatus } from './email-verification.model';
 
@@ -84,12 +85,17 @@ export async function checkWithReacher(
   email: string,
   proxy: ReacherProxy | null,
 ): Promise<CheckResult> {
-  const response = await fetch(`${env.reacherUrl}/v0/check_email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to_email: email, ...(proxy ? { proxy } : {}) }),
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  const response = await meteredFetch(
+    'EMAIL_VERIFIER',
+    'POST check_email',
+    `${env.reacherUrl}/v0/check_email`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to_email: email, ...(proxy ? { proxy } : {}) }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    },
+  );
   if (!response.ok) {
     throw new Error(`The email verifier answered HTTP ${response.status}`);
   }

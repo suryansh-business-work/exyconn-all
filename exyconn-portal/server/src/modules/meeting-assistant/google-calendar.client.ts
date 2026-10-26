@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 const EVENTS_API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
 const REQUEST_TIMEOUT_MS = 30_000;
 /** Pages read for one range before stopping: a bound, not an expected size. */
@@ -66,10 +67,15 @@ interface PageBody {
 }
 
 async function page(token: string, query: Record<string, string>): Promise<PageBody> {
-  const response = await fetch(`${EVENTS_API}?${new URLSearchParams(query).toString()}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  });
+  const response = await meteredFetch(
+    'GOOGLE_CALENDAR',
+    'GET events',
+    `${EVENTS_API}?${new URLSearchParams(query).toString()}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    },
+  );
   if (!response.ok) {
     const detail = `${response.headers.get('www-authenticate') ?? ''} ${await response.text()}`;
     throw new CalendarAccessError(failureOf(response.status, detail), response.status);

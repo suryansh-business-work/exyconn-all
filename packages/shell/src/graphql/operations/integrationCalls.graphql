@@ -1,0 +1,38 @@
+query ListIntegrationCallsPaged($input: TableQueryInput!) {
+  listIntegrationCallsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      provider
+      action
+      ok
+      durationMs
+      inputTokens
+      outputTokens
+      costUsd
+      companyId
+      actorEmail
+      source
+      path
+      error
+      createdAt
+    }
+  }
+}
+
+query ListIntegrationCallsStats {
+  listIntegrationCallsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}

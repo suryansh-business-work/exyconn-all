@@ -2077,14 +2077,31 @@ export type IncidentUpdateStatus =
 
 /** An integration whose calls are counted on the Environment Variables dashboard. */
 export type IntegrationProvider =
+  | 'CLOUDFLARE'
+  | 'EMAIL_VERIFIER'
   | 'FIRECRAWL'
   | 'GITHUB'
+  | 'GMAIL'
+  | 'GODADDY'
+  | 'GOOGLE_CALENDAR'
   | 'GOOGLE_MAPS'
+  | 'GOOGLE_SIGN_IN'
   | 'IMAGEKIT'
+  | 'MICROSOFT'
+  | 'MSG91'
   | 'OPENAI'
+  | 'PAYONEER'
+  | 'PAYPAL'
   | 'PEXELS'
+  | 'RAZORPAY'
+  | 'SARVAM'
   | 'SLACK'
-  | 'SMTP';
+  | 'SMTP'
+  | 'SOCIAL'
+  | 'SONARQUBE'
+  | 'STRIPE'
+  | 'TWILIO'
+  | 'VOBIZ';
 
 export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];

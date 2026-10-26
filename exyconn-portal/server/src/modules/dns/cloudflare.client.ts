@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../tech/usage/usage.meter';
 import { ConfigurationError } from '../../utils/errors';
 import { CloudflareConfigModel } from './cloudflare-config.model';
 import type { CloudflareRecord } from './dns.records';
@@ -50,10 +51,15 @@ class CloudflareClient {
     path: string,
     init: RequestInit = {},
   ): Promise<Envelope<T>> {
-    const response = await fetch(`${CLOUDFLARE_API_URL}${path}`, {
-      ...init,
-      headers: { Authorization: `Bearer ${key.apiToken}`, 'Content-Type': 'application/json' },
-    });
+    const response = await meteredFetch(
+      'CLOUDFLARE',
+      pathAction(init.method ?? 'GET', path),
+      `${CLOUDFLARE_API_URL}${path}`,
+      {
+        ...init,
+        headers: { Authorization: `Bearer ${key.apiToken}`, 'Content-Type': 'application/json' },
+      },
+    );
     const body = (await response.json().catch(() => null)) as Envelope<T> | null;
     if (!response.ok || !body?.success) {
       const reason = body?.errors?.map((error) => error.message).join('; ');

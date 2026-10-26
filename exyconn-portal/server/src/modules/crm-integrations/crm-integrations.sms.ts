@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { accountUrl, basicAuth, verifyTwilio } from '../calling-bot-demo/twilio.client';
@@ -24,14 +25,19 @@ function refused(provider: string, status: number): never {
 }
 
 async function twilioSms(config: UsableSmsConfig, to: string, body: string): Promise<SentSms> {
-  const response = await fetch(`${accountUrl(config.accountId)}/Messages.json`, {
-    method: 'POST',
-    headers: {
-      Authorization: basicAuth(config.accountId, config.authToken),
-      'Content-Type': 'application/x-www-form-urlencoded',
+  const response = await meteredFetch(
+    'TWILIO',
+    'POST Messages (SMS)',
+    `${accountUrl(config.accountId)}/Messages.json`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: basicAuth(config.accountId, config.authToken),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ From: config.fromNumber, To: to, Body: body }),
     },
-    body: new URLSearchParams({ From: config.fromNumber, To: to, Body: body }),
-  });
+  );
   if (!response.ok) refused('Twilio', response.status);
   const sent = (await response.json()) as { sid?: string; status?: string };
   return { messageId: sent.sid ?? '', status: sent.status ?? 'queued' };
@@ -42,7 +48,7 @@ async function twilioSms(config: UsableSmsConfig, to: string, body: string): Pro
  * is delivered only as far as the approved template allows.
  */
 async function msg91Sms(config: UsableSmsConfig, to: string, body: string): Promise<SentSms> {
-  const response = await fetch(MSG91_FLOW_URL, {
+  const response = await meteredFetch('MSG91', 'POST flow (SMS)', MSG91_FLOW_URL, {
     method: 'POST',
     headers: { authkey: config.authToken, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -82,7 +88,11 @@ export async function testSmsConfig(id: string): Promise<string> {
     return `Twilio accepted the credentials for ${name}.`;
   }
   const params = new URLSearchParams({ authkey: config.authToken, type: '4' });
-  const response = await fetch(`${MSG91_BALANCE_URL}?${params.toString()}`);
+  const response = await meteredFetch(
+    'MSG91',
+    'GET balance',
+    `${MSG91_BALANCE_URL}?${params.toString()}`,
+  );
   const balance = (await response.text()).trim();
   if (!response.ok || !/^\d+(\.\d+)?$/.test(balance)) {
     badRequest('MSG91 refused the auth key.');

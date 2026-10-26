@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import type { CallingBotConfigRecord } from '@exyconn/calling-bot-demo-server';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
@@ -33,23 +34,28 @@ export async function placeTwilioCall({
   answerUrl,
   statusUrl,
 }: PlaceTwilioCall): Promise<string> {
-  const response = await fetch(`${accountUrl(config.twilioAccountSid)}/Calls.json`, {
-    method: 'POST',
-    headers: {
-      Authorization: basicAuth(config.twilioAccountSid, config.twilioAuthToken),
-      'Content-Type': 'application/x-www-form-urlencoded',
+  const response = await meteredFetch(
+    'TWILIO',
+    'POST Calls',
+    `${accountUrl(config.twilioAccountSid)}/Calls.json`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: basicAuth(config.twilioAccountSid, config.twilioAuthToken),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        To: to,
+        From: config.twilioNumber,
+        Url: answerUrl,
+        Method: 'POST',
+        StatusCallback: statusUrl,
+        StatusCallbackMethod: 'POST',
+        StatusCallbackEvent: 'completed',
+        TimeLimit: String(config.maxCallSeconds),
+      }),
     },
-    body: new URLSearchParams({
-      To: to,
-      From: config.twilioNumber,
-      Url: answerUrl,
-      Method: 'POST',
-      StatusCallback: statusUrl,
-      StatusCallbackMethod: 'POST',
-      StatusCallbackEvent: 'completed',
-      TimeLimit: String(config.maxCallSeconds),
-    }),
-  });
+  );
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as { code?: number; message?: string };
     logger.warn(`Twilio refused a call: HTTP ${response.status} code ${body.code ?? 'none'}`);
@@ -61,7 +67,7 @@ export async function placeTwilioCall({
 
 /** Proves a Twilio Account SID and Auth Token: reads the account. Resolves to its name. */
 export async function verifyTwilio(accountSid: string, authToken: string): Promise<string> {
-  const response = await fetch(`${accountUrl(accountSid)}.json`, {
+  const response = await meteredFetch('TWILIO', 'GET Account', `${accountUrl(accountSid)}.json`, {
     headers: { Authorization: basicAuth(accountSid, authToken) },
   });
   if (!response.ok) {

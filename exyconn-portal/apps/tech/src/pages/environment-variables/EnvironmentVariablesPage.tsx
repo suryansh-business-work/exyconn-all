@@ -10,7 +10,12 @@ import { ConfigTransfer } from './advanced/ConfigTransfer';
 import { GlobalTransferBar } from './advanced/GlobalTransferBar';
 
 /** Sections that hold no configs of their own, so they offer no section export. */
-const NO_CONFIGS: ReadonlySet<string> = new Set(['dashboard', 'ai-pricing', 'access-history']);
+const NO_CONFIGS: ReadonlySet<string> = new Set([
+  'dashboard',
+  'ai-pricing',
+  'access-history',
+  'usage-history',
+]);
 
 /** Route the integrations live under; each one is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
