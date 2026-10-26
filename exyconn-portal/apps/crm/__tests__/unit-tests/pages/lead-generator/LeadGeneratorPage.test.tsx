@@ -48,7 +48,7 @@ describe('LeadGeneratorPage', () => {
     answer({ data: ready('maps-key') });
     renderWithProviders(<LeadGeneratorPage />);
 
-    expect(screen.getByRole('heading', { name: 'Lead generator' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Google Business' })).toBeInTheDocument();
     expect(screen.getByTestId('workspace')).toHaveTextContent('maps-key');
     expect(config.options).toEqual({ fetchPolicy: 'cache-and-network' });
   });
