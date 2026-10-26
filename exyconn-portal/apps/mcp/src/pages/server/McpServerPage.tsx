@@ -53,7 +53,7 @@ function serverTabs(endpoint: McpEndpoint, t: (text: string) => string): TabberI
 }
 
 /**
- * One MCP server — CRM, Marketing, or All (every module's tools in one connection): how to
+ * One MCP server — one module's (CRM, HR, Finance…) or All (every module's tools in one connection): how to
  * connect it, every tool it offers, what it was used for, its activity log and who is connected.
  */
 export function McpServerPage({ endpoint }: Readonly<{ endpoint: McpEndpoint }>) {

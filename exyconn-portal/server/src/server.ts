@@ -56,7 +56,7 @@ import { ensureWhatsappDemoSeeds } from '../../../demos/whatsapp-demo/server/src
 import { startWhatsappReminders } from '../../../demos/whatsapp-demo/server/src/channel';
 import { startEmailVerification } from './modules/email-verification';
 import { attachChatSocket, startChatHandoff } from './modules/website-chat';
-import { assignLegacyMcpToCrm } from './modules/mcp/mcp.migrate';
+import { assignLegacyMcpToCrm } from './modules/mcp/data/mcp.migrate';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 

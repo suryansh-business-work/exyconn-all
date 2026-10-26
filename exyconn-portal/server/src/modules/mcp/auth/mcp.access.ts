@@ -1,14 +1,14 @@
-import type { GraphQLContext } from '../../middleware/auth';
-import { assertRole } from '../../middleware/roleGuard';
-import type { Role } from '../../constants/roles';
-import type { TokenPayload } from '../../utils/jwt';
+import type { GraphQLContext } from '../../../middleware/auth';
+import { assertRole } from '../../../middleware/roleGuard';
+import type { Role } from '../../../constants/roles';
+import type { TokenPayload } from '../../../utils/jwt';
 import {
   MCP_SERVERS,
   serverSpec,
   serversOf,
   type McpEndpointKey,
   type McpServerKey,
-} from './servers';
+} from '../servers';
 
 /** The roles that open an endpoint: its module's, or any module's for the global one. */
 function rolesFor(endpoint: McpEndpointKey): Role[] {

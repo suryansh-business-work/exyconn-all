@@ -1,11 +1,16 @@
 import { Types } from 'mongoose';
 import { useTestOrganization } from '../../../helpers';
 import { mcpResolvers } from '../../../../src/modules/mcp/mcp.resolvers';
-import { McpCallModel, McpTokenModel } from '../../../../src/modules/mcp/mcp.models';
-import { mcpActivity, mcpUsage } from '../../../../src/modules/mcp/mcp.usage';
-import { auditActionOf } from '../../../../src/modules/mcp/mcp.server';
-import { endpointTool, liveSchema, useSchema } from '../../../../src/modules/mcp/mcp.catalogue';
-import { assignLegacyMcpToCrm } from '../../../../src/modules/mcp/mcp.migrate';
+import { McpCallModel, McpTokenModel } from '../../../../src/modules/mcp/data/mcp.models';
+import { mcpActivity, mcpUsage } from '../../../../src/modules/mcp/data/mcp.usage';
+import { auditActionOf } from '../../../../src/modules/mcp/core/mcp.server';
+import {
+  endpointTool,
+  liveSchema,
+  useSchema,
+} from '../../../../src/modules/mcp/core/mcp.catalogue';
+import { assignLegacyMcpToCrm } from '../../../../src/modules/mcp/data/mcp.migrate';
+import { MCP_SERVERS } from '../../../../src/modules/mcp/servers';
 import { UserModel } from '../../../../src/modules/admin/user.model';
 import { runAsPlatform } from '../../../../src/lib/tenant';
 import { ROLES } from '../../../../src/constants/roles';
@@ -138,13 +143,18 @@ describe('MCP resolvers', () => {
     });
     const admin = { ...ctx, user: { ...ctx.user!, roles: [ROLES.ADMIN] } };
     const all = (await Query.mcpServers(null, {}, admin)) as Array<Record<string, unknown>>;
-    expect(all.map((server) => [server.endpoint, server.toolCount])).toEqual([
-      ['CRM', 3],
-      ['MARKETING', 2],
-      ['ALL', 4],
-    ]);
+    const toolCounts: Record<string, number> = { CRM: 3, MARKETING: 2, ALL: 4 };
+    expect(all.map((server) => [server.endpoint, server.toolCount])).toEqual(
+      [...MCP_SERVERS.map((spec) => spec.key.toUpperCase()), 'ALL'].map((endpoint) => [
+        endpoint,
+        toolCounts[endpoint] ?? 0,
+      ]),
+    );
     const employee = { ...ctx, user: { ...ctx.user!, roles: [ROLES.EMPLOYEE] } };
-    expect(await Query.mcpServers(null, {}, employee)).toEqual([]);
+    const own = (await Query.mcpServers(null, {}, employee)) as Array<Record<string, unknown>>;
+    expect(own.map((server) => server.endpoint)).toEqual(['EMPLOYEE', 'SOCIAL', 'ALL']);
+    const nobody = { ...ctx, user: { ...ctx.user!, roles: [] } };
+    expect(await Query.mcpServers(null, {}, nobody)).toEqual([]);
     const platform = { ...ctx, organizationId: null };
     expect(await Query.mcpServers(null, {}, platform)).toHaveLength(2);
   });
@@ -192,7 +202,13 @@ describe('MCP resolvers', () => {
     expect(
       await Query.mcpActivity(null, { endpoint: 'ALL', days: 7, limit: 5 }, marketer),
     ).toHaveLength(1);
-    const outsider = { ...ctx, user: { ...ctx.user!, roles: [ROLES.EMPLOYEE] } };
+    const employee = { ...ctx, user: { ...ctx.user!, roles: [ROLES.EMPLOYEE] } };
+    expect(
+      await codeOf(
+        Promise.resolve().then(() => Query.mcpUsage(null, { endpoint: 'CRM', days: 7 }, employee)),
+      ),
+    ).toBe('FORBIDDEN');
+    const outsider = { ...ctx, user: { ...ctx.user!, roles: [] } };
     for (const endpoint of ['CRM', 'ALL']) {
       expect(
         await codeOf(

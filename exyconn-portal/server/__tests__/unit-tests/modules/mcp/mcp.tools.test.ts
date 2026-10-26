@@ -1,7 +1,7 @@
 import { buildASTSchema, buildSchema, concatAST, parse, validate } from 'graphql';
 import gql from 'graphql-tag';
 import { typeDefs } from '../../../../src/graphql';
-import { CRM_MCP, MARKETING_MCP } from '../../../../src/modules/mcp/servers';
+import { CRM_MCP, MARKETING_MCP, MCP_SERVERS } from '../../../../src/modules/mcp/servers';
 import {
   argumentsSchema,
   moduleTools,
@@ -9,7 +9,7 @@ import {
   documentOf,
   inputSchemaOf,
   selectionOf,
-} from '../../../../src/modules/mcp/mcp.tools';
+} from '../../../../src/modules/mcp/core/mcp.tools';
 
 const toy = buildSchema(`
   scalar DateTime
@@ -177,5 +177,70 @@ describe('the Marketing tools', () => {
       .filter((result) => result.errors.length > 0)
       .map((result) => `${result.name}: ${result.errors[0].message}`);
     expect(invalid).toEqual([]);
+  });
+});
+
+describe.each(MCP_SERVERS.map((spec) => [spec.label, spec] as const))(
+  'the %s server',
+  (_, spec) => {
+    const tools = moduleTools(schema, declaredFields(spec.typeDefs), spec.label);
+
+    it('offers tools, and never credentials, passwords, API keys or the Tech vault', () => {
+      expect(tools.length).toBeGreaterThan(0);
+      expect(
+        tools.filter((tool) => /Config|Secret|Token|Password|ApiKey|Vault/.test(tool.name)),
+      ).toEqual([]);
+    });
+
+    it('runs operations the schema accepts, every one of them', () => {
+      const invalid = tools
+        .map((tool) => ({ name: tool.name, errors: validate(schema, parse(tool.document)) }))
+        .filter((result) => result.errors.length > 0)
+        .map((result) => `${result.name}: ${result.errors[0].message}`);
+      expect(invalid).toEqual([]);
+    });
+  },
+);
+
+describe('the module servers', () => {
+  it('cover every portal, each at its own key', () => {
+    expect(MCP_SERVERS.map((spec) => spec.key)).toEqual([
+      'crm',
+      'marketing',
+      'admin',
+      'ai',
+      'clienthub',
+      'compliance',
+      'employee',
+      'finance',
+      'hr',
+      'it',
+      'legal',
+      'products',
+      'projects',
+      'social',
+      'status',
+      'support',
+      'tech',
+      'tracker',
+      'website',
+    ]);
+  });
+
+  it('leave out the operations that hand back a password or an API key', () => {
+    const offered = new Set(
+      MCP_SERVERS.flatMap((spec) =>
+        moduleTools(schema, declaredFields(spec.typeDefs), spec.label).map((tool) => tool.name),
+      ),
+    );
+    const withheld = [
+      'createApiKey',
+      'listApiKeys',
+      'resetUserPassword',
+      'techProviderLoginPassword',
+      'unlockTechVault',
+    ];
+    expect(withheld.filter((name) => offered.has(name))).toEqual([]);
+    expect(offered.has('listUsers')).toBe(true);
   });
 });

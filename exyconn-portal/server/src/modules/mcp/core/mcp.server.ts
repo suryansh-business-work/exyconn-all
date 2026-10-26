@@ -6,15 +6,15 @@ import {
   type CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
-import type { GraphQLContext } from '../../middleware/auth';
-import type { Role } from '../../constants/roles';
-import { runAsPlatform, runForOrganization } from '../../lib/tenant';
-import { logger } from '../../utils/logger';
-import { UserModel } from '../admin/user.model';
-import { recordAudit, type AuditAction } from '../audit';
+import type { GraphQLContext } from '../../../middleware/auth';
+import type { Role } from '../../../constants/roles';
+import { runAsPlatform, runForOrganization } from '../../../lib/tenant';
+import { logger } from '../../../utils/logger';
+import { UserModel } from '../../admin/user.model';
+import { recordAudit, type AuditAction } from '../../audit';
 import { endpointTool, endpointTools, liveSchema, type McpServerTool } from './mcp.catalogue';
-import { McpCallModel } from './mcp.models';
-import { endpointMeta, type McpEndpointKey } from './servers';
+import { McpCallModel } from '../data/mcp.models';
+import { endpointMeta, type McpEndpointKey } from '../servers';
 
 /** The longest answer handed back to Claude, in characters; longer ones are cut and say so. */
 const MAX_ANSWER_CHARS = 60_000;

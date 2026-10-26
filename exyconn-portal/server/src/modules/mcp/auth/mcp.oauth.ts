@@ -16,12 +16,17 @@ import {
   InvalidTargetError,
   InvalidTokenError,
 } from '@modelcontextprotocol/sdk/server/auth/errors.js';
-import { env } from '../../config/env';
-import { runAsPlatform } from '../../lib/tenant';
-import { open, seal } from '../../utils/secretBox';
-import { McpAuthCodeModel, McpAuthRequestModel, McpClientModel, McpTokenModel } from './mcp.models';
-import { endpointOfResource, type McpEndpointKey } from './servers';
-import type { McpTokenExtra } from './mcp.server';
+import { env } from '../../../config/env';
+import { runAsPlatform } from '../../../lib/tenant';
+import { open, seal } from '../../../utils/secretBox';
+import {
+  McpAuthCodeModel,
+  McpAuthRequestModel,
+  McpClientModel,
+  McpTokenModel,
+} from '../data/mcp.models';
+import { endpointOfResource, type McpEndpointKey } from '../servers';
+import type { McpTokenExtra } from '../core/mcp.server';
 
 /**
  * The one scope a connection asks for: the server it connects to, as the signed-in person may

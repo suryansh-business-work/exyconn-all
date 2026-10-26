@@ -8733,11 +8733,28 @@ export type McpConnection = {
   userName: Scalars['String']['output'];
 };
 
-/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+/** An MCP server: one module's (CRM, MARKETING, HR and the rest), or ALL, which combines every module's tools. */
 export enum McpEndpoint {
+  Admin = 'ADMIN',
+  Ai = 'AI',
   All = 'ALL',
+  Clienthub = 'CLIENTHUB',
+  Compliance = 'COMPLIANCE',
   Crm = 'CRM',
-  Marketing = 'MARKETING'
+  Employee = 'EMPLOYEE',
+  Finance = 'FINANCE',
+  Hr = 'HR',
+  It = 'IT',
+  Legal = 'LEGAL',
+  Marketing = 'MARKETING',
+  Products = 'PRODUCTS',
+  Projects = 'PROJECTS',
+  Social = 'SOCIAL',
+  Status = 'STATUS',
+  Support = 'SUPPORT',
+  Tech = 'TECH',
+  Tracker = 'TRACKER',
+  Website = 'WEBSITE'
 }
 
 export type McpPersonUsage = {
