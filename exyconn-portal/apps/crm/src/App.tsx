@@ -11,10 +11,10 @@ import { DealsListPage, DealsPage } from './pages/deals';
 import { ActivitiesPage } from './pages/activities';
 import { EmailVerifierPage } from './pages/email-verifier';
 import { LeadGeneratorPage } from './pages/lead-generator';
+import { ClutchPage } from './pages/clutch';
 import { WebsiteScraperPage } from './pages/website-scraper';
 import { PropertiesPage } from './pages/settings';
 import { IntegrationsPage } from './pages/integrations';
-import { McpActivityPage } from './pages/mcp-activity';
 import { EMAIL_INTEGRATIONS_PATH } from './integrations/emailIntegrationsPath';
 import { CommsDockLayout } from './records/comms';
 import { MeetingsPage } from './pages/meetings';
@@ -60,13 +60,18 @@ export function App() {
         {/* Cold emails live on each contact's and company's own tab now; old links land on Contacts. */}
         <Route path="/cold-emails/*" element={<Navigate to="/contacts" replace />} />
         <Route path="/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
-        <Route path="/tools/lead-generator" element={<LeadGeneratorPage />} />
+        <Route path="/tools/lead-generators/google-business" element={<LeadGeneratorPage />} />
+        <Route path="/tools/lead-generators/clutch/:runId?" element={<ClutchPage />} />
+        {/* The Google lead generator moved under Lead generators; old links still land on it. */}
+        <Route
+          path="/tools/lead-generator"
+          element={<Navigate to="/tools/lead-generators/google-business" replace />}
+        />
         <Route path="/tools/website-scraper" element={<WebsiteScraperPage />} />
         <Route path="/settings/properties/:object?" element={<PropertiesPage />} />
         {/* Mailboxes are connected in Integrations now; the old Connect Gmail page lands there. */}
         <Route path="/settings/gmail" element={<Navigate to={EMAIL_INTEGRATIONS_PATH} replace />} />
         <Route path="/integrations/:tab?" element={<IntegrationsPage />} />
-        <Route path="/claude-activity" element={<McpActivityPage />} />
       </Route>
       <Route path="/crm/*" element={<LegacyCrmRedirect />} />
     </PortalApp>

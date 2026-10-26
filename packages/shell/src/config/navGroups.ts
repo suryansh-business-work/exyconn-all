@@ -5,6 +5,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import BuildIcon from '@mui/icons-material/Build';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import BusinessIcon from '@mui/icons-material/Business';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -19,6 +20,7 @@ import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import GavelIcon from '@mui/icons-material/Gavel';
 import GroupsIcon from '@mui/icons-material/Groups';
 import InboxIcon from '@mui/icons-material/Inbox';
+import HubIcon from '@mui/icons-material/Hub';
 import LanguageIcon from '@mui/icons-material/Language';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
@@ -56,7 +58,9 @@ export const NAV_GROUP_ICONS = {
   Growth: TrendingUpIcon,
   'Hiring & onboarding': PersonAddIcon,
   Inbox: InboxIcon,
+  'Lead generators': TravelExploreIcon,
   Leave: BeachAccessIcon,
+  'MCP servers': HubIcon,
   'Meeting Assistant': VoiceChatIcon,
   'My meetings': VideoCallIcon,
   'My record': FolderSharedIcon,

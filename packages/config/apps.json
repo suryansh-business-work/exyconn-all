@@ -145,5 +145,11 @@
     "port": 4039,
     "title": "Client Hub · Exyconn",
     "description": "Exyconn Client Hub — pay invoices online with Stripe or Razorpay, download invoices and transactions, raise support tickets and follow your projects."
+  },
+  "mcp": {
+    "subdomain": "mcp",
+    "port": 4044,
+    "title": "MCP · Exyconn Track",
+    "description": "Exyconn Track MCP — connect Claude to the CRM, Marketing or every module at once: server addresses, tools, usage, activity and connections."
   }
 }

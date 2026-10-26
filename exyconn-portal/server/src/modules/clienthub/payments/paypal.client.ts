@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../../tech/usage/usage.meter';
 import type { CheckoutRequest } from './stripe.client';
 
 const TIMEOUT_MS = 15_000;
@@ -22,15 +23,20 @@ async function accessToken(keys: PaypalKeys): Promise<string> {
     return cached.token;
   }
   const auth = Buffer.from(`${keys.clientId}:${keys.clientSecret}`).toString('base64');
-  const response = await fetch(`${HOSTS[keys.mode]}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
+  const response = await meteredFetch(
+    'PAYPAL',
+    'POST /v1/oauth2/token',
+    `${HOSTS[keys.mode]}/v1/oauth2/token`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     },
-    body: 'grant_type=client_credentials',
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  );
   const payload = (await response.json().catch(() => ({}))) as {
     access_token?: string;
     expires_in?: number;
@@ -47,16 +53,21 @@ async function accessToken(keys: PaypalKeys): Promise<string> {
 
 /** PayPal's REST API with an OAuth token — no SDK, so nothing new ships with the server. */
 async function call<T>(keys: PaypalKeys, path: string, body?: unknown, idempotencyKey?: string) {
-  const response = await fetch(`${HOSTS[keys.mode]}${path}`, {
-    method: body === undefined ? 'GET' : 'POST',
-    headers: {
-      Authorization: `Bearer ${await accessToken(keys)}`,
-      'Content-Type': 'application/json',
-      ...(idempotencyKey ? { 'PayPal-Request-Id': idempotencyKey } : {}),
+  const response = await meteredFetch(
+    'PAYPAL',
+    pathAction(body === undefined ? 'GET' : 'POST', path),
+    `${HOSTS[keys.mode]}${path}`,
+    {
+      method: body === undefined ? 'GET' : 'POST',
+      headers: {
+        Authorization: `Bearer ${await accessToken(keys)}`,
+        'Content-Type': 'application/json',
+        ...(idempotencyKey ? { 'PayPal-Request-Id': idempotencyKey } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  );
   const payload = (await response.json().catch(() => ({}))) as T & {
     message?: string;
     details?: Array<{ issue?: string }>;

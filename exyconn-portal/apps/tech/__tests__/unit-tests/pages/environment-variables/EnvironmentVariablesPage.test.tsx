@@ -1,3 +1,4 @@
+import type React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -65,6 +66,32 @@ vi.mock('../../../../src/pages/environment-variables/usage/IntegrationsDashboard
 vi.mock('../../../../src/pages/environment-variables/usage/IntegrationUsageCard', () => ({
   IntegrationUsageCard: ({ provider }: Readonly<{ provider: string }>) => (
     <p data-testid="usage-card">{provider}</p>
+  ),
+}));
+
+// The lock and the per-section extras have their own suites; here they only mark where they sit.
+vi.mock('../../../../src/pages/environment-variables/vault/TechVaultGate', () => ({
+  TechVaultGate: ({ children }: Readonly<{ children: React.ReactNode }>) => (
+    <div data-testid="vault-gate">{children}</div>
+  ),
+}));
+vi.mock('../../../../src/pages/environment-variables/vault/VaultHistoryPanel', async () =>
+  (await import('./panel.harness')).panelModule('VaultHistoryPanel'),
+);
+vi.mock('../../../../src/pages/environment-variables/usage/UsageHistoryPanel', async () =>
+  (await import('./panel.harness')).panelModule('UsageHistoryPanel'),
+);
+vi.mock('../../../../src/pages/environment-variables/advanced/GlobalTransferBar', async () =>
+  (await import('./panel.harness')).panelModule('GlobalTransferBar'),
+);
+vi.mock('../../../../src/pages/environment-variables/advanced/ProviderAdvanced', () => ({
+  ProviderAdvanced: ({ provider }: Readonly<{ provider: string }>) => (
+    <p data-testid="provider-advanced">{provider}</p>
+  ),
+}));
+vi.mock('../../../../src/pages/environment-variables/advanced/ConfigTransfer', () => ({
+  ConfigTransfer: ({ section }: Readonly<{ section: string }>) => (
+    <p data-testid="config-transfer">{section}</p>
   ),
 }));
 
@@ -143,10 +170,29 @@ describe('EnvironmentVariablesPage', () => {
     ['sonarqube', 'SonarConfigsPanel'],
     ['email-accounts', 'EmailAccountsPanel'],
     ['billing-keys', 'BillingKeysPanel'],
+    ['access-history', 'VaultHistoryPanel'],
+    ['usage-history', 'UsageHistoryPanel'],
   ])('shows the %s panel at its own address', (slug, panel) => {
     renderAt(`/tech/environment-variables/${slug}`);
     expect(screen.getByRole('region')).toContainElement(screen.getByTestId(panel));
     expect(screen.queryByTestId('SlackConfigsPanel')).not.toBeInTheDocument();
+  });
+
+  it('keeps the whole page behind the vault, with export and import for everything', () => {
+    renderAt('/tech/environment-variables/slack');
+    const gate = screen.getByTestId('vault-gate');
+    expect(gate).toContainElement(screen.getByTestId('GlobalTransferBar'));
+    expect(gate).toContainElement(screen.getByRole('navigation', { name: 'Integration credentials' }));
+  });
+
+  it('adds the Advanced guide and section export to an integration, not to an overview page', () => {
+    renderAt('/tech/environment-variables/stripe');
+    expect(screen.getByTestId('provider-advanced')).toHaveTextContent('stripe');
+    expect(screen.getByTestId('config-transfer')).toHaveTextContent('stripe');
+
+    renderAt('/tech/environment-variables/usage-history');
+    expect(screen.getByTestId('UsageHistoryPanel')).toBeInTheDocument();
+    expect(screen.getAllByTestId('config-transfer')).toHaveLength(1);
   });
 
   it('lists both OAuth apps under one Email accounts entry, with no separate Gmail or Microsoft one', () => {

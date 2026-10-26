@@ -125,6 +125,7 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
 <https://tracker.exyconn.com>
 <https://demos.exyconn.com>
 <https://clienthub.exyconn.com>
+<https://mcp.exyconn.com>
 <https://tools.exyconn.com>
 <https://tools-api.exyconn.com/health>
 
@@ -339,3 +340,9 @@ Sonar rules that keep failing here (rule id in brackets). **Get them right up fr
 - Email templates are edited in Tech > Email, never as local MJML (rule 28).
 - The tracker version is a single number across the desktop and phone apps (rule 33).
 After every code push to staging, monitor the PR and GitHub Actions status every 10 minutes until all checks are green. If any check fails, immediately investigate the root cause, apply the necessary fix to the same branch, push the changes, and rerun only the specific failed job or check without restarting workflows or jobs that have already passed, wherever GitHub Actions supports selective reruns. Continue monitoring and resolving failures until all required PR checks pass, the staging pipeline is successful, and the code is ready for merging. Never ignore failed checks, bypass CI requirements, or merge code while any required check is failing.
+
+37. MCP servers follow their modules (ENFORCED). Every module offered to Claude is its own MCP server (CRM at `/mcp/crm`, Marketing at `/mcp/marketing`) and `/mcp/all` combines them; all of it is managed in the MCP portal at mcp.exyconn.com (`exyconn-portal/apps/mcp`). Any feature added, changed or removed in such a module must update its MCP server in the same change:
+- Tools are generated from the module's typeDefs listed in `exyconn-portal/server/src/modules/mcp/servers/<module>.server.ts`. A new typeDefs file goes in that list; a new or changed query/mutation needs a real GraphQL description (it becomes the tool's description) and arguments with descriptions.
+- A new module that Claude should reach gets its own `servers/<module>.server.ts`, an entry in `MCP_SERVERS` and `MCP_ENDPOINT_PATHS`, the key in `McpServerKey` and the GraphQL `McpEndpoint` enum, and a `mcpServerNav(...)` entry under the `mcp` module in `packages/shell/src/config/modules.ts`.
+- MCP pages (connect, tools, usage, activity, connections, dashboard) live only in the MCP portal, never in a module's own portal.
+- `mcp.tools.test.ts` must stay green for every server, and docs/portal/mcp/README.md must describe the change.

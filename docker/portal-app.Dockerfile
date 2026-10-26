@@ -32,6 +32,7 @@ COPY packages/i18n/package.json packages/i18n/
 COPY packages/kanban/package.json packages/kanban/
 COPY packages/live-editor/package.json packages/live-editor/
 COPY packages/logger/package.json packages/logger/
+COPY packages/payout/package.json packages/payout/
 COPY packages/shell/package.json packages/shell/
 COPY packages/login/package.json packages/login/
 COPY packages/regex/package.json packages/regex/
@@ -66,6 +67,7 @@ COPY exyconn-portal/apps/tech/package.json exyconn-portal/apps/tech/
 COPY exyconn-portal/apps/tracker/package.json exyconn-portal/apps/tracker/
 COPY exyconn-portal/apps/website/package.json exyconn-portal/apps/website/
 COPY exyconn-portal/apps/clienthub/package.json exyconn-portal/apps/clienthub/
+COPY exyconn-portal/apps/mcp/package.json exyconn-portal/apps/mcp/
 COPY demos/hub/package.json demos/hub/
 COPY demos/whatsapp-demo/ui/package.json demos/whatsapp-demo/ui/
 COPY demos/whatsapp-demo/server/package.json demos/whatsapp-demo/server/

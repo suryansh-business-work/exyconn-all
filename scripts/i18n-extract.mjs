@@ -32,6 +32,8 @@ const SOURCE_DIRS = [
   "packages",
   "exyconn-tracker-app/src/renderer",
   "exyconn-tracker-mobile/src",
+  // Provider guides (Environment Variables > Advanced) are written on the server and shown as-is.
+  "exyconn-portal/server/src/modules/tech/providers",
 ];
 
 const SKIPPED_DIRS = new Set([

@@ -1,4 +1,7 @@
-import { IntegrationUsageModel } from '../../../../../src/modules/tech/usage/usage.model';
+import {
+  INTEGRATION_PROVIDERS,
+  IntegrationUsageModel,
+} from '../../../../../src/modules/tech/usage/usage.model';
 import {
   meterCall,
   metered,
@@ -132,16 +135,9 @@ describe('reading usage back', () => {
 
     const usage = await integrationUsage(2, today);
 
-    expect(usage.map((u) => u.provider)).toEqual([
-      'OPENAI',
-      'SMTP',
-      'IMAGEKIT',
-      'SLACK',
-      'GITHUB',
-      'PEXELS',
-      'FIRECRAWL',
-      'GOOGLE_MAPS',
-    ]);
+    // Every metered integration, in the order the dashboard lists them.
+    expect(usage.map((u) => u.provider)).toEqual([...INTEGRATION_PROVIDERS]);
+    expect(usage.slice(0, 3).map((u) => u.provider)).toEqual(['OPENAI', 'SMTP', 'IMAGEKIT']);
     const openai = usage[0];
     expect(openai).toMatchObject({ calls: 3, costUsd: 2 });
     expect(openai.days).toEqual([

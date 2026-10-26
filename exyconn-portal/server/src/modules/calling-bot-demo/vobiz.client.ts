@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import type { CallingBotConfigRecord } from '@exyconn/calling-bot-demo-server';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
@@ -28,7 +29,9 @@ export async function placeVobizCall({
   answerUrl,
   hangupUrl,
 }: PlaceCall): Promise<string> {
-  const response = await fetch(
+  const response = await meteredFetch(
+    'VOBIZ',
+    'POST Call',
     `${VOBIZ_API}/Account/${encodeURIComponent(config.vobizAuthId)}/Call/`,
     {
       method: 'POST',
@@ -62,9 +65,14 @@ export async function placeVobizCall({
 
 /** Proves a Vobiz Auth ID and Auth Token: reads the account they belong to. */
 export async function verifyVobiz(authId: string, authToken: string): Promise<void> {
-  const response = await fetch(`${VOBIZ_API}/Account/${encodeURIComponent(authId)}/`, {
-    headers: { 'X-Auth-ID': authId, 'X-Auth-Token': authToken },
-  });
+  const response = await meteredFetch(
+    'VOBIZ',
+    'GET Account',
+    `${VOBIZ_API}/Account/${encodeURIComponent(authId)}/`,
+    {
+      headers: { 'X-Auth-ID': authId, 'X-Auth-Token': authToken },
+    },
+  );
   if (!response.ok) {
     badRequest(`Vobiz refused the Auth ID or Auth Token (HTTP ${response.status}).`);
   }

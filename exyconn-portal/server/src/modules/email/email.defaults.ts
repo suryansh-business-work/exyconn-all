@@ -446,6 +446,23 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
         </mj-text>`),
   },
   {
+    key: 'tech-vault-code',
+    name: 'Tech — Environment Variables unlock code',
+    description:
+      'Sent when Tech staff unlock Environment Variables. {{code}} works once and expires in {{expiresIn}}; the unlock lasts {{minutes}} minutes. {{ip}} is the address that asked.',
+    subject: '{{code}} unlocks Environment Variables',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Unlock Environment Variables</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Enter this code to open Tech &gt; Environment Variables for {{minutes}} minutes. It was requested from {{ip}}.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, someone may be using your account. Change your password and tell your administrator.
+        </mj-text>`),
+  },
+  {
     key: 'client-hub-invite',
     name: 'Client hub — access granted',
     description:

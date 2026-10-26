@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { MCP_ENDPOINTS, MCP_SERVERS } from './servers';
 
 /** How long a sign-in in progress, and its one-time code, are worth. */
 const REQUEST_TTL_SECONDS = 10 * 60;
@@ -22,9 +23,13 @@ const mcpClientSchema = new Schema(
   { timestamps: true },
 );
 
-/** A sign-in waiting for the person to allow it on the AI portal's consent page. */
+/** Where a connection points: one module's server, or the global one (`all`). */
+const endpointField = { type: String, enum: MCP_ENDPOINTS, required: true };
+
+/** A sign-in waiting for the person to allow it on the MCP portal's consent page. */
 const mcpAuthRequestSchema = new Schema({
   clientId: { type: String, required: true },
+  endpoint: endpointField,
   redirectUri: { type: String, required: true },
   codeChallenge: { type: String, required: true },
   state: { type: String, default: '' },
@@ -37,6 +42,7 @@ const mcpAuthRequestSchema = new Schema({
 const mcpAuthCodeSchema = new Schema({
   codeHash: { type: String, required: true, unique: true },
   clientId: { type: String, required: true },
+  endpoint: endpointField,
   userId: { type: String, required: true },
   organizationId: { type: String, required: true },
   redirectUri: { type: String, required: true },
@@ -47,12 +53,14 @@ const mcpAuthCodeSchema = new Schema({
 });
 
 /**
- * One connection: the tokens a client holds for one person in one company. Only hashes are
- * stored. The refresh token rotates on every use; a revoked row signs that connector out.
+ * One connection: the tokens a client holds for one person in one company, good at one endpoint
+ * only. Only hashes are stored. The refresh token rotates on every use; a revoked row signs that
+ * connector out.
  */
 const mcpTokenSchema = new Schema(
   {
     clientId: { type: String, required: true },
+    endpoint: { ...endpointField, index: true },
     clientName: { type: String, default: '' },
     userId: { type: String, required: true, index: true },
     organizationId: { type: String, required: true, index: true },
@@ -69,10 +77,12 @@ const mcpTokenSchema = new Schema(
 
 /**
  * One tool call made through MCP, in the caller's company: what ran, for whom, and how it went.
- * The CRM's activity log and the AI portal's usage dashboard read these. Arguments are not kept
- * (they can carry personal data); the summary names the records only by what the tool returns.
+ * The MCP portal's activity logs and usage dashboards read these. Arguments are not kept (they
+ * can carry personal data); the summary names the records only by what the tool returns.
  */
 const mcpCallSchema = new Schema({
+  /** The module server the tool belongs to, whichever endpoint it was called through. */
+  server: { type: String, enum: MCP_SERVERS.map((spec) => spec.key), required: true },
   userId: { type: String, required: true },
   userName: { type: String, default: '' },
   clientName: { type: String, default: '' },
@@ -83,6 +93,7 @@ const mcpCallSchema = new Schema({
   durationMs: { type: Number, default: 0 },
   at: { type: Date, required: true, default: Date.now, expires: CALL_TTL_SECONDS },
 });
+mcpCallSchema.index({ server: 1, at: -1 });
 mcpCallSchema.index({ at: -1 });
 
 export type McpClientDocument = InferSchemaType<typeof mcpClientSchema>;

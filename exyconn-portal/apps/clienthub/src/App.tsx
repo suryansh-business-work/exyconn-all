@@ -14,6 +14,7 @@ import { ProjectsPage } from './pages/projects/ProjectsPage';
 import { LinksPage } from './pages/links/LinksPage';
 import { CommunicationsPage } from './pages/communications/CommunicationsPage';
 import { DocumentsPage } from './pages/documents/DocumentsPage';
+import { RefundAccountsPage } from './pages/refunds/RefundAccountsPage';
 import { PATHS } from './paths';
 
 /** One page behind its own boundary: a failing screen never takes the hub down. */
@@ -48,6 +49,7 @@ export function App() {
           <Route path="/documents" element={page(<DocumentsPage />)} />
           <Route path="/communications" element={page(<CommunicationsPage />)} />
           <Route path="/links" element={page(<LinksPage />)} />
+          <Route path={PATHS.refundAccounts} element={page(<RefundAccountsPage />)} />
         </Route>
       }
     >

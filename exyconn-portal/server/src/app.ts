@@ -9,6 +9,7 @@ import { graphqlArmor } from './graphql/security/limits';
 import { serverErrorLogPlugin } from './modules/logs';
 import { buildContext, type GraphQLContext } from './middleware/auth';
 import { tenantScope } from './middleware/tenant';
+import { requestInfo } from './middleware/requestInfo';
 import { env } from './config/env';
 import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tracker.updates';
 import { SOCIAL_CALLBACK_PATH, socialCallbackRouter } from './modules/social-accounts';
@@ -82,11 +83,13 @@ export async function createApp(): Promise<Express> {
   );
   // Every request runs inside an organization scope; the context below decides which one.
   app.use(tenantScope());
+  app.use(requestInfo());
   // One proxy hop (the host nginx), so `req.ip` is the real caller rather than 127.0.0.1 —
   // the public status-page mutation rate-limits on it.
   app.set('trust proxy', 1);
-  // Claude's custom connector: the CRM MCP server and its OAuth sign-in. Before the portals'
-  // CORS, which would answer a connector's preflight without letting it through.
+  // Claude's custom connectors: every module's MCP server, the global one, and their OAuth
+  // sign-in. Before the portals' CORS, which would answer a connector's preflight without
+  // letting it through.
   app.use(mcpRouter());
   app.use(cors({ origin: env.corsOrigins, credentials: true }));
   app.get('/health', (_req, res) => {

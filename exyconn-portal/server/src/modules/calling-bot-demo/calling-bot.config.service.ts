@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import {
   canPhone,
   newTicketSecret,
@@ -68,7 +69,7 @@ export type SarvamVoice = Pick<CallingBotConfigRecord, 'languageCode' | 'ttsSpea
 
 /** Speaks one word with the key: the cheapest call that proves it, and the voice, work. */
 export async function checkSarvam(apiKey: string, voice: SarvamVoice): Promise<void> {
-  const response = await fetch(SARVAM_TTS_URL, {
+  const response = await meteredFetch('SARVAM', 'POST text-to-speech', SARVAM_TTS_URL, {
     method: 'POST',
     headers: { 'api-subscription-key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({

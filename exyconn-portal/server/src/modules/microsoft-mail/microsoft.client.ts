@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../tech/usage/usage.meter';
 import { runAsPlatform } from '../../lib/tenant';
 import { ConfigurationError } from '../../utils/errors';
 import { open } from '../../utils/secretBox';
@@ -64,7 +65,7 @@ export async function requestTokens(
   app: MicrosoftApp,
   grant: Record<string, string>,
 ): Promise<MicrosoftTokens> {
-  const response = await fetch(tokenUrl(app), {
+  const response = await meteredFetch('MICROSOFT', 'POST oauth token', tokenUrl(app), {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -101,14 +102,19 @@ export const refreshMailbox = (mailbox: MicrosoftMailbox) =>
 
 /** One Microsoft Graph call with an access token; a refusal throws with Graph's reason. */
 export async function graph<T>(accessToken: string, path: string, init: RequestInit = {}) {
-  const response = await fetch(`${GRAPH}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      ...init.headers,
+  const response = await meteredFetch(
+    'MICROSOFT',
+    pathAction(init.method ?? 'GET', path),
+    `${GRAPH}${path}`,
+    {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        ...init.headers,
+      },
     },
-  });
+  );
   if (!response.ok) {
     const detail = (await response.text()).slice(0, ERROR_DETAIL_LIMIT);
     const message = `Microsoft Graph ${path.split('?')[0]} failed (${response.status}): ${detail}`;

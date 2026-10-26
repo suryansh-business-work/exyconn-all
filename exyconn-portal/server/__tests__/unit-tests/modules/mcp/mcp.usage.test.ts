@@ -4,7 +4,8 @@ import { mcpResolvers } from '../../../../src/modules/mcp/mcp.resolvers';
 import { McpCallModel, McpTokenModel } from '../../../../src/modules/mcp/mcp.models';
 import { mcpActivity, mcpUsage } from '../../../../src/modules/mcp/mcp.usage';
 import { auditActionOf } from '../../../../src/modules/mcp/mcp.server';
-import { liveSchema, mcpTool, useSchema } from '../../../../src/modules/mcp/mcp.crm';
+import { endpointTool, liveSchema, useSchema } from '../../../../src/modules/mcp/mcp.catalogue';
+import { assignLegacyMcpToCrm } from '../../../../src/modules/mcp/mcp.migrate';
 import { UserModel } from '../../../../src/modules/admin/user.model';
 import { runAsPlatform } from '../../../../src/lib/tenant';
 import { ROLES } from '../../../../src/constants/roles';
@@ -24,8 +25,16 @@ const ctx: GraphQLContext = {
 };
 const now = new Date('2026-10-24T12:00:00Z');
 
-const call = (tool: string, ok: boolean, at: string, userName = 'Asha', durationMs = 10) =>
+const call = (
+  tool: string,
+  ok: boolean,
+  at: string,
+  userName = 'Asha',
+  durationMs = 10,
+  server = 'crm',
+) =>
   McpCallModel.create({
+    server,
     userId: 'u1',
     userName,
     clientName: 'Claude',
@@ -42,8 +51,10 @@ describe('MCP usage', () => {
     await call('searchLeads', false, '2026-10-23T08:00:00Z', 'Ravi', 30);
     await call('createDeal', true, '2026-10-24T09:00:00Z');
     await call('old', true, '2026-01-01T09:00:00Z');
+    await call('queueCampaignSend', true, '2026-10-24T09:30:00Z', 'Asha', 10, 'marketing');
 
-    const usage = await mcpUsage(2, now);
+    const usage = await mcpUsage(['crm'], 2, now);
+    expect((await mcpUsage(['crm', 'marketing'], 2, now)).calls).toBe(4);
 
     expect(usage).toMatchObject({ calls: 3, failures: 1, people: 2 });
     expect(usage.days).toEqual([
@@ -60,53 +71,143 @@ describe('MCP usage', () => {
   it('lists the newest calls first, as many as asked within the cap', async () => {
     await call('a', true, '2026-10-24T08:00:00Z');
     await call('b', true, '2026-10-24T09:00:00Z');
-    expect((await mcpActivity(1, 1, now)).map((row) => row.tool)).toEqual(['b']);
-    expect((await mcpActivity(1, undefined, now)).map((row) => row.tool)).toEqual(['b', 'a']);
+    await call('m', true, '2026-10-24T10:00:00Z', 'Asha', 10, 'marketing');
+    expect((await mcpActivity(['crm'], 1, 1, now)).map((row) => row.tool)).toEqual(['b']);
+    expect((await mcpActivity(['crm'], 1, undefined, now)).map((row) => row.tool)).toEqual([
+      'b',
+      'a',
+    ]);
+    expect((await mcpActivity(['marketing'], 1, undefined, now)).map((row) => row.tool)).toEqual([
+      'm',
+    ]);
   });
 
   it.each([0, 181, 1.5])('refuses a window of %s days', async (days) => {
-    expect(await codeOf(mcpUsage(days))).toBe('BAD_USER_INPUT');
-    expect(await codeOf(mcpActivity(days))).toBe('BAD_USER_INPUT');
+    expect(await codeOf(mcpUsage(['crm'], days))).toBe('BAD_USER_INPUT');
+    expect(await codeOf(mcpActivity(['crm'], days))).toBe('BAD_USER_INPUT');
+  });
+
+  it('files the calls and connections from before there were several servers under the CRM', async () => {
+    const old = await call('searchLeads', true, new Date().toISOString());
+    await McpCallModel.collection.updateOne({ _id: old._id }, { $unset: { server: 1 } });
+    const connection = await runAsPlatform(() =>
+      McpTokenModel.create({
+        endpoint: 'crm',
+        clientId: 'c0',
+        userId: 'u1',
+        organizationId,
+        accessHash: 'old-a',
+        refreshHash: 'old-r',
+        accessExpiresAt: new Date(Date.now() + 60_000),
+        refreshExpiresAt: new Date(Date.now() + 60_000),
+      }),
+    );
+    await McpTokenModel.collection.updateOne({ _id: connection._id }, { $unset: { endpoint: 1 } });
+    await runAsPlatform(assignLegacyMcpToCrm);
+    expect((await McpCallModel.findOne({ tool: 'searchLeads' }).lean())?.server).toBe('crm');
+    const token = await runAsPlatform(() => McpTokenModel.findOne({ clientId: 'c0' }).lean());
+    expect(token?.endpoint).toBe('crm');
   });
 });
 
 describe('MCP resolvers', () => {
   beforeAll(() => {
-    useSchema(buildSchema('type Query { crmPing: Int  } type Mutation { addThing: Int }'), {
-      query: new Set(['crmPing']),
-      mutation: new Set(['addThing']),
-    });
+    useSchema(
+      buildSchema(
+        'type Query { crmPing: Int, campaignPing: Int } type Mutation { addThing: Int, sharedThing: Int }',
+      ),
+      {
+        crm: { query: new Set(['crmPing']), mutation: new Set(['addThing', 'sharedThing']) },
+        marketing: { query: new Set(['campaignPing']), mutation: new Set(['sharedThing']) },
+      },
+    );
   });
 
-  it('says where to connect and lists the tools with their arguments', async () => {
-    expect(await Query.mcpOverview(null, {}, ctx)).toEqual({
-      serverUrl: expect.stringMatching(/\/mcp$/),
-      toolCount: 2,
-      queryCount: 1,
-      mutationCount: 1,
-    });
-    const tools = (await Query.mcpTools(null, {}, ctx)) as Array<{ name: string; arguments: [] }>;
-    expect(tools.map((tool) => [tool.name, tool.arguments])).toEqual([
-      ['addThing', []],
-      ['crmPing', []],
+  it('lists the servers the caller may use, each with its address and tools', async () => {
+    const servers = (await Query.mcpServers(null, {}, ctx)) as Array<Record<string, unknown>>;
+    expect(servers.map((server) => [server.endpoint, server.toolCount])).toEqual([
+      ['CRM', 3],
+      ['ALL', 3],
     ]);
-    expect(liveSchema()).toBeDefined();
-    expect(mcpTool('nothing')).toBeUndefined();
+    expect(servers[0]).toMatchObject({
+      label: 'CRM',
+      serverUrl: expect.stringMatching(/\/mcp\/crm$/),
+      queryCount: 1,
+      mutationCount: 2,
+      connectionCount: 0,
+    });
+    const admin = { ...ctx, user: { ...ctx.user!, roles: [ROLES.ADMIN] } };
+    const all = (await Query.mcpServers(null, {}, admin)) as Array<Record<string, unknown>>;
+    expect(all.map((server) => [server.endpoint, server.toolCount])).toEqual([
+      ['CRM', 3],
+      ['MARKETING', 2],
+      ['ALL', 4],
+    ]);
+    const employee = { ...ctx, user: { ...ctx.user!, roles: [ROLES.EMPLOYEE] } };
+    expect(await Query.mcpServers(null, {}, employee)).toEqual([]);
+    const platform = { ...ctx, organizationId: null };
+    expect(await Query.mcpServers(null, {}, platform)).toHaveLength(2);
   });
 
-  it('reads usage and activity in the caller’s company, for CRM users only', async () => {
-    await call('crmPing', true, new Date().toISOString());
-    expect(await Query.mcpUsage(null, { days: 7 }, ctx)).toMatchObject({ calls: 1 });
-    expect(await Query.mcpActivity(null, { days: 7, limit: null }, ctx)).toHaveLength(1);
-    expect(await Query.mcpActivity(null, { days: 7, limit: 5 }, ctx)).toHaveLength(1);
-    const outsider = { ...ctx, user: { ...ctx.user!, roles: [ROLES.EMPLOYEE] } };
+  it('lists a server’s tools with their arguments, for its own users only', async () => {
+    const tools = (await Query.mcpTools(null, { endpoint: 'CRM' }, ctx)) as Array<{
+      name: string;
+      server: string;
+      arguments: [];
+    }>;
+    expect(tools.map((tool) => [tool.name, tool.server, tool.arguments])).toEqual([
+      ['addThing', 'CRM', []],
+      ['crmPing', 'CRM', []],
+      ['sharedThing', 'CRM', []],
+    ]);
     expect(
-      await codeOf(Promise.resolve().then(() => Query.mcpUsage(null, { days: 7 }, outsider))),
+      await codeOf(
+        Promise.resolve().then(() => Query.mcpTools(null, { endpoint: 'MARKETING' }, ctx)),
+      ),
     ).toBe('FORBIDDEN');
-    const noCompany = { ...ctx, organizationId: null };
+    expect(liveSchema()).toBeDefined();
+    expect(endpointTool('crm', [ROLES.CRM], 'nothing')).toBeUndefined();
+    expect(endpointTool('all', [ROLES.MARKETING], 'crmPing')).toBeUndefined();
+  });
+
+  it('reads usage and activity in the caller’s company, for the server’s users only', async () => {
+    await call('crmPing', true, new Date().toISOString());
+    await call('campaignPing', true, new Date().toISOString(), 'Asha', 10, 'marketing');
+    expect(await Query.mcpUsage(null, { endpoint: 'CRM', days: 7 }, ctx)).toMatchObject({
+      calls: 1,
+    });
+    expect(await Query.mcpUsage(null, { endpoint: 'ALL', days: 7 }, ctx)).toMatchObject({
+      calls: 1,
+    });
+    const rows = (await Query.mcpActivity(
+      null,
+      { endpoint: 'CRM', days: 7, limit: null },
+      ctx,
+    )) as Array<{ server: string }>;
+    expect(rows.map((row) => row.server)).toEqual(['CRM']);
+    expect(await Query.mcpActivity(null, { endpoint: 'CRM', days: 7, limit: 5 }, ctx)).toHaveLength(
+      1,
+    );
+    const marketer = { ...ctx, user: { ...ctx.user!, roles: [ROLES.MARKETING] } };
     expect(
-      await codeOf(Promise.resolve().then(() => Query.mcpConnections(null, {}, noCompany))),
-    ).toBe('BAD_USER_INPUT');
+      await Query.mcpActivity(null, { endpoint: 'ALL', days: 7, limit: 5 }, marketer),
+    ).toHaveLength(1);
+    const outsider = { ...ctx, user: { ...ctx.user!, roles: [ROLES.EMPLOYEE] } };
+    for (const endpoint of ['CRM', 'ALL']) {
+      expect(
+        await codeOf(
+          Promise.resolve().then(() => Query.mcpUsage(null, { endpoint, days: 7 }, outsider)),
+        ),
+      ).toBe('FORBIDDEN');
+    }
+    const noCompany = { ...ctx, organizationId: null };
+    for (const run of [
+      () => Query.mcpConnections(null, { endpoint: 'CRM' }, noCompany),
+      () => Query.mcpUsage(null, { endpoint: 'CRM', days: 7 }, noCompany),
+      () => Query.mcpActivity(null, { endpoint: 'CRM', days: 7 }, noCompany),
+    ]) {
+      expect(await codeOf(Promise.resolve().then(run))).toBe('BAD_USER_INPUT');
+    }
   });
 
   it('lists the company’s live connections and signs one out, audited', async () => {
@@ -119,6 +220,7 @@ describe('MCP resolvers', () => {
     const token = (fields: Record<string, unknown>) =>
       runAsPlatform(() =>
         McpTokenModel.create({
+          endpoint: 'crm',
           clientId: 'c1',
           clientName: '',
           userId: String(person._id),
@@ -134,12 +236,32 @@ describe('MCP resolvers', () => {
     await token({ revokedAt: new Date() });
     await token({ organizationId: new Types.ObjectId().toHexString() });
     await token({ userId: new Types.ObjectId().toHexString(), clientName: 'Other' });
+    const global = await token({ endpoint: 'all', clientName: 'Global' });
+    const marketing = await token({ endpoint: 'marketing', clientName: 'Campaigns' });
 
-    const rows = (await Query.mcpConnections(null, {}, ctx)) as Array<Record<string, unknown>>;
-    expect(rows.map((row) => [row.clientName, row.userName])).toEqual([
-      ['Other', ''],
-      ['MCP client', 'Asha'],
+    const rows = (await Query.mcpConnections(null, { endpoint: 'CRM' }, ctx)) as Array<
+      Record<string, unknown>
+    >;
+    expect(rows.map((row) => [row.clientName, row.userName, row.endpoint])).toEqual([
+      ['Other', '', 'CRM'],
+      ['MCP client', 'Asha', 'CRM'],
     ]);
+    const every = (await Query.mcpConnections(null, { endpoint: 'ALL' }, ctx)) as Array<
+      Record<string, unknown>
+    >;
+    expect(every.map((row) => row.clientName)).toEqual(['Global', 'Other', 'MCP client']);
+    const servers = (await Query.mcpServers(null, {}, ctx)) as Array<Record<string, unknown>>;
+    expect(servers.map((server) => server.connectionCount)).toEqual([2, 1]);
+    expect(
+      await codeOf(
+        Promise.resolve().then(() =>
+          Mutation.revokeMcpConnection(null, { id: String(marketing._id) }, ctx),
+        ),
+      ),
+    ).toBe('FORBIDDEN');
+    await expect(Mutation.revokeMcpConnection(null, { id: String(global._id) }, ctx)).resolves.toBe(
+      true,
+    );
     await expect(Mutation.revokeMcpConnection(null, { id: String(live._id) }, ctx)).resolves.toBe(
       true,
     );
@@ -173,6 +295,8 @@ describe('audit actions', () => {
     ['archiveCompany', 'DELETE'],
     ['createDeal', 'CREATE'],
     ['sendColdEmail', 'CREATE'],
+    ['publishSocialMediaPostNow', 'CREATE'],
+    ['queueCampaignSend', 'CREATE'],
     ['updateContact', 'UPDATE'],
   ])('%s reads as %s', (tool, action) => {
     expect(auditActionOf(tool)).toBe(action);

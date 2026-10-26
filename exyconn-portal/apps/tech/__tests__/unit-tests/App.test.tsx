@@ -4,6 +4,7 @@ import { render } from '@testing-library/react';
 import { Navigate } from 'react-router-dom';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
+import { TechVaultGate } from '../../src/pages/environment-variables/vault/TechVaultGate';
 import { App } from '../../src/App';
 import { TechOverviewPage } from '../../src/pages/overview';
 import {
@@ -67,7 +68,6 @@ describe('App', () => {
     const pages: Array<[string, unknown]> = [
       ['/tech', TechOverviewPage],
       ['/tech/environment-variables/:tab?', EnvironmentVariablesPage],
-      ['/tech/social-apps', SocialAppsPage],
       ['/tech/email/:tab?', EmailPage],
       ['/tech/problem-reports', ProblemReportsPage],
       ['/tech/status-monitors', StatusMonitorsPage],
@@ -86,8 +86,12 @@ describe('App', () => {
     for (const [path, page] of pages) {
       expect(elementAt(path)?.type).toBe(page);
     }
+    // Social apps hold credentials too, so the page sits behind the same vault.
+    const social = elementAt('/tech/social-apps');
+    expect(social?.type).toBe(TechVaultGate);
+    expect((social?.props as { children: { type: unknown } }).children.type).toBe(SocialAppsPage);
     // Plus the redirects: the old social-apps, Gmail and Microsoft Mail tabs and the bare Demos group.
-    expect(routes()).toHaveLength(pages.length + 4);
+    expect(routes()).toHaveLength(pages.length + 5);
   });
 
   it('opens the Demos group on the calling bot', () => {

@@ -1069,6 +1069,12 @@ export type BackgroundJob = {
   lastRunSummary: Scalars['String']['output'];
 };
 
+/** ISO 20022 cash account type: CURRENT (CACC, checking) or SAVINGS (SVGS). */
+export enum BankAccountType {
+  Current = 'CURRENT',
+  Savings = 'SAVINGS'
+}
+
 export type Benefit = {
   __typename?: 'Benefit';
   coverage: Scalars['String']['output'];
@@ -2451,6 +2457,144 @@ export type CloudflareZone = {
   nameServers: Array<Scalars['String']['output']>;
   originalNameServers: Array<Scalars['String']['output']>;
   status: Scalars['String']['output'];
+};
+
+/** One Clutch.co company as a search found it. */
+export type ClutchCompany = {
+  __typename?: 'ClutchCompany';
+  description: Scalars['String']['output'];
+  emails: Array<Scalars['String']['output']>;
+  employees: Scalars['String']['output'];
+  founded: Scalars['String']['output'];
+  headquarters: Scalars['String']['output'];
+  hourlyRate: Scalars['String']['output'];
+  /** Clutch's id, or the profile URL. */
+  key: Scalars['String']['output'];
+  locations: Array<Scalars['String']['output']>;
+  logoUrl: Scalars['String']['output'];
+  minProjectSize: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  people: Array<ClutchPerson>;
+  phone: Scalars['String']['output'];
+  portfolio: Array<ClutchPortfolioItem>;
+  profileUrl: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  reviewCount?: Maybe<Scalars['Int']['output']>;
+  reviews: Array<ClutchReview>;
+  services: Array<Scalars['String']['output']>;
+  tagline: Scalars['String']['output'];
+  verification: Scalars['String']['output'];
+  website: Scalars['String']['output'];
+};
+
+/** Which engine a Clutch search ran on: Clutch's own MCP server (free) or an Apify scraper. */
+export enum ClutchEngine {
+  Apify = 'APIFY',
+  Mcp = 'MCP'
+}
+
+export type ClutchImportFiled = {
+  __typename?: 'ClutchImportFiled';
+  companyId: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+};
+
+export type ClutchImportResult = {
+  __typename?: 'ClutchImportResult';
+  /** People with an email, filed as contacts of their company. */
+  contactsCreated: Scalars['Int']['output'];
+  created: Scalars['Int']['output'];
+  filed: Array<ClutchImportFiled>;
+  skipped: Scalars['Int']['output'];
+  skips: Array<ClutchImportSkip>;
+};
+
+export type ClutchImportSkip = {
+  __typename?: 'ClutchImportSkip';
+  companyId?: Maybe<Scalars['ID']['output']>;
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  reason: Scalars['String']['output'];
+};
+
+/** A person listed at the company, with a way to reach them. */
+export type ClutchPerson = {
+  __typename?: 'ClutchPerson';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ClutchPortfolioItem = {
+  __typename?: 'ClutchPortfolioItem';
+  description: Scalars['String']['output'];
+  imageUrl: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ClutchReview = {
+  __typename?: 'ClutchReview';
+  comment: Scalars['String']['output'];
+  date: Scalars['String']['output'];
+  industry: Scalars['String']['output'];
+  projectSize: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  reviewer: Scalars['String']['output'];
+  reviewerTitle: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** One Clutch search and what it found (CRM > Lead generators > Clutch). */
+export type ClutchRun = {
+  __typename?: 'ClutchRun';
+  companies: Array<ClutchCompany>;
+  companyCount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  engine: ClutchEngine;
+  error: Scalars['String']['output'];
+  /** Keys of the companies already filed into the CRM. */
+  filedKeys: Array<Scalars['String']['output']>;
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  includeDetails: Scalars['Boolean']['output'];
+  includePortfolio: Scalars['Boolean']['output'];
+  includeReviews: Scalars['Boolean']['output'];
+  industry: Scalars['String']['output'];
+  keyword: Scalars['String']['output'];
+  location: Scalars['String']['output'];
+  maxItems: Scalars['Int']['output'];
+  notes: Array<Scalars['String']['output']>;
+  profileUrls: Array<Scalars['String']['output']>;
+  startedByName: Scalars['String']['output'];
+  status: ClutchRunStatus;
+};
+
+export type ClutchRunPage = {
+  __typename?: 'ClutchRunPage';
+  rows: Array<ClutchRun>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ClutchRunStatus {
+  Failed = 'FAILED',
+  Running = 'RUNNING',
+  Succeeded = 'SUCCEEDED'
+}
+
+export type ClutchSearchInput = {
+  engine: ClutchEngine;
+  includeDetails: Scalars['Boolean']['input'];
+  includePortfolio: Scalars['Boolean']['input'];
+  includeReviews: Scalars['Boolean']['input'];
+  industry: Scalars['String']['input'];
+  /** What to search for, e.g. Web Development or 'api development'. */
+  keyword: Scalars['String']['input'];
+  location: Scalars['String']['input'];
+  /** 1 to 200. */
+  maxItems: Scalars['Int']['input'];
+  /** Clutch profile links to read in full (https://clutch.co/profile/…). */
+  profileUrls: Array<Scalars['String']['input']>;
 };
 
 export type CmsARecord = {
@@ -4024,6 +4168,7 @@ export enum CrmOp {
 }
 
 export enum CrmOriginSource {
+  Clutch = 'CLUTCH',
   GooglePlaces = 'GOOGLE_PLACES',
   LeadConversion = 'LEAD_CONVERSION',
   MeetingBooking = 'MEETING_BOOKING',
@@ -5948,16 +6093,63 @@ export type InfrastructureOverview = {
   runtime: ServerRuntime;
 };
 
+/** One call made with an Environment Variables credential: what, by whom, how long, what it cost. */
+export type IntegrationCall = {
+  __typename?: 'IntegrationCall';
+  action: Scalars['String']['output'];
+  actorEmail: Scalars['String']['output'];
+  actorId: Scalars['String']['output'];
+  companyId: Scalars['String']['output'];
+  /** USD from the price table; null where no price is kept. */
+  costUsd?: Maybe<Scalars['Float']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  durationMs: Scalars['Int']['output'];
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  inputTokens: Scalars['Float']['output'];
+  ok: Scalars['Boolean']['output'];
+  outputTokens: Scalars['Float']['output'];
+  path: Scalars['String']['output'];
+  provider: IntegrationProvider;
+  /** The portal or site that caused it, or Background job. */
+  source: Scalars['String']['output'];
+};
+
+export type IntegrationCallPage = {
+  __typename?: 'IntegrationCallPage';
+  rows: Array<IntegrationCall>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** An integration whose calls are counted on the Environment Variables dashboard. */
 export enum IntegrationProvider {
+  Apify = 'APIFY',
+  Cloudflare = 'CLOUDFLARE',
+  Clutch = 'CLUTCH',
+  EmailVerifier = 'EMAIL_VERIFIER',
   Firecrawl = 'FIRECRAWL',
   Github = 'GITHUB',
+  Gmail = 'GMAIL',
+  Godaddy = 'GODADDY',
+  GoogleCalendar = 'GOOGLE_CALENDAR',
   GoogleMaps = 'GOOGLE_MAPS',
+  GoogleSignIn = 'GOOGLE_SIGN_IN',
   Imagekit = 'IMAGEKIT',
+  Microsoft = 'MICROSOFT',
+  Msg91 = 'MSG91',
   Openai = 'OPENAI',
+  Payoneer = 'PAYONEER',
+  Paypal = 'PAYPAL',
   Pexels = 'PEXELS',
+  Razorpay = 'RAZORPAY',
+  Sarvam = 'SARVAM',
   Slack = 'SLACK',
-  Smtp = 'SMTP'
+  Smtp = 'SMTP',
+  Social = 'SOCIAL',
+  Sonarqube = 'SONARQUBE',
+  Stripe = 'STRIPE',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
 }
 
 /** One kind of call (an OpenAI model, a Slack method, an upload kind) over the window. */
@@ -7167,6 +7359,22 @@ export enum LeadSource {
   Referral = 'REFERRAL',
   Website = 'WEBSITE'
 }
+
+/** The company's Apify account for lead generators. The token itself is never returned. */
+export type LeadSourceSettings = {
+  __typename?: 'LeadSourceSettings';
+  apifyTokenHint: Scalars['String']['output'];
+  /** e.g. scrapeai/clutch-co-scraper. */
+  clutchActorId: Scalars['String']['output'];
+  hasApifyToken: Scalars['Boolean']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type LeadSourceSettingsInput = {
+  /** Blank keeps the stored token. */
+  apifyToken: Scalars['String']['input'];
+  clutchActorId: Scalars['String']['input'];
+};
 
 export enum LeadStage {
   Contacted = 'CONTACTED',
@@ -8488,13 +8696,16 @@ export type MarketingSuppressionsResult = {
 export type McpAuthorizationRequest = {
   __typename?: 'McpAuthorizationRequest';
   clientName: Scalars['String']['output'];
+  endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   /** Where the client gets the answer, e.g. claude.ai. */
   redirectHost: Scalars['String']['output'];
   scopes: Array<Scalars['String']['output']>;
+  /** The server as people say it, e.g. CRM or All Exyconn tools. */
+  serverLabel: Scalars['String']['output'];
 };
 
-/** One tool call made through MCP, for the CRM's activity log. */
+/** One tool call made through MCP, for a server's activity log. */
 export type McpCall = {
   __typename?: 'McpCall';
   at: Scalars['DateTime']['output'];
@@ -8504,6 +8715,8 @@ export type McpCall = {
   id: Scalars['ID']['output'];
   kind: McpToolKind;
   ok: Scalars['Boolean']['output'];
+  /** The module server the tool belongs to. */
+  server: McpEndpoint;
   tool: Scalars['String']['output'];
   userName: Scalars['String']['output'];
 };
@@ -8513,20 +8726,19 @@ export type McpConnection = {
   __typename?: 'McpConnection';
   clientName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** The server the connection is good for. */
+  endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
   userName: Scalars['String']['output'];
 };
 
-/** What a person needs to connect Claude to the CRM. */
-export type McpOverview = {
-  __typename?: 'McpOverview';
-  mutationCount: Scalars['Int']['output'];
-  queryCount: Scalars['Int']['output'];
-  /** The address to paste into Claude as a custom connector. */
-  serverUrl: Scalars['String']['output'];
-  toolCount: Scalars['Int']['output'];
-};
+/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+export enum McpEndpoint {
+  All = 'ALL',
+  Crm = 'CRM',
+  Marketing = 'MARKETING'
+}
 
 export type McpPersonUsage = {
   __typename?: 'McpPersonUsage';
@@ -8534,13 +8746,32 @@ export type McpPersonUsage = {
   userName: Scalars['String']['output'];
 };
 
-/** One CRM operation Claude can call. */
+/** One MCP server the person may use, and what they need to connect Claude to it. */
+export type McpServer = {
+  __typename?: 'McpServer';
+  /** Live connections to this server in the company. */
+  connectionCount: Scalars['Int']['output'];
+  /** What the server offers, as it tells Claude. */
+  description: Scalars['String']['output'];
+  endpoint: McpEndpoint;
+  /** The server as people say it, e.g. CRM. */
+  label: Scalars['String']['output'];
+  mutationCount: Scalars['Int']['output'];
+  queryCount: Scalars['Int']['output'];
+  /** The address to paste into Claude as a custom connector. */
+  serverUrl: Scalars['String']['output'];
+  toolCount: Scalars['Int']['output'];
+};
+
+/** One module operation Claude can call. */
 export type McpTool = {
   __typename?: 'McpTool';
   arguments: Array<McpToolArgument>;
   description: Scalars['String']['output'];
   kind: McpToolKind;
   name: Scalars['String']['output'];
+  /** The module server the tool belongs to. */
+  server: McpEndpoint;
 };
 
 export type McpToolArgument = {
@@ -8902,13 +9133,18 @@ export type Mutation = {
   changePassword: Scalars['Boolean']['output'];
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
+  /** Removes the Apify token: Clutch searches use Clutch's own server. */
+  clearApifyToken: LeadSourceSettings;
   clearRolePermission: Scalars['Boolean']['output'];
+  clientHubDeletePayoutAccount: Scalars['Boolean']['output'];
   /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
   clientHubEmailInvoice: Scalars['Boolean']['output'];
   clientHubOpenTicket: SupportTicket;
   /** Opens the gateway's hosted checkout for the invoice's whole balance. */
   clientHubPayInvoice: ClientHubCheckout;
   clientHubReplyToTicket: SupportReply;
+  /** Adds (no id) or replaces one of the signed-in client's refund accounts. */
+  clientHubSavePayoutAccount: PayoutAccount;
   /** Ends the chat; the visitor is emailed the conversation when the settings say so. */
   closeWebsiteChatSession: WebsiteChatSession;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
@@ -9148,6 +9384,7 @@ export type Mutation = {
   deleteClientContact: Scalars['Boolean']['output'];
   deleteClientLink: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
+  deleteClutchRun: Scalars['Boolean']['output'];
   deleteCmsAsset: Scalars['Boolean']['output'];
   deleteCmsDesignSystem: Scalars['Boolean']['output'];
   deleteCmsFragment: Scalars['Boolean']['output'];
@@ -9175,6 +9412,7 @@ export type Mutation = {
   deleteEmailTemplate: Scalars['Boolean']['output'];
   deleteEmailVerifierConfig: Scalars['Boolean']['output'];
   deleteEmployeeDocument: Scalars['Boolean']['output'];
+  deleteEmployeePayoutAccount: Scalars['Boolean']['output'];
   deleteEmployeeRequest: Scalars['Boolean']['output'];
   deleteEmploymentType: Scalars['Boolean']['output'];
   deleteExitRecord: Scalars['Boolean']['output'];
@@ -9263,6 +9501,8 @@ export type Mutation = {
   deleteTaxRegime: Scalars['Boolean']['output'];
   deleteTaxSlab: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
+  deleteTechProviderLink: TechProviderProfile;
+  deleteTechProviderLogin: TechProviderProfile;
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
   /** Deletes one published tracker build: its GitHub release and its tag. */
@@ -9314,12 +9554,19 @@ export type Mutation = {
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
+  /** Files the chosen companies of a search as CRM companies, and their listed people as contacts. */
+  importClutchCompanies: ClutchImportResult;
   importCrmRecords: CrmImportResult;
   /** Files the chosen places as CRM companies. Duplicates are skipped, or, when listed in mergeInto, get their extra details added without overwriting anything. */
   importLeadsToCrm: LeadImportResult;
   importMediaFromUrl: Scalars['String']['output'];
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
   importTableRows: TableImportResult;
+  /**
+   * Imports an export file into one section (or everywhere). Listed configs arrive switched
+   * off; single configs (Google, Microsoft, social apps) are updated in place.
+   */
+  importTechConfigs: TechImportResult;
   /**
    * Invites people into a company with the portals they may open; each gets the welcome email
    * with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
@@ -9334,6 +9581,8 @@ export type Mutation = {
   itProvisionOnboarding: Array<ItAccessRequest>;
   /** Opens a pre-approved REVOKE for everything the leaver still holds. */
   itRevokeAllAccess: Array<ItAccessRequest>;
+  /** Locks Environment Variables again now. */
+  lockTechVault: Scalars['Boolean']['output'];
   login: AuthPayload;
   maAddActionComment: MaActionItem;
   /** Approves a build waiting for review, offers it on the channel and announces it in Slack. */
@@ -9456,6 +9705,8 @@ export type Mutation = {
    * Always true, so the answer does not reveal which addresses have accounts.
    */
   requestPasswordReset: Scalars['Boolean']['output'];
+  /** Emails a one-time code to the address the caller signs in with. */
+  requestTechVaultCode: Scalars['Boolean']['output'];
   /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
   requestWhatsappDemoCode: Scalars['Boolean']['output'];
   /** Sets a new password from an emailed link. The link works once. */
@@ -9533,6 +9784,8 @@ export type Mutation = {
   saveCampaignTemplate: CampaignTemplate;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
+  /** Adds (no id) or replaces an employee's salary account. Nobody edits their own. */
+  saveEmployeePayoutAccount: PayoutAccount;
   /**
    * Creates or replaces ONE employee's salary structure, keyed on the employee.
    *
@@ -9543,12 +9796,15 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
+  saveLeadSourceConfig: LeadSourceSettings;
   saveMarketingFooter: MarketingFooter;
   /** Changing the booking page address stops the old one working. */
   saveMeetingSettings: MeetingSettings;
   saveMicrosoftMailConfig: MicrosoftMailConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
+  saveTechProviderLink: TechProviderProfile;
+  saveTechProviderLogin: TechProviderProfile;
   /** Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build). */
   saveTrackerBuildRetention: TrackerBuildSettings;
   saveTrackerBuildSettings: TrackerBuildSettings;
@@ -9693,6 +9949,8 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
+  /** Starts a Clutch search; it finishes in the background (poll clutchRun). */
+  startClutchSearch: ClutchRun;
   /** Click-to-call: rings the caller's own phone, then bridges to the record's number. */
   startCrmCall: CrmCallResult;
   /** Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. loginHint is the address being reconnected. */
@@ -9853,6 +10111,8 @@ export type Mutation = {
   triageWebsiteSubmission: WebsiteSubmission;
   /** HR or LEGAL: takes one item back. */
   unassignLegalItem: Scalars['Boolean']['output'];
+  /** Opens Environment Variables for 30 minutes. */
+  unlockTechVault: TechVaultSession;
   unpublishCmsPage: CmsPage;
   unshareWithClient: Scalars['Boolean']['output'];
   /**
@@ -10193,6 +10453,11 @@ export type MutationClearRolePermissionArgs = {
 };
 
 
+export type MutationClientHubDeletePayoutAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationClientHubEmailInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -10212,6 +10477,12 @@ export type MutationClientHubPayInvoiceArgs = {
 export type MutationClientHubReplyToTicketArgs = {
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubSavePayoutAccountArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
 };
 
 
@@ -11168,6 +11439,11 @@ export type MutationDeleteCloudflareConfigArgs = {
 };
 
 
+export type MutationDeleteClutchRunArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteCmsAssetArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11290,6 +11566,12 @@ export type MutationDeleteEmailVerifierConfigArgs = {
 
 
 export type MutationDeleteEmployeeDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteEmployeePayoutAccountArgs = {
+  employeeId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -11704,6 +11986,18 @@ export type MutationDeleteTeamArgs = {
 };
 
 
+export type MutationDeleteTechProviderLinkArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteTechProviderLoginArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
 export type MutationDeleteToolArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11863,6 +12157,12 @@ export type MutationGrantTrackerAccessArgs = {
 };
 
 
+export type MutationImportClutchCompaniesArgs = {
+  keys: Array<Scalars['String']['input']>;
+  runId: Scalars['ID']['input'];
+};
+
+
 export type MutationImportCrmRecordsArgs = {
   input: CrmImportInput;
 };
@@ -11887,6 +12187,12 @@ export type MutationImportTableRowsArgs = {
   matchField?: InputMaybe<Scalars['String']['input']>;
   mode: TableImportMode;
   rows: Array<Scalars['JSON']['input']>;
+};
+
+
+export type MutationImportTechConfigsArgs = {
+  json: Scalars['String']['input'];
+  section?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -12424,6 +12730,13 @@ export type MutationSaveCmsPageDraftArgs = {
 };
 
 
+export type MutationSaveEmployeePayoutAccountArgs = {
+  employeeId: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: PayoutAccountInput;
+};
+
+
 export type MutationSaveEmployeeSalaryArgs = {
   employeeId: Scalars['ID']['input'];
   input: EmployeeSalaryInput;
@@ -12437,6 +12750,11 @@ export type MutationSaveGmailConfigArgs = {
 
 export type MutationSaveGoogleSignInConfigArgs = {
   input: GoogleSignInConfigInput;
+};
+
+
+export type MutationSaveLeadSourceConfigArgs = {
+  input: LeadSourceSettingsInput;
 };
 
 
@@ -12463,6 +12781,20 @@ export type MutationSaveProjectWorkflowGraphArgs = {
 
 export type MutationSaveSocialAppConfigArgs = {
   input: SocialAppConfigInput;
+};
+
+
+export type MutationSaveTechProviderLinkArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLinkInput;
+  provider: Scalars['String']['input'];
+};
+
+
+export type MutationSaveTechProviderLoginArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: ProviderLoginInput;
+  provider: Scalars['String']['input'];
 };
 
 
@@ -12841,6 +13173,11 @@ export type MutationStartCallingBotCallArgs = {
 };
 
 
+export type MutationStartClutchSearchArgs = {
+  input: ClutchSearchInput;
+};
+
+
 export type MutationStartCrmCallArgs = {
   input: StartCrmCallInput;
 };
@@ -13161,6 +13498,11 @@ export type MutationTriageWebsiteSubmissionArgs = {
 
 export type MutationUnassignLegalItemArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationUnlockTechVaultArgs = {
+  input: UnlockTechVaultInput;
 };
 
 
@@ -14723,6 +15065,83 @@ export type PayoneerConfigInput = {
   mode: GatewayMode;
 };
 
+/** Where one payee is paid: an employee's salary account or a client's refund account. */
+export type PayoutAccount = {
+  __typename?: 'PayoutAccount';
+  accountType?: Maybe<BankAccountType>;
+  bankName: Scalars['String']['output'];
+  /** ISO 9362 BIC / SWIFT code. */
+  bic: Scalars['String']['output'];
+  branchName: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  /** ISO 3166-1 alpha-2. */
+  country: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** ISO 4217. */
+  currency: Scalars['String']['output'];
+  hints: PayoutAccountHints;
+  holderName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPrimary: Scalars['Boolean']['output'];
+  method: PayoutMethod;
+  region: Scalars['String']['output'];
+  /** The country's domestic bank or branch code: IFSC, ABA routing, sort code, BSB, transit. */
+  routingCode: Scalars['String']['output'];
+  /** One masked line naming the account. */
+  summary: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Masked forms of the sealed details; empty where none is stored. */
+export type PayoutAccountHints = {
+  __typename?: 'PayoutAccountHints';
+  accountNumber: Scalars['String']['output'];
+  iban: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  upiId: Scalars['String']['output'];
+  walletEmail: Scalars['String']['output'];
+};
+
+/** A blank sealed detail on an edit keeps the stored one. */
+export type PayoutAccountInput = {
+  accountNumber: Scalars['String']['input'];
+  accountType?: InputMaybe<BankAccountType>;
+  bankName: Scalars['String']['input'];
+  bic: Scalars['String']['input'];
+  branchName: Scalars['String']['input'];
+  city: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  holderName: Scalars['String']['input'];
+  iban: Scalars['String']['input'];
+  isPrimary?: InputMaybe<Scalars['Boolean']['input']>;
+  method: PayoutMethod;
+  phone: Scalars['String']['input'];
+  region: Scalars['String']['input'];
+  routingCode: Scalars['String']['input'];
+  upiId: Scalars['String']['input'];
+  walletEmail: Scalars['String']['input'];
+};
+
+/** How money reaches the payee (the same codes as @exyconn/payout PAYOUT_METHODS). */
+export enum PayoutMethod {
+  BankTransfer = 'BANK_TRANSFER',
+  Payoneer = 'PAYONEER',
+  Paypal = 'PAYPAL',
+  Upi = 'UPI',
+  WesternUnion = 'WESTERN_UNION',
+  Wise = 'WISE'
+}
+
+/** A sealed detail of a payout account, shown in full only on request (and logged). */
+export enum PayoutSecretField {
+  AccountNumber = 'ACCOUNT_NUMBER',
+  Iban = 'IBAN',
+  Phone = 'PHONE',
+  UpiId = 'UPI_ID',
+  WalletEmail = 'WALLET_EMAIL'
+}
+
 /** Exyconn's PayPal account (Tech > Environment Variables). The client secret is write-only. */
 export type PaypalConfig = {
   __typename?: 'PaypalConfig';
@@ -15624,6 +16043,81 @@ export type ProviderBilling = {
   totalUsd: Scalars['Float']['output'];
 };
 
+export type ProviderBillingAdvice = {
+  __typename?: 'ProviderBillingAdvice';
+  message: Scalars['String']['output'];
+  need: ProviderBillingNeed;
+};
+
+/** Whether reading a provider's bill needs a different key from the one the platform uses. */
+export enum ProviderBillingNeed {
+  NoBillingApi = 'NO_BILLING_API',
+  Permission = 'PERMISSION',
+  Required = 'REQUIRED',
+  SameKey = 'SAME_KEY'
+}
+
+export type ProviderGuideStep = {
+  __typename?: 'ProviderGuideStep';
+  description: Scalars['String']['output'];
+};
+
+export type ProviderLinkEntry = {
+  __typename?: 'ProviderLinkEntry';
+  /** False for the built-in links, which cannot be edited. */
+  custom: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  kind: ProviderLinkKind;
+  label: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ProviderLinkInput = {
+  kind: ProviderLinkKind;
+  label: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export enum ProviderLinkKind {
+  ApiKeys = 'API_KEYS',
+  Billing = 'BILLING',
+  Dashboard = 'DASHBOARD',
+  Docs = 'DOCS',
+  Other = 'OTHER',
+  Usage = 'USAGE'
+}
+
+/** An account a provider's keys were created under. The password is never listed. */
+export type ProviderLogin = {
+  __typename?: 'ProviderLogin';
+  hasPassword: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  passwordHint: Scalars['String']['output'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['output'];
+};
+
+export type ProviderLoginInput = {
+  label: Scalars['String']['input'];
+  notes: Scalars['String']['input'];
+  /** Blank on an edit keeps the stored password. */
+  password: Scalars['String']['input'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['input'];
+};
+
+export enum ProviderSignInMethod {
+  Apple = 'APPLE',
+  EmailPassword = 'EMAIL_PASSWORD',
+  Github = 'GITHUB',
+  Google = 'GOOGLE',
+  Microsoft = 'MICROSOFT',
+  Other = 'OTHER',
+  Sso = 'SSO'
+}
+
 /** A company's booking page: every meeting it takes bookings for. */
 export type PublicBookingPage = {
   __typename?: 'PublicBookingPage';
@@ -15865,6 +16359,10 @@ export type Query = {
   clientHubPaymentAttempt: PaymentAttempt;
   clientHubPaymentOptions: ClientHubPaymentOptions;
   clientHubPayments: PaymentPage;
+  /** The signed-in client's refund accounts. */
+  clientHubPayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of the signed-in client's refund account in full. */
+  clientHubPayoutSecret: Scalars['String']['output'];
   clientHubProjects: Array<ClientHubProject>;
   clientHubReminders: Array<ClientHubReminder>;
   /** A shared record's text as sanitised HTML. */
@@ -15873,6 +16371,10 @@ export type Query = {
   clientHubTicketReplies: Array<SupportReply>;
   clientHubTickets: SupportTicketPage;
   clientLinks: Array<ClientLink>;
+  /** A client's refund accounts, as the client entered them in the client hub. */
+  clientPayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of a client's refund account in full. Logged. */
+  clientPayoutSecret: Scalars['String']['output'];
   /** Every project, for the Clients form's project picker. */
   clientProjectOptions: Array<ClientProjectOption>;
   /** Legal records of one kind that may be shared with a client (up to 200, latest first). */
@@ -15885,6 +16387,10 @@ export type Query = {
    * and the address they raised it from. Null unless both match.
    */
   clientSupportTicketStatus?: Maybe<ClientTicketStatus>;
+  /** One Clutch search with everything it found. */
+  clutchRun: ClutchRun;
+  /** Every Clutch search, newest first. */
+  clutchRunsPaged: ClutchRunPage;
   cmsAssets: CmsAssetPage;
   /** The dynamic components an editor can drop into a page. */
   cmsComponents: Array<CmsComponentDef>;
@@ -15983,11 +16489,20 @@ export type Query = {
   employeeLocations: Array<TrackerLocation>;
   /** HR, ADMIN or the employee's manager: their location pins from one local day to another (YYYY-MM-DD, both included, at most 31 days), oldest first. */
   employeeLocationsBetween: Array<TrackerLocation>;
+  /** An employee's salary accounts (Payroll: HR or Finance). */
+  employeePayoutAccounts: Array<PayoutAccount>;
+  /** One sealed detail of an employee's salary account in full. Logged. */
+  employeePayoutSecret: Scalars['String']['output'];
   /**
    * ONE employee's salary structure, looked up by the employee rather than by structure id.
    * Null until HR has set one up. This is what the employee record reads.
    */
   employeeSalary?: Maybe<SalaryStructure>;
+  /**
+   * Environment Variables as a JSON file, every secret in full: one section (or all), or only
+   * the given configs. Needs the vault open; logged.
+   */
+  exportTechConfigs: Scalars['String']['output'];
   firecrawlConfigs: Array<FirecrawlConfig>;
   /** Whether the website scraper can run: an active Firecrawl config with a key, or a self-hosted one that needs none. */
   firecrawlReady: Scalars['Boolean']['output'];
@@ -16117,6 +16632,8 @@ export type Query = {
   itSettings: ItSettings;
   /** Cities, areas and postcodes matching what was typed in Where (2-100 characters). */
   leadLocationSuggestions: Array<LeadLocationSuggestion>;
+  /** The Apify settings. Named Config so the CRM MCP never offers it to Claude. */
+  leadSourceConfig: LeadSourceSettings;
   /** How many leads carry this campaign's attribution. */
   leadsByCampaign: Scalars['Int']['output'];
   /** HR/ADMIN: a specific employee's leave requests. */
@@ -16264,6 +16781,10 @@ export type Query = {
   listHolidaysStats: TableStats;
   listImageConfigs: Array<ImageConfig>;
   listInboundMailConfigs: Array<InboundMailConfig>;
+  /** Every integration call (kept 180 days), server-paged, searched and filtered. */
+  listIntegrationCallsPaged: IntegrationCallPage;
+  /** Calls by provider and outcome, and the summed cost, tokens and time. */
+  listIntegrationCallsStats: TableStats;
   listInternalAudits: Array<InternalAudit>;
   listInternalAuditsPaged: InternalAuditPage;
   listInternalAuditsStats: TableStats;
@@ -16512,17 +17033,17 @@ export type Query = {
   marketingSuppressionHistory: Array<AuditLog>;
   marketingSuppressionLookup: MarketingSuppressionLookup;
   marketingSuppressionSummary: MarketingSuppressionSummary;
-  /** The newest MCP calls in this company, for the CRM activity log (CRM role). */
+  /** The newest calls to a server in this company, for its activity log; ALL covers every server the caller may use. */
   mcpActivity: Array<McpCall>;
-  /** The sign-in a connector is waiting on, for the consent page (CRM role). */
+  /** The sign-in a connector is waiting on, for the consent page (the server's role). */
   mcpAuthorizationRequest: McpAuthorizationRequest;
-  /** Every live connection in this company (CRM role). */
+  /** Live connections to a server in this company; ALL lists every connection the caller may see. */
   mcpConnections: Array<McpConnection>;
-  /** The connector address and how many CRM tools it offers (CRM role). */
-  mcpOverview: McpOverview;
-  /** Every CRM tool, with its arguments (CRM role). */
+  /** Every MCP server the caller may use (its module's role), the global ALL server last. */
+  mcpServers: Array<McpServer>;
+  /** Every tool of a server, with its arguments (the server's role). */
   mcpTools: Array<McpTool>;
-  /** This company's MCP calls over the last days, 1 to 180 (CRM role). */
+  /** This company's calls to a server over the last days, 1 to 180; ALL covers every server the caller may use. */
   mcpUsage: McpUsage;
   me: User;
   /** The path of this company's booking page inside its CRM address: /book/<page>. */
@@ -16825,7 +17346,18 @@ export type Query = {
   teamPerformanceReviews: Array<PerformanceReview>;
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
+  techConfigItems: Array<TechConfigItem>;
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
+  /** One saved account password in full. Logged; needs the vault open. */
+  techProviderLoginPassword: Scalars['String']['output'];
+  /** Null for a section with no provider guide (Dashboard, AI pricing). */
+  techProviderProfile?: Maybe<TechProviderProfile>;
+  /** What was changed or revealed in Tech configuration during one session. */
+  techVaultSessionActivity: Array<AuditLog>;
+  /** Every unlock, newest first. */
+  techVaultSessionsPaged: TechVaultSessionPage;
+  /** The caller's open Environment Variables session; null while locked. */
+  techVaultStatus?: Maybe<TechVaultSession>;
   trackerAccessList: Array<TrackerAccess>;
   /**
    * Billing for tracked time over a range. Active time only — idle minutes are time at a
@@ -17053,6 +17585,12 @@ export type QueryClientHubPaymentsArgs = {
 };
 
 
+export type QueryClientHubPayoutSecretArgs = {
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryClientHubSharedContentArgs = {
   id: Scalars['ID']['input'];
 };
@@ -17070,6 +17608,18 @@ export type QueryClientHubTicketsArgs = {
 
 export type QueryClientLinksArgs = {
   clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientPayoutAccountsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientPayoutSecretArgs = {
+  clientId: Scalars['ID']['input'];
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -17091,6 +17641,16 @@ export type QueryClientSummaryArgs = {
 export type QueryClientSupportTicketStatusArgs = {
   email: Scalars['String']['input'];
   reference: Scalars['String']['input'];
+};
+
+
+export type QueryClutchRunArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClutchRunsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -17345,8 +17905,26 @@ export type QueryEmployeeLocationsBetweenArgs = {
 };
 
 
+export type QueryEmployeePayoutAccountsArgs = {
+  employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryEmployeePayoutSecretArgs = {
+  employeeId: Scalars['ID']['input'];
+  field: PayoutSecretField;
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryEmployeeSalaryArgs = {
   employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryExportTechConfigsArgs = {
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  section?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -18040,6 +18618,11 @@ export type QueryListHolidaysPagedArgs = {
 };
 
 
+export type QueryListIntegrationCallsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListInternalAuditsPagedArgs = {
   input: TableQueryInput;
 };
@@ -18463,6 +19046,7 @@ export type QueryMarketingSuppressionLookupArgs = {
 
 export type QueryMcpActivityArgs = {
   days: Scalars['Int']['input'];
+  endpoint: McpEndpoint;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -18472,8 +19056,19 @@ export type QueryMcpAuthorizationRequestArgs = {
 };
 
 
+export type QueryMcpConnectionsArgs = {
+  endpoint: McpEndpoint;
+};
+
+
+export type QueryMcpToolsArgs = {
+  endpoint: McpEndpoint;
+};
+
+
 export type QueryMcpUsageArgs = {
   days: Scalars['Int']['input'];
+  endpoint: McpEndpoint;
 };
 
 
@@ -19038,6 +19633,32 @@ export type QueryTaskByKeyArgs = {
 
 export type QueryTaskCommentsArgs = {
   taskId: Scalars['ID']['input'];
+};
+
+
+export type QueryTechConfigItemsArgs = {
+  section: Scalars['String']['input'];
+};
+
+
+export type QueryTechProviderLoginPasswordArgs = {
+  id: Scalars['ID']['input'];
+  provider: Scalars['String']['input'];
+};
+
+
+export type QueryTechProviderProfileArgs = {
+  provider: Scalars['String']['input'];
+};
+
+
+export type QueryTechVaultSessionActivityArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryTechVaultSessionsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -21251,12 +21872,40 @@ export type TeamPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One config in an Environment Variables section, for the per-item export. */
+export type TechConfigItem = {
+  __typename?: 'TechConfigItem';
+  id: Scalars['ID']['output'];
+  kind: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
 /** A Tech > Email template offered as a starting point. */
 export type TechEmailTemplateOption = {
   __typename?: 'TechEmailTemplateOption';
   key: Scalars['String']['output'];
   mjml: Scalars['String']['output'];
   name: Scalars['String']['output'];
+};
+
+export type TechImportResult = {
+  __typename?: 'TechImportResult';
+  created: Scalars['Int']['output'];
+  /** Why each skipped item was skipped. */
+  messages: Array<Scalars['String']['output']>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
+};
+
+/** Environment Variables > a provider > Advanced. */
+export type TechProviderProfile = {
+  __typename?: 'TechProviderProfile';
+  billing: ProviderBillingAdvice;
+  label: Scalars['String']['output'];
+  links: Array<ProviderLinkEntry>;
+  logins: Array<ProviderLogin>;
+  provider: Scalars['String']['output'];
+  steps: Array<ProviderGuideStep>;
 };
 
 /** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
@@ -21295,6 +21944,29 @@ export type TechSecretValue = {
   id: Scalars['ID']['output'];
   secret: TechSecret;
   value: Scalars['String']['output'];
+};
+
+/** One unlock of Tech > Environment Variables: who, why, from where, and until when. */
+export type TechVaultSession = {
+  __typename?: 'TechVaultSession';
+  email: Scalars['String']['output'];
+  endReason?: Maybe<VaultEndReason>;
+  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  ip: Scalars['String']['output'];
+  location: VaultLocation;
+  reason: Scalars['String']['output'];
+  unlockedAt: Scalars['DateTime']['output'];
+  userAgent: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+};
+
+export type TechVaultSessionPage = {
+  __typename?: 'TechVaultSessionPage';
+  rows: Array<TechVaultSession>;
+  totalCount: Scalars['Int']['output'];
 };
 
 /** How a ticket reached the desk. */
@@ -22229,6 +22901,12 @@ export type TranslationRow = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type UnlockTechVaultInput = {
+  code: Scalars['String']['input'];
+  location: VaultLocationInput;
+  reason: Scalars['String']['input'];
+};
+
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
@@ -22458,6 +23136,34 @@ export type UserSocialLinksInput = {
   twitter?: InputMaybe<Scalars['String']['input']>;
   website?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum VaultEndReason {
+  Expired = 'EXPIRED',
+  Locked = 'LOCKED'
+}
+
+export type VaultLocation = {
+  __typename?: 'VaultLocation';
+  /** Metres, as the browser reported it. */
+  accuracy?: Maybe<Scalars['Float']['output']>;
+  latitude?: Maybe<Scalars['Float']['output']>;
+  longitude?: Maybe<Scalars['Float']['output']>;
+  state: VaultLocationState;
+};
+
+export type VaultLocationInput = {
+  accuracy?: InputMaybe<Scalars['Float']['input']>;
+  latitude?: InputMaybe<Scalars['Float']['input']>;
+  longitude?: InputMaybe<Scalars['Float']['input']>;
+  state: VaultLocationState;
+};
+
+/** Whether the browser shared the device's position when the vault was opened. */
+export enum VaultLocationState {
+  Denied = 'DENIED',
+  Granted = 'GRANTED',
+  Unavailable = 'UNAVAILABLE'
+}
 
 /** A web page read through Firecrawl, kept as markdown, with the last AI answer about it. */
 export type WebScrape = {
@@ -23473,6 +24179,7 @@ export type ResolversTypes = ResolversObject<{
   AuditStatus: AuditStatus;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   BackgroundJob: ResolverTypeWrapper<BackgroundJob>;
+  BankAccountType: BankAccountType;
   Benefit: ResolverTypeWrapper<Benefit>;
   BenefitInput: BenefitInput;
   BenefitKind: BenefitKind;
@@ -23581,6 +24288,18 @@ export type ResolversTypes = ResolversObject<{
   CloudflareConfig: ResolverTypeWrapper<CloudflareConfig>;
   CloudflareConfigInput: CloudflareConfigInput;
   CloudflareZone: ResolverTypeWrapper<CloudflareZone>;
+  ClutchCompany: ResolverTypeWrapper<ClutchCompany>;
+  ClutchEngine: ClutchEngine;
+  ClutchImportFiled: ResolverTypeWrapper<ClutchImportFiled>;
+  ClutchImportResult: ResolverTypeWrapper<ClutchImportResult>;
+  ClutchImportSkip: ResolverTypeWrapper<ClutchImportSkip>;
+  ClutchPerson: ResolverTypeWrapper<ClutchPerson>;
+  ClutchPortfolioItem: ResolverTypeWrapper<ClutchPortfolioItem>;
+  ClutchReview: ResolverTypeWrapper<ClutchReview>;
+  ClutchRun: ResolverTypeWrapper<ClutchRun>;
+  ClutchRunPage: ResolverTypeWrapper<ClutchRunPage>;
+  ClutchRunStatus: ClutchRunStatus;
+  ClutchSearchInput: ClutchSearchInput;
   CmsARecord: ResolverTypeWrapper<CmsARecord>;
   CmsAsset: ResolverTypeWrapper<CmsAsset>;
   CmsAssetPage: ResolverTypeWrapper<CmsAssetPage>;
@@ -23899,6 +24618,8 @@ export type ResolversTypes = ResolversObject<{
   IncidentUpdateStatus: IncidentUpdateStatus;
   InfrastructureOverview: ResolverTypeWrapper<InfrastructureOverview>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  IntegrationCall: ResolverTypeWrapper<IntegrationCall>;
+  IntegrationCallPage: ResolverTypeWrapper<IntegrationCallPage>;
   IntegrationProvider: IntegrationProvider;
   IntegrationUsageAction: ResolverTypeWrapper<IntegrationUsageAction>;
   IntegrationUsageDay: ResolverTypeWrapper<IntegrationUsageDay>;
@@ -24002,6 +24723,8 @@ export type ResolversTypes = ResolversObject<{
   LeadSearchInput: LeadSearchInput;
   LeadSearchPage: ResolverTypeWrapper<LeadSearchPage>;
   LeadSource: LeadSource;
+  LeadSourceSettings: ResolverTypeWrapper<LeadSourceSettings>;
+  LeadSourceSettingsInput: LeadSourceSettingsInput;
   LeadStage: LeadStage;
   LeadWebsiteDropped: ResolverTypeWrapper<LeadWebsiteDropped>;
   LeaveBalance: ResolverTypeWrapper<LeaveBalance>;
@@ -24129,8 +24852,9 @@ export type ResolversTypes = ResolversObject<{
   McpAuthorizationRequest: ResolverTypeWrapper<McpAuthorizationRequest>;
   McpCall: ResolverTypeWrapper<McpCall>;
   McpConnection: ResolverTypeWrapper<McpConnection>;
-  McpOverview: ResolverTypeWrapper<McpOverview>;
+  McpEndpoint: McpEndpoint;
   McpPersonUsage: ResolverTypeWrapper<McpPersonUsage>;
+  McpServer: ResolverTypeWrapper<McpServer>;
   McpTool: ResolverTypeWrapper<McpTool>;
   McpToolArgument: ResolverTypeWrapper<McpToolArgument>;
   McpToolKind: McpToolKind;
@@ -24221,6 +24945,11 @@ export type ResolversTypes = ResolversObject<{
   PaymentPage: ResolverTypeWrapper<PaymentPage>;
   PayoneerConfig: ResolverTypeWrapper<PayoneerConfig>;
   PayoneerConfigInput: PayoneerConfigInput;
+  PayoutAccount: ResolverTypeWrapper<PayoutAccount>;
+  PayoutAccountHints: ResolverTypeWrapper<PayoutAccountHints>;
+  PayoutAccountInput: PayoutAccountInput;
+  PayoutMethod: PayoutMethod;
+  PayoutSecretField: PayoutSecretField;
   PaypalConfig: ResolverTypeWrapper<PaypalConfig>;
   PaypalConfigInput: PaypalConfigInput;
   PayrollCandidate: ResolverTypeWrapper<PayrollCandidate>;
@@ -24295,6 +25024,15 @@ export type ResolversTypes = ResolversObject<{
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
   ProviderBilling: ResolverTypeWrapper<ProviderBilling>;
+  ProviderBillingAdvice: ResolverTypeWrapper<ProviderBillingAdvice>;
+  ProviderBillingNeed: ProviderBillingNeed;
+  ProviderGuideStep: ResolverTypeWrapper<ProviderGuideStep>;
+  ProviderLinkEntry: ResolverTypeWrapper<ProviderLinkEntry>;
+  ProviderLinkInput: ProviderLinkInput;
+  ProviderLinkKind: ProviderLinkKind;
+  ProviderLogin: ResolverTypeWrapper<ProviderLogin>;
+  ProviderLoginInput: ProviderLoginInput;
+  ProviderSignInMethod: ProviderSignInMethod;
   PublicBookingPage: ResolverTypeWrapper<PublicBookingPage>;
   PublicEmailPreferences: ResolverTypeWrapper<PublicEmailPreferences>;
   PublicMeeting: ResolverTypeWrapper<PublicMeeting>;
@@ -24493,9 +25231,14 @@ export type ResolversTypes = ResolversObject<{
   Team: ResolverTypeWrapper<Team>;
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
+  TechConfigItem: ResolverTypeWrapper<TechConfigItem>;
   TechEmailTemplateOption: ResolverTypeWrapper<TechEmailTemplateOption>;
+  TechImportResult: ResolverTypeWrapper<TechImportResult>;
+  TechProviderProfile: ResolverTypeWrapper<TechProviderProfile>;
   TechSecret: TechSecret;
   TechSecretValue: ResolverTypeWrapper<TechSecretValue>;
+  TechVaultSession: ResolverTypeWrapper<TechVaultSession>;
+  TechVaultSessionPage: ResolverTypeWrapper<TechVaultSessionPage>;
   TicketChannel: TicketChannel;
   Tool: ResolverTypeWrapper<Tool>;
   ToolCategory: ResolverTypeWrapper<ToolCategory>;
@@ -24562,6 +25305,7 @@ export type ResolversTypes = ResolversObject<{
   TranslationFill: ResolverTypeWrapper<TranslationFill>;
   TranslationPage: ResolverTypeWrapper<TranslationPage>;
   TranslationRow: ResolverTypeWrapper<TranslationRow>;
+  UnlockTechVaultInput: UnlockTechVaultInput;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
@@ -24572,6 +25316,10 @@ export type ResolversTypes = ResolversObject<{
   UserSession: ResolverTypeWrapper<UserSession>;
   UserSocialLinks: ResolverTypeWrapper<UserSocialLinks>;
   UserSocialLinksInput: UserSocialLinksInput;
+  VaultEndReason: VaultEndReason;
+  VaultLocation: ResolverTypeWrapper<VaultLocation>;
+  VaultLocationInput: VaultLocationInput;
+  VaultLocationState: VaultLocationState;
   WebScrape: ResolverTypeWrapper<WebScrape>;
   WebScrapeAiEstimate: ResolverTypeWrapper<WebScrapeAiEstimate>;
   WebScrapePage: ResolverTypeWrapper<WebScrapePage>;
@@ -24809,6 +25557,16 @@ export type ResolversParentTypes = ResolversObject<{
   CloudflareConfig: CloudflareConfig;
   CloudflareConfigInput: CloudflareConfigInput;
   CloudflareZone: CloudflareZone;
+  ClutchCompany: ClutchCompany;
+  ClutchImportFiled: ClutchImportFiled;
+  ClutchImportResult: ClutchImportResult;
+  ClutchImportSkip: ClutchImportSkip;
+  ClutchPerson: ClutchPerson;
+  ClutchPortfolioItem: ClutchPortfolioItem;
+  ClutchReview: ClutchReview;
+  ClutchRun: ClutchRun;
+  ClutchRunPage: ClutchRunPage;
+  ClutchSearchInput: ClutchSearchInput;
   CmsARecord: CmsARecord;
   CmsAsset: CmsAsset;
   CmsAssetPage: CmsAssetPage;
@@ -25066,6 +25824,8 @@ export type ResolversParentTypes = ResolversObject<{
   InboundMailConfigInput: InboundMailConfigInput;
   InfrastructureOverview: InfrastructureOverview;
   Int: Scalars['Int']['output'];
+  IntegrationCall: IntegrationCall;
+  IntegrationCallPage: IntegrationCallPage;
   IntegrationUsageAction: IntegrationUsageAction;
   IntegrationUsageDay: IntegrationUsageDay;
   IntegrationUsageSummary: IntegrationUsageSummary;
@@ -25146,6 +25906,8 @@ export type ResolversParentTypes = ResolversObject<{
   LeadPlace: LeadPlace;
   LeadSearchInput: LeadSearchInput;
   LeadSearchPage: LeadSearchPage;
+  LeadSourceSettings: LeadSourceSettings;
+  LeadSourceSettingsInput: LeadSourceSettingsInput;
   LeadWebsiteDropped: LeadWebsiteDropped;
   LeaveBalance: LeaveBalance;
   LeaveBalanceInput: LeaveBalanceInput;
@@ -25246,8 +26008,8 @@ export type ResolversParentTypes = ResolversObject<{
   McpAuthorizationRequest: McpAuthorizationRequest;
   McpCall: McpCall;
   McpConnection: McpConnection;
-  McpOverview: McpOverview;
   McpPersonUsage: McpPersonUsage;
+  McpServer: McpServer;
   McpTool: McpTool;
   McpToolArgument: McpToolArgument;
   McpToolUsage: McpToolUsage;
@@ -25320,6 +26082,9 @@ export type ResolversParentTypes = ResolversObject<{
   PaymentPage: PaymentPage;
   PayoneerConfig: PayoneerConfig;
   PayoneerConfigInput: PayoneerConfigInput;
+  PayoutAccount: PayoutAccount;
+  PayoutAccountHints: PayoutAccountHints;
+  PayoutAccountInput: PayoutAccountInput;
   PaypalConfig: PaypalConfig;
   PaypalConfigInput: PaypalConfigInput;
   PayrollCandidate: PayrollCandidate;
@@ -25379,6 +26144,12 @@ export type ResolversParentTypes = ResolversObject<{
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
   ProviderBilling: ProviderBilling;
+  ProviderBillingAdvice: ProviderBillingAdvice;
+  ProviderGuideStep: ProviderGuideStep;
+  ProviderLinkEntry: ProviderLinkEntry;
+  ProviderLinkInput: ProviderLinkInput;
+  ProviderLogin: ProviderLogin;
+  ProviderLoginInput: ProviderLoginInput;
   PublicBookingPage: PublicBookingPage;
   PublicEmailPreferences: PublicEmailPreferences;
   PublicMeeting: PublicMeeting;
@@ -25535,8 +26306,13 @@ export type ResolversParentTypes = ResolversObject<{
   Team: Team;
   TeamInput: TeamInput;
   TeamPage: TeamPage;
+  TechConfigItem: TechConfigItem;
   TechEmailTemplateOption: TechEmailTemplateOption;
+  TechImportResult: TechImportResult;
+  TechProviderProfile: TechProviderProfile;
   TechSecretValue: TechSecretValue;
+  TechVaultSession: TechVaultSession;
+  TechVaultSessionPage: TechVaultSessionPage;
   Tool: Tool;
   ToolCategory: ToolCategory;
   ToolCategoryInput: ToolCategoryInput;
@@ -25592,6 +26368,7 @@ export type ResolversParentTypes = ResolversObject<{
   TranslationFill: TranslationFill;
   TranslationPage: TranslationPage;
   TranslationRow: TranslationRow;
+  UnlockTechVaultInput: UnlockTechVaultInput;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
@@ -25602,6 +26379,8 @@ export type ResolversParentTypes = ResolversObject<{
   UserSession: UserSession;
   UserSocialLinks: UserSocialLinks;
   UserSocialLinksInput: UserSocialLinksInput;
+  VaultLocation: VaultLocation;
+  VaultLocationInput: VaultLocationInput;
   WebScrape: WebScrape;
   WebScrapeAiEstimate: WebScrapeAiEstimate;
   WebScrapePage: WebScrapePage;
@@ -26935,6 +27714,111 @@ export type CloudflareZoneResolvers<ContextType = GraphQLContext, ParentType ext
   nameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   originalNameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchCompanyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchCompany'] = ResolversParentTypes['ClutchCompany']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emails?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  employees?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  founded?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  headquarters?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hourlyRate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  locations?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  minProjectSize?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  people?: Resolver<Array<ResolversTypes['ClutchPerson']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  portfolio?: Resolver<Array<ResolversTypes['ClutchPortfolioItem']>, ParentType, ContextType>;
+  profileUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rating?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  reviewCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  reviews?: Resolver<Array<ResolversTypes['ClutchReview']>, ParentType, ContextType>;
+  services?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  tagline?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  verification?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchImportFiledResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchImportFiled'] = ResolversParentTypes['ClutchImportFiled']> = ResolversObject<{
+  companyId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchImportResult'] = ResolversParentTypes['ClutchImportResult']> = ResolversObject<{
+  contactsCreated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  filed?: Resolver<Array<ResolversTypes['ClutchImportFiled']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skips?: Resolver<Array<ResolversTypes['ClutchImportSkip']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchImportSkipResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchImportSkip'] = ResolversParentTypes['ClutchImportSkip']> = ResolversObject<{
+  companyId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchPersonResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchPerson'] = ResolversParentTypes['ClutchPerson']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchPortfolioItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchPortfolioItem'] = ResolversParentTypes['ClutchPortfolioItem']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  imageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchReviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchReview'] = ResolversParentTypes['ClutchReview']> = ResolversObject<{
+  comment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  projectSize?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rating?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  reviewer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reviewerTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchRunResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchRun'] = ResolversParentTypes['ClutchRun']> = ResolversObject<{
+  companies?: Resolver<Array<ResolversTypes['ClutchCompany']>, ParentType, ContextType>;
+  companyCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  engine?: Resolver<ResolversTypes['ClutchEngine'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  filedKeys?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  finishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  includeDetails?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  includePortfolio?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  includeReviews?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keyword?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  maxItems?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  notes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  profileUrls?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  startedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ClutchRunStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClutchRunPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClutchRunPage'] = ResolversParentTypes['ClutchRunPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ClutchRun']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -28893,6 +29777,31 @@ export type InfrastructureOverviewResolvers<ContextType = GraphQLContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type IntegrationCallResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['IntegrationCall'] = ResolversParentTypes['IntegrationCall']> = ResolversObject<{
+  action?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  actorEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  actorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  costUsd?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  durationMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inputTokens?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  outputTokens?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  path?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['IntegrationProvider'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type IntegrationCallPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['IntegrationCallPage'] = ResolversParentTypes['IntegrationCallPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['IntegrationCall']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type IntegrationUsageActionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['IntegrationUsageAction'] = ResolversParentTypes['IntegrationUsageAction']> = ResolversObject<{
   action?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -29561,6 +30470,14 @@ export type LeadPlaceResolvers<ContextType = GraphQLContext, ParentType extends 
 export type LeadSearchPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadSearchPage'] = ResolversParentTypes['LeadSearchPage']> = ResolversObject<{
   nextPageToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   places?: Resolver<Array<ResolversTypes['LeadPlace']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadSourceSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadSourceSettings'] = ResolversParentTypes['LeadSourceSettings']> = ResolversObject<{
+  apifyTokenHint?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clutchActorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasApifyToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30345,9 +31262,11 @@ export type MarketingSuppressionsResultResolvers<ContextType = GraphQLContext, P
 
 export type McpAuthorizationRequestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpAuthorizationRequest'] = ResolversParentTypes['McpAuthorizationRequest']> = ResolversObject<{
   clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   redirectHost?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   scopes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  serverLabel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30359,6 +31278,7 @@ export type McpCallResolvers<ContextType = GraphQLContext, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['McpToolKind'], ParentType, ContextType>;
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   tool?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -30367,17 +31287,10 @@ export type McpCallResolvers<ContextType = GraphQLContext, ParentType extends Re
 export type McpConnectionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpConnection'] = ResolversParentTypes['McpConnection']> = ResolversObject<{
   clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUsedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type McpOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpOverview'] = ResolversParentTypes['McpOverview']> = ResolversObject<{
-  mutationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  queryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  serverUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  toolCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30387,11 +31300,24 @@ export type McpPersonUsageResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type McpServerResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpServer'] = ResolversParentTypes['McpServer']> = ResolversObject<{
+  connectionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mutationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  queryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  serverUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toolCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type McpToolResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpTool'] = ResolversParentTypes['McpTool']> = ResolversObject<{
   arguments?: Resolver<Array<ResolversTypes['McpToolArgument']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['McpToolKind'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -30627,11 +31553,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   claimWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationClaimWebsiteChatSessionArgs, 'id'>>;
+  clearApifyToken?: Resolver<ResolversTypes['LeadSourceSettings'], ParentType, ContextType>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
+  clientHubDeletePayoutAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClientHubDeletePayoutAccountArgs, 'id'>>;
   clientHubEmailInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClientHubEmailInvoiceArgs, 'id'>>;
   clientHubOpenTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationClientHubOpenTicketArgs, 'input'>>;
   clientHubPayInvoice?: Resolver<ResolversTypes['ClientHubCheckout'], ParentType, ContextType, RequireFields<MutationClientHubPayInvoiceArgs, 'gateway' | 'id'>>;
   clientHubReplyToTicket?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationClientHubReplyToTicketArgs, 'body' | 'ticketId'>>;
+  clientHubSavePayoutAccount?: Resolver<ResolversTypes['PayoutAccount'], ParentType, ContextType, RequireFields<MutationClientHubSavePayoutAccountArgs, 'input'>>;
   closeWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationCloseWebsiteChatSessionArgs, 'id'>>;
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
   completeGoogleSignIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationCompleteGoogleSignInArgs, 'ticket'>>;
@@ -30815,6 +31744,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteClientContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientContactArgs, 'id'>>;
   deleteClientLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientLinkArgs, 'id'>>;
   deleteCloudflareConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCloudflareConfigArgs, 'id'>>;
+  deleteClutchRun?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClutchRunArgs, 'id'>>;
   deleteCmsAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsAssetArgs, 'id'>>;
   deleteCmsDesignSystem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsDesignSystemArgs, 'id'>>;
   deleteCmsFragment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsFragmentArgs, 'id'>>;
@@ -30840,6 +31770,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteEmailTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailTemplateArgs, 'id'>>;
   deleteEmailVerifierConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailVerifierConfigArgs, 'id'>>;
   deleteEmployeeDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeDocumentArgs, 'id'>>;
+  deleteEmployeePayoutAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeePayoutAccountArgs, 'employeeId' | 'id'>>;
   deleteEmployeeRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeRequestArgs, 'id'>>;
   deleteEmploymentType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmploymentTypeArgs, 'id'>>;
   deleteExitRecord?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExitRecordArgs, 'id'>>;
@@ -30922,6 +31853,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteTaxRegime?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaxRegimeArgs, 'id'>>;
   deleteTaxSlab?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaxSlabArgs, 'id'>>;
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
+  deleteTechProviderLink?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationDeleteTechProviderLinkArgs, 'id' | 'provider'>>;
+  deleteTechProviderLogin?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationDeleteTechProviderLoginArgs, 'id' | 'provider'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
   deleteToolCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolCategoryArgs, 'id'>>;
   deleteTrackerBuildRelease?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrackerBuildReleaseArgs, 'id'>>;
@@ -30954,14 +31887,17 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   findLeadEmails?: Resolver<ResolversTypes['LeadEmailResult'], ParentType, ContextType, RequireFields<MutationFindLeadEmailsArgs, 'website'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
+  importClutchCompanies?: Resolver<ResolversTypes['ClutchImportResult'], ParentType, ContextType, RequireFields<MutationImportClutchCompaniesArgs, 'keys' | 'runId'>>;
   importCrmRecords?: Resolver<ResolversTypes['CrmImportResult'], ParentType, ContextType, RequireFields<MutationImportCrmRecordsArgs, 'input'>>;
   importLeadsToCrm?: Resolver<ResolversTypes['LeadImportResult'], ParentType, ContextType, RequireFields<MutationImportLeadsToCrmArgs, 'leads'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
   importTableRows?: Resolver<ResolversTypes['TableImportResult'], ParentType, ContextType, RequireFields<MutationImportTableRowsArgs, 'firstRowNumber' | 'list' | 'mode' | 'rows'>>;
+  importTechConfigs?: Resolver<ResolversTypes['TechImportResult'], ParentType, ContextType, RequireFields<MutationImportTechConfigsArgs, 'json'>>;
   inviteOrganizationMembers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationInviteOrganizationMembersArgs, 'members' | 'organizationId'>>;
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
   itRevokeAllAccess?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItRevokeAllAccessArgs, 'employeeId'>>;
+  lockTechVault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   login?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   maAddActionComment?: Resolver<ResolversTypes['MaActionItem'], ParentType, ContextType, RequireFields<MutationMaAddActionCommentArgs, 'id' | 'text'>>;
   maApproveRelease?: Resolver<ResolversTypes['MaRelease'], ParentType, ContextType, RequireFields<MutationMaApproveReleaseArgs, 'channel' | 'id'>>;
@@ -31025,6 +31961,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestEmployeeEmailCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestEmployeeEmailCodeArgs, 'employeeId' | 'kind'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
+  requestTechVaultCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
@@ -31058,14 +31995,18 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveCampaignTemplate?: Resolver<ResolversTypes['CampaignTemplate'], ParentType, ContextType, RequireFields<MutationSaveCampaignTemplateArgs, 'input'>>;
   saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
   saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
+  saveEmployeePayoutAccount?: Resolver<ResolversTypes['PayoutAccount'], ParentType, ContextType, RequireFields<MutationSaveEmployeePayoutAccountArgs, 'employeeId' | 'input'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveGmailConfig?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType, RequireFields<MutationSaveGmailConfigArgs, 'input'>>;
   saveGoogleSignInConfig?: Resolver<ResolversTypes['GoogleSignInConfig'], ParentType, ContextType, RequireFields<MutationSaveGoogleSignInConfigArgs, 'input'>>;
+  saveLeadSourceConfig?: Resolver<ResolversTypes['LeadSourceSettings'], ParentType, ContextType, RequireFields<MutationSaveLeadSourceConfigArgs, 'input'>>;
   saveMarketingFooter?: Resolver<ResolversTypes['MarketingFooter'], ParentType, ContextType, RequireFields<MutationSaveMarketingFooterArgs, 'input'>>;
   saveMeetingSettings?: Resolver<ResolversTypes['MeetingSettings'], ParentType, ContextType, RequireFields<MutationSaveMeetingSettingsArgs, 'input'>>;
   saveMicrosoftMailConfig?: Resolver<ResolversTypes['MicrosoftMailConfig'], ParentType, ContextType, RequireFields<MutationSaveMicrosoftMailConfigArgs, 'input'>>;
   saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
+  saveTechProviderLink?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationSaveTechProviderLinkArgs, 'input' | 'provider'>>;
+  saveTechProviderLogin?: Resolver<ResolversTypes['TechProviderProfile'], ParentType, ContextType, RequireFields<MutationSaveTechProviderLoginArgs, 'input' | 'provider'>>;
   saveTrackerBuildRetention?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildRetentionArgs, 'keepLatestBuilds'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   saveWhatsappChannel?: Resolver<ResolversTypes['WhatsappChannel'], ParentType, ContextType, RequireFields<MutationSaveWhatsappChannelArgs, 'input'>>;
@@ -31129,6 +32070,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
   startCallingBotCall?: Resolver<ResolversTypes['CallingBotCallStart'], ParentType, ContextType, RequireFields<MutationStartCallingBotCallArgs, 'input'>>;
+  startClutchSearch?: Resolver<ResolversTypes['ClutchRun'], ParentType, ContextType, RequireFields<MutationStartClutchSearchArgs, 'input'>>;
   startCrmCall?: Resolver<ResolversTypes['CrmCallResult'], ParentType, ContextType, RequireFields<MutationStartCrmCallArgs, 'input'>>;
   startGmailConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartGmailConnectArgs, 'returnTo'>>;
   startGoogleSignIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartGoogleSignInArgs, 'returnTo'>>;
@@ -31194,6 +32136,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   translateMissing?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType, RequireFields<MutationTranslateMissingArgs, 'locale' | 'sources'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
   unassignLegalItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnassignLegalItemArgs, 'id'>>;
+  unlockTechVault?: Resolver<ResolversTypes['TechVaultSession'], ParentType, ContextType, RequireFields<MutationUnlockTechVaultArgs, 'input'>>;
   unpublishCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationUnpublishCmsPageArgs, 'id'>>;
   unshareWithClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnshareWithClientArgs, 'id'>>;
   unsubscribeFromMarketing?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromMarketingArgs, 'token'>>;
@@ -31664,6 +32607,36 @@ export type PayoneerConfigResolvers<ContextType = GraphQLContext, ParentType ext
   merchantCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mode?: Resolver<ResolversTypes['GatewayMode'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PayoutAccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayoutAccount'] = ResolversParentTypes['PayoutAccount']> = ResolversObject<{
+  accountType?: Resolver<Maybe<ResolversTypes['BankAccountType']>, ParentType, ContextType>;
+  bankName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  bic?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  branchName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hints?: Resolver<ResolversTypes['PayoutAccountHints'], ParentType, ContextType>;
+  holderName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isPrimary?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  method?: Resolver<ResolversTypes['PayoutMethod'], ParentType, ContextType>;
+  region?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  routingCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PayoutAccountHintsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayoutAccountHints'] = ResolversParentTypes['PayoutAccountHints']> = ResolversObject<{
+  accountNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  iban?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  upiId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  walletEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -32165,6 +33138,37 @@ export type ProviderBillingResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ProviderBillingAdviceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderBillingAdvice'] = ResolversParentTypes['ProviderBillingAdvice']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  need?: Resolver<ResolversTypes['ProviderBillingNeed'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProviderGuideStepResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderGuideStep'] = ResolversParentTypes['ProviderGuideStep']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProviderLinkEntryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderLinkEntry'] = ResolversParentTypes['ProviderLinkEntry']> = ResolversObject<{
+  custom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['ProviderLinkKind'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProviderLoginResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProviderLogin'] = ResolversParentTypes['ProviderLogin']> = ResolversObject<{
+  hasPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  passwordHint?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signInMethod?: Resolver<ResolversTypes['ProviderSignInMethod'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PublicBookingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicBookingPage'] = ResolversParentTypes['PublicBookingPage']> = ResolversObject<{
   logoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -32320,6 +33324,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   clientHubPaymentAttempt?: Resolver<ResolversTypes['PaymentAttempt'], ParentType, ContextType, RequireFields<QueryClientHubPaymentAttemptArgs, 'id'>>;
   clientHubPaymentOptions?: Resolver<ResolversTypes['ClientHubPaymentOptions'], ParentType, ContextType>;
   clientHubPayments?: Resolver<ResolversTypes['PaymentPage'], ParentType, ContextType, RequireFields<QueryClientHubPaymentsArgs, 'input'>>;
+  clientHubPayoutAccounts?: Resolver<Array<ResolversTypes['PayoutAccount']>, ParentType, ContextType>;
+  clientHubPayoutSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubPayoutSecretArgs, 'field' | 'id'>>;
   clientHubProjects?: Resolver<Array<ResolversTypes['ClientHubProject']>, ParentType, ContextType>;
   clientHubReminders?: Resolver<Array<ResolversTypes['ClientHubReminder']>, ParentType, ContextType>;
   clientHubSharedContent?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubSharedContentArgs, 'id'>>;
@@ -32327,11 +33333,15 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   clientHubTicketReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryClientHubTicketRepliesArgs, 'ticketId'>>;
   clientHubTickets?: Resolver<ResolversTypes['SupportTicketPage'], ParentType, ContextType, RequireFields<QueryClientHubTicketsArgs, 'input'>>;
   clientLinks?: Resolver<Array<ResolversTypes['ClientLink']>, ParentType, ContextType, RequireFields<QueryClientLinksArgs, 'clientId'>>;
+  clientPayoutAccounts?: Resolver<Array<ResolversTypes['PayoutAccount']>, ParentType, ContextType, RequireFields<QueryClientPayoutAccountsArgs, 'clientId'>>;
+  clientPayoutSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientPayoutSecretArgs, 'clientId' | 'field' | 'id'>>;
   clientProjectOptions?: Resolver<Array<ResolversTypes['ClientProjectOption']>, ParentType, ContextType>;
   clientShareOptions?: Resolver<Array<ResolversTypes['ClientShareOption']>, ParentType, ContextType, RequireFields<QueryClientShareOptionsArgs, 'kind'>>;
   clientSharedItems?: Resolver<Array<ResolversTypes['ClientSharedItem']>, ParentType, ContextType, RequireFields<QueryClientSharedItemsArgs, 'clientId'>>;
   clientSummary?: Resolver<ResolversTypes['ClientSummary'], ParentType, ContextType, RequireFields<QueryClientSummaryArgs, 'clientId'>>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
+  clutchRun?: Resolver<ResolversTypes['ClutchRun'], ParentType, ContextType, RequireFields<QueryClutchRunArgs, 'id'>>;
+  clutchRunsPaged?: Resolver<ResolversTypes['ClutchRunPage'], ParentType, ContextType, RequireFields<QueryClutchRunsPagedArgs, 'input'>>;
   cmsAssets?: Resolver<ResolversTypes['CmsAssetPage'], ParentType, ContextType, RequireFields<QueryCmsAssetsArgs, 'page' | 'pageSize' | 'siteId'>>;
   cmsComponents?: Resolver<Array<ResolversTypes['CmsComponentDef']>, ParentType, ContextType>;
   cmsDesignSystem?: Resolver<ResolversTypes['CmsDesignSystem'], ParentType, ContextType, RequireFields<QueryCmsDesignSystemArgs, 'id'>>;
@@ -32391,7 +33401,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   employeeLegalAssignments?: Resolver<Array<ResolversTypes['LegalAssignment']>, ParentType, ContextType, RequireFields<QueryEmployeeLegalAssignmentsArgs, 'userId'>>;
   employeeLocations?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryEmployeeLocationsArgs, 'date' | 'employeeId'>>;
   employeeLocationsBetween?: Resolver<Array<ResolversTypes['TrackerLocation']>, ParentType, ContextType, RequireFields<QueryEmployeeLocationsBetweenArgs, 'employeeId' | 'from' | 'to'>>;
+  employeePayoutAccounts?: Resolver<Array<ResolversTypes['PayoutAccount']>, ParentType, ContextType, RequireFields<QueryEmployeePayoutAccountsArgs, 'employeeId'>>;
+  employeePayoutSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryEmployeePayoutSecretArgs, 'employeeId' | 'field' | 'id'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
+  exportTechConfigs?: Resolver<ResolversTypes['String'], ParentType, ContextType, Partial<QueryExportTechConfigsArgs>>;
   firecrawlConfigs?: Resolver<Array<ResolversTypes['FirecrawlConfig']>, ParentType, ContextType>;
   firecrawlReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   fxRates?: Resolver<ResolversTypes['FxRates'], ParentType, ContextType>;
@@ -32506,6 +33519,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   itReport?: Resolver<ResolversTypes['ItReport'], ParentType, ContextType, RequireFields<QueryItReportArgs, 'months'>>;
   itSettings?: Resolver<ResolversTypes['ItSettings'], ParentType, ContextType>;
   leadLocationSuggestions?: Resolver<Array<ResolversTypes['LeadLocationSuggestion']>, ParentType, ContextType, RequireFields<QueryLeadLocationSuggestionsArgs, 'input'>>;
+  leadSourceConfig?: Resolver<ResolversTypes['LeadSourceSettings'], ParentType, ContextType>;
   leadsByCampaign?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<QueryLeadsByCampaignArgs, 'campaignId'>>;
   leaveRequestsByEmployee?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType, RequireFields<QueryLeaveRequestsByEmployeeArgs, 'employeeId'>>;
   legalAssignables?: Resolver<Array<ResolversTypes['LegalAssignable']>, ParentType, ContextType>;
@@ -32632,6 +33646,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listHolidaysStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listImageConfigs?: Resolver<Array<ResolversTypes['ImageConfig']>, ParentType, ContextType>;
   listInboundMailConfigs?: Resolver<Array<ResolversTypes['InboundMailConfig']>, ParentType, ContextType>;
+  listIntegrationCallsPaged?: Resolver<ResolversTypes['IntegrationCallPage'], ParentType, ContextType, RequireFields<QueryListIntegrationCallsPagedArgs, 'input'>>;
+  listIntegrationCallsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listInternalAudits?: Resolver<Array<ResolversTypes['InternalAudit']>, ParentType, ContextType>;
   listInternalAuditsPaged?: Resolver<ResolversTypes['InternalAuditPage'], ParentType, ContextType, RequireFields<QueryListInternalAuditsPagedArgs, 'input'>>;
   listInternalAuditsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -32845,12 +33861,12 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   marketingSuppressionHistory?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryMarketingSuppressionHistoryArgs, 'email'>>;
   marketingSuppressionLookup?: Resolver<ResolversTypes['MarketingSuppressionLookup'], ParentType, ContextType, RequireFields<QueryMarketingSuppressionLookupArgs, 'email'>>;
   marketingSuppressionSummary?: Resolver<ResolversTypes['MarketingSuppressionSummary'], ParentType, ContextType>;
-  mcpActivity?: Resolver<Array<ResolversTypes['McpCall']>, ParentType, ContextType, RequireFields<QueryMcpActivityArgs, 'days'>>;
+  mcpActivity?: Resolver<Array<ResolversTypes['McpCall']>, ParentType, ContextType, RequireFields<QueryMcpActivityArgs, 'days' | 'endpoint'>>;
   mcpAuthorizationRequest?: Resolver<ResolversTypes['McpAuthorizationRequest'], ParentType, ContextType, RequireFields<QueryMcpAuthorizationRequestArgs, 'id'>>;
-  mcpConnections?: Resolver<Array<ResolversTypes['McpConnection']>, ParentType, ContextType>;
-  mcpOverview?: Resolver<ResolversTypes['McpOverview'], ParentType, ContextType>;
-  mcpTools?: Resolver<Array<ResolversTypes['McpTool']>, ParentType, ContextType>;
-  mcpUsage?: Resolver<ResolversTypes['McpUsage'], ParentType, ContextType, RequireFields<QueryMcpUsageArgs, 'days'>>;
+  mcpConnections?: Resolver<Array<ResolversTypes['McpConnection']>, ParentType, ContextType, RequireFields<QueryMcpConnectionsArgs, 'endpoint'>>;
+  mcpServers?: Resolver<Array<ResolversTypes['McpServer']>, ParentType, ContextType>;
+  mcpTools?: Resolver<Array<ResolversTypes['McpTool']>, ParentType, ContextType, RequireFields<QueryMcpToolsArgs, 'endpoint'>>;
+  mcpUsage?: Resolver<ResolversTypes['McpUsage'], ParentType, ContextType, RequireFields<QueryMcpUsageArgs, 'days' | 'endpoint'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   meetingBookingPagePath?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   meetingBookings?: Resolver<ResolversTypes['MeetingBookingPage'], ParentType, ContextType, RequireFields<QueryMeetingBookingsArgs, 'page' | 'pageSize'>>;
@@ -33014,7 +34030,13 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   teamLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
   teamPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   teamRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
+  techConfigItems?: Resolver<Array<ResolversTypes['TechConfigItem']>, ParentType, ContextType, RequireFields<QueryTechConfigItemsArgs, 'section'>>;
   techEmailTemplateOptions?: Resolver<Array<ResolversTypes['TechEmailTemplateOption']>, ParentType, ContextType>;
+  techProviderLoginPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryTechProviderLoginPasswordArgs, 'id' | 'provider'>>;
+  techProviderProfile?: Resolver<Maybe<ResolversTypes['TechProviderProfile']>, ParentType, ContextType, RequireFields<QueryTechProviderProfileArgs, 'provider'>>;
+  techVaultSessionActivity?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryTechVaultSessionActivityArgs, 'id'>>;
+  techVaultSessionsPaged?: Resolver<ResolversTypes['TechVaultSessionPage'], ParentType, ContextType, RequireFields<QueryTechVaultSessionsPagedArgs, 'input'>>;
+  techVaultStatus?: Resolver<Maybe<ResolversTypes['TechVaultSession']>, ParentType, ContextType>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBilling?: Resolver<ResolversTypes['TrackerBilling'], ParentType, ContextType, RequireFields<QueryTrackerBillingArgs, 'from' | 'to'>>;
   trackerBillingByProject?: Resolver<Array<ResolversTypes['ProjectBillingRow']>, ParentType, ContextType, RequireFields<QueryTrackerBillingByProjectArgs, 'from' | 'to'>>;
@@ -34155,6 +35177,13 @@ export type TeamPageResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TechConfigItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechConfigItem'] = ResolversParentTypes['TechConfigItem']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TechEmailTemplateOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechEmailTemplateOption'] = ResolversParentTypes['TechEmailTemplateOption']> = ResolversObject<{
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -34162,10 +35191,50 @@ export type TechEmailTemplateOptionResolvers<ContextType = GraphQLContext, Paren
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TechImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechImportResult'] = ResolversParentTypes['TechImportResult']> = ResolversObject<{
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  messages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TechProviderProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechProviderProfile'] = ResolversParentTypes['TechProviderProfile']> = ResolversObject<{
+  billing?: Resolver<ResolversTypes['ProviderBillingAdvice'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  links?: Resolver<Array<ResolversTypes['ProviderLinkEntry']>, ParentType, ContextType>;
+  logins?: Resolver<Array<ResolversTypes['ProviderLogin']>, ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  steps?: Resolver<Array<ResolversTypes['ProviderGuideStep']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TechSecretValueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechSecretValue'] = ResolversParentTypes['TechSecretValue']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   secret?: Resolver<ResolversTypes['TechSecret'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TechVaultSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechVaultSession'] = ResolversParentTypes['TechVaultSession']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endReason?: Resolver<Maybe<ResolversTypes['VaultEndReason']>, ParentType, ContextType>;
+  endedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  ip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['VaultLocation'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unlockedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  userAgent?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TechVaultSessionPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TechVaultSessionPage'] = ResolversParentTypes['TechVaultSessionPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['TechVaultSession']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -34775,6 +35844,14 @@ export type UserSocialLinksResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type VaultLocationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['VaultLocation'] = ResolversParentTypes['VaultLocation']> = ResolversObject<{
+  accuracy?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  latitude?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  longitude?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['VaultLocationState'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WebScrapeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebScrape'] = ResolversParentTypes['WebScrape']> = ResolversObject<{
   aiCostUsd?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   aiInstruction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -35374,6 +36451,15 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ClientTicketStatus?: ClientTicketStatusResolvers<ContextType>;
   CloudflareConfig?: CloudflareConfigResolvers<ContextType>;
   CloudflareZone?: CloudflareZoneResolvers<ContextType>;
+  ClutchCompany?: ClutchCompanyResolvers<ContextType>;
+  ClutchImportFiled?: ClutchImportFiledResolvers<ContextType>;
+  ClutchImportResult?: ClutchImportResultResolvers<ContextType>;
+  ClutchImportSkip?: ClutchImportSkipResolvers<ContextType>;
+  ClutchPerson?: ClutchPersonResolvers<ContextType>;
+  ClutchPortfolioItem?: ClutchPortfolioItemResolvers<ContextType>;
+  ClutchReview?: ClutchReviewResolvers<ContextType>;
+  ClutchRun?: ClutchRunResolvers<ContextType>;
+  ClutchRunPage?: ClutchRunPageResolvers<ContextType>;
   CmsARecord?: CmsARecordResolvers<ContextType>;
   CmsAsset?: CmsAssetResolvers<ContextType>;
   CmsAssetPage?: CmsAssetPageResolvers<ContextType>;
@@ -35560,6 +36646,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ImageConfig?: ImageConfigResolvers<ContextType>;
   InboundMailConfig?: InboundMailConfigResolvers<ContextType>;
   InfrastructureOverview?: InfrastructureOverviewResolvers<ContextType>;
+  IntegrationCall?: IntegrationCallResolvers<ContextType>;
+  IntegrationCallPage?: IntegrationCallPageResolvers<ContextType>;
   IntegrationUsageAction?: IntegrationUsageActionResolvers<ContextType>;
   IntegrationUsageDay?: IntegrationUsageDayResolvers<ContextType>;
   IntegrationUsageSummary?: IntegrationUsageSummaryResolvers<ContextType>;
@@ -35618,6 +36706,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LeadPage?: LeadPageResolvers<ContextType>;
   LeadPlace?: LeadPlaceResolvers<ContextType>;
   LeadSearchPage?: LeadSearchPageResolvers<ContextType>;
+  LeadSourceSettings?: LeadSourceSettingsResolvers<ContextType>;
   LeadWebsiteDropped?: LeadWebsiteDroppedResolvers<ContextType>;
   LeaveBalance?: LeaveBalanceResolvers<ContextType>;
   LeaveBalancePage?: LeaveBalancePageResolvers<ContextType>;
@@ -35689,8 +36778,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   McpAuthorizationRequest?: McpAuthorizationRequestResolvers<ContextType>;
   McpCall?: McpCallResolvers<ContextType>;
   McpConnection?: McpConnectionResolvers<ContextType>;
-  McpOverview?: McpOverviewResolvers<ContextType>;
   McpPersonUsage?: McpPersonUsageResolvers<ContextType>;
+  McpServer?: McpServerResolvers<ContextType>;
   McpTool?: McpToolResolvers<ContextType>;
   McpToolArgument?: McpToolArgumentResolvers<ContextType>;
   McpToolUsage?: McpToolUsageResolvers<ContextType>;
@@ -35742,6 +36831,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PaymentAttempt?: PaymentAttemptResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
   PayoneerConfig?: PayoneerConfigResolvers<ContextType>;
+  PayoutAccount?: PayoutAccountResolvers<ContextType>;
+  PayoutAccountHints?: PayoutAccountHintsResolvers<ContextType>;
   PaypalConfig?: PaypalConfigResolvers<ContextType>;
   PayrollCandidate?: PayrollCandidateResolvers<ContextType>;
   PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;
@@ -35786,6 +36877,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   ProviderBilling?: ProviderBillingResolvers<ContextType>;
+  ProviderBillingAdvice?: ProviderBillingAdviceResolvers<ContextType>;
+  ProviderGuideStep?: ProviderGuideStepResolvers<ContextType>;
+  ProviderLinkEntry?: ProviderLinkEntryResolvers<ContextType>;
+  ProviderLogin?: ProviderLoginResolvers<ContextType>;
   PublicBookingPage?: PublicBookingPageResolvers<ContextType>;
   PublicEmailPreferences?: PublicEmailPreferencesResolvers<ContextType>;
   PublicMeeting?: PublicMeetingResolvers<ContextType>;
@@ -35898,8 +36993,13 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TdsSlab?: TdsSlabResolvers<ContextType>;
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
+  TechConfigItem?: TechConfigItemResolvers<ContextType>;
   TechEmailTemplateOption?: TechEmailTemplateOptionResolvers<ContextType>;
+  TechImportResult?: TechImportResultResolvers<ContextType>;
+  TechProviderProfile?: TechProviderProfileResolvers<ContextType>;
   TechSecretValue?: TechSecretValueResolvers<ContextType>;
+  TechVaultSession?: TechVaultSessionResolvers<ContextType>;
+  TechVaultSessionPage?: TechVaultSessionPageResolvers<ContextType>;
   Tool?: ToolResolvers<ContextType>;
   ToolCategory?: ToolCategoryResolvers<ContextType>;
   ToolPage?: ToolPageResolvers<ContextType>;
@@ -35949,6 +37049,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   UserPage?: UserPageResolvers<ContextType>;
   UserSession?: UserSessionResolvers<ContextType>;
   UserSocialLinks?: UserSocialLinksResolvers<ContextType>;
+  VaultLocation?: VaultLocationResolvers<ContextType>;
   WebScrape?: WebScrapeResolvers<ContextType>;
   WebScrapeAiEstimate?: WebScrapeAiEstimateResolvers<ContextType>;
   WebScrapePage?: WebScrapePageResolvers<ContextType>;

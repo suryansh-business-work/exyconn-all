@@ -1,0 +1,61 @@
+fragment TechProviderProfileFields on TechProviderProfile {
+  provider
+  label
+  billing {
+    need
+    message
+  }
+  steps {
+    description
+  }
+  links {
+    id
+    label
+    url
+    kind
+    custom
+  }
+  logins {
+    id
+    label
+    username
+    signInMethod
+    hasPassword
+    passwordHint
+    notes
+  }
+}
+
+query TechProviderProfile($provider: String!) {
+  techProviderProfile(provider: $provider) {
+    ...TechProviderProfileFields
+  }
+}
+
+query TechProviderLoginPassword($provider: String!, $id: ID!) {
+  techProviderLoginPassword(provider: $provider, id: $id)
+}
+
+mutation SaveTechProviderLogin($provider: String!, $id: ID, $input: ProviderLoginInput!) {
+  saveTechProviderLogin(provider: $provider, id: $id, input: $input) {
+    ...TechProviderProfileFields
+  }
+}
+
+mutation DeleteTechProviderLogin($provider: String!, $id: ID!) {
+  deleteTechProviderLogin(provider: $provider, id: $id) {
+    ...TechProviderProfileFields
+  }
+}
+
+mutation SaveTechProviderLink($provider: String!, $id: ID, $input: ProviderLinkInput!) {
+  saveTechProviderLink(provider: $provider, id: $id, input: $input) {
+    ...TechProviderProfileFields
+  }
+}
+
+mutation DeleteTechProviderLink($provider: String!, $id: ID!) {
+  deleteTechProviderLink(provider: $provider, id: $id) {
+    ...TechProviderProfileFields
+  }
+}

@@ -1,3 +1,4 @@
+import { meteredFetch } from '../tech/usage/usage.meter';
 import { env } from '../../config/env';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
@@ -45,18 +46,23 @@ function refused(provider: string, status: number): never {
 
 /** Twilio rings the agent and runs the inline TwiML when they answer: no callback needed. */
 async function twilioBridge(config: UsableCallConfig, bridge: Bridge): Promise<PlacedCall> {
-  const response = await fetch(`${accountUrl(config.accountId)}/Calls.json`, {
-    method: 'POST',
-    headers: {
-      Authorization: basicAuth(config.accountId, config.authToken),
-      'Content-Type': 'application/x-www-form-urlencoded',
+  const response = await meteredFetch(
+    'TWILIO',
+    'POST Calls',
+    `${accountUrl(config.accountId)}/Calls.json`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: basicAuth(config.accountId, config.authToken),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        To: bridge.agentPhone,
+        From: config.fromNumber,
+        Twiml: dialXml(config.fromNumber, bridge.contactPhone),
+      }),
     },
-    body: new URLSearchParams({
-      To: bridge.agentPhone,
-      From: config.fromNumber,
-      Twiml: dialXml(config.fromNumber, bridge.contactPhone),
-    }),
-  });
+  );
   if (!response.ok) refused('Twilio', response.status);
   const body = (await response.json()) as { sid?: string; status?: string };
   return { callId: body.sid ?? '', status: body.status ?? 'queued' };
@@ -73,7 +79,9 @@ async function vobizBridge(config: UsableCallConfig, bridge: Bridge): Promise<Pl
     dial: digitsOf(bridge.contactPhone),
     callerId: digitsOf(config.fromNumber),
   });
-  const response = await fetch(
+  const response = await meteredFetch(
+    'VOBIZ',
+    'POST Call',
     `${VOBIZ_API}/Account/${encodeURIComponent(config.accountId)}/Call/`,
     {
       method: 'POST',

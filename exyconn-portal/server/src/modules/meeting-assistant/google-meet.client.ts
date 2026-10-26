@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../tech/usage/usage.meter';
 import { readGoogleConfig } from '../auth/google/google-sign-in.config';
 import { TOKEN_URL } from '../auth/google/google-sign-in.oauth';
 import { open } from '../../utils/secretBox';
@@ -44,7 +45,7 @@ export interface TranscriptEntry {
 /** A fresh access token from the person's sealed refresh token. */
 export async function accessTokenFor(sealedRefreshToken: string): Promise<string> {
   const client = await readGoogleConfig();
-  const response = await fetch(TOKEN_URL, {
+  const response = await meteredFetch('GOOGLE_CALENDAR', 'POST oauth token', TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -66,10 +67,15 @@ export async function accessTokenFor(sealedRefreshToken: string): Promise<string
 
 async function get<T>(token: string, path: string, query: Record<string, string> = {}): Promise<T> {
   const url = `${MEET_API}/${path}?${new URLSearchParams(query).toString()}`;
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  });
+  const response = await meteredFetch(
+    'GOOGLE_CALENDAR',
+    pathAction('GET', new URL(url).pathname),
+    url,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    },
+  );
   if (!response.ok) {
     const detail = await response.text();
     throw new Error(`Google Meet API ${response.status}: ${detail.slice(0, 200)}`);

@@ -1,0 +1,74 @@
+fragment PayoutAccountFields on PayoutAccount {
+  id
+  method
+  country
+  currency
+  holderName
+  bankName
+  branchName
+  bic
+  routingCode
+  accountType
+  city
+  region
+  hints {
+    accountNumber
+    iban
+    upiId
+    phone
+    walletEmail
+  }
+  summary
+  isPrimary
+  updatedAt
+}
+
+query EmployeePayoutAccounts($employeeId: ID!) {
+  employeePayoutAccounts(employeeId: $employeeId) {
+    ...PayoutAccountFields
+  }
+}
+
+query EmployeePayoutSecret($employeeId: ID!, $id: ID!, $field: PayoutSecretField!) {
+  employeePayoutSecret(employeeId: $employeeId, id: $id, field: $field)
+}
+
+mutation SaveEmployeePayoutAccount($employeeId: ID!, $id: ID, $input: PayoutAccountInput!) {
+  saveEmployeePayoutAccount(employeeId: $employeeId, id: $id, input: $input) {
+    ...PayoutAccountFields
+  }
+}
+
+mutation DeleteEmployeePayoutAccount($employeeId: ID!, $id: ID!) {
+  deleteEmployeePayoutAccount(employeeId: $employeeId, id: $id)
+}
+
+query ClientPayoutAccounts($clientId: ID!) {
+  clientPayoutAccounts(clientId: $clientId) {
+    ...PayoutAccountFields
+  }
+}
+
+query ClientPayoutSecret($clientId: ID!, $id: ID!, $field: PayoutSecretField!) {
+  clientPayoutSecret(clientId: $clientId, id: $id, field: $field)
+}
+
+query ClientHubPayoutAccounts {
+  clientHubPayoutAccounts {
+    ...PayoutAccountFields
+  }
+}
+
+query ClientHubPayoutSecret($id: ID!, $field: PayoutSecretField!) {
+  clientHubPayoutSecret(id: $id, field: $field)
+}
+
+mutation ClientHubSavePayoutAccount($id: ID, $input: PayoutAccountInput!) {
+  clientHubSavePayoutAccount(id: $id, input: $input) {
+    ...PayoutAccountFields
+  }
+}
+
+mutation ClientHubDeletePayoutAccount($id: ID!) {
+  clientHubDeletePayoutAccount(id: $id)
+}

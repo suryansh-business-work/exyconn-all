@@ -22,8 +22,13 @@ import MapIcon from '@mui/icons-material/Map';
 import WebIcon from '@mui/icons-material/Web';
 import InsightsIcon from '@mui/icons-material/Insights';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import HistoryIcon from '@mui/icons-material/History';
 import { IntegrationProvider } from '@exyconn/shell/graphql/generated';
 import { BillingKeysPanel } from './BillingKeysPanel';
+import { VaultHistoryPanel } from './vault/VaultHistoryPanel';
+import { UsageHistoryPanel } from './usage/UsageHistoryPanel';
+import { USAGE_HISTORY_SLUG } from './usage/usage.providers';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { IntegrationsDashboard } from './usage/IntegrationsDashboard';
 import { IntegrationUsageCard } from './usage/IntegrationUsageCard';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
@@ -87,6 +92,20 @@ export const ENVIRONMENT_VARIABLES_SECTIONS: readonly EnvironmentVariablesSectio
     category: OVERVIEW,
     icon: <ReceiptLongIcon />,
     panel: <BillingKeysPanel />,
+  },
+  {
+    slug: USAGE_HISTORY_SLUG,
+    label: 'Usage history',
+    category: OVERVIEW,
+    icon: <ManageSearchIcon />,
+    panel: <UsageHistoryPanel />,
+  },
+  {
+    slug: 'access-history',
+    label: 'Access history',
+    category: OVERVIEW,
+    icon: <HistoryIcon />,
+    panel: <VaultHistoryPanel />,
   },
   {
     slug: 'slack',

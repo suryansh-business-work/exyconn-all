@@ -3,6 +3,7 @@ import { runAsPlatform } from '../../lib/tenant';
 import { badRequest, notFound } from '../../utils/errors';
 import { UserModel } from '../admin/user.model';
 import { McpCallModel, McpTokenModel } from './mcp.models';
+import type { McpEndpointKey, McpServerKey } from './servers';
 
 /** The longest window the usage dashboard and activity log read. */
 export const MAX_MCP_DAYS = 180;
@@ -33,16 +34,19 @@ function windowOf(days: number, now: Date): string[] {
   );
 }
 
-/** The company's calls since the start of the window (the tenant scope confines them). */
-function callsSince(days: number, now: Date) {
+/**
+ * The company's calls to these module servers since the start of the window (the tenant scope
+ * confines them to the company).
+ */
+function callsSince(servers: readonly McpServerKey[], days: number, now: Date) {
   const from = new Date(`${windowOf(days, now)[0]}T00:00:00.000Z`);
-  return McpCallModel.find({ at: { $gte: from } }).sort({ at: -1 });
+  return McpCallModel.find({ server: { $in: servers }, at: { $gte: from } }).sort({ at: -1 });
 }
 
 /** Calls, failures and people over the window, a point per day, and by tool and person. */
-export async function mcpUsage(days: number, now = new Date()) {
+export async function mcpUsage(servers: readonly McpServerKey[], days: number, now = new Date()) {
   assertDays(days);
-  const rows = await callsSince(days, now)
+  const rows = await callsSince(servers, days, now)
     .select('at userName tool ok durationMs')
     .lean<CallRow[]>();
   const perDay = new Map(windowOf(days, now).map((day) => [day, { day, calls: 0, failures: 0 }]));
@@ -75,19 +79,25 @@ export async function mcpUsage(days: number, now = new Date()) {
   };
 }
 
-/** The newest calls of the window, for the CRM's activity log. */
-export async function mcpActivity(days: number, limit = 200, now = new Date()) {
+/** The newest calls of the window, for a server's activity log. */
+export async function mcpActivity(
+  servers: readonly McpServerKey[],
+  days: number,
+  limit = 200,
+  now = new Date(),
+) {
   assertDays(days);
   const take = Math.min(Math.max(1, Math.floor(limit)), MAX_MCP_ACTIVITY);
-  const rows = await callsSince(days, now).limit(take).lean();
+  const rows = await callsSince(servers, days, now).limit(take).lean();
   return rows.map((row) => ({ ...row, id: String(row._id) }));
 }
 
-/** The company's live connections, with who each acts for. */
-export async function mcpConnections(organizationId: string) {
+/** The company's live connections to these endpoints, with who each acts for. */
+export async function mcpConnections(organizationId: string, endpoints: readonly McpEndpointKey[]) {
   const rows = await runAsPlatform(() =>
     McpTokenModel.find({
       organizationId,
+      endpoint: { $in: endpoints },
       revokedAt: null,
       refreshExpiresAt: { $gt: new Date() },
     })
@@ -102,11 +112,25 @@ export async function mcpConnections(organizationId: string) {
   const names = new Map(users.map((user) => [String(user._id), user.name]));
   return rows.map((row) => ({
     id: String(row._id),
+    endpoint: row.endpoint,
     clientName: row.clientName || 'MCP client',
     userName: names.get(row.userId) ?? '',
     createdAt: row.createdAt,
     lastUsedAt: row.lastUsedAt,
   }));
+}
+
+/** The endpoint a live connection of this company points at, or NOT_FOUND. */
+export async function connectionEndpoint(
+  organizationId: string,
+  id: string,
+): Promise<McpEndpointKey> {
+  if (!Types.ObjectId.isValid(id)) notFound('Connection');
+  const row = await runAsPlatform(() =>
+    McpTokenModel.findOne({ _id: id, organizationId, revokedAt: null }).select('endpoint').lean(),
+  );
+  if (!row) notFound('Connection');
+  return row.endpoint;
 }
 
 /** Signs one connection of this company out. */
@@ -120,4 +144,15 @@ export async function revokeMcpConnection(organizationId: string, id: string): P
   );
   if (result.modifiedCount === 0) notFound('Connection');
   return true;
+}
+
+/** How many live connections the company has to each endpoint. */
+export async function connectionCounts(organizationId: string): Promise<Map<string, number>> {
+  const rows = await runAsPlatform(() =>
+    McpTokenModel.aggregate<{ _id: string; count: number }>([
+      { $match: { organizationId, revokedAt: null, refreshExpiresAt: { $gt: new Date() } } },
+      { $group: { _id: '$endpoint', count: { $sum: 1 } } },
+    ]),
+  );
+  return new Map(rows.map((row) => [row._id, row.count]));
 }

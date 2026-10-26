@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../tech/usage/usage.meter';
 import { runAsPlatform } from '../../lib/tenant';
 import { ConfigurationError } from '../../utils/errors';
 import { open } from '../../utils/secretBox';
@@ -81,7 +82,7 @@ export async function gmailClientConfig(): Promise<GmailConfigDocument> {
 
 /** A fresh access token from the stored refresh token (Google's tokens live an hour). */
 async function accessToken(mailbox: Mailbox): Promise<string> {
-  const response = await fetch(TOKEN_URL, {
+  const response = await meteredFetch('GMAIL', 'POST oauth token', TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -112,14 +113,19 @@ async function accessToken(mailbox: Mailbox): Promise<string> {
 
 /** One call to the Gmail API with an access token; a refusal throws with Google's reason. */
 async function gmailWithToken<T>(token: string, path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      ...init.headers,
+  const response = await meteredFetch(
+    'GMAIL',
+    pathAction(init.method ?? 'GET', path),
+    `${API}${path}`,
+    {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        ...init.headers,
+      },
     },
-  });
+  );
   if (!response.ok) {
     const detail = (await response.text()).slice(0, ERROR_DETAIL_LIMIT);
     const message = `Gmail ${path.split('?')[0]} failed (${response.status}): ${detail}`;

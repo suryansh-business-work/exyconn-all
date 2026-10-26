@@ -64,6 +64,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import EmailIcon from '@mui/icons-material/Email';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import ReviewsIcon from '@mui/icons-material/Reviews';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -585,12 +586,21 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Tools',
       },
       {
-        // Businesses found on Google Places, enriched and filed as CRM companies.
+        // Businesses found on Google Places (Google Business), enriched and filed as CRM companies.
         key: 'crm-lead-generator',
-        label: 'Lead generator',
-        path: '/tools/lead-generator',
+        label: 'Google Business',
+        path: '/tools/lead-generators/google-business',
         icon: TravelExploreIcon,
-        group: 'Tools',
+        group: 'Lead generators',
+      },
+      {
+        // B2B service providers on Clutch.co — search, profiles, reviews, portfolio — via Clutch's
+        // own MCP server or an Apify scraper, filed as CRM companies and contacts.
+        key: 'crm-clutch',
+        label: 'Clutch',
+        path: '/tools/lead-generators/clutch',
+        icon: ReviewsIcon,
+        group: 'Lead generators',
       },
       {
         // Public web pages read through Firecrawl, kept as text and handed to the AI on request.
@@ -598,14 +608,6 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Website scraper',
         path: '/tools/website-scraper',
         icon: WebIcon,
-        group: 'Tools',
-      },
-      {
-        // What Claude did in the CRM through the MCP connector (AI > MCP Servers).
-        key: 'crm-claude-activity',
-        label: 'Claude (MCP) activity',
-        path: '/claude-activity',
-        icon: HubIcon,
         group: 'Tools',
       },
       {
@@ -1220,14 +1222,6 @@ export const MODULES: ModuleDefinition[] = [
         path: '/ai/prompts',
         icon: AutoAwesomeIcon,
       },
-      {
-        // The CRM as an MCP server for Claude: connect, tools, usage and connections.
-        key: 'ai-mcp',
-        label: 'MCP Servers',
-        path: '/ai/mcp',
-        icon: HubIcon,
-        role: ROLES.CRM,
-      },
       ...MEETING_ASSISTANT_NAV,
     ],
   },
@@ -1655,6 +1649,44 @@ export const MODULES: ModuleDefinition[] = [
     children: [
       { key: 'social-feed', label: 'Feed', path: '/social', icon: DynamicFeedIcon },
       { key: 'social-profile', label: 'My Profile', path: '/social/me', icon: PersonIcon },
+    ],
+  },
+  {
+    // Claude's connectors: one MCP server per module (each opens with that module's role) and a
+    // global one combining them. Listed for everyone; the pages say which servers they can use.
+    key: 'mcp',
+    label: 'MCP',
+    path: '/mcp',
+    role: ROLES.EMPLOYEE,
+    icon: HubIcon,
+    description: 'Connect Claude to every module, one server each or all in one',
+    accent: color.teal[500],
+    children: [
+      { key: 'mcp-dashboard', label: 'Dashboard', path: '/mcp', icon: DashboardIcon },
+      // One entry per server; each opens on its tabs (connect, tools, usage, activity, connections).
+      {
+        key: 'mcp-crm',
+        label: 'CRM',
+        path: '/mcp/crm',
+        icon: HandshakeIcon,
+        role: ROLES.CRM,
+        group: 'MCP servers',
+      },
+      {
+        key: 'mcp-marketing',
+        label: 'Marketing',
+        path: '/mcp/marketing',
+        icon: CampaignIcon,
+        role: ROLES.MARKETING,
+        group: 'MCP servers',
+      },
+      {
+        key: 'mcp-all',
+        label: 'All tools (global)',
+        path: '/mcp/all',
+        icon: PublicIcon,
+        group: 'MCP servers',
+      },
     ],
   },
   {

@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../../tech/usage/usage.meter';
 import { hmacHex, sameHex } from './signature';
 import { minorUnits } from './minorUnits';
 
@@ -8,15 +9,20 @@ const TOLERANCE_SEC = 300;
 
 /** Stripe's REST API with a secret key — no SDK, so nothing new ships with the server. */
 async function call<T>(secretKey: string, path: string, body?: URLSearchParams): Promise<T> {
-  const response = await fetch(`${API}${path}`, {
-    method: body ? 'POST' : 'GET',
-    headers: {
-      Authorization: `Bearer ${secretKey}`,
-      ...(body ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
+  const response = await meteredFetch(
+    'STRIPE',
+    pathAction(body ? 'POST' : 'GET', path),
+    `${API}${path}`,
+    {
+      method: body ? 'POST' : 'GET',
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        ...(body ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
+      },
+      body,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     },
-    body,
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  );
   const payload = (await response.json().catch(() => ({}))) as T & { error?: { message?: string } };
   if (!response.ok) {
     const reason = payload.error?.message ?? `HTTP ${response.status}`;

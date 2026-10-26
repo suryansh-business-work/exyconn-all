@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../../tech/usage/usage.meter';
 import type { CheckoutRequest } from './stripe.client';
 
 const TIMEOUT_MS = 15_000;
@@ -18,16 +19,21 @@ export interface PayoneerKeys {
 /** Payoneer Checkout's REST API with basic auth — no SDK, so nothing new ships with the server. */
 async function call<T>(keys: PayoneerKeys, path: string, body?: unknown): Promise<T> {
   const auth = Buffer.from(`${keys.merchantCode}:${keys.apiToken}`).toString('base64');
-  const response = await fetch(`${HOSTS[keys.mode]}${path}`, {
-    method: body === undefined ? 'GET' : 'POST',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      Accept: MEDIA_TYPE,
-      ...(body === undefined ? {} : { 'Content-Type': MEDIA_TYPE }),
+  const response = await meteredFetch(
+    'PAYONEER',
+    pathAction(body === undefined ? 'GET' : 'POST', path),
+    `${HOSTS[keys.mode]}${path}`,
+    {
+      method: body === undefined ? 'GET' : 'POST',
+      headers: {
+        Authorization: `Basic ${auth}`,
+        Accept: MEDIA_TYPE,
+        ...(body === undefined ? {} : { 'Content-Type': MEDIA_TYPE }),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  );
   const payload = (await response.json().catch(() => ({}))) as T & {
     resultInfo?: string;
   };

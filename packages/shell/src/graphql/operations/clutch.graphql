@@ -1,0 +1,136 @@
+fragment ClutchCompanyFields on ClutchCompany {
+  key
+  name
+  profileUrl
+  website
+  logoUrl
+  tagline
+  description
+  rating
+  reviewCount
+  verification
+  hourlyRate
+  minProjectSize
+  employees
+  founded
+  headquarters
+  locations
+  phone
+  emails
+  services
+  people {
+    name
+    title
+    email
+    phone
+  }
+  reviews {
+    title
+    rating
+    comment
+    reviewer
+    reviewerTitle
+    industry
+    projectSize
+    date
+  }
+  portfolio {
+    title
+    description
+    imageUrl
+  }
+}
+
+fragment ClutchRunSummaryFields on ClutchRun {
+  id
+  engine
+  status
+  keyword
+  location
+  industry
+  profileUrls
+  includeDetails
+  includeReviews
+  includePortfolio
+  maxItems
+  companyCount
+  error
+  notes
+  startedByName
+  createdAt
+  finishedAt
+}
+
+query ClutchRun($id: ID!) {
+  clutchRun(id: $id) {
+    ...ClutchRunSummaryFields
+    filedKeys
+    companies {
+      ...ClutchCompanyFields
+    }
+  }
+}
+
+query ClutchRunsPaged($input: TableQueryInput!) {
+  clutchRunsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ClutchRunSummaryFields
+    }
+  }
+}
+
+query LeadSourceConfig {
+  leadSourceConfig {
+    hasApifyToken
+    apifyTokenHint
+    clutchActorId
+    updatedByName
+  }
+}
+
+mutation StartClutchSearch($input: ClutchSearchInput!) {
+  startClutchSearch(input: $input) {
+    ...ClutchRunSummaryFields
+  }
+}
+
+mutation DeleteClutchRun($id: ID!) {
+  deleteClutchRun(id: $id)
+}
+
+mutation ImportClutchCompanies($runId: ID!, $keys: [String!]!) {
+  importClutchCompanies(runId: $runId, keys: $keys) {
+    created
+    skipped
+    contactsCreated
+    skips {
+      key
+      name
+      reason
+      companyId
+    }
+    filed {
+      key
+      companyId
+    }
+  }
+}
+
+mutation SaveLeadSourceConfig($input: LeadSourceSettingsInput!) {
+  saveLeadSourceConfig(input: $input) {
+    hasApifyToken
+    apifyTokenHint
+    clutchActorId
+    updatedByName
+  }
+}
+
+mutation ClearApifyToken {
+  clearApifyToken {
+    hasApifyToken
+    apifyTokenHint
+    clutchActorId
+    updatedByName
+  }
+}

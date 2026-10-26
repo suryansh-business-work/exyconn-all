@@ -7,6 +7,10 @@ import type { GraphQLContext } from '../middleware/auth';
 import type { TokenPayload } from '../utils/jwt';
 import { assertPermission } from './permissions';
 import { currentOrganizationId, runAsPlatform } from './tenant';
+import { assertVaultOpen } from '../modules/tech/vault/vault.gate';
+
+/** Tech configuration: the install's credentials. Changing or revealing any needs the vault open. */
+const TECH_CONFIG_MODULE = 'TechConfig';
 
 /**
  * Who may touch what the whole platform shares: the install's credentials (SMTP, ImageKit,
@@ -83,10 +87,24 @@ export async function assertPlatformStaff(
 ): Promise<TokenPayload> {
   const user = assertAuthenticated(ctx);
   if (isPlatformAdministrator(ctx, user)) {
+    await assertTechVault(user, module, action);
     return user;
   }
   await assertPlatformOrganization(ctx);
-  return assertPermission(ctx, module, roles, action);
+  const allowed = await assertPermission(ctx, module, roles, action);
+  await assertTechVault(user, module, action);
+  return allowed;
+}
+
+/**
+ * Reading the masked lists stays open; anything that changes Tech configuration or shows a
+ * saved credential needs the caller's own 30-minute unlock (Tech > Environment Variables),
+ * SUPER_ADMIN included.
+ */
+async function assertTechVault(user: TokenPayload, module: string, action: PermissionAction) {
+  if (module === TECH_CONFIG_MODULE && action !== 'VIEW') {
+    await assertVaultOpen(user.id);
+  }
 }
 
 type AnyResolver = (parent: never, args: never, ctx: GraphQLContext) => unknown;

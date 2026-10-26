@@ -394,6 +394,11 @@ export type AuditStatus =
   | 'PLANNED'
   | 'REPORTED';
 
+/** ISO 20022 cash account type: CURRENT (CACC, checking) or SAVINGS (SVGS). */
+export type BankAccountType =
+  | 'CURRENT'
+  | 'SAVINGS';
+
 export type BenefitInput = {
   coverage: Scalars['String']['input'];
   documentUrl: InputMaybe<Scalars['String']['input']>;
@@ -886,6 +891,31 @@ export type CloudflareConfigInput = {
   apiToken: InputMaybe<Scalars['String']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+};
+
+/** Which engine a Clutch search ran on: Clutch's own MCP server (free) or an Apify scraper. */
+export type ClutchEngine =
+  | 'APIFY'
+  | 'MCP';
+
+export type ClutchRunStatus =
+  | 'FAILED'
+  | 'RUNNING'
+  | 'SUCCEEDED';
+
+export type ClutchSearchInput = {
+  engine: ClutchEngine;
+  includeDetails: Scalars['Boolean']['input'];
+  includePortfolio: Scalars['Boolean']['input'];
+  includeReviews: Scalars['Boolean']['input'];
+  industry: Scalars['String']['input'];
+  /** What to search for, e.g. Web Development or 'api development'. */
+  keyword: Scalars['String']['input'];
+  location: Scalars['String']['input'];
+  /** 1 to 200. */
+  maxItems: Scalars['Int']['input'];
+  /** Clutch profile links to read in full (https://clutch.co/profile/…). */
+  profileUrls: Array<Scalars['String']['input']>;
 };
 
 export type CmsAssetUploadInput = {
@@ -1402,6 +1432,7 @@ export type CrmOp =
   | 'STARTS_WITH';
 
 export type CrmOriginSource =
+  | 'CLUTCH'
   | 'GOOGLE_PLACES'
   | 'LEAD_CONVERSION'
   | 'MEETING_BOOKING'
@@ -2072,14 +2103,33 @@ export type IncidentUpdateStatus =
 
 /** An integration whose calls are counted on the Environment Variables dashboard. */
 export type IntegrationProvider =
+  | 'APIFY'
+  | 'CLOUDFLARE'
+  | 'CLUTCH'
+  | 'EMAIL_VERIFIER'
   | 'FIRECRAWL'
   | 'GITHUB'
+  | 'GMAIL'
+  | 'GODADDY'
+  | 'GOOGLE_CALENDAR'
   | 'GOOGLE_MAPS'
+  | 'GOOGLE_SIGN_IN'
   | 'IMAGEKIT'
+  | 'MICROSOFT'
+  | 'MSG91'
   | 'OPENAI'
+  | 'PAYONEER'
+  | 'PAYPAL'
   | 'PEXELS'
+  | 'RAZORPAY'
+  | 'SARVAM'
   | 'SLACK'
-  | 'SMTP';
+  | 'SMTP'
+  | 'SOCIAL'
+  | 'SONARQUBE'
+  | 'STRIPE'
+  | 'TWILIO'
+  | 'VOBIZ';
 
 export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
@@ -2500,6 +2550,12 @@ export type LeadSource =
   | 'EVENT'
   | 'REFERRAL'
   | 'WEBSITE';
+
+export type LeadSourceSettingsInput = {
+  /** Blank keeps the stored token. */
+  apifyToken: Scalars['String']['input'];
+  clutchActorId: Scalars['String']['input'];
+};
 
 export type LeadStage =
   | 'CONTACTED'
@@ -2941,6 +2997,12 @@ export type MarketingSuppressionsInput = {
   reason: SuppressionReason;
 };
 
+/** An MCP server: one module's (CRM, MARKETING), or ALL, which combines every module's tools. */
+export type McpEndpoint =
+  | 'ALL'
+  | 'CRM'
+  | 'MARKETING';
+
 export type McpToolKind =
   | 'MUTATION'
   | 'QUERY';
@@ -3282,6 +3344,44 @@ export type PayoneerConfigInput = {
   mode: GatewayMode;
 };
 
+/** A blank sealed detail on an edit keeps the stored one. */
+export type PayoutAccountInput = {
+  accountNumber: Scalars['String']['input'];
+  accountType: InputMaybe<BankAccountType>;
+  bankName: Scalars['String']['input'];
+  bic: Scalars['String']['input'];
+  branchName: Scalars['String']['input'];
+  city: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  holderName: Scalars['String']['input'];
+  iban: Scalars['String']['input'];
+  isPrimary: InputMaybe<Scalars['Boolean']['input']>;
+  method: PayoutMethod;
+  phone: Scalars['String']['input'];
+  region: Scalars['String']['input'];
+  routingCode: Scalars['String']['input'];
+  upiId: Scalars['String']['input'];
+  walletEmail: Scalars['String']['input'];
+};
+
+/** How money reaches the payee (the same codes as @exyconn/payout PAYOUT_METHODS). */
+export type PayoutMethod =
+  | 'BANK_TRANSFER'
+  | 'PAYONEER'
+  | 'PAYPAL'
+  | 'UPI'
+  | 'WESTERN_UNION'
+  | 'WISE';
+
+/** A sealed detail of a payout account, shown in full only on request (and logged). */
+export type PayoutSecretField =
+  | 'ACCOUNT_NUMBER'
+  | 'IBAN'
+  | 'PHONE'
+  | 'UPI_ID'
+  | 'WALLET_EMAIL';
+
 export type PaypalConfigInput = {
   clientId: Scalars['String']['input'];
   /** Left blank on an edit, the stored secret is kept. */
@@ -3557,6 +3657,45 @@ export type PromptVariableInput = {
   name: Scalars['String']['input'];
   value: Scalars['String']['input'];
 };
+
+/** Whether reading a provider's bill needs a different key from the one the platform uses. */
+export type ProviderBillingNeed =
+  | 'NO_BILLING_API'
+  | 'PERMISSION'
+  | 'REQUIRED'
+  | 'SAME_KEY';
+
+export type ProviderLinkInput = {
+  kind: ProviderLinkKind;
+  label: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type ProviderLinkKind =
+  | 'API_KEYS'
+  | 'BILLING'
+  | 'DASHBOARD'
+  | 'DOCS'
+  | 'OTHER'
+  | 'USAGE';
+
+export type ProviderLoginInput = {
+  label: Scalars['String']['input'];
+  notes: Scalars['String']['input'];
+  /** Blank on an edit keeps the stored password. */
+  password: Scalars['String']['input'];
+  signInMethod: ProviderSignInMethod;
+  username: Scalars['String']['input'];
+};
+
+export type ProviderSignInMethod =
+  | 'APPLE'
+  | 'EMAIL_PASSWORD'
+  | 'GITHUB'
+  | 'GOOGLE'
+  | 'MICROSOFT'
+  | 'OTHER'
+  | 'SSO';
 
 export type PurchaseOrderInput = {
   currency: Scalars['String']['input'];
@@ -4543,6 +4682,12 @@ export type TrainingStatus =
   | 'COMPLETED'
   | 'IN_PROGRESS';
 
+export type UnlockTechVaultInput = {
+  code: Scalars['String']['input'];
+  location: VaultLocationInput;
+  reason: Scalars['String']['input'];
+};
+
 export type UpdateProfileInput = {
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   /** A few lines about the person. Empty string clears it. */
@@ -4629,6 +4774,23 @@ export type UserSocialLinksInput = {
   twitter: InputMaybe<Scalars['String']['input']>;
   website: InputMaybe<Scalars['String']['input']>;
 };
+
+export type VaultEndReason =
+  | 'EXPIRED'
+  | 'LOCKED';
+
+export type VaultLocationInput = {
+  accuracy: InputMaybe<Scalars['Float']['input']>;
+  latitude: InputMaybe<Scalars['Float']['input']>;
+  longitude: InputMaybe<Scalars['Float']['input']>;
+  state: VaultLocationState;
+};
+
+/** Whether the browser shared the device's position when the vault was opened. */
+export type VaultLocationState =
+  | 'DENIED'
+  | 'GRANTED'
+  | 'UNAVAILABLE';
 
 export type WebsiteCaptchaAnswer = {
   answer: Scalars['String']['input'];

@@ -10,6 +10,13 @@ jest.mock('../src/utils/mailer', () => ({
   },
 }));
 
+// Changing Tech configuration needs a 30-minute unlock (modules/tech/vault). Every suite acts as
+// someone who has unlocked it; the lock itself is tested against the real gate in the vault suites.
+jest.mock('../src/modules/tech/vault/vault.gate', () => ({
+  openVaultSession: jest.fn().mockResolvedValue({ _id: 'session' }),
+  assertVaultOpen: jest.fn().mockResolvedValue(undefined),
+}));
+
 let mongod: MongoMemoryServer;
 
 beforeAll(async () => {

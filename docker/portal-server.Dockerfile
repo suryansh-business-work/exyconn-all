@@ -22,6 +22,8 @@ COPY packages/wa-flow/package.json packages/wa-flow/
 COPY packages/cms/package.json packages/cms/
 # The GCC cost calculator's engine: the server recomputes emailed and shared estimates with it.
 COPY packages/gcc-cost/package.json packages/gcc-cost/
+# Payout account rules (IBAN, BIC, IFSC, UPI…): the server checks salary and refund accounts with them.
+COPY packages/payout/package.json packages/payout/
 COPY packages/regex/package.json packages/regex/
 # CSV writing and parsing for grid exports and imports, shared with the portals.
 COPY packages/csv/package.json packages/csv/
@@ -44,11 +46,13 @@ COPY packages/regex packages/regex
 COPY packages/wa-flow packages/wa-flow
 COPY packages/cms packages/cms
 COPY packages/gcc-cost packages/gcc-cost
+COPY packages/payout packages/payout
 COPY packages/csv packages/csv
 COPY demos/calling-bot-demo/server demos/calling-bot-demo/server
 RUN pnpm --filter @exyconn/regex run build && pnpm --filter @exyconn/wa-flow run build \
   && pnpm --filter @exyconn/cms run build \
   && pnpm --filter @exyconn/gcc-cost run build \
+  && pnpm --filter @exyconn/payout run build \
   && pnpm --filter @exyconn/csv run build \
   && pnpm --filter @exyconn/calling-bot-demo-server run build
 # The WhatsApp demo's server code is compiled by the portal server's build, into its dist.

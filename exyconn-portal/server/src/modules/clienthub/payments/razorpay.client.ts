@@ -1,3 +1,4 @@
+import { meteredFetch, pathAction } from '../../tech/usage/usage.meter';
 import { hmacHex, sameHex } from './signature';
 import { minorUnits } from './minorUnits';
 import type { CheckoutRequest } from './stripe.client';
@@ -13,15 +14,20 @@ interface RazorpayKeys {
 /** Razorpay's REST API with basic auth — no SDK, so nothing new ships with the server. */
 async function call<T>(keys: RazorpayKeys, path: string, body?: unknown): Promise<T> {
   const auth = Buffer.from(`${keys.keyId}:${keys.keySecret}`).toString('base64');
-  const response = await fetch(`${API}${path}`, {
-    method: body ? 'POST' : 'GET',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
+  const response = await meteredFetch(
+    'RAZORPAY',
+    pathAction(body ? 'POST' : 'GET', path),
+    `${API}${path}`,
+    {
+      method: body ? 'POST' : 'GET',
+      headers: {
+        Authorization: `Basic ${auth}`,
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     },
-    body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  );
   const payload = (await response.json().catch(() => ({}))) as T & {
     error?: { description?: string };
   };

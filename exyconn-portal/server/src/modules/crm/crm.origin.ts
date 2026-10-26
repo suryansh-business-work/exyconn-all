@@ -13,6 +13,7 @@ export const ORIGIN_SOURCES = [
   'GOOGLE_PLACES',
   'MEETING_BOOKING',
   'LEAD_CONVERSION',
+  'CLUTCH',
 ] as const;
 export type OriginSource = (typeof ORIGIN_SOURCES)[number];
 
@@ -48,6 +49,7 @@ export const ORIGIN_LABEL: Readonly<Record<OriginSource, string>> = {
   GOOGLE_PLACES: 'Google Places',
   MEETING_BOOKING: 'Meeting booking',
   LEAD_CONVERSION: 'Converted lead',
+  CLUTCH: 'Clutch',
 };
 
 /** The fields a new record carries for where it came from. */

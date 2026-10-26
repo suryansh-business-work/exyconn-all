@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { downloadCsv } from '@/utils/csv';
-import { downloadBase64File, downloadUrls, fileToDataUrl } from '@/utils/file';
+import { downloadBase64File, downloadTextFile, downloadUrls, fileToDataUrl } from '@/utils/file';
 
 /** Captures the anchor each download clicks and the blob it points at. */
 function trackDownloads() {
@@ -86,6 +86,26 @@ function failingReader(error: DOMException | null) {
     }
   };
 }
+
+describe('downloadTextFile', () => {
+  let tracked: ReturnType<typeof trackDownloads>;
+  beforeEach(() => {
+    tracked = trackDownloads();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('saves the text exactly, with its type and name, and frees the URL afterwards', async () => {
+    downloadTextFile('export.json', 'application/json', '{"a":1}');
+
+    const [blob] = tracked.blobs;
+    expect(blob.type).toBe('application/json');
+    expect(await blob.text()).toBe('{"a":1}');
+    expect(tracked.anchors[0].download).toBe('export.json');
+    expect(tracked.revoke).toHaveBeenCalledWith('blob:test/1');
+  });
+});
 
 describe('fileToDataUrl', () => {
   afterEach(() => {

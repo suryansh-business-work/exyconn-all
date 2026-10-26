@@ -15,6 +15,7 @@ import { ProjectsPage } from '../../src/pages/projects/ProjectsPage';
 import { DocumentsPage } from '../../src/pages/documents/DocumentsPage';
 import { CommunicationsPage } from '../../src/pages/communications/CommunicationsPage';
 import { LinksPage } from '../../src/pages/links/LinksPage';
+import { RefundAccountsPage } from '../../src/pages/refunds/RefundAccountsPage';
 import { PATHS } from '../../src/paths';
 
 interface PortalProps {
@@ -84,6 +85,7 @@ describe('App', () => {
       PATHS.documents,
       PATHS.communications,
       PATHS.links,
+      PATHS.refundAccounts,
     ]);
     const pages = [
       DashboardPage,
@@ -95,6 +97,7 @@ describe('App', () => {
       DocumentsPage,
       CommunicationsPage,
       LinksPage,
+      RefundAccountsPage,
     ];
     routes.forEach((route, index) => {
       expect(route.element.type).toBe(PageErrorBoundary);

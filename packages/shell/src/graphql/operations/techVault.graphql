@@ -1,0 +1,58 @@
+fragment TechVaultSessionFields on TechVaultSession {
+  id
+  userId
+  userName
+  email
+  reason
+  ip
+  userAgent
+  location {
+    state
+    latitude
+    longitude
+    accuracy
+  }
+  unlockedAt
+  expiresAt
+  endedAt
+  endReason
+}
+
+query TechVaultStatus {
+  techVaultStatus {
+    ...TechVaultSessionFields
+  }
+}
+
+query TechVaultSessionsPaged($input: TableQueryInput!) {
+  techVaultSessionsPaged(input: $input) {
+    totalCount
+    rows {
+      ...TechVaultSessionFields
+    }
+  }
+}
+
+query TechVaultSessionActivity($id: ID!) {
+  techVaultSessionActivity(id: $id) {
+    id
+    action
+    entityLabel
+    summary
+    createdAt
+  }
+}
+
+mutation RequestTechVaultCode {
+  requestTechVaultCode
+}
+
+mutation UnlockTechVault($input: UnlockTechVaultInput!) {
+  unlockTechVault(input: $input) {
+    ...TechVaultSessionFields
+  }
+}
+
+mutation LockTechVault {
+  lockTechVault
+}

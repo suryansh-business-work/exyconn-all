@@ -56,6 +56,7 @@ import { ensureWhatsappDemoSeeds } from '../../../demos/whatsapp-demo/server/src
 import { startWhatsappReminders } from '../../../demos/whatsapp-demo/server/src/channel';
 import { startEmailVerification } from './modules/email-verification';
 import { attachChatSocket, startChatHandoff } from './modules/website-chat';
+import { assignLegacyMcpToCrm } from './modules/mcp/mcp.migrate';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -160,6 +161,8 @@ async function bootstrap(): Promise<void> {
   await runAsPlatform(() => runOnce('calling-bot-phone-provider', migratePhoneProvider));
   // and the oldest ones gain the phone fields they were saved without.
   await runAsPlatform(() => runOnce('calling-bot-phone-fields', backfillPhoneFields));
+  // MCP connections and calls from when the CRM was the only server are the CRM's, once.
+  await runAsPlatform(() => runOnce('mcp-servers-crm', assignLegacyMcpToCrm));
   // The calling bot demo's example calls: each seeded once by key (its own ledger line), so an
   // edited or deleted one stays that way and one added in a later release still arrives.
   await runAsPlatform(ensureCallingBotScenarios);
