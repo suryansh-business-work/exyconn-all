@@ -93,6 +93,7 @@ describe('usage history', () => {
     expect(formatted('durationMs', call(), context)).toBe('812');
     const result = CALL_COLUMNS.find((c) => c.colId === 'result')?.valueGetter as (p: {
       data: IntegrationCallRow;
+      context: object;
     }) => string;
     expect(result({ data: call(), context })).toBe('SUCCEEDED');
     expect(result({ data: call({ ok: false }), context })).toBe('FAILED');
