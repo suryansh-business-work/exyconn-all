@@ -6,8 +6,6 @@ import { INDUSTRY_PAGES } from '../../../../../../src/modules/cms/seed/exyconn/p
 import { SERVICE_PAGES } from '../../../../../../src/modules/cms/seed/exyconn/pages/services';
 import type { CmsSeedPage } from '../../../../../../src/modules/cms/seed/types';
 
-const SITE = 'https://exyconn.com';
-
 /** Every component key in a block tree whose catalogue entry is missing or misused. */
 function componentProblems(blocks: readonly CmsBlock[]): string[] {
   return blocks.flatMap((block) => {
@@ -95,12 +93,9 @@ describe('EXYCONN_PAGES', () => {
     },
   );
 
-  it('gives a canonical URL only as the page path on exyconn.com', () => {
-    const canonical = EXYCONN_PAGES.filter((page) => page.seo.canonical !== '');
-
-    expect(canonical.length).toBeGreaterThan(0);
-    for (const page of canonical) {
-      expect(page.seo.canonical).toBe(`${SITE}${page.path}`);
+  it('leaves every canonical empty, so the website gives each market its own', () => {
+    for (const page of EXYCONN_PAGES) {
+      expect(page.seo.canonical).toBe('');
     }
   });
 
