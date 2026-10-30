@@ -8750,6 +8750,8 @@ export type McpConnection = {
   endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Allowed for reading only: Claude is never offered a change through it. */
+  readOnly: Scalars['Boolean']['output'];
   userName: Scalars['String']['output'];
 };
 
@@ -8830,11 +8832,54 @@ export type McpServer = {
   toolCount: Scalars['Int']['output'];
 };
 
+/** The company's MCP settings: rate limits, switched-off tools, read-only servers and alerts. 0 in a limit means no limit. */
+export type McpSettings = {
+  __typename?: 'McpSettings';
+  alertErrorRatePercent: Scalars['Int']['output'];
+  alertMinCalls: Scalars['Int']['output'];
+  alertP95Ms: Scalars['Int']['output'];
+  /** The Slack channel id alerts and the digest go to; empty sends them to admins' notifications only. */
+  alertSlackChannel: Scalars['String']['output'];
+  alertsEnabled: Scalars['Boolean']['output'];
+  callsPerHourPerConnection: Scalars['Int']['output'];
+  callsPerHourPerPerson: Scalars['Int']['output'];
+  dailyDigest: Scalars['Boolean']['output'];
+  /** Tools nobody in the company can call through MCP, by name. */
+  disabledTools: Array<Scalars['String']['output']>;
+  lastAlertAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Module servers that only read: their changes are not offered. */
+  readOnlyServers: Array<McpEndpoint>;
+  writesPerHourPerPerson: Scalars['Int']['output'];
+};
+
+/** What an admin changes on the MCP Settings page; fields left out keep their value. */
+export type McpSettingsInput = {
+  /** Alert when this share of the last hour's calls failed, 1 to 100. */
+  alertErrorRatePercent?: InputMaybe<Scalars['Int']['input']>;
+  /** No alert below this many calls in the hour. */
+  alertMinCalls?: InputMaybe<Scalars['Int']['input']>;
+  /** Alert when the last hour's p95 call time is over this, 100 to 600000 ms. */
+  alertP95Ms?: InputMaybe<Scalars['Int']['input']>;
+  alertSlackChannel?: InputMaybe<Scalars['String']['input']>;
+  alertsEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Calls one connection (one Claude client for one person) may make an hour; 0 is no limit. */
+  callsPerHourPerConnection?: InputMaybe<Scalars['Int']['input']>;
+  /** Calls a person may make an hour across every connection, 0 to 100000; 0 is no limit. */
+  callsPerHourPerPerson?: InputMaybe<Scalars['Int']['input']>;
+  dailyDigest?: InputMaybe<Scalars['Boolean']['input']>;
+  disabledTools?: InputMaybe<Array<Scalars['String']['input']>>;
+  readOnlyServers?: InputMaybe<Array<McpEndpoint>>;
+  /** Changes a person may make an hour; 0 is no limit. */
+  writesPerHourPerPerson?: InputMaybe<Scalars['Int']['input']>;
+};
+
 /** One module operation Claude can call. */
 export type McpTool = {
   __typename?: 'McpTool';
   arguments: Array<McpToolArgument>;
   description: Scalars['String']['output'];
+  /** False when the company's MCP settings switch the tool off, or its server only reads and it changes something. */
+  enabled: Scalars['Boolean']['output'];
   kind: McpToolKind;
   name: Scalars['String']['output'];
   /** The module server the tool belongs to. */
@@ -10386,6 +10431,8 @@ export type Mutation = {
   updateManagementReview: ManagementReview;
   /** Replaces the note on a suppressed address. The address stays suppressed. */
   updateMarketingSuppressionNote: MarketingSuppression;
+  /** ADMIN: saves the company's MCP settings; they apply to the next call. Audited. */
+  updateMcpSettings: McpSettings;
   updateMeetingType: MeetingType;
   updateMilestone: Milestone;
   /**
@@ -10572,6 +10619,7 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationApproveMcpAuthorizationArgs = {
   id: Scalars['ID']['input'];
+  readOnly?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -14216,6 +14264,11 @@ export type MutationUpdateMarketingSuppressionNoteArgs = {
 };
 
 
+export type MutationUpdateMcpSettingsArgs = {
+  input: McpSettingsInput;
+};
+
+
 export type MutationUpdateMeetingTypeArgs = {
   id: Scalars['ID']['input'];
   input: MeetingTypeInput;
@@ -17307,6 +17360,10 @@ export type Query = {
   mcpErrors: Array<McpErrorGroup>;
   /** Every MCP server the caller may use (its module's role), the global ALL server last. */
   mcpServers: Array<McpServer>;
+  /** ADMIN: the company's MCP settings. */
+  mcpSettings: McpSettings;
+  /** ADMIN: the Slack channels MCP alerts can go to. */
+  mcpSlackChannels: Array<SlackChannel>;
   /** Every tool of a server, with its arguments (the server's role). */
   mcpTools: Array<McpTool>;
   /** This company's calls to a server over the last days, 1 to 180; ALL covers every server the caller may use. */
@@ -29420,7 +29477,7 @@ export type McpToolsQueryVariables = Exact<{
 }>;
 
 
-export type McpToolsQuery = { __typename?: 'Query', mcpTools: Array<{ __typename?: 'McpTool', server: McpEndpoint, name: string, kind: McpToolKind, description: string, arguments: Array<{ __typename?: 'McpToolArgument', name: string, type: string, required: boolean, description: string }> }> };
+export type McpToolsQuery = { __typename?: 'Query', mcpTools: Array<{ __typename?: 'McpTool', server: McpEndpoint, name: string, kind: McpToolKind, description: string, enabled: boolean, arguments: Array<{ __typename?: 'McpToolArgument', name: string, type: string, required: boolean, description: string }> }> };
 
 export type McpUsageQueryVariables = Exact<{
   endpoint: McpEndpoint;
@@ -29454,7 +29511,7 @@ export type McpConnectionsQueryVariables = Exact<{
 }>;
 
 
-export type McpConnectionsQuery = { __typename?: 'Query', mcpConnections: Array<{ __typename?: 'McpConnection', id: string, endpoint: McpEndpoint, clientName: string, userName: string, createdAt: string, lastUsedAt?: string | null }> };
+export type McpConnectionsQuery = { __typename?: 'Query', mcpConnections: Array<{ __typename?: 'McpConnection', id: string, endpoint: McpEndpoint, clientName: string, userName: string, readOnly: boolean, createdAt: string, lastUsedAt?: string | null }> };
 
 export type McpAuthorizationRequestQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -29465,6 +29522,7 @@ export type McpAuthorizationRequestQuery = { __typename?: 'Query', mcpAuthorizat
 
 export type ApproveMcpAuthorizationMutationVariables = Exact<{
   id: Scalars['ID']['input'];
+  readOnly?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -29483,6 +29541,25 @@ export type RevokeMcpConnectionMutationVariables = Exact<{
 
 
 export type RevokeMcpConnectionMutation = { __typename?: 'Mutation', revokeMcpConnection: boolean };
+
+export type McpSettingsFieldsFragment = { __typename?: 'McpSettings', callsPerHourPerPerson: number, callsPerHourPerConnection: number, writesPerHourPerPerson: number, disabledTools: Array<string>, readOnlyServers: Array<McpEndpoint>, alertsEnabled: boolean, alertErrorRatePercent: number, alertP95Ms: number, alertMinCalls: number, alertSlackChannel: string, dailyDigest: boolean, lastAlertAt?: string | null };
+
+export type McpSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type McpSettingsQuery = { __typename?: 'Query', mcpSettings: { __typename?: 'McpSettings', callsPerHourPerPerson: number, callsPerHourPerConnection: number, writesPerHourPerPerson: number, disabledTools: Array<string>, readOnlyServers: Array<McpEndpoint>, alertsEnabled: boolean, alertErrorRatePercent: number, alertP95Ms: number, alertMinCalls: number, alertSlackChannel: string, dailyDigest: boolean, lastAlertAt?: string | null } };
+
+export type McpSlackChannelsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type McpSlackChannelsQuery = { __typename?: 'Query', mcpSlackChannels: Array<{ __typename?: 'SlackChannel', id: string, name: string, isPrivate: boolean, isMember: boolean }> };
+
+export type UpdateMcpSettingsMutationVariables = Exact<{
+  input: McpSettingsInput;
+}>;
+
+
+export type UpdateMcpSettingsMutation = { __typename?: 'Mutation', updateMcpSettings: { __typename?: 'McpSettings', callsPerHourPerPerson: number, callsPerHourPerConnection: number, writesPerHourPerPerson: number, disabledTools: Array<string>, readOnlyServers: Array<McpEndpoint>, alertsEnabled: boolean, alertErrorRatePercent: number, alertP95Ms: number, alertMinCalls: number, alertSlackChannel: string, dailyDigest: boolean, lastAlertAt?: string | null } };
 
 export type MaCalendarQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
@@ -36068,6 +36145,22 @@ export const CampaignFieldsFragmentDoc = gql`
   trackClicks
   sendState
   sendingRevisionId
+}
+    `;
+export const McpSettingsFieldsFragmentDoc = gql`
+    fragment McpSettingsFields on McpSettings {
+  callsPerHourPerPerson
+  callsPerHourPerConnection
+  writesPerHourPerPerson
+  disabledTools
+  readOnlyServers
+  alertsEnabled
+  alertErrorRatePercent
+  alertP95Ms
+  alertMinCalls
+  alertSlackChannel
+  dailyDigest
+  lastAlertAt
 }
     `;
 export const MaReleaseSettingsFieldsFragmentDoc = gql`
@@ -66378,6 +66471,7 @@ export const McpToolsDocument = gql`
       required
       description
     }
+    enabled
   }
 }
     `;
@@ -66626,6 +66720,7 @@ export const McpConnectionsDocument = gql`
     endpoint
     clientName
     userName
+    readOnly
     createdAt
     lastUsedAt
   }
@@ -66718,8 +66813,8 @@ export type McpAuthorizationRequestQueryHookResult = ReturnType<typeof useMcpAut
 export type McpAuthorizationRequestLazyQueryHookResult = ReturnType<typeof useMcpAuthorizationRequestLazyQuery>;
 export type McpAuthorizationRequestSuspenseQueryHookResult = ReturnType<typeof useMcpAuthorizationRequestSuspenseQuery>;
 export const ApproveMcpAuthorizationDocument = gql`
-    mutation ApproveMcpAuthorization($id: ID!) {
-  approveMcpAuthorization(id: $id)
+    mutation ApproveMcpAuthorization($id: ID!, $readOnly: Boolean) {
+  approveMcpAuthorization(id: $id, readOnly: $readOnly)
 }
     `;
 
@@ -66737,6 +66832,7 @@ export const ApproveMcpAuthorizationDocument = gql`
  * const [approveMcpAuthorizationMutation, { data, loading, error }] = useApproveMcpAuthorizationMutation({
  *   variables: {
  *      id: // value for 'id'
+ *      readOnly: // value for 'readOnly'
  *   },
  * });
  */
@@ -66801,6 +66897,125 @@ export function useRevokeMcpConnectionMutation(baseOptions?: ApolloReactHooks.Mu
         return ApolloReactHooks.useMutation<RevokeMcpConnectionMutation, RevokeMcpConnectionMutationVariables>(RevokeMcpConnectionDocument, options);
       }
 export type RevokeMcpConnectionMutationHookResult = ReturnType<typeof useRevokeMcpConnectionMutation>;
+export const McpSettingsDocument = gql`
+    query McpSettings {
+  mcpSettings {
+    ...McpSettingsFields
+  }
+}
+    ${McpSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useMcpSettingsQuery__
+ *
+ * To run a query within a React component, call `useMcpSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMcpSettingsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpSettingsQuery, McpSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpSettingsQuery, McpSettingsQueryVariables>(McpSettingsDocument, options);
+      }
+export function useMcpSettingsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpSettingsQuery, McpSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpSettingsQuery, McpSettingsQueryVariables>(McpSettingsDocument, options);
+        }
+// @ts-ignore
+export function useMcpSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpSettingsQuery, McpSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSettingsQuery, McpSettingsQueryVariables>;
+// @ts-ignore
+export function useMcpSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSettingsQuery, McpSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSettingsQuery | undefined, McpSettingsQueryVariables>;
+export function useMcpSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSettingsQuery, McpSettingsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpSettingsQuery, McpSettingsQueryVariables>(McpSettingsDocument, options);
+        }
+export type McpSettingsQueryHookResult = ReturnType<typeof useMcpSettingsQuery>;
+export type McpSettingsLazyQueryHookResult = ReturnType<typeof useMcpSettingsLazyQuery>;
+export type McpSettingsSuspenseQueryHookResult = ReturnType<typeof useMcpSettingsSuspenseQuery>;
+export const McpSlackChannelsDocument = gql`
+    query McpSlackChannels {
+  mcpSlackChannels {
+    id
+    name
+    isPrivate
+    isMember
+  }
+}
+    `;
+
+/**
+ * __useMcpSlackChannelsQuery__
+ *
+ * To run a query within a React component, call `useMcpSlackChannelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpSlackChannelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpSlackChannelsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMcpSlackChannelsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>(McpSlackChannelsDocument, options);
+      }
+export function useMcpSlackChannelsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>(McpSlackChannelsDocument, options);
+        }
+// @ts-ignore
+export function useMcpSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>;
+// @ts-ignore
+export function useMcpSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSlackChannelsQuery | undefined, McpSlackChannelsQueryVariables>;
+export function useMcpSlackChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpSlackChannelsQuery, McpSlackChannelsQueryVariables>(McpSlackChannelsDocument, options);
+        }
+export type McpSlackChannelsQueryHookResult = ReturnType<typeof useMcpSlackChannelsQuery>;
+export type McpSlackChannelsLazyQueryHookResult = ReturnType<typeof useMcpSlackChannelsLazyQuery>;
+export type McpSlackChannelsSuspenseQueryHookResult = ReturnType<typeof useMcpSlackChannelsSuspenseQuery>;
+export const UpdateMcpSettingsDocument = gql`
+    mutation UpdateMcpSettings($input: McpSettingsInput!) {
+  updateMcpSettings(input: $input) {
+    ...McpSettingsFields
+  }
+}
+    ${McpSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateMcpSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateMcpSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMcpSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMcpSettingsMutation, { data, loading, error }] = useUpdateMcpSettingsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateMcpSettingsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateMcpSettingsMutation, UpdateMcpSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateMcpSettingsMutation, UpdateMcpSettingsMutationVariables>(UpdateMcpSettingsDocument, options);
+      }
+export type UpdateMcpSettingsMutationHookResult = ReturnType<typeof useUpdateMcpSettingsMutation>;
 export const MaCalendarDocument = gql`
     query MaCalendar($from: DateTime!, $to: DateTime!, $scope: MaScope) {
   maCalendar(from: $from, to: $to, scope: $scope) {

@@ -76,9 +76,14 @@ export async function describeAuthorization(
 
 /**
  * The signed-in person allows the client: a one-time code for them, in their company, bound to
- * the client's PKCE challenge and redirect. Answers where to send the browser.
+ * the client's PKCE challenge and redirect — for reading only when they chose so. Answers where
+ * to send the browser.
  */
-export async function approveAuthorization(ctx: GraphQLContext, id: string): Promise<string> {
+export async function approveAuthorization(
+  ctx: GraphQLContext,
+  id: string,
+  readOnly = false,
+): Promise<string> {
   const request = await openRequest(id);
   const user = assertEndpointAccess(ctx, request.endpoint);
   const organizationId = ctx.organizationId ?? (await homeOrganization(user.id));
@@ -97,6 +102,7 @@ export async function approveAuthorization(ctx: GraphQLContext, id: string): Pro
       redirectUri: request.redirectUri,
       codeChallenge: request.codeChallenge,
       scopes: request.scopes,
+      readOnly,
       expiresAt: new Date(Date.now() + CODE_TTL_MS),
     });
     await McpAuthRequestModel.deleteOne({ _id: id });
@@ -106,7 +112,7 @@ export async function approveAuthorization(ctx: GraphQLContext, id: string): Pro
     module: meta.auditModule,
     entityId: id,
     entityLabel: new URL(request.redirectUri).host,
-    summary: `Connected Claude to ${meta.label} through MCP`,
+    summary: `Connected Claude to ${meta.label} through MCP${readOnly ? ' (read only)' : ''}`,
   });
   return withParams(request.redirectUri, { code, state: request.state });
 }

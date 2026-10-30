@@ -6,16 +6,13 @@ import { Alert, MenuItem, Stack, TextField } from '@exyconn/shell/components/ui'
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useDebouncedValue } from '@exyconn/shell/hooks/useDebouncedValue';
-import {
-  McpEndpoint,
-  useMcpActivityQuery,
-  type McpActivityQuery,
-} from '@exyconn/shell/graphql/generated';
+import { McpEndpoint, useMcpActivityQuery } from '@exyconn/shell/graphql/generated';
+import { McpCallDrawer, type McpCallRow } from './McpCallDrawer';
 import { McpPeriodSelect } from './McpPeriodSelect';
 import { useCopyTraceId } from './useCopyTraceId';
 
 type Formatters = ReturnType<typeof useFormatters>;
-type CallRow = McpActivityQuery['mcpActivity'][number];
+type CallRow = McpCallRow;
 type Outcome = 'all' | 'ok' | 'failed';
 
 const WINDOWS = [1, 7, 30, 90] as const;
@@ -71,6 +68,7 @@ export function McpActivityTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>
   const [days, setDays] = useState<number>(7);
   const [outcome, setOutcome] = useState<Outcome>('all');
   const [search, setSearch] = useState(params.get(TRACE_PARAM) ?? '');
+  const [open, setOpen] = useState<CallRow | null>(null);
   const query = useDebouncedValue(search, 300);
   const { data, loading, error, refetch } = useMcpActivityQuery({
     variables: {
@@ -116,6 +114,7 @@ export function McpActivityTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>
           rows={data?.mcpActivity ?? []}
           loading={loading}
           onRefresh={refetch}
+          onRowClick={setOpen}
           actions={[
             {
               icon: <ContentCopyIcon fontSize="small" />,
@@ -128,6 +127,7 @@ export function McpActivityTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>
           emptyMessage="No calls match in this period."
         />
       )}
+      <McpCallDrawer row={open} onClose={() => setOpen(null)} />
     </Stack>
   );
 }

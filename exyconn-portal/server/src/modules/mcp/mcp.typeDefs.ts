@@ -47,6 +47,8 @@ export const mcpTypeDefs = gql`
     kind: McpToolKind!
     description: String!
     arguments: [McpToolArgument!]!
+    "False when the company's MCP settings switch the tool off, or its server only reads and it changes something."
+    enabled: Boolean!
   }
 
   "One MCP server the person may use, and what they need to connect Claude to it."
@@ -172,8 +174,50 @@ export const mcpTypeDefs = gql`
     endpoint: McpEndpoint!
     clientName: String!
     userName: String!
+    "Allowed for reading only: Claude is never offered a change through it."
+    readOnly: Boolean!
     createdAt: DateTime!
     lastUsedAt: DateTime
+  }
+
+  "The company's MCP settings: rate limits, switched-off tools, read-only servers and alerts. 0 in a limit means no limit."
+  type McpSettings {
+    callsPerHourPerPerson: Int!
+    callsPerHourPerConnection: Int!
+    writesPerHourPerPerson: Int!
+    "Tools nobody in the company can call through MCP, by name."
+    disabledTools: [String!]!
+    "Module servers that only read: their changes are not offered."
+    readOnlyServers: [McpEndpoint!]!
+    alertsEnabled: Boolean!
+    alertErrorRatePercent: Int!
+    alertP95Ms: Int!
+    alertMinCalls: Int!
+    "The Slack channel id alerts and the digest go to; empty sends them to admins' notifications only."
+    alertSlackChannel: String!
+    dailyDigest: Boolean!
+    lastAlertAt: DateTime
+  }
+
+  "What an admin changes on the MCP Settings page; fields left out keep their value."
+  input McpSettingsInput {
+    "Calls a person may make an hour across every connection, 0 to 100000; 0 is no limit."
+    callsPerHourPerPerson: Int
+    "Calls one connection (one Claude client for one person) may make an hour; 0 is no limit."
+    callsPerHourPerConnection: Int
+    "Changes a person may make an hour; 0 is no limit."
+    writesPerHourPerPerson: Int
+    disabledTools: [String!]
+    readOnlyServers: [McpEndpoint!]
+    alertsEnabled: Boolean
+    "Alert when this share of the last hour's calls failed, 1 to 100."
+    alertErrorRatePercent: Int
+    "Alert when the last hour's p95 call time is over this, 100 to 600000 ms."
+    alertP95Ms: Int
+    "No alert below this many calls in the hour."
+    alertMinCalls: Int
+    alertSlackChannel: String
+    dailyDigest: Boolean
   }
 
   "A sign-in waiting for the person to allow it."
@@ -209,15 +253,25 @@ export const mcpTypeDefs = gql`
     mcpErrors(endpoint: McpEndpoint!, days: Int!): [McpErrorGroup!]!
     "Live connections to a server in this company; ALL lists every connection the caller may see."
     mcpConnections(endpoint: McpEndpoint!): [McpConnection!]!
+    "ADMIN: the company's MCP settings."
+    mcpSettings: McpSettings!
+    "ADMIN: the Slack channels MCP alerts can go to."
+    mcpSlackChannels: [SlackChannel!]!
     "The sign-in a connector is waiting on, for the consent page (the server's role)."
     mcpAuthorizationRequest(id: ID!): McpAuthorizationRequest!
   }
 
   extend type Mutation {
     "Allows the sign-in; answers the address to send the browser back to."
-    approveMcpAuthorization(id: ID!): String!
+    approveMcpAuthorization(
+      id: ID!
+      "True connects Claude for reading only: it is never offered a change."
+      readOnly: Boolean
+    ): String!
     "Declines the sign-in; answers the address to send the browser back to."
     denyMcpAuthorization(id: ID!): String!
+    "ADMIN: saves the company's MCP settings; they apply to the next call. Audited."
+    updateMcpSettings(input: McpSettingsInput!): McpSettings!
     "Signs one connection out; Claude has to connect again."
     revokeMcpConnection(id: ID!): Boolean!
   }

@@ -23,6 +23,7 @@ query McpTools($endpoint: McpEndpoint!) {
       required
       description
     }
+    enabled
   }
 }
 
@@ -113,6 +114,7 @@ query McpConnections($endpoint: McpEndpoint!) {
     endpoint
     clientName
     userName
+    readOnly
     createdAt
     lastUsedAt
   }
@@ -129,8 +131,8 @@ query McpAuthorizationRequest($id: ID!) {
   }
 }
 
-mutation ApproveMcpAuthorization($id: ID!) {
-  approveMcpAuthorization(id: $id)
+mutation ApproveMcpAuthorization($id: ID!, $readOnly: Boolean) {
+  approveMcpAuthorization(id: $id, readOnly: $readOnly)
 }
 
 mutation DenyMcpAuthorization($id: ID!) {
@@ -139,4 +141,40 @@ mutation DenyMcpAuthorization($id: ID!) {
 
 mutation RevokeMcpConnection($id: ID!) {
   revokeMcpConnection(id: $id)
+}
+
+fragment McpSettingsFields on McpSettings {
+  callsPerHourPerPerson
+  callsPerHourPerConnection
+  writesPerHourPerPerson
+  disabledTools
+  readOnlyServers
+  alertsEnabled
+  alertErrorRatePercent
+  alertP95Ms
+  alertMinCalls
+  alertSlackChannel
+  dailyDigest
+  lastAlertAt
+}
+
+query McpSettings {
+  mcpSettings {
+    ...McpSettingsFields
+  }
+}
+
+query McpSlackChannels {
+  mcpSlackChannels {
+    id
+    name
+    isPrivate
+    isMember
+  }
+}
+
+mutation UpdateMcpSettings($input: McpSettingsInput!) {
+  updateMcpSettings(input: $input) {
+    ...McpSettingsFields
+  }
 }

@@ -14,6 +14,8 @@ import { logger } from '../../../utils/logger';
 import { UserModel } from '../../admin/user.model';
 import { endpointTool, endpointTools, liveSchema, type McpServerTool } from './mcp.catalogue';
 import { answerOf } from './mcp.answer';
+import { isOffered, refusalOf } from './mcp.policy';
+import { mcpSettings } from '../data/mcp.settings';
 import { auditActionOf, errorCodeOf, recordCall } from './mcp.record';
 import { humanize } from './mcp.describe';
 import { endpointMeta, type McpEndpointKey } from '../servers';
@@ -26,6 +28,10 @@ export interface McpCaller {
   clientName: string;
   /** The endpoint the connection was allowed for; its token is only good there. */
   endpoint: McpEndpointKey;
+  /** The client the connection belongs to; with the person, one connection for rate limits. */
+  clientId: string;
+  /** Allowed for reading only: no change is offered or run. */
+  readOnly: boolean;
 }
 
 /** What a verified access token carries (see mcp.oauth.ts). */
@@ -34,6 +40,8 @@ export interface McpTokenExtra {
   organizationId: string;
   clientName: string;
   endpoint: McpEndpointKey;
+  clientId: string;
+  readOnly: boolean;
 }
 
 /**
@@ -66,6 +74,8 @@ export async function callerOf(auth: AuthInfo): Promise<McpCaller | null> {
     userName: user.name,
     clientName: extra.clientName,
     endpoint: extra.endpoint,
+    clientId: extra.clientId,
+    readOnly: extra.readOnly,
   };
 }
 
@@ -108,8 +118,9 @@ async function execution(tool: McpServerTool, args: Record<string, unknown>, cal
 /**
  * Runs one tool as its caller: the module's operation through the live schema, inside their
  * company, with the context a portal request of theirs would have — so every guard and
- * permission check applies exactly as it does in the portal. Every call, worked or failed, is
- * recorded under a trace id that Claude is handed with the answer.
+ * permission check applies exactly as it does in the portal — unless the company's MCP settings
+ * refuse it first (a switched-off tool, a change on a read-only connection or server, a rate
+ * limit). Every call, run, failed or refused, is recorded under a trace id Claude is handed.
  */
 export async function runTool(
   tool: McpServerTool,
@@ -119,7 +130,10 @@ export async function runTool(
   const started = Date.now();
   const traceId = randomUUID();
   return runForOrganization(caller.organizationId, async () => {
-    const { data, error, errorCode } = await execution(tool, args, caller);
+    const refusal = await refusalOf(tool, caller, await mcpSettings());
+    const { data, error, errorCode } = refusal
+      ? { data: undefined, error: refusal.message, errorCode: refusal.code }
+      : await execution(tool, args, caller);
     const answer = error ? null : answerOf(data);
     await recordCall(caller, tool, {
       traceId,
@@ -160,16 +174,19 @@ export function createMcpServer(caller: McpCaller): Server {
     { name: meta.name, version: '1.0.0' },
     { capabilities: { tools: {} }, instructions: meta.instructions },
   );
-  server.setRequestHandler(ListToolsRequestSchema, () =>
-    Promise.resolve({
-      tools: endpointTools(caller.endpoint, roles).map((tool) => ({
-        name: tool.name,
-        description: tool.description,
-        inputSchema: tool.inputSchema as { type: 'object' },
-        annotations: annotationsOf(tool),
-      })),
-    }),
-  );
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    const settings = await runForOrganization(caller.organizationId, mcpSettings);
+    return {
+      tools: endpointTools(caller.endpoint, roles)
+        .filter((tool) => isOffered(tool, caller, settings))
+        .map((tool) => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema as { type: 'object' },
+          annotations: annotationsOf(tool),
+        })),
+    };
+  });
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const tool = endpointTool(caller.endpoint, roles, request.params.name);
     if (!tool) {

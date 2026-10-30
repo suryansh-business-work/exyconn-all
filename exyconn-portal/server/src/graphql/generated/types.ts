@@ -8749,6 +8749,8 @@ export type McpConnection = {
   endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Allowed for reading only: Claude is never offered a change through it. */
+  readOnly: Scalars['Boolean']['output'];
   userName: Scalars['String']['output'];
 };
 
@@ -8829,11 +8831,54 @@ export type McpServer = {
   toolCount: Scalars['Int']['output'];
 };
 
+/** The company's MCP settings: rate limits, switched-off tools, read-only servers and alerts. 0 in a limit means no limit. */
+export type McpSettings = {
+  __typename?: 'McpSettings';
+  alertErrorRatePercent: Scalars['Int']['output'];
+  alertMinCalls: Scalars['Int']['output'];
+  alertP95Ms: Scalars['Int']['output'];
+  /** The Slack channel id alerts and the digest go to; empty sends them to admins' notifications only. */
+  alertSlackChannel: Scalars['String']['output'];
+  alertsEnabled: Scalars['Boolean']['output'];
+  callsPerHourPerConnection: Scalars['Int']['output'];
+  callsPerHourPerPerson: Scalars['Int']['output'];
+  dailyDigest: Scalars['Boolean']['output'];
+  /** Tools nobody in the company can call through MCP, by name. */
+  disabledTools: Array<Scalars['String']['output']>;
+  lastAlertAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Module servers that only read: their changes are not offered. */
+  readOnlyServers: Array<McpEndpoint>;
+  writesPerHourPerPerson: Scalars['Int']['output'];
+};
+
+/** What an admin changes on the MCP Settings page; fields left out keep their value. */
+export type McpSettingsInput = {
+  /** Alert when this share of the last hour's calls failed, 1 to 100. */
+  alertErrorRatePercent?: InputMaybe<Scalars['Int']['input']>;
+  /** No alert below this many calls in the hour. */
+  alertMinCalls?: InputMaybe<Scalars['Int']['input']>;
+  /** Alert when the last hour's p95 call time is over this, 100 to 600000 ms. */
+  alertP95Ms?: InputMaybe<Scalars['Int']['input']>;
+  alertSlackChannel?: InputMaybe<Scalars['String']['input']>;
+  alertsEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Calls one connection (one Claude client for one person) may make an hour; 0 is no limit. */
+  callsPerHourPerConnection?: InputMaybe<Scalars['Int']['input']>;
+  /** Calls a person may make an hour across every connection, 0 to 100000; 0 is no limit. */
+  callsPerHourPerPerson?: InputMaybe<Scalars['Int']['input']>;
+  dailyDigest?: InputMaybe<Scalars['Boolean']['input']>;
+  disabledTools?: InputMaybe<Array<Scalars['String']['input']>>;
+  readOnlyServers?: InputMaybe<Array<McpEndpoint>>;
+  /** Changes a person may make an hour; 0 is no limit. */
+  writesPerHourPerPerson?: InputMaybe<Scalars['Int']['input']>;
+};
+
 /** One module operation Claude can call. */
 export type McpTool = {
   __typename?: 'McpTool';
   arguments: Array<McpToolArgument>;
   description: Scalars['String']['output'];
+  /** False when the company's MCP settings switch the tool off, or its server only reads and it changes something. */
+  enabled: Scalars['Boolean']['output'];
   kind: McpToolKind;
   name: Scalars['String']['output'];
   /** The module server the tool belongs to. */
@@ -10385,6 +10430,8 @@ export type Mutation = {
   updateManagementReview: ManagementReview;
   /** Replaces the note on a suppressed address. The address stays suppressed. */
   updateMarketingSuppressionNote: MarketingSuppression;
+  /** ADMIN: saves the company's MCP settings; they apply to the next call. Audited. */
+  updateMcpSettings: McpSettings;
   updateMeetingType: MeetingType;
   updateMilestone: Milestone;
   /**
@@ -10571,6 +10618,7 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationApproveMcpAuthorizationArgs = {
   id: Scalars['ID']['input'];
+  readOnly?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -14215,6 +14263,11 @@ export type MutationUpdateMarketingSuppressionNoteArgs = {
 };
 
 
+export type MutationUpdateMcpSettingsArgs = {
+  input: McpSettingsInput;
+};
+
+
 export type MutationUpdateMeetingTypeArgs = {
   id: Scalars['ID']['input'];
   input: MeetingTypeInput;
@@ -17306,6 +17359,10 @@ export type Query = {
   mcpErrors: Array<McpErrorGroup>;
   /** Every MCP server the caller may use (its module's role), the global ALL server last. */
   mcpServers: Array<McpServer>;
+  /** ADMIN: the company's MCP settings. */
+  mcpSettings: McpSettings;
+  /** ADMIN: the Slack channels MCP alerts can go to. */
+  mcpSlackChannels: Array<SlackChannel>;
   /** Every tool of a server, with its arguments (the server's role). */
   mcpTools: Array<McpTool>;
   /** This company's calls to a server over the last days, 1 to 180; ALL covers every server the caller may use. */
@@ -25202,6 +25259,8 @@ export type ResolversTypes = ResolversObject<{
   McpModuleUsage: ResolverTypeWrapper<McpModuleUsage>;
   McpPersonUsage: ResolverTypeWrapper<McpPersonUsage>;
   McpServer: ResolverTypeWrapper<McpServer>;
+  McpSettings: ResolverTypeWrapper<McpSettings>;
+  McpSettingsInput: McpSettingsInput;
   McpTool: ResolverTypeWrapper<McpTool>;
   McpToolArgument: ResolverTypeWrapper<McpToolArgument>;
   McpToolKind: McpToolKind;
@@ -26361,6 +26420,8 @@ export type ResolversParentTypes = ResolversObject<{
   McpModuleUsage: McpModuleUsage;
   McpPersonUsage: McpPersonUsage;
   McpServer: McpServer;
+  McpSettings: McpSettings;
+  McpSettingsInput: McpSettingsInput;
   McpTool: McpTool;
   McpToolArgument: McpToolArgument;
   McpToolUsage: McpToolUsage;
@@ -31653,6 +31714,7 @@ export type McpConnectionResolvers<ContextType = GraphQLContext, ParentType exte
   endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUsedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  readOnly?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -31700,9 +31762,26 @@ export type McpServerResolvers<ContextType = GraphQLContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type McpSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpSettings'] = ResolversParentTypes['McpSettings']> = ResolversObject<{
+  alertErrorRatePercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  alertMinCalls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  alertP95Ms?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  alertSlackChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  alertsEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  callsPerHourPerConnection?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  callsPerHourPerPerson?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dailyDigest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  disabledTools?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  lastAlertAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  readOnlyServers?: Resolver<Array<ResolversTypes['McpEndpoint']>, ParentType, ContextType>;
+  writesPerHourPerPerson?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type McpToolResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpTool'] = ResolversParentTypes['McpTool']> = ResolversObject<{
   arguments?: Resolver<Array<ResolversTypes['McpToolArgument']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['McpToolKind'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
@@ -32621,6 +32700,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
   updateManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationUpdateManagementReviewArgs, 'id' | 'input'>>;
   updateMarketingSuppressionNote?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationUpdateMarketingSuppressionNoteArgs, 'id' | 'note'>>;
+  updateMcpSettings?: Resolver<ResolversTypes['McpSettings'], ParentType, ContextType, RequireFields<MutationUpdateMcpSettingsArgs, 'input'>>;
   updateMeetingType?: Resolver<ResolversTypes['MeetingType'], ParentType, ContextType, RequireFields<MutationUpdateMeetingTypeArgs, 'id' | 'input'>>;
   updateMilestone?: Resolver<ResolversTypes['Milestone'], ParentType, ContextType, RequireFields<MutationUpdateMilestoneArgs, 'id' | 'input'>>;
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
@@ -34262,6 +34342,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   mcpConnections?: Resolver<Array<ResolversTypes['McpConnection']>, ParentType, ContextType, RequireFields<QueryMcpConnectionsArgs, 'endpoint'>>;
   mcpErrors?: Resolver<Array<ResolversTypes['McpErrorGroup']>, ParentType, ContextType, RequireFields<QueryMcpErrorsArgs, 'days' | 'endpoint'>>;
   mcpServers?: Resolver<Array<ResolversTypes['McpServer']>, ParentType, ContextType>;
+  mcpSettings?: Resolver<ResolversTypes['McpSettings'], ParentType, ContextType>;
+  mcpSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
   mcpTools?: Resolver<Array<ResolversTypes['McpTool']>, ParentType, ContextType, RequireFields<QueryMcpToolsArgs, 'endpoint'>>;
   mcpUsage?: Resolver<ResolversTypes['McpUsage'], ParentType, ContextType, RequireFields<QueryMcpUsageArgs, 'days' | 'endpoint'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -37181,6 +37263,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   McpModuleUsage?: McpModuleUsageResolvers<ContextType>;
   McpPersonUsage?: McpPersonUsageResolvers<ContextType>;
   McpServer?: McpServerResolvers<ContextType>;
+  McpSettings?: McpSettingsResolvers<ContextType>;
   McpTool?: McpToolResolvers<ContextType>;
   McpToolArgument?: McpToolArgumentResolvers<ContextType>;
   McpToolUsage?: McpToolUsageResolvers<ContextType>;

@@ -25,6 +25,9 @@ const EXPECTED_CODES = new Set([
   'UNAUTHENTICATED',
   'NOT_FOUND',
   'INVALID_ARGUMENTS',
+  'TOOL_DISABLED',
+  'READ_ONLY',
+  'RATE_LIMITED',
 ]);
 
 /**
@@ -72,6 +75,7 @@ export async function recordCall(
       userId: caller.ctx.user?.id ?? '',
       userName: caller.userName,
       clientName: caller.clientName,
+      clientId: caller.clientId,
       tool: tool.name,
       kind: tool.kind,
       ok,

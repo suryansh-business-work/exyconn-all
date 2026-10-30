@@ -89,6 +89,7 @@ async function issueTokens(
     userId: string;
     organizationId: string;
     endpoint: McpEndpointKey;
+    readOnly: boolean;
   },
   scopes: string[],
 ): Promise<OAuthTokens> {
@@ -174,6 +175,7 @@ export const mcpOAuthProvider: OAuthServerProvider = {
         userId: code.userId,
         organizationId: code.organizationId,
         endpoint: code.endpoint,
+        readOnly: code.readOnly ?? false,
       },
       code.scopes,
     );
@@ -201,6 +203,7 @@ export const mcpOAuthProvider: OAuthServerProvider = {
         userId: row.userId,
         organizationId: row.organizationId,
         endpoint: row.endpoint,
+        readOnly: row.readOnly ?? false,
       },
       row.scopes,
     );
@@ -222,6 +225,8 @@ export const mcpOAuthProvider: OAuthServerProvider = {
       organizationId: row.organizationId,
       clientName: row.clientName,
       endpoint: row.endpoint,
+      clientId: row.clientId,
+      readOnly: row.readOnly ?? false,
     };
     return {
       token,

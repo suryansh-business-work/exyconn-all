@@ -48,6 +48,8 @@ const mcpAuthCodeSchema = new Schema({
   redirectUri: { type: String, required: true },
   codeChallenge: { type: String, required: true },
   scopes: { type: [String], default: [] },
+  /** The person allowed reading only: the connection is never offered a change. */
+  readOnly: { type: Boolean, default: false },
   usedAt: { type: Date, default: null },
   expiresAt: { type: Date, required: true, expires: REQUEST_TTL_SECONDS },
 });
@@ -67,6 +69,8 @@ const mcpTokenSchema = new Schema(
     accessHash: { type: String, required: true, unique: true },
     refreshHash: { type: String, required: true, unique: true },
     scopes: { type: [String], default: [] },
+    /** Allowed for reading only (chosen on the consent page); carried over on every refresh. */
+    readOnly: { type: Boolean, default: false },
     accessExpiresAt: { type: Date, required: true },
     refreshExpiresAt: { type: Date, required: true },
     lastUsedAt: { type: Date, default: null },
@@ -86,6 +90,8 @@ const mcpCallSchema = new Schema({
   userId: { type: String, required: true },
   userName: { type: String, default: '' },
   clientName: { type: String, default: '' },
+  /** The client (one Claude connector registration); with the person, one connection. */
+  clientId: { type: String, default: '' },
   tool: { type: String, required: true },
   kind: { type: String, enum: ['QUERY', 'MUTATION'], required: true },
   ok: { type: Boolean, required: true },
@@ -107,6 +113,8 @@ const mcpCallSchema = new Schema({
 mcpCallSchema.index({ server: 1, at: -1 });
 mcpCallSchema.index({ at: -1 });
 mcpCallSchema.index({ traceId: 1 });
+// Rate limits count a person's (and a connection's) calls in the last hour.
+mcpCallSchema.index({ userId: 1, at: -1 });
 
 export type McpClientDocument = InferSchemaType<typeof mcpClientSchema>;
 export type McpAuthRequestDocument = InferSchemaType<typeof mcpAuthRequestSchema>;

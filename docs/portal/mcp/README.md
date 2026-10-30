@@ -119,6 +119,27 @@ Tools are generated, never written by hand, so a module's MCP server follows its
 - Tools carry MCP annotations: a readable `title`, `readOnlyHint` for queries, `destructiveHint`
   for delete/remove/archive, and `idempotentHint` for both.
 
+## MCP settings (admins)
+
+`/mcp/settings` on the MCP portal (ADMIN; `mcpSettings` / `updateMcpSettings`, audited) holds
+one record per company (`data/mcp.settings.ts`, read with a 15-second cache that a save clears).
+The server enforces every rule (`core/mcp.policy.ts`); the portal only edits them.
+
+- **Rate limits**, per hour, 0 = no limit: calls per person (every connection), calls per
+  connection (one client for one person, keyed by OAuth client id), and changes per person.
+  Counted from `McpCall`; a refused call is recorded as `RATE_LIMITED` and does not count.
+- **Switched-off tools**: an admin turns a tool off or on from a server's Tools tab. It disappears
+  from the tool list and a call is refused as `TOOL_DISABLED`.
+- **Read-only servers**: their mutations are not offered, and are refused as `READ_ONLY`. A
+  connection can also be read only: the consent page offers the choice, which is stored on
+  the code and the token, carried over on refresh, shown on the Connections tab and in the
+  audit entry.
+- **Alerts** (`data/mcp.alerts.ts`, job `mcpAlerts`, every five minutes per company): when the
+  last hour has at least the minimum calls and its error rate or p95 time passes the thresholds,
+  admins get a notification (and the chosen Slack channel a post) linking to the error log, at
+  most once an hour. The **daily digest** sends yesterday's numbers once. Refusals by these
+  settings are not counted as failures. Slack channels come from `mcpSlackChannels`.
+
 ## Tracing, error log and analytics
 
 - **Every call has a trace id** (`runTool` in `core/mcp.server.ts`). Claude gets it in the
@@ -141,7 +162,7 @@ Tools are generated, never written by hand, so a module's MCP server follows its
   - **Usage & billing**: calls, success rate, changes made, median and p95 time, people; per-day
     calls and failures; calls by person, client, module (on All) and failure kind; per tool, the
     p95 time and when it was last called (`mcpUsage`, `data/mcp.analytics.ts`).
-  - **Claude (MCP) activity**: newest calls, filtered by outcome or by a trace id, tool or person
+  - **Claude (MCP) activity**: newest calls (click one for its full detail), filtered by outcome or by a trace id, tool or person
     (`mcpActivity(ok, search)`), with the failure kind and the copyable trace id. A link
     `…/activity?trace=<id>` opens one call.
   - **Errors**: failures grouped by tool, kind and message, most frequent first, with the count,

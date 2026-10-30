@@ -15,6 +15,7 @@ import { ensureSupportSlaPolicies, startInboundMail } from './modules/support';
 import { ensureTaxSlabs, startPayrollDispatch } from './modules/payroll';
 import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startEmployeeReports, startTrackerDigest, startTrackerRetention } from './modules/tracker';
+import { startMcpAlerts } from './modules/mcp/data/mcp.alerts';
 import { startTrackerBuildRetention } from './modules/tech/tracker-releases.service';
 import { startReleaseRetention } from './modules/meeting-assistant/releases.cleanup';
 import { startFxRates } from './modules/tech/fx/fx.service';
@@ -186,6 +187,8 @@ async function bootstrap(): Promise<void> {
   // needs the loop running whether or not anyone opens the portal.
   startTrackerDigest();
   startEmployeeReports();
+  // Admins hear about Claude (MCP) failing or slowing even when nobody has the MCP portal open.
+  startMcpAlerts();
   // A campaign scheduled for Tuesday morning has to go out on Tuesday morning, whether or
   // not anyone is signed into the Marketing portal when it does.
   startCampaignSchedule();

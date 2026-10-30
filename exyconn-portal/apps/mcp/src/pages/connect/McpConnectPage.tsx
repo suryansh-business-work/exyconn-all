@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Button, Card, Skeleton, Stack, Text } from '@exyconn/shell/components/ui';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  FormControlLabel,
+  Skeleton,
+  Stack,
+  Switch,
+  Text,
+} from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
@@ -20,6 +30,7 @@ export function McpConnectPage() {
   const [params] = useSearchParams();
   const id = params.get('request') ?? '';
   const [busy, setBusy] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
   const { data, loading, error } = useMcpAuthorizationRequestQuery({
     variables: { id },
     skip: id === '',
@@ -32,7 +43,7 @@ export function McpConnectPage() {
     setBusy(true);
     try {
       const result = allow
-        ? (await approve({ variables: { id } })).data?.approveMcpAuthorization
+        ? (await approve({ variables: { id, readOnly } })).data?.approveMcpAuthorization
         : (await deny({ variables: { id } })).data?.denyMcpAuthorization;
       if (result) {
         globalThis.location.assign(result);
@@ -65,6 +76,12 @@ export function McpConnectPage() {
             { server: request.serverLabel, host: request.redirectHost },
           )}
         </Text>
+        <FormControlLabel
+          control={
+            <Switch checked={readOnly} onChange={(_event, checked) => setReadOnly(checked)} />
+          }
+          label={t('Read only: Claude can look things up but never change anything')}
+        />
         <Stack direction="row" spacing={1}>
           <Button variant="contained" disabled={busy} onClick={() => answer(true)}>
             {t('Allow')}

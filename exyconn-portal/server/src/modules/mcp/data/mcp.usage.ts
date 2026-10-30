@@ -74,6 +74,7 @@ export async function mcpConnections(organizationId: string, endpoints: readonly
     endpoint: row.endpoint,
     clientName: row.clientName || 'MCP client',
     userName: names.get(row.userId) ?? '',
+    readOnly: row.readOnly ?? false,
     createdAt: row.createdAt,
     lastUsedAt: row.lastUsedAt,
   }));
