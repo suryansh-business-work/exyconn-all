@@ -1,8 +1,9 @@
 ---
 /**
- * The phone menu: a night drawer from the right (scripts/chrome/drawer.ts) with the three
- * highlighted "GCC in India" link, the header groups as disclosures, the shortcuts, then the call to action and the settings —
- * search, accessibility and cookie preferences live here instead of floating over the page.
+ * The phone menu: a night drawer from the right (scripts/chrome/drawer.ts) with the highlighted
+ * "GCC in India" link, the header groups as disclosures, the shortcuts and the social links, then
+ * one slim pinned row — the call to action beside search, accessibility and cookie preferences —
+ * so the scrolling list keeps most of the screen's height.
  */
 import BrandLogo from "../BrandLogo.astro";
 import Icon from "../inner/Icon.astro";
@@ -101,33 +102,7 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
         ))
       }
     </ul>
-  </nav>
-
-  <div class="chrome-drawer__foot chrome-drawer__foot--stack">
-    <a href={HEADER_ACTIONS.primary.href} class="chrome-button chrome-button--solid">
-      {HEADER_ACTIONS.primary.label}
-      <Icon name="arrow-right" class="icon-xs" />
-    </a>
-    <div class="grid grid-cols-3 gap-2">
-      <button type="button" data-search-open class="chrome-button chrome-button--tile">
-        <Icon name="search" class="icon-md" />Search
-      </button>
-      <button
-        type="button"
-        class="chrome-button chrome-button--tile"
-        data-drawer-open="a11y-drawer"
-      >
-        <Icon name="accessibility" class="icon-md" />Accessibility
-      </button>
-      <button
-        type="button"
-        class="chrome-button chrome-button--tile"
-        data-drawer-open="cookie-drawer"
-      >
-        <Icon name="cookie" class="icon-md" />Cookies
-      </button>
-    </div>
-    <ul class="flex items-center justify-center gap-2" aria-label="Social media links">
+    <ul class="chrome-mobile-social" aria-label="Social media links">
       {
         social.map((link) => (
           <li>
@@ -138,6 +113,40 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
         ))
       }
     </ul>
+  </nav>
+
+  <div class="chrome-drawer__foot chrome-mobile-foot">
+    <a href={HEADER_ACTIONS.primary.href} class="chrome-button chrome-button--solid">
+      {HEADER_ACTIONS.primary.label}
+      <Icon name="arrow-right" class="icon-xs" />
+    </a>
+    <button
+      type="button"
+      data-search-open
+      class="chrome-icon-button chrome-mobile-foot__icon"
+      aria-label="Search the website"
+      title="Search"
+    >
+      <Icon name="search" />
+    </button>
+    <button
+      type="button"
+      class="chrome-icon-button chrome-mobile-foot__icon"
+      data-drawer-open="a11y-drawer"
+      aria-label="Accessibility options"
+      title="Accessibility"
+    >
+      <Icon name="accessibility" />
+    </button>
+    <button
+      type="button"
+      class="chrome-icon-button chrome-mobile-foot__icon"
+      data-drawer-open="cookie-drawer"
+      aria-label="Cookie preferences"
+      title="Cookies"
+    >
+      <Icon name="cookie" />
+    </button>
   </div>
 </div>
 
