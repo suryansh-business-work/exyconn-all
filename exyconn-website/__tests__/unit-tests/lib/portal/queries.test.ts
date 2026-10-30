@@ -6,8 +6,10 @@ vi.mock("../../../../src/lib/portal/client", () => ({ portalRequest }));
 import {
   getBlogPost,
   getBlogPosts,
+  getBlogStamps,
   getCaseStudies,
   getCaseStudy,
+  getCaseStudyStamps,
   getGig,
   getGigs,
   getJob,
@@ -184,4 +186,26 @@ describe("portal read queries", () => {
     await expect(getBlogPost("missing")).resolves.toBeNull();
     expect(console.error).not.toHaveBeenCalled();
   });
+
+  it.each([
+    { run: getBlogStamps, field: "publicBlogPosts" },
+    { run: getCaseStudyStamps, field: "publicCaseStudies" },
+  ])("$field stamps ask only for the slug and date", async ({ run, field }) => {
+    const rows = [{ slug: "a", publishedAt: "2026-10-14T18:30:00.000Z" }];
+    portalRequest.mockResolvedValue({ [field]: rows });
+
+    await expect(run("exyconn")).resolves.toEqual(rows);
+    const [query, sent] = portalRequest.mock.calls[0];
+    expect(query).toContain(`${field}(site: $site) { slug publishedAt }`);
+    expect(sent).toEqual({ site: "exyconn" });
+  });
+
+  it.each([getBlogStamps, getCaseStudyStamps])(
+    "%o lists nothing when the portal fails",
+    async (run) => {
+      portalRequest.mockRejectedValue(new Error("portal down"));
+      await expect(run()).resolves.toEqual([]);
+      expect(console.error).toHaveBeenCalled();
+    }
+  );
 });

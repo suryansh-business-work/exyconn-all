@@ -48,7 +48,7 @@ function detailPage(category: AiServiceCategory, service: AiServiceEntry): CmsSe
       description: service.summary,
       keywords: `${service.title}, ${category.title}, AI services, Exyconn`,
       ogImageUrl: '',
-      canonical: `${SITE}${path}`,
+      canonical: '',
       noindex: false,
       jsonLd: [
         {

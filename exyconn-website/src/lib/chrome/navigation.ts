@@ -263,15 +263,25 @@ const COMPANY: NavGroup = {
 };
 
 /** The header's dropdowns, in order; Blog sits between Demos and Company. */
-export const HEADER_MENUS: readonly NavGroup[] = [AI, SERVICES, INDUSTRIES, DEMOS, COMPANY];
+export const BLOG_LINK: NavLink = { label: "Blog", href: "/blog" };
+
+/** The header's Company menu: the company pages with Blog after Case studies (one fewer top-level item). */
+const COMPANY_MENU: NavGroup = {
+  ...COMPANY,
+  links: COMPANY.links.flatMap((link) =>
+    link.href === "/case-studies"
+      ? [link, { ...BLOG_LINK, text: "AI insights and tech trends" }]
+      : [link]
+  ),
+};
+
+export const HEADER_MENUS: readonly NavGroup[] = [AI, SERVICES, INDUSTRIES, DEMOS, COMPANY_MENU];
 
 /** The footer's full-width row of every industry page, under the link columns. */
 export const FOOTER_INDUSTRIES: NavGroup = {
   ...INDUSTRIES,
   links: [INDUSTRIES_HUB, ...INDUSTRIES.links],
 };
-
-export const BLOG_LINK: NavLink = { label: "Blog", href: "/blog" };
 
 /** The highlighted header item: the GCC-in-India cost guide (the calculator links from it). */
 export const GCC_LINK: NavLink = {
@@ -297,7 +307,6 @@ export const PROMO_LINK: NavLink = {
 /** Shortcuts the phone menu lists after the groups. */
 export const MOBILE_SHORTCUTS: readonly NavLink[] = [
   { label: "Home", href: "/" },
-  BLOG_LINK,
   { label: "AI services", href: "/ai-services" },
   { label: "Exyconn services", href: "/exyconn-services" },
   { label: "Free tools", href: TOOLS_SITE_URL, external: true },

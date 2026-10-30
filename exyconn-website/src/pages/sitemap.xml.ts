@@ -13,7 +13,11 @@ const SITE_URL = "https://exyconn.com";
  * That is what tells a search engine these are the same page in different languages rather
  * than eighty-six near-duplicates — without it, it picks one and drops the rest.
  */
-function urlEntry(market: Market, page: string, lastmod: string): string {
+/** The `<lastmod>` line of a page that knows when it last changed; none for one that does not. */
+const lastmodLine = (lastmod: string | undefined): string =>
+  lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : "";
+
+function urlEntry(market: Market, page: string, lastmod: string | undefined): string {
   const path = page === "" ? "/" : page;
   const alternates = [
     ...MARKETS.map(
@@ -26,8 +30,7 @@ function urlEntry(market: Market, page: string, lastmod: string): string {
   const depthPriority = page.split("/").length <= 2 ? "0.8" : "0.6";
   const priority = page === "" ? "1.0" : depthPriority;
   return `  <url>
-    <loc>${SITE_URL}${marketUrl(market, path)}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${SITE_URL}${marketUrl(market, path)}</loc>${lastmodLine(lastmod)}
     <changefreq>${page === "" ? "daily" : "weekly"}</changefreq>
     <priority>${priority}</priority>
 ${alternates}
@@ -35,10 +38,9 @@ ${alternates}
 }
 
 /** A page of a CMS site served without markets: one URL, on the site's own domain. */
-function plainEntry(origin: string, page: string, lastmod: string): string {
+function plainEntry(origin: string, page: string, lastmod: string | undefined): string {
   return `  <url>
-    <loc>${origin}${page === "" ? "/" : page}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${origin}${page === "" ? "/" : page}</loc>${lastmodLine(lastmod)}
   </url>`;
 }
 
@@ -81,23 +83,22 @@ function xmlResponse(body: string, status = 200): Response {
  * site without markets has a single sitemap of its own pages.
  */
 export const GET: APIRoute = async ({ request }) => {
-  const lastmod = new Date().toISOString().split("T")[0];
   // The pages published in the CMS, beside the hand-written ones (each listed once).
-  const { site, paths } = await publishedPaths(request.headers.get("host") ?? "");
+  const { site, paths, lastmod } = await publishedPaths(request.headers.get("host") ?? "");
   if (site !== null && !site.markets && site.domains.length > 0) {
     return xmlResponse(
-      urlSet(paths.map((page) => plainEntry(`https://${site.domains[0]}`, page, lastmod)))
+      urlSet(paths.map((page) => plainEntry(`https://${site.domains[0]}`, page, lastmod[page])))
     );
   }
 
   const marketParam = new URL(request.url).searchParams.get("market");
   if (marketParam === null) {
-    return xmlResponse(marketIndex(lastmod));
+    return xmlResponse(marketIndex(new Date().toISOString().split("T")[0]));
   }
   const market = marketByPath(marketParam);
   if (market === null) {
     return xmlResponse(urlSet([]), 404);
   }
   const pages = withPaths(sitePages(await aiServicePaths(site?.id)), paths);
-  return xmlResponse(urlSet(pages.map((page) => urlEntry(market, page, lastmod))));
+  return xmlResponse(urlSet(pages.map((page) => urlEntry(market, page, lastmod[page]))));
 };

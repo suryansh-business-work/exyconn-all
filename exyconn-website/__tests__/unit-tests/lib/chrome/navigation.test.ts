@@ -118,9 +118,12 @@ describe("footer", () => {
 });
 
 describe("phone menu", () => {
-  it("starts at home and includes the blog", () => {
+  it("starts at home and reaches the blog through the Company menu, after case studies", () => {
     expect(MOBILE_SHORTCUTS[0]).toEqual({ label: "Home", href: "/" });
-    expect(MOBILE_SHORTCUTS).toContain(BLOG_LINK);
+    expect(MOBILE_SHORTCUTS.map((link) => link.href)).not.toContain(BLOG_LINK.href);
+    const company = HEADER_MENUS.find((group) => group.id === "company");
+    const hrefs = company?.links.map((link) => link.href) ?? [];
+    expect(hrefs.indexOf(BLOG_LINK.href)).toBe(hrefs.indexOf("/case-studies") + 1);
   });
 });
 

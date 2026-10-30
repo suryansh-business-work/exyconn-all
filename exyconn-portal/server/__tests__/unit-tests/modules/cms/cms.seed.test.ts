@@ -5,6 +5,7 @@ import {
   CmsPageModel,
   CmsSiteModel,
 } from '../../../../src/modules/cms/models';
+import { MigrationModel } from '../../../../src/lib/migrations';
 import { seedSite } from './cms.fixtures';
 
 // A small seed in place of exyconn.com's: the logic under test is how a seed is applied.
@@ -118,5 +119,25 @@ describe('ensureCmsDefaults', () => {
     await ensureCmsDefaults();
 
     await expect(seededSite()).resolves.toMatchObject({ isDefault: false });
+  });
+
+  it('clears only the canonical an older seed hardcoded, so markets derive their own', async () => {
+    await ensureCmsDefaults();
+    await CmsPageModel.updateOne(
+      { seedKey: 'about' },
+      { 'seo.canonical': 'https://seeded.test/about' },
+    );
+    await CmsPageModel.updateOne(
+      { seedKey: 'home' },
+      { 'seo.canonical': 'https://elsewhere.test/' },
+    );
+    await MigrationModel.deleteOne({ name: 'cms-seed-market-canonicals' });
+
+    await ensureCmsDefaults();
+
+    const about = await CmsPageModel.findOne({ seedKey: 'about' }).lean();
+    const home = await CmsPageModel.findOne({ seedKey: 'home' }).lean();
+    expect(about?.seo?.canonical).toBe('');
+    expect(home?.seo?.canonical).toBe('https://elsewhere.test/');
   });
 });

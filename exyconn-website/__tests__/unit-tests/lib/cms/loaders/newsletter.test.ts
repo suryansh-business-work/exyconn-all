@@ -55,7 +55,8 @@ describe("issueLoader", () => {
     getIssues.mockResolvedValue([]);
     const load = await issueLoader(loaderInput({ slug: "october" }));
     const [article, crumbs] = load?.jsonLd ?? [];
-    expect(article).toMatchObject({ "@type": "Article", headline: "October issue", keywords: "" });
+    expect(article).toMatchObject({ "@type": "Article", headline: "October issue" });
+    expect(article).not.toHaveProperty("keywords");
     expect(article).not.toHaveProperty("image");
     expect(crumbs).toMatchObject({ "@type": "BreadcrumbList" });
   });
