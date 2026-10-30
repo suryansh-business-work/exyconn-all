@@ -139,7 +139,7 @@ const pageMeta = buildPageMeta(seo, branding, {
     <BackToTop />
 
     <!-- Visitor chat: the same one-line loader every site uses; it opens /embed/chat in an
-         iframe when the browser is idle (public/embed/chat.js). -->
+         iframe on the first interaction (public/embed/chat.js). -->
     <script is:inline src="/embed/chat.js" data-site="WEBSITE" defer></script>
     <slot name="body-end" />
   </body>

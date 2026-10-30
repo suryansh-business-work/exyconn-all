@@ -86,7 +86,7 @@ it with one line:
 ```
 
 The loader ([`public/embed/chat.js`](../../exyconn-website/public/embed/chat.js), dependency
-free) waits for an idle moment, adds one fixed iframe in the bottom-right corner and resizes it
+free) waits for the first scroll, tap, key or pointer move, adds one fixed iframe in the bottom-right corner and resizes it
 when the chat opens or closes (full screen on phones). The two sides talk over `postMessage`
 only with the embed origin: the iframe sends `ready`, `resize` and `unread` (the loader puts
 "(n) " in front of the host page's title), and the loader sends the page URL (recorded as the
