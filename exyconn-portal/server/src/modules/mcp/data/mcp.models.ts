@@ -90,11 +90,23 @@ const mcpCallSchema = new Schema({
   kind: { type: String, enum: ['QUERY', 'MUTATION'], required: true },
   ok: { type: Boolean, required: true },
   error: { type: String, default: '' },
+  /** The failure's kind: the GraphQL error code (FORBIDDEN, BAD_USER_INPUT…), or INTERNAL. */
+  errorCode: { type: String, default: '' },
   durationMs: { type: Number, default: 0 },
+  /** Handed back to Claude with the answer, so one call can be found from what the person saw. */
+  traceId: { type: String, default: '' },
+  /** The endpoint the call came through: the module's own, or `all`. */
+  endpoint: { type: String, enum: [...MCP_ENDPOINTS, ''], default: '' },
+  /** The arguments given, by name only: their values can carry personal data. */
+  argNames: { type: [String], default: [] },
+  /** How long the answer handed to Claude was, in characters, and whether it was cut. */
+  answerChars: { type: Number, default: 0 },
+  truncated: { type: Boolean, default: false },
   at: { type: Date, required: true, default: Date.now, expires: CALL_TTL_SECONDS },
 });
 mcpCallSchema.index({ server: 1, at: -1 });
 mcpCallSchema.index({ at: -1 });
+mcpCallSchema.index({ traceId: 1 });
 
 export type McpClientDocument = InferSchemaType<typeof mcpClientSchema>;
 export type McpAuthRequestDocument = InferSchemaType<typeof mcpAuthRequestSchema>;

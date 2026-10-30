@@ -227,7 +227,12 @@ describe('Claude connecting to the CRM', () => {
     const names = list.body.result.tools.map((tool: { name: string }) => tool.name);
     expect(names).toEqual(['crmBig', 'crmPing', 'deleteThing', 'failing']);
     const ping = list.body.result.tools.find((tool: { name: string }) => tool.name === 'crmPing');
-    expect(ping.annotations).toEqual({ readOnlyHint: true, destructiveHint: false });
+    expect(ping.annotations).toEqual({
+      title: 'Crm ping',
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+    });
     expect(ping.inputSchema.required).toEqual(['name']);
 
     const called = await rpc(tokens.access_token, 'tools/call', {
@@ -246,7 +251,8 @@ describe('Claude connecting to the CRM', () => {
     expect(deleted.body.result.content[0].text).toBe('true');
 
     const failed = await rpc(tokens.access_token, 'tools/call', { name: 'failing' });
-    expect(failed.body.result).toMatchObject({ isError: true, content: [{ text: 'nope' }] });
+    expect(failed.body.result).toMatchObject({ isError: true });
+    expect(failed.body.result.content[0].text).toMatch(/^nope\n\n\(INTERNAL; trace [\w-]+\)$/);
 
     const unknown = await rpc(tokens.access_token, 'tools/call', { name: 'nothing' });
     expect(unknown.body.result.content[0].text).toBe('There is no CRM tool named nothing.');

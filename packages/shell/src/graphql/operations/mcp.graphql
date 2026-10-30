@@ -30,7 +30,10 @@ query McpUsage($endpoint: McpEndpoint!, $days: Int!) {
   mcpUsage(endpoint: $endpoint, days: $days) {
     calls
     failures
+    writes
     people
+    p50Ms
+    p95Ms
     days {
       day
       calls
@@ -41,16 +44,36 @@ query McpUsage($endpoint: McpEndpoint!, $days: Int!) {
       calls
       failures
       averageMs
+      p95Ms
+      lastAt
     }
     users {
       userName
       calls
     }
+    clients {
+      clientName
+      calls
+    }
+    servers {
+      server
+      calls
+    }
+    errorCodes {
+      code
+      count
+    }
   }
 }
 
-query McpActivity($endpoint: McpEndpoint!, $days: Int!, $limit: Int) {
-  mcpActivity(endpoint: $endpoint, days: $days, limit: $limit) {
+query McpActivity(
+  $endpoint: McpEndpoint!
+  $days: Int!
+  $limit: Int
+  $ok: Boolean
+  $search: String
+) {
+  mcpActivity(endpoint: $endpoint, days: $days, limit: $limit, ok: $ok, search: $search) {
     id
     server
     at
@@ -60,7 +83,27 @@ query McpActivity($endpoint: McpEndpoint!, $days: Int!, $limit: Int) {
     kind
     ok
     error
+    errorCode
     durationMs
+    traceId
+    endpoint
+    argNames
+    answerChars
+    truncated
+  }
+}
+
+query McpErrors($endpoint: McpEndpoint!, $days: Int!) {
+  mcpErrors(endpoint: $endpoint, days: $days) {
+    server
+    tool
+    errorCode
+    error
+    count
+    people
+    firstAt
+    lastAt
+    lastTraceId
   }
 }
 

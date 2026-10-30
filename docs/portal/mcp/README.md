@@ -82,7 +82,11 @@ Tools are generated, never written by hand, so a module's MCP server follows its
 - **A new query or mutation in a module's existing typeDefs file is a tool on the next deploy.**
   Its arguments become the tool's input schema (required where the GraphQL argument is non-null
   without a default) and its GraphQL description becomes the tool's description — so write a
-  real description on every field.
+  real description on every field. The standard record operations are the one exception: a field
+  named `list<X>Paged`, `list<X>Stats`, `list<X>`, `get<X>`, `create<X>`, `update<X>` or
+  `delete<X>` whose answer and arguments fit that shape (a page of rows, `TableStats`, a list, the
+  record, `Boolean` for a delete) is described by `core/mcp.describe.ts`. Anything else without
+  a description reaches Claude as only "Reads/Changes <Module> data (name)".
 - **A new typeDefs file in a module** is added to that module's `typeDefs` list in
   `servers/<module>.server.ts`, or its operations never reach Claude.
 - **A new module offered to Claude** gets its own `servers/<module>.server.ts` (key, MCP name,
@@ -109,3 +113,38 @@ Tools are generated, never written by hand, so a module's MCP server follows its
   test reads those `path="…"` lines), so a new server also adds its `<Route>` there.
 - A tool's answer selects every scalar and enum field, nested objects two levels deep, and is cut
   at 60,000 characters with a note to narrow the request.
+- Each tool's operation is parsed and validated once when the schema loads (`useSchema` in
+  `core/mcp.catalogue.ts`); one the schema refuses is logged as "MCP tool left out" and not
+  offered. An endpoint's tool list is built once per role set and reused by every list and call.
+- Tools carry MCP annotations: a readable `title`, `readOnlyHint` for queries, `destructiveHint`
+  for delete/remove/archive, and `idempotentHint` for both.
+
+## Tracing, error log and analytics
+
+- **Every call has a trace id** (`runTool` in `core/mcp.server.ts`). Claude gets it in the
+  result's `_meta.traceId`, and a failed call's text ends `(<CODE>; trace <id>)`, so whatever the
+  person saw in Claude can be found in the portal. Changes made through Claude name it in the audit
+  log too.
+- **Every call is recorded**, worked or failed, even when the operation throws
+  (`core/mcp.record.ts`). `McpCall` keeps the trace id, the endpoint it came through, the
+  error code, the argument _names_ (never their values), the answer's length and whether rows were
+  cut. Calls kept before tracing read as empty for those fields.
+- **Error codes**: the GraphQL code (`FORBIDDEN`, `NOT_FOUND`, `BAD_USER_INPUT`…),
+  `INVALID_ARGUMENTS` when GraphQL refused the arguments before any resolver ran, and `INTERNAL`
+  for anything a resolver threw without a code. Anything other than the expected codes is also
+  logged at error level with its trace id, so it shows in Tech > Logs.
+- **Long answers stay valid JSON** (`core/mcp.answer.ts`): a list, or a page's `rows`, longer than
+  60,000 characters is cut by whole rows with a note of how many were shown; anything else is cut
+  by characters and says so.
+- **Unknown tools**: a call to a tool the endpoint does not offer is refused and logged as a warning.
+- **Portal**, on each server's page:
+  - **Usage & billing**: calls, success rate, changes made, median and p95 time, people; per-day
+    calls and failures; calls by person, client, module (on All) and failure kind; per tool, the
+    p95 time and when it was last called (`mcpUsage`, `data/mcp.analytics.ts`).
+  - **Claude (MCP) activity**: newest calls, filtered by outcome or by a trace id, tool or person
+    (`mcpActivity(ok, search)`), with the failure kind and the copyable trace id. A link
+    `…/activity?trace=<id>` opens one call.
+  - **Errors**: failures grouped by tool, kind and message, most frequent first, with the count,
+    people hit, first and latest time and the latest trace id, which opens in the activity log
+    (`mcpErrors`).
+  - The **Dashboard** shows the success rate and p95 time across every server the person may use.

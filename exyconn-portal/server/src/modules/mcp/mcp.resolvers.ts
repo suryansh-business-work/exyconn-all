@@ -12,7 +12,9 @@ import {
   connectionEndpoint,
   mcpActivity,
   mcpConnections,
+  mcpErrors,
   mcpUsage,
+  type McpActivityFilter,
   revokeMcpConnection,
 } from './data/mcp.usage';
 import {
@@ -66,6 +68,25 @@ function serverInfo(endpoint: McpEndpointKey, roles: Role[], counts: Map<string,
   };
 }
 
+type CallRow = Awaited<ReturnType<typeof mcpActivity>>[number];
+
+/**
+ * A call as the activity log shows it. Calls kept before tracing have no trace id, endpoint,
+ * code or answer size (a lean read skips the defaults), so those read as empty.
+ */
+function callOf(row: CallRow) {
+  return {
+    ...row,
+    server: nameOf(row.server),
+    errorCode: row.errorCode ?? '',
+    traceId: row.traceId ?? '',
+    endpoint: row.endpoint ? nameOf(row.endpoint) : null,
+    argNames: row.argNames ?? [],
+    answerChars: row.answerChars ?? 0,
+    truncated: row.truncated ?? false,
+  };
+}
+
 export const mcpResolvers = {
   Query: {
     mcpServers: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -83,24 +104,47 @@ export const mcpResolvers = {
         arguments: tool.args,
       }));
     },
-    mcpUsage: (
+    mcpUsage: async (
       _p: unknown,
       { endpoint, days }: { endpoint: EndpointName; days: number },
       ctx: GraphQLContext,
     ) => {
       const servers = serversInReach(ctx, keyOf(endpoint));
       companyOf(ctx);
-      return mcpUsage(servers, days);
+      const usage = await mcpUsage(servers, days);
+      return {
+        ...usage,
+        servers: usage.servers.map((row) => ({ ...row, server: nameOf(row.server) })),
+      };
     },
     mcpActivity: async (
       _p: unknown,
-      { endpoint, days, limit }: { endpoint: EndpointName; days: number; limit?: number | null },
+      {
+        endpoint,
+        days,
+        limit,
+        ...filter
+      }: { endpoint: EndpointName; days: number; limit?: number | null } & McpActivityFilter,
       ctx: GraphQLContext,
     ) => {
       const servers = serversInReach(ctx, keyOf(endpoint));
       companyOf(ctx);
-      const rows = await mcpActivity(servers, days, limit ?? undefined);
-      return rows.map((row) => ({ ...row, server: nameOf(row.server) }));
+      const rows = await mcpActivity(servers, days, limit ?? undefined, new Date(), filter);
+      return rows.map(callOf);
+    },
+    mcpErrors: async (
+      _p: unknown,
+      { endpoint, days }: { endpoint: EndpointName; days: number },
+      ctx: GraphQLContext,
+    ) => {
+      const servers = serversInReach(ctx, keyOf(endpoint));
+      companyOf(ctx);
+      const groups = await mcpErrors(servers, days);
+      return groups.map((group) => ({
+        ...group,
+        server: nameOf(group.server),
+        lastTraceId: group.lastTraceId ?? '',
+      }));
     },
     mcpConnections: async (
       _p: unknown,

@@ -1,5 +1,6 @@
 import CableIcon from '@mui/icons-material/Cable';
 import BuildIcon from '@mui/icons-material/Build';
+import BugReportIcon from '@mui/icons-material/BugReport';
 import HistoryIcon from '@mui/icons-material/History';
 import InsightsIcon from '@mui/icons-material/Insights';
 import LinkIcon from '@mui/icons-material/Link';
@@ -11,6 +12,7 @@ import type { McpEndpoint } from '@exyconn/shell/graphql/generated';
 import { McpActivityTab } from './McpActivityTab';
 import { McpConnectTab } from './McpConnectTab';
 import { McpConnectionsTab } from './McpConnectionsTab';
+import { McpErrorsTab } from './McpErrorsTab';
 import { McpToolsTab } from './McpToolsTab';
 import { McpUsageTab } from './McpUsageTab';
 import { useMcpServer } from './useMcpServer';
@@ -42,6 +44,12 @@ function serverTabs(endpoint: McpEndpoint, t: (text: string) => string): TabberI
       label: t('Claude (MCP) activity'),
       icon: <HistoryIcon />,
       content: <McpActivityTab endpoint={endpoint} />,
+    },
+    {
+      slug: 'errors',
+      label: t('Errors'),
+      icon: <BugReportIcon />,
+      content: <McpErrorsTab endpoint={endpoint} />,
     },
     {
       slug: 'connections',

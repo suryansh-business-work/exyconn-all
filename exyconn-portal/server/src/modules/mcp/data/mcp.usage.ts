@@ -1,82 +1,33 @@
 import { Types } from 'mongoose';
 import { runAsPlatform } from '../../../lib/tenant';
-import { badRequest, notFound } from '../../../utils/errors';
+import { notFound } from '../../../utils/errors';
+import { escapeRegex } from '../../../utils/tableQuery';
 import { UserModel } from '../../admin/user.model';
 import { McpCallModel, McpTokenModel } from './mcp.models';
+import { assertDays, windowStart } from './mcp.analytics';
 import type { McpEndpointKey, McpServerKey } from '../servers';
 
-/** The longest window the usage dashboard and activity log read. */
-export const MAX_MCP_DAYS = 180;
 /** The most calls the activity log lists at once. */
 export const MAX_MCP_ACTIVITY = 500;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+export { MAX_MCP_DAYS, mcpErrors, mcpUsage } from './mcp.analytics';
 
-interface CallRow {
-  _id: unknown;
-  at: Date;
-  userName: string;
-  tool: string;
-  ok: boolean;
-  durationMs: number;
+/** What the activity log narrows to: the outcome, and a trace id, tool or person to look for. */
+export interface McpActivityFilter {
+  ok?: boolean | null;
+  search?: string | null;
 }
 
-function assertDays(days: number): void {
-  if (!Number.isInteger(days) || days < 1 || days > MAX_MCP_DAYS) {
-    badRequest(`Ask for 1 to ${MAX_MCP_DAYS} days.`);
+/** The query a filter makes: a trace id matches exactly, a tool or person by part of the name. */
+function filterOf(filter: McpActivityFilter): Record<string, unknown> {
+  const match: Record<string, unknown> = {};
+  if (typeof filter.ok === 'boolean') match.ok = filter.ok;
+  const search = filter.search?.trim();
+  if (search) {
+    const part = new RegExp(escapeRegex(search), 'i');
+    match.$or = [{ traceId: search }, { tool: part }, { userName: part }];
   }
-}
-
-/** The UTC days of the window, oldest first. */
-function windowOf(days: number, now: Date): string[] {
-  return Array.from({ length: days }, (_, index) =>
-    new Date(now.getTime() - (days - 1 - index) * DAY_MS).toISOString().slice(0, 10),
-  );
-}
-
-/**
- * The company's calls to these module servers since the start of the window (the tenant scope
- * confines them to the company).
- */
-function callsSince(servers: readonly McpServerKey[], days: number, now: Date) {
-  const from = new Date(`${windowOf(days, now)[0]}T00:00:00.000Z`);
-  return McpCallModel.find({ server: { $in: servers }, at: { $gte: from } }).sort({ at: -1 });
-}
-
-/** Calls, failures and people over the window, a point per day, and by tool and person. */
-export async function mcpUsage(servers: readonly McpServerKey[], days: number, now = new Date()) {
-  assertDays(days);
-  const rows = await callsSince(servers, days, now)
-    .select('at userName tool ok durationMs')
-    .lean<CallRow[]>();
-  const perDay = new Map(windowOf(days, now).map((day) => [day, { day, calls: 0, failures: 0 }]));
-  const perTool = new Map<string, { tool: string; calls: number; failures: number; ms: number }>();
-  const perUser = new Map<string, number>();
-  for (const row of rows) {
-    const day = perDay.get(row.at.toISOString().slice(0, 10));
-    if (day) {
-      day.calls += 1;
-      day.failures += row.ok ? 0 : 1;
-    }
-    const tool = perTool.get(row.tool) ?? { tool: row.tool, calls: 0, failures: 0, ms: 0 };
-    tool.calls += 1;
-    tool.failures += row.ok ? 0 : 1;
-    tool.ms += row.durationMs;
-    perTool.set(row.tool, tool);
-    perUser.set(row.userName, (perUser.get(row.userName) ?? 0) + 1);
-  }
-  return {
-    calls: rows.length,
-    failures: rows.filter((row) => !row.ok).length,
-    people: perUser.size,
-    days: [...perDay.values()],
-    tools: [...perTool.values()]
-      .map(({ ms, ...tool }) => ({ ...tool, averageMs: ms / tool.calls }))
-      .sort((a, b) => b.calls - a.calls),
-    users: [...perUser]
-      .map(([userName, calls]) => ({ userName, calls }))
-      .sort((a, b) => b.calls - a.calls),
-  };
+  return match;
 }
 
 /** The newest calls of the window, for a server's activity log. */
@@ -85,10 +36,18 @@ export async function mcpActivity(
   days: number,
   limit = 200,
   now = new Date(),
+  filter: McpActivityFilter = {},
 ) {
   assertDays(days);
   const take = Math.min(Math.max(1, Math.floor(limit)), MAX_MCP_ACTIVITY);
-  const rows = await callsSince(servers, days, now).limit(take).lean();
+  const rows = await McpCallModel.find({
+    server: { $in: servers },
+    at: { $gte: windowStart(days, now) },
+    ...filterOf(filter),
+  })
+    .sort({ at: -1 })
+    .limit(take)
+    .lean();
   return rows.map((row) => ({ ...row, id: String(row._id) }));
 }
 
