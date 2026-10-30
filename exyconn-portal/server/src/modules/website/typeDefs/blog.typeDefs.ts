@@ -64,8 +64,15 @@ export const blogTypeDefs = gql`
     listBlogPostsPaged(input: TableQueryInput!): BlogPostPage!
     listBlogPostsStats: TableStats!
     getBlogPost(id: ID!): BlogPost!
-    publicBlogPosts(site: String): [BlogPost!]!
-    publicBlogPost(slug: String!, site: String): BlogPost
+    "Public: lists a site's active blog posts whose publish date has passed, newest first."
+    publicBlogPosts("The site's key; the default site when left out." site: String): [BlogPost!]!
+    "Public: reads one active, already published blog post by its address; null when there is none."
+    publicBlogPost(
+      "The post's URL slug."
+      slug: String!
+      "The site's key; the default site when left out."
+      site: String
+    ): BlogPost
   }
 
   extend type Mutation {

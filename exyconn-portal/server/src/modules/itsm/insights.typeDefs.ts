@@ -159,11 +159,17 @@ export const itInsightsTypeDefs = gql`
   }
 
   extend type Query {
+    "IT: reads the IT settings (applications, onboarding applications, ticket topics, warning windows). Created with defaults on first read."
     itSettings: ItSettings!
+    "IT: the IT dashboard counts: tickets, pending approvals, assets, renewals, incidents and vulnerabilities, with recent items."
     itDashboard: ItDashboard!
+    "IT: one employee as IT sees them: account state, assets, licence seats, current access, open requests and tickets."
     itEmployeeProfile(employeeId: ID!): ItEmployeeProfile!
+    "IT: recent joiners whose onboarding checklist has IT items, with their access and missing applications."
     itOnboarding: [ItOnboardingRow!]!
+    "IT: leavers whose exit is still open, with sign-in state, devices held, access and pending revokes."
     itOffboarding: [ItOffboardingRow!]!
+    "IT: what IT costs: monthly SaaS and cloud spend, annual run rate, hardware and procurement this year, by category and vendor."
     itCostSummary: ItCostSummary!
     "months: 1 to 24."
     itReport(months: Int = 6): ItReport!
@@ -174,6 +180,7 @@ export const itInsightsTypeDefs = gql`
   }
 
   extend type Mutation {
+    "IT: replaces the IT settings. Every onboarding application must also be in the applications list."
     updateItSettings(input: ItSettingsInput!): ItSettings!
     "Opens a pre-approved GRANT for every onboarding application the joiner is missing."
     itProvisionOnboarding(employeeId: ID!): [ItAccessRequest!]!

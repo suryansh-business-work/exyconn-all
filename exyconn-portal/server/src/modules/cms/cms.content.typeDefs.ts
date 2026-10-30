@@ -61,11 +61,22 @@ export const cmsContentTypeDefs = gql`
   }
 
   extend type Query {
-    newsletterIssues(siteId: ID!, page: Int!, pageSize: Int!, search: String): NewsletterIssuePage!
-    newsletterSubscribers(
+    "Lists one website's newsletter issues, newest first, a page at a time."
+    newsletterIssues(
       siteId: ID!
+      "Zero-based page."
       page: Int!
       pageSize: Int!
+      "Matches the title, address or summary."
+      search: String
+    ): NewsletterIssuePage!
+    "Lists the people signed up to one website's newsletter, newest first, a page at a time."
+    newsletterSubscribers(
+      siteId: ID!
+      "Zero-based page."
+      page: Int!
+      pageSize: Int!
+      "Matches the email or name."
       search: String
     ): NewsletterSubscriberPage!
   }
@@ -76,6 +87,7 @@ export const cmsContentTypeDefs = gql`
     deleteNewsletterIssue(id: ID!): Boolean!
     "Adds somebody by hand (they agreed elsewhere); signing up again re-subscribes."
     addNewsletterSubscriber(siteId: ID!, email: String!, name: String): Boolean!
+    "Marks a newsletter subscriber as subscribed or unsubscribed; unsubscribed people get no more issues."
     setNewsletterSubscriberStatus(
       id: ID!
       status: NewsletterSubscriberStatus!

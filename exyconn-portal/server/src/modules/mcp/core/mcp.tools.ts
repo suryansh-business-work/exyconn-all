@@ -17,6 +17,7 @@ import {
   type GraphQLOutputType,
   type GraphQLSchema,
 } from 'graphql';
+import { conventionDescription } from './mcp.describe';
 
 export type ToolKind = 'QUERY' | 'MUTATION';
 
@@ -193,7 +194,10 @@ export function documentOf(kind: ToolKind, field: GraphQLField<unknown, unknown>
 
 function toolOf(kind: ToolKind, field: GraphQLField<unknown, unknown>, label: string): McpTool {
   const verb = kind === 'QUERY' ? 'Reads' : 'Changes';
-  const summary = field.description?.trim() || `${verb} ${label} data (${field.name}).`;
+  const summary =
+    field.description?.trim() ||
+    conventionDescription(field) ||
+    `${verb} ${label} data (${field.name}).`;
   const access = kind === 'QUERY' ? 'read' : 'write';
   return {
     name: field.name,

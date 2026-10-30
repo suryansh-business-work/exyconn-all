@@ -63,7 +63,12 @@ export const webScraperTypeDefs = gql`
     firecrawlReady: Boolean!
     listWebScrapesPaged(input: TableQueryInput!): WebScrapePage!
     getWebScrape(id: ID!): WebScrape!
-    webScrapeAiEstimate(id: ID!, instruction: String!): WebScrapeAiEstimate!
+    "Estimates the tokens and cost of sending a scraped page and an instruction to the AI, without calling it."
+    webScrapeAiEstimate(
+      id: ID!
+      "What the AI should do with the page."
+      instruction: String!
+    ): WebScrapeAiEstimate!
   }
 
   extend type Mutation {

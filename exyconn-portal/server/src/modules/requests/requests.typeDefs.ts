@@ -55,6 +55,7 @@ export const requestsTypeDefs = gql`
     listEmployeeRequestsPaged(input: TableQueryInput!): EmployeeRequestPage!
     listEmployeeRequestsStats: TableStats!
     getEmployeeRequest(id: ID!): EmployeeRequest!
+    "Lists the signed-in person's own requests (work from home, regularization, documents, travel and so on), newest first."
     myRequests: [EmployeeRequest!]!
     "Manager: pending and recently decided requests from direct reports."
     teamRequests: [EmployeeRequest!]!

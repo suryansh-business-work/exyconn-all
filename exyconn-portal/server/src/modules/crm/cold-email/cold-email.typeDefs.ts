@@ -88,7 +88,9 @@ export const coldEmailTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists the AI-written cold email drafts for CRM records, one page at a time."
     coldEmailDrafts(input: TableQueryInput!): ColdEmailDraftPage!
+    "Reads one cold email draft with every version and which were sent."
     coldEmailDraft(id: ID!): ColdEmailDraft!
   }
 
@@ -103,13 +105,22 @@ export const coldEmailTypeDefs = gql`
       "Read their website through Firecrawl again first; costs a Firecrawl call."
       readWebsite: Boolean
     ): ColdEmailDraft!
+    "Edits the subject and body of an unsent version of a cold email draft. Sends nothing."
     updateColdEmailVariant(
+      "The cold email draft."
       draftId: ID!
+      "The unsent version to edit."
       variantId: ID!
       subject: String!
       body: String!
     ): ColdEmailDraft!
-    deleteColdEmailVariant(draftId: ID!, variantId: ID!): ColdEmailDraft!
+    "Deletes an unsent version of a cold email draft. The last version stays; delete the draft instead."
+    deleteColdEmailVariant(
+      "The cold email draft."
+      draftId: ID!
+      "The unsent version to delete."
+      variantId: ID!
+    ): ColdEmailDraft!
     deleteColdEmailDraft(id: ID!): Boolean!
     "Sends one version from a CRM mailbox; it shows on the record's Emails tab and timeline."
     sendColdEmailVariant(input: SendColdEmailVariantInput!): ColdEmailDraft!

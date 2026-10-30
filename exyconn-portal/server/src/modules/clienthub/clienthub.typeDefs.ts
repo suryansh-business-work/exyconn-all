@@ -154,15 +154,23 @@ export const clientHubTypeDefs = gql`
 
     "The signed-in client hub contact (pass in x-client-pass)."
     clientHubMe: ClientHubMe!
+    "Lists the signed-in client hub contact's invoices, one page at a time."
     clientHubInvoices(input: TableQueryInput!): InvoicePage!
     "The invoice PDF as base64."
     clientHubInvoicePdf(id: ID!): String!
+    "Lists payments recorded against the signed-in contact's client, one page at a time."
     clientHubPayments(input: TableQueryInput!): PaymentPage!
+    "Lists the client's unpaid invoices with their balance, soonest due first, with days late for overdue ones."
     clientHubReminders: [ClientHubReminder!]!
+    "Lists the support tickets filed by the signed-in contact's client, one page at a time."
     clientHubTickets(input: TableQueryInput!): SupportTicketPage!
-    clientHubTicketReplies(ticketId: ID!): [SupportReply!]!
+    "Lists the public replies on one of the client's own tickets, oldest first. Internal notes are left out."
+    clientHubTicketReplies("The client's support ticket." ticketId: ID!): [SupportReply!]!
+    "Lists the client's projects with status, dates, hours, milestones and ticket counts, read-only."
     clientHubProjects: [ClientHubProject!]!
+    "Tells which payment gateways (Stripe, Razorpay, PayPal, Payoneer) the client can pay with right now."
     clientHubPaymentOptions: ClientHubPaymentOptions!
+    "Reads one of the client's payment attempts, settling it with the gateway first if it is still pending."
     clientHubPaymentAttempt(id: ID!): PaymentAttempt!
 
     "Tech > Environment Variables: Exyconn's payment gateway accounts."
@@ -186,16 +194,25 @@ export const clientHubTypeDefs = gql`
     clientHubEmailInvoice(id: ID!): Boolean!
     "Opens the gateway's hosted checkout for the invoice's whole balance."
     clientHubPayInvoice(id: ID!, gateway: PaymentGateway!): ClientHubCheckout!
+    "Files a support ticket for the signed-in contact's client. Confirm the subject and details with the person first."
     clientHubOpenTicket(input: ClientHubTicketInput!): SupportTicket!
-    clientHubReplyToTicket(ticketId: ID!, body: String!): SupportReply!
+    "Posts the signed-in contact's reply (up to 5000 characters) on one of the client's tickets. Visible to support."
+    clientHubReplyToTicket(
+      "The client's support ticket."
+      ticketId: ID!
+      "The reply text, up to 5000 characters."
+      body: String!
+    ): SupportReply!
 
     createStripeConfig(input: StripeConfigInput!): StripeConfig!
     updateStripeConfig(id: ID!, input: StripeConfigInput!): StripeConfig!
     deleteStripeConfig(id: ID!): Boolean!
+    "Checks a saved Stripe account by calling Stripe with its stored key. True on success; fails with Stripe's message otherwise."
     testStripeConnection(id: ID!): Boolean!
     createRazorpayConfig(input: RazorpayConfigInput!): RazorpayConfig!
     updateRazorpayConfig(id: ID!, input: RazorpayConfigInput!): RazorpayConfig!
     deleteRazorpayConfig(id: ID!): Boolean!
+    "Checks a saved Razorpay account by calling Razorpay with its stored keys. True on success; fails with Razorpay's message otherwise."
     testRazorpayConnection(id: ID!): Boolean!
   }
 `;

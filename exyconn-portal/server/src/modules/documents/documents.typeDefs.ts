@@ -43,6 +43,7 @@ export const documentsTypeDefs = gql`
     listEmployeeDocumentsPaged(input: TableQueryInput!): EmployeeDocumentPage!
     listEmployeeDocumentsStats: TableStats!
     getEmployeeDocument(id: ID!): EmployeeDocument!
+    "Lists the signed-in person's own documents, most recently issued first."
     myDocuments: [EmployeeDocument!]!
   }
 

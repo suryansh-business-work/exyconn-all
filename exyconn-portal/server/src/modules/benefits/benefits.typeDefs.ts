@@ -46,6 +46,7 @@ export const benefitsTypeDefs = gql`
     listBenefitsPaged(input: TableQueryInput!): BenefitPage!
     listBenefitsStats: TableStats!
     getBenefit(id: ID!): Benefit!
+    "Lists the signed-in person's own benefits, grouped by kind."
     myBenefits: [Benefit!]!
   }
 

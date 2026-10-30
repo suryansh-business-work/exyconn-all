@@ -156,6 +156,7 @@ export const crmIntegrationsTypeDefs = gql`
   }
 
   extend type Query {
+    "Tells which CRM channels are ready to use: calling and SMS accounts, and connected Gmail or Microsoft mailboxes."
     crmIntegrationStatus: CrmIntegrationStatus!
     crmCallConfigs: [CrmCallConfig!]!
     crmSmsConfigs: [CrmSmsConfig!]!
@@ -176,6 +177,7 @@ export const crmIntegrationsTypeDefs = gql`
     testCrmSmsConfig(id: ID!): String!
     "Click-to-call: rings the caller's own phone, then bridges to the record's number."
     startCrmCall(input: StartCrmCallInput!): CrmCallResult!
+    "Sends a text message to a number on a CRM contact or company and logs it on the record's timeline. Confirm the text and number with the person first."
     sendCrmSms(input: SendCrmSmsInput!): CrmSmsResult!
   }
 `;

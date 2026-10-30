@@ -30,7 +30,8 @@ export const navLinkTypeDefs = gql`
   extend type Query {
     listNavLinks: [NavLink!]!
     getNavLink(id: ID!): NavLink!
-    publicNavLinks(site: String): [NavLink!]!
+    "Public: lists a site's active navigation links in their display order."
+    publicNavLinks("The site's key; the default site when left out." site: String): [NavLink!]!
   }
 
   extend type Mutation {

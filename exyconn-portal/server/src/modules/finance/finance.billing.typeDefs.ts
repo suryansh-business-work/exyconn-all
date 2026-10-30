@@ -76,6 +76,7 @@ export const financeBillingTypeDefs = gql`
     listPaymentsStats: TableStats!
     "Payments against one invoice, newest first."
     invoicePayments(invoiceId: ID!): [Payment!]!
+    "FINANCE: the receivables ageing report: what is still owed on open invoices and how late, in 30-day bands."
     receivables: Receivables!
   }
 

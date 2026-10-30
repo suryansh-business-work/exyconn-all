@@ -158,7 +158,8 @@ export const tableTransferTypeDefs = gql`
       format: TableFileFormat!
       fileName: String!
     ): TableFile!
-    tableInfo(list: String!): TableInfo!
+    "Reads what a paged list supports: the fields it can filter and sort on, and whether and how it takes imports."
+    tableInfo("The paged query's name, for example listLeadsPaged." list: String!): TableInfo!
     "The sample file to fill in for an import into this list."
     tableImportTemplate(
       list: String!

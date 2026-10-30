@@ -36,7 +36,9 @@ export const maReleaseTypeDefs = gql`
   }
 
   extend type Query {
+    "Reads whether the caller manages extension releases and, if so, how many builds are uploaded and awaiting approval."
     maReleaseOverview: MaReleaseOverview!
+    "Reads the install-wide extension release settings: allowed upload repository, Slack channel and build retention. Release managers only."
     maReleaseSettings: MaReleaseSettings!
     "The Slack channels a release announcement can go to."
     maReleaseSlackChannels: [SlackChannel!]!
@@ -47,6 +49,7 @@ export const maReleaseTypeDefs = gql`
     maApproveRelease(id: ID!, channel: MaReleaseChannel!): MaRelease!
     "Starts the extension build workflow; the run uploads the build here for approval."
     maStartExtensionBuild(channel: MaReleaseChannel!): Boolean!
+    "Saves the allowed upload repository, the Slack announcement channel and whether new builds are announced. Release managers only."
     maUpdateReleaseSettings(input: MaReleaseSettingsInput!): MaReleaseSettings!
     "Sets how many of the newest builds the retention pass keeps (0 keeps every build)."
     maUpdateReleaseRetention(keepLatestBuilds: Int!): MaReleaseSettings!

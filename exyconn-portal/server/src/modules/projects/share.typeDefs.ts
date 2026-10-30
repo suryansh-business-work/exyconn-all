@@ -55,13 +55,22 @@ export const shareTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists the read-only client links made for a project, live or not."
     projectShares(projectId: ID!): [ProjectShare!]!
     "Public. Null when the token is unknown, expired or revoked — the page says so."
     sharedProject(token: String!): SharedProjectView
   }
 
   extend type Mutation {
-    createProjectShare(projectId: ID!, label: String!, expiresInDays: Int!): ProjectShareCreated!
+    "Creates a public read-only link to a project's progress for a client and returns its URL once. Confirm with the person first."
+    createProjectShare(
+      projectId: ID!
+      "Who or what the link is for."
+      label: String!
+      "Days until the link expires, 1 to 365."
+      expiresInDays: Int!
+    ): ProjectShareCreated!
+    "Revokes a client project link so it stops working at once."
     revokeProjectShare(id: ID!): ProjectShare!
   }
 `;

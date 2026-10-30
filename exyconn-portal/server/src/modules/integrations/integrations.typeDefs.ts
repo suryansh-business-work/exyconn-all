@@ -61,6 +61,7 @@ export const integrationsTypeDefs = gql`
   extend type Query {
     listApiKeys: [ApiKey!]!
     listWebhooks: [Webhook!]!
+    "ADMIN: lists the latest 100 delivery attempts of one webhook, newest first, with the receiver's response."
     listWebhookDeliveries(webhookId: ID!): [WebhookDelivery!]!
     "The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible."
     webhookEvents: [String!]!
@@ -70,7 +71,15 @@ export const integrationsTypeDefs = gql`
     "Mints a key carrying company roles the creator holds. Optional expiry, at most a year out."
     createApiKey(name: String!, roles: [String!]!, expiresAt: DateTime): IssuedApiKey!
     revokeApiKey(id: ID!): ApiKey!
-    createWebhook(name: String!, url: String!, events: [String!]!): CreatedWebhook!
+    "ADMIN: registers an https endpoint that is sent signed event payloads. Returns the signing secret once only."
+    createWebhook(
+      name: String!
+      "The https URL events are posted to."
+      url: String!
+      "Events to send, from webhookEvents. At least one."
+      events: [String!]!
+    ): CreatedWebhook!
+    "ADMIN: pauses or resumes deliveries to one webhook."
     setWebhookActive(id: ID!, active: Boolean!): Webhook!
     deleteWebhook(id: ID!): Boolean!
   }

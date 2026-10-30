@@ -53,8 +53,15 @@ export const caseStudyTypeDefs = gql`
     listCaseStudiesPaged(input: TableQueryInput!): CaseStudyPage!
     listCaseStudiesStats: TableStats!
     getCaseStudy(id: ID!): CaseStudy!
-    publicCaseStudies(site: String): [CaseStudy!]!
-    publicCaseStudy(slug: String!, site: String): CaseStudy
+    "Public: lists a site's active case studies whose publish date has passed, newest first."
+    publicCaseStudies("The site's key; the default site when left out." site: String): [CaseStudy!]!
+    "Public: reads one active, already published case study by its address; null when there is none."
+    publicCaseStudy(
+      "The case study's URL slug."
+      slug: String!
+      "The site's key; the default site when left out."
+      site: String
+    ): CaseStudy
   }
 
   extend type Mutation {

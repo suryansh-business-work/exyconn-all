@@ -73,6 +73,7 @@ export const submissionTypeDefs = gql`
       captcha: WebsiteCaptchaAnswer!
       resume: WebsiteFileInput
     ): WebsiteSubmission!
+    "Sets a website enquiry's status (new, in-review, resolved or archived) and replaces its notes."
     triageWebsiteSubmission(id: ID!, input: WebsiteSubmissionTriageInput!): WebsiteSubmission!
     deleteWebsiteSubmission(id: ID!): Boolean!
     "Files the enquiry as a CRM lead. Once only: the submission remembers the lead it became."

@@ -145,10 +145,13 @@ export const policyTypeDefs = gql`
     # Any signed-in employee, for their own reading and signing
     "Published policies this person is meant to see, with their own signature state."
     myPolicies: [MyPolicy!]!
+    "Reads one published policy this person is meant to see, by slug, with their own signature state. Null when none."
     myPolicy(slug: String!): MyPolicy
 
     # The website
+    "Lists the published PUBLIC policies shown on the website, by title. No sign-in needed."
     publicPolicies: [PublicPolicy!]!
+    "Reads one published PUBLIC policy by slug for the website. No sign-in needed. Null when none."
     publicPolicy(slug: String!): PublicPolicy
   }
 
@@ -161,6 +164,7 @@ export const policyTypeDefs = gql`
     which is what a change in wording means — leave it off for a typo fix.
     """
     publishPolicy(id: ID!, raiseVersion: Boolean): Policy!
+    "LEGAL or ADMIN (IT for IT and security policies): archives a policy, so employees no longer see or sign it."
     archivePolicy(id: ID!): Policy!
 
     """

@@ -121,9 +121,11 @@ export const boardTypeDefs = gql`
   }
 
   extend type Query {
+    "Reads a project's board: its columns in order and every ticket in board order."
     projectBoard(projectId: ID!): ProjectBoard!
     "Every ticket in a project, newest first — the list view behind the board."
     projectTasks(projectId: ID!): [Task!]!
+    "Lists a ticket's comments, oldest first."
     taskComments(taskId: ID!): [TaskComment!]!
     "The ticket's history, newest first."
     taskActivity(taskId: ID!): [TaskActivity!]!
@@ -132,19 +134,40 @@ export const boardTypeDefs = gql`
   }
 
   extend type Mutation {
-    createColumn(projectId: ID!, name: String!): BoardColumn!
-    renameColumn(id: ID!, name: String!): BoardColumn!
+    "Adds a column to the end of a project's board."
+    createColumn(projectId: ID!, "The column title." name: String!): BoardColumn!
+    "Renames a board column."
+    renameColumn(id: ID!, "The new column title." name: String!): BoardColumn!
     "Marks a column as the end of the line, or takes that mark away."
     setColumnDone(id: ID!, isDone: Boolean!): BoardColumn!
     deleteColumn(id: ID!): Boolean!
-    reorderColumns(projectId: ID!, columnIds: [ID!]!): Boolean!
+    "Puts a project's board columns in the given order."
+    reorderColumns(
+      projectId: ID!
+      "Every column id of the project, left to right."
+      columnIds: [ID!]!
+    ): Boolean!
 
     createTask(projectId: ID!, columnId: ID!, input: TaskInput!): Task!
     updateTask(id: ID!, input: TaskInput!): Task!
     deleteTask(id: ID!): Boolean!
-    moveTask(id: ID!, toColumnId: ID!, toIndex: Int!): Boolean!
+    "Moves a ticket to a column and position, recording it in the history; reaching a done column notifies the people on the ticket."
+    moveTask(
+      id: ID!
+      "The column to move into."
+      toColumnId: ID!
+      "Zero-based position in that column."
+      toIndex: Int!
+    ): Boolean!
 
-    addTaskComment(taskId: ID!, body: String!, attachments: [TaskAttachmentInput!]): TaskComment!
+    "Posts a comment, with optional attachments, on a ticket as the caller and notifies its assignee and reporter."
+    addTaskComment(
+      taskId: ID!
+      "The comment text; must not be empty."
+      body: String!
+      "Files already uploaded, to attach to the comment."
+      attachments: [TaskAttachmentInput!]
+    ): TaskComment!
     deleteTaskComment(id: ID!): Boolean!
   }
 `;

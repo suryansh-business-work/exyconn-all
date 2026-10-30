@@ -263,11 +263,17 @@ export const crmRecordsTypeDefs = gql`
   }
 
   extend type Query {
+    "Describes a CRM record type: every built-in and custom property with its type and filter operators, and the key that matches records on import."
     crmObjectSchema(object: CrmObject!): CrmObjectSchema!
+    "Lists the custom properties the company added to a CRM record type, in display order."
     crmProperties(object: CrmObject!): [CrmProperty!]!
+    "Lists the saved list views for a CRM record type: your own and the shared ones."
     crmViews(object: CrmObject!): [CrmView!]!
+    "Searches leads with text, filters and sorts, one page at a time. Archived leads only when asked."
     searchLeads(query: CrmQueryInput!): LeadPage!
+    "Searches CRM companies with text, filters, sorts and an optional map circle, one page at a time. Archived ones only when asked."
     searchCompanies(query: CrmQueryInput!): CompanyPage!
+    "Searches CRM contacts with text, filters, sorts and an optional map circle, one page at a time. Archived ones only when asked."
     searchContacts(query: CrmQueryInput!): ContactPage!
   }
 
@@ -281,6 +287,7 @@ export const crmRecordsTypeDefs = gql`
     createCrmView(input: CrmViewInput!): CrmView!
     updateCrmView(id: ID!, input: CrmViewInput!): CrmView!
     deleteCrmView(id: ID!): Boolean!
+    "Imports up to 500 rows of leads, companies or contacts, creating, updating or both by the dedupe key. Writes records; confirm with the person first."
     importCrmRecords(input: CrmImportInput!): CrmImportResult!
   }
 `;

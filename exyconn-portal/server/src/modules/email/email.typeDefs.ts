@@ -143,7 +143,11 @@ export const emailTypeDefs = gql`
     listEmailLogsPaged(input: TableQueryInput!): EmailLogPage!
     listEmailLogsStats: TableStats!
 
-    emailDashboard(days: Int): EmailDashboard!
+    "TECH: email system overview: template counts, whether SMTP is set up, daily sent and failed counts, per-template use and recent failures."
+    emailDashboard(
+      "How many days of trend to return, 1 to 90. Defaults when left out."
+      days: Int
+    ): EmailDashboard!
 
     "Renders a stored template with the values given, through the very code that sends it."
     previewEmailTemplate(key: String!, variables: [EmailVariableInput!]): EmailPreview!

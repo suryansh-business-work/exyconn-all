@@ -276,17 +276,28 @@ export const whatsappDemoTypeDefs = gql`
   extend type Query {
     "Every active demo of one channel (whatsapp when left out) with its published workflows, for the chat."
     whatsappDemoCatalog(channel: String): [WhatsappDemoBundle!]!
+    "Tells whether AI parsing is set up for the demo chat, and which model it uses."
     whatsappDemoAiStatus: WhatsappAiStatus!
     "One channel's demos (whatsapp when left out)."
     whatsappDemos(channel: String): [WhatsappDemo!]!
-    whatsappWorkflows(demoId: ID): [WhatsappWorkflow!]!
+    "Lists the demo workflows, with their draft and published graphs, for Tech staff and admins."
+    whatsappWorkflows(
+      "Only this demo's workflows; every demo when left out."
+      demoId: ID
+    ): [WhatsappWorkflow!]!
+    "Reads one demo workflow with its draft and published graphs; null when it does not exist."
     whatsappWorkflow(id: ID!): WhatsappWorkflow
     "One channel's numbers (whatsapp when left out)."
     whatsappDemoStats(from: String!, to: String!, channel: String): WhatsappDemoStats!
+    "Counts the distinct sessions that reached each step of one workflow in a date range, in the order they were first reached."
     whatsappDemoFunnel(
+      "The demo's key."
       demoKey: String!
+      "The workflow's key within the demo."
       workflow: String!
+      "Start of the range, ISO date or date-time in the company time zone."
       from: String!
+      "End of the range, ISO; a date-only value includes the whole day."
       to: String!
     ): [WhatsappFunnelStep!]!
     "One channel's sessions (whatsapp when left out)."
@@ -296,15 +307,26 @@ export const whatsappDemoTypeDefs = gql`
       to: String
       channel: String
     ): WhatsappDemoSessionPage!
-    whatsappDemoSession(sessionId: ID!): WhatsappDemoSessionDetail
+    "Reads one chat session of the demo with its recorded events, oldest first; null when not found."
+    whatsappDemoSession(
+      "The session id the chat recorded, not a database id."
+      sessionId: ID!
+    ): WhatsappDemoSessionDetail
   }
 
   extend type Mutation {
     "At most 100 events per call; returns how many were newly stored."
     recordWhatsappDemoEvents(events: [WhatsappDemoEventInput!]!): Int!
+    "Asks the configured AI model to pick an intent and pull out entities from a chat message. Rate limited per person and logged."
     whatsappDemoParse(input: WhatsappDemoParseInput!): WhatsappDemoParseResult!
-    upsertWhatsappDemo(id: ID, input: WhatsappDemoInput!): WhatsappDemo!
+    "Creates a demo bot, or updates it when an id is given. Audited."
+    upsertWhatsappDemo(
+      "The demo to update; leave out to create a new one."
+      id: ID
+      input: WhatsappDemoInput!
+    ): WhatsappDemo!
     createWhatsappWorkflow(input: WhatsappWorkflowCreateInput!): WhatsappWorkflow!
+    "Saves a workflow's name, keywords, order and draft graph. The live version does not change until it is published."
     saveWhatsappWorkflowDraft(id: ID!, input: WhatsappWorkflowDraftInput!): WhatsappWorkflow!
     "Refused with the issues listed when the draft has errors."
     publishWhatsappWorkflow(id: ID!): WhatsappWorkflow!

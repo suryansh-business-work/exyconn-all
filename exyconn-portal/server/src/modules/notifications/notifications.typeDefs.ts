@@ -72,14 +72,18 @@ export const notificationsTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists the signed-in person's own in-portal notifications, newest first."
     myNotifications: [Notification!]!
+    "Counts the signed-in person's unread notifications."
     myUnreadNotificationCount: Int!
     "Every kind, with this person's choice or the default where they have made none."
     myNotificationPreferences: [NotificationPreference!]!
   }
 
   extend type Mutation {
+    "Marks one of the signed-in person's notifications read. False when it is not theirs or does not exist."
     markNotificationRead(id: ID!): Boolean!
+    "Marks every unread notification of the signed-in person read and returns how many changed."
     markAllNotificationsRead: Int!
     "HR broadcast to every active employee, one department, or a chosen list."
     sendNotification(input: SendNotificationInput!): SendNotificationResult!

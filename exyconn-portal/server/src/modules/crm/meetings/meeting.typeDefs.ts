@@ -195,10 +195,18 @@ export const meetingTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists the company's bookable meeting types with their public booking links."
     meetingTypes: [MeetingType!]!
-    meetingBookings(page: Int!, pageSize: Int!): MeetingBookingPage!
+    "Lists meetings people have booked, latest start first, one page at a time."
+    meetingBookings(
+      "Zero-based page."
+      page: Int!
+      "Rows per page, 1 to 100."
+      pageSize: Int!
+    ): MeetingBookingPage!
     "The path of this company's booking page inside its CRM address: /book/<page>."
     meetingBookingPagePath: String!
+    "Reads the booking page settings: its address, the Slack channel bookings go to, and the Meet and Zoom links."
     meetingSettings: MeetingSettings!
     "Slack channels a booking can be posted to (needs Tech > Environment Variables > Slack)."
     meetingSlackChannels: [SlackChannel!]!
@@ -222,6 +230,7 @@ export const meetingTypeDefs = gql`
     createMeetingType(input: MeetingTypeInput!): MeetingType!
     updateMeetingType(id: ID!, input: MeetingTypeInput!): MeetingType!
     deleteMeetingType(id: ID!): Boolean!
+    "Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first."
     cancelMeetingBooking(id: ID!): MeetingBooking!
     "Changing the booking page address stops the old one working."
     saveMeetingSettings(input: MeetingSettingsInput!): MeetingSettings!

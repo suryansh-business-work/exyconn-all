@@ -345,6 +345,7 @@ export const adminTypeDefs = gql`
     myDirectReports: [EmployeeOption!]!
     "HR/ADMIN: every active user with their managerId, for the org chart."
     orgChart: [OrgNode!]!
+    "Reads the workspace's date, time, timezone and language defaults. Any signed-in person."
     appSettings: AppSettings!
     "The workspace's working week. Readable by any signed-in person."
     workWeek: WorkWeek!
@@ -355,11 +356,20 @@ export const adminTypeDefs = gql`
     createUser(input: CreateUserInput!): UserCredentials!
     updateUser(id: ID!, input: UpdateUserInput!): User!
     deleteUser(id: ID!): Boolean!
+    "ADMIN: activates or deactivates a user. A deactivated user cannot sign in. Audited."
     setUserActive(id: ID!, isActive: Boolean!): User!
-    setUserBlocked(id: ID!, isBlocked: Boolean!, reason: String): User!
+    "ADMIN: blocks or unblocks a user's sign-in, keeping the reason while blocked. Audited."
+    setUserBlocked(
+      id: ID!
+      isBlocked: Boolean!
+      "Why the user is blocked. Ignored when unblocking."
+      reason: String
+    ): User!
     "Generates a new temporary password, emails it, and returns it once for copying."
     resetUserPassword(id: ID!): String!
+    "ADMIN: emails a custom message to one user, with optional CC, BCC and portal-hosted files. Confirm the text with the person before sending."
     sendUserMail(id: ID!, input: SendMailInput!): Boolean!
+    "ADMIN: changes the workspace's date, time, timezone, language and audit-retention defaults for everyone. Audited."
     updateSettings(input: UpdateSettingsInput!): AppSettings!
     "HR/ADMIN: sets the days people work unless HR gave them their own week. At least one day."
     setDefaultWorkDays(days: [Int!]!): WorkWeek!

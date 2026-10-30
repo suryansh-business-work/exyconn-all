@@ -63,7 +63,9 @@ export const sprintsTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists a project's sprints by start date."
     projectSprints(projectId: ID!): [Sprint!]!
+    "Lists a project's milestones by due date."
     projectMilestones(projectId: ID!): [Milestone!]!
     "What completing this sprint would do to its unfinished tickets."
     sprintCompletionPlan(id: ID!): SprintCompletionPlan!
@@ -74,6 +76,7 @@ export const sprintsTypeDefs = gql`
     updateSprint(id: ID!, input: SprintInput!): Sprint!
     "Deletes the sprint and returns its tickets to the backlog."
     deleteSprint(id: ID!): Boolean!
+    "Starts a planned sprint. A project can run only one sprint at a time."
     startSprint(id: ID!): Sprint!
     "Completes the sprint, moving unfinished tickets on per sprintCompletionPlan."
     completeSprint(id: ID!): Sprint!

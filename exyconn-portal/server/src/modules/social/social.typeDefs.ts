@@ -83,6 +83,7 @@ export const socialTypeDefs = gql`
     toggleSocialPostLike(id: ID!): SocialPost!
     "Shares a post onto the feed, optionally with something of your own to say."
     shareSocialPost(id: ID!, body: String): SocialPost!
+    "Comments on a post in the company feed as you; the post's author is notified."
     createSocialComment(postId: ID!, body: String!): SocialComment!
     deleteSocialComment(id: ID!): Boolean!
   }

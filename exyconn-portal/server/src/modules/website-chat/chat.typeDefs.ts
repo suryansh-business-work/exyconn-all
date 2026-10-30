@@ -258,15 +258,18 @@ export const websiteChatTypeDefs = gql`
     websiteChatSessionsPaged(input: TableQueryInput!): WebsiteChatSessionPage!
     "Website > Chatbot > Sessions: totals by status and site."
     websiteChatSessionStats: TableStats!
+    "Reads one website chat with its visitor, status, assignee and support ticket."
     websiteChatSession(id: ID!): WebsiteChatSession!
     "Both threads of one chat, oldest first."
     websiteChatMessages(sessionId: ID!): [WebsiteChatMessage!]!
+    "Reads the website chatbot's settings: messages, opening hours, AI model, uploads, timeouts and who chats are handed to."
     websiteChatSettings: WebsiteChatSettings!
     "Support and website team members a chat can be handed to, with their current load."
     websiteChatAgentCandidates: [WebsiteChatAgent!]!
   }
 
   extend type Mutation {
+    "Replaces the website chatbot's settings; changes reach visitors on the live website. Confirm with the person first."
     updateWebsiteChatSettings(input: WebsiteChatSettingsInput!): WebsiteChatSettings!
     "Takes the chat: it is shown as yours to answer."
     claimWebsiteChatSession(id: ID!): WebsiteChatSession!

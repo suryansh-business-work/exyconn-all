@@ -169,6 +169,7 @@ export const aiTypeDefs = gql`
     aiModels: AiModelOptions!
     "What AI cost between two instants, broken down by person and by model."
     aiSpendSummary(from: DateTime!, to: DateTime!): AiSpendSummary!
+    "TECH/AI: reads the AI spend caps in force (monthly and per person per day, in USD)."
     aiSpendLimit: AiSpendLimit!
     listAiModelPrices: [AiModelPrice!]!
     listPrompts: [Prompt!]!
@@ -189,8 +190,10 @@ export const aiTypeDefs = gql`
     aiSummarise(text: String!, style: SummaryStyle = BRIEF): String!
     "Writes a first draft from the caller's context. Creates an AI job, like every run."
     aiDraft(kind: AiDraftKind!, context: String!): String!
+    "Platform TECH staff: adds or corrects the per-1k-token USD price of one model, matched by model name. Prices apply to every company."
     saveAiModelPrice(input: AiModelPriceInput!): AiModelPrice!
     deleteAiModelPrice(id: ID!): Boolean!
+    "TECH: sets the AI spend caps every run is checked against. A cap of zero means no cap."
     saveAiSpendLimit(input: AiSpendLimitInput!): AiSpendLimit!
     createPrompt(input: PromptInput!): Prompt!
     updatePrompt(id: ID!, input: PromptInput!): Prompt!

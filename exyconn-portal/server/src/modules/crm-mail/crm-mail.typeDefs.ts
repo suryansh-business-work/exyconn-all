@@ -175,7 +175,12 @@ export const crmMailTypeDefs = gql`
   }
 
   extend type Query {
-    crmMailOverview(accountId: ID): CrmMailOverview!
+    "Lists the company's CRM mailboxes and the unread conversation count in each folder."
+    crmMailOverview(
+      "Count folders for this mailbox only; every readable mailbox when empty."
+      accountId: ID
+    ): CrmMailOverview!
+    "Lists synced mail conversations in one folder of one or every readable mailbox, with search and filters, one page at a time."
     crmMailThreads(input: CrmMailThreadsInput!): CrmMailThreadPage!
     "One conversation with every message, read from Gmail now."
     crmMailThread(accountId: ID!, threadId: String!): CrmMailThread!
