@@ -125,6 +125,31 @@ export async function getCaseStudy(slug: string, site?: string): Promise<CaseStu
   });
 }
 
+/** A published item's address and date: what the sitemap and llms.txt read (no bodies). */
+export type ItemStamp = Pick<BlogPost, "slug" | "publishedAt">;
+
+/** Every published post's slug and date, for the sitemap and llms.txt. */
+export async function getBlogStamps(site?: string): Promise<ItemStamp[]> {
+  return read("getBlogStamps", [], async () => {
+    const data = await portalRequest<{ publicBlogPosts: ItemStamp[] }>(
+      `query BlogStamps($site: String) { publicBlogPosts(site: $site) { slug publishedAt } }`,
+      { site }
+    );
+    return data.publicBlogPosts;
+  });
+}
+
+/** Every published case study's slug and date, for the sitemap and llms.txt. */
+export async function getCaseStudyStamps(site?: string): Promise<ItemStamp[]> {
+  return read("getCaseStudyStamps", [], async () => {
+    const data = await portalRequest<{ publicCaseStudies: ItemStamp[] }>(
+      `query CaseStudyStamps($site: String) { publicCaseStudies(site: $site) { slug publishedAt } }`,
+      { site }
+    );
+    return data.publicCaseStudies;
+  });
+}
+
 // ── Careers ─────────────────────────────────────────────────────────────────
 
 export async function getJobCompanies(site?: string): Promise<JobCompany[]> {

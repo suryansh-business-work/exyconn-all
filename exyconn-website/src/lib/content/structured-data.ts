@@ -33,5 +33,5 @@ export const articleJsonLd = (input: ArticleLdInput) => ({
   },
   mainEntityOfPage: { "@type": "WebPage", "@id": input.url },
   url: input.url,
-  keywords: input.keywords.join(", "),
+  ...(input.keywords.length > 0 ? { keywords: input.keywords.join(", ") } : {}),
 });

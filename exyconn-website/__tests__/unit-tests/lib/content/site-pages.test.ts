@@ -81,7 +81,7 @@ describe("articleJsonLd", () => {
     });
   });
 
-  it("credits the organisation and omits an empty image and section", () => {
+  it("credits the organisation and omits an empty image, section and keywords", () => {
     const ld = articleJsonLd({
       type: "Article",
       headline: "H",
@@ -100,6 +100,6 @@ describe("articleJsonLd", () => {
       name: "Exyconn",
       url: "https://exyconn.com",
     });
-    expect(ld.keywords).toBe("");
+    expect(ld).not.toHaveProperty("keywords");
   });
 });

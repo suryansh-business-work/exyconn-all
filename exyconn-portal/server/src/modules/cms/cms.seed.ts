@@ -176,6 +176,27 @@ async function backfillSeedShareImages(seed: CmsSiteSeed): Promise<void> {
   );
 }
 
+/**
+ * Clears the canonical older seeds hardcoded (`https://exyconn.com<path>`) from pages whose seed
+ * now leaves it empty. On a market site that URL has no market prefix, so every market pointed
+ * its canonical at a redirect instead of itself; empty lets the website derive it per market.
+ * A canonical an editor set to anything else is left alone.
+ */
+async function clearSeedCanonicals(seed: CmsSiteSeed): Promise<void> {
+  const origin = `https://${seed.site.domains[0]}`;
+  // Each update touches only the pages of one seed key, so they run side by side.
+  await Promise.all(
+    seed.pages
+      .filter((page) => page.seo.canonical === '')
+      .map((page) =>
+        CmsPageModel.updateMany(
+          { seedKey: page.key, 'seo.canonical': `${origin}${page.path}` },
+          { $set: { 'seo.canonical': '' } },
+        ),
+      ),
+  );
+}
+
 /** Files every website record from before the CMS under the default site. */
 async function assignDefaultSite(): Promise<void> {
   const site = await CmsSiteModel.findOne({ isDefault: true }).select('_id').lean();
@@ -199,5 +220,6 @@ export async function ensureCmsDefaults(): Promise<void> {
     await seedSite(EXYCONN_SEED);
     await runOnce('cms-site-ids', assignDefaultSite);
     await runOnce('cms-seed-share-images', () => backfillSeedShareImages(EXYCONN_SEED));
+    await runOnce('cms-seed-market-canonicals', () => clearSeedCanonicals(EXYCONN_SEED));
   });
 }
