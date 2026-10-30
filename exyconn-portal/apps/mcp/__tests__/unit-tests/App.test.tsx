@@ -8,6 +8,7 @@ import { App } from '../../src/App';
 import { McpDashboardPage } from '../../src/pages/dashboard';
 import { McpConnectPage } from '../../src/pages/connect';
 import { McpServerPage } from '../../src/pages/server';
+import { McpSettingsPage } from '../../src/pages/settings';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -70,9 +71,10 @@ describe('App', () => {
     expect(routes.map((route) => [route.path, route.element.type])).toEqual([
       ['/mcp', McpDashboardPage],
       ['/mcp/connect', McpConnectPage],
+      ['/mcp/settings', McpSettingsPage],
       ...servers.map((endpoint) => [`/mcp/${endpoint.toLowerCase()}/:tab?`, McpServerPage]),
     ]);
-    expect(routes.slice(2).map((route) => route.element.props)).toEqual(
+    expect(routes.slice(3).map((route) => route.element.props)).toEqual(
       servers.map((endpoint) => ({ endpoint })),
     );
   });

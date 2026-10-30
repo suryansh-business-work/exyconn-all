@@ -35,6 +35,11 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useDenyMcpAuthorizationMutation: () => [gql.deny],
   useRevokeMcpConnectionMutation: () => [gql.revoke],
 }));
+// Tool switches are for admins; these tests sign nobody in, so they only see each tool's status.
+vi.mock('@exyconn/shell/auth/AuthContext', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  useAuth: () => ({ user: null }),
+}));
 vi.mock('@exyconn/shell/components/feedback/NotificationProvider', async (importOriginal) => ({
   ...(await importOriginal<object>()),
   useNotify: () => gql.notify,
@@ -92,10 +97,25 @@ const USAGE = {
     mcpUsage: {
       calls: 5,
       failures: 1,
+      writes: 1,
       people: 2,
+      p50Ms: 10,
+      p95Ms: 30,
       days: [{ day: '2026-10-24', calls: 5, failures: 1 }],
-      tools: [{ tool: 'searchLeads', calls: 5, failures: 1, averageMs: 12.4 }],
+      tools: [
+        {
+          tool: 'searchLeads',
+          calls: 5,
+          failures: 1,
+          averageMs: 12.4,
+          p95Ms: 30,
+          lastAt: '2026-10-24T10:00:00Z',
+        },
+      ],
       users: [{ userName: 'Asha', calls: 5 }],
+      clients: [{ clientName: 'Claude', calls: 5 }],
+      servers: [{ server: McpEndpoint.Crm, calls: 5 }],
+      errorCodes: [{ code: 'FORBIDDEN', count: 1 }],
     },
   },
   loading: false,
@@ -351,7 +371,7 @@ describe('McpConnectPage', () => {
     expect(screen.getByRole('heading', { name: 'Claude wants to use CRM' })).toBeInTheDocument();
     expect(screen.getByText(/goes back to claude\.ai/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Allow' }));
-    expect(gql.approve).toHaveBeenCalledWith({ variables: { id: 'r1' } });
+    expect(gql.approve).toHaveBeenCalledWith({ variables: { id: 'r1', readOnly: false } });
     expect(assign).toHaveBeenCalledWith('https://claude.ai/cb?code=1');
     vi.unstubAllGlobals();
   });
