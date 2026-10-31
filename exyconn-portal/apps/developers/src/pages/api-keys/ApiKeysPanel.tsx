@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import BlockIcon from '@mui/icons-material/Block';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { Alert, Box, Button, Chip, Flex, Text, TextField } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -13,7 +14,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { roleLabel, roleList } from '@exyconn/shell/auth/roles';
-import { toggleValue } from './toggleValue';
+import { toggleValue } from '../toggleValue';
 
 /** The roles a key can be granted. Mirrors the portal's own list — a key is never more. */
 const GRANTABLE_ROLES = [
@@ -28,7 +29,7 @@ const GRANTABLE_ROLES = [
   'MARKETING',
 ];
 
-type ApiKeyRow = ListApiKeysQuery['listApiKeys'][number];
+export type ApiKeyRow = ListApiKeysQuery['listApiKeys'][number];
 
 /**
  * API keys — a machine's way in.
@@ -37,7 +38,9 @@ type ApiKeyRow = ListApiKeysQuery['listApiKeys'][number];
  * clicks away. Everything after that is a prefix: the key itself is stored only as a hash,
  * so nobody — including an administrator — can recover it.
  */
-export function ApiKeysPanel() {
+export function ApiKeysPanel({
+  onShowUsage,
+}: Readonly<{ onShowUsage?: (key: ApiKeyRow) => void }>) {
   const t = useT();
   const notify = useNotify();
   const confirm = useConfirm();
@@ -111,6 +114,13 @@ export function ApiKeysPanel() {
     },
   ];
   const actions: RowAction<ApiKeyRow>[] = [
+    {
+      icon: <BarChartIcon fontSize="small" />,
+      tooltip: 'Daily usage',
+      ariaLabel: 'Show daily usage',
+      hidden: () => !onShowUsage,
+      onClick: (key) => onShowUsage?.(key),
+    },
     {
       icon: <BlockIcon fontSize="small" />,
       tooltip: 'Revoke',

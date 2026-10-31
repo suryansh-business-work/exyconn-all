@@ -1,0 +1,147 @@
+fragment VendorInvoiceFields on VendorInvoice {
+  id
+  supplierId
+  supplierName
+  purchaseOrderId
+  purchaseOrderNumber
+  invoiceNumber
+  invoiceDate
+  dueDate
+  amount
+  currency
+  notes
+  fileUrl
+  fileName
+  status
+  submittedBy
+  reviewedBy
+  reviewedAt
+  reviewNote
+  paymentStatus
+  paidOn
+  createdAt
+}
+
+mutation RequestVendorPortalCode($email: String!) {
+  requestVendorPortalCode(email: $email)
+}
+
+mutation VerifyVendorPortalCode($email: String!, $code: String!) {
+  verifyVendorPortalCode(email: $email, code: $code) {
+    token
+    name
+    email
+  }
+}
+
+query VendorPortalMe {
+  vendorPortalMe {
+    name
+    email
+    supplierName
+    supplierCode
+  }
+}
+
+query VendorPurchaseOrders($input: TableQueryInput!) {
+  vendorPurchaseOrders(input: $input) {
+    rows {
+      ...PurchaseOrderFields
+    }
+    totalCount
+  }
+}
+
+query VendorInvoices($input: TableQueryInput!) {
+  vendorInvoices(input: $input) {
+    rows {
+      ...VendorInvoiceFields
+    }
+    totalCount
+  }
+}
+
+mutation VendorAcknowledgePurchaseOrder($id: ID!) {
+  vendorAcknowledgePurchaseOrder(id: $id) {
+    ...PurchaseOrderFields
+  }
+}
+
+mutation VendorUploadInvoiceFile($file: String!, $fileName: String!) {
+  vendorUploadInvoiceFile(file: $file, fileName: $fileName)
+}
+
+mutation VendorSubmitInvoice($input: VendorInvoiceInput!) {
+  vendorSubmitInvoice(input: $input) {
+    ...VendorInvoiceFields
+  }
+}
+
+query VendorContacts($supplierId: ID!) {
+  vendorContacts(supplierId: $supplierId) {
+    id
+    supplierId
+    name
+    email
+    active
+    lastSignInAt
+    signInCount
+    createdAt
+  }
+}
+
+mutation AddVendorContact($input: VendorContactInput!) {
+  addVendorContact(input: $input) {
+    id
+    email
+  }
+}
+
+mutation SetVendorContactActive($id: ID!, $active: Boolean!) {
+  setVendorContactActive(id: $id, active: $active) {
+    id
+    active
+  }
+}
+
+mutation DeleteVendorContact($id: ID!) {
+  deleteVendorContact(id: $id)
+}
+
+query ListVendorInvoicesPaged($input: TableQueryInput!) {
+  listVendorInvoicesPaged(input: $input) {
+    rows {
+      ...VendorInvoiceFields
+    }
+    totalCount
+  }
+}
+
+query ListVendorInvoicesStats {
+  listVendorInvoicesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation ApproveVendorInvoice($id: ID!) {
+  approveVendorInvoice(id: $id) {
+    ...VendorInvoiceFields
+  }
+}
+
+mutation RejectVendorInvoice($id: ID!, $reason: String!) {
+  rejectVendorInvoice(id: $id, reason: $reason) {
+    ...VendorInvoiceFields
+  }
+}

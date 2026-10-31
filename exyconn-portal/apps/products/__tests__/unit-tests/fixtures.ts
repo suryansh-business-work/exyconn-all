@@ -92,6 +92,8 @@ export function purchaseOrderRow(overrides: Partial<PurchaseOrderRow> = {}): Pur
     expectedDate: null,
     notes: '',
     receivedAt: null,
+    acknowledgedAt: null,
+    acknowledgedBy: '',
     createdAt: '2026-03-04T00:00:00.000Z',
     updatedAt: '2026-03-04T00:00:00.000Z',
     lines: [orderLine()],

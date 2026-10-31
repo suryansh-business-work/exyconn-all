@@ -12,6 +12,7 @@ import {
   type DemoVisitor,
 } from '../../../../demos/whatsapp-demo/server/src/visitor';
 import { CLIENT_PASS_HEADER, contactForPass, type ClientHubContact } from '../modules/clienthub';
+import { VENDOR_PASS_HEADER, vendorForPass, type VendorContact } from '../modules/vendor-portal';
 import { OrganizationModel } from '../modules/organizations/organization.model';
 import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
 import { sessionIsLive } from '../modules/auth/session.service';
@@ -68,6 +69,11 @@ export interface GraphQLContext {
    * to stop an ADMIN reaching a module the plan leaves out.
    */
   planRoles?: Role[] | null;
+  /**
+   * Set when the caller is a vendor portal contact (email-and-code sign-in, see
+   * modules/vendor-portal). Same terms as a client hub contact: no `user`, no company in scope.
+   */
+  vendorContact?: VendorContact;
 }
 
 /** How long a company's ACTIVE/SUSPENDED status is trusted before it is read again. */
@@ -180,10 +186,10 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   const userAgent = req.headers['user-agent'];
   const header = req.headers.authorization ?? '';
 
-  // The client hub speaks only for its contact. A browser that is also signed in to a portal
-  // (the shared .exyconn.com cookie) must not turn a client hub request into a staff one — the
-  // hub's operations would refuse it and sign the contact straight back out.
-  if (headerValue(req, CLIENT_PASS_HEADER) !== '') {
+  // The client hub and the vendor portal speak only for their contact. A browser that is also
+  // signed in to a portal (the shared .exyconn.com cookie) must not turn such a request into a
+  // staff one — their operations would refuse it and sign the contact straight back out.
+  if (headerValue(req, CLIENT_PASS_HEADER) !== '' || headerValue(req, VENDOR_PASS_HEADER) !== '') {
     return passHolderOrAnonymous(req, ip, origin, userAgent);
   }
 
@@ -300,6 +306,11 @@ async function passHolderOrAnonymous(
   if (clientPass !== '') {
     const clientContact = await contactForPass(clientPass);
     return clientContact ? { ...base, clientContact } : base;
+  }
+  const vendorPass = headerValue(req, VENDOR_PASS_HEADER);
+  if (vendorPass !== '') {
+    const vendorContact = await vendorForPass(vendorPass);
+    return vendorContact ? { ...base, vendorContact } : base;
   }
   const visitorPass = headerValue(req, VISITOR_HEADER);
   const demoVisitor = visitorPass === '' ? null : await visitorForPass(visitorPass);

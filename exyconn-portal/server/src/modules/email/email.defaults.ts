@@ -513,6 +513,40 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
         </mj-text>`),
   },
   {
+    key: 'vendor-portal-code',
+    name: 'Vendor portal — sign-in code',
+    description:
+      'Sent when a supplier contact signs in to the vendor portal. {{code}} works once and expires in {{expiresIn}}.',
+    subject: '{{code}} is your {{companyName}} vendor portal code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your sign-in code</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Enter this code in the vendor portal to see your purchase orders, send invoices and follow payments.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nobody can sign in without the code.
+        </mj-text>`),
+  },
+  {
+    key: 'vendor-portal-invite',
+    name: 'Vendor portal — access granted',
+    description:
+      'Sent when Products staff give a supplier contact access to the vendor portal. {{supplierName}} is the supplier; {{portalUrl}} is where they sign in with their email.',
+    subject: 'Your {{companyName}} vendor portal is ready',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Welcome to the vendor portal</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          You now have access to the {{companyName}} vendor portal for {{supplierName}}: see your purchase orders,
+          acknowledge them, send invoices against them and follow when they are paid.
+        </mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{portalUrl}}" padding="24px 0 8px">Open the vendor portal</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          Sign in with this email address — we send you a one-time code, no password needed.
+        </mj-text>`),
+  },
+  {
     key: 'client-hub-shared',
     name: 'Client hub — something shared with you',
     description:

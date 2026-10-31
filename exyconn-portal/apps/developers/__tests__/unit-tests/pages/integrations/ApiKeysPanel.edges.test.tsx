@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../test-utils';
-import { ApiKeysPanel } from '../../../../src/pages/integrations/ApiKeysPanel';
+import { ApiKeysPanel } from '../../../../src/pages/api-keys/ApiKeysPanel';
 import { apiKey } from './integrations.fixtures';
 
 /**

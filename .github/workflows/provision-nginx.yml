@@ -71,7 +71,7 @@ jobs:
             "https://marketing.exyconn.com" "https://projects.exyconn.com" "https://ai.exyconn.com"
             "https://website.exyconn.com" "https://tracker.exyconn.com" "https://tech.exyconn.com"
             "https://it.exyconn.com" "https://compliance.exyconn.com" "https://social.exyconn.com" "https://demos.exyconn.com" "https://demos.exyconn.com/whatsapp-demo/" "https://demos.exyconn.com/calling-bot-demo/" "https://demos.exyconn.com/website-chat-demo/" "https://clienthub.exyconn.com"
-            "https://mcp.exyconn.com" "https://agents.exyconn.com" "https://status.exyconn.com"
+            "https://mcp.exyconn.com" "https://agents.exyconn.com" "https://developers.exyconn.com" "https://vendors.exyconn.com" "https://status.exyconn.com"
           )
           fail=0
           for url in "${urls[@]}"; do

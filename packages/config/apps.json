@@ -157,5 +157,17 @@
     "port": 4045,
     "title": "Agents · Exyconn Track",
     "description": "Exyconn Track Agents — the console for AI agents: WhatsApp workflows, the calling bot, the website chat agent, its knowledge and sessions, and the leads they capture."
+  },
+  "developers": {
+    "subdomain": "developers",
+    "port": 4046,
+    "title": "Developers · Exyconn Track",
+    "description": "Exyconn Track Developers — API keys and their usage, webhooks and their delivery log, the event catalogue, the GraphQL API reference and connecting Claude over MCP."
+  },
+  "vendors": {
+    "subdomain": "vendors",
+    "port": 4047,
+    "title": "Vendor Portal · Exyconn",
+    "description": "Exyconn Vendor Portal — suppliers see their purchase orders, acknowledge them, send invoices against them and follow when they are paid."
   }
 }

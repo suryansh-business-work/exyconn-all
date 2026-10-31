@@ -8,7 +8,7 @@ import {
   RevokeApiKeyDocument,
 } from '@exyconn/shell/graphql/generated';
 import { renderWithProviders } from '../../test-utils';
-import { ApiKeysPanel } from '../../../../src/pages/integrations/ApiKeysPanel';
+import { ApiKeysPanel } from '../../../../src/pages/api-keys/ApiKeysPanel';
 import { apiKey, oneTimeValue } from './integrations.fixtures';
 
 const list = (rows = [apiKey()], delay = 0): MockLink.MockedResponse => ({

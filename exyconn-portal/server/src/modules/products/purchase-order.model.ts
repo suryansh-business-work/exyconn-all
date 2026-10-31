@@ -59,6 +59,9 @@ const purchaseOrderSchema = new Schema(
     /** Set the first time any line is received, so "when did this start arriving" is answerable. */
     firstReceivedAt: { type: Date, default: null },
     receivedAt: { type: Date, default: null },
+    /** When the supplier confirmed the order in the vendor portal, and who did. */
+    acknowledgedAt: { type: Date, default: null },
+    acknowledgedBy: { type: String, default: '', trim: true },
   },
   { timestamps: true },
 );

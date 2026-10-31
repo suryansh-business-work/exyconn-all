@@ -2,7 +2,8 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { ApiKeyModel, type ApiKeyDocument } from './api-key.model';
 import type { Role } from '../../constants/roles';
 import { logger } from '../../utils/logger';
-import { organizationOf } from '../../lib/tenant';
+import { organizationOf, runForOrganization } from '../../lib/tenant';
+import { ApiKeyUsageModel } from './api-key-usage.model';
 
 /** Every key starts with this, so one is recognisable on sight in a log or a config file. */
 const KEY_PREFIX = 'exy';
@@ -50,6 +51,17 @@ export interface ApiKeyPrincipal {
   organizationId: string | null;
 }
 
+/** Raises the key's counter for today (UTC), in the key's own company. */
+async function countUse(apiKeyId: string, organizationId: string | null, now: Date): Promise<void> {
+  if (!organizationId) {
+    return;
+  }
+  const day = now.toISOString().slice(0, 10);
+  await runForOrganization(organizationId, () =>
+    ApiKeyUsageModel.updateOne({ apiKeyId, day }, { $inc: { count: 1 } }, { upsert: true }),
+  );
+}
+
 /**
  * Resolves a presented key to what it may do, or null.
  *
@@ -74,6 +86,9 @@ export async function principalForApiKey(
   // what keeps a failed stat from becoming an unhandled rejection.
   ApiKeyModel.updateOne({ _id: row._id }, { lastUsedAt: now }).catch((error: unknown) =>
     logger.error(error, 'Stamping an API key’s last use failed'),
+  );
+  countUse(row._id.toHexString(), organizationOf(row), now).catch((error: unknown) =>
+    logger.error(error, 'Counting an API key’s use failed'),
   );
 
   return {

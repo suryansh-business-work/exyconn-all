@@ -1,5 +1,7 @@
 export { integrationsTypeDefs } from './integrations.typeDefs';
 export { integrationsResolvers } from './integrations.resolvers';
+export { developerTypeDefs } from './developer.typeDefs';
+export { developerResolvers } from './developer.resolvers';
 export {
   emitWebhook,
   emitWebhookBestEffort,

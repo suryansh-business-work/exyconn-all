@@ -9,7 +9,7 @@ import {
   SetWebhookActiveDocument,
 } from '@exyconn/shell/graphql/generated';
 import { renderWithProviders } from '../../test-utils';
-import { WebhooksPanel } from '../../../../src/pages/integrations/WebhooksPanel';
+import { WebhooksPanel } from '../../../../src/pages/webhooks/WebhooksPanel';
 import { oneTimeValue, webhook } from './integrations.fixtures';
 
 const EVENTS = ['lead.created', 'invoice.paid', 'ticket.closed'];

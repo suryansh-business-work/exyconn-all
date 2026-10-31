@@ -325,6 +325,27 @@ export type ApiKey = {
   roles: Array<Scalars['String']['output']>;
 };
 
+/** How many requests an API key made on one UTC day. */
+export type ApiKeyUsageDay = {
+  __typename?: 'ApiKeyUsageDay';
+  count: Scalars['Int']['output'];
+  /** The day, as YYYY-MM-DD. */
+  day: Scalars['String']['output'];
+};
+
+/** One GraphQL operation in the API reference, described the way the MCP tools are. */
+export type ApiOperation = {
+  __typename?: 'ApiOperation';
+  arguments: Array<McpToolArgument>;
+  description: Scalars['String']['output'];
+  /** A ready-to-run GraphQL document for the operation. */
+  example: Scalars['String']['output'];
+  kind: McpToolKind;
+  name: Scalars['String']['output'];
+  /** The GraphQL type the operation answers with. */
+  returnType: Scalars['String']['output'];
+};
+
 export type AppLogBatchInput = {
   app: Scalars['String']['input'];
   appVersion?: InputMaybe<Scalars['String']['input']>;
@@ -9495,6 +9516,8 @@ export type Mutation = {
   addSupportReply: SupportReply;
   /** Posts a comment, with optional attachments, on a ticket as the caller and notifies its assignee and reporter. */
   addTaskComment: TaskComment;
+  /** Gives a supplier contact vendor portal access and emails them where to sign in. */
+  addVendorContact: VendorContact;
   /** Writes a first draft from the caller's context. Creates an AI job, like every run. */
   aiDraft: Scalars['String']['output'];
   /** Condenses text the caller already has. Creates an AI job, so the run is on the record. */
@@ -9505,6 +9528,8 @@ export type Mutation = {
   applyLeave: LeaveRequest;
   /** Allows the sign-in; answers the address to send the browser back to. */
   approveMcpAuthorization: Scalars['String']['output'];
+  /** Approves a submitted vendor invoice and files it as an unpaid Finance bill; paying the bill in Finance marks it paid for the supplier. */
+  approveVendorInvoice: VendorInvoice;
   /** LEGAL or ADMIN (IT for IT and security policies): archives a policy, so employees no longer see or sign it. */
   archivePolicy: Policy;
   /** HR or LEGAL: hands these items to an employee. Already-held items are left as they are. */
@@ -9924,6 +9949,8 @@ export type Mutation = {
   deleteTrackerBuildRelease: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
+  /** Removes a vendor contact's access for good. Confirm with the person first. */
+  deleteVendorContact: Scalars['Boolean']['output'];
   deleteWebScrape: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteChatFaq: Scalars['Boolean']['output'];
@@ -10128,6 +10155,8 @@ export type Mutation = {
   recordStockMovement: StockMovement;
   /** At most 100 events per call; returns how many were newly stored. */
   recordWhatsappDemoEvents: Scalars['Int']['output'];
+  /** Sends a submitted vendor invoice back to the supplier with the reason. */
+  rejectVendorInvoice: VendorInvoice;
   /** Lets campaigns reach the address again. Needs a reason; consent withdrawals need an administrator. */
   removeMarketingSuppression: Scalars['Boolean']['output'];
   /** Renames a board column. */
@@ -10157,6 +10186,8 @@ export type Mutation = {
   requestSignupCode: Scalars['Boolean']['output'];
   /** Emails a one-time code to the address the caller signs in with. */
   requestTechVaultCode: Scalars['Boolean']['output'];
+  /** Emails a vendor portal sign-in code to a supplier contact who has access. */
+  requestVendorPortalCode: Scalars['Boolean']['output'];
   /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
   requestWhatsappDemoCode: Scalars['Boolean']['output'];
   /** Sets a new password from an emailed link. The link works once. */
@@ -10404,6 +10435,8 @@ export type Mutation = {
   setUserActive: User;
   /** ADMIN: blocks or unblocks a user's sign-in, keeping the reason while blocked. Audited. */
   setUserBlocked: User;
+  /** Switches a vendor contact's access off (signing them out at once) or back on. */
+  setVendorContactActive: VendorContact;
   /** ADMIN: pauses or resumes deliveries to one webhook. */
   setWebhookActive: Webhook;
   /** Blocking retires the visitor's pass at once (website staff). */
@@ -10811,6 +10844,12 @@ export type Mutation = {
   upsertWhatsappDemo: WhatsappDemo;
   /** Copies the saved Google sign-in client into Gmail and turns Gmail on (TECH). */
   useGoogleSignInClientForGmail: GmailConfig;
+  /** Vendor pass: confirms the supplier has received an open purchase order. */
+  vendorAcknowledgePurchaseOrder: PurchaseOrder;
+  /** Vendor pass: sends an invoice against one of the supplier's purchase orders for review. */
+  vendorSubmitInvoice: VendorInvoice;
+  /** Vendor pass: uploads an invoice document (PDF or image, base64 data URL, up to 12 MB) and returns its URL. */
+  vendorUploadInvoiceFile: Scalars['String']['output'];
   /** Public: exchanges the emailed code for a client hub pass. */
   verifyClientHubCode: ClientHubSignIn;
   /** Checks one address now and keeps the result. */
@@ -10819,6 +10858,8 @@ export type Mutation = {
   verifyEmployeeEmailCode: User;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
+  /** Signs a vendor contact in with the emailed code and returns their vendor pass. */
+  verifyVendorPortalCode: VendorPortalSession;
   /** Public: exchanges the emailed code for a demo-only pass. */
   verifyWhatsappDemoCode: WhatsappDemoSignIn;
   /** Asks the configured AI model to pick an intent and pull out entities from a chat message. Rate limited per person and logged. */
@@ -10894,6 +10935,11 @@ export type MutationAddTaskCommentArgs = {
 };
 
 
+export type MutationAddVendorContactArgs = {
+  input: VendorContactInput;
+};
+
+
 export type MutationAiDraftArgs = {
   context: Scalars['String']['input'];
   kind: AiDraftKind;
@@ -10920,6 +10966,11 @@ export type MutationApplyLeaveArgs = {
 export type MutationApproveMcpAuthorizationArgs = {
   id: Scalars['ID']['input'];
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationApproveVendorInvoiceArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -12583,6 +12634,11 @@ export type MutationDeleteUserArgs = {
 };
 
 
+export type MutationDeleteVendorContactArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteWebScrapeArgs = {
   id: Scalars['ID']['input'];
 };
@@ -13080,6 +13136,12 @@ export type MutationRecordWhatsappDemoEventsArgs = {
 };
 
 
+export type MutationRejectVendorInvoiceArgs = {
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
 export type MutationRemoveMarketingSuppressionArgs = {
   id: Scalars['ID']['input'];
   justification: Scalars['String']['input'];
@@ -13128,6 +13190,11 @@ export type MutationRequestPasswordResetArgs = {
 
 
 export type MutationRequestSignupCodeArgs = {
+  email: Scalars['String']['input'];
+};
+
+
+export type MutationRequestVendorPortalCodeArgs = {
   email: Scalars['String']['input'];
 };
 
@@ -13691,6 +13758,12 @@ export type MutationSetUserBlockedArgs = {
   id: Scalars['ID']['input'];
   isBlocked: Scalars['Boolean']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetVendorContactActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -14981,6 +15054,22 @@ export type MutationUpsertWhatsappDemoArgs = {
 };
 
 
+export type MutationVendorAcknowledgePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationVendorSubmitInvoiceArgs = {
+  input: VendorInvoiceInput;
+};
+
+
+export type MutationVendorUploadInvoiceFileArgs = {
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+};
+
+
 export type MutationVerifyClientHubCodeArgs = {
   code: Scalars['String']['input'];
   email: Scalars['String']['input'];
@@ -15003,6 +15092,12 @@ export type MutationVerifyEmployeeEmailCodeArgs = {
 export type MutationVerifyMfaArgs = {
   challenge: Scalars['String']['input'];
   code: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyVendorPortalCodeArgs = {
+  code: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -16827,6 +16922,10 @@ export type PublicTaskView = {
 
 export type PurchaseOrder = {
   __typename?: 'PurchaseOrder';
+  /** When the supplier confirmed the order in the vendor portal; null until then. */
+  acknowledgedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Who confirmed it at the supplier, as name and email. */
+  acknowledgedBy: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   expectedDate?: Maybe<Scalars['DateTime']['output']>;
@@ -16928,6 +17027,10 @@ export type Query = {
   aiSpendLimit: AiSpendLimit;
   /** What AI cost between two instants, broken down by person and by model. */
   aiSpendSummary: AiSpendSummary;
+  /** ADMIN: requests an API key made per UTC day over the last days (1 to 90), oldest first, zero days included. */
+  apiKeyUsage: Array<ApiKeyUsageDay>;
+  /** ADMIN: the GraphQL operations of one module, with descriptions, arguments and an example document. */
+  apiReference: Array<ApiOperation>;
   /** Markdown describing one group, ready to paste to Claude to fix. */
   appLogFixPrompt: Scalars['String']['output'];
   /** Reads the workspace's date, time, timezone and language defaults. Any signed-in person. */
@@ -17663,9 +17766,17 @@ export type Query = {
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
+  /** Lists the invoices suppliers sent through the vendor portal, one page at a time, with payment status. */
+  listVendorInvoicesPaged: VendorInvoicePage;
+  /** Summary numbers for vendor invoices: total, counts by status and the summed amount. */
+  listVendorInvoicesStats: TableStats;
   listWebScrapesPaged: WebScrapePage;
   /** ADMIN: lists the latest 100 delivery attempts of one webhook, newest first, with the receiver's response. */
   listWebhookDeliveries: Array<WebhookDelivery>;
+  /** ADMIN: lists webhook delivery attempts across every endpoint, one page at a time, newest first. */
+  listWebhookDeliveriesPaged: WebhookDeliveryPage;
+  /** ADMIN: summary numbers for the webhook delivery log: total and counts by status and event. */
+  listWebhookDeliveriesStats: TableStats;
   listWebhooks: Array<Webhook>;
   listWebsiteChatFaqs: Array<WebsiteChatFaq>;
   listWebsiteChatFaqsPaged: WebsiteChatFaqPage;
@@ -18218,8 +18329,18 @@ export type Query = {
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
+  /** Lists who at a supplier may sign in to the vendor portal. */
+  vendorContacts: Array<VendorContact>;
+  /** Vendor pass: the invoices the supplier sent, with review and payment status. */
+  vendorInvoices: VendorInvoicePage;
+  /** Vendor pass: the signed-in contact and their supplier. */
+  vendorPortalMe: VendorPortalMe;
+  /** Vendor pass: the supplier's purchase orders (never drafts), one page at a time. */
+  vendorPurchaseOrders: PurchaseOrderPage;
   /** Estimates the tokens and cost of sending a scraped page and an instruction to the AI, without calling it. */
   webScrapeAiEstimate: WebScrapeAiEstimate;
+  /** ADMIN: every webhook event, what it means and the fields its payload carries. */
+  webhookEventCatalogue: Array<WebhookEventInfo>;
   /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
   webhookEvents: Array<Scalars['String']['output']>;
   /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
@@ -18278,6 +18399,17 @@ export type QueryAgentsOverviewArgs = {
 export type QueryAiSpendSummaryArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryApiKeyUsageArgs = {
+  days: Scalars['Int']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryApiReferenceArgs = {
+  endpoint: McpEndpoint;
 };
 
 
@@ -19708,6 +19840,11 @@ export type QueryListUsersPagedArgs = {
 };
 
 
+export type QueryListVendorInvoicesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListWebScrapesPagedArgs = {
   input: TableQueryInput;
 };
@@ -19715,6 +19852,11 @@ export type QueryListWebScrapesPagedArgs = {
 
 export type QueryListWebhookDeliveriesArgs = {
   webhookId: Scalars['ID']['input'];
+};
+
+
+export type QueryListWebhookDeliveriesPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -20593,6 +20735,21 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryVendorContactsArgs = {
+  supplierId: Scalars['ID']['input'];
+};
+
+
+export type QueryVendorInvoicesArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryVendorPurchaseOrdersArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -24102,6 +24259,107 @@ export enum VaultLocationState {
   Unavailable = 'UNAVAILABLE'
 }
 
+/** A person at a supplier who may sign in to the vendor portal with an emailed code. */
+export type VendorContact = {
+  __typename?: 'VendorContact';
+  active: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastSignInAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  signInCount: Scalars['Int']['output'];
+  supplierId: Scalars['String']['output'];
+};
+
+export type VendorContactInput = {
+  /** The address they sign in with; it may have vendor portal access at one supplier only. */
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  /** The supplier the person works for. */
+  supplierId: Scalars['ID']['input'];
+};
+
+/** An invoice a supplier sent against one of their purchase orders, and where it stands. */
+export type VendorInvoice = {
+  __typename?: 'VendorInvoice';
+  amount: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  dueDate: Scalars['DateTime']['output'];
+  fileName: Scalars['String']['output'];
+  /** The invoice document (PDF or image). */
+  fileUrl: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  invoiceDate: Scalars['DateTime']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  paidOn?: Maybe<Scalars['DateTime']['output']>;
+  /** Whether the buyer has paid it, read from the Finance bill an approval filed. */
+  paymentStatus: VendorPaymentStatus;
+  purchaseOrderId: Scalars['String']['output'];
+  purchaseOrderNumber: Scalars['String']['output'];
+  /** Why the buyer sent it back, when it was rejected. */
+  reviewNote: Scalars['String']['output'];
+  reviewedAt?: Maybe<Scalars['DateTime']['output']>;
+  reviewedBy: Scalars['String']['output'];
+  status: VendorInvoiceStatus;
+  submittedBy: Scalars['String']['output'];
+  supplierId: Scalars['String']['output'];
+  supplierName: Scalars['String']['output'];
+};
+
+export type VendorInvoiceInput = {
+  /** The invoice total, in the order's currency. */
+  amount: Scalars['Float']['input'];
+  dueDate: Scalars['DateTime']['input'];
+  fileName: Scalars['String']['input'];
+  /** The uploaded invoice document's URL, from vendorUploadInvoiceFile. */
+  fileUrl: Scalars['String']['input'];
+  invoiceDate: Scalars['DateTime']['input'];
+  /** The supplier's own invoice number. */
+  invoiceNumber: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  /** The purchase order this invoice bills. */
+  purchaseOrderId: Scalars['ID']['input'];
+};
+
+export type VendorInvoicePage = {
+  __typename?: 'VendorInvoicePage';
+  rows: Array<VendorInvoice>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum VendorInvoiceStatus {
+  Approved = 'APPROVED',
+  Rejected = 'REJECTED',
+  Submitted = 'SUBMITTED'
+}
+
+/** NOT_BILLED until the buyer approves the invoice; then the Finance bill's UNPAID or PAID. */
+export enum VendorPaymentStatus {
+  NotBilled = 'NOT_BILLED',
+  Paid = 'PAID',
+  Unpaid = 'UNPAID'
+}
+
+/** The signed-in vendor contact and the supplier they act for. */
+export type VendorPortalMe = {
+  __typename?: 'VendorPortalMe';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  supplierCode: Scalars['String']['output'];
+  supplierName: Scalars['String']['output'];
+};
+
+/** A vendor portal sign-in: the pass to send as x-vendor-pass on every vendor portal request. */
+export type VendorPortalSession = {
+  __typename?: 'VendorPortalSession';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
 /** A web page read through Firecrawl, kept as markdown, with the last AI answer about it. */
 export type WebScrape = {
   __typename?: 'WebScrape';
@@ -24167,6 +24425,41 @@ export type WebhookDelivery = {
   responseStatus?: Maybe<Scalars['Int']['output']>;
   status: Scalars['String']['output'];
   webhookId: Scalars['String']['output'];
+};
+
+export type WebhookDeliveryPage = {
+  __typename?: 'WebhookDeliveryPage';
+  rows: Array<WebhookDeliveryRow>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** One delivery attempt in the webhook delivery log, with the endpoint's name. */
+export type WebhookDeliveryRow = {
+  __typename?: 'WebhookDeliveryRow';
+  attempts: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  error: Scalars['String']['output'];
+  event: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  nextAttemptAt: Scalars['DateTime']['output'];
+  /** The exact JSON body that was signed and sent. */
+  payload: Scalars['String']['output'];
+  responseStatus?: Maybe<Scalars['Int']['output']>;
+  status: Scalars['String']['output'];
+  webhookId: Scalars['String']['output'];
+  webhookName: Scalars['String']['output'];
+};
+
+/** One event a webhook may subscribe to: what it means and the fields its data carries. */
+export type WebhookEventInfo = {
+  __typename?: 'WebhookEventInfo';
+  description: Scalars['String']['output'];
+  event: Scalars['String']['output'];
+  /** The keys of the event payload's data object. */
+  fields: Array<Scalars['String']['output']>;
+  /** The module that sends it, e.g. Finance. */
+  module: Scalars['String']['output'];
 };
 
 /** A security question for a public form, and the signed token that says which it was. */
@@ -27614,6 +27907,38 @@ export type ConvertLeadMutationVariables = Exact<{
 
 
 export type ConvertLeadMutation = { __typename?: 'Mutation', convertLead: { __typename?: 'Deal', id: string, title: string } };
+
+export type ApiKeyUsageQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type ApiKeyUsageQuery = { __typename?: 'Query', apiKeyUsage: Array<{ __typename?: 'ApiKeyUsageDay', day: string, count: number }> };
+
+export type WebhookEventCatalogueQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WebhookEventCatalogueQuery = { __typename?: 'Query', webhookEventCatalogue: Array<{ __typename?: 'WebhookEventInfo', event: string, module: string, description: string, fields: Array<string> }> };
+
+export type ListWebhookDeliveriesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListWebhookDeliveriesPagedQuery = { __typename?: 'Query', listWebhookDeliveriesPaged: { __typename?: 'WebhookDeliveryPage', totalCount: number, rows: Array<{ __typename?: 'WebhookDeliveryRow', id: string, webhookId: string, webhookName: string, event: string, status: string, attempts: number, responseStatus?: number | null, error: string, payload: string, nextAttemptAt: string, deliveredAt?: string | null, createdAt: string }> } };
+
+export type ListWebhookDeliveriesStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListWebhookDeliveriesStatsQuery = { __typename?: 'Query', listWebhookDeliveriesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type ApiReferenceQueryVariables = Exact<{
+  endpoint: McpEndpoint;
+}>;
+
+
+export type ApiReferenceQuery = { __typename?: 'Query', apiReference: Array<{ __typename?: 'ApiOperation', name: string, kind: McpToolKind, description: string, returnType: string, example: string, arguments: Array<{ __typename?: 'McpToolArgument', name: string, type: string, required: boolean, description: string }> }> };
 
 export type ListGodaddyConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -31952,14 +32277,14 @@ export type InventoryValueQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type InventoryValueQuery = { __typename?: 'Query', inventoryValue: number };
 
-export type PurchaseOrderFieldsFragment = { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> };
+export type PurchaseOrderFieldsFragment = { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, acknowledgedAt?: string | null, acknowledgedBy: string, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> };
 
 export type ListPurchaseOrdersPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListPurchaseOrdersPagedQuery = { __typename?: 'Query', listPurchaseOrdersPaged: { __typename?: 'PurchaseOrderPage', totalCount: number, rows: Array<{ __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> }> } };
+export type ListPurchaseOrdersPagedQuery = { __typename?: 'Query', listPurchaseOrdersPaged: { __typename?: 'PurchaseOrderPage', totalCount: number, rows: Array<{ __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, acknowledgedAt?: string | null, acknowledgedBy: string, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> }> } };
 
 export type ListPurchaseOrdersStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -31971,7 +32296,7 @@ export type CreatePurchaseOrderMutationVariables = Exact<{
 }>;
 
 
-export type CreatePurchaseOrderMutation = { __typename?: 'Mutation', createPurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+export type CreatePurchaseOrderMutation = { __typename?: 'Mutation', createPurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, acknowledgedAt?: string | null, acknowledgedBy: string, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
 
 export type UpdatePurchaseOrderMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -31979,7 +32304,7 @@ export type UpdatePurchaseOrderMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePurchaseOrderMutation = { __typename?: 'Mutation', updatePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+export type UpdatePurchaseOrderMutation = { __typename?: 'Mutation', updatePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, acknowledgedAt?: string | null, acknowledgedBy: string, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
 
 export type DeletePurchaseOrderMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -31994,7 +32319,7 @@ export type ReceivePurchaseOrderMutationVariables = Exact<{
 }>;
 
 
-export type ReceivePurchaseOrderMutation = { __typename?: 'Mutation', receivePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+export type ReceivePurchaseOrderMutation = { __typename?: 'Mutation', receivePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, acknowledgedAt?: string | null, acknowledgedBy: string, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
 
 export type UpdateProfileMutationVariables = Exact<{
   input: UpdateProfileInput;
@@ -34325,6 +34650,120 @@ export type EmployeeEarningsQueryVariables = Exact<{
 
 
 export type EmployeeEarningsQuery = { __typename?: 'Query', employeeEarnings: { __typename?: 'TrackerEarnings', payType: PayType, rate: number, currency: string, trackedMs: number, amount?: number | null } };
+
+export type VendorInvoiceFieldsFragment = { __typename?: 'VendorInvoice', id: string, supplierId: string, supplierName: string, purchaseOrderId: string, purchaseOrderNumber: string, invoiceNumber: string, invoiceDate: string, dueDate: string, amount: number, currency: string, notes: string, fileUrl: string, fileName: string, status: VendorInvoiceStatus, submittedBy: string, reviewedBy: string, reviewedAt?: string | null, reviewNote: string, paymentStatus: VendorPaymentStatus, paidOn?: string | null, createdAt: string };
+
+export type RequestVendorPortalCodeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type RequestVendorPortalCodeMutation = { __typename?: 'Mutation', requestVendorPortalCode: boolean };
+
+export type VerifyVendorPortalCodeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+}>;
+
+
+export type VerifyVendorPortalCodeMutation = { __typename?: 'Mutation', verifyVendorPortalCode: { __typename?: 'VendorPortalSession', token: string, name: string, email: string } };
+
+export type VendorPortalMeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type VendorPortalMeQuery = { __typename?: 'Query', vendorPortalMe: { __typename?: 'VendorPortalMe', name: string, email: string, supplierName: string, supplierCode: string } };
+
+export type VendorPurchaseOrdersQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type VendorPurchaseOrdersQuery = { __typename?: 'Query', vendorPurchaseOrders: { __typename?: 'PurchaseOrderPage', totalCount: number, rows: Array<{ __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, acknowledgedAt?: string | null, acknowledgedBy: string, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> }> } };
+
+export type VendorInvoicesQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type VendorInvoicesQuery = { __typename?: 'Query', vendorInvoices: { __typename?: 'VendorInvoicePage', totalCount: number, rows: Array<{ __typename?: 'VendorInvoice', id: string, supplierId: string, supplierName: string, purchaseOrderId: string, purchaseOrderNumber: string, invoiceNumber: string, invoiceDate: string, dueDate: string, amount: number, currency: string, notes: string, fileUrl: string, fileName: string, status: VendorInvoiceStatus, submittedBy: string, reviewedBy: string, reviewedAt?: string | null, reviewNote: string, paymentStatus: VendorPaymentStatus, paidOn?: string | null, createdAt: string }> } };
+
+export type VendorAcknowledgePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type VendorAcknowledgePurchaseOrderMutation = { __typename?: 'Mutation', vendorAcknowledgePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, acknowledgedAt?: string | null, acknowledgedBy: string, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+
+export type VendorUploadInvoiceFileMutationVariables = Exact<{
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+}>;
+
+
+export type VendorUploadInvoiceFileMutation = { __typename?: 'Mutation', vendorUploadInvoiceFile: string };
+
+export type VendorSubmitInvoiceMutationVariables = Exact<{
+  input: VendorInvoiceInput;
+}>;
+
+
+export type VendorSubmitInvoiceMutation = { __typename?: 'Mutation', vendorSubmitInvoice: { __typename?: 'VendorInvoice', id: string, supplierId: string, supplierName: string, purchaseOrderId: string, purchaseOrderNumber: string, invoiceNumber: string, invoiceDate: string, dueDate: string, amount: number, currency: string, notes: string, fileUrl: string, fileName: string, status: VendorInvoiceStatus, submittedBy: string, reviewedBy: string, reviewedAt?: string | null, reviewNote: string, paymentStatus: VendorPaymentStatus, paidOn?: string | null, createdAt: string } };
+
+export type VendorContactsQueryVariables = Exact<{
+  supplierId: Scalars['ID']['input'];
+}>;
+
+
+export type VendorContactsQuery = { __typename?: 'Query', vendorContacts: Array<{ __typename?: 'VendorContact', id: string, supplierId: string, name: string, email: string, active: boolean, lastSignInAt?: string | null, signInCount: number, createdAt: string }> };
+
+export type AddVendorContactMutationVariables = Exact<{
+  input: VendorContactInput;
+}>;
+
+
+export type AddVendorContactMutation = { __typename?: 'Mutation', addVendorContact: { __typename?: 'VendorContact', id: string, email: string } };
+
+export type SetVendorContactActiveMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  active: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetVendorContactActiveMutation = { __typename?: 'Mutation', setVendorContactActive: { __typename?: 'VendorContact', id: string, active: boolean } };
+
+export type DeleteVendorContactMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteVendorContactMutation = { __typename?: 'Mutation', deleteVendorContact: boolean };
+
+export type ListVendorInvoicesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListVendorInvoicesPagedQuery = { __typename?: 'Query', listVendorInvoicesPaged: { __typename?: 'VendorInvoicePage', totalCount: number, rows: Array<{ __typename?: 'VendorInvoice', id: string, supplierId: string, supplierName: string, purchaseOrderId: string, purchaseOrderNumber: string, invoiceNumber: string, invoiceDate: string, dueDate: string, amount: number, currency: string, notes: string, fileUrl: string, fileName: string, status: VendorInvoiceStatus, submittedBy: string, reviewedBy: string, reviewedAt?: string | null, reviewNote: string, paymentStatus: VendorPaymentStatus, paidOn?: string | null, createdAt: string }> } };
+
+export type ListVendorInvoicesStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListVendorInvoicesStatsQuery = { __typename?: 'Query', listVendorInvoicesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type ApproveVendorInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ApproveVendorInvoiceMutation = { __typename?: 'Mutation', approveVendorInvoice: { __typename?: 'VendorInvoice', id: string, supplierId: string, supplierName: string, purchaseOrderId: string, purchaseOrderNumber: string, invoiceNumber: string, invoiceDate: string, dueDate: string, amount: number, currency: string, notes: string, fileUrl: string, fileName: string, status: VendorInvoiceStatus, submittedBy: string, reviewedBy: string, reviewedAt?: string | null, reviewNote: string, paymentStatus: VendorPaymentStatus, paidOn?: string | null, createdAt: string } };
+
+export type RejectVendorInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type RejectVendorInvoiceMutation = { __typename?: 'Mutation', rejectVendorInvoice: { __typename?: 'VendorInvoice', id: string, supplierId: string, supplierName: string, purchaseOrderId: string, purchaseOrderNumber: string, invoiceNumber: string, invoiceDate: string, dueDate: string, amount: number, currency: string, notes: string, fileUrl: string, fileName: string, status: VendorInvoiceStatus, submittedBy: string, reviewedBy: string, reviewedAt?: string | null, reviewNote: string, paymentStatus: VendorPaymentStatus, paidOn?: string | null, createdAt: string } };
 
 export type FirecrawlConfigFieldsFragment = { __typename?: 'FirecrawlConfig', id: string, label: string, baseUrl: string, hasApiKey: boolean, apiKeyHint?: string | null, isActive: boolean, updatedAt: string };
 
@@ -37603,6 +38042,8 @@ export const PurchaseOrderFieldsFragmentDoc = gql`
   expectedDate
   notes
   receivedAt
+  acknowledgedAt
+  acknowledgedBy
   createdAt
   updatedAt
 }
@@ -38328,6 +38769,31 @@ export const TrackerExpectedFieldsFragmentDoc = gql`
     offReason
     offLabel
   }
+}
+    `;
+export const VendorInvoiceFieldsFragmentDoc = gql`
+    fragment VendorInvoiceFields on VendorInvoice {
+  id
+  supplierId
+  supplierName
+  purchaseOrderId
+  purchaseOrderNumber
+  invoiceNumber
+  invoiceDate
+  dueDate
+  amount
+  currency
+  notes
+  fileUrl
+  fileName
+  status
+  submittedBy
+  reviewedBy
+  reviewedAt
+  reviewNote
+  paymentStatus
+  paidOn
+  createdAt
 }
     `;
 export const FirecrawlConfigFieldsFragmentDoc = gql`
@@ -53408,6 +53874,264 @@ export function useConvertLeadMutation(baseOptions?: ApolloReactHooks.MutationHo
         return ApolloReactHooks.useMutation<ConvertLeadMutation, ConvertLeadMutationVariables>(ConvertLeadDocument, options);
       }
 export type ConvertLeadMutationHookResult = ReturnType<typeof useConvertLeadMutation>;
+export const ApiKeyUsageDocument = gql`
+    query ApiKeyUsage($id: ID!, $days: Int!) {
+  apiKeyUsage(id: $id, days: $days) {
+    day
+    count
+  }
+}
+    `;
+
+/**
+ * __useApiKeyUsageQuery__
+ *
+ * To run a query within a React component, call `useApiKeyUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useApiKeyUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useApiKeyUsageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useApiKeyUsageQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ApiKeyUsageQuery, ApiKeyUsageQueryVariables> & ({ variables: ApiKeyUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>(ApiKeyUsageDocument, options);
+      }
+export function useApiKeyUsageLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>(ApiKeyUsageDocument, options);
+        }
+// @ts-ignore
+export function useApiKeyUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>;
+// @ts-ignore
+export function useApiKeyUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ApiKeyUsageQuery | undefined, ApiKeyUsageQueryVariables>;
+export function useApiKeyUsageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ApiKeyUsageQuery, ApiKeyUsageQueryVariables>(ApiKeyUsageDocument, options);
+        }
+export type ApiKeyUsageQueryHookResult = ReturnType<typeof useApiKeyUsageQuery>;
+export type ApiKeyUsageLazyQueryHookResult = ReturnType<typeof useApiKeyUsageLazyQuery>;
+export type ApiKeyUsageSuspenseQueryHookResult = ReturnType<typeof useApiKeyUsageSuspenseQuery>;
+export const WebhookEventCatalogueDocument = gql`
+    query WebhookEventCatalogue {
+  webhookEventCatalogue {
+    event
+    module
+    description
+    fields
+  }
+}
+    `;
+
+/**
+ * __useWebhookEventCatalogueQuery__
+ *
+ * To run a query within a React component, call `useWebhookEventCatalogueQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebhookEventCatalogueQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebhookEventCatalogueQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWebhookEventCatalogueQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>(WebhookEventCatalogueDocument, options);
+      }
+export function useWebhookEventCatalogueLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>(WebhookEventCatalogueDocument, options);
+        }
+// @ts-ignore
+export function useWebhookEventCatalogueSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>;
+// @ts-ignore
+export function useWebhookEventCatalogueSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebhookEventCatalogueQuery | undefined, WebhookEventCatalogueQueryVariables>;
+export function useWebhookEventCatalogueSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebhookEventCatalogueQuery, WebhookEventCatalogueQueryVariables>(WebhookEventCatalogueDocument, options);
+        }
+export type WebhookEventCatalogueQueryHookResult = ReturnType<typeof useWebhookEventCatalogueQuery>;
+export type WebhookEventCatalogueLazyQueryHookResult = ReturnType<typeof useWebhookEventCatalogueLazyQuery>;
+export type WebhookEventCatalogueSuspenseQueryHookResult = ReturnType<typeof useWebhookEventCatalogueSuspenseQuery>;
+export const ListWebhookDeliveriesPagedDocument = gql`
+    query ListWebhookDeliveriesPaged($input: TableQueryInput!) {
+  listWebhookDeliveriesPaged(input: $input) {
+    rows {
+      id
+      webhookId
+      webhookName
+      event
+      status
+      attempts
+      responseStatus
+      error
+      payload
+      nextAttemptAt
+      deliveredAt
+      createdAt
+    }
+    totalCount
+  }
+}
+    `;
+
+/**
+ * __useListWebhookDeliveriesPagedQuery__
+ *
+ * To run a query within a React component, call `useListWebhookDeliveriesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListWebhookDeliveriesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListWebhookDeliveriesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListWebhookDeliveriesPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables> & ({ variables: ListWebhookDeliveriesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>(ListWebhookDeliveriesPagedDocument, options);
+      }
+export function useListWebhookDeliveriesPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>(ListWebhookDeliveriesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListWebhookDeliveriesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>;
+// @ts-ignore
+export function useListWebhookDeliveriesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListWebhookDeliveriesPagedQuery | undefined, ListWebhookDeliveriesPagedQueryVariables>;
+export function useListWebhookDeliveriesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListWebhookDeliveriesPagedQuery, ListWebhookDeliveriesPagedQueryVariables>(ListWebhookDeliveriesPagedDocument, options);
+        }
+export type ListWebhookDeliveriesPagedQueryHookResult = ReturnType<typeof useListWebhookDeliveriesPagedQuery>;
+export type ListWebhookDeliveriesPagedLazyQueryHookResult = ReturnType<typeof useListWebhookDeliveriesPagedLazyQuery>;
+export type ListWebhookDeliveriesPagedSuspenseQueryHookResult = ReturnType<typeof useListWebhookDeliveriesPagedSuspenseQuery>;
+export const ListWebhookDeliveriesStatsDocument = gql`
+    query ListWebhookDeliveriesStats {
+  listWebhookDeliveriesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListWebhookDeliveriesStatsQuery__
+ *
+ * To run a query within a React component, call `useListWebhookDeliveriesStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListWebhookDeliveriesStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListWebhookDeliveriesStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListWebhookDeliveriesStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>(ListWebhookDeliveriesStatsDocument, options);
+      }
+export function useListWebhookDeliveriesStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>(ListWebhookDeliveriesStatsDocument, options);
+        }
+// @ts-ignore
+export function useListWebhookDeliveriesStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>;
+// @ts-ignore
+export function useListWebhookDeliveriesStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListWebhookDeliveriesStatsQuery | undefined, ListWebhookDeliveriesStatsQueryVariables>;
+export function useListWebhookDeliveriesStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListWebhookDeliveriesStatsQuery, ListWebhookDeliveriesStatsQueryVariables>(ListWebhookDeliveriesStatsDocument, options);
+        }
+export type ListWebhookDeliveriesStatsQueryHookResult = ReturnType<typeof useListWebhookDeliveriesStatsQuery>;
+export type ListWebhookDeliveriesStatsLazyQueryHookResult = ReturnType<typeof useListWebhookDeliveriesStatsLazyQuery>;
+export type ListWebhookDeliveriesStatsSuspenseQueryHookResult = ReturnType<typeof useListWebhookDeliveriesStatsSuspenseQuery>;
+export const ApiReferenceDocument = gql`
+    query ApiReference($endpoint: McpEndpoint!) {
+  apiReference(endpoint: $endpoint) {
+    name
+    kind
+    description
+    arguments {
+      name
+      type
+      required
+      description
+    }
+    returnType
+    example
+  }
+}
+    `;
+
+/**
+ * __useApiReferenceQuery__
+ *
+ * To run a query within a React component, call `useApiReferenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useApiReferenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useApiReferenceQuery({
+ *   variables: {
+ *      endpoint: // value for 'endpoint'
+ *   },
+ * });
+ */
+export function useApiReferenceQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ApiReferenceQuery, ApiReferenceQueryVariables> & ({ variables: ApiReferenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ApiReferenceQuery, ApiReferenceQueryVariables>(ApiReferenceDocument, options);
+      }
+export function useApiReferenceLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ApiReferenceQuery, ApiReferenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ApiReferenceQuery, ApiReferenceQueryVariables>(ApiReferenceDocument, options);
+        }
+// @ts-ignore
+export function useApiReferenceSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ApiReferenceQuery, ApiReferenceQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ApiReferenceQuery, ApiReferenceQueryVariables>;
+// @ts-ignore
+export function useApiReferenceSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ApiReferenceQuery, ApiReferenceQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ApiReferenceQuery | undefined, ApiReferenceQueryVariables>;
+export function useApiReferenceSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ApiReferenceQuery, ApiReferenceQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ApiReferenceQuery, ApiReferenceQueryVariables>(ApiReferenceDocument, options);
+        }
+export type ApiReferenceQueryHookResult = ReturnType<typeof useApiReferenceQuery>;
+export type ApiReferenceLazyQueryHookResult = ReturnType<typeof useApiReferenceLazyQuery>;
+export type ApiReferenceSuspenseQueryHookResult = ReturnType<typeof useApiReferenceSuspenseQuery>;
 export const ListGodaddyConfigsDocument = gql`
     query ListGodaddyConfigs {
   listGodaddyConfigs {
@@ -90254,6 +90978,600 @@ export function useEmployeeEarningsSuspenseQuery(baseOptions?: ApolloReactHooks.
 export type EmployeeEarningsQueryHookResult = ReturnType<typeof useEmployeeEarningsQuery>;
 export type EmployeeEarningsLazyQueryHookResult = ReturnType<typeof useEmployeeEarningsLazyQuery>;
 export type EmployeeEarningsSuspenseQueryHookResult = ReturnType<typeof useEmployeeEarningsSuspenseQuery>;
+export const RequestVendorPortalCodeDocument = gql`
+    mutation RequestVendorPortalCode($email: String!) {
+  requestVendorPortalCode(email: $email)
+}
+    `;
+
+/**
+ * __useRequestVendorPortalCodeMutation__
+ *
+ * To run a mutation, you first call `useRequestVendorPortalCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestVendorPortalCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestVendorPortalCodeMutation, { data, loading, error }] = useRequestVendorPortalCodeMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useRequestVendorPortalCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RequestVendorPortalCodeMutation, RequestVendorPortalCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RequestVendorPortalCodeMutation, RequestVendorPortalCodeMutationVariables>(RequestVendorPortalCodeDocument, options);
+      }
+export type RequestVendorPortalCodeMutationHookResult = ReturnType<typeof useRequestVendorPortalCodeMutation>;
+export const VerifyVendorPortalCodeDocument = gql`
+    mutation VerifyVendorPortalCode($email: String!, $code: String!) {
+  verifyVendorPortalCode(email: $email, code: $code) {
+    token
+    name
+    email
+  }
+}
+    `;
+
+/**
+ * __useVerifyVendorPortalCodeMutation__
+ *
+ * To run a mutation, you first call `useVerifyVendorPortalCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyVendorPortalCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyVendorPortalCodeMutation, { data, loading, error }] = useVerifyVendorPortalCodeMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useVerifyVendorPortalCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VerifyVendorPortalCodeMutation, VerifyVendorPortalCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VerifyVendorPortalCodeMutation, VerifyVendorPortalCodeMutationVariables>(VerifyVendorPortalCodeDocument, options);
+      }
+export type VerifyVendorPortalCodeMutationHookResult = ReturnType<typeof useVerifyVendorPortalCodeMutation>;
+export const VendorPortalMeDocument = gql`
+    query VendorPortalMe {
+  vendorPortalMe {
+    name
+    email
+    supplierName
+    supplierCode
+  }
+}
+    `;
+
+/**
+ * __useVendorPortalMeQuery__
+ *
+ * To run a query within a React component, call `useVendorPortalMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVendorPortalMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVendorPortalMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useVendorPortalMeQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<VendorPortalMeQuery, VendorPortalMeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<VendorPortalMeQuery, VendorPortalMeQueryVariables>(VendorPortalMeDocument, options);
+      }
+export function useVendorPortalMeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<VendorPortalMeQuery, VendorPortalMeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<VendorPortalMeQuery, VendorPortalMeQueryVariables>(VendorPortalMeDocument, options);
+        }
+// @ts-ignore
+export function useVendorPortalMeSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<VendorPortalMeQuery, VendorPortalMeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorPortalMeQuery, VendorPortalMeQueryVariables>;
+// @ts-ignore
+export function useVendorPortalMeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorPortalMeQuery, VendorPortalMeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorPortalMeQuery | undefined, VendorPortalMeQueryVariables>;
+export function useVendorPortalMeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorPortalMeQuery, VendorPortalMeQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<VendorPortalMeQuery, VendorPortalMeQueryVariables>(VendorPortalMeDocument, options);
+        }
+export type VendorPortalMeQueryHookResult = ReturnType<typeof useVendorPortalMeQuery>;
+export type VendorPortalMeLazyQueryHookResult = ReturnType<typeof useVendorPortalMeLazyQuery>;
+export type VendorPortalMeSuspenseQueryHookResult = ReturnType<typeof useVendorPortalMeSuspenseQuery>;
+export const VendorPurchaseOrdersDocument = gql`
+    query VendorPurchaseOrders($input: TableQueryInput!) {
+  vendorPurchaseOrders(input: $input) {
+    rows {
+      ...PurchaseOrderFields
+    }
+    totalCount
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+
+/**
+ * __useVendorPurchaseOrdersQuery__
+ *
+ * To run a query within a React component, call `useVendorPurchaseOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVendorPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVendorPurchaseOrdersQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useVendorPurchaseOrdersQuery(baseOptions: ApolloReactHooks.QueryHookOptions<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables> & ({ variables: VendorPurchaseOrdersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>(VendorPurchaseOrdersDocument, options);
+      }
+export function useVendorPurchaseOrdersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>(VendorPurchaseOrdersDocument, options);
+        }
+// @ts-ignore
+export function useVendorPurchaseOrdersSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>;
+// @ts-ignore
+export function useVendorPurchaseOrdersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorPurchaseOrdersQuery | undefined, VendorPurchaseOrdersQueryVariables>;
+export function useVendorPurchaseOrdersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<VendorPurchaseOrdersQuery, VendorPurchaseOrdersQueryVariables>(VendorPurchaseOrdersDocument, options);
+        }
+export type VendorPurchaseOrdersQueryHookResult = ReturnType<typeof useVendorPurchaseOrdersQuery>;
+export type VendorPurchaseOrdersLazyQueryHookResult = ReturnType<typeof useVendorPurchaseOrdersLazyQuery>;
+export type VendorPurchaseOrdersSuspenseQueryHookResult = ReturnType<typeof useVendorPurchaseOrdersSuspenseQuery>;
+export const VendorInvoicesDocument = gql`
+    query VendorInvoices($input: TableQueryInput!) {
+  vendorInvoices(input: $input) {
+    rows {
+      ...VendorInvoiceFields
+    }
+    totalCount
+  }
+}
+    ${VendorInvoiceFieldsFragmentDoc}`;
+
+/**
+ * __useVendorInvoicesQuery__
+ *
+ * To run a query within a React component, call `useVendorInvoicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVendorInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVendorInvoicesQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useVendorInvoicesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<VendorInvoicesQuery, VendorInvoicesQueryVariables> & ({ variables: VendorInvoicesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<VendorInvoicesQuery, VendorInvoicesQueryVariables>(VendorInvoicesDocument, options);
+      }
+export function useVendorInvoicesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<VendorInvoicesQuery, VendorInvoicesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<VendorInvoicesQuery, VendorInvoicesQueryVariables>(VendorInvoicesDocument, options);
+        }
+// @ts-ignore
+export function useVendorInvoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<VendorInvoicesQuery, VendorInvoicesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorInvoicesQuery, VendorInvoicesQueryVariables>;
+// @ts-ignore
+export function useVendorInvoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorInvoicesQuery, VendorInvoicesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorInvoicesQuery | undefined, VendorInvoicesQueryVariables>;
+export function useVendorInvoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorInvoicesQuery, VendorInvoicesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<VendorInvoicesQuery, VendorInvoicesQueryVariables>(VendorInvoicesDocument, options);
+        }
+export type VendorInvoicesQueryHookResult = ReturnType<typeof useVendorInvoicesQuery>;
+export type VendorInvoicesLazyQueryHookResult = ReturnType<typeof useVendorInvoicesLazyQuery>;
+export type VendorInvoicesSuspenseQueryHookResult = ReturnType<typeof useVendorInvoicesSuspenseQuery>;
+export const VendorAcknowledgePurchaseOrderDocument = gql`
+    mutation VendorAcknowledgePurchaseOrder($id: ID!) {
+  vendorAcknowledgePurchaseOrder(id: $id) {
+    ...PurchaseOrderFields
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+
+/**
+ * __useVendorAcknowledgePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useVendorAcknowledgePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVendorAcknowledgePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [vendorAcknowledgePurchaseOrderMutation, { data, loading, error }] = useVendorAcknowledgePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useVendorAcknowledgePurchaseOrderMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VendorAcknowledgePurchaseOrderMutation, VendorAcknowledgePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VendorAcknowledgePurchaseOrderMutation, VendorAcknowledgePurchaseOrderMutationVariables>(VendorAcknowledgePurchaseOrderDocument, options);
+      }
+export type VendorAcknowledgePurchaseOrderMutationHookResult = ReturnType<typeof useVendorAcknowledgePurchaseOrderMutation>;
+export const VendorUploadInvoiceFileDocument = gql`
+    mutation VendorUploadInvoiceFile($file: String!, $fileName: String!) {
+  vendorUploadInvoiceFile(file: $file, fileName: $fileName)
+}
+    `;
+
+/**
+ * __useVendorUploadInvoiceFileMutation__
+ *
+ * To run a mutation, you first call `useVendorUploadInvoiceFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVendorUploadInvoiceFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [vendorUploadInvoiceFileMutation, { data, loading, error }] = useVendorUploadInvoiceFileMutation({
+ *   variables: {
+ *      file: // value for 'file'
+ *      fileName: // value for 'fileName'
+ *   },
+ * });
+ */
+export function useVendorUploadInvoiceFileMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VendorUploadInvoiceFileMutation, VendorUploadInvoiceFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VendorUploadInvoiceFileMutation, VendorUploadInvoiceFileMutationVariables>(VendorUploadInvoiceFileDocument, options);
+      }
+export type VendorUploadInvoiceFileMutationHookResult = ReturnType<typeof useVendorUploadInvoiceFileMutation>;
+export const VendorSubmitInvoiceDocument = gql`
+    mutation VendorSubmitInvoice($input: VendorInvoiceInput!) {
+  vendorSubmitInvoice(input: $input) {
+    ...VendorInvoiceFields
+  }
+}
+    ${VendorInvoiceFieldsFragmentDoc}`;
+
+/**
+ * __useVendorSubmitInvoiceMutation__
+ *
+ * To run a mutation, you first call `useVendorSubmitInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVendorSubmitInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [vendorSubmitInvoiceMutation, { data, loading, error }] = useVendorSubmitInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useVendorSubmitInvoiceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VendorSubmitInvoiceMutation, VendorSubmitInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VendorSubmitInvoiceMutation, VendorSubmitInvoiceMutationVariables>(VendorSubmitInvoiceDocument, options);
+      }
+export type VendorSubmitInvoiceMutationHookResult = ReturnType<typeof useVendorSubmitInvoiceMutation>;
+export const VendorContactsDocument = gql`
+    query VendorContacts($supplierId: ID!) {
+  vendorContacts(supplierId: $supplierId) {
+    id
+    supplierId
+    name
+    email
+    active
+    lastSignInAt
+    signInCount
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useVendorContactsQuery__
+ *
+ * To run a query within a React component, call `useVendorContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVendorContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVendorContactsQuery({
+ *   variables: {
+ *      supplierId: // value for 'supplierId'
+ *   },
+ * });
+ */
+export function useVendorContactsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<VendorContactsQuery, VendorContactsQueryVariables> & ({ variables: VendorContactsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<VendorContactsQuery, VendorContactsQueryVariables>(VendorContactsDocument, options);
+      }
+export function useVendorContactsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<VendorContactsQuery, VendorContactsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<VendorContactsQuery, VendorContactsQueryVariables>(VendorContactsDocument, options);
+        }
+// @ts-ignore
+export function useVendorContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<VendorContactsQuery, VendorContactsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorContactsQuery, VendorContactsQueryVariables>;
+// @ts-ignore
+export function useVendorContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorContactsQuery, VendorContactsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<VendorContactsQuery | undefined, VendorContactsQueryVariables>;
+export function useVendorContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<VendorContactsQuery, VendorContactsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<VendorContactsQuery, VendorContactsQueryVariables>(VendorContactsDocument, options);
+        }
+export type VendorContactsQueryHookResult = ReturnType<typeof useVendorContactsQuery>;
+export type VendorContactsLazyQueryHookResult = ReturnType<typeof useVendorContactsLazyQuery>;
+export type VendorContactsSuspenseQueryHookResult = ReturnType<typeof useVendorContactsSuspenseQuery>;
+export const AddVendorContactDocument = gql`
+    mutation AddVendorContact($input: VendorContactInput!) {
+  addVendorContact(input: $input) {
+    id
+    email
+  }
+}
+    `;
+
+/**
+ * __useAddVendorContactMutation__
+ *
+ * To run a mutation, you first call `useAddVendorContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddVendorContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addVendorContactMutation, { data, loading, error }] = useAddVendorContactMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddVendorContactMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AddVendorContactMutation, AddVendorContactMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AddVendorContactMutation, AddVendorContactMutationVariables>(AddVendorContactDocument, options);
+      }
+export type AddVendorContactMutationHookResult = ReturnType<typeof useAddVendorContactMutation>;
+export const SetVendorContactActiveDocument = gql`
+    mutation SetVendorContactActive($id: ID!, $active: Boolean!) {
+  setVendorContactActive(id: $id, active: $active) {
+    id
+    active
+  }
+}
+    `;
+
+/**
+ * __useSetVendorContactActiveMutation__
+ *
+ * To run a mutation, you first call `useSetVendorContactActiveMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetVendorContactActiveMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setVendorContactActiveMutation, { data, loading, error }] = useSetVendorContactActiveMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      active: // value for 'active'
+ *   },
+ * });
+ */
+export function useSetVendorContactActiveMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetVendorContactActiveMutation, SetVendorContactActiveMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetVendorContactActiveMutation, SetVendorContactActiveMutationVariables>(SetVendorContactActiveDocument, options);
+      }
+export type SetVendorContactActiveMutationHookResult = ReturnType<typeof useSetVendorContactActiveMutation>;
+export const DeleteVendorContactDocument = gql`
+    mutation DeleteVendorContact($id: ID!) {
+  deleteVendorContact(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteVendorContactMutation__
+ *
+ * To run a mutation, you first call `useDeleteVendorContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteVendorContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteVendorContactMutation, { data, loading, error }] = useDeleteVendorContactMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteVendorContactMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteVendorContactMutation, DeleteVendorContactMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteVendorContactMutation, DeleteVendorContactMutationVariables>(DeleteVendorContactDocument, options);
+      }
+export type DeleteVendorContactMutationHookResult = ReturnType<typeof useDeleteVendorContactMutation>;
+export const ListVendorInvoicesPagedDocument = gql`
+    query ListVendorInvoicesPaged($input: TableQueryInput!) {
+  listVendorInvoicesPaged(input: $input) {
+    rows {
+      ...VendorInvoiceFields
+    }
+    totalCount
+  }
+}
+    ${VendorInvoiceFieldsFragmentDoc}`;
+
+/**
+ * __useListVendorInvoicesPagedQuery__
+ *
+ * To run a query within a React component, call `useListVendorInvoicesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListVendorInvoicesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListVendorInvoicesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListVendorInvoicesPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables> & ({ variables: ListVendorInvoicesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>(ListVendorInvoicesPagedDocument, options);
+      }
+export function useListVendorInvoicesPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>(ListVendorInvoicesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListVendorInvoicesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>;
+// @ts-ignore
+export function useListVendorInvoicesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListVendorInvoicesPagedQuery | undefined, ListVendorInvoicesPagedQueryVariables>;
+export function useListVendorInvoicesPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListVendorInvoicesPagedQuery, ListVendorInvoicesPagedQueryVariables>(ListVendorInvoicesPagedDocument, options);
+        }
+export type ListVendorInvoicesPagedQueryHookResult = ReturnType<typeof useListVendorInvoicesPagedQuery>;
+export type ListVendorInvoicesPagedLazyQueryHookResult = ReturnType<typeof useListVendorInvoicesPagedLazyQuery>;
+export type ListVendorInvoicesPagedSuspenseQueryHookResult = ReturnType<typeof useListVendorInvoicesPagedSuspenseQuery>;
+export const ListVendorInvoicesStatsDocument = gql`
+    query ListVendorInvoicesStats {
+  listVendorInvoicesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListVendorInvoicesStatsQuery__
+ *
+ * To run a query within a React component, call `useListVendorInvoicesStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListVendorInvoicesStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListVendorInvoicesStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListVendorInvoicesStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>(ListVendorInvoicesStatsDocument, options);
+      }
+export function useListVendorInvoicesStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>(ListVendorInvoicesStatsDocument, options);
+        }
+// @ts-ignore
+export function useListVendorInvoicesStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>;
+// @ts-ignore
+export function useListVendorInvoicesStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListVendorInvoicesStatsQuery | undefined, ListVendorInvoicesStatsQueryVariables>;
+export function useListVendorInvoicesStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListVendorInvoicesStatsQuery, ListVendorInvoicesStatsQueryVariables>(ListVendorInvoicesStatsDocument, options);
+        }
+export type ListVendorInvoicesStatsQueryHookResult = ReturnType<typeof useListVendorInvoicesStatsQuery>;
+export type ListVendorInvoicesStatsLazyQueryHookResult = ReturnType<typeof useListVendorInvoicesStatsLazyQuery>;
+export type ListVendorInvoicesStatsSuspenseQueryHookResult = ReturnType<typeof useListVendorInvoicesStatsSuspenseQuery>;
+export const ApproveVendorInvoiceDocument = gql`
+    mutation ApproveVendorInvoice($id: ID!) {
+  approveVendorInvoice(id: $id) {
+    ...VendorInvoiceFields
+  }
+}
+    ${VendorInvoiceFieldsFragmentDoc}`;
+
+/**
+ * __useApproveVendorInvoiceMutation__
+ *
+ * To run a mutation, you first call `useApproveVendorInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveVendorInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveVendorInvoiceMutation, { data, loading, error }] = useApproveVendorInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useApproveVendorInvoiceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ApproveVendorInvoiceMutation, ApproveVendorInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ApproveVendorInvoiceMutation, ApproveVendorInvoiceMutationVariables>(ApproveVendorInvoiceDocument, options);
+      }
+export type ApproveVendorInvoiceMutationHookResult = ReturnType<typeof useApproveVendorInvoiceMutation>;
+export const RejectVendorInvoiceDocument = gql`
+    mutation RejectVendorInvoice($id: ID!, $reason: String!) {
+  rejectVendorInvoice(id: $id, reason: $reason) {
+    ...VendorInvoiceFields
+  }
+}
+    ${VendorInvoiceFieldsFragmentDoc}`;
+
+/**
+ * __useRejectVendorInvoiceMutation__
+ *
+ * To run a mutation, you first call `useRejectVendorInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRejectVendorInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rejectVendorInvoiceMutation, { data, loading, error }] = useRejectVendorInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      reason: // value for 'reason'
+ *   },
+ * });
+ */
+export function useRejectVendorInvoiceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RejectVendorInvoiceMutation, RejectVendorInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RejectVendorInvoiceMutation, RejectVendorInvoiceMutationVariables>(RejectVendorInvoiceDocument, options);
+      }
+export type RejectVendorInvoiceMutationHookResult = ReturnType<typeof useRejectVendorInvoiceMutation>;
 export const FirecrawlConfigsDocument = gql`
     query FirecrawlConfigs {
   firecrawlConfigs {

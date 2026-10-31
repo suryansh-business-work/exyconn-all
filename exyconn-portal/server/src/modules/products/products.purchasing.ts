@@ -238,6 +238,8 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
 export const productsPurchasingResolvers = {
   PurchaseOrder: {
     supplierName: (row: { supplierName?: string | null }) => row.supplierName ?? '',
+    // Orders written before the vendor portal existed carry no acknowledgement fields.
+    acknowledgedBy: (row: { acknowledgedBy?: string | null }) => row.acknowledgedBy ?? '',
     lines: (row: { lines?: unknown[] }) => row.lines ?? [],
     /** What the order costs, tax included — computed, so it cannot disagree with its lines. */
     total: (row: { lines?: PurchaseLineShape[] }) => orderTotal(row.lines ?? []),

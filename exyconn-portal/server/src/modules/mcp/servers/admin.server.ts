@@ -5,6 +5,7 @@ import { auditTypeDefs } from '../../audit/audit.typeDefs';
 import { brandingTypeDefs } from '../../branding/branding.typeDefs';
 import { i18nTypeDefs } from '../../i18n/i18n.typeDefs';
 import { integrationsTypeDefs } from '../../integrations/integrations.typeDefs';
+import { developerTypeDefs } from '../../integrations/developer.typeDefs';
 import { healthTypeDefs } from '../../health/health.typeDefs';
 import { analyticsTypeDefs } from '../../analytics/analytics.typeDefs';
 import { clientsTypeDefs } from '../../clients/clients.typeDefs';
@@ -35,6 +36,7 @@ export const ADMIN_MCP: McpServerSpec = {
     brandingTypeDefs,
     i18nTypeDefs,
     integrationsTypeDefs,
+    developerTypeDefs,
     healthTypeDefs,
     analyticsTypeDefs,
     clientsTypeDefs,

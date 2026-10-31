@@ -152,6 +152,11 @@ export const env = Object.freeze({
   /** The CRM portal's address, for links in CRM reminder emails. */
   crmUrl: (process.env.CRM_URL ?? 'https://crm.exyconn.com').replace(/\/$/, ''),
   clientHubUrl: (process.env.CLIENT_HUB_URL ?? 'https://clienthub.exyconn.com').replace(/\/$/, ''),
+  /** The vendor portal: where a supplier's people sign in to see and invoice purchase orders. */
+  vendorPortalUrl: (process.env.VENDOR_PORTAL_URL ?? 'https://vendors.exyconn.com').replace(
+    /\/$/,
+    '',
+  ),
   /**
    * Where a self-service password reset link opens when the request did not come from a
    * portal origin CORS trusts (a curl, say). A request from a portal links back to itself.

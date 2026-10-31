@@ -71,6 +71,9 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import WebhookIcon from '@mui/icons-material/Webhook';
+import CodeIcon from '@mui/icons-material/Code';
+import KeyIcon from '@mui/icons-material/Key';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -656,6 +659,12 @@ export const MODULES: ModuleDefinition[] = [
         icon: ShoppingCartIcon,
       },
       { key: 'products-stock', label: 'Stock', path: '/products/stock', icon: BuildIcon },
+      {
+        key: 'products-vendor-invoices',
+        label: 'Vendor invoices',
+        path: '/products/vendor-invoices',
+        icon: ReceiptLongIcon,
+      },
     ],
   },
   {
@@ -1037,13 +1046,6 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Audit Log',
         path: '/admin/audit',
         icon: HistoryIcon,
-        group: 'System',
-      },
-      {
-        key: 'admin-integrations',
-        label: 'Integrations',
-        path: '/admin/integrations',
-        icon: WebhookIcon,
         group: 'System',
       },
       {
@@ -1733,6 +1735,51 @@ export const MODULES: ModuleDefinition[] = [
         role: ROLES.ADMIN,
       },
     ],
+  },
+  {
+    // Integrations live here: API keys, webhooks and what reaches them, the event catalogue, the
+    // API reference and how to connect Claude. An administrator's, like the keys themselves.
+    key: 'developers',
+    label: 'Developers',
+    path: '/developers',
+    role: ROLES.ADMIN,
+    icon: CodeIcon,
+    description: 'API keys, webhooks, the API reference and MCP',
+    accent: color.slate[500],
+    children: [
+      { key: 'dev-api-keys', label: 'API keys', path: '/developers/api-keys', icon: KeyIcon },
+      { key: 'dev-webhooks', label: 'Webhooks', path: '/developers/webhooks', icon: WebhookIcon },
+      {
+        key: 'dev-deliveries',
+        label: 'Delivery log',
+        path: '/developers/deliveries',
+        icon: HistoryIcon,
+      },
+      {
+        key: 'dev-events',
+        label: 'Event catalogue',
+        path: '/developers/events',
+        icon: EventNoteIcon,
+      },
+      {
+        key: 'dev-reference',
+        label: 'API reference',
+        path: '/developers/reference',
+        icon: MenuBookIcon,
+      },
+      { key: 'dev-mcp', label: 'Claude (MCP)', path: '/developers/mcp', icon: HubIcon },
+    ],
+  },
+  {
+    // Listed for Products staff so a supplier can be pointed at it; the portal itself signs a
+    // supplier's people in with an emailed code, not with a portal role.
+    key: 'vendors',
+    label: 'Vendor Portal',
+    path: '/orders',
+    role: ROLES.PRODUCTS,
+    icon: LocalShippingIcon,
+    description: 'Where suppliers see purchase orders and send invoices',
+    accent: color.orange[500],
   },
   {
     // Listed for everyone in the company so a client can be pointed at it; the hub itself signs

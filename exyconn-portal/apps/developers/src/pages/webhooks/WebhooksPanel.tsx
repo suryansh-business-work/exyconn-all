@@ -13,7 +13,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { WebhookSecretAlert } from './WebhookSecretAlert';
-import { toggleValue } from './toggleValue';
+import { toggleValue } from '../toggleValue';
 
 type WebhookRow = ListWebhooksQuery['listWebhooks'][number];
 

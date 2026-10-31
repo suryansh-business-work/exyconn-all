@@ -4960,6 +4960,40 @@ export type VaultLocationState =
   | 'GRANTED'
   | 'UNAVAILABLE';
 
+export type VendorContactInput = {
+  /** The address they sign in with; it may have vendor portal access at one supplier only. */
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  /** The supplier the person works for. */
+  supplierId: Scalars['ID']['input'];
+};
+
+export type VendorInvoiceInput = {
+  /** The invoice total, in the order's currency. */
+  amount: Scalars['Float']['input'];
+  dueDate: Scalars['DateTime']['input'];
+  fileName: Scalars['String']['input'];
+  /** The uploaded invoice document's URL, from vendorUploadInvoiceFile. */
+  fileUrl: Scalars['String']['input'];
+  invoiceDate: Scalars['DateTime']['input'];
+  /** The supplier's own invoice number. */
+  invoiceNumber: Scalars['String']['input'];
+  notes: InputMaybe<Scalars['String']['input']>;
+  /** The purchase order this invoice bills. */
+  purchaseOrderId: Scalars['ID']['input'];
+};
+
+export type VendorInvoiceStatus =
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'SUBMITTED';
+
+/** NOT_BILLED until the buyer approves the invoice; then the Finance bill's UNPAID or PAID. */
+export type VendorPaymentStatus =
+  | 'NOT_BILLED'
+  | 'PAID'
+  | 'UNPAID';
+
 export type WebsiteCaptchaAnswer = {
   answer: Scalars['String']['input'];
   token: Scalars['String']['input'];

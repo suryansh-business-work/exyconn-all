@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../test-utils';
-import { WebhooksPanel } from '../../../../src/pages/integrations/WebhooksPanel';
+import { WebhooksPanel } from '../../../../src/pages/webhooks/WebhooksPanel';
 import { webhook } from './integrations.fixtures';
 
 /**

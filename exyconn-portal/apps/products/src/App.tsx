@@ -6,6 +6,7 @@ import { ProductsOverviewPage, ProductsPage } from './pages/products';
 import { SuppliersPage } from './pages/suppliers';
 import { StockPage } from './pages/stock';
 import { PurchaseOrdersPage } from './pages/purchase-orders';
+import { VendorInvoicesPage } from './pages/vendor-invoices/VendorInvoicesPage';
 
 /** Products micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -16,6 +17,7 @@ export function App() {
       <Route path="/products/suppliers" element={<SuppliersPage />} />
       <Route path="/products/purchase-orders" element={<PurchaseOrdersPage />} />
       <Route path="/products/stock" element={<StockPage />} />
+      <Route path="/products/vendor-invoices" element={<VendorInvoicesPage />} />
     </PortalApp>
   );
 }

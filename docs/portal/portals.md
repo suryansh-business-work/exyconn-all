@@ -35,6 +35,8 @@ running identical code.
 | WhatsApp Demo          | `whatsapp-demo` | https://demos.exyconn.com/whatsapp-demo/ | https://demos.exyconn.com/whatsapp-demo/login | 4038     | `EMPLOYEE`                   |
 | Client Hub             | `clienthub`     | https://clienthub.exyconn.com            | https://clienthub.exyconn.com/login           | 4039     | client contacts (email code) |
 | Agents                 | `agents`        | https://agents.exyconn.com               | https://agents.exyconn.com/login              | 4045     | `AGENTS`                     |
+| Developers             | `developers`    | https://developers.exyconn.com           | https://developers.exyconn.com/login          | 4046     | `ADMIN`                      |
+| Vendor Portal          | `vendors`       | https://vendors.exyconn.com              | https://vendors.exyconn.com/login             | 4047     | supplier contacts (email code) |
 
 Not portal apps, but part of the same deployment:
 
@@ -63,6 +65,15 @@ Website > Chatbot; the old addresses redirect to the same screen on agents.exyco
 `AGENTS` role was granted once, at boot, to everyone who held `TECH` or `WEBSITE`. The bots'
 credentials (calling bot keys, the WhatsApp number's Meta token) stay behind the Tech vault, so
 changing one still needs the vault unlocked in Tech > Environment Variables.
+
+Developers is where integrations live: API keys (with per-key daily usage), webhooks and their
+paged delivery log, the webhook event catalogue, an API reference built from the same schema
+descriptions as the MCP tools, and the MCP server addresses with a link into mcp.exyconn.com.
+Admin › Integrations redirects there. The Vendor Portal mirrors the client hub for suppliers: a
+supplier's people, given access in Products › Suppliers (key icon), sign in with an emailed code
+(`x-vendor-pass`), see their purchase orders, acknowledge them and send invoices against them;
+Products › Vendor invoices approves one into a Finance bill whose paid status is what the supplier
+sees as paid. See [vendor-portal.md](./vendor-portal.md).
 
 The status page is built from the same packages but is deliberately **not** a portal app:
 it has no login, no role and no portal chrome, because an outage is exactly when nobody can

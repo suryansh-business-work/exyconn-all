@@ -45,7 +45,12 @@ import {
   licencesTypeDefs,
   licencesResolvers,
 } from '../modules/assets';
-import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
+import {
+  integrationsTypeDefs,
+  integrationsResolvers,
+  developerTypeDefs,
+  developerResolvers,
+} from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { attendanceTypeDefs } from '../modules/hr/attendance.typeDefs';
 import { itsmTypeDefs, itsmResolvers } from '../modules/itsm';
@@ -206,6 +211,11 @@ import {
   walletGatewayResolvers,
 } from '../modules/clienthub';
 import { payoutTypeDefs, payoutResolvers } from '../modules/payout';
+import {
+  vendorPortalTypeDefs,
+  vendorStaffTypeDefs,
+  vendorPortalResolvers,
+} from '../modules/vendor-portal';
 import { techVaultTypeDefs, techVaultResolvers } from '../modules/tech/vault';
 import { providerProfileTypeDefs, providerProfileResolvers } from '../modules/tech/providers';
 import { techTransferTypeDefs, techTransferResolvers } from '../modules/tech/transfer';
@@ -309,6 +319,7 @@ export const typeDefs = [
   productsInventoryTypeDefs,
   productsPurchasingTypeDefs,
   integrationsTypeDefs,
+  developerTypeDefs,
   hrTypeDefs,
   attendanceTypeDefs,
   employeeTypeDefs,
@@ -388,6 +399,8 @@ export const typeDefs = [
   clientHubTypeDefs,
   clientRecordsTypeDefs,
   walletGatewayTypeDefs,
+  vendorPortalTypeDefs,
+  vendorStaffTypeDefs,
   payoutTypeDefs,
   techVaultTypeDefs,
   providerProfileTypeDefs,
@@ -439,6 +452,7 @@ export const resolvers = mergeResolvers([
   productsInventoryResolvers,
   productsPurchasingResolvers,
   integrationsResolvers,
+  developerResolvers,
   hrResolvers,
   employeeResolvers,
   supportResolvers,
@@ -510,6 +524,7 @@ export const resolvers = mergeResolvers([
   clientHubResolvers,
   clientRecordsResolvers,
   walletGatewayResolvers,
+  vendorPortalResolvers,
   payoutResolvers,
   techVaultResolvers,
   providerProfileResolvers,

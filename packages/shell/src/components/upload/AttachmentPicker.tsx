@@ -20,6 +20,11 @@ interface AttachmentPickerProps {
   onChange: (next: AttachmentItem[]) => void;
   /** Groups the uploads on the CDN, e.g. "support". */
   folder: string;
+  /**
+   * Uploads one file and answers its URL, for someone who is not a portal user (a vendor
+   * contact) and so cannot use the portal's own upload. Leave out to use the portal's.
+   */
+  uploader?: (file: File) => Promise<string>;
 }
 
 /**
@@ -31,18 +36,27 @@ interface AttachmentPickerProps {
  * only: those are what the portal's upload path accepts, and saying so up front is kinder
  * than a rejection after the wait.
  */
-export function AttachmentPicker({ value, onChange, folder }: Readonly<AttachmentPickerProps>) {
+export function AttachmentPicker({
+  value,
+  onChange,
+  folder,
+  uploader,
+}: Readonly<AttachmentPickerProps>) {
   const notify = useNotify();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [uploadImage] = useUploadImageMutation();
 
-  const uploadOne = async (file: File): Promise<AttachmentItem> => {
+  const portalUpload = async (file: File): Promise<string | undefined> => {
     const { data } = await uploadImage({
       variables: { file: await fileToDataUrl(file), fileName: file.name, folder },
     });
-    const url = data?.uploadImage;
+    return data?.uploadImage;
+  };
+
+  const uploadOne = async (file: File): Promise<AttachmentItem> => {
+    const url = await (uploader ?? portalUpload)(file);
     if (!url) {
       throw new Error('Upload returned no URL');
     }
