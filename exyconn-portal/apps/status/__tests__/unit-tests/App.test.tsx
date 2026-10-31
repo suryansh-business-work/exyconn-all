@@ -28,6 +28,14 @@ vi.mock('../../src/pages/sign', async () => {
     },
   };
 });
+vi.mock('../../src/pages/rate', async () => {
+  const { useParams } = await import('react-router-dom');
+  return {
+    RateSupportPage: function RateStub() {
+      return <p>{`Rate page ${useParams().token ?? ''}`}</p>;
+    },
+  };
+});
 vi.mock('../../src/pages/project', async () => {
   const { useParams } = await import('react-router-dom');
   return {
@@ -55,6 +63,7 @@ describe('App', () => {
     ['/unsubscribe?token=abc', 'Unsubscribe page'],
     ['/sign/contract-token', 'Sign page contract-token'],
     ['/project/share-token', 'Project page share-token'],
+    ['/help/rate/survey-token', 'Rate page survey-token'],
   ])('renders the page for %s inside the status frame', async (path, text) => {
     renderAt(path);
     expect(await screen.findByText(text)).toBeInTheDocument();
