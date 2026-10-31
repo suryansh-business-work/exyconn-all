@@ -279,10 +279,13 @@ Sonar rules that keep failing here (rule id in brackets). **Get them right up fr
 
 36. Exyconn operating rules (adapted 2026-10-03). Where these overlap a rule above, the stricter one wins; the conflicts are settled here explicitly.
 
-### Testing — temporarily paused (overrides rules 4, 22, 25, 26g and "Before you finish" until lifted)
-- Do not write new unit, integration, Cypress or E2E tests, and do not run them locally. Focus on feature work.
-- A failing test is not a reason to stop feature work. Still run typecheck, lint, format and build.
-- Once lifted: no dummy or coverage-only tests. Each test checks real behaviour (success, failure, validation, boundary and edge cases), runs the same way every time, and has a real assertion. Overall coverage stays above 85%. The phone tracker keeps its 100% gate.
+### Testing — required, 100% coverage
+- Every change ships with complete tests: unit and integration tests for server and package logic, Cypress specs for forms and user flows. Run them locally before pushing.
+- Coverage is 100% (statements, branches, functions, lines) for all new and changed code, and no package's coverage gate may drop.
+- No dummy or coverage-only tests. Each test checks real behaviour (success, failure, validation, boundary and edge cases), runs the same way every time, and has a real assertion.
+- A failing test blocks the push: fix the root cause, never skip or delete the test.
+
+37. Whenever any portal feature, API, workflow, schema, permission, configuration, or business logic is added, modified, or removed, automatically identify, synchronize, and update all related MCP servers, MCP tools, tool definitions, handlers, input/output schemas, integrations, documentation, and dependencies to ensure complete consistency between the portal and its MCP ecosystem. Every relevant MCP tool must always reflect the latest portal functionality without missing, outdated, or broken capabilities. Treat MCP synchronization as a mandatory part of every portal change, validate backward compatibility, run relevant tests, and ensure all affected MCP tools are fully updated and verified before considering the task complete.
 
 ### System safety
 - Before and during heavy work (builds, codegen, Docker, Cypress), watch CPU temperature and load, RAM and free disk. If any gets close to critical, pause, wait for it to settle, then carry on from the same step without asking the user to type "continue". See the memory note on CI `--parallel` OOM. Locally, use `--workspace-concurrency` rather than `--parallel` too.
