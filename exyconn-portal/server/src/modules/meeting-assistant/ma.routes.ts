@@ -22,8 +22,16 @@ import { readDownloadToken, MA_DOWNLOAD_PATH } from './download-links';
 import { openReleaseArtifact } from './releases.service';
 import { streamReleaseZip } from './releases.store';
 import { addReleaseUploadRoute } from './releases.upload';
+import { addBotRoutes } from './bot.routes';
 import { streamMergedWav } from './recording.store';
-import { saveScreenPiece, screenPartOf, ScreenPieceTooLarge, streamScreen } from './screen.store';
+import {
+  saveScreenPiece,
+  screenCodec,
+  screenPartOf,
+  ScreenPieceTooLarge,
+  streamScreen,
+} from './screen.store';
+import { codecOfMime, streamAsMp4 } from './mp4';
 import { getMaSettings } from './settings.service';
 import { MaMeetingModel, type MaMeetingDocument } from './models';
 
@@ -284,7 +292,7 @@ async function storePiece(actor: MaActor, piece: VideoPiece, req: Request) {
   if (refusal) {
     return refusal;
   }
-  await saveScreenPiece(piece, piece.durationMs, req);
+  await saveScreenPiece(piece, piece.durationMs, codecOfMime(req.get('content-type') ?? ''), req);
   return null;
 }
 
@@ -350,15 +358,18 @@ async function sendRelease(id: string, res: Response): Promise<void> {
   await streamReleaseZip(release.fileId, res);
 }
 
-/** One part of the screen recording as one WebM file. */
+/** One part of the screen recording as one MP4 file, converted from its WebM pieces. */
 async function sendScreen(id: string, stream: string, part: number, res: Response) {
-  res.set({
-    'Content-Type': 'video/webm',
-    'Content-Disposition': `attachment; filename="meeting-${id}-${stream.toLowerCase()}.webm"`,
-  });
-  if (!(await streamScreen(id, part, res))) {
+  const codec = await screenCodec(id, part);
+  if (!codec) {
     res.status(404).send('No recording saved');
+    return;
   }
+  res.set({
+    'Content-Type': 'video/mp4',
+    'Content-Disposition': `attachment; filename="meeting-${id}-${stream.toLowerCase()}.mp4"`,
+  });
+  await streamAsMp4(codec, (input) => streamScreen(id, part, input), res);
 }
 
 async function sendRecording(id: string, stream: string, res: Response): Promise<void> {
@@ -442,6 +453,7 @@ export function meetAssistantRouter(): Router {
     });
   });
   addReleaseUploadRoute(router);
+  addBotRoutes(router);
   router.get(MA_DOWNLOAD_PATH.replace(MA_REST_PATH, ''), (req, res) => {
     downloadEndpoint(req, res).catch((error: unknown) => logger.error({ err: error }, 'download'));
   });

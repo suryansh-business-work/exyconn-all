@@ -181,10 +181,10 @@ describe('video recorder', () => {
     return { video, onPiece, recorder: FakeRecorder.instances[0] };
   };
 
-  it('records one continuous VP8/Opus file handed over in numbered pieces', () => {
+  it('records one continuous H.264/Opus file handed over in numbered pieces', () => {
     const { onPiece, recorder } = start();
     expect(recorder.options).toEqual({
-      mimeType: 'video/webm;codecs=vp8,opus',
+      mimeType: 'video/webm;codecs=h264,opus',
       videoBitsPerSecond: 1_000_000,
       audioBitsPerSecond: 64_000,
     });

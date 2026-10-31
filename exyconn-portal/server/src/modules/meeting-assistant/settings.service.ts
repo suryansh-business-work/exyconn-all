@@ -20,7 +20,8 @@ const DUPLICATE_KEY = 11000;
 export async function getMaSettings(): Promise<MaSettingsDocument> {
   const existing = await MaSettingsModel.findOne({ key: KEY }).lean<MaSettingsDocument>();
   if (existing) {
-    return existing;
+    // A row saved before a setting existed lacks it, and lean() skips defaults: hydrate fills them.
+    return MaSettingsModel.hydrate(existing).toObject<MaSettingsDocument>();
   }
   try {
     return (await MaSettingsModel.findOneAndUpdate(
@@ -66,6 +67,10 @@ export async function updateMaSettings(input: MaSettingsInput, actorName: string
   const emailAllowedDomains = cleanList(input.emailAllowedDomains);
   const defaultRecipients = cleanList(input.defaultRecipients);
   checkRecipients(defaultRecipients, emailAllowedDomains);
+  const botName = input.botName.trim();
+  if (botName.length === 0 || botName.length > 60) {
+    badRequest('The bot name must be 1 to 60 characters.');
+  }
   await getMaSettings();
   return MaSettingsModel.findOneAndUpdate(
     { key: KEY },
@@ -75,6 +80,7 @@ export async function updateMaSettings(input: MaSettingsInput, actorName: string
         allowedUserIds: [...new Set(input.allowedUserIds)],
         emailAllowedDomains,
         defaultRecipients,
+        botName,
         updatedByName: actorName,
       },
     },

@@ -15,6 +15,7 @@ import { crmMailTypeDefs } from '../../crm-mail/crm-mail.typeDefs';
 import { myMailboxesTypeDefs } from '../../my-mailboxes/my-mailboxes.typeDefs';
 import { gmailTypeDefs } from '../../gmail/gmail.typeDefs';
 import { microsoftMailTypeDefs } from '../../microsoft-mail/microsoft.typeDefs';
+import { mailHealthTypeDefs } from '../../mail-health/mail-health.typeDefs';
 import { emailVerificationTypeDefs } from '../../email-verification/email-verification.typeDefs';
 import { googleMapsTypeDefs } from '../../google-maps/google-maps.typeDefs';
 import { webScraperTypeDefs } from '../../web-scraper/web-scraper.typeDefs';
@@ -24,7 +25,7 @@ import type { McpServerSpec } from './spec';
 
 /**
  * The CRM as an MCP server: records (leads, companies, contacts, deals), activities and the
- * timeline, meetings and the calendar, the dashboard, mail and mailboxes, cold emails, the lead
+ * timeline, meetings and the calendar, the dashboard, mail and mailboxes (with their domains' health), cold emails, the lead
  * generators (Google Business and Clutch), the email verifier and the website scraper.
  *
  * A CRM feature added to one of these typeDefs is a tool the next time the server starts. A NEW
@@ -56,6 +57,7 @@ export const CRM_MCP: McpServerSpec = {
     myMailboxesTypeDefs,
     gmailTypeDefs,
     microsoftMailTypeDefs,
+    mailHealthTypeDefs,
     emailVerificationTypeDefs,
     googleMapsTypeDefs,
     webScraperTypeDefs,

@@ -211,6 +211,25 @@ function startSession(
   });
 }
 
+/** The extension id a meeting bot's session is filed under, apart from real browsers. */
+export const BOT_EXTENSION_ID = 'meet-bot';
+
+/**
+ * A session for the meeting bot acting for its owner: the same narrow extension token, so the
+ * bot can run only what the extension can, and only for that person. Revoked when the trip ends.
+ */
+export function startBotSession(
+  userId: string,
+  organizationId: string,
+  botName: string,
+): Promise<TokenResponse> {
+  return startSession(userId, organizationId, BOT_EXTENSION_ID, {
+    deviceLabel: botName,
+    extensionVersion: 'meeting-bot',
+    userAgent: 'Exyconn meeting bot',
+  });
+}
+
 /** With two-factor on, a password buys only this: a five-minute challenge for the code. */
 export interface MfaRequired {
   mfa_required: true;

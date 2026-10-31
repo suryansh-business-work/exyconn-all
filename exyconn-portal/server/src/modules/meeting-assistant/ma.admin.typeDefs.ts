@@ -48,6 +48,12 @@ export const maAdminTypeDefs = gql`
     participantTracking: Boolean!
     liveTranscript: Boolean!
     releaseChannel: MaReleaseChannel!
+    "The meeting bot may be sent into Google Meet calls."
+    botEnabled: Boolean!
+    "Send the bot into every Google Calendar event with a Meet link of a person who connected Google."
+    botAutoJoin: Boolean!
+    "The name the bot joins calls under."
+    botName: String!
     "AI spend on meetings so far this calendar month."
     monthSpendUsd: Float!
     updatedByName: String!
@@ -79,6 +85,12 @@ export const maAdminTypeDefs = gql`
     participantTracking: Boolean!
     liveTranscript: Boolean!
     releaseChannel: MaReleaseChannel!
+    "Whether the meeting bot may be sent into calls."
+    botEnabled: Boolean!
+    "Whether the bot joins connected people's Google Calendar Meet events on its own."
+    botAutoJoin: Boolean!
+    "The name the bot joins calls under, 1 to 60 characters."
+    botName: String!
   }
 
   "What the signed-in extension needs to start: who it is, and the company's switches."

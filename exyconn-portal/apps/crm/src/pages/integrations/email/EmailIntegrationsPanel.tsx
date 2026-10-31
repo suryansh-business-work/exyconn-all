@@ -16,6 +16,7 @@ import {
 import { useGmailAccountActions } from './useGmailAccountActions';
 import { useMailboxes, type MailboxSource } from './useMailboxes';
 import { useMicrosoftMailActions } from './useMicrosoftMailActions';
+import { MailHealthSection, useMailHealth } from './health';
 
 const logFailure = (error: unknown) => portalLogger.warn('crm: mailbox list action failed', error);
 
@@ -43,7 +44,8 @@ function LoadFailure({ text, source }: Readonly<LoadFailureProps>) {
 
 /**
  * CRM > Integrations > Email: the company's own Gmail and Microsoft mailboxes CRM emails go out
- * from, in one table, with a Connect button per provider in the header.
+ * from, in one table, with a Connect button per provider in the header, and the health of the
+ * domains they send from under it.
  */
 export function EmailIntegrationsPanel() {
   const actions: MailboxActionsByProvider = {
@@ -51,6 +53,7 @@ export function EmailIntegrationsPanel() {
     MICROSOFT: useMicrosoftMailActions(),
   };
   const { rows, loading, sources, refetch } = useMailboxes();
+  const health = useMailHealth();
   const [detailsId, setDetailsId] = useState<string | null>(null);
   // Looked up on every render so the dialog follows the row after a test or a refetch.
   const details = rows.find((row) => row.id === detailsId) ?? null;
@@ -84,10 +87,12 @@ export function EmailIntegrationsPanel() {
             rows={rows}
             loading={loading}
             actions={actions}
-            onRefresh={refetch}
+            healthDomains={health.domains}
+            onRefresh={() => Promise.all([refetch(), health.refetch()])}
             onViewDetails={(row: MailboxRow) => setDetailsId(row.id)}
           />
         )}
+        <MailHealthSection health={health} />
       </Stack>
       <MailboxErrorDialog row={details} onClose={() => setDetailsId(null)} />
     </Box>

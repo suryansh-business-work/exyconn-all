@@ -447,6 +447,9 @@ fragment MaSettingsFields on MaSettings {
   participantTracking
   liveTranscript
   releaseChannel
+  botEnabled
+  botAutoJoin
+  botName
   monthSpendUsd
   updatedByName
   updatedAt
@@ -562,5 +565,38 @@ query MaEventsPaged($input: TableQueryInput!, $scope: MaScope, $meetingId: ID) {
       details
       createdAt
     }
+  }
+}
+
+fragment MaBotDispatchFields on MaBotDispatch {
+  id
+  ownerName
+  meetingCode
+  meetUrl
+  title
+  source
+  status
+  meetingId
+  error
+  joinAt
+  createdAt
+  finishedAt
+}
+
+query MaBotDispatches($scope: MaScope) {
+  maBotDispatches(scope: $scope) {
+    ...MaBotDispatchFields
+  }
+}
+
+mutation MaSendBot($meetUrl: String!, $title: String) {
+  maSendBot(meetUrl: $meetUrl, title: $title) {
+    ...MaBotDispatchFields
+  }
+}
+
+mutation MaCancelBot($id: ID!) {
+  maCancelBot(id: $id) {
+    ...MaBotDispatchFields
   }
 }

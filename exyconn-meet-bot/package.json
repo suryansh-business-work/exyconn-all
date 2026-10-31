@@ -1,0 +1,29 @@
+{
+  "name": "@exyconn/meet-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Meeting Assistant's meeting bot: joins Google Meet calls in a virtual display, announces itself in the chat, and records and transcribes the call through the portal server as its owner's meeting.",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "playwright-core": "^1.64.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@exyconn/config": "workspace:*",
+    "@types/node": "^22.10.5",
+    "eslint": "^10.9.1",
+    "globals": "^17.12.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.69.0"
+  },
+  "prettier": "@exyconn/config/prettier.json"
+}

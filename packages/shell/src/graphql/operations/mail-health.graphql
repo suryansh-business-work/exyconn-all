@@ -1,0 +1,30 @@
+# Account health of the CRM's mailboxes: SPF, DKIM, DMARC, MX and blocklists on every domain
+# the company's Gmail and Microsoft mailboxes send from (CRM > Integrations > Email).
+fragment MailDomainHealthFields on MailDomainHealth {
+  domain
+  providers
+  mailboxes
+  score
+  previousScore
+  checkedAt
+  checks {
+    code
+    status
+    message
+    fix
+    record
+    suggested
+  }
+}
+
+query MailDomainHealth {
+  mailDomainHealth {
+    ...MailDomainHealthFields
+  }
+}
+
+mutation CheckMailDomainHealth($domain: String!) {
+  checkMailDomainHealth(domain: $domain) {
+    ...MailDomainHealthFields
+  }
+}

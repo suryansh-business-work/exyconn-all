@@ -135,7 +135,7 @@ describe('service worker: screen-recording uploads', () => {
       seq: 3,
       part: '1',
       durationMs: '5000',
-      contentType: 'video/webm',
+      contentType: 'video/webm;codecs=h264,opus',
       bytes: new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]),
     });
     await vi.waitFor(async () => expect((await worker.session())?.pendingUploads).toBe(0));

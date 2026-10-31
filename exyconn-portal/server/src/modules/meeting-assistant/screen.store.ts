@@ -3,6 +3,7 @@ import { Transform, type Readable, type Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '../../utils/logger';
 import { gridFsBucket, organization, scoped, type RecordingTrack } from './recording.store';
+import type { ScreenCodec } from './mp4';
 
 /**
  * The live screen recording: the meeting tab's video and mixed audio as WebM, uploaded in ~5 s
@@ -25,7 +26,8 @@ export interface ScreenPieceRef {
 interface ScreenFile {
   _id: mongoose.Types.ObjectId;
   length: number;
-  metadata: ScreenPieceRef & { durationMs: number };
+  /** `codec` is missing on pieces saved before H.264 capture: those are VP8. */
+  metadata: ScreenPieceRef & { durationMs: number; codec?: ScreenCodec };
 }
 
 /** A piece larger than the cap; nothing of it is kept. */
@@ -113,11 +115,12 @@ async function keepNewest(ref: ScreenPieceRef): Promise<void> {
 export async function saveScreenPiece(
   ref: ScreenPieceRef,
   durationMs: number,
+  codec: ScreenCodec,
   body: Readable,
 ): Promise<void> {
   const organizationId = organization();
   const upload = bucket().openUploadStream(`${ref.meetingId}/screen/${ref.part}/${ref.seq}.webm`, {
-    metadata: { organizationId, ...ref, durationMs },
+    metadata: { organizationId, ...ref, durationMs, codec },
   });
   const outcome: Outcome = { error: null };
   const cap = sizeCap(outcome);
@@ -164,6 +167,16 @@ export async function screenTracks(meetingId: string): Promise<RecordingTrack[]>
     ...track,
     seconds: Math.round(ms / 1000),
   }));
+}
+
+/** The codec a part was captured in (its first piece's), or null when the part has no pieces. */
+export async function screenCodec(meetingId: string, part: number): Promise<ScreenCodec | null> {
+  const [first] = (await bucket()
+    .find(scoped({ 'metadata.meetingId': meetingId, 'metadata.part': part }))
+    .sort({ 'metadata.seq': 1 })
+    .limit(1)
+    .toArray()) as unknown as ScreenFile[];
+  return first ? (first.metadata.codec ?? 'vp8') : null;
 }
 
 /** Streams one part as ONE WebM file: its pieces in seq order. Returns false when none. */

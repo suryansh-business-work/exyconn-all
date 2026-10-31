@@ -6,11 +6,14 @@ import { DataTable, type Column, type RowAction } from '@exyconn/shell/component
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import type { MailboxActionsByProvider, MailboxRow } from './mailboxes';
 import { LastActivityCell, MailboxCell, MailboxStatusCell, UseForCrmSwitch } from './MailboxCells';
+import { domainOf, HealthScoreChip, type DomainHealth } from './health';
 
 interface MailboxTableProps {
   rows: MailboxRow[];
   loading: boolean;
   actions: MailboxActionsByProvider;
+  /** Each sending domain's last health check, for the Health column. */
+  healthDomains: readonly DomainHealth[];
   onRefresh: () => Promise<unknown>;
   /** Opens the full text of a mailbox's last error. */
   onViewDetails: (row: MailboxRow) => void;
@@ -18,10 +21,19 @@ interface MailboxTableProps {
 
 const logFailure = (error: unknown) => portalLogger.warn('crm: mailbox action failed', error);
 
-function mailboxColumns(actions: MailboxActionsByProvider): Column<MailboxRow>[] {
+function mailboxColumns(
+  actions: MailboxActionsByProvider,
+  healthDomains: readonly DomainHealth[],
+): Column<MailboxRow>[] {
+  const scores = new Map(healthDomains.map((entry) => [entry.domain, entry.score]));
   return [
     { key: 'email', label: 'Mailbox', render: (row) => <MailboxCell row={row} /> },
     { key: 'status', label: 'Status', render: (row) => <MailboxStatusCell row={row} /> },
+    {
+      key: 'health',
+      label: 'Health',
+      render: (row) => <HealthScoreChip score={scores.get(domainOf(row.email))} />,
+    },
     {
       key: 'enabled',
       label: 'Use for CRM',
@@ -78,12 +90,13 @@ export function MailboxTable({
   rows,
   loading,
   actions,
+  healthDomains,
   onRefresh,
   onViewDetails,
 }: Readonly<MailboxTableProps>) {
   return (
     <DataTable
-      columns={mailboxColumns(actions)}
+      columns={mailboxColumns(actions, healthDomains)}
       rows={rows}
       actions={mailboxRowActions(actions, onViewDetails)}
       loading={loading}

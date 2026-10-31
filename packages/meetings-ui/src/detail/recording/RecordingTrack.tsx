@@ -73,7 +73,7 @@ interface RecordingTrackProps {
 }
 
 /**
- * One saved stream: how long and how large it is, a download (WAV for audio, WebM for the
+ * One saved stream: how long and how large it is, a download (WAV for audio, MP4 for the
  * screen recording), and a player fed the same short-lived signed link (fetched only when
  * someone asks to play it).
  */

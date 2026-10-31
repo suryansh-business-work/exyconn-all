@@ -1,6 +1,6 @@
-/** VP8 at ~1 Mb/s for 720p/15 fps, Opus for the mixed call audio. */
+/** H.264 at ~1 Mb/s for 720p/15 fps (the server remuxes it to MP4 without re-encoding), Opus audio. */
 const VIDEO_OPTIONS: MediaRecorderOptions = {
-  mimeType: 'video/webm;codecs=vp8,opus',
+  mimeType: 'video/webm;codecs=h264,opus',
   videoBitsPerSecond: 1_000_000,
   audioBitsPerSecond: 64_000,
 };
