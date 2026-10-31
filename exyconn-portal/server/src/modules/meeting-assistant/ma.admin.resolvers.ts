@@ -71,7 +71,7 @@ function downloadOf(meetingId: string, stream: string) {
   const base = `meeting-${meetingId}-${stream.toLowerCase()}`;
   if (part !== null) {
     const which = part === 0 ? '' : ` (part ${part + 1})`;
-    return { fileName: `${base}.webm`, summary: `Downloaded the screen recording${which}` };
+    return { fileName: `${base}.mp4`, summary: `Downloaded the screen recording${which}` };
   }
   const what = stream === 'MIC' ? 'microphone' : 'meeting';
   return { fileName: `${base}.wav`, summary: `Downloaded the ${what} recording` };

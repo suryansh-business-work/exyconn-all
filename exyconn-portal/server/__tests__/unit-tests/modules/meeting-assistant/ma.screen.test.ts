@@ -28,6 +28,18 @@ import { AuditLogModel } from '../../../../src/modules/audit';
 import { runForOrganization } from '../../../../src/lib/tenant';
 import { ROLES } from '../../../../src/constants/roles';
 import type { MaActor } from '../../../../src/modules/meeting-assistant/ma.access';
+import { streamAsMp4 } from '../../../../src/modules/meeting-assistant/mp4';
+
+// ffmpeg is not on the test machines: the conversion hands the WebM through unchanged, so the
+// download shows exactly which pieces, in which order, were fed to it.
+jest.mock('../../../../src/modules/meeting-assistant/mp4', () => ({
+  ...jest.requireActual('../../../../src/modules/meeting-assistant/mp4'),
+  streamAsMp4: jest.fn(
+    async (_codec: string, feed: (input: Writable) => Promise<unknown>, out: Writable) => {
+      await feed(out);
+    },
+  ),
+}));
 import { codeOf } from '../codeOf';
 import { signIn } from './ma.signin';
 import { ctxOf, seedAccount, seedMeeting, setMaSettings, wavOf } from './ma.fixtures';
@@ -316,7 +328,7 @@ describe('POST /video/:meetingId/:seq', () => {
 });
 
 describe('reading the screen recording in the portal', () => {
-  it('lists screen tracks after the audio ones and downloads one part as one WebM', async () => {
+  it('lists screen tracks after the audio ones and downloads one part as one MP4', async () => {
     const meetingId = String((await seedMeeting(actor))._id);
     const ctx = { ...ctxOf(actor, [ROLES.EMPLOYEE]), organizationId };
     const audio = wavOf(32_000);
@@ -334,16 +346,17 @@ describe('reading the screen recording in the portal', () => {
     const second = await download(meetingId, 'SCREEN_2');
 
     expect(first.status).toBe(200);
-    expect(first.headers['content-type']).toBe('video/webm');
-    expect(first.headers['content-disposition']).toContain(`meeting-${meetingId}-screen.webm`);
+    expect(first.headers['content-type']).toBe('video/mp4');
+    expect(first.headers['content-disposition']).toContain(`meeting-${meetingId}-screen.mp4`);
     expect(first.body).toEqual(Buffer.concat([pieceOf(1), pieceOf(2)]));
-    expect(second.headers['content-disposition']).toContain(`meeting-${meetingId}-screen_2.webm`);
+    expect(second.headers['content-disposition']).toContain(`meeting-${meetingId}-screen_2.mp4`);
+    expect(jest.mocked(streamAsMp4).mock.calls.map(([codec]) => codec)).toEqual(['h264', 'h264']);
     expect(second.body).toEqual(pieceOf(7));
     expect((await download(meetingId, 'SCREEN_3')).status).toBe(404);
     expect((await download(meetingId, 'SCREEN_1')).status).toBe(404);
   });
 
-  it('issues a WebM link for a screen track and audits it, but no chunk of it', async () => {
+  it('issues an MP4 link for a screen track and audits it, but no chunk of it', async () => {
     const meeting = await seedMeeting(actor);
     const meetingId = String(meeting._id);
     const ctx = { ...ctxOf(actor, [ROLES.EMPLOYEE]), organizationId };
@@ -360,8 +373,8 @@ describe('reading the screen recording in the portal', () => {
     );
 
     expect([first.fileName, later.fileName]).toEqual([
-      `meeting-${meetingId}-screen.webm`,
-      `meeting-${meetingId}-screen_2.webm`,
+      `meeting-${meetingId}-screen.mp4`,
+      `meeting-${meetingId}-screen_2.mp4`,
     ]);
     const summaries = await AuditLogModel.find({ entityLabel: meeting.title }).distinct('summary');
     expect(summaries).toEqual(
