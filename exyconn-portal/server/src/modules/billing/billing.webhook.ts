@@ -88,7 +88,7 @@ async function apply({ organizationId, update }: Resolved, type: string): Promis
       {
         action: 'UPDATE',
         module: 'Billing',
-        entityId: update.externalSubscriptionId ?? '',
+        entityId: update.externalSubscriptionId,
         entityLabel: 'Subscription',
         summary: `${type}: subscription ${update.status ?? 'updated'}`,
         actor: GATEWAY_ACTOR[update.provider],

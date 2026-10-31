@@ -1,5 +1,4 @@
 import { runAsPlatform, runForOrganization } from '../../lib/tenant';
-import { badRequest } from '../../utils/errors';
 import { AiJobModel } from '../ai/ai.model';
 import { invalidatePlanAccess, isLapsed } from './access';
 import { PlanModel, type PlanDocument } from './plan.model';
@@ -188,9 +187,3 @@ export const subscriptionService = {
     );
   },
 };
-
-/** Refuses when the company has no subscription to act on. */
-export function requireSubscription<T>(subscription: T | null): T {
-  if (!subscription) badRequest('This company is not on a plan yet.');
-  return subscription;
-}
