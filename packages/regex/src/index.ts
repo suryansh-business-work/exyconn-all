@@ -326,11 +326,11 @@ export function isValidTaxId(code: string, value: string): boolean {
 export const CRM_PROPERTY_KEY = /^[a-z][a-z\d_]{0,39}$/;
 
 /**
- * A Google Meet call's path, e.g. `/abc-defg-hij` (optionally followed by `/`, `?` or `#`).
- * Match it against `URL.pathname`; group 1 is the meeting code. The lobby and landing pages
- * (`/`, `/landing`, `/new`) do not match.
+ * A Google Meet call's path, e.g. `/abc-defg-hij` or `/meet/abc-defg-hij` (Meet now redirects
+ * calls there), optionally followed by `/`, `?` or `#`. Match it against `URL.pathname`;
+ * group 1 is the meeting code. The lobby and landing pages (`/`, `/landing`, `/new`) do not match.
  */
-export const GOOGLE_MEET_CODE = /^\/([a-z]{3}-[a-z]{4}-[a-z]{3})(?:$|[/?#])/;
+export const GOOGLE_MEET_CODE = /^\/(?:meet\/)?([a-z]{3}-[a-z]{4}-[a-z]{3})(?:$|[/?#])/;
 
 /** A whole Google Meet call link as people paste it: `https://meet.google.com/abc-defg-hij`. */
 export const GOOGLE_MEET_URL = /^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}(?:[/?#]\S*)?$/i;

@@ -7,6 +7,8 @@ describe('meetingCodeFromUrl', () => {
     ['https://meet.google.com/abc-defg-hij?authuser=1&hs=179', 'abc-defg-hij'],
     ['https://meet.google.com/abc-defg-hij/', 'abc-defg-hij'],
     ['https://meet.google.com/abc-defg-hij#chat', 'abc-defg-hij'],
+    ['https://meet.google.com/meet/abc-defg-hij', 'abc-defg-hij'],
+    ['https://meet.google.com/meet/abc-defg-hij?authuser=0', 'abc-defg-hij'],
   ])('reads the code from %s', (url, code) => {
     expect(meetingCodeFromUrl(url)).toBe(code);
   });
@@ -15,6 +17,7 @@ describe('meetingCodeFromUrl', () => {
     'https://meet.google.com/',
     'https://meet.google.com/landing',
     'https://meet.google.com/new',
+    'https://meet.google.com/meet/new',
     'https://meet.google.com/ABC-DEFG-HIJ',
     'https://evil.example/abc-defg-hij',
     'https://meet.google.com.evil.example/abc-defg-hij',
