@@ -4539,7 +4539,9 @@ export type TicketChannel =
   /** Arrived in the support mailbox and was imported. */
   | 'EMAIL'
   /** Raised on a form in the portal — the employee desk or the public customer form. */
-  | 'PORTAL';
+  | 'PORTAL'
+  /** Opened by a message to the company's WhatsApp number. The chat itself stays in WhatsApp. */
+  | 'WHATSAPP';
 
 export type ToolCategoryInput = {
   category: Scalars['String']['input'];

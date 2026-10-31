@@ -4545,6 +4545,15 @@ export type Deal = {
   owner: Scalars['String']['output'];
   /** Percent, 0-100. With value, this gives the weighted pipeline figure. */
   probability: Scalars['Int']['output'];
+  /**
+   * How likely the deal is to close, 0 to 100, computed on the server from the activities on the
+   * deal, its contact and its company, how long it has been in its stage and how the contact
+   * answers email. Null until it is first scored. Rescored on every save and every 6 hours.
+   */
+  score?: Maybe<Scalars['Int']['output']>;
+  /** Every signal behind the score, the stage first, then biggest effect first. */
+  scoreReasons: Array<DealScoreReason>;
+  scoredAt?: Maybe<Scalars['DateTime']['output']>;
   stage: DealStage;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -4577,6 +4586,14 @@ export type DealPage = {
   __typename?: 'DealPage';
   rows: Array<Deal>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** One signal behind a deal's score: what was seen and how many points it moved the score. */
+export type DealScoreReason = {
+  __typename?: 'DealScoreReason';
+  /** Points added (positive) or taken away (negative). The stage line is the starting points. */
+  impact: Scalars['Int']['output'];
+  text: Scalars['String']['output'];
 };
 
 export enum DealStage {
@@ -10102,6 +10119,10 @@ export type Mutation = {
   saveWhatsappChannel: WhatsappChannel;
   /** Saves a workflow's name, keywords, order and draft graph. The live version does not change until it is published. */
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
+  /** CRM: recomputes one deal's score now and returns the deal with its new score and reasons. */
+  scoreDeal: Deal;
+  /** CRM: recomputes the score of every open deal now. Returns how many deals were scored. */
+  scoreOpenDeals: Scalars['Int']['output'];
   /** Reads one public web page through Firecrawl and keeps it as markdown. */
   scrapeWebsite: WebScrape;
   /**
@@ -10297,6 +10318,11 @@ export type Mutation = {
    * still OPEN, and it never touches the manager's assessment or the rating.
    */
   submitSelfAssessment: PerformanceReview;
+  /**
+   * Unauthenticated: records a customer's satisfaction rating from the survey link they were
+   * emailed when their ticket was resolved. One answer per survey; rate-limited per address.
+   */
+  submitSupportCsat: Scalars['Boolean']['output'];
   /** Public, from the website's server: signs somebody up, answering the site's security question. */
   subscribeNewsletter: Scalars['Boolean']['output'];
   /**
@@ -10304,6 +10330,12 @@ export type Mutation = {
    * whether an address is already subscribed. Nothing is sent until the link is confirmed.
    */
   subscribeToStatus: Scalars['Boolean']['output'];
+  /**
+   * SUPPORT/IT: drafts a reply to a ticket with AI from its conversation, the matching published
+   * knowledge-base articles and the desk's canned replies. Counts against the AI budget and is
+   * recorded in AI history. Nothing is sent: the draft is returned for the agent to edit.
+   */
+  suggestSupportReply: SupportReplySuggestion;
   /** Reads the latest posts and numbers from every connected social account, one at a time, and returns each account's result. */
   syncAllSocialAccounts: Array<SocialSyncResult>;
   /** Reads the record's newest threads from every enabled mailbox into the CRM. */
@@ -13177,6 +13209,11 @@ export type MutationSaveWhatsappWorkflowDraftArgs = {
 };
 
 
+export type MutationScoreDealArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationScrapeWebsiteArgs = {
   url: Scalars['String']['input'];
 };
@@ -13610,6 +13647,13 @@ export type MutationSubmitSelfAssessmentArgs = {
 };
 
 
+export type MutationSubmitSupportCsatArgs = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  score: Scalars['Int']['input'];
+  token: Scalars['String']['input'];
+};
+
+
 export type MutationSubscribeNewsletterArgs = {
   captcha: WebsiteCaptchaAnswer;
   input: NewsletterSignupInput;
@@ -13618,6 +13662,11 @@ export type MutationSubscribeNewsletterArgs = {
 
 export type MutationSubscribeToStatusArgs = {
   email: Scalars['String']['input'];
+};
+
+
+export type MutationSuggestSupportReplyArgs = {
+  ticketId: Scalars['ID']['input'];
 };
 
 
@@ -17820,8 +17869,18 @@ export type Query = {
   sslCertificates: SslCertificateReport;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
-  /** SUPPORT/ADMIN: how the queue stands against its SLA deadlines. */
+  /**
+   * Unauthenticated: the ticket a customer satisfaction survey link belongs to, for the public
+   * rating page. Null for a link that is unknown.
+   */
+  supportCsatSurvey?: Maybe<SupportCsatSurvey>;
+  /** SUPPORT/ADMIN: how the queue stands against its SLA deadlines, and how satisfied customers are. */
   supportSlaSummary: SupportSlaSummary;
+  /**
+   * SUPPORT/IT: the website chat or WhatsApp chat a ticket links to, read live from that
+   * channel. Null for a ticket raised in the portal or by email, whose thread is on the ticket.
+   */
+  supportTicketSource?: Maybe<SupportTicketSource>;
   /** Admin only — the deployment's own vital signs. */
   systemHealth: SystemHealth;
   /** Whether a list's selected rows can be deleted and archived. */
@@ -20123,6 +20182,16 @@ export type QueryStatusOverviewArgs = {
 };
 
 
+export type QuerySupportCsatSurveyArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type QuerySupportTicketSourceArgs = {
+  ticketId: Scalars['ID']['input'];
+};
+
+
 export type QueryTableBulkInfoArgs = {
   list: Scalars['String']['input'];
 };
@@ -21790,6 +21859,16 @@ export enum SupportCategory {
   Payroll = 'PAYROLL'
 }
 
+/** What the public rating page shows about the ticket a survey link belongs to. */
+export type SupportCsatSurvey = {
+  __typename?: 'SupportCsatSurvey';
+  ratedAt?: Maybe<Scalars['DateTime']['output']>;
+  reference: Scalars['String']['output'];
+  /** The rating already given, or null while the survey is unanswered. */
+  score?: Maybe<Scalars['Int']['output']>;
+  subject: Scalars['String']['output'];
+};
+
 export enum SupportPriority {
   High = 'HIGH',
   Low = 'LOW',
@@ -21807,6 +21886,16 @@ export type SupportReply = {
   id: Scalars['ID']['output'];
   internal: Scalars['Boolean']['output'];
   ticketId: Scalars['String']['output'];
+};
+
+/** A draft answer for a ticket. Never sent on its own: the agent edits it and sends it. */
+export type SupportReplySuggestion = {
+  __typename?: 'SupportReplySuggestion';
+  /** Published articles that matched the ticket and were given to the AI. */
+  articles: Array<SupportSuggestionArticle>;
+  body: Scalars['String']['output'];
+  /** Titles of the canned replies the AI could draw on. */
+  cannedReplies: Array<Scalars['String']['output']>;
 };
 
 /** Who raised a ticket: somebody who works here, or a customer. */
@@ -21845,6 +21934,14 @@ export type SupportSlaSummary = {
   __typename?: 'SupportSlaSummary';
   /** Open past its deadline, plus everything that was resolved late. */
   breached: Scalars['Int']['output'];
+  /** Average rating, 1 to 5, over every answer. Null until somebody answers. */
+  csatAverage?: Maybe<Scalars['Float']['output']>;
+  /** Share of answers rated 4 or 5, as a percentage. Null until somebody answers. */
+  csatPercent?: Maybe<Scalars['Float']['output']>;
+  /** How many customers answered one. */
+  csatResponses: Scalars['Int']['output'];
+  /** How many satisfaction surveys have been emailed. */
+  csatSent: Scalars['Int']['output'];
   dueSoon: Scalars['Int']['output'];
   onTrack: Scalars['Int']['output'];
 };
@@ -21855,6 +21952,14 @@ export enum SupportStatus {
   Open = 'OPEN',
   Resolved = 'RESOLVED'
 }
+
+/** A knowledge-base article the AI suggestion was written from. */
+export type SupportSuggestionArticle = {
+  __typename?: 'SupportSuggestionArticle';
+  id: Scalars['ID']['output'];
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
 
 export type SupportTicket = {
   __typename?: 'SupportTicket';
@@ -21869,6 +21974,13 @@ export type SupportTicket = {
   clientId: Scalars['String']['output'];
   clientName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** What the customer wrote with their rating. Empty when they wrote nothing. */
+  csatComment: Scalars['String']['output'];
+  csatRatedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The customer's rating, 1 (very unhappy) to 5 (very happy). Null until they answer. */
+  csatScore?: Maybe<Scalars['Int']['output']>;
+  /** When the satisfaction survey was emailed. Null until a customer ticket is first resolved. */
+  csatSentAt?: Maybe<Scalars['DateTime']['output']>;
   description: Scalars['String']['output'];
   /** When the SLA says it must be resolved. Null when no active policy covers its priority. */
   dueAt?: Maybe<Scalars['DateTime']['output']>;
@@ -21913,6 +22025,23 @@ export type SupportTicketPage = {
   __typename?: 'SupportTicketPage';
   rows: Array<SupportTicket>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** The live conversation a ticket links to. Read from the channel itself, never copied onto the ticket. */
+export type SupportTicketSource = {
+  __typename?: 'SupportTicketSource';
+  channel: TicketChannel;
+  /** Who is on the other end, as the channel knows them. A WhatsApp number is masked. */
+  contact: Scalars['String']['output'];
+  /** The latest message preview for a website chat; the demo being tried for WhatsApp. */
+  detail: Scalars['String']['output'];
+  lastActivityAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Messages in the conversation. 0 when the channel does not count them. */
+  messageCount: Scalars['Int']['output'];
+  /** Where the conversation stands, in the channel's own words (OPEN, CLOSED, ACTIVE). */
+  status: Scalars['String']['output'];
+  /** Opens the conversation in its own console. Empty when the channel has no page for it. */
+  url: Scalars['String']['output'];
 };
 
 /** A contact or company holding a suppressed address, with all of its addresses. */
@@ -22512,7 +22641,9 @@ export enum TicketChannel {
   /** Arrived in the support mailbox and was imported. */
   Email = 'EMAIL',
   /** Raised on a form in the portal — the employee desk or the public customer form. */
-  Portal = 'PORTAL'
+  Portal = 'PORTAL',
+  /** Opened by a message to the company's WhatsApp number. The chat itself stays in WhatsApp. */
+  Whatsapp = 'WHATSAPP'
 }
 
 export type Tool = {
@@ -26571,7 +26702,7 @@ export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: 
 
 export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, leadOwner: string, tags: Array<string>, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, origin?: { __typename?: 'CrmRecordOrigin', source: CrmOriginSource, userName: string, userEmail: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
-export type DealFieldsFragment = { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string };
+export type DealFieldsFragment = { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string, score?: number | null, scoredAt?: string | null, scoreReasons: Array<{ __typename?: 'DealScoreReason', text: string, impact: number }> };
 
 export type ActivityFieldsFragment = { __typename?: 'Activity', id: string, type: ActivityType, subject: string, notes: string, relatedType: ActivitySubject, relatedId: string, relatedName: string, dueDate?: string | null, done: boolean, owner: string, durationSeconds?: number | null, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
@@ -26665,14 +26796,14 @@ export type DeleteContactMutation = { __typename?: 'Mutation', deleteContact: bo
 export type ListDealsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListDealsQuery = { __typename?: 'Query', listDeals: Array<{ __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string }> };
+export type ListDealsQuery = { __typename?: 'Query', listDeals: Array<{ __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string, score?: number | null, scoredAt?: string | null, scoreReasons: Array<{ __typename?: 'DealScoreReason', text: string, impact: number }> }> };
 
 export type ListDealsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListDealsPagedQuery = { __typename?: 'Query', listDealsPaged: { __typename?: 'DealPage', totalCount: number, rows: Array<{ __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string }> } };
+export type ListDealsPagedQuery = { __typename?: 'Query', listDealsPaged: { __typename?: 'DealPage', totalCount: number, rows: Array<{ __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string, score?: number | null, scoredAt?: string | null, scoreReasons: Array<{ __typename?: 'DealScoreReason', text: string, impact: number }> }> } };
 
 export type DealForecastQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -26808,6 +26939,18 @@ export type SetCrmTagsMutationVariables = Exact<{
 
 
 export type SetCrmTagsMutation = { __typename?: 'Mutation', setCrmTags: Array<string> };
+
+export type ScoreDealMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ScoreDealMutation = { __typename?: 'Mutation', scoreDeal: { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string, score?: number | null, scoredAt?: string | null, scoreReasons: Array<{ __typename?: 'DealScoreReason', text: string, impact: number }> } };
+
+export type ScoreOpenDealsMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ScoreOpenDealsMutation = { __typename?: 'Mutation', scoreOpenDeals: number };
 
 export type CrmIntegrationStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -32712,19 +32855,19 @@ export type AddSupportReplyMutationVariables = Exact<{
 
 export type AddSupportReplyMutation = { __typename?: 'Mutation', addSupportReply: { __typename?: 'SupportReply', id: string } };
 
-export type SupportConsoleTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
+export type SupportConsoleTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, csatSentAt?: string | null, csatScore?: number | null, csatComment: string, csatRatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
 export type GetSupportTicketQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSupportTicketQuery = { __typename?: 'Query', getSupportTicket: { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> } };
+export type GetSupportTicketQuery = { __typename?: 'Query', getSupportTicket: { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, csatSentAt?: string | null, csatScore?: number | null, csatComment: string, csatRatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> } };
 
 export type SupportSlaSummaryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SupportSlaSummaryQuery = { __typename?: 'Query', supportSlaSummary: { __typename?: 'SupportSlaSummary', onTrack: number, dueSoon: number, breached: number } };
+export type SupportSlaSummaryQuery = { __typename?: 'Query', supportSlaSummary: { __typename?: 'SupportSlaSummary', onTrack: number, dueSoon: number, breached: number, csatSent: number, csatResponses: number, csatAverage?: number | null, csatPercent?: number | null } };
 
 export type SupportSlaPolicyFieldsFragment = { __typename?: 'SupportSlaPolicy', id: string, priority: SupportPriority, firstResponseMinutes: number, resolutionMinutes: number, active: boolean };
 
@@ -32774,7 +32917,7 @@ export type ListSupportTicketsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListSupportTicketsPagedQuery = { __typename?: 'Query', listSupportTicketsPaged: { __typename?: 'SupportTicketPage', totalCount: number, rows: Array<{ __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
+export type ListSupportTicketsPagedQuery = { __typename?: 'Query', listSupportTicketsPaged: { __typename?: 'SupportTicketPage', totalCount: number, rows: Array<{ __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, csatSentAt?: string | null, csatScore?: number | null, csatComment: string, csatRatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
 
 export type ListSupportTicketsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -32806,6 +32949,36 @@ export type ClientSupportTicketStatusQueryVariables = Exact<{
 
 
 export type ClientSupportTicketStatusQuery = { __typename?: 'Query', clientSupportTicketStatus?: { __typename?: 'ClientTicketStatus', reference: string, subject: string, status: SupportStatus, updatedAt: string, replies: Array<{ __typename?: 'SupportReply', id: string, body: string, authorName: string, createdAt: string }> } | null };
+
+export type SupportTicketSourceQueryVariables = Exact<{
+  ticketId: Scalars['ID']['input'];
+}>;
+
+
+export type SupportTicketSourceQuery = { __typename?: 'Query', supportTicketSource?: { __typename?: 'SupportTicketSource', channel: TicketChannel, contact: string, status: string, detail: string, messageCount: number, lastActivityAt?: string | null, url: string } | null };
+
+export type SuggestSupportReplyMutationVariables = Exact<{
+  ticketId: Scalars['ID']['input'];
+}>;
+
+
+export type SuggestSupportReplyMutation = { __typename?: 'Mutation', suggestSupportReply: { __typename?: 'SupportReplySuggestion', body: string, cannedReplies: Array<string>, articles: Array<{ __typename?: 'SupportSuggestionArticle', id: string, title: string, slug: string }> } };
+
+export type SupportCsatSurveyQueryVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+
+export type SupportCsatSurveyQuery = { __typename?: 'Query', supportCsatSurvey?: { __typename?: 'SupportCsatSurvey', reference: string, subject: string, score?: number | null, ratedAt?: string | null } | null };
+
+export type SubmitSupportCsatMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+  score: Scalars['Int']['input'];
+  comment?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SubmitSupportCsatMutation = { __typename?: 'Mutation', submitSupportCsat: boolean };
 
 export type SuppressionLinkFieldsFragment = { __typename?: 'SuppressionLink', kind: AudienceRecordKind, id: string, name: string, emails: Array<string> };
 
@@ -35462,6 +35635,12 @@ export const DealFieldsFragmentDoc = gql`
   owner
   notes
   clientId
+  score
+  scoreReasons {
+    text
+    impact
+  }
+  scoredAt
 }
     `;
 export const ActivityFieldsFragmentDoc = gql`
@@ -37417,6 +37596,10 @@ export const SupportConsoleTicketFieldsFragmentDoc = gql`
   topic
   escalationLevel
   escalatedAt
+  csatSentAt
+  csatScore
+  csatComment
+  csatRatedAt
   createdAt
   attachments {
     ...FileAttachmentFields
@@ -50648,6 +50831,63 @@ export function useSetCrmTagsMutation(baseOptions?: ApolloReactHooks.MutationHoo
         return ApolloReactHooks.useMutation<SetCrmTagsMutation, SetCrmTagsMutationVariables>(SetCrmTagsDocument, options);
       }
 export type SetCrmTagsMutationHookResult = ReturnType<typeof useSetCrmTagsMutation>;
+export const ScoreDealDocument = gql`
+    mutation ScoreDeal($id: ID!) {
+  scoreDeal(id: $id) {
+    ...DealFields
+  }
+}
+    ${DealFieldsFragmentDoc}`;
+
+/**
+ * __useScoreDealMutation__
+ *
+ * To run a mutation, you first call `useScoreDealMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useScoreDealMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [scoreDealMutation, { data, loading, error }] = useScoreDealMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useScoreDealMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ScoreDealMutation, ScoreDealMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ScoreDealMutation, ScoreDealMutationVariables>(ScoreDealDocument, options);
+      }
+export type ScoreDealMutationHookResult = ReturnType<typeof useScoreDealMutation>;
+export const ScoreOpenDealsDocument = gql`
+    mutation ScoreOpenDeals {
+  scoreOpenDeals
+}
+    `;
+
+/**
+ * __useScoreOpenDealsMutation__
+ *
+ * To run a mutation, you first call `useScoreOpenDealsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useScoreOpenDealsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [scoreOpenDealsMutation, { data, loading, error }] = useScoreOpenDealsMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useScoreOpenDealsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ScoreOpenDealsMutation, ScoreOpenDealsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ScoreOpenDealsMutation, ScoreOpenDealsMutationVariables>(ScoreOpenDealsDocument, options);
+      }
+export type ScoreOpenDealsMutationHookResult = ReturnType<typeof useScoreOpenDealsMutation>;
 export const CrmIntegrationStatusDocument = gql`
     query CrmIntegrationStatus {
   crmIntegrationStatus {
@@ -83336,6 +83576,10 @@ export const SupportSlaSummaryDocument = gql`
     onTrack
     dueSoon
     breached
+    csatSent
+    csatResponses
+    csatAverage
+    csatPercent
   }
 }
     `;
@@ -83826,6 +84070,169 @@ export function useClientSupportTicketStatusSuspenseQuery(baseOptions?: ApolloRe
 export type ClientSupportTicketStatusQueryHookResult = ReturnType<typeof useClientSupportTicketStatusQuery>;
 export type ClientSupportTicketStatusLazyQueryHookResult = ReturnType<typeof useClientSupportTicketStatusLazyQuery>;
 export type ClientSupportTicketStatusSuspenseQueryHookResult = ReturnType<typeof useClientSupportTicketStatusSuspenseQuery>;
+export const SupportTicketSourceDocument = gql`
+    query SupportTicketSource($ticketId: ID!) {
+  supportTicketSource(ticketId: $ticketId) {
+    channel
+    contact
+    status
+    detail
+    messageCount
+    lastActivityAt
+    url
+  }
+}
+    `;
+
+/**
+ * __useSupportTicketSourceQuery__
+ *
+ * To run a query within a React component, call `useSupportTicketSourceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSupportTicketSourceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSupportTicketSourceQuery({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *   },
+ * });
+ */
+export function useSupportTicketSourceQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SupportTicketSourceQuery, SupportTicketSourceQueryVariables> & ({ variables: SupportTicketSourceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>(SupportTicketSourceDocument, options);
+      }
+export function useSupportTicketSourceLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>(SupportTicketSourceDocument, options);
+        }
+// @ts-ignore
+export function useSupportTicketSourceSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>;
+// @ts-ignore
+export function useSupportTicketSourceSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SupportTicketSourceQuery | undefined, SupportTicketSourceQueryVariables>;
+export function useSupportTicketSourceSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SupportTicketSourceQuery, SupportTicketSourceQueryVariables>(SupportTicketSourceDocument, options);
+        }
+export type SupportTicketSourceQueryHookResult = ReturnType<typeof useSupportTicketSourceQuery>;
+export type SupportTicketSourceLazyQueryHookResult = ReturnType<typeof useSupportTicketSourceLazyQuery>;
+export type SupportTicketSourceSuspenseQueryHookResult = ReturnType<typeof useSupportTicketSourceSuspenseQuery>;
+export const SuggestSupportReplyDocument = gql`
+    mutation SuggestSupportReply($ticketId: ID!) {
+  suggestSupportReply(ticketId: $ticketId) {
+    body
+    articles {
+      id
+      title
+      slug
+    }
+    cannedReplies
+  }
+}
+    `;
+
+/**
+ * __useSuggestSupportReplyMutation__
+ *
+ * To run a mutation, you first call `useSuggestSupportReplyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSuggestSupportReplyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [suggestSupportReplyMutation, { data, loading, error }] = useSuggestSupportReplyMutation({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *   },
+ * });
+ */
+export function useSuggestSupportReplyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SuggestSupportReplyMutation, SuggestSupportReplyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SuggestSupportReplyMutation, SuggestSupportReplyMutationVariables>(SuggestSupportReplyDocument, options);
+      }
+export type SuggestSupportReplyMutationHookResult = ReturnType<typeof useSuggestSupportReplyMutation>;
+export const SupportCsatSurveyDocument = gql`
+    query SupportCsatSurvey($token: String!) {
+  supportCsatSurvey(token: $token) {
+    reference
+    subject
+    score
+    ratedAt
+  }
+}
+    `;
+
+/**
+ * __useSupportCsatSurveyQuery__
+ *
+ * To run a query within a React component, call `useSupportCsatSurveyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSupportCsatSurveyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSupportCsatSurveyQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useSupportCsatSurveyQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables> & ({ variables: SupportCsatSurveyQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>(SupportCsatSurveyDocument, options);
+      }
+export function useSupportCsatSurveyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>(SupportCsatSurveyDocument, options);
+        }
+// @ts-ignore
+export function useSupportCsatSurveySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>;
+// @ts-ignore
+export function useSupportCsatSurveySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SupportCsatSurveyQuery | undefined, SupportCsatSurveyQueryVariables>;
+export function useSupportCsatSurveySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SupportCsatSurveyQuery, SupportCsatSurveyQueryVariables>(SupportCsatSurveyDocument, options);
+        }
+export type SupportCsatSurveyQueryHookResult = ReturnType<typeof useSupportCsatSurveyQuery>;
+export type SupportCsatSurveyLazyQueryHookResult = ReturnType<typeof useSupportCsatSurveyLazyQuery>;
+export type SupportCsatSurveySuspenseQueryHookResult = ReturnType<typeof useSupportCsatSurveySuspenseQuery>;
+export const SubmitSupportCsatDocument = gql`
+    mutation SubmitSupportCsat($token: String!, $score: Int!, $comment: String) {
+  submitSupportCsat(token: $token, score: $score, comment: $comment)
+}
+    `;
+
+/**
+ * __useSubmitSupportCsatMutation__
+ *
+ * To run a mutation, you first call `useSubmitSupportCsatMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSubmitSupportCsatMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [submitSupportCsatMutation, { data, loading, error }] = useSubmitSupportCsatMutation({
+ *   variables: {
+ *      token: // value for 'token'
+ *      score: // value for 'score'
+ *      comment: // value for 'comment'
+ *   },
+ * });
+ */
+export function useSubmitSupportCsatMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SubmitSupportCsatMutation, SubmitSupportCsatMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SubmitSupportCsatMutation, SubmitSupportCsatMutationVariables>(SubmitSupportCsatDocument, options);
+      }
+export type SubmitSupportCsatMutationHookResult = ReturnType<typeof useSubmitSupportCsatMutation>;
 export const ListMarketingSuppressionsPagedDocument = gql`
     query ListMarketingSuppressionsPaged($input: TableQueryInput!) {
   listMarketingSuppressionsPaged(input: $input) {

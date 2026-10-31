@@ -56,6 +56,8 @@ import {
   supportResolvers,
   supportLibraryTypeDefs,
   supportLibraryResolvers,
+  supportOmnichannelTypeDefs,
+  supportOmnichannelResolvers,
 } from '../modules/support';
 import {
   marketingTypeDefs,
@@ -179,6 +181,7 @@ import { crmGeoTypeDefs } from '../modules/crm/crm.geo.typeDefs';
 import { crmCalendarTypeDefs, crmCalendarModuleResolvers } from '../modules/crm/calendar';
 import { crmDashboardTypeDefs, crmDashboardResolvers } from '../modules/crm/dashboard';
 import { coldEmailTypeDefs, coldEmailResolvers } from '../modules/crm/cold-email';
+import { dealScoreTypeDefs, dealScoreResolvers } from '../modules/crm/deal-score';
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
@@ -302,6 +305,7 @@ export const typeDefs = [
   employeeTypeDefs,
   supportTypeDefs,
   supportLibraryTypeDefs,
+  supportOmnichannelTypeDefs,
   marketingTypeDefs,
   audienceTypeDefs,
   suppressionTypeDefs,
@@ -368,6 +372,7 @@ export const typeDefs = [
   crmCalendarTypeDefs,
   crmDashboardTypeDefs,
   coldEmailTypeDefs,
+  dealScoreTypeDefs,
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
@@ -426,6 +431,7 @@ export const resolvers = mergeResolvers([
   employeeResolvers,
   supportResolvers,
   supportLibraryResolvers,
+  supportOmnichannelResolvers,
   marketingResolvers,
   marketingMetricsResolvers,
   legalResolvers,
@@ -485,6 +491,7 @@ export const resolvers = mergeResolvers([
   crmCalendarModuleResolvers,
   crmDashboardResolvers,
   coldEmailResolvers,
+  dealScoreResolvers,
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,

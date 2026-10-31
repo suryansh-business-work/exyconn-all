@@ -36,6 +36,11 @@ const activitySchema = new Schema(
     reminderSentAt: { type: Date, default: null },
     /** Failed sends so far; the job stops retrying after a few. */
     reminderAttempts: { type: Number, default: 0 },
+    /**
+     * Set when another module wrote the activity, e.g. `meeting:<meetingId>:CONTACT:<contactId>`
+     * for meeting notes, so writing it again updates the same row. Empty for a typed activity.
+     */
+    sourceKey: { type: String, default: '', trim: true },
   },
   { timestamps: true },
 );
@@ -43,6 +48,7 @@ const activitySchema = new Schema(
 /** The reminder job's claim and the calendar's date range both read these. */
 activitySchema.index({ remindAt: 1, reminderSentAt: 1 });
 activitySchema.index({ dueDate: 1 });
+activitySchema.index({ sourceKey: 1 }, { partialFilterExpression: { sourceKey: { $gt: '' } } });
 
 export type ActivityDocument = InferSchemaType<typeof activitySchema>;
 export const ActivityModel: Model<ActivityDocument> = model<ActivityDocument>(

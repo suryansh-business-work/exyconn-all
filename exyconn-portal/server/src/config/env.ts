@@ -269,6 +269,14 @@ export const env = Object.freeze({
     /\/$/,
     '',
   ),
+  /**
+   * Where a support satisfaction survey's link opens: the public status site, which needs no
+   * account. The ticket's one-time token is appended as the last path segment.
+   */
+  supportCsatUrl: (process.env.SUPPORT_CSAT_URL ?? 'https://status.exyconn.com/help/rate').replace(
+    /\/$/,
+    '',
+  ),
   /** Where a support reply email sends the employee to read the thread. */
   employeeSupportUrl: process.env.EMPLOYEE_SUPPORT_URL ?? 'https://employee.exyconn.com/me/support',
   /** Where the payslip email sends an employee to see the rest of their payslips. */

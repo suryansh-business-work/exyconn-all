@@ -248,6 +248,23 @@ const TEMPLATES = [
         </mj-text>`),
   },
   {
+    key: 'support-csat',
+    name: 'Support — satisfaction survey',
+    description:
+      'Sent once to the customer when their ticket is first resolved. {{ratingUrl}} opens the public rating page on the status site; the link works for one answer.',
+    subject: 'How did we do on {{reference}}?',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">How did we do?</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          We have marked <strong>{{ticketSubject}}</strong> ({{reference}}) as resolved. Tell us how it went —
+          it takes one click and helps us get better.
+        </mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{ratingUrl}}" padding="24px 0 8px">Rate our support</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          Still stuck? Reply to this email and quote {{reference}} to reopen the conversation.
+        </mj-text>`),
+  },
+  {
     key: 'password-reset',
     name: 'Password reset — self-service link',
     description:

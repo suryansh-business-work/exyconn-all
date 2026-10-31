@@ -17,6 +17,7 @@ import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startEmployeeReports, startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startMcpAlerts } from './modules/mcp/data/mcp.alerts';
 import { startMailHealthChecks } from './modules/mail-health/mail-health.job';
+import { startDealScoring } from './modules/crm/deal-score';
 import { startTrackerBuildRetention } from './modules/tech/tracker-releases.service';
 import { startReleaseRetention } from './modules/meeting-assistant/releases.cleanup';
 import { startFxRates } from './modules/tech/fx/fx.service';
@@ -229,6 +230,8 @@ async function bootstrap(): Promise<void> {
   startReminderSweep();
   // A CRM reminder set for 10:00 is emailed to its assignee at 10:00, signed in or not.
   startCrmReminderEmails();
+  // Deal scores age with their activities and email, so open deals are rescored on a timer too.
+  startDealScoring();
   // Does nothing until somebody sets a window in Admin > Settings; see audit.retention.ts.
   startAuditRetention();
   const app = await createApp();

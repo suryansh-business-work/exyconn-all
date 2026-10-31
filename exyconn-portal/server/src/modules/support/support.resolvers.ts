@@ -18,6 +18,7 @@ import {
 import { UserModel } from '../admin/user.model';
 import { deskScope, IT_CATEGORY, type TicketScope } from './desk';
 import { escalateTicket } from './escalation';
+import { sendCsatSurvey } from './support.csat';
 import { ROLES } from '../../constants/roles';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
@@ -30,6 +31,7 @@ import {
 } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
 import { registerTable } from '../table-transfer/registry';
+import { logger } from '../../utils/logger';
 
 /** What the console grid may search, filter and sort on. */
 const TICKET_TABLE: TableConfig = {
@@ -203,7 +205,8 @@ export const supportResolvers = {
     /**
      * Moves a ticket through its lifecycle and keeps the resolution clock honest:
      * finishing it stamps `resolvedAt`, reopening it clears the stamp so the ticket goes
-     * back to being measured against its deadline.
+     * back to being measured against its deadline. Finishing a customer ticket for the first
+     * time also emails the satisfaction survey.
      */
     setSupportTicketStatus: async (
       _p: unknown,
@@ -219,6 +222,12 @@ export const supportResolvers = {
         { new: true },
       ).lean();
       if (!doc) notFound('SupportTicket');
+      if (closed) {
+        // Fire-and-forget: the survey is a courtesy, the status change is the answer.
+        sendCsatSurvey(doc).catch((error: unknown) =>
+          logger.error({ err: error }, `CSAT survey for ticket ${id} failed`),
+        );
+      }
       return withId(doc);
     },
 

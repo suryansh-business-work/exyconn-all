@@ -23,6 +23,7 @@ import { crmOriginResolvers, stampOrigin, userOrigin } from './crm.origin';
 import { crmTagResolvers } from './crm.tags';
 import { withReminderOnCreate, withReminderOnUpdate } from './calendar/crm.reminder.input';
 import type { CrmObject } from './records/crm.objects';
+import { rescoredAfter } from './deal-score/deal-score.service';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -141,7 +142,7 @@ const deals = createCrudResolvers(dealsService, {
   table: {
     searchFields: ['title', 'companyName', 'contactName', 'owner'],
     filterFields: ['title', 'companyName', 'contactName', 'stage', 'owner'],
-    sortFields: ['title', 'companyName', 'stage', 'value', 'owner', 'createdAt'],
+    sortFields: ['title', 'companyName', 'stage', 'value', 'score', 'owner', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
   stats: { countBy: ['stage'], sum: ['value'] },
@@ -328,13 +329,14 @@ export const crmEntitiesResolvers = {
     createContact: withCustom('CONTACT', withUserOrigin(contacts.Mutation.createContact)),
     updateContact: withCustom('CONTACT', contacts.Mutation.updateContact),
     ...deals.Mutation,
+    createDeal: rescoredAfter(deals.Mutation.createDeal),
     ...activities.Mutation,
     createActivity: withReminderOnCreate(withAttachments(activities.Mutation.createActivity)),
     updateActivity: withReminderOnUpdate(withAttachments(activities.Mutation.updateActivity)),
     ...crmMediaResolvers.Mutation,
     ...crmTagResolvers.Mutation,
-    updateDeal,
-    setDealStage,
+    updateDeal: rescoredAfter(updateDeal),
+    setDealStage: rescoredAfter(setDealStage),
     promoteCompanyToClient,
     convertLead,
   },

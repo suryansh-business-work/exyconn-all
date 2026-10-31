@@ -12,9 +12,11 @@ import {
   SupportStatus,
   useListSupportTicketsPagedQuery,
   useListSupportTicketsStatsQuery,
+  useSupportSlaSummaryQuery,
   type ListSupportTicketsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { raisedBy } from './tickets-grid';
+import { csatLabel } from './csat';
 import { color } from '@exyconn/shell/components/ui';
 
 type TicketRow = ListSupportTicketsPagedQuery['listSupportTicketsPaged']['rows'][number];
@@ -46,6 +48,7 @@ export function SupportOverviewPage() {
     variables: { input: OPEN_PAGE },
     fetchPolicy: 'cache-and-network',
   });
+  const { data: slaData } = useSupportSlaSummaryQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
 
   const stats = statsData?.listSupportTicketsStats;
@@ -61,12 +64,14 @@ export function SupportOverviewPage() {
       accent: color.red[200],
     },
     { label: 'Resolved', value: String(total - open), accent: color.green[500] },
+    { label: 'CSAT', value: csatLabel(slaData?.supportSlaSummary), accent: color.violet[400] },
   ];
 
   const bucketsFor = (field: string) => stats?.counts.find((c) => c.field === field)?.buckets ?? [];
   const breakdowns: OverviewBreakdown[] = [
     { title: 'By status', buckets: bucketsFor('status'), accent: color.blue[400] },
     { title: 'By category', buckets: bucketsFor('category'), accent: color.violet[400] },
+    { title: 'By channel', buckets: bucketsFor('channel'), accent: color.amber[500] },
   ];
 
   const columns: Column<TicketRow>[] = [

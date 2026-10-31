@@ -10,6 +10,7 @@ import {
   useSetDealStageMutation,
 } from '@exyconn/shell/graphql/generated';
 import { DealForm, type DealRow } from './forms/deal';
+import { DealScorePanel } from './score/DealScorePanel';
 import { DealBoardSkeleton } from './DealBoardSkeleton';
 import { DealBoard } from './DealBoard';
 import { DealsViewToggle } from './DealsViewToggle';
@@ -62,6 +63,7 @@ export function DealsPage() {
         onBack={close}
         backLabel="Back to Deals"
       >
+        {editing && <DealScorePanel deal={editing} />}
         <DealForm initial={editing} onCancel={close} onDone={done} />
       </CrudFormPage>
     );

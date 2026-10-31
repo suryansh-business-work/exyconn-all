@@ -25,6 +25,7 @@ import {
 } from '@exyconn/shell/pages/ticket-desk';
 import { ClientTicketForm } from './forms/client-ticket';
 import { TICKET_COLUMNS, type PagedTicketRow, type TicketsGridContext } from './tickets-grid';
+import { csatLabel } from './csat';
 
 /**
  * Support-team console: every ticket — employee and customer — who owns it, and the
@@ -87,6 +88,7 @@ export function SupportConsolePage() {
       value: String(slaData?.supportSlaSummary.breached ?? 0),
       accent: color.rose[500],
     },
+    { label: 'CSAT', value: csatLabel(slaData?.supportSlaSummary), accent: color.green[500] },
   ];
 
   const gridContext: TicketsGridContext = {
@@ -120,7 +122,7 @@ export function SupportConsolePage() {
   return (
     <CrudDashboard<PagedTicketRow, PagedTicketRow>
       title="Support"
-      subtitle="Employee & customer tickets"
+      subtitle="Employee & customer tickets from every channel"
       entityLabel="ticket"
       stats={statItems}
       statsLoading={!statsData && statsLoading}

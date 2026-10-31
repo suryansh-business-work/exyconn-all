@@ -80,6 +80,7 @@ jest.mock('../../src/modules/crm/crm.deal-closed.backfill', () => ({
 jest.mock('../../src/modules/crm/calendar/crm.reminder.email', () => ({
   startCrmReminderEmails: jest.fn(),
 }));
+jest.mock('../../src/modules/crm/deal-score', () => ({ startDealScoring: jest.fn() }));
 jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
 jest.mock('../../src/modules/calling-bot-demo', () => ({
   migratePhoneProvider: jest.fn(),
@@ -163,6 +164,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/meeting-assistant', 'startMeetingAssistantWorker'],
   ['../../src/modules/reminders', 'startReminderSweep'],
   ['../../src/modules/crm/calendar/crm.reminder.email', 'startCrmReminderEmails'],
+  ['../../src/modules/crm/deal-score', 'startDealScoring'],
   ['../../src/modules/audit', 'startAuditRetention'],
 ];
 

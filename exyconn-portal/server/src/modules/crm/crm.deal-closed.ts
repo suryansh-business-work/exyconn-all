@@ -10,6 +10,11 @@ export const dealClosedFields = {
    * "won this quarter", and `updatedAt` moves every time somebody corrects a won deal's notes.
    */
   closedAt: { type: Date, default: null },
+  /**
+   * When the deal entered its current stage, so the deal score can tell a deal that is moving
+   * from one that has sat still. Null on deals that have not changed stage since this existed.
+   */
+  stageEnteredAt: { type: Date, default: null },
 };
 
 /** What a stage change does to `closedAt`. */
@@ -29,7 +34,7 @@ function stageOf(update: unknown): string | null {
 }
 
 /**
- * Stamps `closedAt` on every path a deal's stage changes by — the form, the board's drag, a
+ * Stamps `closedAt` and `stageEnteredAt` on every path a deal's stage changes by — the form, the board's drag, a
  * lead conversion, an import — so no caller has to remember it. A save that leaves the stage as
  * it was (a corrected value on a won deal) keeps the original close date.
  */
@@ -37,6 +42,7 @@ export function applyDealClosedHooks(schema: Schema): void {
   schema.pre('save', function () {
     if (this.isNew || this.isModified('stage')) {
       this.set('closedAt', closedAtFor(String(this.get('stage'))));
+      this.set('stageEnteredAt', new Date());
     }
   });
 
@@ -51,6 +57,7 @@ export function applyDealClosedHooks(schema: Schema): void {
       .lean<{ stage?: string }>();
     if (current?.stage !== next) {
       this.set('closedAt', closedAtFor(next));
+      this.set('stageEnteredAt', new Date());
     }
   });
 }

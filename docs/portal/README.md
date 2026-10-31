@@ -96,6 +96,10 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
   when the report compares the two.
 - [support-library.md](./support-library.md) — knowledge-base articles and canned replies:
   what separates them, and why only published articles are searchable.
+- [support-omnichannel.md](./support-omnichannel.md) — one queue for portal, email, website
+  chat and WhatsApp tickets, the AI suggested reply, and the CSAT survey sent on resolve.
+- [crm/deal-score.md](./crm/deal-score.md) — the 0-100 deal score and its reasons, and how
+  Meeting Assistant notes land on CRM contacts and deals.
 - [project-health.md](./project-health.md) — how a project is measured against what it
   promised, and why somebody has to say which column means done.
 - [working-day.md](./working-day.md) — the employee working day: which module owns each

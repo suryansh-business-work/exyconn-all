@@ -100,6 +100,10 @@ fragment SupportConsoleTicketFields on SupportTicket {
   topic
   escalationLevel
   escalatedAt
+  csatSentAt
+  csatScore
+  csatComment
+  csatRatedAt
   createdAt
   attachments {
     ...FileAttachmentFields
@@ -117,6 +121,10 @@ query SupportSlaSummary {
     onTrack
     dueSoon
     breached
+    csatSent
+    csatResponses
+    csatAverage
+    csatPercent
   }
 }
 
@@ -240,4 +248,41 @@ query ClientSupportTicketStatus($reference: String!, $email: String!) {
       createdAt
     }
   }
+}
+
+query SupportTicketSource($ticketId: ID!) {
+  supportTicketSource(ticketId: $ticketId) {
+    channel
+    contact
+    status
+    detail
+    messageCount
+    lastActivityAt
+    url
+  }
+}
+
+mutation SuggestSupportReply($ticketId: ID!) {
+  suggestSupportReply(ticketId: $ticketId) {
+    body
+    articles {
+      id
+      title
+      slug
+    }
+    cannedReplies
+  }
+}
+
+query SupportCsatSurvey($token: String!) {
+  supportCsatSurvey(token: $token) {
+    reference
+    subject
+    score
+    ratedAt
+  }
+}
+
+mutation SubmitSupportCsat($token: String!, $score: Int!, $comment: String) {
+  submitSupportCsat(token: $token, score: $score, comment: $comment)
 }

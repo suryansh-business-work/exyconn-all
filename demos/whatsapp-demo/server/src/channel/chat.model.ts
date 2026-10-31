@@ -23,6 +23,11 @@ const whatsappChatSchema = new Schema(
     /** Analytics session, renewed after a long silence. */
     sessionId: { type: String, default: null },
     lastEventAt: { type: Date, default: null },
+    /**
+     * The support ticket this conversation is filed under, so it sits in the desk's one queue.
+     * The ticket links here rather than copying the chat; a new one is filed once it is resolved.
+     */
+    ticketId: { type: String, default: null, index: true },
   },
   { timestamps: true, minimize: false },
 );

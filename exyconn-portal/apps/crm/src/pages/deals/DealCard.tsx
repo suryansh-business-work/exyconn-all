@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   borderWidth,
   Box,
@@ -20,6 +21,12 @@ interface DealCardProps {
  * reachable by keyboard and announced correctly.
  */
 export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
+  const t = useT();
+  // The probability somebody typed, and the server's score beside it once there is one.
+  const scoreText =
+    deal.score == null
+      ? `${deal.probability}%`
+      : t('{probability}% · score {score}', { probability: deal.probability, score: deal.score });
   return (
     <Box
       component="button"
@@ -84,7 +91,7 @@ export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
             color: 'text.secondary',
           }}
         >
-          {deal.probability}%
+          {scoreText}
         </Typography>
       </Stack>
     </Box>

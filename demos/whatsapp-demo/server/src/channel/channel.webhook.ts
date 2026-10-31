@@ -4,6 +4,7 @@ import { inboundMessages, type InboundMessage } from './channel.inbound';
 import { markRead, validSignature } from './channel.graph';
 import { claimMessage } from './channel.chats';
 import { converse } from './channel.conversation';
+import { ensureChatTicket } from './channel.ticket';
 import { inTurn } from './channel.queue';
 import { noteProblem, recordInbound } from './channel.health';
 import { runForOrganization } from '../../../../../exyconn-portal/server/src/lib/tenant';
@@ -55,7 +56,11 @@ async function handle(channel: ChannelMatch, message: InboundMessage): Promise<v
         'WhatsApp read receipt failed',
       ),
     );
+    // The reply comes first; filing the chat in the support queue must never hold it up.
     await converse(chat, message.input, channel.sender);
+    await ensureChatTicket(chat).catch((error: unknown) =>
+      logger.error({ err: error }, 'WhatsApp chat could not be filed as a support ticket'),
+    );
   });
 }
 

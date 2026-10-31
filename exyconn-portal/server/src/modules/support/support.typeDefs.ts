@@ -24,6 +24,8 @@ export const supportTypeDefs = gql`
     AGENT
     "Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot)."
     CHAT
+    "Opened by a message to the company's WhatsApp number. The chat itself stays in WhatsApp."
+    WHATSAPP
   }
 
   "How a ticket stands against the resolution time promised for its priority."
@@ -76,6 +78,13 @@ export const supportTypeDefs = gql`
     "How many times it has been escalated. 0 means never."
     escalationLevel: Int!
     escalatedAt: DateTime
+    "When the satisfaction survey was emailed. Null until a customer ticket is first resolved."
+    csatSentAt: DateTime
+    "The customer's rating, 1 (very unhappy) to 5 (very happy). Null until they answer."
+    csatScore: Int
+    "What the customer wrote with their rating. Empty when they wrote nothing."
+    csatComment: String!
+    csatRatedAt: DateTime
   }
 
   "One message on a ticket. Internal notes are hidden from the requester."
@@ -131,6 +140,14 @@ export const supportTypeDefs = gql`
     dueSoon: Int!
     "Open past its deadline, plus everything that was resolved late."
     breached: Int!
+    "How many satisfaction surveys have been emailed."
+    csatSent: Int!
+    "How many customers answered one."
+    csatResponses: Int!
+    "Average rating, 1 to 5, over every answer. Null until somebody answers."
+    csatAverage: Float
+    "Share of answers rated 4 or 5, as a percentage. Null until somebody answers."
+    csatPercent: Float
   }
 
   "What the public customer form sends. Every field is re-validated on the server."
@@ -161,7 +178,7 @@ export const supportTypeDefs = gql`
     listSupportTicketsStats: TableStats!
     "SUPPORT/ADMIN: one ticket in full, for its own page."
     getSupportTicket(id: ID!): SupportTicket!
-    "SUPPORT/ADMIN: how the queue stands against its SLA deadlines."
+    "SUPPORT/ADMIN: how the queue stands against its SLA deadlines, and how satisfied customers are."
     supportSlaSummary: SupportSlaSummary!
     "SUPPORT/ADMIN: the whole thread on one ticket, internal notes included."
     listSupportReplies(ticketId: ID!): [SupportReply!]!

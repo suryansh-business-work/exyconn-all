@@ -36,6 +36,8 @@ export const DEAL_COLUMNS: ColDef<PagedDealRow>[] = [
   statusColumn('stage', 'Stage'),
   valueColumn('value', 'Value', (row) => formatMoney(row.value)),
   valueColumn('probability', 'Probability', (row) => `${row.probability}%`),
+  // Worked out on the server (deal-score); the reasons are on the deal's own page.
+  valueColumn('score', 'Score', (row) => (row.score == null ? '—' : `${row.score}/100`)),
   dateColumn('expectedCloseDate', 'Expected close', '—'),
   textColumn('owner', 'Owner'),
   actionsColumn([CREATE_INVOICE_ACTION, EDIT_ACTION, DELETE_ACTION]),

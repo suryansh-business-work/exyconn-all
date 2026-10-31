@@ -3,6 +3,8 @@ import './support.reminders';
 
 export { supportTypeDefs } from './support.typeDefs';
 export { supportResolvers } from './support.resolvers';
+export { supportOmnichannelTypeDefs } from './support.omnichannel.typeDefs';
+export { supportOmnichannelResolvers } from './support.omnichannel.resolvers';
 export { SupportReplyModel } from './support-reply.model';
 export { SupportSlaPolicyModel } from './sla-policy.model';
 export { ensureSupportSlaPolicies, dueAtForPriority, supportSlaSummary } from './sla.service';

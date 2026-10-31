@@ -35,6 +35,7 @@ export const JOB_KEYS = {
   fxRates: 'fxRates',
   mcpAlerts: 'mcpAlerts',
   mailHealth: 'mailHealth',
+  crmDealScores: 'crmDealScores',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

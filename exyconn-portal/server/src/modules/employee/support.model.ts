@@ -10,10 +10,10 @@ export const SUPPORT_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as
 /** Who raised it: somebody who works here, or a customer off the public form. */
 export const SUPPORT_REQUESTERS = ['EMPLOYEE', 'CLIENT'] as const;
 /**
- * How it reached the desk: a portal form, the support mailbox, an agent typing it in, or a
- * chat started on the website.
+ * How it reached the desk: a portal form, the support mailbox, an agent typing it in, a
+ * chat started on the website, or a message to the company's WhatsApp number.
  */
-export const SUPPORT_CHANNELS = ['PORTAL', 'EMAIL', 'AGENT', 'CHAT'] as const;
+export const SUPPORT_CHANNELS = ['PORTAL', 'EMAIL', 'AGENT', 'CHAT', 'WHATSAPP'] as const;
 /** Mirrors the GraphQL `TicketChannel` enum. */
 export type TicketChannel = (typeof SUPPORT_CHANNELS)[number];
 /** The statuses that count as "the ticket is done". */
@@ -68,8 +68,23 @@ const supportTicketSchema = new Schema(
     dueAt: { type: Date, default: null },
     firstRespondedAt: { type: Date, default: null },
     resolvedAt: { type: Date, default: null },
+    /**
+     * Customer satisfaction. A survey goes out once, when a customer ticket is first resolved;
+     * only the SHA-256 of its link token is kept, so the database never holds a working link.
+     */
+    csatTokenHash: { type: String, default: null },
+    csatSentAt: { type: Date, default: null },
+    /** 1 (very unhappy) to 5 (very happy); null until the customer answers. */
+    csatScore: { type: Number, default: null, min: 1, max: 5 },
+    csatComment: { type: String, default: '', trim: true },
+    csatRatedAt: { type: Date, default: null },
   },
   { timestamps: true },
+);
+/** The public rating page finds its ticket by the token's hash. */
+supportTicketSchema.index(
+  { csatTokenHash: 1 },
+  { partialFilterExpression: { csatTokenHash: { $type: 'string' } } },
 );
 
 export type SupportTicketDocument = InferSchemaType<typeof supportTicketSchema>;

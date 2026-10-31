@@ -10,6 +10,7 @@ import {
 import { analyseMeeting } from './analysis.service';
 import { saveActionItems, saveDecisions, saveNotes } from './analysis.persist';
 import { sendSummary } from './ma.email';
+import { shareNotesWithCrm } from './ma.crm';
 import { importOfficialRecord, OfficialNotReady } from './google-meet.import';
 import { enqueueMaJob } from './jobs.queue';
 import { getMaSettings, withinMonthlyBudget } from './settings.service';
@@ -69,6 +70,7 @@ async function runAnalyze(meeting: LeanMeeting, job: Job): Promise<void> {
     entityLabel: meeting.title,
     summary: `Generated meeting notes (version ${notes.version}) with ${actions} action item(s)`,
   });
+  await shareNotesWithCrm(meeting, notes.content);
   await afterNotes(meeting, notes.version);
 }
 

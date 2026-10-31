@@ -10,6 +10,7 @@ import { meetingTypeDefs } from '../../crm/meetings/meeting.typeDefs';
 import { crmCalendarTypeDefs } from '../../crm/calendar/crm.calendar.typeDefs';
 import { crmDashboardTypeDefs } from '../../crm/dashboard/crm.dashboard.typeDefs';
 import { coldEmailTypeDefs } from '../../crm/cold-email/cold-email.typeDefs';
+import { dealScoreTypeDefs } from '../../crm/deal-score/deal-score.typeDefs';
 import { crmIntegrationsTypeDefs } from '../../crm-integrations/crm-integrations.typeDefs';
 import { crmMailTypeDefs } from '../../crm-mail/crm-mail.typeDefs';
 import { myMailboxesTypeDefs } from '../../my-mailboxes/my-mailboxes.typeDefs';
@@ -38,7 +39,7 @@ export const CRM_MCP: McpServerSpec = {
   role: ROLES.CRM,
   auditModule: 'CRM (Claude MCP)',
   instructions:
-    'Exyconn CRM: leads, companies, contacts, deals, activities, meetings, mail, cold emails, the lead generators (Google Business and Clutch.co search with reviews and portfolio), the email verifier and the website scraper. Every tool runs as the signed-in person with their own permissions; read before you change, and confirm with the person before deleting or sending anything.',
+    'Exyconn CRM: leads, companies, contacts, deals (with a 0-100 deal score and its reasons), activities (meeting notes are added to matching contacts and their open deals automatically), meetings, mail, cold emails, the lead generators (Google Business and Clutch.co search with reviews and portfolio), the email verifier and the website scraper. Every tool runs as the signed-in person with their own permissions; read before you change, and confirm with the person before deleting or sending anything.',
   typeDefs: [
     crmTypeDefs,
     crmEntitiesTypeDefs,
@@ -52,6 +53,7 @@ export const CRM_MCP: McpServerSpec = {
     crmCalendarTypeDefs,
     crmDashboardTypeDefs,
     coldEmailTypeDefs,
+    dealScoreTypeDefs,
     crmIntegrationsTypeDefs,
     crmMailTypeDefs,
     myMailboxesTypeDefs,

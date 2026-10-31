@@ -3,6 +3,7 @@ import { SupportTicketModel, type SupportTicketDocument } from '../employee/supp
 import { DEFAULT_SLA_POLICIES, SupportSlaPolicyModel } from './sla-policy.model';
 import { dueAtFrom, slaState, type SlaClocks, type SlaState } from './support.sla';
 import { logger } from '../../utils/logger';
+import { csatSummary, type CsatSummary } from './support.csat';
 
 /**
  * Creates any missing default policy. Insert-only, like the email and status seeds: a
@@ -39,7 +40,7 @@ export async function dueAtForPriority(priority: string, from: Date): Promise<Da
   return policy ? dueAtFrom(from, policy.resolutionMinutes) : null;
 }
 
-export interface SupportSlaSummary {
+export interface SupportSlaSummary extends CsatSummary {
   onTrack: number;
   dueSoon: number;
   breached: number;
@@ -47,7 +48,7 @@ export interface SupportSlaSummary {
 
 /**
  * How the open queue stands against its deadlines, plus everything that was finished
- * late. Only unresolved tickets are read row by row — that is the small set the team
+ * late, and how satisfied customers said they were. Only unresolved tickets are read row by row — that is the small set the team
  * can still act on; the resolved-late tally is one count in the database.
  */
 export async function supportSlaSummary(
@@ -74,5 +75,6 @@ export async function supportSlaSummary(
     onTrack: tally.ON_TRACK,
     dueSoon: tally.DUE_SOON,
     breached: tally.BREACHED + resolvedLate,
+    ...(await csatSummary(scope)),
   };
 }
