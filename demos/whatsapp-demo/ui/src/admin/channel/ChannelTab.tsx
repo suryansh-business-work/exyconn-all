@@ -9,7 +9,7 @@ import { appUrl } from '@exyconn/shell/config/apps';
 const SETTINGS_URL = appUrl('tech', '/tech/demos/whatsapp-bot');
 
 /**
- * WhatsApp number: its settings moved to Tech > Demos > WhatsApp bot, where every demo's keys
+ * WhatsApp number: its settings moved to Agents > WhatsApp agent, where every demo's keys
  * are kept and tested; this tab points there.
  */
 export function ChannelTab() {
@@ -23,7 +23,7 @@ export function ChannelTab() {
         </Typography>
         <Typography color="text.secondary">
           {t(
-            'Connect the number, test its access token and see the webhook to give Meta at Tech > Demos > WhatsApp bot, next to the calling bot.',
+            'Connect the number, test its access token and see the webhook to give Meta at Agents > WhatsApp agent, next to the calling bot.',
           )}
         </Typography>
         <Button

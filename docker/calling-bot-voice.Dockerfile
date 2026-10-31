@@ -6,7 +6,7 @@
 # Live audio only: a browser call's socket, and Vobiz's answer/hangup callbacks and media
 # stream for a phone call, through Sarvam speech-to-text, OpenAI and Sarvam text-to-speech.
 # Its settings and its calls are in the portal's database (MONGODB_URI); every credential is
-# in the active calling bot config there (Tech > Demos > Calling bot), none in this image.
+# in the active calling bot config there (Agents > Calling bot), none in this image.
 # =============================================================================
 
 FROM node:22-alpine AS base

@@ -21,7 +21,7 @@ import { InfrastructurePage } from '../../src/pages/infrastructure';
 import { IncidentsPage } from '../../src/pages/incidents';
 import { LogsPage } from '../../src/pages/logs';
 import { JobsPage } from '../../src/pages/jobs';
-import { CallingBotPage, WebsiteBotPage, WhatsappBotPage } from '../../src/pages/demos';
+import { MovedRedirect } from '@exyconn/shell/routes/MovedRedirect';
 import { CloudflarePage } from '../../src/pages/security/cloudflare';
 import { SonarPage, SslCertificatesPage } from '../../src/pages/security';
 
@@ -75,9 +75,6 @@ describe('App', () => {
       ['/tech/incidents/:tab?', IncidentsPage],
       ['/tech/logs', LogsPage],
       ['/tech/jobs', JobsPage],
-      ['/tech/demos/calling-bot/:tab?', CallingBotPage],
-      ['/tech/demos/whatsapp-bot', WhatsappBotPage],
-      ['/tech/demos/website-bot/*', WebsiteBotPage],
       ['/tech/settings', SettingsPage],
       ['/tech/security/cloudflare', CloudflarePage],
       ['/tech/security/ssl', SslCertificatesPage],
@@ -90,15 +87,16 @@ describe('App', () => {
     const social = elementAt('/tech/social-apps');
     expect(social?.type).toBe(TechVaultGate);
     expect((social?.props as { children: { type: unknown } }).children.type).toBe(SocialAppsPage);
-    // Plus the redirects: the old social-apps, Gmail and Microsoft Mail tabs and the bare Demos group.
-    expect(routes()).toHaveLength(pages.length + 5);
+    // Plus the redirects: the old social-apps, Gmail and Microsoft Mail tabs and the four Demos addresses that moved to the Agents console.
+    expect(routes()).toHaveLength(pages.length + 8);
   });
 
-  it('opens the Demos group on the calling bot', () => {
+  it('sends the old Demos addresses to the Agents console', () => {
     render(<App />);
-    expect(elementAt('/tech/demos')?.props).toMatchObject({
-      to: '/tech/demos/calling-bot',
-      replace: true,
+    expect(elementAt('/tech/demos')?.type).toBe(MovedRedirect);
+    expect(elementAt('/tech/demos/calling-bot/*')?.props).toMatchObject({
+      app: 'agents',
+      to: '/agents/calling-bot',
     });
   });
 

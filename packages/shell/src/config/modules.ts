@@ -1173,41 +1173,6 @@ export const MODULES: ModuleDefinition[] = [
         icon: MarkEmailUnreadIcon,
         group: 'Inbox',
       },
-      {
-        key: 'website-whatsapp-leads',
-        label: 'WhatsApp Leads',
-        path: '/website/whatsapp-leads',
-        icon: WhatsAppIcon,
-        group: 'Inbox',
-      },
-      {
-        key: 'website-chat-sessions',
-        label: 'Chat Sessions',
-        path: '/website/chat/sessions',
-        icon: ForumIcon,
-        group: 'Chatbot',
-      },
-      {
-        key: 'website-chat-knowledge',
-        label: 'Knowledge Base',
-        path: '/website/chat/knowledge',
-        icon: LibraryBooksIcon,
-        group: 'Chatbot',
-      },
-      {
-        key: 'website-chat-faqs',
-        label: 'FAQs',
-        path: '/website/chat/faqs',
-        icon: QuizIcon,
-        group: 'Chatbot',
-      },
-      {
-        key: 'website-chat-settings',
-        label: 'Chatbot Settings',
-        path: '/website/chat/settings',
-        icon: TuneIcon,
-        group: 'Chatbot',
-      },
     ],
   },
   {
@@ -1345,31 +1310,6 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tech/settings',
         icon: TuneIcon,
         group: 'Configuration',
-      },
-      {
-        // The AI calling bot at demos.exyconn.com/calling-bot-demo: its keys, voice and calls.
-        key: 'tech-demos-calling-bot',
-        label: 'Calling bot',
-        path: '/tech/demos/calling-bot',
-        icon: PhoneInTalkIcon,
-        group: 'Demos',
-      },
-      {
-        // The AI website chat agent (demos.exyconn.com/website-chat-demo): its workflows in the
-        // React Flow designer, analytics, sessions and setup.
-        key: 'tech-demos-website-bot',
-        label: 'Website chat bot',
-        path: '/tech/demos/website-bot',
-        icon: ForumIcon,
-        group: 'Demos',
-      },
-      {
-        // The WhatsApp demo's real number: its Meta credentials, tested from the form.
-        key: 'tech-demos-whatsapp-bot',
-        label: 'WhatsApp bot',
-        path: '/tech/demos/whatsapp-bot',
-        icon: WhatsAppIcon,
-        group: 'Demos',
       },
       {
         // Moving exyconn.com's DNS from GoDaddy to Cloudflare and switching its nameservers.
@@ -1657,6 +1597,77 @@ export const MODULES: ModuleDefinition[] = [
     ],
   },
   {
+    // The console for every AI agent: WhatsApp workflows, the calling bot, the website chat agent
+    // with its knowledge, FAQs and live sessions, and the leads they capture. These screens lived
+    // in Tech (Demos) and Website (Chatbot); their old addresses redirect here.
+    key: 'agents',
+    label: 'Agents',
+    path: '/agents',
+    role: ROLES.AGENTS,
+    icon: SmartToyIcon,
+    description: 'WhatsApp, calling and website chat agents, their sessions and leads',
+    accent: color.emerald[600],
+    children: [
+      { key: 'agents-overview', label: 'Overview', path: '/agents', icon: DashboardIcon },
+      {
+        key: 'agents-whatsapp',
+        label: 'WhatsApp agent',
+        path: '/agents/whatsapp',
+        icon: WhatsAppIcon,
+        group: 'AI agents',
+      },
+      {
+        key: 'agents-calling-bot',
+        label: 'Calling bot',
+        path: '/agents/calling-bot',
+        icon: PhoneInTalkIcon,
+        group: 'AI agents',
+      },
+      {
+        key: 'agents-website-bot',
+        label: 'Website chat agent',
+        path: '/agents/website-bot',
+        icon: ForumIcon,
+        group: 'AI agents',
+      },
+      {
+        key: 'agents-chat-sessions',
+        label: 'Chat Sessions',
+        path: '/agents/chat/sessions',
+        icon: ForumIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-chat-knowledge',
+        label: 'Knowledge Base',
+        path: '/agents/chat/knowledge',
+        icon: LibraryBooksIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-chat-faqs',
+        label: 'FAQs',
+        path: '/agents/chat/faqs',
+        icon: QuizIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-chat-settings',
+        label: 'Chatbot Settings',
+        path: '/agents/chat/settings',
+        icon: TuneIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-whatsapp-leads',
+        label: 'WhatsApp Leads',
+        path: '/agents/whatsapp-leads',
+        icon: WhatsAppIcon,
+        group: 'Inbox',
+      },
+    ],
+  },
+  {
     // Claude's connectors: one MCP server per module (each opens with that module's role) and a
     // global one combining them. Listed for everyone; the pages say which servers they can use.
     key: 'mcp',
@@ -1688,6 +1699,7 @@ export const MODULES: ModuleDefinition[] = [
       mcpServerNav('tech', 'Tech', TerminalIcon, ROLES.TECH),
       mcpServerNav('tracker', 'Tracker', AccessTimeIcon, ROLES.TRACKER),
       mcpServerNav('website', 'Website', LanguageIcon, ROLES.WEBSITE),
+      mcpServerNav('agents', 'Agents', SmartToyIcon, ROLES.AGENTS),
       {
         key: 'mcp-all',
         label: 'All tools (global)',

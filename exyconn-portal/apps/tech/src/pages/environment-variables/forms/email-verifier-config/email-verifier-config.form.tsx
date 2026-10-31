@@ -14,7 +14,7 @@ import {
   useUpdateEmailVerifierConfigMutation,
   TechSecret,
 } from '@exyconn/shell/graphql/generated';
-import { KEEP_SECRET_HINT } from '../../secret';
+import { KEEP_SECRET_HINT } from '@exyconn/shell/utils/secret';
 import {
   emailVerifierConfigSchema,
   type EmailVerifierConfigRow,

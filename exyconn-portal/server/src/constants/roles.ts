@@ -27,6 +27,8 @@ export const ROLES = {
   IT: 'IT',
   /** The management systems: ISO 9001, 27001, 45001 and 14001 in one register. */
   COMPLIANCE: 'COMPLIANCE',
+  /** The AI agents console: WhatsApp, calling and website chat agents and their leads. */
+  AGENTS: 'AGENTS',
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];

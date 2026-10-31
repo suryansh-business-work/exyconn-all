@@ -21,7 +21,8 @@ export type McpServerKey =
   | 'support'
   | 'tech'
   | 'tracker'
-  | 'website';
+  | 'website'
+  | 'agents';
 /** Where a connection points: one module's server, or the global one that combines them all. */
 export type McpEndpointKey = McpServerKey | 'all';
 

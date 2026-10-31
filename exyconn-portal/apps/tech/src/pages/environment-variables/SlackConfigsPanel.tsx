@@ -13,7 +13,7 @@ import {
   useDeleteSlackConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { SlackConfigForm, type SlackConfigRow } from './forms/slack-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 import { SendTestSlackForm } from './forms/send-test-slack';
 
 /** Environment Variables sub-panel: manage Slack workspace credentials (DB-backed). */

@@ -170,6 +170,7 @@ import {
   whatsappDemoResolvers,
 } from '../../../../demos/whatsapp-demo/server/src';
 import { callingBotTypeDefs, callingBotResolvers } from '../modules/calling-bot-demo';
+import { agentsTypeDefs, agentsResolvers } from '../modules/agents';
 import {
   emailVerificationTypeDefs,
   emailVerificationResolvers,
@@ -365,6 +366,7 @@ export const typeDefs = [
   logsTypeDefs,
   whatsappDemoTypeDefs,
   callingBotTypeDefs,
+  agentsTypeDefs,
   emailVerificationTypeDefs,
   googleMapsTypeDefs,
   webScraperTypeDefs,
@@ -484,6 +486,7 @@ export const resolvers = mergeResolvers([
   logsResolvers,
   whatsappDemoResolvers,
   callingBotResolvers,
+  agentsResolvers,
   emailVerificationResolvers,
   googleMapsResolvers,
   webScraperResolvers,

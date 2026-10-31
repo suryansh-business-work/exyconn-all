@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { GoogleMapsConfigsQuery } from '@exyconn/shell/graphql/generated';
-import { secretField } from '../../secret';
+import { secretField } from '@exyconn/shell/utils/secret';
 
 export type GoogleMapsConfigRow = GoogleMapsConfigsQuery['googleMapsConfigs'][number];
 

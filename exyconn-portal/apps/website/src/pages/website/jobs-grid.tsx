@@ -1,7 +1,12 @@
 import type { ColDef } from 'ag-grid-community';
-import { actionsColumn, statusColumn, textColumn, type CrudGridContext } from '@exyconn/crud';
+import {
+  actionsColumn,
+  activeStatus,
+  statusColumn,
+  textColumn,
+  type CrudGridContext,
+} from '@exyconn/crud';
 import type { ListJobsPagedQuery } from '@exyconn/shell/graphql/generated';
-import { activeStatus } from './active-status';
 
 export type PagedJobRow = ListJobsPagedQuery['listJobsPaged']['rows'][number];
 

@@ -96,7 +96,7 @@ export function createSession(fields: Record<string, unknown> = {}) {
 /** An id-shaped value for schema checks. */
 export const CHAT_AGENT_ID = '64b7f0c2a1b2c3d4e5f60718';
 
-/** Valid Website > Chatbot > Settings, as the form sends them. */
+/** Valid Agents > Website chat > Settings, as the form sends them. */
 export const validSettings = () => ({
   enabled: true,
   botName: 'Exyconn Assistant',

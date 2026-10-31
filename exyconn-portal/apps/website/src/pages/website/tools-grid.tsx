@@ -6,10 +6,10 @@ import {
   textColumn,
   valueColumn,
   type CrudGridContext,
+  activeStatus,
 } from '@exyconn/crud';
 import { Link } from '@exyconn/shell/components/ui';
 import type { ListToolsPagedQuery } from '@exyconn/shell/graphql/generated';
-import { activeStatus } from './active-status';
 
 export type PagedToolRow = ListToolsPagedQuery['listToolsPaged']['rows'][number];
 

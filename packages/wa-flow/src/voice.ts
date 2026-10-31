@@ -1,5 +1,5 @@
 /**
- * Call flows: a calling bot's conversation drawn as a graph (Tech > Demos > Calling bot) with
+ * Call flows: a calling bot's conversation drawn as a graph (Agents > Calling bot) with
  * the node types a phone call can carry, and turned into the step-by-step call script its
  * voice model follows. The voice agent speaks freely; the script keeps it on the path.
  */

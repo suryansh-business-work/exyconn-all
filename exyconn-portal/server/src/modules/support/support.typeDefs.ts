@@ -22,7 +22,7 @@ export const supportTypeDefs = gql`
     EMAIL
     "Typed into the console by an agent, usually off a call."
     AGENT
-    "Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot)."
+    "Opened by a chat on exyconn.com or tools.exyconn.com (Agents > Website chat)."
     CHAT
     "Opened by a message to the company's WhatsApp number. The chat itself stays in WhatsApp."
     WHATSAPP

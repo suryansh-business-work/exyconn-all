@@ -18,14 +18,14 @@ import { actorNameOf } from '../../../../exyconn-portal/server/src/lib/actor';
  * Two audiences, enforced here rather than by hiding screens: the chat (any signed-in
  * employee — ADMIN passes every role check — or a demo visitor signed in with an emailed code)
  * reads the published catalogue, records its analytics and asks for AI parses; everything that edits content or reads analytics is the
- * company's administrators' (ADMIN, or the platform's SUPER_ADMIN) and its Tech staff, who run
- * the demos from Tech > Demos.
+ * company's administrators' (ADMIN, or the platform's SUPER_ADMIN) its Tech staff and its Agents
+ * team, who run the agents from the Agents console.
  *
  * The same module serves both bot channels — the WhatsApp demo and the website chat agent —
  * picked by each query's `channel` (WhatsApp when a client names none).
  */
 const admin = (ctx: GraphQLContext) =>
-  assertRole(ctx, [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TECH]);
+  assertRole(ctx, [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TECH, ROLES.AGENTS]);
 
 /**
  * Runs chat work for whoever may chat: a signed-in employee in their own company, or a demo

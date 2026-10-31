@@ -74,7 +74,7 @@ against `tools.exyconn.com` instead: the directory card and the "Open" button on
 page both deep-link to the tool itself. `/our-tools` rather than `/tools` remains the
 directory's address so that redirect — and the inbound links it preserves — stays intact.
 
-## The chat widget (Website > Chatbot)
+## The chat widget (Agents > Website chat)
 
 exyconn.com and tools.exyconn.com carry the same chat, served by the website as an iframe
 page, [`/embed/chat`](../../exyconn-website/src/pages/embed/chat.astro): a React + MUI app
@@ -99,7 +99,7 @@ allows the microphone there for voice notes.
 The chat talks to portal-server over one WebSocket, `/chat/ws`
 ([`modules/website-chat`](../../exyconn-portal/server/src/modules/website-chat)), derived at
 request time from `PUBLIC_PORTAL_GRAPHQL_URL`. The socket only accepts the origins in
-`CHAT_ORIGINS` (the public sites) and `CORS_ORIGIN` (the portals, whose Website > Chatbot
+`CHAT_ORIGINS` (the public sites) and `CORS_ORIGIN` (the portals, whose Agents > Website chat
 console answers over the same socket); since the iframe always runs on exyconn.com, that is
 the origin the server sees from every host site.
 
@@ -109,7 +109,7 @@ the origin the server sees from every host site.
   reference. Closing the chat emails `website-chat-transcript` when the settings ask for it.
 - **Three tabs.** "Chat with us" is people only; "Knowledge Bot" is the configured OpenAI model
   (gpt-4o by default, key from Tech > Environment Variables) answering only from the knowledge
-  below and refusing anything else with the configured message; "FAQs" are Website > Chatbot >
+  below and refusing anything else with the configured message; "FAQs" are Agents > Website chat >
   FAQs and need no sign-in.
 - **Handoff.** A live question nobody answers within the configured wait, or one asked outside
   the opening hours, is handed to the bot inside the live thread itself (a notice, then the

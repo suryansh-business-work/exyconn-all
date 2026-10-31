@@ -35,7 +35,7 @@ export function LiveChat({ demo }: Readonly<{ demo: WebsiteDemo }>) {
       <Skeleton variant="rectangular" sx={{ height: HEIGHT }} aria-label={t('Loading the chat')} />
     ) : (
       <Alert severity="info">
-        {t('No demo website is published yet. Publish one in Tech > Demos > Website chat bot.')}
+        {t('No demo website is published yet. Publish one in Agents > Website chat agent.')}
       </Alert>
     );
   }

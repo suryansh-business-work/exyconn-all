@@ -10,7 +10,7 @@ vi.mock('../../../../src/runtime/log', () => ({
 }));
 
 
-const HINT = 'Check the Sarvam AI key and its credits in Tech > Demos > Calling bot.';
+const HINT = 'Check the Sarvam AI key and its credits in Agents > Calling bot.';
 
 function open() {
   const events = { onMessage: vi.fn(), onFailure: vi.fn() };

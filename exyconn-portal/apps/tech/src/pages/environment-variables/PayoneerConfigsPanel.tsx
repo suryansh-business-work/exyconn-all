@@ -13,7 +13,7 @@ import {
   useTestPayoneerConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { PayoneerConfigForm, type PayoneerConfigRow } from './forms/payoneer-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 import { WebhookInfo } from './WebhookInfo';
 
 const COLUMNS: Column<PayoneerConfigRow>[] = [

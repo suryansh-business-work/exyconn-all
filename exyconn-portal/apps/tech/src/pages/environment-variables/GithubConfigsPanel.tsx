@@ -12,7 +12,7 @@ import {
   useTestGithubConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { GithubConfigForm, type GithubConfigRow } from './forms/github-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 /** Environment Variables sub-panel: the repository tracker builds are started in. */
 export function GithubConfigsPanel() {

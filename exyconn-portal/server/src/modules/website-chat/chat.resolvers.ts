@@ -24,7 +24,7 @@ const SESSION_TABLE = {
 };
 registerTable('websiteChatSessionsPaged', SESSION_TABLE);
 
-/** Checks the caller may do `action` in Website > Chatbot, then works in the chat owner's company. */
+/** Checks the caller may do `action` in Agents > Website chat, then works in the chat owner's company. */
 async function asAgent<T>(
   ctx: GraphQLContext,
   action: PermissionAction,
@@ -44,10 +44,10 @@ async function sessionById(id: string) {
 
 type Id = { id: string };
 
-/** Who may be picked as a chat agent: the company's support and website people. */
+/** Who may be picked as a chat agent: the company's support, website and agents people. */
 async function agentCandidates() {
   const users = await UserModel.find({
-    roles: { $in: [ROLES.SUPPORT, ROLES.WEBSITE] },
+    roles: { $in: [ROLES.SUPPORT, ROLES.WEBSITE, ROLES.AGENTS] },
     isActive: true,
     isBlocked: { $ne: true },
   })
@@ -59,7 +59,7 @@ async function agentCandidates() {
   return loads.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Website > Chatbot: sessions, conversations and settings, for the website team. */
+/** Agents > Website chat: sessions, conversations and settings, for the website team. */
 export const websiteChatResolvers = {
   Query: {
     websiteChatSessionsPaged: (

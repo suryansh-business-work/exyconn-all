@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-/** The real WhatsApp number's settings, for Tech > Demos > WhatsApp bot. */
+/** The real WhatsApp number's settings, for Agents > WhatsApp agent. */
 export const whatsappChannelTypeDefs = gql`
   type WhatsappChannel {
     id: ID!

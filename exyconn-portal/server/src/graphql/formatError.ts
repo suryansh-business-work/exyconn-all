@@ -30,7 +30,7 @@ export const PUBLIC_ERROR_CODES = new Set([
 ]);
 
 /**
- * The Test buttons on Tech > Environment Variables and Tech > Demos. Only Tech staff can run
+ * The Test buttons on Tech > Environment Variables and the Agents console. Only Tech staff can run
  * them, and the provider's own words ("invalid_api_key", "getaddrinfo ENOTFOUND") are the whole
  * point of pressing one, so their failures keep their message instead of "Something went wrong".
  */

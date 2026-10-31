@@ -13,7 +13,7 @@ import {
   useTestSonarConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { SonarConfigForm, type SonarConfigRow } from './forms/sonar-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 const COLUMNS: Column<SonarConfigRow>[] = [
   { key: 'label', label: 'Label' },

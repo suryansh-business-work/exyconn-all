@@ -3040,6 +3040,7 @@ export type MarketingSuppressionsInput = {
 /** An MCP server: one module's (CRM, MARKETING, HR and the rest), or ALL, which combines every module's tools. */
 export type McpEndpoint =
   | 'ADMIN'
+  | 'AGENTS'
   | 'AI'
   | 'ALL'
   | 'CLIENTHUB'
@@ -3897,6 +3898,7 @@ export type RiskTreatment =
 
 export type Role =
   | 'ADMIN'
+  | 'AGENTS'
   | 'AI'
   | 'COMPLIANCE'
   | 'CRM'
@@ -4534,7 +4536,7 @@ export type TechSecret =
 export type TicketChannel =
   /** Typed into the console by an agent, usually off a call. */
   | 'AGENT'
-  /** Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot). */
+  /** Opened by a chat on exyconn.com or tools.exyconn.com (Agents > Website chat). */
   | 'CHAT'
   /** Arrived in the support mailbox and was imported. */
   | 'EMAIL'

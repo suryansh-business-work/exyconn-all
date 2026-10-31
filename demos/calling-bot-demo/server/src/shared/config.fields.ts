@@ -1,5 +1,5 @@
 /**
- * What the calling bot runs on, edited in Tech > Demos > Calling bot and read by the voice
+ * What the calling bot runs on, edited in Agents > Calling bot and read by the voice
  * server. Exactly one document is `isActive`; that one answers every call.
  *
  * The fields are a plain schema definition rather than a Mongoose schema so the portal server

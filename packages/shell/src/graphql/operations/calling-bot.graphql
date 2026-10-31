@@ -1,4 +1,4 @@
-# The AI calling bot demo (demos.exyconn.com/calling-bot-demo) and its settings in Tech > Demos.
+# The AI calling bot demo (demos.exyconn.com/calling-bot-demo) and its settings in the Agents console.
 
 fragment CallingBotCallFields on CallingBotCall {
   id
@@ -148,7 +148,7 @@ mutation DeleteCallingBotScenario($id: ID!) {
   deleteCallingBotScenario(id: $id)
 }
 
-# Tech > Demos > Calling bot > Call flows: each example with its drawn flow and compiled script.
+# Agents > Calling bot > Call flows: each example with its drawn flow and compiled script.
 query CallingBotScenarioFlows {
   callingBotScenarios {
     id

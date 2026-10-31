@@ -84,6 +84,39 @@ export enum ActivityType {
   Task = 'TASK'
 }
 
+/** What the AI agents did over the last days: the Agents console's overview. */
+export type AgentsOverview = {
+  __typename?: 'AgentsOverview';
+  /** Calls placed with the calling bot. */
+  calls: Scalars['Int']['output'];
+  /** Calls that ended normally. */
+  callsCompleted: Scalars['Int']['output'];
+  /** Calls that failed to connect or broke off. */
+  callsFailed: Scalars['Int']['output'];
+  /** Conversations across every agent: WhatsApp and website agent sessions, live website chats and calls. */
+  conversations: Scalars['Int']['output'];
+  /** How many days the numbers cover, ending today. */
+  days: Scalars['Int']['output'];
+  /** Share of live chats that never needed a person, 0 to 1. */
+  deflectionRate: Scalars['Float']['output'];
+  /** Start of the range, ISO date. */
+  from: Scalars['String']['output'];
+  /** People who left their details to try an agent (WhatsApp demo leads). */
+  leadsCaptured: Scalars['Int']['output'];
+  /** End of the range, ISO date. */
+  to: Scalars['String']['output'];
+  /** Sessions with the website chat agent's demo. */
+  websiteAgentSessions: Scalars['Int']['output'];
+  /** Live chats opened on the website. */
+  websiteChats: Scalars['Int']['output'];
+  /** Live chats in which someone on the team replied. */
+  websiteChatsAnsweredByPeople: Scalars['Int']['output'];
+  /** Share of WhatsApp workflows started that were finished, 0 to 1. */
+  whatsappCompletionRate: Scalars['Float']['output'];
+  /** Sessions with the WhatsApp agent. */
+  whatsappSessions: Scalars['Int']['output'];
+};
+
 /** The documents the shared assist button can draft. */
 export enum AiDraftKind {
   EmailReply = 'EMAIL_REPLY',
@@ -1509,7 +1542,7 @@ export enum CallingBotChannel {
   Phone = 'PHONE'
 }
 
-/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret. */
+/** The calling bot demo's settings (Agents > Calling bot). Keys are never listed; see revealCallingBotSecret. */
 export type CallingBotConfig = {
   __typename?: 'CallingBotConfig';
   createdAt: Scalars['DateTime']['output'];
@@ -1611,7 +1644,7 @@ export enum CallingBotPhoneProvider {
   Vobiz = 'VOBIZ'
 }
 
-/** An example call the bot can play (Tech > Demos > Calling bot > Examples). */
+/** An example call the bot can play (Agents > Calling bot > Examples). */
 export type CallingBotScenario = {
   __typename?: 'CallingBotScenario';
   /** The flow as the step-by-step script the voice model follows; empty without a flow. */
@@ -8876,6 +8909,7 @@ export type McpConnection = {
 /** An MCP server: one module's (CRM, MARKETING, HR and the rest), or ALL, which combines every module's tools. */
 export enum McpEndpoint {
   Admin = 'ADMIN',
+  Agents = 'AGENTS',
   Ai = 'AI',
   All = 'ALL',
   Clienthub = 'CLIENTHUB',
@@ -16700,6 +16734,8 @@ export type Query = {
    * carry-forward already resolved for their country.
    */
   activeLeavePolicies: Array<LeavePolicy>;
+  /** Reads the Agents console's overview: conversations, calls, leads captured and how many website chats the bots handled alone, over the last days. */
+  agentsOverview: AgentsOverview;
   /** Read live from OpenAI with the active key, so the list is what the account can reach. */
   aiModels: AiModelOptions;
   /** TECH/AI: reads the AI spend caps in force (monthly and per person per day, in USD). */
@@ -18000,9 +18036,9 @@ export type Query = {
   websiteChatMessages: Array<WebsiteChatMessage>;
   /** Reads one website chat with its visitor, status, assignee and support ticket. */
   websiteChatSession: WebsiteChatSession;
-  /** Website > Chatbot > Sessions: totals by status and site. */
+  /** Agents > Website chat > Sessions: totals by status and site. */
   websiteChatSessionStats: TableStats;
-  /** Website > Chatbot > Sessions (website staff). */
+  /** Agents > Website chat > Sessions (website staff). */
   websiteChatSessionsPaged: WebsiteChatSessionPage;
   /** Reads the website chatbot's settings: messages, opening hours, AI model, uploads, timeouts and who chats are handed to. */
   websiteChatSettings: WebsiteChatSettings;
@@ -18037,6 +18073,11 @@ export type Query = {
   workWeek: WorkWeek;
   /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
   workspaceAnalytics: WorkspaceAnalytics;
+};
+
+
+export type QueryAgentsOverviewArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -20655,6 +20696,7 @@ export enum RiskTreatment {
 
 export enum Role {
   Admin = 'ADMIN',
+  Agents = 'AGENTS',
   Ai = 'AI',
   Compliance = 'COMPLIANCE',
   Crm = 'CRM',
@@ -22635,7 +22677,7 @@ export type TechVaultSessionPage = {
 export enum TicketChannel {
   /** Typed into the console by an agent, usually off a call. */
   Agent = 'AGENT',
-  /** Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot). */
+  /** Opened by a chat on exyconn.com or tools.exyconn.com (Agents > Website chat). */
   Chat = 'CHAT',
   /** Arrived in the support mailbox and was imported. */
   Email = 'EMAIL',
@@ -24753,6 +24795,7 @@ export type ResolversTypes = ResolversObject<{
   ActivityPage: ResolverTypeWrapper<ActivityPage>;
   ActivitySubject: ActivitySubject;
   ActivityType: ActivityType;
+  AgentsOverview: ResolverTypeWrapper<AgentsOverview>;
   AiDraftKind: AiDraftKind;
   AiJob: ResolverTypeWrapper<AiJob>;
   AiJobInput: AiJobInput;
@@ -26090,6 +26133,7 @@ export type ResolversParentTypes = ResolversObject<{
   Activity: Activity;
   ActivityInput: ActivityInput;
   ActivityPage: ActivityPage;
+  AgentsOverview: AgentsOverview;
   AiJob: AiJob;
   AiJobInput: AiJobInput;
   AiJobPage: AiJobPage;
@@ -27171,6 +27215,24 @@ export type ActivityResolvers<ContextType = GraphQLContext, ParentType extends R
 export type ActivityPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ActivityPage'] = ResolversParentTypes['ActivityPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AgentsOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AgentsOverview'] = ResolversParentTypes['AgentsOverview']> = ResolversObject<{
+  calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  callsCompleted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  callsFailed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  conversations?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  deflectionRate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  leadsCaptured?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  websiteAgentSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  websiteChats?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  websiteChatsAnsweredByPeople?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  whatsappCompletionRate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  whatsappSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -34100,6 +34162,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   activeAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
   activeLeavePolicies?: Resolver<Array<ResolversTypes['LeavePolicy']>, ParentType, ContextType>;
+  agentsOverview?: Resolver<ResolversTypes['AgentsOverview'], ParentType, ContextType, Partial<QueryAgentsOverviewArgs>>;
   aiModels?: Resolver<ResolversTypes['AiModelOptions'], ParentType, ContextType>;
   aiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType>;
   aiSpendSummary?: Resolver<ResolversTypes['AiSpendSummary'], ParentType, ContextType, RequireFields<QueryAiSpendSummaryArgs, 'from' | 'to'>>;
@@ -37207,6 +37270,7 @@ export type WorkspaceAnalyticsResolvers<ContextType = GraphQLContext, ParentType
 export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Activity?: ActivityResolvers<ContextType>;
   ActivityPage?: ActivityPageResolvers<ContextType>;
+  AgentsOverview?: AgentsOverviewResolvers<ContextType>;
   AiJob?: AiJobResolvers<ContextType>;
   AiJobPage?: AiJobPageResolvers<ContextType>;
   AiModelOptions?: AiModelOptionsResolvers<ContextType>;

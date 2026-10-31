@@ -16,7 +16,7 @@ import {
   TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { RazorpayConfigRow } from './razorpay-config.types';
-import { KEEP_SECRET_HINT, secretField, webhookUrl } from '../../secret';
+import { KEEP_SECRET_HINT, secretField, webhookUrl } from '@exyconn/shell/utils/secret';
 import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [

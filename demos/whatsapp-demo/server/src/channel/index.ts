@@ -19,18 +19,18 @@ export { whatsappChannelTypeDefs } from './channel.typeDefs';
 /**
  * The real WhatsApp number behind the demo: the same published workflows, answered on
  * WhatsApp itself through Meta's Cloud API. Configured by the company's administrators, or by
- * the platform's Tech staff from Tech > Demos > WhatsApp bot.
+ * the platform's Tech staff from Agents > WhatsApp agent.
  */
 
 const ADMIN_ROLES: ReadonlySet<string> = new Set([ROLES.ADMIN, ROLES.SUPER_ADMIN]);
 
-/** A company administrator, or the platform's Tech staff with the Tech settings permission. */
+/** A company administrator, or the platform's Tech or Agents staff with the Tech settings permission. */
 async function manager(ctx: GraphQLContext, action: PermissionAction): Promise<void> {
   if (ctx.user?.roles?.some((role) => ADMIN_ROLES.has(role))) {
     assertRole(ctx, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
     return;
   }
-  await assertPlatformStaff(ctx, 'TechConfig', [ROLES.TECH], action);
+  await assertPlatformStaff(ctx, 'TechConfig', [ROLES.TECH, ROLES.AGENTS], action);
 }
 
 export const whatsappChannelResolvers = {

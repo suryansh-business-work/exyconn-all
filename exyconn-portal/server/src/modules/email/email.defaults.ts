@@ -575,7 +575,7 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
     key: 'website-chat-transcript',
     name: 'Website chat — conversation transcript',
     description:
-      'Sent when a website chat ends, if Website > Chatbot > Settings asks for it. The whole conversation is attached as a text file. {{reference}} is the chat’s support ticket.',
+      'Sent when a website chat ends, if Agents > Website chat > Settings asks for it. The whole conversation is attached as a text file. {{reference}} is the chat’s support ticket.',
     subject: 'Your chat with {{companyName}} ({{reference}})',
     mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your chat transcript</mj-text>
         <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>

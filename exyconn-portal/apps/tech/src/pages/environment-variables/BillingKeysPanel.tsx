@@ -11,7 +11,7 @@ import {
   useDeleteBillingKeyConfigMutation,
   useTestBillingKeyConfigMutation,
 } from '@exyconn/shell/graphql/generated';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 import { BillingKeyConfigForm, type BillingKeyConfigRow } from './forms/billing-key-config';
 
 const COLUMNS: Column<BillingKeyConfigRow>[] = [

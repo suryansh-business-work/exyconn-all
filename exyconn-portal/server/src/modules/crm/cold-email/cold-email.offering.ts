@@ -10,7 +10,7 @@ export const MAX_OFFERING_CHARS = 4000;
 const MAX_QUERY_CHARS = 2000;
 
 /**
- * What we sell that fits this prospect: the passages of our own website (Website > Chatbot's
+ * What we sell that fits this prospect: the passages of our own website (Agents > Website chat's
  * knowledge, synced from it) most about their business, found the way the website bot finds
  * answers. Empty when there is no knowledge or no OpenAI key. A failed lookup is logged and
  * leaves the email to the person's own offer: it never stops the draft being written.

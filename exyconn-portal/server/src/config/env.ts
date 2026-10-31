@@ -133,7 +133,7 @@ export const env = Object.freeze({
   chatKnowledgeMarket: process.env.CHAT_KNOWLEDGE_MARKET ?? 'en-us',
   /**
    * Public sites the website chat widget may open its socket from. The portals in CORS_ORIGIN
-   * are allowed as well (Website > Chatbot answers over the same socket).
+   * are allowed as well (Agents > Website chat answers over the same socket).
    */
   chatOrigins: (process.env.CHAT_ORIGINS ?? 'https://exyconn.com,https://tools.exyconn.com')
     .split(',')
@@ -144,9 +144,9 @@ export const env = Object.freeze({
    * A record for a site's domains. Empty leaves the address to type.
    */
   websiteServerIp: process.env.WEBSITE_SERVER_IP ?? '',
-  /** Website > Chatbot > Sessions, linked from the support ticket every chat opens. */
+  /** Agents > Chat Sessions, linked from the support ticket every chat opens. */
   websiteChatConsoleUrl: (
-    process.env.WEBSITE_CHAT_CONSOLE_URL ?? 'https://website.exyconn.com/website/chat/sessions'
+    process.env.WEBSITE_CHAT_CONSOLE_URL ?? 'https://agents.exyconn.com/agents/chat/sessions'
   ).replace(/\/$/, ''),
   /** The client hub: where invoice emails' "Pay now" links and payment gateways send a client. */
   /** The CRM portal's address, for links in CRM reminder emails. */

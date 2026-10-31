@@ -3,7 +3,7 @@ import { markReadByStaff } from './chat.messages';
 import { agentReply, chatAgentForToken } from './chat.staff';
 import { parseInput, staffFrameSchema } from './chat.validation';
 
-/** A team member's console signing in: the token must carry Website > Chatbot access. */
+/** A team member's console signing in: the token must carry Agents > Website chat access. */
 export async function greetStaff(peer: ChatPeer, token: string): Promise<void> {
   await chatAgentForToken(token, peer.ip, 'VIEW');
   peer.role = 'staff';

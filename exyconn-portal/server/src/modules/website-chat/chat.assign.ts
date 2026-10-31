@@ -62,7 +62,7 @@ export function freestAgent(loads: readonly ChatAgentLoad[]): ChatAgentLoad | nu
 }
 
 /**
- * Gives a new chat to the freest agent in Website > Chatbot > Settings and, when Slack is on,
+ * Gives a new chat to the freest agent in Agents > Website chat > Settings and, when Slack is on,
  * opens their Slack thread for it. No agents listed leaves the chat for anyone to claim.
  */
 export async function assignFreeAgent(sessionId: string): Promise<void> {

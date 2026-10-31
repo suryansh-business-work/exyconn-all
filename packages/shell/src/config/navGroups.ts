@@ -47,6 +47,7 @@ import VoiceChatIcon from '@mui/icons-material/VoiceChat';
  */
 export const NAV_GROUP_ICONS = {
   Administration: AdminPanelSettingsIcon,
+  'AI agents': SmartToyIcon,
   Billing: ReceiptIcon,
   Chatbot: SmartToyIcon,
   Communication: CampaignIcon,

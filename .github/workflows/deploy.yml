@@ -260,6 +260,14 @@ jobs:
               APP_DIR=exyconn-portal/apps/mcp
               PORT=4044
               VITE_PORTAL_APP=mcp
+          - service: portal-agents
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-agents
+              APP_DIR=exyconn-portal/apps/agents
+              PORT=4045
+              VITE_PORTAL_APP=agents
           - service: portal-clienthub
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -476,6 +484,7 @@ jobs:
             "https://demos.exyconn.com/website-chat-demo/"
             "https://clienthub.exyconn.com"
             "https://mcp.exyconn.com"
+            "https://agents.exyconn.com"
             "https://status.exyconn.com"
             "https://hr.exyconn.com"
             "https://marketing.exyconn.com"

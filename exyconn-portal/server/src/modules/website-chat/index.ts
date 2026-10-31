@@ -1,5 +1,5 @@
 /**
- * Website > Chatbot: the chat widget on exyconn.com and tools.exyconn.com.
+ * Agents > Website chat: the chat widget on exyconn.com and tools.exyconn.com.
  *
  * A visitor proves their email with a one-time code, which opens a chat session and a support
  * ticket. The conversation runs over a WebSocket (/chat/ws, chat.socket.ts) in two threads —

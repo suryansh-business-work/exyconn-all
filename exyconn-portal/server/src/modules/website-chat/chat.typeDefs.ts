@@ -254,9 +254,9 @@ export const websiteChatTypeDefs = gql`
   }
 
   extend type Query {
-    "Website > Chatbot > Sessions (website staff)."
+    "Agents > Website chat > Sessions (website staff)."
     websiteChatSessionsPaged(input: TableQueryInput!): WebsiteChatSessionPage!
-    "Website > Chatbot > Sessions: totals by status and site."
+    "Agents > Website chat > Sessions: totals by status and site."
     websiteChatSessionStats: TableStats!
     "Reads one website chat with its visitor, status, assignee and support ticket."
     websiteChatSession(id: ID!): WebsiteChatSession!

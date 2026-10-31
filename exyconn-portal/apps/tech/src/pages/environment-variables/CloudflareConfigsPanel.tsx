@@ -12,7 +12,7 @@ import {
   useTestCloudflareConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { CloudflareConfigForm, type CloudflareConfigRow } from './forms/cloudflare-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 /**
  * Environment Variables sub-panel: the Cloudflare API token and account behind Tech >

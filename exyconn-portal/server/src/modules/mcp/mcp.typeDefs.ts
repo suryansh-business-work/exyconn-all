@@ -28,6 +28,7 @@ export const mcpTypeDefs = gql`
     TECH
     TRACKER
     WEBSITE
+    AGENTS
     ALL
   }
 

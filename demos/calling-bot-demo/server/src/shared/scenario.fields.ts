@@ -1,6 +1,6 @@
 /**
  * The example calls a visitor can pick on the demo (a clinic booking, a loan EMI reminder…),
- * edited in Tech > Demos > Calling bot > Examples. A picked example replaces the active
+ * edited in Agents > Calling bot > Examples. A picked example replaces the active
  * config's prompt and greeting for that call, and its language when it names one; the keys,
  * voice and limits stay the config's.
  */

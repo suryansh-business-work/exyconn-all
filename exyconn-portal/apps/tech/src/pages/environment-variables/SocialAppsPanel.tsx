@@ -14,7 +14,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { SocialAppForm, type SocialAppRow } from './forms/social-app';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 /**
  * Environment Variables sub-panel: the OAuth app for each social network. One set for the

@@ -1,7 +1,7 @@
 import { toWorkflowDef, type SeedWorkflow, type WaGraph } from '@exyconn/wa-flow';
 
 /**
- * Starter call flows for four seeded examples (by their key), so Tech > Demos > Calling bot >
+ * Starter call flows for four seeded examples (by their key), so Agents > Calling bot >
  * Call flows opens on real flows. Voice nodes only: what the bot says, the choices it offers
  * aloud, the details it collects, and where each answer leads.
  */

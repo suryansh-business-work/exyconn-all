@@ -13,7 +13,7 @@ import {
   useTestPaypalConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { PaypalConfigForm, type PaypalConfigRow } from './forms/paypal-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 import { WebhookInfo } from './WebhookInfo';
 
 /** What the PayPal webhook must be subscribed to for a payment to reach the invoice. */

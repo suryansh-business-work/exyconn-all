@@ -60,7 +60,7 @@ export async function announceWidgetConfig(): Promise<void> {
   chatHub.toAllVisitors({ t: 'config', config: await widgetConfig() });
 }
 
-/** Saves Website > Chatbot > Settings and tells every open widget at once. */
+/** Saves Agents > Website chat > Settings and tells every open widget at once. */
 export async function updateChatSettings(input: unknown) {
   const values = parseInput(settingsSchema, input);
   await ChatSettingsModel.findOneAndUpdate(

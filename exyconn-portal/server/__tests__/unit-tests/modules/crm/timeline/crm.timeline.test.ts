@@ -228,7 +228,7 @@ describe('a contact timeline', () => {
     expect(noCompany).toMatchObject({
       summary: '',
       status: 'DEMOS',
-      url: '/website/whatsapp-leads',
+      url: '/agents/whatsapp-leads',
     });
     expect(withCompany.summary).toBe('Acme');
     expect(system).toMatchObject({
@@ -257,7 +257,7 @@ describe('a contact timeline', () => {
       opensPage: true,
     });
     expect(chat).toMatchObject({ title: 'Chatted on the website (4 messages)', actor: 'Mia' });
-    expect(chat.url).toBe(`/website/chat/sessions/${chat.id.replace('chat:', '')}`);
+    expect(chat.url).toBe(`/agents/chat/sessions/${chat.id.replace('chat:', '')}`);
     expect(numberMessage).toMatchObject({
       title: 'Submitted the demo form on the website',
       summary: '',

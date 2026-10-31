@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const callingBotTypeDefs = gql`
-  "The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret."
+  "The calling bot demo's settings (Agents > Calling bot). Keys are never listed; see revealCallingBotSecret."
   type CallingBotConfig {
     id: ID!
     label: String!
@@ -177,7 +177,7 @@ export const callingBotTypeDefs = gql`
     scenarioId: ID
   }
 
-  "An example call the bot can play (Tech > Demos > Calling bot > Examples)."
+  "An example call the bot can play (Agents > Calling bot > Examples)."
   type CallingBotScenario {
     id: ID!
     title: String!

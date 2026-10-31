@@ -141,6 +141,7 @@ DOMAINS=(
   "demos.exyconn.com"
   "clienthub.exyconn.com"
   "mcp.exyconn.com"
+  "agents.exyconn.com"
   "status.exyconn.com"
 )
 

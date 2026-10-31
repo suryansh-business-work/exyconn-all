@@ -14,7 +14,7 @@ import {
 } from '../../../../src/pages/website/job-companies-grid';
 import { JOB_COLUMNS, type PagedJobRow } from '../../../../src/pages/website/jobs-grid';
 import { TOOL_COLUMNS, type PagedToolRow } from '../../../../src/pages/website/tools-grid';
-import { activeStatus } from '../../../../src/pages/website/active-status';
+import { activeStatus } from '@exyconn/crud';
 import { actionSpecs, cellStatus, cellText, columnIds } from '../cms/cms-grid-helpers';
 import { blogRow, jobCompanyRow, jobRow, toolRow } from './content-fixtures';
 

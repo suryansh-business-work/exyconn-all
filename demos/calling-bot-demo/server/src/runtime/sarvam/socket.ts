@@ -8,10 +8,10 @@ const PING_MS = 20_000;
 const KEY_REFUSED = 1003;
 
 /** What the person fixing it should check, appended to a refusal of the key. */
-const KEY_HINT = 'Check the Sarvam AI key and its credits in Tech > Demos > Calling bot.';
+const KEY_HINT = 'Check the Sarvam AI key and its credits in Agents > Calling bot.';
 
 /**
- * Why a socket closed, in words Tech > Demos > Calling bot > Calls can show: the close code,
+ * Why a socket closed, in words Agents > Calling bot > Calls can show: the close code,
  * Sarvam's own reason (or the handshake's HTTP status, which `ws` reports as an error) and,
  * when the key was refused, where to fix it. Never the key itself.
  */

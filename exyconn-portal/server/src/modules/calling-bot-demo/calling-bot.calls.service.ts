@@ -28,7 +28,7 @@ export interface StartCallInput {
   channel: CallChannel;
   /** The number to ring, in E.164; phone calls only. */
   phone?: string | null;
-  /** The example the bot plays (Tech > Demos > Calling bot > Examples); none keeps the config's. */
+  /** The example the bot plays (Agents > Calling bot > Examples); none keeps the config's. */
   scenarioId?: string | null;
 }
 
@@ -164,7 +164,7 @@ export const callingBotCalls = {
     return call;
   },
 
-  /** The most recent calls, newest first, for Tech > Demos > Calling bot. */
+  /** The most recent calls, newest first, for Agents > Calling bot. */
   recent(limit: number) {
     return CallingBotCallModel.find()
       .sort({ createdAt: -1 })

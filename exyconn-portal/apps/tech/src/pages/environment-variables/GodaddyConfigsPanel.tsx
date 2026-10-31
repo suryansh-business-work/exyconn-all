@@ -12,7 +12,7 @@ import {
   useTestGodaddyConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { GodaddyConfigForm, type GodaddyConfigRow } from './forms/godaddy-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 /**
  * Environment Variables sub-panel: the GoDaddy API key and secret behind Tech > Security >

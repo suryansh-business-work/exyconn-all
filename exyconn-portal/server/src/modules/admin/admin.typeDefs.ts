@@ -21,6 +21,7 @@ export const adminTypeDefs = gql`
     TECH
     IT
     COMPLIANCE
+    AGENTS
   }
 
   enum EmploymentStatus {

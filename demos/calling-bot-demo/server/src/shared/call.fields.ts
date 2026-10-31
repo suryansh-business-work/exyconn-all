@@ -31,7 +31,7 @@ export const CALLING_BOT_CALL_FIELDS = {
   /** The number a phone call rang, in E.164; empty for a browser call. */
   phone: { type: String, default: '' },
   languageCode: { type: String, required: true },
-  /** The example the caller picked (Tech > Demos > Calling bot > Examples); empty for none. */
+  /** The example the caller picked (Agents > Calling bot > Examples); empty for none. */
   scenarioId: { type: String, default: '' },
   /** Its title when the call was made, so the log still reads after the example changes. */
   scenarioTitle: { type: String, default: '', trim: true },
