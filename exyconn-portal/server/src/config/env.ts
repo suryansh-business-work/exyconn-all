@@ -195,6 +195,8 @@ export const env = Object.freeze({
      * base64 (4/3 larger) in JSON. The decoded WAV is capped at 8 MB separately.
      */
     audioBodyLimit: process.env.MEET_ASSISTANT_AUDIO_LIMIT ?? '12mb',
+    /** The ffmpeg binary that turns screen recordings into MP4 downloads (on PATH in the image). */
+    ffmpegPath: process.env.FFMPEG_PATH ?? 'ffmpeg',
     /** AI › Meeting Assistant › Releases, linked from the "new build for QA" Slack post. */
     releasesUrl:
       process.env.MEET_ASSISTANT_RELEASES_URL ??

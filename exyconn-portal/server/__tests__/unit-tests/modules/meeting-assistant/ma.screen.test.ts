@@ -49,7 +49,7 @@ const pieceOf = (fill: number, bytes = 32) =>
   Buffer.concat([Buffer.from([0x1a, 0x45, 0xdf, 0xa3]), Buffer.alloc(bytes, fill)]);
 
 const save = (meetingId: string, seq: number, body: Buffer, part = 0, durationMs = 5000) =>
-  saveScreenPiece({ meetingId, part, seq }, durationMs, Readable.from([body]));
+  saveScreenPiece({ meetingId, part, seq }, durationMs, 'h264', Readable.from([body]));
 
 const files = () => MaMeetingModel.db.collection('ma_screen.files');
 const chunks = () => MaMeetingModel.db.collection('ma_screen.chunks');
@@ -137,9 +137,9 @@ describe('the screen store', () => {
     const meetingId = String((await seedMeeting(actor))._id);
     const big = Readable.from([Buffer.alloc(MAX_SCREEN_PIECE_BYTES), Buffer.alloc(1)]);
 
-    await expect(saveScreenPiece({ meetingId, part: 0, seq: 0 }, 5000, big)).rejects.toThrow(
-      ScreenPieceTooLarge,
-    );
+    await expect(
+      saveScreenPiece({ meetingId, part: 0, seq: 0 }, 5000, 'h264', big),
+    ).rejects.toThrow(ScreenPieceTooLarge);
     expect(await files().countDocuments()).toBe(0);
     expect(await chunks().countDocuments()).toBe(0);
   });
@@ -147,7 +147,7 @@ describe('the screen store', () => {
   it('gives up on a body that breaks off mid-upload', async () => {
     const meetingId = String((await seedMeeting(actor))._id);
     const broken = new Readable({ read() {} });
-    const saving = saveScreenPiece({ meetingId, part: 0, seq: 0 }, 5000, broken);
+    const saving = saveScreenPiece({ meetingId, part: 0, seq: 0 }, 5000, 'h264', broken);
     broken.push(pieceOf(1));
     broken.destroy(new Error('socket hang up'));
 

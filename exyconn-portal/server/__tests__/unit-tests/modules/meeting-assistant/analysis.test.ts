@@ -158,7 +158,7 @@ describe('prompts', () => {
   });
 
   it('carries the style and, for a long meeting, which part this is', () => {
-    expect(systemPrompt('STANDUP')).toContain('daily stand-up');
+    expect(systemPrompt('STANDUP', 'AUTO')).toContain('daily stand-up');
     const prompt = userPrompt(
       {
         title: '',

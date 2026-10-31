@@ -8238,7 +8238,7 @@ export enum MaPriority {
   Medium = 'MEDIUM'
 }
 
-/** One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as WebM video. */
+/** One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as MP4 video. */
 export type MaRecordingTrack = {
   __typename?: 'MaRecordingTrack';
   chunkCount: Scalars['Int']['output'];
@@ -9807,7 +9807,7 @@ export type Mutation = {
   maRecordConsent: MaMeeting;
   /** Called by the Chrome extension to record people joining and leaving a call it owns; returns how many events were applied. */
   maRecordParticipantEvents: Scalars['Int']['output'];
-  /** A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes. */
+  /** A link that downloads one stream as a single file (WAV for TAB or MIC, MP4 for a SCREEN track), valid for a few minutes. */
   maRecordingDownloadLink: MaDownloadLink;
   /** Queues a fresh analysis. Existing actions keep their ids, statuses and every edit. */
   maRegenerateNotes: MaMeeting;

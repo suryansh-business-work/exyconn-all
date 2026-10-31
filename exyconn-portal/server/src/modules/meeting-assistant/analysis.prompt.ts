@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { MaSummaryStyle } from './ma.enums';
+import type { MaLanguage, MaSummaryStyle } from './ma.enums';
 
 /** One transcript line as the model sees it: `[n] hh:mm:ss Speaker: text`. */
 export interface PromptLine {
@@ -20,15 +20,27 @@ const STYLE_GUIDE: Record<MaSummaryStyle, string> = {
   PROJECT_REVIEW: 'Write as a project review: progress, milestones, risks, scope and schedule.',
 };
 
+/** The language the notes are written in: the meeting's, or for AUTO the one mostly spoken. */
+const LANGUAGE_GUIDE: Record<MaLanguage, string> = {
+  ENGLISH: 'Write the notes in English.',
+  HINDI: 'Write the notes in Hindi, in Devanagari script.',
+  HINGLISH:
+    'Write the notes in Hinglish: Hindi and English mixed the way the speakers mixed them, every ' +
+    'word in Roman (Latin) letters, never Devanagari.',
+  AUTO:
+    'Write the notes in the language the meeting was mostly held in: English, Hindi (in ' +
+    'Devanagari) or Hinglish (Hindi and English mixed, in Roman letters).',
+};
+
 /**
  * The rules that keep the notes honest. The model is told, in as many words, never to invent
  * an owner, a deadline, a decision or a commitment, and to cite the lines behind every one.
  */
-export function systemPrompt(style: MaSummaryStyle): string {
+export function systemPrompt(style: MaSummaryStyle, language: MaLanguage): string {
   return [
     'You turn a meeting transcript into structured meeting notes. Reply with ONE JSON object only.',
-    'The transcript may be in English, Hindi or a mix (Hinglish). Write the notes in English,',
-    'quoting names and terms as spoken.',
+    'The transcript may be in English, Hindi or a mix (Hinglish).',
+    `${LANGUAGE_GUIDE[language]} Quote names and terms as spoken; keep the JSON keys in English.`,
     'Strict rules:',
     '- Use ONLY what the transcript says. Never invent decisions, deadlines, owners, attendees or commitments.',
     '- A decision is something the meeting explicitly agreed. A suggestion or a question is not a decision.',
@@ -89,6 +101,7 @@ export function mergePrompt(partials: unknown[]): string {
   return [
     'These are notes written separately for consecutive parts of ONE meeting.',
     'Combine them into one set of notes with the same JSON shape, removing repetition.',
+    'Keep the language and script the notes are written in.',
     'Return "decisions" and "actionItems" as empty lists; they are merged elsewhere.',
     'Do not add anything that is not in these notes.',
     JSON.stringify(partials),
