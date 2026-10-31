@@ -1,5 +1,8 @@
 import { portalViteConfig } from '@exyconn/config/vite';
 
+/** Every line of the demo is tested; the gate keeps it that way. */
+const FULL = { statements: 100, branches: 100, functions: 100, lines: 100 };
+
 const base = portalViteConfig('mcp-sandbox-demo');
 
 export default {
@@ -11,6 +14,8 @@ export default {
       provider: 'v8' as const,
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['**/*.{test,cy}.{ts,tsx}', '**/graphql/generated/**'],
+      // Only enforced when coverage runs (CI's unit-test step).
+      thresholds: FULL,
     },
   },
 };
