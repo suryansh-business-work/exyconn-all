@@ -45,7 +45,8 @@ describe('the public support satisfaction survey', () => {
   it('refuses a comment longer than 1000 characters', () => {
     mount();
     cy.contains('label', '3 — Neutral').click();
-    cy.get('textarea[name="comment"]').invoke('val', 'x'.repeat(1001)).type(' ');
+    // Typed for real: setting the DOM value directly bypasses the controlled field.
+    cy.get('textarea[name="comment"]').type('x'.repeat(1001), { delay: 0 });
     cy.contains('button', 'Send rating').click();
 
     cy.contains('Keep the comment under 1000 characters').should('be.visible');
