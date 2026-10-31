@@ -20,7 +20,7 @@ export const billingTypeDefs = gql`
   }
 
   "Who collects a subscription's money."
-  enum BillingProvider {
+  enum SubscriptionProvider {
     NONE
     STRIPE
     RAZORPAY
@@ -76,7 +76,7 @@ export const billingTypeDefs = gql`
     planId: ID!
     planKey: String!
     status: SubscriptionStatus!
-    provider: BillingProvider!
+    provider: SubscriptionProvider!
     "ISO 4217 currency it is charged in, or empty before the first payment."
     currency: String!
     trialEndsAt: DateTime

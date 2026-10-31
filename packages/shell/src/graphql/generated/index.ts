@@ -1281,12 +1281,7 @@ export type BillingPlanInput = {
 
 /** A provider whose real bill a billing key can read. */
 export enum BillingProvider {
-  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
-  Manual = 'MANUAL',
-  None = 'NONE',
-  Openai = 'OPENAI',
-  Razorpay = 'RAZORPAY',
-  Stripe = 'STRIPE'
+  Openai = 'OPENAI'
 }
 
 /** A company's subscription. */
@@ -1301,7 +1296,7 @@ export type BillingSubscription = {
   id: Scalars['ID']['output'];
   planId: Scalars['ID']['output'];
   planKey: Scalars['String']['output'];
-  provider: BillingProvider;
+  provider: SubscriptionProvider;
   status: SubscriptionStatus;
   trialEndsAt?: Maybe<Scalars['DateTime']['output']>;
   updatedAt: Scalars['DateTime']['output'];
@@ -22358,6 +22353,15 @@ export type SubmitProblemReportInput = {
   subject: Scalars['String']['input'];
 };
 
+/** Who collects a subscription's money. */
+export enum SubscriptionProvider {
+  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
+  Manual = 'MANUAL',
+  None = 'NONE',
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
+}
+
 /** Where a company's subscription stands. */
 export enum SubscriptionStatus {
   /** Paid and current. */
@@ -26092,9 +26096,9 @@ export type CompleteGoogleSignInMutation = { __typename?: 'Mutation', completeGo
 
 export type BillingPlanFieldsFragment = { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> };
 
-export type BillingSubscriptionFieldsFragment = { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null };
+export type BillingSubscriptionFieldsFragment = { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: SubscriptionProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null };
 
-export type BillingOverviewFieldsFragment = { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> };
+export type BillingOverviewFieldsFragment = { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: SubscriptionProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> };
 
 export type BillingPlansQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -26104,14 +26108,14 @@ export type BillingPlansQuery = { __typename?: 'Query', billingPlans: Array<{ __
 export type BillingOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BillingOverviewQuery = { __typename?: 'Query', billingOverview: { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> } };
+export type BillingOverviewQuery = { __typename?: 'Query', billingOverview: { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: SubscriptionProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> } };
 
 export type OrganizationSubscriptionQueryVariables = Exact<{
   organizationId: Scalars['ID']['input'];
 }>;
 
 
-export type OrganizationSubscriptionQuery = { __typename?: 'Query', organizationSubscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null };
+export type OrganizationSubscriptionQuery = { __typename?: 'Query', organizationSubscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: SubscriptionProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null };
 
 export type CreateBillingPlanMutationVariables = Exact<{
   input: BillingPlanInput;
@@ -26145,7 +26149,7 @@ export type StartBillingCheckoutMutation = { __typename?: 'Mutation', startBilli
 export type CancelBillingSubscriptionMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CancelBillingSubscriptionMutation = { __typename?: 'Mutation', cancelBillingSubscription: { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> } };
+export type CancelBillingSubscriptionMutation = { __typename?: 'Mutation', cancelBillingSubscription: { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: SubscriptionProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> } };
 
 export type AssignOrganizationPlanMutationVariables = Exact<{
   organizationId: Scalars['ID']['input'];
@@ -26154,7 +26158,7 @@ export type AssignOrganizationPlanMutationVariables = Exact<{
 }>;
 
 
-export type AssignOrganizationPlanMutation = { __typename?: 'Mutation', assignOrganizationPlan: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } };
+export type AssignOrganizationPlanMutation = { __typename?: 'Mutation', assignOrganizationPlan: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: SubscriptionProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } };
 
 export type SignupPlansQueryVariables = Exact<{ [key: string]: never; }>;
 

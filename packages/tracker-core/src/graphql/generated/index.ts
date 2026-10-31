@@ -463,12 +463,7 @@ export type BillingPlanInput = {
 
 /** A provider whose real bill a billing key can read. */
 export type BillingProvider =
-  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
-  | 'MANUAL'
-  | 'NONE'
-  | 'OPENAI'
-  | 'RAZORPAY'
-  | 'STRIPE';
+  | 'OPENAI';
 
 export type BlogAuthorInput = {
   initials: InputMaybe<Scalars['String']['input']>;
@@ -4316,6 +4311,14 @@ export type SubmitProblemReportInput = {
   severity: ProblemSeverity;
   subject: Scalars['String']['input'];
 };
+
+/** Who collects a subscription's money. */
+export type SubscriptionProvider =
+  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
+  | 'MANUAL'
+  | 'NONE'
+  | 'RAZORPAY'
+  | 'STRIPE';
 
 /** Where a company's subscription stands. */
 export type SubscriptionStatus =

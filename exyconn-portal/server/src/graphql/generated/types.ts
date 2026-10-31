@@ -1280,12 +1280,7 @@ export type BillingPlanInput = {
 
 /** A provider whose real bill a billing key can read. */
 export enum BillingProvider {
-  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
-  Manual = 'MANUAL',
-  None = 'NONE',
-  Openai = 'OPENAI',
-  Razorpay = 'RAZORPAY',
-  Stripe = 'STRIPE'
+  Openai = 'OPENAI'
 }
 
 /** A company's subscription. */
@@ -1300,7 +1295,7 @@ export type BillingSubscription = {
   id: Scalars['ID']['output'];
   planId: Scalars['ID']['output'];
   planKey: Scalars['String']['output'];
-  provider: BillingProvider;
+  provider: SubscriptionProvider;
   status: SubscriptionStatus;
   trialEndsAt?: Maybe<Scalars['DateTime']['output']>;
   updatedAt: Scalars['DateTime']['output'];
@@ -22357,6 +22352,15 @@ export type SubmitProblemReportInput = {
   subject: Scalars['String']['input'];
 };
 
+/** Who collects a subscription's money. */
+export enum SubscriptionProvider {
+  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
+  Manual = 'MANUAL',
+  None = 'NONE',
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
+}
+
 /** Where a company's subscription stands. */
 export enum SubscriptionStatus {
   /** Paid and current. */
@@ -26573,6 +26577,7 @@ export type ResolversTypes = ResolversObject<{
   StripeConfig: ResolverTypeWrapper<StripeConfig>;
   StripeConfigInput: StripeConfigInput;
   SubmitProblemReportInput: SubmitProblemReportInput;
+  SubscriptionProvider: SubscriptionProvider;
   SubscriptionStatus: SubscriptionStatus;
   SummaryStyle: SummaryStyle;
   Supplier: ResolverTypeWrapper<Supplier>;
@@ -28571,7 +28576,7 @@ export type BillingSubscriptionResolvers<ContextType = GraphQLContext, ParentTyp
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   planId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   planKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  provider?: Resolver<ResolversTypes['BillingProvider'], ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['SubscriptionProvider'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['SubscriptionStatus'], ParentType, ContextType>;
   trialEndsAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
