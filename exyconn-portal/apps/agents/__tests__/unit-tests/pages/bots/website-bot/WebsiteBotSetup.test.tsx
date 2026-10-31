@@ -4,6 +4,7 @@ import { WIDGET_PLATFORMS } from '@exyconn/bot-studio/widget';
 import { appBaseUrl } from '@exyconn/shell/config/apps';
 import { WebsiteBotSetup } from '../../../../../src/pages/bots/website-bot/WebsiteBotSetup';
 import { renderWithProviders } from '../../../test-utils';
+import { OPENAI_SETTINGS_URL } from '../../../../../src/pages/bots/techLinks';
 
 const api = vi.hoisted(() => ({
   status: undefined as { configured: boolean; model?: string | null } | undefined,
@@ -67,9 +68,11 @@ describe('WebsiteBotSetup', () => {
     api.status = { configured: false };
     renderWithProviders(<WebsiteBotSetup />);
     expect(screen.getByRole('alert')).toHaveTextContent(/^Showcase mode/);
+    // The key lives in the Tech portal, a different app from this console, so the link is absolute.
     expect(screen.getByRole('link', { name: 'Environment variables > OpenAI' })).toHaveAttribute(
       'href',
-      '/tech/environment-variables/openai',
+      OPENAI_SETTINGS_URL,
     );
+    expect(OPENAI_SETTINGS_URL).toMatch(/^https?:\/\/[^/]+\/tech\/environment-variables\/openai$/);
   });
 });

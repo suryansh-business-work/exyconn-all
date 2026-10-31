@@ -14,6 +14,8 @@ import { BrandingPage } from '../../src/pages/branding';
 import { ClientDetailPage, ClientsPage } from '../../src/pages/clients';
 import { SystemHealthPage } from '../../src/pages/health';
 import { OrganizationsPage } from '../../src/pages/organizations';
+import { PlansPage } from '../../src/pages/plans';
+import { BillingPage } from '../../src/pages/billing';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -60,6 +62,8 @@ describe('App', () => {
       '/admin/analytics',
       '/admin/users',
       '/admin/organizations',
+      '/admin/plans',
+      '/admin/billing',
       '/admin/branding/:tab?',
       '/admin/settings',
       '/admin/localization',
@@ -84,6 +88,8 @@ describe('App', () => {
     expect(elementAt('/admin/users/:id')?.type).toBe(UserDetailsPage);
     expect(elementAt('/clients')?.type).toBe(ClientsPage);
     expect(elementAt('/clients/:id/:tab?')?.type).toBe(ClientDetailPage);
+    // A company admin manages the company's own subscription.
+    expect(elementAt('/admin/billing')?.type).toBe(BillingPage);
   });
 
   it('keeps the organizations console behind SUPER_ADMIN, not a company ADMIN', () => {
@@ -92,5 +98,13 @@ describe('App', () => {
     expect(guard?.type).toBe(ProtectedRoute);
     expect(guard?.props.requiredRole).toBe(ROLES.SUPER_ADMIN);
     expect(guard?.props.children?.type).toBe(OrganizationsPage);
+  });
+
+  it('keeps the plan catalogue behind SUPER_ADMIN, since plans are platform-wide', () => {
+    render(<App />);
+    const guard = elementAt('/admin/plans');
+    expect(guard?.type).toBe(ProtectedRoute);
+    expect(guard?.props.requiredRole).toBe(ROLES.SUPER_ADMIN);
+    expect(guard?.props.children?.type).toBe(PlansPage);
   });
 });
