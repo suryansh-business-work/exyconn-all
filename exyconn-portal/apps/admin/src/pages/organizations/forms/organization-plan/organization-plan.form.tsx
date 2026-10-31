@@ -29,6 +29,8 @@ interface OrganizationPlanFormProps {
 
 interface PlanFieldsProps extends OrganizationPlanFormProps {
   initial: OrganizationPlanFormValues;
+  /** Whether the company is on a plan already: the form then changes it rather than sets one. */
+  subscribed: boolean;
   planOptions: { value: string; label: string }[];
 }
 
@@ -39,6 +41,7 @@ function OrganizationPlanFields({
   onDone,
   onCancel,
   initial,
+  subscribed,
   planOptions,
 }: Readonly<PlanFieldsProps>) {
   const t = useT();
@@ -52,18 +55,19 @@ function OrganizationPlanFields({
     value: status,
     label: t(STATUS_LABELS[status]),
   }));
-  const { onSubmit } = useEntitySave({
+  const save = (values: OrganizationPlanFormValues) =>
+    assign({ variables: { organizationId, ...values } });
+  const { isEdit, onSubmit } = useEntitySave({
     label: 'Plan for {organization}',
     labelValues: { organization: organizationName },
-    initial: null,
-    create: (values: OrganizationPlanFormValues) =>
-      assign({ variables: { organizationId, ...values } }),
-    update: () => Promise.resolve(),
+    initial: subscribed ? initial : null,
+    create: save,
+    update: (_current, values) => save(values),
     onDone,
   });
 
   return (
-    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={false} onCancel={onCancel}>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfSelect
         name="planId"
         label="Plan"
@@ -101,6 +105,7 @@ export function OrganizationPlanForm(props: Readonly<OrganizationPlanFormProps>)
     <OrganizationPlanFields
       {...props}
       planOptions={planOptions}
+      subscribed={Boolean(subscription)}
       initial={{
         planId: subscription?.planId ?? '',
         status: subscription?.status ?? SubscriptionStatus.Active,
