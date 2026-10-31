@@ -338,7 +338,8 @@ export const payrollTypeDefs = gql`
     employeeSalary(employeeId: ID!): SalaryStructure
     listSalarySlipsPaged(input: TableQueryInput!): SalarySlipPage!
     listSalarySlipsStats: TableStats!
-    payrollSummary(month: Int!, year: Int!): PayrollSummary!
+    "HR/FINANCE: totals of one month's salary slips: how many, how many paid, gross, deductions and net."
+    payrollSummary("Month, 1 to 12." month: Int!, year: Int!): PayrollSummary!
     "Every active employee and whether the month can be run for them, with the figures it would store."
     payrollRunPlan(month: Int!, year: Int!): PayrollRunPlan!
     "The payslip email schedule. Created with its defaults on first read."

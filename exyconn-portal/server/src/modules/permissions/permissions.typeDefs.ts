@@ -50,6 +50,7 @@ export const permissionsTypeDefs = gql`
     the default of everything the role's module access allows.
     """
     setRolePermission(role: Role!, module: String!, actions: [PermissionAction!]!): RolePermission!
+    "ADMIN: removes a role's restriction on a module, so the role gets every action its module access allows again. Audited. False when there was none."
     clearRolePermission(role: Role!, module: String!): Boolean!
   }
 `;

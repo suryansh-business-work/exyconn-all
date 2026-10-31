@@ -207,12 +207,30 @@ export const maNotesTypeDefs = gql`
   }
 
   extend type Query {
+    "Reads the AI-written notes of a meeting (summary, topics, blockers, next steps) with their version, or null if none yet."
     maNotes(meetingId: ID!): MaNotes
+    "Lists the decisions recorded in a meeting, oldest first."
     maDecisions(meetingId: ID!): [MaDecision!]!
-    maActionItemsPaged(input: TableQueryInput!, scope: MaScope, meetingId: ID): MaActionItemPage!
-    maActionStats(scope: MaScope, meetingId: ID): MaActionStats!
+    "Lists meeting action items one page at a time, for one meeting or across the caller's (or the company's) meetings."
+    maActionItemsPaged(
+      input: TableQueryInput!
+      "MINE (default) for meetings the caller can see as a participant or owner; ALL for the whole company, which needs company view permission."
+      scope: MaScope
+      "Limits the result to one meeting; scope is then ignored."
+      meetingId: ID
+    ): MaActionItemPage!
+    "Counts action items by status, plus overdue and needing confirmation, for one meeting or across meetings."
+    maActionStats(
+      "MINE (default) for meetings the caller can see as a participant or owner; ALL for the whole company, which needs company view permission."
+      scope: MaScope
+      "Limits the result to one meeting; scope is then ignored."
+      meetingId: ID
+    ): MaActionStats!
+    "Reads what carries over into this meeting from the previous one in its series: summary, decisions, open and overdue actions, blockers and topics."
     maFollowUp(meetingId: ID!): MaFollowUp!
+    "Lists the summary emails sent for a meeting, one per recipient and notes version, newest first (up to 200)."
     maEmailDeliveries(meetingId: ID!): [MaEmailDelivery!]!
+    "Renders the summary email for a meeting without sending it: subject, HTML and recipients."
     maEmailPreview(meetingId: ID!): MaEmailPreview!
   }
 
@@ -221,14 +239,21 @@ export const maNotesTypeDefs = gql`
     maRegenerateNotes(meetingId: ID!, style: MaSummaryStyle!): MaMeeting!
     "Saves edited notes. expectedVersion must match, so two editors never overwrite each other."
     maUpdateNotes(meetingId: ID!, content: MaNotesContentInput!, expectedVersion: Int!): MaNotes!
+    "Adds an action item to a meeting the caller may edit."
     maCreateActionItem(meetingId: ID!, input: MaActionItemInput!): MaActionItem!
+    "Replaces an action item's title, description, assignee, due date, priority and status."
     maUpdateActionItem(id: ID!, input: MaActionItemInput!): MaActionItem!
+    "Changes only the status of an action item."
     maSetActionStatus(id: ID!, status: MaActionStatus!): MaActionItem!
+    "Sets the status and/or priority of up to 200 action items at once; returns how many were updated."
     maBulkUpdateActionItems(input: MaBulkActionInput!): Int!
+    "Permanently deletes an action item. Confirm with the person first."
     maDeleteActionItem(id: ID!): Boolean!
-    maAddActionComment(id: ID!, text: String!): MaActionItem!
+    "Adds a comment to an action item and returns the item."
+    maAddActionComment(id: ID!, "The comment text." text: String!): MaActionItem!
     "Sends (or approves sending) the summary of the current notes version, once per recipient."
     maSendSummaryEmail(meetingId: ID!): MaMeeting!
+    "Sends a failed summary email to its recipient again. Confirm with the person first."
     maRetryEmailDelivery(id: ID!): MaEmailDelivery!
   }
 `;

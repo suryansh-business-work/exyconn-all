@@ -44,6 +44,7 @@ export const trainingTypeDefs = gql`
     listTrainingsPaged(input: TableQueryInput!): TrainingPage!
     listTrainingsStats: TableStats!
     getTraining(id: ID!): Training!
+    "Lists the trainings assigned to the signed-in person, soonest due first."
     myTrainings: [Training!]!
   }
 

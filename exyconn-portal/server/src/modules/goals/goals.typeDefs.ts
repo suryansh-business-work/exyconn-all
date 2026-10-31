@@ -47,6 +47,7 @@ export const goalsTypeDefs = gql`
     listGoalsPaged(input: TableQueryInput!): GoalPage!
     listGoalsStats: TableStats!
     getGoal(id: ID!): Goal!
+    "Lists the signed-in person's own goals, latest end date first."
     myGoals: [Goal!]!
     "Manager: every goal of their direct reports."
     teamGoals: [Goal!]!

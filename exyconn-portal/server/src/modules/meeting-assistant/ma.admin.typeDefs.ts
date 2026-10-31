@@ -177,9 +177,13 @@ export const maAdminTypeDefs = gql`
   }
 
   extend type Query {
+    "Reads the company's Meeting Assistant settings (recording, retention, summaries, emails) and this month's AI spend."
     maSettings: MaSettings!
+    "Reads what the Chrome extension needs about the caller: Meeting Assistant settings, name, email, company and whether Google Meet is connected."
     maExtensionContext: MaExtensionContext!
+    "Lists the caller's 50 newest Chrome extension sign-ins, marking the current one."
     maMyExtensionSessions: [MaExtensionSession!]!
+    "Reads whether Google Meet is set up for the company and connected for the caller, with the connected email and last error."
     maGoogleConnection: MaGoogleConnection!
     "Releases the caller may see: every one for release managers, approved ones otherwise."
     maReleases: [MaRelease!]!
@@ -188,16 +192,21 @@ export const maAdminTypeDefs = gql`
   }
 
   extend type Mutation {
+    "Replaces the company's Meeting Assistant settings. Company editors only; recorded in the activity log."
     maUpdateSettings(input: MaSettingsInput!): MaSettings!
     "Issues a one-time code for the extension's PKCE sign-in; returns the URL to send the browser to."
     maAuthorizeExtension(input: MaAuthorizeExtensionInput!): String!
+    "Signs one of the caller's Chrome extension sessions out. Returns false if it was already revoked or not theirs."
     maRevokeExtensionSession(id: ID!): Boolean!
     "Returns Google's consent page for the Meet read-only scope."
     maStartGoogleConnect(returnTo: String!): String!
+    "Removes the caller's Google Meet connection, so official transcripts are no longer imported. Returns false if none existed."
     maDisconnectGoogle: Boolean!
     "Fetches the official Google Meet transcript and participants again."
     maImportOfficialTranscript(meetingId: ID!): MaMeeting!
+    "Moves an extension release to its next status with a required note; publishing needs the Chrome Web Store URL and announces it in Slack. Release managers only."
     maSetReleaseStatus(id: ID!, input: MaReleaseStatusInput!): MaRelease!
+    "Returns a short-lived download link for a downloadable extension release ZIP, with its SHA-256. The download is logged."
     maReleaseDownloadLink(id: ID!): MaDownloadLink!
   }
 `;

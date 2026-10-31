@@ -759,15 +759,21 @@ export const trackerTypeDefs = gql`
 
   extend type Query {
     # Portal (TRACKER role)
+    "Reads the workspace tracker settings: interval, screenshots, blur, window titles and idle rules (TRACKER role)."
     trackerSettings: TrackerSettings!
+    "Lists every employee who has been given or lost tracker access, newest first (TRACKER role)."
     trackerAccessList: [TrackerAccess!]!
-    trackerDevices(userId: ID): [TrackerDevice!]!
+    "Lists tracker devices, most recently seen first (TRACKER role)."
+    trackerDevices("Only this employee's devices; omit for all." userId: ID): [TrackerDevice!]!
+    "One employee's tracked active and idle time, input counts, sessions and approved off-computer time per local day over a range (TRACKER role)."
     trackerCalendar(
       userId: ID!
       from: DateTime!
       to: DateTime!
+      "IANA zone used to split the range into days."
       timezone: String!
     ): [TrackerDayBucket!]!
+    "One employee's intervals, screenshots, sessions and app usage between two instants (TRACKER role)."
     trackerDay(userId: ID!, start: DateTime!, end: DateTime!): TrackerDay!
     "One employee's contracted hours per day over a range of at most 62 days."
     trackerExpected(
@@ -797,6 +803,7 @@ export const trackerTypeDefs = gql`
     Null until such a release exists.
     """
     trackerLatestRelease(platform: String): TrackerRelease
+    "One employee's all-time tracked active, idle and off-computer time, screenshots and sessions (TRACKER role)."
     trackerTotals(userId: ID!): TrackerTotals!
     "One employee's off-computer entries in a range, any status (TRACKER role)."
     trackerManualEntries(userId: ID!, from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
@@ -844,6 +851,7 @@ export const trackerTypeDefs = gql`
     trackerBillingByProject(from: DateTime!, to: DateTime!, projectId: ID): [ProjectBillingRow!]!
 
     # Desktop app (device token) — rehydrates a remembered session
+    "Desktop or phone app (device token): the signed-in employee, consent state, tracker settings and effective timezone and language."
     trackerMe: TrackerMe!
     """
     The calling device's own employee, all-time. Device token, not a portal session.
@@ -851,8 +859,16 @@ export const trackerTypeDefs = gql`
     myTrackerTotals: TrackerTotals!
 
     # Employee self-view (own data only)
+    "Reads the caller's own tracker access grant, or null if they never had one."
     myTrackerAccess: TrackerAccess
-    myTrackerCalendar(from: DateTime!, to: DateTime!, timezone: String!): [TrackerDayBucket!]!
+    "The caller's own tracked and approved off-computer time per local day over a range."
+    myTrackerCalendar(
+      from: DateTime!
+      to: DateTime!
+      "IANA zone used to split the range into days."
+      timezone: String!
+    ): [TrackerDayBucket!]!
+    "The caller's own intervals, screenshots, sessions and app usage between two instants."
     myTrackerDay(start: DateTime!, end: DateTime!): TrackerDay!
     "The caller's own contracted hours per day over a range of at most 62 days."
     myTrackerExpected(from: DateTime!, to: DateTime!, timezone: String!): TrackerExpected!
@@ -897,9 +913,16 @@ export const trackerTypeDefs = gql`
 
   extend type Mutation {
     # Portal (TRACKER role)
+    "Lets an employee sign in to the tracker apps and emails them about it (TRACKER role). Audited."
     grantTrackerAccess(userId: ID!): TrackerAccess!
+    "Takes an employee's tracker access away and signs out every one of their devices (TRACKER role). Audited."
     revokeTrackerAccess(userId: ID!): TrackerAccess!
-    revokeTrackerDevice(deviceId: String!): TrackerDevice!
+    "Signs one tracker device out so its token stops working (TRACKER role). Audited."
+    revokeTrackerDevice(
+      "The device's own id, as listed by trackerDevices."
+      deviceId: String!
+    ): TrackerDevice!
+    "Saves the workspace tracker settings; running apps pick them up on their next heartbeat (TRACKER role)."
     updateTrackerSettings(input: TrackerSettingsInput!): TrackerSettings!
     """
     Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
@@ -945,9 +968,11 @@ export const trackerTypeDefs = gql`
     setMyTrackerPresence(status: TrackerPresence!, note: String): TrackerPresenceState!
 
     # Desktop app (device token, except trackerLogin which authenticates)
+    "Signs an employee with tracker access in on a desktop or phone app and returns a non-expiring device token. Public."
     trackerLogin(
       email: String!
       password: String!
+      "The device signing in; its id is bound to the token."
       device: TrackerDeviceInput!
     ): TrackerLoginPayload!
     """
@@ -989,8 +1014,15 @@ export const trackerTypeDefs = gql`
     against the house-wide Global Project rather than failing the start.
     """
     trackerStartSession(startedAt: DateTime!, projectId: ID, taskId: ID): TrackerSession!
+    "Tracker app (device token): stops one of the caller's own tracking sessions at the given time."
     trackerStopSession(sessionId: ID!, endedAt: DateTime!): TrackerSession!
-    trackerSyncIntervals(sessionId: ID!, intervals: [TrackerIntervalInput!]!): Int!
+    "Tracker app (device token): saves up to 200 activity intervals of the caller's session and returns the session's interval count; retries are safe."
+    trackerSyncIntervals(
+      sessionId: ID!
+      "Activity intervals; one with a start already saved replaces it."
+      intervals: [TrackerIntervalInput!]!
+    ): Int!
+    "Tracker app (device token): uploads a screenshot taken during the caller's own session."
     trackerUploadScreenshot(input: TrackerScreenshotInput!): TrackerScreenshot!
     """
     Sets the CALLER's own timezone. Must be a resolvable IANA zone name.

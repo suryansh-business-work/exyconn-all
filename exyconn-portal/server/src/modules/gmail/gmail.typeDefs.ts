@@ -176,6 +176,7 @@ export const gmailTypeDefs = gql`
     disconnectGmailAccount(id: ID!): Boolean!
     "Reads every enabled mailbox's address with its stored connection."
     testGmailConfig: String!
+    "Sends an email, new or a reply, from one of the company's connected Gmail or Microsoft mailboxes. Confirm the recipients and text with the person first."
     sendCrmEmail(input: SendCrmEmailInput!): CrmEmailMessage!
     "Reads the record's newest threads from every enabled mailbox into the CRM."
     syncCrmEmails(object: CrmTimelineObject!, id: ID!): Boolean!

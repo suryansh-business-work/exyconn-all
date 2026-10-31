@@ -147,17 +147,36 @@ export const brandingTypeDefs = gql`
   }
 
   extend type Query {
+    "Reads your company's branding: names, logos, colours, contact and invoice details, and login pages."
     branding: Branding!
+    "Reads the branding shown before sign-in (website, tools, tracker login). Public, no sign-in needed."
     publicBranding: Branding!
   }
 
   extend type Mutation {
+    "Saves your company's branding (logos, colours, names, invoice details). Admins only; changes every portal and email at once."
     updateBranding(input: BrandingInput!): Branding!
     # Uploads a base64 data-URL image to ImageKit and returns its hosted URL. The folder
     # arg just groups uploads (branding, blog...); any authenticated user may call it.
-    uploadImage(file: String!, fileName: String!, folder: String): String!
+    "Uploads an image (up to 12 MB) to ImageKit and returns its hosted URL."
+    uploadImage(
+      "The image as a base64 data URL."
+      file: String!
+      "File name to store it under."
+      fileName: String!
+      "Folder that groups the upload, for example branding or blog."
+      folder: String
+    ): String!
     # Imports a Pexels media URL (a stock clip, too big to send as base64) into ImageKit
     # and returns the hosted URL. Only pexels.com URLs are accepted.
-    importMediaFromUrl(url: String!, fileName: String!, folder: String): String!
+    "Copies a Pexels photo or video into ImageKit and returns its hosted URL. Only pexels.com URLs are accepted."
+    importMediaFromUrl(
+      "The Pexels media URL to import."
+      url: String!
+      "File name to store it under."
+      fileName: String!
+      "Folder that groups the upload, for example branding or blog."
+      folder: String
+    ): String!
   }
 `;

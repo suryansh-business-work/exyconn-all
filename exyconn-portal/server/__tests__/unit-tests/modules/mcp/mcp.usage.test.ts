@@ -66,7 +66,13 @@ describe('MCP usage', () => {
       { day: '2026-10-23', calls: 1, failures: 1 },
       { day: '2026-10-24', calls: 2, failures: 0 },
     ]);
-    expect(usage.tools[0]).toEqual({ tool: 'searchLeads', calls: 2, failures: 1, averageMs: 20 });
+    expect(usage.tools[0]).toMatchObject({
+      tool: 'searchLeads',
+      calls: 2,
+      failures: 1,
+      averageMs: 20,
+      p95Ms: 30,
+    });
     expect(usage.users).toEqual([
       { userName: 'Asha', calls: 2 },
       { userName: 'Ravi', calls: 1 },

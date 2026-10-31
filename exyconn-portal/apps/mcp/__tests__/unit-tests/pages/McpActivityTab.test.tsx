@@ -22,7 +22,13 @@ const row = (id: string, ok: boolean, error = '') => ({
   kind: ok ? 'QUERY' : 'MUTATION',
   ok,
   error,
+  errorCode: ok ? '' : 'FORBIDDEN',
   durationMs: 42,
+  traceId: `trace-${id}`,
+  endpoint: McpEndpoint.Crm,
+  argNames: [],
+  answerChars: 10,
+  truncated: false,
 });
 
 describe('McpActivityTab', () => {
@@ -37,7 +43,7 @@ describe('McpActivityTab', () => {
   it('lists what Claude did through one server, for whom, and how it went', async () => {
     renderWithProviders(<McpActivityTab endpoint={McpEndpoint.Crm} />);
     expect(gql.activity).toHaveBeenCalledWith({
-      variables: { endpoint: McpEndpoint.Crm, days: 7, limit: 300 },
+      variables: { endpoint: McpEndpoint.Crm, days: 7, limit: 300, ok: null, search: null },
       fetchPolicy: 'cache-and-network',
     });
     expect(screen.getByText('searchLeads').closest('tr')).toHaveTextContent('DONE');
@@ -47,7 +53,7 @@ describe('McpActivityTab', () => {
     await userEvent.click(screen.getByRole('option', { name: 'Last 30 days' }));
     expect(gql.activity).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        variables: { endpoint: McpEndpoint.Crm, days: 30, limit: 300 },
+        variables: { endpoint: McpEndpoint.Crm, days: 30, limit: 300, ok: null, search: null },
       }),
     );
   });
@@ -69,8 +75,6 @@ describe('McpActivityTab', () => {
     unmount();
     gql.activity.mockReturnValue({ data: undefined, loading: false, refetch: vi.fn() });
     renderWithProviders(<McpActivityTab endpoint={McpEndpoint.Crm} />);
-    expect(
-      screen.getByText('Claude has not done anything through this server in this period.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('No calls match in this period.')).toBeInTheDocument();
   });
 });

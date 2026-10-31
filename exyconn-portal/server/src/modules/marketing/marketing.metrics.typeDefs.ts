@@ -34,7 +34,9 @@ export const marketingMetricsTypeDefs = gql`
   }
 
   extend type Query {
+    "Reads a campaign's engagement: sent, opened and clicked counts and rates. Opens are approximate because mail apps block tracking; trust clicks more."
     campaignMetrics(campaignId: ID!): CampaignMetrics!
+    "Lists the 20 most-clicked links in a campaign, with total clicks and how many distinct people clicked each."
     campaignTopLinks(campaignId: ID!): [CampaignLinkStat!]!
   }
 `;

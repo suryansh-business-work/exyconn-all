@@ -1,4 +1,5 @@
-import { execute, parse, validate } from 'graphql';
+import { randomUUID } from 'node:crypto';
+import { execute } from 'graphql';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
@@ -11,13 +12,13 @@ import type { Role } from '../../../constants/roles';
 import { runAsPlatform, runForOrganization } from '../../../lib/tenant';
 import { logger } from '../../../utils/logger';
 import { UserModel } from '../../admin/user.model';
-import { recordAudit, type AuditAction } from '../../audit';
 import { endpointTool, endpointTools, liveSchema, type McpServerTool } from './mcp.catalogue';
-import { McpCallModel } from '../data/mcp.models';
+import { answerOf } from './mcp.answer';
+import { isOffered, refusalOf } from './mcp.policy';
+import { mcpSettings } from '../data/mcp.settings';
+import { auditActionOf, errorCodeOf, recordCall } from './mcp.record';
+import { humanize } from './mcp.describe';
 import { endpointMeta, type McpEndpointKey } from '../servers';
-
-/** The longest answer handed back to Claude, in characters; longer ones are cut and say so. */
-const MAX_ANSWER_CHARS = 60_000;
 
 /** Who a tool call runs as: the person and company the connection was allowed for. */
 export interface McpCaller {
@@ -27,6 +28,10 @@ export interface McpCaller {
   clientName: string;
   /** The endpoint the connection was allowed for; its token is only good there. */
   endpoint: McpEndpointKey;
+  /** The client the connection belongs to; with the person, one connection for rate limits. */
+  clientId: string;
+  /** Allowed for reading only: no change is offered or run. */
+  readOnly: boolean;
 }
 
 /** What a verified access token carries (see mcp.oauth.ts). */
@@ -35,6 +40,8 @@ export interface McpTokenExtra {
   organizationId: string;
   clientName: string;
   endpoint: McpEndpointKey;
+  clientId: string;
+  readOnly: boolean;
 }
 
 /**
@@ -67,71 +74,53 @@ export async function callerOf(auth: AuthInfo): Promise<McpCaller | null> {
     userName: user.name,
     clientName: extra.clientName,
     endpoint: extra.endpoint,
+    clientId: extra.clientId,
+    readOnly: extra.readOnly,
   };
 }
 
 /** The roles a caller holds. */
 export const rolesOf = (caller: McpCaller): Role[] => (caller.ctx.user?.roles ?? []) as Role[];
 
-/** The audit action a change reads as, from the tool's name. */
-export function auditActionOf(tool: string): AuditAction {
-  if (/^(delete|remove|archive)/i.test(tool)) return 'DELETE';
-  if (/^(create|add|import|convert|send|start|book|log|publish|queue)/i.test(tool)) return 'CREATE';
-  return 'UPDATE';
-}
+export { auditActionOf } from './mcp.record';
 
-const text = (value: string, isError = false): CallToolResult => ({
+/** A text answer, carrying the call's trace id so the person can find it in the activity log. */
+const text = (value: string, traceId: string, isError = false): CallToolResult => ({
   content: [{ type: 'text', text: value }],
+  _meta: { traceId },
   ...(isError ? { isError: true } : {}),
 });
 
-/** The answer as JSON, cut to what Claude can take in one turn. */
-function answerOf(value: unknown): string {
-  const json = JSON.stringify(value ?? null, null, 2);
-  if (json.length <= MAX_ANSWER_CHARS) {
-    return json;
-  }
-  return `${json.slice(0, MAX_ANSWER_CHARS)}\n… (cut: ask for fewer rows or a narrower filter)`;
-}
-
-/** Keeps the call for the activity log and the usage dashboard; never fails the call. */
-async function logCall(
-  caller: McpCaller,
-  tool: McpServerTool,
-  ok: boolean,
-  error: string,
-  ms: number,
-) {
+/** The tool's answer, or the errors it ended with, from running its operation. */
+async function execution(tool: McpServerTool, args: Record<string, unknown>, caller: McpCaller) {
   try {
-    await McpCallModel.create({
-      server: tool.server,
-      userId: caller.ctx.user?.id ?? '',
-      userName: caller.userName,
-      clientName: caller.clientName,
-      tool: tool.name,
-      kind: tool.kind,
-      ok,
-      error: error.slice(0, 500),
-      durationMs: ms,
-      at: new Date(),
+    const result = await execute({
+      schema: liveSchema(),
+      document: tool.operation,
+      variableValues: args,
+      contextValue: caller.ctx,
     });
-    if (ok && tool.kind === 'MUTATION') {
-      await recordAudit(caller.ctx, {
-        action: auditActionOf(tool.name),
-        module: endpointMeta(tool.server).auditModule,
-        entityLabel: tool.name,
-        summary: `Claude (MCP) ran ${tool.name} for ${caller.userName}`,
-      });
-    }
+    const errors = result.errors ?? [];
+    return {
+      data: result.data?.[tool.name],
+      error: errors.map((error) => error.message).join('\n'),
+      errorCode: errorCodeOf(errors),
+    };
   } catch (err) {
-    logger.warn({ err, tool: tool.name }, 'Could not log an MCP tool call');
+    return {
+      data: undefined,
+      error: err instanceof Error ? err.message : 'The tool stopped unexpectedly.',
+      errorCode: 'INTERNAL',
+    };
   }
 }
 
 /**
  * Runs one tool as its caller: the module's operation through the live schema, inside their
  * company, with the context a portal request of theirs would have — so every guard and
- * permission check applies exactly as it does in the portal.
+ * permission check applies exactly as it does in the portal — unless the company's MCP settings
+ * refuse it first (a switched-off tool, a change on a read-only connection or server, a rate
+ * limit). Every call, run, failed or refused, is recorded under a trace id Claude is handed.
  */
 export async function runTool(
   tool: McpServerTool,
@@ -139,21 +128,42 @@ export async function runTool(
   caller: McpCaller,
 ): Promise<CallToolResult> {
   const started = Date.now();
+  const traceId = randomUUID();
   return runForOrganization(caller.organizationId, async () => {
-    const schema = liveSchema();
-    const document = parse(tool.document);
-    const invalid = validate(schema, document);
-    const result =
-      invalid.length > 0
-        ? { errors: invalid }
-        : await execute({ schema, document, variableValues: args, contextValue: caller.ctx });
-    const errors = (result.errors ?? []).map((error) => error.message).join('\n');
-    await logCall(caller, tool, errors === '', errors, Date.now() - started);
-    if (errors) {
-      return text(errors, true);
+    const refusal = await refusalOf(tool, caller, await mcpSettings());
+    const { data, error, errorCode } = refusal
+      ? { data: undefined, error: refusal.message, errorCode: refusal.code }
+      : await execution(tool, args, caller);
+    const answer = error ? null : answerOf(data);
+    await recordCall(caller, tool, {
+      traceId,
+      args,
+      ms: Date.now() - started,
+      error,
+      errorCode,
+      answerChars: answer?.text.length ?? 0,
+      truncated: answer?.truncated ?? false,
+    });
+    if (answer) {
+      return text(answer.text, traceId);
     }
-    return text(answerOf((result as { data?: Record<string, unknown> }).data?.[tool.name]));
+    return text(`${error}\n\n(${errorCode}; trace ${traceId})`, traceId, true);
   });
+}
+
+/**
+ * How a tool behaves, for the client's approval prompts: its name as people read it, whether it
+ * only reads, whether it removes something, and whether running it twice changes nothing more.
+ */
+function annotationsOf(tool: McpServerTool) {
+  const readOnly = tool.kind === 'QUERY';
+  const destructive = auditActionOf(tool.name) === 'DELETE';
+  return {
+    title: humanize(tool.name).replace(/^./, (first) => first.toUpperCase()),
+    readOnlyHint: readOnly,
+    destructiveHint: destructive,
+    idempotentHint: readOnly || destructive,
+  };
 }
 
 /** An MCP server for one request, offering the caller every tool of their endpoint. */
@@ -164,23 +174,32 @@ export function createMcpServer(caller: McpCaller): Server {
     { name: meta.name, version: '1.0.0' },
     { capabilities: { tools: {} }, instructions: meta.instructions },
   );
-  server.setRequestHandler(ListToolsRequestSchema, () =>
-    Promise.resolve({
-      tools: endpointTools(caller.endpoint, roles).map((tool) => ({
-        name: tool.name,
-        description: tool.description,
-        inputSchema: tool.inputSchema as { type: 'object' },
-        annotations: {
-          readOnlyHint: tool.kind === 'QUERY',
-          destructiveHint: auditActionOf(tool.name) === 'DELETE',
-        },
-      })),
-    }),
-  );
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    const settings = await runForOrganization(caller.organizationId, mcpSettings);
+    return {
+      tools: endpointTools(caller.endpoint, roles)
+        .filter((tool) => isOffered(tool, caller, settings))
+        .map((tool) => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema as { type: 'object' },
+          annotations: annotationsOf(tool),
+        })),
+    };
+  });
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const tool = endpointTool(caller.endpoint, roles, request.params.name);
     if (!tool) {
-      return text(`There is no ${meta.label} tool named ${request.params.name}.`, true);
+      logger.warn(
+        { tool: request.params.name, endpoint: caller.endpoint, client: caller.clientName },
+        'MCP call to an unknown tool',
+      );
+      return {
+        content: [
+          { type: 'text', text: `There is no ${meta.label} tool named ${request.params.name}.` },
+        ],
+        isError: true,
+      };
     }
     return runTool(tool, request.params.arguments ?? {}, caller);
   });

@@ -56,6 +56,7 @@ export const expensesTypeDefs = gql`
     listExpenseClaimsPaged(input: TableQueryInput!): ExpenseClaimPage!
     listExpenseClaimsStats: TableStats!
     getExpenseClaim(id: ID!): ExpenseClaim!
+    "Lists the signed-in person's own expense claims, newest spend first."
     myExpenseClaims: [ExpenseClaim!]!
   }
 

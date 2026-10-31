@@ -3020,6 +3020,27 @@ export type McpEndpoint =
   | 'TRACKER'
   | 'WEBSITE';
 
+/** What an admin changes on the MCP Settings page; fields left out keep their value. */
+export type McpSettingsInput = {
+  /** Alert when this share of the last hour's calls failed, 1 to 100. */
+  alertErrorRatePercent: InputMaybe<Scalars['Int']['input']>;
+  /** No alert below this many calls in the hour. */
+  alertMinCalls: InputMaybe<Scalars['Int']['input']>;
+  /** Alert when the last hour's p95 call time is over this, 100 to 600000 ms. */
+  alertP95Ms: InputMaybe<Scalars['Int']['input']>;
+  alertSlackChannel: InputMaybe<Scalars['String']['input']>;
+  alertsEnabled: InputMaybe<Scalars['Boolean']['input']>;
+  /** Calls one connection (one Claude client for one person) may make an hour; 0 is no limit. */
+  callsPerHourPerConnection: InputMaybe<Scalars['Int']['input']>;
+  /** Calls a person may make an hour across every connection, 0 to 100000; 0 is no limit. */
+  callsPerHourPerPerson: InputMaybe<Scalars['Int']['input']>;
+  dailyDigest: InputMaybe<Scalars['Boolean']['input']>;
+  disabledTools: InputMaybe<Array<Scalars['String']['input']>>;
+  readOnlyServers: InputMaybe<Array<McpEndpoint>>;
+  /** Changes a person may make an hour; 0 is no limit. */
+  writesPerHourPerPerson: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type McpToolKind =
   | 'MUTATION'
   | 'QUERY';

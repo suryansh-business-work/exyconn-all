@@ -102,7 +102,9 @@ export const suppressionTypeDefs = gql`
     listMarketingSuppressionsPaged(input: TableQueryInput!): MarketingSuppressionPage!
     listMarketingSuppressionsStats: TableStats!
     getMarketingSuppression(id: ID!): MarketingSuppression!
+    "Reads the suppression list's headline counts: total, archived, unsubscribed, hard-bounced and added by hand."
     marketingSuppressionSummary: MarketingSuppressionSummary!
+    "Checks one address before suppressing it: its existing suppression row, if any, and the CRM records that hold it."
     marketingSuppressionLookup(email: String!): MarketingSuppressionLookup!
     "Every recorded change to an address, newest first — kept after a removal too."
     marketingSuppressionHistory(email: String!): [AuditLog!]!
@@ -110,9 +112,20 @@ export const suppressionTypeDefs = gql`
 
   extend type Mutation {
     createMarketingSuppression(input: MarketingSuppressionInput!): MarketingSuppression!
+    "Adds up to 5000 addresses to the suppression list so no campaign emails them; reports which were added, already suppressed or invalid. Confirm with the person first."
     addMarketingSuppressions(input: MarketingSuppressionsInput!): MarketingSuppressionsResult!
-    updateMarketingSuppressionNote(id: ID!, note: String!): MarketingSuppression!
-    setMarketingSuppressionArchived(id: ID!, archived: Boolean!): MarketingSuppression!
+    "Replaces the note on a suppressed address. The address stays suppressed."
+    updateMarketingSuppressionNote(
+      id: ID!
+      "The new note; replaces the old one."
+      note: String!
+    ): MarketingSuppression!
+    "Archives or unarchives a suppression row. An archived address is still suppressed."
+    setMarketingSuppressionArchived(
+      id: ID!
+      "True to archive, false to unarchive."
+      archived: Boolean!
+    ): MarketingSuppression!
     "Lets campaigns reach the address again. Needs a reason; consent withdrawals need an administrator."
     removeMarketingSuppression(id: ID!, justification: String!): Boolean!
   }

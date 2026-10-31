@@ -296,6 +296,7 @@ export const techTypeDefs = gql`
     "Every channel the active Slack bot token can see."
     listSlackChannels: [SlackChannel!]!
     listTrackerBuilds: [TrackerBuild!]!
+    "Platform TECH: reads the Slack channels tracker builds and status alerts are posted to."
     trackerBuildSettings: TrackerBuildSettings!
     "Every published tracker build, newest first."
     trackerBuildReleases: [TrackerBuildRelease!]!
@@ -321,23 +322,34 @@ export const techTypeDefs = gql`
     createImageConfig(input: ImageConfigInput!): ImageConfig!
     updateImageConfig(id: ID!, input: ImageConfigInput!): ImageConfig!
     deleteImageConfig(id: ID!): Boolean!
-    sendTestEmail(id: ID!, to: String!): Boolean!
-    testImageUpload(id: ID!, file: String!, fileName: String!): String!
+    "Platform TECH: sends a test email through one saved SMTP configuration to check it works."
+    sendTestEmail(id: ID!, "The address the test email is sent to." to: String!): Boolean!
+    "Platform TECH: uploads a test file through one saved image (ImageKit) configuration and returns its URL."
+    testImageUpload(
+      id: ID!
+      "The file as base64 or a data URL."
+      file: String!
+      fileName: String!
+    ): String!
     createSlackConfig(input: SlackConfigInput!): SlackConfig!
     updateSlackConfig(id: ID!, input: SlackConfigInput!): SlackConfig!
     deleteSlackConfig(id: ID!): Boolean!
-    sendTestSlackMessage(id: ID!, channel: String!): Boolean!
+    "Platform TECH: posts a test message through one saved Slack configuration to check its bot token."
+    sendTestSlackMessage(id: ID!, "The Slack channel id to post to." channel: String!): Boolean!
     createGithubConfig(input: GithubConfigInput!): GithubConfig!
     updateGithubConfig(id: ID!, input: GithubConfigInput!): GithubConfig!
     deleteGithubConfig(id: ID!): Boolean!
+    "Platform TECH: checks that a saved GitHub configuration can read the tracker build workflow. Changes nothing."
     testGithubConnection(id: ID!): Boolean!
     createPexelsConfig(input: PexelsConfigInput!): PexelsConfig!
     updatePexelsConfig(id: ID!, input: PexelsConfigInput!): PexelsConfig!
     deletePexelsConfig(id: ID!): Boolean!
+    "Platform TECH: checks that a saved Pexels API key works. Changes nothing."
     testPexelsConnection(id: ID!): Boolean!
     createOpenAiConfig(input: OpenAiConfigInput!): OpenAiConfig!
     updateOpenAiConfig(id: ID!, input: OpenAiConfigInput!): OpenAiConfig!
     deleteOpenAiConfig(id: ID!): Boolean!
+    "Platform TECH: checks that a saved OpenAI configuration works by calling OpenAI. Changes nothing."
     testOpenAiConnection(id: ID!): Boolean!
     """
     Asks GitHub to build the chosen installers off the given branch, first raising the tracker
@@ -352,8 +364,11 @@ export const techTypeDefs = gql`
     deleteTrackerBuildRelease(id: ID!): Boolean!
     "Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build)."
     saveTrackerBuildRetention(keepLatestBuilds: Int!): TrackerBuildSettings!
+    "Platform TECH: sets the Slack channels finished tracker builds and status incident alerts are posted to."
     saveTrackerBuildSettings(
+      "Slack channel ids the finished installers are posted to."
       slackChannels: [String!]!
+      "Slack channel ids status incidents are posted to. Left out, the current list is kept."
       statusAlertChannels: [String!]
     ): TrackerBuildSettings!
   }

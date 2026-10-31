@@ -90,13 +90,33 @@ export const providerProfileTypeDefs = gql`
   }
 
   extend type Mutation {
+    "Platform TECH: adds (no id) or edits a provider account login. The password is stored encrypted; blank on an edit keeps it. Audited."
     saveTechProviderLogin(
+      "The provider key, as techProviderProfile takes it."
       provider: String!
+      "The login to edit. Left out, a new one is added."
       id: ID
       input: ProviderLoginInput!
     ): TechProviderProfile!
-    deleteTechProviderLogin(provider: String!, id: ID!): TechProviderProfile!
-    saveTechProviderLink(provider: String!, id: ID, input: ProviderLinkInput!): TechProviderProfile!
-    deleteTechProviderLink(provider: String!, id: ID!): TechProviderProfile!
+    "Platform TECH: removes one saved provider account login and its password. Audited."
+    deleteTechProviderLogin(
+      "The provider key, as techProviderProfile takes it."
+      provider: String!
+      id: ID!
+    ): TechProviderProfile!
+    "Platform TECH: adds (no id) or edits a custom link on a provider's profile. Audited."
+    saveTechProviderLink(
+      "The provider key, as techProviderProfile takes it."
+      provider: String!
+      "The link to edit. Left out, a new one is added."
+      id: ID
+      input: ProviderLinkInput!
+    ): TechProviderProfile!
+    "Platform TECH: removes one custom link from a provider's profile. Audited."
+    deleteTechProviderLink(
+      "The provider key, as techProviderProfile takes it."
+      provider: String!
+      id: ID!
+    ): TechProviderProfile!
   }
 `;

@@ -1,4 +1,4 @@
-import { useFormatters } from '@exyconn/i18n';
+import { useFormatters, useT } from '@exyconn/i18n';
 import { Alert } from '@exyconn/shell/components/ui';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -15,10 +15,11 @@ import {
 type ConnectionRow = McpConnectionsQuery['mcpConnections'][number];
 
 /**
- * Every Claude connected to one server in this company, with who it acts for, and signing one
- * out. On the global server, every connection the person may see, each naming its server.
+ * Every Claude connected to one server in this company, with who it acts for and whether it may
+ * change anything or only read, and signing one out. On the global server, every connection the person may see, each naming its server.
  */
 export function McpConnectionsTab({ endpoint }: Readonly<{ endpoint: McpEndpoint }>) {
+  const t = useT();
   const { formatDateTime } = useFormatters();
   const confirm = useConfirm();
   const notify = useNotify();
@@ -30,6 +31,11 @@ export function McpConnectionsTab({ endpoint }: Readonly<{ endpoint: McpEndpoint
   const columns: Column<ConnectionRow>[] = [
     { key: 'clientName', label: 'Client' },
     { key: 'userName', label: 'Acts for' },
+    {
+      key: 'readOnly',
+      label: 'Access',
+      render: (row: ConnectionRow) => (row.readOnly ? t('Read only') : t('Read and change')),
+    },
     ...(endpoint === McpEndpoint.All
       ? [{ key: 'endpoint', label: 'Server', render: (row: ConnectionRow) => row.endpoint }]
       : []),

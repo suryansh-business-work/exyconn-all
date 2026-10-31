@@ -108,7 +108,7 @@ describe('answers', () => {
     );
   });
 
-  it('leaves configuration out, and describes each tool by its field or its kind', () => {
+  it('leaves configuration out, and describes each tool by its field, its shape or its kind', () => {
     const tools = moduleTools(
       toy,
       { query: new Set(['deals', 'count', 'dealConfigs']), mutation: new Set(['deleteDeal']) },
@@ -121,7 +121,7 @@ describe('answers', () => {
     ]);
     expect(tools[1].description).toMatch(/^Finds deals\./);
     expect(tools[0].description).toMatch(/^Reads CRM data \(count\)/);
-    expect(tools[2].description).toMatch(/^Changes CRM data \(deleteDeal\)/);
+    expect(tools[2].description).toMatch(/^Deletes the deal with this id;/);
     expect(tools[1].args).toEqual([
       { name: 'filter', type: 'Filter', required: false, description: '' },
       { name: 'limit', type: 'Int', required: false, description: '' },

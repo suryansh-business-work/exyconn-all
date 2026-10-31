@@ -45,6 +45,7 @@ export const performanceTypeDefs = gql`
     listPerformanceReviewsPaged(input: TableQueryInput!): PerformanceReviewPage!
     listPerformanceReviewsStats: TableStats!
     getPerformanceReview(id: ID!): PerformanceReview!
+    "Lists the signed-in person's own performance reviews, newest first."
     myPerformanceReviews: [PerformanceReview!]!
     "Manager: every appraisal of their direct reports."
     teamPerformanceReviews: [PerformanceReview!]!

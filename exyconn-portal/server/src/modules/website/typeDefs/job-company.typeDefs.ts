@@ -88,8 +88,18 @@ export const jobCompanyTypeDefs = gql`
     listJobCompaniesPaged(input: TableQueryInput!): JobCompanyPage!
     listJobCompaniesStats: TableStats!
     getJobCompany(id: ID!): JobCompany!
-    publicJobCompanies(site: String): [JobCompany!]!
-    publicJobCompany(slug: String!, site: String): JobCompany
+    "Public: lists a site's active hiring companies in their display order."
+    publicJobCompanies(
+      "The site's key; the default site when left out."
+      site: String
+    ): [JobCompany!]!
+    "Public: reads one active hiring company by its address; null when there is none."
+    publicJobCompany(
+      "The company's URL slug."
+      slug: String!
+      "The site's key; the default site when left out."
+      site: String
+    ): JobCompany
   }
 
   extend type Mutation {

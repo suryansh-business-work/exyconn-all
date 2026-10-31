@@ -8708,17 +8708,36 @@ export type McpAuthorizationRequest = {
 /** One tool call made through MCP, for a server's activity log. */
 export type McpCall = {
   __typename?: 'McpCall';
+  /** How long the answer handed to Claude was, in characters. */
+  answerChars: Scalars['Int']['output'];
+  /** The arguments given, by name only. */
+  argNames: Array<Scalars['String']['output']>;
   at: Scalars['DateTime']['output'];
   clientName: Scalars['String']['output'];
   durationMs: Scalars['Int']['output'];
+  /** The endpoint the call came through; null for calls made before it was kept. */
+  endpoint?: Maybe<McpEndpoint>;
   error: Scalars['String']['output'];
+  /** The failure's kind (FORBIDDEN, BAD_USER_INPUT, INTERNAL…); empty when the call worked. */
+  errorCode: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   kind: McpToolKind;
   ok: Scalars['Boolean']['output'];
   /** The module server the tool belongs to. */
   server: McpEndpoint;
   tool: Scalars['String']['output'];
+  /** Handed to Claude with the answer, so a call can be found from what the person saw. */
+  traceId: Scalars['String']['output'];
+  /** Whether rows were left out of the answer to fit. */
+  truncated: Scalars['Boolean']['output'];
   userName: Scalars['String']['output'];
+};
+
+/** Calls by the MCP client that made them, e.g. Claude or Claude Code. */
+export type McpClientUsage = {
+  __typename?: 'McpClientUsage';
+  calls: Scalars['Int']['output'];
+  clientName: Scalars['String']['output'];
 };
 
 /** A connected Claude (or other MCP client) acting for one person in this company. */
@@ -8730,6 +8749,8 @@ export type McpConnection = {
   endpoint: McpEndpoint;
   id: Scalars['ID']['output'];
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Allowed for reading only: Claude is never offered a change through it. */
+  readOnly: Scalars['Boolean']['output'];
   userName: Scalars['String']['output'];
 };
 
@@ -8757,6 +8778,36 @@ export enum McpEndpoint {
   Website = 'WEBSITE'
 }
 
+/** Failed calls of one kind: FORBIDDEN, NOT_FOUND, BAD_USER_INPUT, INVALID_ARGUMENTS, INTERNAL and the rest. */
+export type McpErrorCodeCount = {
+  __typename?: 'McpErrorCodeCount';
+  code: Scalars['String']['output'];
+  count: Scalars['Int']['output'];
+};
+
+/** Failed calls grouped by tool, error code and message, for a server's error log. */
+export type McpErrorGroup = {
+  __typename?: 'McpErrorGroup';
+  count: Scalars['Int']['output'];
+  error: Scalars['String']['output'];
+  errorCode: Scalars['String']['output'];
+  firstAt: Scalars['DateTime']['output'];
+  lastAt: Scalars['DateTime']['output'];
+  /** The trace id of the latest call that failed this way; find it in the activity log. */
+  lastTraceId: Scalars['String']['output'];
+  /** How many people the failure hit. */
+  people: Scalars['Int']['output'];
+  server: McpEndpoint;
+  tool: Scalars['String']['output'];
+};
+
+/** Calls by the module server their tool belongs to. */
+export type McpModuleUsage = {
+  __typename?: 'McpModuleUsage';
+  calls: Scalars['Int']['output'];
+  server: McpEndpoint;
+};
+
 export type McpPersonUsage = {
   __typename?: 'McpPersonUsage';
   calls: Scalars['Int']['output'];
@@ -8780,11 +8831,54 @@ export type McpServer = {
   toolCount: Scalars['Int']['output'];
 };
 
+/** The company's MCP settings: rate limits, switched-off tools, read-only servers and alerts. 0 in a limit means no limit. */
+export type McpSettings = {
+  __typename?: 'McpSettings';
+  alertErrorRatePercent: Scalars['Int']['output'];
+  alertMinCalls: Scalars['Int']['output'];
+  alertP95Ms: Scalars['Int']['output'];
+  /** The Slack channel id alerts and the digest go to; empty sends them to admins' notifications only. */
+  alertSlackChannel: Scalars['String']['output'];
+  alertsEnabled: Scalars['Boolean']['output'];
+  callsPerHourPerConnection: Scalars['Int']['output'];
+  callsPerHourPerPerson: Scalars['Int']['output'];
+  dailyDigest: Scalars['Boolean']['output'];
+  /** Tools nobody in the company can call through MCP, by name. */
+  disabledTools: Array<Scalars['String']['output']>;
+  lastAlertAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Module servers that only read: their changes are not offered. */
+  readOnlyServers: Array<McpEndpoint>;
+  writesPerHourPerPerson: Scalars['Int']['output'];
+};
+
+/** What an admin changes on the MCP Settings page; fields left out keep their value. */
+export type McpSettingsInput = {
+  /** Alert when this share of the last hour's calls failed, 1 to 100. */
+  alertErrorRatePercent?: InputMaybe<Scalars['Int']['input']>;
+  /** No alert below this many calls in the hour. */
+  alertMinCalls?: InputMaybe<Scalars['Int']['input']>;
+  /** Alert when the last hour's p95 call time is over this, 100 to 600000 ms. */
+  alertP95Ms?: InputMaybe<Scalars['Int']['input']>;
+  alertSlackChannel?: InputMaybe<Scalars['String']['input']>;
+  alertsEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Calls one connection (one Claude client for one person) may make an hour; 0 is no limit. */
+  callsPerHourPerConnection?: InputMaybe<Scalars['Int']['input']>;
+  /** Calls a person may make an hour across every connection, 0 to 100000; 0 is no limit. */
+  callsPerHourPerPerson?: InputMaybe<Scalars['Int']['input']>;
+  dailyDigest?: InputMaybe<Scalars['Boolean']['input']>;
+  disabledTools?: InputMaybe<Array<Scalars['String']['input']>>;
+  readOnlyServers?: InputMaybe<Array<McpEndpoint>>;
+  /** Changes a person may make an hour; 0 is no limit. */
+  writesPerHourPerPerson?: InputMaybe<Scalars['Int']['input']>;
+};
+
 /** One module operation Claude can call. */
 export type McpTool = {
   __typename?: 'McpTool';
   arguments: Array<McpToolArgument>;
   description: Scalars['String']['output'];
+  /** False when the company's MCP settings switch the tool off, or its server only reads and it changes something. */
+  enabled: Scalars['Boolean']['output'];
   kind: McpToolKind;
   name: Scalars['String']['output'];
   /** The module server the tool belongs to. */
@@ -8810,6 +8904,9 @@ export type McpToolUsage = {
   averageMs: Scalars['Float']['output'];
   calls: Scalars['Int']['output'];
   failures: Scalars['Int']['output'];
+  lastAt: Scalars['DateTime']['output'];
+  /** The time 95 in 100 calls of the tool finish within. */
+  p95Ms: Scalars['Float']['output'];
   tool: Scalars['String']['output'];
 };
 
@@ -8817,11 +8914,20 @@ export type McpToolUsage = {
 export type McpUsage = {
   __typename?: 'McpUsage';
   calls: Scalars['Int']['output'];
+  clients: Array<McpClientUsage>;
   days: Array<McpUsageDay>;
+  errorCodes: Array<McpErrorCodeCount>;
   failures: Scalars['Int']['output'];
+  /** The median call time. */
+  p50Ms: Scalars['Float']['output'];
+  /** The time 95 in 100 calls finish within. */
+  p95Ms: Scalars['Float']['output'];
   people: Scalars['Int']['output'];
+  servers: Array<McpModuleUsage>;
   tools: Array<McpToolUsage>;
   users: Array<McpPersonUsage>;
+  /** Calls that changed something (mutations); the rest only read. */
+  writes: Scalars['Int']['output'];
 };
 
 export type McpUsageDay = {
@@ -9113,6 +9219,7 @@ export type Mutation = {
   addColdEmailVariant: ColdEmailDraft;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
+  /** Adds up to 5000 addresses to the suppression list so no campaign emails them; reports which were added, already suppressed or invalid. Confirm with the person first. */
   addMarketingSuppressions: MarketingSuppressionsResult;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
   addMySupportReply: SupportReply;
@@ -9122,6 +9229,7 @@ export type Mutation = {
   addStatusIncidentUpdate: StatusIncident;
   /** SUPPORT/ADMIN: reply on a ticket, or leave an internal note. */
   addSupportReply: SupportReply;
+  /** Posts a comment, with optional attachments, on a ticket as the caller and notifies its assignee and reporter. */
   addTaskComment: TaskComment;
   /** Writes a first draft from the caller's context. Creates an AI job, like every run. */
   aiDraft: Scalars['String']['output'];
@@ -9133,6 +9241,7 @@ export type Mutation = {
   applyLeave: LeaveRequest;
   /** Allows the sign-in; answers the address to send the browser back to. */
   approveMcpAuthorization: Scalars['String']['output'];
+  /** LEGAL or ADMIN (IT for IT and security policies): archives a policy, so employees no longer see or sign it. */
   archivePolicy: Policy;
   /** HR or LEGAL: hands these items to an employee. Already-held items are left as they are. */
   assignLegalItems: Array<LegalAssignment>;
@@ -9146,19 +9255,24 @@ export type Mutation = {
   cancelCampaignSend: Campaign;
   /** Withdraw a request that has not been carried out. */
   cancelItAccessRequest: ItAccessRequest;
+  /** Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first. */
   cancelMeetingBooking: MeetingBooking;
   changePassword: Scalars['Boolean']['output'];
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
   /** Removes the Apify token: Clutch searches use Clutch's own server. */
   clearApifyToken: LeadSourceSettings;
+  /** ADMIN: removes a role's restriction on a module, so the role gets every action its module access allows again. Audited. False when there was none. */
   clearRolePermission: Scalars['Boolean']['output'];
+  /** Removes one of the signed-in client contact's refund accounts. Audited. Confirm with the person first. */
   clientHubDeletePayoutAccount: Scalars['Boolean']['output'];
   /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
   clientHubEmailInvoice: Scalars['Boolean']['output'];
+  /** Files a support ticket for the signed-in contact's client. Confirm the subject and details with the person first. */
   clientHubOpenTicket: SupportTicket;
   /** Opens the gateway's hosted checkout for the invoice's whole balance. */
   clientHubPayInvoice: ClientHubCheckout;
+  /** Posts the signed-in contact's reply (up to 5000 characters) on one of the client's tickets. Visible to support. */
   clientHubReplyToTicket: SupportReply;
   /** Adds (no id) or replaces one of the signed-in client's refund accounts. */
   clientHubSavePayoutAccount: PayoutAccount;
@@ -9217,6 +9331,7 @@ export type Mutation = {
   createCmsSite: CmsSite;
   /** Writes the first versions (4 by default) with the AI from the record's business context; spends AI budget. */
   createColdEmailDraft: ColdEmailDraft;
+  /** Adds a column to the end of a project's board. */
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -9231,6 +9346,7 @@ export type Mutation = {
   createCrmView: CrmView;
   createDeal: Deal;
   createDepartment: Department;
+  /** Creates an empty doc page at the end of its parent's children in a project's space. */
   createDocPage: DocPage;
   createEmailConfig: EmailConfig;
   createEmailFragment: EmailFragment;
@@ -9315,6 +9431,7 @@ export type Mutation = {
   createProblemReport: ProblemReport;
   createProduct: Product;
   createProject: Project;
+  /** Creates a public read-only link to a project's progress for a client and returns its URL once. Confirm with the person first. */
   createProjectShare: ProjectShareCreated;
   /** A new workflow opens with a Start joined to an End. */
   createProjectWorkflow: ProjectWorkflow;
@@ -9326,6 +9443,7 @@ export type Mutation = {
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
+  /** Comments on a post in the company feed as you; the post's author is notified. */
   createSocialComment: SocialComment;
   createSocialPost: SocialPost;
   createSonarConfig: SonarConfig;
@@ -9353,6 +9471,7 @@ export type Mutation = {
   createTraining: Training;
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
+  /** ADMIN: registers an https endpoint that is sent signed event payloads. Returns the signing secret once only. */
   createWebhook: CreatedWebhook;
   createWebsiteChatFaq: WebsiteChatFaq;
   /** Knowledge written here is always CUSTOM; a sync never touches it. */
@@ -9408,6 +9527,7 @@ export type Mutation = {
   deleteCmsPage: Scalars['Boolean']['output'];
   deleteCmsSite: Scalars['Boolean']['output'];
   deleteColdEmailDraft: Scalars['Boolean']['output'];
+  /** Deletes an unsent version of a cold email draft. The last version stays; delete the draft instead. */
   deleteColdEmailVariant: ColdEmailDraft;
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
@@ -9518,7 +9638,9 @@ export type Mutation = {
   deleteTaxRegime: Scalars['Boolean']['output'];
   deleteTaxSlab: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
+  /** Platform TECH: removes one custom link from a provider's profile. Audited. */
   deleteTechProviderLink: TechProviderProfile;
+  /** Platform TECH: removes one saved provider account login and its password. Audited. */
   deleteTechProviderLogin: TechProviderProfile;
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
@@ -9551,7 +9673,9 @@ export type Mutation = {
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
+  /** Copies a campaign template into a new one with a free copy name. */
   duplicateCampaignTemplate: CampaignTemplate;
+  /** Copies a page's settings and draft to a new unpublished page at another path. */
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
@@ -9570,12 +9694,15 @@ export type Mutation = {
   findLeadEmails: LeadEmailResult;
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
+  /** Lets an employee sign in to the tracker apps and emails them about it (TRACKER role). Audited. */
   grantTrackerAccess: TrackerAccess;
   /** Files the chosen companies of a search as CRM companies, and their listed people as contacts. */
   importClutchCompanies: ClutchImportResult;
+  /** Imports up to 500 rows of leads, companies or contacts, creating, updating or both by the dedupe key. Writes records; confirm with the person first. */
   importCrmRecords: CrmImportResult;
   /** Files the chosen places as CRM companies. Duplicates are skipped, or, when listed in mergeInto, get their extra details added without overwriting anything. */
   importLeadsToCrm: LeadImportResult;
+  /** Copies a Pexels photo or video into ImageKit and returns its hosted URL. Only pexels.com URLs are accepted. */
   importMediaFromUrl: Scalars['String']['output'];
   /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
   importTableRows: TableImportResult;
@@ -9601,36 +9728,49 @@ export type Mutation = {
   /** Locks Environment Variables again now. */
   lockTechVault: Scalars['Boolean']['output'];
   login: AuthPayload;
+  /** Adds a comment to an action item and returns the item. */
   maAddActionComment: MaActionItem;
   /** Approves a build waiting for review, offers it on the channel and announces it in Slack. */
   maApproveRelease: MaRelease;
   /** Issues a one-time code for the extension's PKCE sign-in; returns the URL to send the browser to. */
   maAuthorizeExtension: Scalars['String']['output'];
+  /** Sets the status and/or priority of up to 200 action items at once; returns how many were updated. */
   maBulkUpdateActionItems: Scalars['Int']['output'];
+  /** Confirms who a transcript speaker label is; linking a portal user also lets them see the meeting. */
   maConfirmSpeaker: MaMeeting;
+  /** Adds an action item to a meeting the caller may edit. */
   maCreateActionItem: MaActionItem;
+  /** Permanently deletes an action item. Confirm with the person first. */
   maDeleteActionItem: Scalars['Boolean']['output'];
   /** Deletes the meeting and everything recorded for it: transcript, notes, actions, emails. */
   maDeleteMeeting: Scalars['Boolean']['output'];
+  /** Removes the caller's Google Meet connection, so official transcripts are no longer imported. Returns false if none existed. */
   maDisconnectGoogle: Scalars['Boolean']['output'];
   /** Ends the call and queues the after-meeting pipeline (import, notes, email). Idempotent. */
   maFinalizeSession: MaMeeting;
+  /** Called by the Chrome extension during a live call it owns to report transcription and capture state and participant count. */
   maHeartbeat: MaMeeting;
   /** Fetches the official Google Meet transcript and participants again. */
   maImportOfficialTranscript: MaMeeting;
   /** The owner confirms participants were told the call is being transcribed. */
   maRecordConsent: MaMeeting;
+  /** Called by the Chrome extension to record people joining and leaving a call it owns; returns how many events were applied. */
   maRecordParticipantEvents: Scalars['Int']['output'];
   /** A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes. */
   maRecordingDownloadLink: MaDownloadLink;
   /** Queues a fresh analysis. Existing actions keep their ids, statuses and every edit. */
   maRegenerateNotes: MaMeeting;
+  /** Returns a short-lived download link for a downloadable extension release ZIP, with its SHA-256. The download is logged. */
   maReleaseDownloadLink: MaDownloadLink;
+  /** Sends a failed summary email to its recipient again. Confirm with the person first. */
   maRetryEmailDelivery: MaEmailDelivery;
+  /** Signs one of the caller's Chrome extension sessions out. Returns false if it was already revoked or not theirs. */
   maRevokeExtensionSession: Scalars['Boolean']['output'];
   /** Sends (or approves sending) the summary of the current notes version, once per recipient. */
   maSendSummaryEmail: MaMeeting;
+  /** Changes only the status of an action item. */
   maSetActionStatus: MaActionItem;
+  /** Moves an extension release to its next status with a required note; publishing needs the Chrome Web Store URL and announces it in Slack. Release managers only. */
   maSetReleaseStatus: MaRelease;
   /** Starts the extension build workflow; the run uploads the build here for approval. */
   maStartExtensionBuild: Scalars['Boolean']['output'];
@@ -9638,14 +9778,19 @@ export type Mutation = {
   maStartGoogleConnect: Scalars['String']['output'];
   /** Opens (or finds again, after a reload or reconnect) the caller's session for a call. */
   maStartSession: MaMeeting;
+  /** Replaces an action item's title, description, assignee, due date, priority and status. */
   maUpdateActionItem: MaActionItem;
+  /** Renames a meeting and sets its language. */
   maUpdateMeeting: MaMeeting;
   /** Saves edited notes. expectedVersion must match, so two editors never overwrite each other. */
   maUpdateNotes: MaNotes;
   /** Sets how many of the newest builds the retention pass keeps (0 keeps every build). */
   maUpdateReleaseRetention: MaReleaseSettings;
+  /** Saves the allowed upload repository, the Slack announcement channel and whether new builds are announced. Release managers only. */
   maUpdateReleaseSettings: MaReleaseSettings;
+  /** Replaces the company's Meeting Assistant settings. Company editors only; recorded in the activity log. */
   maUpdateSettings: MaSettings;
+  /** Marks every unread notification of the signed-in person read and returns how many changed. */
   markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
   markAttendance: Attendance;
@@ -9656,6 +9801,7 @@ export type Mutation = {
    * the announcements their app has already raised. Answers how many that was.
    */
   markMyTrackerMessagesRead: Scalars['Int']['output'];
+  /** Marks one of the signed-in person's notifications read. False when it is not theirs or does not exist. */
   markNotificationRead: Scalars['Boolean']['output'];
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
@@ -9665,6 +9811,7 @@ export type Mutation = {
   migrateDnsToCloudflare: DnsMigrationResult;
   /** Re-files a page under a new parent (null for top level) at a given position. */
   moveDocPage: Scalars['Boolean']['output'];
+  /** Moves a ticket to a column and position, recording it in the history; reaching a done column notifies the people on the ticket. */
   moveTask: Scalars['Boolean']['output'];
   /** Reads an uploaded CSV or XLSX (up to 10 MB and 50,000 rows) for the import wizard. */
   parseTableFile: ParsedTableFile;
@@ -9675,7 +9822,9 @@ export type Mutation = {
   promoteBugToTask: Task;
   /** Makes an Admin client of the account, or reuses the one it already has. */
   promoteCompanyToClient: Company;
+  /** Puts the fragment's draft live on every page that uses it. Confirm with the person first. */
   publishCmsFragment: CmsFragment;
+  /** Puts the page's draft live on the website and keeps it as a new revision. Confirm with the person first. */
   publishCmsPage: CmsPage;
   /**
    * Publishes a policy. raiseVersion asks everybody who already signed to sign again,
@@ -9701,7 +9850,9 @@ export type Mutation = {
   recordWhatsappDemoEvents: Scalars['Int']['output'];
   /** Lets campaigns reach the address again. Needs a reason; consent withdrawals need an administrator. */
   removeMarketingSuppression: Scalars['Boolean']['output'];
+  /** Renames a board column. */
   renameColumn: BoardColumn;
+  /** Puts a project's board columns in the given order. */
   reorderColumns: Scalars['Boolean']['output'];
   /**
    * Public, so a crash on the login screen still reaches us. The user is read from the
@@ -9730,6 +9881,7 @@ export type Mutation = {
   resetPassword: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
   resetUserPassword: Scalars['String']['output'];
+  /** Restores an earlier version of a campaign template by saving it as the newest version. */
   restoreCampaignTemplateVersion: CampaignTemplate;
   /** Copies a published version back into the draft (publish it to put it live). */
   restoreCmsPageRevision: CmsPage;
@@ -9761,10 +9913,13 @@ export type Mutation = {
   revokeMcpConnection: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
+  /** Revokes a client project link so it stops working at once. */
   revokeProjectShare: ProjectShare;
   /** Ends one of this account's other sessions. The current one cannot be ended this way. */
   revokeSession: Scalars['Boolean']['output'];
+  /** Takes an employee's tracker access away and signs out every one of their devices (TRACKER role). Audited. */
   revokeTrackerAccess: TrackerAccess;
+  /** Signs one tracker device out so its token stops working (TRACKER role). Audited. */
   revokeTrackerDevice: TrackerDevice;
   /** Writes fresh versions (up to 4, within the 10 per draft) from the record's latest data; spends AI budget. */
   rewriteColdEmailDraft: ColdEmailDraft;
@@ -9792,14 +9947,19 @@ export type Mutation = {
    * loop uses, so pressing the button cannot bill a client twice either.
    */
   runRecurringInvoiceNow: RecurringInvoice;
+  /** Platform TECH staff: adds or corrects the per-1k-token USD price of one model, matched by model name. Prices apply to every company. */
   saveAiModelPrice: AiModelPrice;
+  /** TECH: sets the AI spend caps every run is checked against. A cap of zero means no cap. */
   saveAiSpendLimit: AiSpendLimit;
   /** Saves an example's call flow (checked: voice steps only, no errors) and its script; null removes it. */
   saveCallingBotScenarioFlow: CallingBotScenario;
   /** Creates (no id) or updates a draft. expectedVersion refuses a save over somebody else's. */
   saveCampaignDraft: Campaign;
+  /** Creates a campaign template, or saves a new version of an existing one. */
   saveCampaignTemplate: CampaignTemplate;
+  /** Saves the fragment's editor content as its draft; the live version does not change until it is published. */
   saveCmsFragmentDraft: CmsFragment;
+  /** Saves the page's editor content as its draft; the live page does not change until it is published. */
   saveCmsPageDraft: CmsPage;
   /** Adds (no id) or replaces an employee's salary account. Nobody edits their own. */
   saveEmployeePayoutAccount: PayoutAccount;
@@ -9814,18 +9974,24 @@ export type Mutation = {
   saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
   saveLeadSourceConfig: LeadSourceSettings;
+  /** Saves the footer added to every marketing email from now on. */
   saveMarketingFooter: MarketingFooter;
   /** Changing the booking page address stops the old one working. */
   saveMeetingSettings: MeetingSettings;
   saveMicrosoftMailConfig: MicrosoftMailConfig;
+  /** Replaces a workflow's nodes and edges after checking the graph is valid. */
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
+  /** Platform TECH: adds (no id) or edits a custom link on a provider's profile. Audited. */
   saveTechProviderLink: TechProviderProfile;
+  /** Platform TECH: adds (no id) or edits a provider account login. The password is stored encrypted; blank on an edit keeps it. Audited. */
   saveTechProviderLogin: TechProviderProfile;
   /** Sets how many of the newest tracker builds the retention pass keeps (0 keeps every build). */
   saveTrackerBuildRetention: TrackerBuildSettings;
+  /** Platform TECH: sets the Slack channels finished tracker builds and status incident alerts are posted to. */
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
+  /** Saves a workflow's name, keywords, order and draft graph. The live version does not change until it is published. */
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
   /** Reads one public web page through Firecrawl and keeps it as markdown. */
   scrapeWebsite: WebScrape;
@@ -9839,7 +10005,9 @@ export type Mutation = {
   sendCampaignTest: Scalars['Boolean']['output'];
   /** Sends one version from a CRM mailbox; it shows on the record's Emails tab and timeline. */
   sendColdEmailVariant: ColdEmailDraft;
+  /** Sends an email, new or a reply, from one of the company's connected Gmail or Microsoft mailboxes. Confirm the recipients and text with the person first. */
   sendCrmEmail: CrmEmailMessage;
+  /** Sends a text message to a number on a CRM contact or company and logs it on the record's timeline. Confirm the text and number with the person first. */
   sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
@@ -9854,9 +10022,11 @@ export type Mutation = {
    * Does not wait for the schedule and does not change it.
    */
   sendSalarySlips: PayrollDispatchResult;
+  /** Platform TECH: sends a test email through one saved SMTP configuration to check it works. */
   sendTestEmail: Scalars['Boolean']['output'];
   /** Sends the real thing to one address, and logs it like any other send. */
   sendTestEmailTemplate: Scalars['Boolean']['output'];
+  /** Platform TECH: posts a test message through one saved Slack configuration to check its bot token. */
   sendTestSlackMessage: Scalars['Boolean']['output'];
   /** Replies to one employee on their tracker thread (TRACKER role). */
   sendTrackerMessage: TrackerMessage;
@@ -9865,7 +10035,9 @@ export type Mutation = {
    * notification (TRACKER role). Answers how many people it reached.
    */
   sendTrackerNotice: Scalars['Int']['output'];
+  /** ADMIN: emails a custom message to one user, with optional CC, BCC and portal-hosted files. Confirm the text with the person before sending. */
   sendUserMail: Scalars['Boolean']['output'];
+  /** Platform TECH: marks one app log group open, resolved or ignored. */
   setAppLogGroupStatus: AppLogGroup;
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
@@ -9881,6 +10053,7 @@ export type Mutation = {
   setCrmTags: Array<Scalars['String']['output']>;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
+  /** Makes this the default website, served for unknown hosts; the previous default stops being one. */
   setDefaultCmsSite: CmsSite;
   /** Makes one of the caller's mailboxes the one new email goes from. */
   setDefaultMyMailbox: MyMailbox;
@@ -9897,6 +10070,7 @@ export type Mutation = {
   setGmailAccountEnabled: GmailAccount;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /** Archives or unarchives a suppression row. An archived address is still suppressed. */
   setMarketingSuppressionArchived: MarketingSuppression;
   /** Turns a mailbox on or off for the CRM. */
   setMicrosoftMailAccountEnabled: MicrosoftMailAccount;
@@ -9909,6 +10083,7 @@ export type Mutation = {
    * keeps counting while somebody is at lunch is billing lunch as work.
    */
   setMyTrackerPresence: TrackerPresenceState;
+  /** Marks a newsletter subscriber as subscribed or unsubscribed; unsubscribed people get no more issues. */
   setNewsletterSubscriberStatus: NewsletterSubscriber;
   /**
    * Ticks one item off (or back on) and records who did it.
@@ -9939,8 +10114,11 @@ export type Mutation = {
   setTaskVisibility: Task;
   /** Corrects one translation by hand. ADMIN only, and marks the row HUMAN for good. */
   setTranslation: Translation;
+  /** ADMIN: activates or deactivates a user. A deactivated user cannot sign in. Audited. */
   setUserActive: User;
+  /** ADMIN: blocks or unblocks a user's sign-in, keeping the reason while blocked. Audited. */
   setUserBlocked: User;
+  /** ADMIN: pauses or resumes deliveries to one webhook. */
   setWebhookActive: Webhook;
   /** Blocking retires the visitor's pass at once (website staff). */
   setWhatsappDemoVisitorBlocked: WhatsappDemoVisitor;
@@ -9965,6 +10143,7 @@ export type Mutation = {
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
+  /** Starts a call with the demo bot: returns a socket address for a browser call, or rings the given phone number. Rate limited; confirm the number with the person before a phone call. */
   startCallingBotCall: CallingBotCallStart;
   /** Starts a Clutch search; it finishes in the background (poll clutchRun). */
   startClutchSearch: ClutchRun;
@@ -9988,6 +10167,7 @@ export type Mutation = {
   startOnboarding: OnboardingChecklist;
   /** Starts connecting an account: returns the provider's consent page to open. MARKETING. */
   startSocialConnect: Scalars['String']['output'];
+  /** Starts a planned sprint. A project can run only one sprint at a time. */
   startSprint: Sprint;
   /** Queues a delete, archive or restore of up to 50,000 rows; the job reports its progress. */
   startTableBulkJob: TableBulkJob;
@@ -10015,6 +10195,7 @@ export type Mutation = {
    * whether an address is already subscribed. Nothing is sent until the link is confirmed.
    */
   subscribeToStatus: Scalars['Boolean']['output'];
+  /** Reads the latest posts and numbers from every connected social account, one at a time, and returns each account's result. */
   syncAllSocialAccounts: Array<SocialSyncResult>;
   /** Reads the record's newest threads from every enabled mailbox into the CRM. */
   syncCrmEmails: Scalars['Boolean']['output'];
@@ -10029,6 +10210,7 @@ export type Mutation = {
   testCallingBotConfig: Scalars['Boolean']['output'];
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
   testCallingBotKey: Scalars['String']['output'];
+  /** Platform TECH: checks that a saved Cloudflare API token works by calling Cloudflare. Changes nothing. */
   testCloudflareConnection: Scalars['Boolean']['output'];
   /** Checks the stored credentials with the provider; places no call. */
   testCrmCallConfig: Scalars['String']['output'];
@@ -10038,16 +10220,19 @@ export type Mutation = {
   testEmailVerifierConfig: Scalars['String']['output'];
   /** Scrapes example.com with this config; says what worked, or why not. */
   testFirecrawlConfig: Scalars['String']['output'];
+  /** Platform TECH: checks that a saved GitHub configuration can read the tracker build workflow. Changes nothing. */
   testGithubConnection: Scalars['Boolean']['output'];
   /** Checks one mailbox works now by reading its address; the outcome is kept on it as lastError. */
   testGmailAccount: GmailAccount;
   /** Reads every enabled mailbox's address with its stored connection. */
   testGmailConfig: Scalars['String']['output'];
+  /** Platform TECH: checks that a saved GoDaddy API credential works by calling GoDaddy. Changes nothing. */
   testGodaddyConnection: Scalars['Boolean']['output'];
   /** Runs one Places search with the server key; says what worked, or why not. */
   testGoogleMapsConfig: Scalars['String']['output'];
   /** Checks the client ID and secret with Google; says what worked, or why not. */
   testGoogleSignInConfig: Scalars['String']['output'];
+  /** Platform TECH: uploads a test file through one saved image (ImageKit) configuration and returns its URL. */
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
@@ -10057,15 +10242,21 @@ export type Mutation = {
   testMicrosoftMailConfig: Scalars['String']['output'];
   /** Checks one of the caller's mailboxes works now; the outcome is kept on it as lastError. */
   testMyMailbox: MyMailbox;
+  /** Platform TECH: checks that a saved OpenAI configuration works by calling OpenAI. Changes nothing. */
   testOpenAiConnection: Scalars['Boolean']['output'];
+  /** Checks a saved Payoneer account by calling Payoneer with its stored token. True on success; fails with Payoneer's message otherwise. */
   testPayoneerConnection: Scalars['Boolean']['output'];
+  /** Checks a saved PayPal account by requesting an access token with its stored credentials. True on success; fails with PayPal's message otherwise. */
   testPaypalConnection: Scalars['Boolean']['output'];
+  /** Platform TECH: checks that a saved Pexels API key works. Changes nothing. */
   testPexelsConnection: Scalars['Boolean']['output'];
+  /** Checks a saved Razorpay account by calling Razorpay with its stored keys. True on success; fails with Razorpay's message otherwise. */
   testRazorpayConnection: Scalars['Boolean']['output'];
   /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
   testSocialAppConfig: SocialAppTest;
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
+  /** Checks a saved Stripe account by calling Stripe with its stored key. True on success; fails with Stripe's message otherwise. */
   testStripeConnection: Scalars['Boolean']['output'];
   /** Checks the number and token with Meta and subscribes the app to the number's WhatsApp account. */
   testWhatsappChannel: Scalars['String']['output'];
@@ -10088,6 +10279,7 @@ export type Mutation = {
    * with an auth error the moment the device or the access grant is revoked.
    */
   trackerHeartbeat: TrackerMe;
+  /** Signs an employee with tracker access in on a desktop or phone app and returns a non-expiring device token. Public. */
   trackerLogin: TrackerLoginPayload;
   /**
    * Marks the caller in for their current local day, pinning where they were — or, when the
@@ -10108,8 +10300,11 @@ export type Mutation = {
    * against the house-wide Global Project rather than failing the start.
    */
   trackerStartSession: TrackerSession;
+  /** Tracker app (device token): stops one of the caller's own tracking sessions at the given time. */
   trackerStopSession: TrackerSession;
+  /** Tracker app (device token): saves up to 200 activity intervals of the caller's session and returns the session's interval count; retries are safe. */
   trackerSyncIntervals: Scalars['Int']['output'];
+  /** Tracker app (device token): uploads a screenshot taken during the caller's own session. */
   trackerUploadScreenshot: TrackerScreenshot;
   /**
    * Translates every string the catalogue has seen in any language into this one, in the
@@ -10125,12 +10320,15 @@ export type Mutation = {
    * and a workspace with auto-translation off gets an empty answer rather than an error.
    */
   translateMissing: Array<Translation>;
+  /** Sets a website enquiry's status (new, in-review, resolved or archived) and replaces its notes. */
   triageWebsiteSubmission: WebsiteSubmission;
   /** HR or LEGAL: takes one item back. */
   unassignLegalItem: Scalars['Boolean']['output'];
   /** Opens Environment Variables for 30 minutes. */
   unlockTechVault: TechVaultSession;
+  /** Takes the page off the website; the draft is kept. Confirm with the person first. */
   unpublishCmsPage: CmsPage;
+  /** Stops sharing a Legal record with a client, removing it from their client hub. The Legal record itself is kept. */
   unshareWithClient: Scalars['Boolean']['output'];
   /**
    * Public: honours the unsubscribe link in a campaign email. Idempotent — the link is
@@ -10150,6 +10348,7 @@ export type Mutation = {
   updateBenefit: Benefit;
   updateBillingKeyConfig: BillingKeyConfig;
   updateBlogPost: BlogPost;
+  /** Saves your company's branding (logos, colours, names, invoice details). Admins only; changes every portal and email at once. */
   updateBranding: Branding;
   updateBudget: Budget;
   updateBug: Bug;
@@ -10162,11 +10361,14 @@ export type Mutation = {
   updateClientCommunication: ClientCommunication;
   updateClientLink: ClientLink;
   updateCloudflareConfig: CloudflareConfig;
+  /** Changes the alt text of a media library file. */
   updateCmsAssetAlt: CmsAsset;
   updateCmsDesignSystem: CmsDesignSystem;
   updateCmsFragment: CmsFragment;
+  /** Changes a page's path, title, kind, layout and SEO. The path must be free on the site. */
   updateCmsPageSettings: CmsPage;
   updateCmsSite: CmsSite;
+  /** Edits the subject and body of an unsent version of a cold email draft. Sends nothing. */
   updateColdEmailVariant: ColdEmailDraft;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
@@ -10179,6 +10381,7 @@ export type Mutation = {
   updateCrmView: CrmView;
   updateDeal: Deal;
   updateDepartment: Department;
+  /** Changes a doc page's title and/or body; fields left out stay as they are. */
   updateDocPage: DocPage;
   updateEmailConfig: EmailConfig;
   updateEmailFragment: EmailFragment;
@@ -10210,6 +10413,7 @@ export type Mutation = {
   updateItIncident: ItIncident;
   updateItNetworkItem: ItNetworkItem;
   updateItPurchaseRequest: ItPurchaseRequest;
+  /** IT: replaces the IT settings. Every onboarding application must also be in the applications list. */
   updateItSettings: ItSettings;
   updateItVulnerability: ItVulnerability;
   updateJob: Job;
@@ -10224,7 +10428,10 @@ export type Mutation = {
   updateLicence: Licence;
   updateLocation: Location;
   updateManagementReview: ManagementReview;
+  /** Replaces the note on a suppressed address. The address stays suppressed. */
   updateMarketingSuppressionNote: MarketingSuppression;
+  /** ADMIN: saves the company's MCP settings; they apply to the next call. Audited. */
+  updateMcpSettings: McpSettings;
   updateMeetingType: MeetingType;
   updateMilestone: Milestone;
   /**
@@ -10266,6 +10473,7 @@ export type Mutation = {
   updateRecurringInvoice: RecurringInvoice;
   updateRisk: Risk;
   updateSalaryStructure: SalaryStructure;
+  /** ADMIN: changes the workspace's date, time, timezone, language and audit-retention defaults for everyone. Audited. */
   updateSettings: AppSettings;
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
@@ -10283,17 +10491,22 @@ export type Mutation = {
   updateTeam: Team;
   updateTool: Tool;
   updateToolCategory: ToolCategory;
+  /** Saves the workspace tracker settings; running apps pick them up on their next heartbeat (TRACKER role). */
   updateTrackerSettings: TrackerSettings;
   updateTraining: Training;
   updateUser: User;
   updateWebsiteChatFaq: WebsiteChatFaq;
   updateWebsiteChatKnowledge: WebsiteChatKnowledge;
+  /** Replaces the website chatbot's settings; changes reach visitors on the live website. Confirm with the person first. */
   updateWebsiteChatSettings: WebsiteChatSettings;
   uploadAvatar: Scalars['String']['output'];
+  /** Uploads an image, PDF or web font to ImageKit and adds it to the website's media library. */
   uploadCmsAsset: CmsAsset;
   /** Uploads a photo, PDF or audio / video recording (10 MB at most) and returns its URL. */
   uploadCrmMedia: Scalars['String']['output'];
+  /** Uploads an image (up to 12 MB) to ImageKit and returns its hosted URL. */
   uploadImage: Scalars['String']['output'];
+  /** Creates a demo bot, or updates it when an id is given. Audited. */
   upsertWhatsappDemo: WhatsappDemo;
   /** Copies the saved Google sign-in client into Gmail and turns Gmail on (TECH). */
   useGoogleSignInClientForGmail: GmailConfig;
@@ -10307,6 +10520,7 @@ export type Mutation = {
   verifyMfa: AuthPayload;
   /** Public: exchanges the emailed code for a demo-only pass. */
   verifyWhatsappDemoCode: WhatsappDemoSignIn;
+  /** Asks the configured AI model to pick an intent and pull out entities from a chat message. Rate limited per person and logged. */
   whatsappDemoParse: WhatsappDemoParseResult;
   /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
   withdrawTrackerManualEntry: Scalars['Boolean']['output'];
@@ -10404,6 +10618,7 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationApproveMcpAuthorizationArgs = {
   id: Scalars['ID']['input'];
+  readOnly?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -14048,6 +14263,11 @@ export type MutationUpdateMarketingSuppressionNoteArgs = {
 };
 
 
+export type MutationUpdateMcpSettingsArgs = {
+  input: McpSettingsInput;
+};
+
+
 export type MutationUpdateMeetingTypeArgs = {
   id: Scalars['ID']['input'];
   input: MeetingTypeInput;
@@ -16309,11 +16529,13 @@ export type Query = {
   activeLeavePolicies: Array<LeavePolicy>;
   /** Read live from OpenAI with the active key, so the list is what the account can reach. */
   aiModels: AiModelOptions;
+  /** TECH/AI: reads the AI spend caps in force (monthly and per person per day, in USD). */
   aiSpendLimit: AiSpendLimit;
   /** What AI cost between two instants, broken down by person and by model. */
   aiSpendSummary: AiSpendSummary;
   /** Markdown describing one group, ready to paste to Claude to fix. */
   appLogFixPrompt: Scalars['String']['output'];
+  /** Reads the workspace's date, time, timezone and language defaults. Any signed-in person. */
   appSettings: AppSettings;
   /** Every spell this asset has been held for, most recent first. */
   assetAssignments: Array<AssetAssignment>;
@@ -16328,12 +16550,14 @@ export type Query = {
   /** TECH: every background loop, with what its last pass did. */
   backgroundJobs: Array<BackgroundJob>;
   billingKeyConfigs: Array<BillingKeyConfig>;
+  /** Reads your company's branding: names, logos, colours, contact and invoice details, and login pages. */
   branding: Branding;
   /**
    * Budget against actual per cost centre between two dates, both bounds inclusive of the
    * days they fall on. Every month the window touches counts in full.
    */
   budgetVsActual: Array<BudgetVariance>;
+  /** Tells whether the calling bot is set up right now, whether it can ring phones, and its language and call length limit. */
   callingBotAvailability: CallingBotAvailability;
   /** One of the caller's own calls, to follow it as it happens. */
   callingBotCall: CallingBotCall;
@@ -16344,18 +16568,25 @@ export type Query = {
   callingBotScenarioOptions: Array<CallingBotScenarioOption>;
   /** Every example call, for Tech. */
   callingBotScenarios: Array<CallingBotScenario>;
+  /** Reads what a campaign's latest send did: queued, sent, failed, skipped and unsubscribed counts and its send state. */
   campaignDeliveryStats: CampaignDeliveryStats;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
+  /** Reads a campaign's engagement: sent, opened and clicked counts and rates. Opens are approximate because mail apps block tracking; trust clicks more. */
   campaignMetrics: CampaignMetrics;
   /** Campaigns as pickable options, so a lead can be attributed to one. CRM may read these. */
   campaignOptions: Array<CampaignOption>;
+  /** Runs the pre-send checks on a campaign draft and, with an audience, counts who can receive it. Tells whether it can be sent. */
   campaignQualityChecks: CampaignQualityReport;
+  /** Lists a campaign's saved revisions, newest first. */
   campaignRevisions: Array<CampaignRevision>;
   /** Sent, failed and skipped counts for one campaign. */
   campaignSendSummary: CampaignSendSummary;
+  /** Lists what the campaign editor offers: verified sender addresses, personalisation variables and active preference categories. */
   campaignStudioOptions: CampaignStudioOptions;
+  /** Lists the saved versions of a campaign template, newest first. */
   campaignTemplateVersions: Array<CampaignTemplateVersion>;
+  /** Lists the 20 most-clicked links in a campaign, with total clicks and how many distinct people clicked each. */
   campaignTopLinks: Array<CampaignLinkStat>;
   /**
    * Whether the caller may export this module. Asked once before an export starts
@@ -16364,29 +16595,41 @@ export type Query = {
   canExport: Scalars['Boolean']['output'];
   /** Admin > Clients: who at a client has client hub access. */
   clientContacts: Array<ClientContact>;
+  /** Lists the addresses emailClient may send to: the client's own address, then each active client hub contact. */
   clientEmailRecipients: Array<ClientEmailRecipient>;
+  /** Lists the signed-in contact's client communication log, one page at a time. */
   clientHubCommunications: ClientCommunicationPage;
   /** The invoice PDF as base64. */
   clientHubInvoicePdf: Scalars['String']['output'];
+  /** Lists the signed-in client hub contact's invoices, one page at a time. */
   clientHubInvoices: InvoicePage;
   /** The signed-in client hub contact's own client's links. */
   clientHubLinks: Array<ClientLink>;
   /** The signed-in client hub contact (pass in x-client-pass). */
   clientHubMe: ClientHubMe;
+  /** Reads one of the client's payment attempts, settling it with the gateway first if it is still pending. */
   clientHubPaymentAttempt: PaymentAttempt;
+  /** Tells which payment gateways (Stripe, Razorpay, PayPal, Payoneer) the client can pay with right now. */
   clientHubPaymentOptions: ClientHubPaymentOptions;
+  /** Lists payments recorded against the signed-in contact's client, one page at a time. */
   clientHubPayments: PaymentPage;
   /** The signed-in client's refund accounts. */
   clientHubPayoutAccounts: Array<PayoutAccount>;
   /** One sealed detail of the signed-in client's refund account in full. */
   clientHubPayoutSecret: Scalars['String']['output'];
+  /** Lists the client's projects with status, dates, hours, milestones and ticket counts, read-only. */
   clientHubProjects: Array<ClientHubProject>;
+  /** Lists the client's unpaid invoices with their balance, soonest due first, with days late for overdue ones. */
   clientHubReminders: Array<ClientHubReminder>;
   /** A shared record's text as sanitised HTML. */
   clientHubSharedContent: Scalars['String']['output'];
+  /** Lists the Legal records shared with the signed-in contact's client. Records deleted in Legal are left out. */
   clientHubSharedItems: Array<ClientSharedItem>;
+  /** Lists the public replies on one of the client's own tickets, oldest first. Internal notes are left out. */
   clientHubTicketReplies: Array<SupportReply>;
+  /** Lists the support tickets filed by the signed-in contact's client, one page at a time. */
   clientHubTickets: SupportTicketPage;
+  /** Lists the links saved on a client (Admin > Clients), newest first. */
   clientLinks: Array<ClientLink>;
   /** A client's refund accounts, as the client entered them in the client hub. */
   clientPayoutAccounts: Array<PayoutAccount>;
@@ -16396,6 +16639,7 @@ export type Query = {
   clientProjectOptions: Array<ClientProjectOption>;
   /** Legal records of one kind that may be shared with a client (up to 200, latest first). */
   clientShareOptions: Array<ClientShareOption>;
+  /** Lists the Legal records shared with a client, including ones since deleted in Legal (status REMOVED). */
   clientSharedItems: Array<ClientSharedItem>;
   /** Admin > Clients > client: counts for each tab. */
   clientSummary: ClientSummary;
@@ -16408,26 +16652,39 @@ export type Query = {
   clutchRun: ClutchRun;
   /** Every Clutch search, newest first. */
   clutchRunsPaged: ClutchRunPage;
+  /** Lists a website's media library (images, PDFs and fonts), newest first, a page at a time. */
   cmsAssets: CmsAssetPage;
   /** The dynamic components an editor can drop into a page. */
   cmsComponents: Array<CmsComponentDef>;
+  /** Reads one design system with its tokens and extra CSS. */
   cmsDesignSystem: CmsDesignSystem;
+  /** Lists a website's design systems (colour, font, radius, shadow and spacing tokens) by name. */
   cmsDesignSystems: Array<CmsDesignSystem>;
+  /** Reads one fragment with its draft and published content. */
   cmsFragment: CmsFragment;
+  /** Lists a website's fragments (shared headers, footers and sections), without their content. */
   cmsFragments: Array<CmsFragment>;
   /** The Google Fonts catalogue, most used first; category is Sans Serif, Serif, Display, Handwriting or Monospace. */
   cmsGoogleFonts: CmsGoogleFontPage;
+  /** Reads one page with its settings, SEO, draft and published version. */
   cmsPage: CmsPage;
+  /** Lists a page's published versions, newest first (up to 100). */
   cmsPageRevisions: Array<CmsPageRevision>;
+  /** Lists a website's pages and templates by path, a page at a time, filtered by search, status or kind. */
   cmsPages: CmsPagePage;
   /** A link token that shows the page's draft on the website for two hours. */
   cmsPreviewToken: Scalars['String']['output'];
+  /** Reads one website with its domains, SEO defaults, header and footer. */
   cmsSite: CmsSite;
+  /** Reads one website by its key. */
   cmsSiteBySlug: CmsSite;
   /** Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech). */
   cmsSiteDns: CmsSiteDns;
+  /** Lists the company's websites, the default one first. */
   cmsSites: Array<CmsSite>;
+  /** Reads one cold email draft with every version and which were sent. */
   coldEmailDraft: ColdEmailDraft;
+  /** Lists the AI-written cold email drafts for CRM records, one page at a time. */
   coldEmailDrafts: ColdEmailDraftPage;
   /**
    * The company's finances between two dates. Both bounds are inclusive of the days they
@@ -16460,14 +16717,19 @@ export type Query = {
   crmEmailThreads: Array<CrmEmailThread>;
   /** Whether the company's CRM can email through Gmail (one of its accounts is enabled). */
   crmGmailReady: Scalars['Boolean']['output'];
+  /** Tells which CRM channels are ready to use: calling and SMS accounts, and connected Gmail or Microsoft mailboxes. */
   crmIntegrationStatus: CrmIntegrationStatus;
   /** One attachment of a message, up to 15 MB. */
   crmMailAttachment: CrmMailAttachmentFile;
+  /** Lists the company's CRM mailboxes and the unread conversation count in each folder. */
   crmMailOverview: CrmMailOverview;
   /** One conversation with every message, read from Gmail now. */
   crmMailThread: CrmMailThread;
+  /** Lists synced mail conversations in one folder of one or every readable mailbox, with search and filters, one page at a time. */
   crmMailThreads: CrmMailThreadPage;
+  /** Describes a CRM record type: every built-in and custom property with its type and filter operators, and the key that matches records on import. */
   crmObjectSchema: CrmObjectSchema;
+  /** Lists the custom properties the company added to a CRM record type, in display order. */
   crmProperties: Array<CrmProperty>;
   crmSmsConfigs: Array<CrmSmsConfig>;
   /** Every tag in use on companies or on contacts, sorted. */
@@ -16476,6 +16738,7 @@ export type Query = {
   crmTimeline: Array<CrmTimelineItem>;
   /** The full record behind one entry of that contact's or company's timeline (itemId is CrmTimelineItem.id). */
   crmTimelineDetail: CrmTimelineDetail;
+  /** Lists the saved list views for a CRM record type: your own and the shared ones. */
   crmViews: Array<CrmView>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
@@ -16483,6 +16746,7 @@ export type Query = {
   dnsDomains: Array<DnsDomain>;
   /** A domain's records on GoDaddy and Cloudflare side by side, and its nameservers. */
   dnsOverview: DnsOverview;
+  /** Reads one project doc page with its HTML body. */
   docPage: DocPage;
   /** One container in full, including a live CPU/memory sample (takes ~2s to measure). */
   dockerContainerDetail: DockerContainerDetail;
@@ -16490,10 +16754,13 @@ export type Query = {
   dockerContainers: Array<DockerContainer>;
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
+  /** TECH: email system overview: template counts, whether SMTP is set up, daily sent and failed counts, per-template use and recent failures. */
   emailDashboard: EmailDashboard;
   /** Public: a recipient's choices, by the token in their email. */
   emailPreferences: PublicEmailPreferences;
+  /** Lists the latest 50 CSV verification batches with their progress and counts of verified, risky, invalid and unknown addresses. */
   emailVerificationBatches: Array<EmailVerificationBatch>;
+  /** Lists the email addresses that were checked and their latest result, one page at a time. */
   emailVerificationsPaged: EmailVerificationPage;
   emailVerifierConfigs: Array<EmailVerifierConfig>;
   /** HR/ADMIN: an employee's tracked time over a range priced at their pay rate. ISO date-times. */
@@ -16639,13 +16906,19 @@ export type Query = {
   invoicePayments: Array<Payment>;
   /** The invoice as a PDF, base64 encoded. */
   invoicePdf: Scalars['String']['output'];
+  /** IT: what IT costs: monthly SaaS and cloud spend, annual run rate, hardware and procurement this year, by category and vendor. */
   itCostSummary: ItCostSummary;
+  /** IT: the IT dashboard counts: tickets, pending approvals, assets, renewals, incidents and vulnerabilities, with recent items. */
   itDashboard: ItDashboard;
+  /** IT: one employee as IT sees them: account state, assets, licence seats, current access, open requests and tickets. */
   itEmployeeProfile: ItEmployeeProfile;
+  /** IT: leavers whose exit is still open, with sign-in state, devices held, access and pending revokes. */
   itOffboarding: Array<ItOffboardingRow>;
+  /** IT: recent joiners whose onboarding checklist has IT items, with their access and missing applications. */
   itOnboarding: Array<ItOnboardingRow>;
   /** months: 1 to 24. */
   itReport: ItReport;
+  /** IT: reads the IT settings (applications, onboarding applications, ticket topics, warning windows). Created with defaults on first read. */
   itSettings: ItSettings;
   /** Cities, areas and postcodes matching what was typed in Where (2-100 characters). */
   leadLocationSuggestions: Array<LeadLocationSuggestion>;
@@ -16992,6 +17265,7 @@ export type Query = {
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
   listWebScrapesPaged: WebScrapePage;
+  /** ADMIN: lists the latest 100 delivery attempts of one webhook, newest first, with the receiver's response. */
   listWebhookDeliveries: Array<WebhookDelivery>;
   listWebhooks: Array<Webhook>;
   listWebsiteChatFaqs: Array<WebsiteChatFaq>;
@@ -17009,46 +17283,71 @@ export type Query = {
   localeBundle: LocaleBundle;
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
+  /** Lists meeting action items one page at a time, for one meeting or across the caller's (or the company's) meetings. */
   maActionItemsPaged: MaActionItemPage;
+  /** Counts action items by status, plus overdue and needing confirmation, for one meeting or across meetings. */
   maActionStats: MaActionStats;
   /** The models the platform's OpenAI key can use for a purpose, sorted (cached for 10 minutes). */
   maAvailableModels: Array<Scalars['String']['output']>;
   /** Meetings started in [from, to) that the scope covers, with the viewer's Meet events. At most 42 days. */
   maCalendar: MaCalendar;
+  /** Reads Meeting Assistant totals: meetings, duration, notes, action counts, transcription failures, AI cost and breakdowns by language and day. */
   maDashboard: MaDashboard;
+  /** Lists the decisions recorded in a meeting, oldest first. */
   maDecisions: Array<MaDecision>;
+  /** Lists the summary emails sent for a meeting, one per recipient and notes version, newest first (up to 200). */
   maEmailDeliveries: Array<MaEmailDelivery>;
+  /** Renders the summary email for a meeting without sending it: subject, HTML and recipients. */
   maEmailPreview: MaEmailPreview;
+  /** Lists Meeting Assistant activity events (sign-ins, consent, capture, imports, notes, emails, errors) one page at a time. */
   maEventsPaged: MaEventPage;
+  /** Reads what the Chrome extension needs about the caller: Meeting Assistant settings, name, email, company and whether Google Meet is connected. */
   maExtensionContext: MaExtensionContext;
+  /** Reads what carries over into this meeting from the previous one in its series: summary, decisions, open and overdue actions, blockers and topics. */
   maFollowUp: MaFollowUp;
+  /** Reads whether Google Meet is set up for the company and connected for the caller, with the connected email and last error. */
   maGoogleConnection: MaGoogleConnection;
   /** The newest release approved for the caller's company channel. */
   maLatestRelease?: Maybe<MaRelease>;
+  /** Reads one recorded meeting the caller may see, with its status, speakers and summary and email state. */
   maMeeting: MaMeeting;
+  /** Lists recorded meetings one page at a time. */
   maMeetingsPaged: MaMeetingPage;
+  /** Lists the caller's 50 newest Chrome extension sign-ins, marking the current one. */
   maMyExtensionSessions: Array<MaExtensionSession>;
+  /** Reads the AI-written notes of a meeting (summary, topics, blockers, next steps) with their version, or null if none yet. */
   maNotes?: Maybe<MaNotes>;
+  /** Lists the participants of one meeting. */
   maParticipants: Array<MaParticipant>;
+  /** Lists meeting participants across meetings, one page at a time. */
   maParticipantsPaged: MaParticipantPage;
+  /** Lists the saved recording streams of a meeting (TAB and MIC audio, SCREEN video) with their length and size. */
   maRecording: Array<MaRecordingTrack>;
   /** One saved audio chunk (TAB or MIC) as a base64 string of a 16 kHz mono 16-bit PCM WAV file. */
   maRecordingChunkBase64: Scalars['String']['output'];
+  /** Reads whether the caller manages extension releases and, if so, how many builds are uploaded and awaiting approval. */
   maReleaseOverview: MaReleaseOverview;
+  /** Reads the install-wide extension release settings: allowed upload repository, Slack channel and build retention. Release managers only. */
   maReleaseSettings: MaReleaseSettings;
   /** The Slack channels a release announcement can go to. */
   maReleaseSlackChannels: Array<SlackChannel>;
   /** Releases the caller may see: every one for release managers, approved ones otherwise. */
   maReleases: Array<MaRelease>;
+  /** Reads the company's Meeting Assistant settings (recording, retention, summaries, emails) and this month's AI spend. */
   maSettings: MaSettings;
   /** A slice of one meeting's transcript, in time order. limit is capped at 500. */
   maTranscript: Array<MaTranscriptSegment>;
+  /** Searches transcript lines across meetings, one page at a time, returning each hit with its meeting. */
   maTranscriptSearch: MaTranscriptHitPage;
+  /** Reads the marketing dashboard: campaign counts by state, last-30-day sends, clicks and unsubscribes, suppressions, audiences and upcoming sends. */
   marketingDashboard: MarketingDashboard;
+  /** Reads the footer added to every marketing email: company name, contact line, postal address, links and colours. */
   marketingFooter: MarketingFooter;
   /** Every recorded change to an address, newest first — kept after a removal too. */
   marketingSuppressionHistory: Array<AuditLog>;
+  /** Checks one address before suppressing it: its existing suppression row, if any, and the CRM records that hold it. */
   marketingSuppressionLookup: MarketingSuppressionLookup;
+  /** Reads the suppression list's headline counts: total, archived, unsubscribed, hard-bounced and added by hand. */
   marketingSuppressionSummary: MarketingSuppressionSummary;
   /** The newest calls to a server in this company, for its activity log; ALL covers every server the caller may use. */
   mcpActivity: Array<McpCall>;
@@ -17056,8 +17355,14 @@ export type Query = {
   mcpAuthorizationRequest: McpAuthorizationRequest;
   /** Live connections to a server in this company; ALL lists every connection the caller may see. */
   mcpConnections: Array<McpConnection>;
+  /** Failed calls to a server over the last days, 1 to 180, grouped by tool, code and message, most frequent first. */
+  mcpErrors: Array<McpErrorGroup>;
   /** Every MCP server the caller may use (its module's role), the global ALL server last. */
   mcpServers: Array<McpServer>;
+  /** ADMIN: the company's MCP settings. */
+  mcpSettings: McpSettings;
+  /** ADMIN: the Slack channels MCP alerts can go to. */
+  mcpSlackChannels: Array<SlackChannel>;
   /** Every tool of a server, with its arguments (the server's role). */
   mcpTools: Array<McpTool>;
   /** This company's calls to a server over the last days, 1 to 180; ALL covers every server the caller may use. */
@@ -17065,12 +17370,15 @@ export type Query = {
   me: User;
   /** The path of this company's booking page inside its CRM address: /book/<page>. */
   meetingBookingPagePath: Scalars['String']['output'];
+  /** Lists meetings people have booked, latest start first, one page at a time. */
   meetingBookings: MeetingBookingPage;
+  /** Reads the booking page settings: its address, the Slack channel bookings go to, and the Meet and Zoom links. */
   meetingSettings: MeetingSettings;
   /** Slack channels a booking can be posted to (needs Tech > Environment Variables > Slack). */
   meetingSlackChannels: Array<SlackChannel>;
   /** Booking page views and bookings over the last 1-365 days. */
   meetingTracking: MeetingTracking;
+  /** Lists the company's bookable meeting types with their public booking links. */
   meetingTypes: Array<MeetingType>;
   /** The Microsoft mailboxes connected to the CRM, newest first. */
   microsoftMailAccounts: Array<MicrosoftMailAccount>;
@@ -17086,13 +17394,17 @@ export type Query = {
   myApprovals: ApprovalQueue;
   /** Self-service: the signed-in user's own attendance records. */
   myAttendance: Array<Attendance>;
+  /** Lists the signed-in person's own benefits, grouped by kind. */
   myBenefits: Array<Benefit>;
   /** Everyone who reports to the signed-in user. */
   myDirectReports: Array<EmployeeOption>;
+  /** Lists the signed-in person's own documents, most recently issued first. */
   myDocuments: Array<EmployeeDocument>;
   /** The signed-in employee's own exit record, if one has been opened. */
   myExitRecord?: Maybe<ExitRecord>;
+  /** Lists the signed-in person's own expense claims, newest spend first. */
   myExpenseClaims: Array<ExpenseClaim>;
+  /** Lists the signed-in person's own goals, latest end date first. */
   myGoals: Array<Goal>;
   /** The holidays the signed-in employee observes: company-wide ones plus their country's, region's and city's. */
   myHolidays: Array<Holiday>;
@@ -17107,6 +17419,7 @@ export type Query = {
   myLegalAssignmentBody: Scalars['String']['output'];
   /** The contracts, policies and documents the signed-in person has been handed. */
   myLegalAssignments: Array<LegalAssignment>;
+  /** Tells whether Gmail and Microsoft mailboxes can be connected, that is whether the company has set up each provider's sign-in app. */
   myMailboxProviders: MyMailboxProviders;
   /** The caller's own mailboxes, the default one first. */
   myMailboxes: Array<MyMailbox>;
@@ -17116,6 +17429,7 @@ export type Query = {
   myMfaStatus: MfaStatus;
   /** Every kind, with this person's choice or the default where they have made none. */
   myNotificationPreferences: Array<NotificationPreference>;
+  /** Lists the signed-in person's own in-portal notifications, newest first. */
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
@@ -17125,12 +17439,15 @@ export type Query = {
   myPayroll?: Maybe<SalaryStructure>;
   /** The badge count for the same queue. */
   myPendingApprovalCount: Scalars['Int']['output'];
+  /** Lists the signed-in person's own performance reviews, newest first. */
   myPerformanceReviews: Array<PerformanceReview>;
   /** The signed-in caller's own matrix, one row per registered module. */
   myPermissions: Array<ModulePermission>;
   /** Published policies this person is meant to see, with their own signature state. */
   myPolicies: Array<MyPolicy>;
+  /** Reads one published policy this person is meant to see, by slug, with their own signature state. Null when none. */
   myPolicy?: Maybe<MyPolicy>;
+  /** Lists the signed-in person's own requests (work from home, regularization, documents, travel and so on), newest first. */
   myRequests: Array<EmployeeRequest>;
   /** Self-service: the signed-in employee's monthly payslips. */
   mySalarySlips: Array<SalarySlip>;
@@ -17140,8 +17457,11 @@ export type Query = {
   mySupportReplies: Array<SupportReply>;
   /** The signed-in employee's own support tickets. */
   mySupportTickets: Array<SupportTicket>;
+  /** Reads the caller's own tracker access grant, or null if they never had one. */
   myTrackerAccess?: Maybe<TrackerAccess>;
+  /** The caller's own tracked and approved off-computer time per local day over a range. */
   myTrackerCalendar: Array<TrackerDayBucket>;
+  /** The caller's own intervals, screenshots, sessions and app usage between two instants. */
   myTrackerDay: TrackerDay;
   /** The caller's own tracked time over a range priced at their pay rate. ISO date-times. */
   myTrackerEarnings: TrackerEarnings;
@@ -17165,9 +17485,13 @@ export type Query = {
   myTrackerMessages: Array<TrackerMessage>;
   /** The calling device's own employee, all-time. Device token, not a portal session. */
   myTrackerTotals: TrackerTotals;
+  /** Lists the trainings assigned to the signed-in person, soonest due first. */
   myTrainings: Array<Training>;
+  /** Counts the signed-in person's unread notifications. */
   myUnreadNotificationCount: Scalars['Int']['output'];
+  /** Lists one website's newsletter issues, newest first, a page at a time. */
   newsletterIssues: NewsletterIssuePage;
+  /** Lists the people signed up to one website's newsletter, newest first, a page at a time. */
   newsletterSubscribers: NewsletterSubscriberPage;
   /** Markdown describing every OPEN error (optionally from one source), ready to paste to Claude. */
   openAppLogsFixPrompt: Scalars['String']['output'];
@@ -17185,6 +17509,7 @@ export type Query = {
   payrollSchedule: PayrollSchedule;
   /** The statutory deduction policy. Created with its defaults on first read. */
   payrollSettings: PayrollSettings;
+  /** HR/FINANCE: totals of one month's salary slips: how many, how many paid, gross, deductions and net. */
   payrollSummary: PayrollSummary;
   /** Where a place from leadLocationSuggestions is, by its Place ID. */
   placeCoordinates: LatLng;
@@ -17194,6 +17519,7 @@ export type Query = {
   policyAcknowledgements: Array<PolicyAcknowledgement>;
   /** What an unsaved audience would reach, always resolved live. */
   previewAudience: AudienceResolution;
+  /** Renders unsaved campaign content as one recipient would get it, with MJML issues and missing variables. Sends nothing. */
   previewCampaignContent: CampaignPreviewResult;
   /** Renders a stored template with the values given, through the very code that sends it. */
   previewEmailTemplate: EmailPreview;
@@ -17205,6 +17531,7 @@ export type Query = {
   probationsEnding: Array<User>;
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
   problemReportStatus: ProblemReportStatus;
+  /** Reads a project's board: its columns in order and every ticket in board order. */
   projectBoard: ProjectBoard;
   /** A project's board columns, without its tickets. */
   projectColumns: Array<BoardColumn>;
@@ -17214,8 +17541,11 @@ export type Query = {
   projectHealth: ProjectHealth;
   /** Every project's health, worst first — a portfolio is read to find the one in trouble. */
   projectHealthOverview: Array<ProjectHealth>;
+  /** Lists a project's milestones by due date. */
   projectMilestones: Array<Milestone>;
+  /** Lists the read-only client links made for a project, live or not. */
   projectShares: Array<ProjectShare>;
+  /** Lists a project's sprints by start date. */
   projectSprints: Array<Sprint>;
   /** Every ticket in a project, newest first — the list view behind the board. */
   projectTasks: Array<Task>;
@@ -17234,43 +17564,65 @@ export type Query = {
    * to the project without a ticket.
    */
   projectTimeLogSessions: Array<ProjectTimeLogSession>;
+  /** Reads one workflow with its nodes and edges. */
   projectWorkflow: ProjectWorkflow;
   /** Every workflow, most recently changed first. Nodes and edges are empty in this list. */
   projectWorkflows: Array<ProjectWorkflow>;
   /** The provider's real bill over the last days (1 to 180); null with no active billing key. */
   providerBilling?: Maybe<ProviderBilling>;
+  /** Public: reads one active, already published blog post by its address; null when there is none. */
   publicBlogPost?: Maybe<BlogPost>;
+  /** Public: lists a site's active blog posts whose publish date has passed, newest first. */
   publicBlogPosts: Array<BlogPost>;
   /** Public: a company's booking page (/organization/<org>/book/<page>). */
   publicBookingPage: PublicBookingPage;
+  /** Reads the branding shown before sign-in (website, tools, tracker login). Public, no sign-in needed. */
   publicBranding: Branding;
+  /** Public: lists a site's active case studies whose publish date has passed, newest first. */
   publicCaseStudies: Array<CaseStudy>;
+  /** Public: reads one active, already published case study by its address; null when there is none. */
   publicCaseStudy?: Maybe<CaseStudy>;
   /** The page at a path, else the template it fits; a draft with a valid preview token. Null for 404. */
   publicCmsPage?: Maybe<CmsPublicPage>;
+  /** Public: lists the paths of a site's published pages that search engines may index, with when each changed, for the sitemap. */
   publicCmsPaths: Array<CmsPublicPath>;
   /** The site served at a host (the default site for an unknown one). */
   publicCmsSite: CmsPublicSite;
+  /** Public: reads one gig by its code; null when there is none. */
   publicGig?: Maybe<Gig>;
+  /** Public: lists a site's gigs, newest first. */
   publicGigs: Array<Gig>;
+  /** Public: reads one active job opening by its code; null when there is none. */
   publicJob?: Maybe<Job>;
+  /** Public: lists a site's active hiring companies in their display order. */
   publicJobCompanies: Array<JobCompany>;
+  /** Public: reads one active hiring company by its address; null when there is none. */
   publicJobCompany?: Maybe<JobCompany>;
+  /** Public: lists a site's active job openings, newest first. */
   publicJobs: Array<Job>;
   /** Public: the meeting behind a booking link (/organization/<org>/book/<page>/<slug>). */
   publicMeeting: PublicMeeting;
   /** Public: the free starts between two times (at most 62 days apart). */
   publicMeetingSlots: Array<Scalars['DateTime']['output']>;
+  /** Public: lists a site's active navigation links in their display order. */
   publicNavLinks: Array<NavLink>;
+  /** Public: reads one active newsletter issue by its address; null when there is none. */
   publicNewsletterIssue?: Maybe<NewsletterIssue>;
+  /** Public: lists a site's active newsletter issues, newest first, without their bodies. */
   publicNewsletterIssues: Array<NewsletterIssue>;
+  /** Lists the published PUBLIC policies shown on the website, by title. No sign-in needed. */
   publicPolicies: Array<PublicPolicy>;
+  /** Reads one published PUBLIC policy by slug for the website. No sign-in needed. Null when none. */
   publicPolicy?: Maybe<PublicPolicy>;
   /** Public. Null when the token is unknown or the ticket is private again. */
   publicTask?: Maybe<PublicTaskView>;
+  /** Public: reads one active website tool by its code; null when there is none. */
   publicTool?: Maybe<Tool>;
+  /** Public: lists the active website tool categories in their display order. */
   publicToolCategories: Array<ToolCategory>;
+  /** Public: lists the active website tools in their display order. */
   publicTools: Array<Tool>;
+  /** FINANCE: the receivables ageing report: what is still owed on open invoices and how late, in 30-day bands. */
   receivables: Receivables;
   /**
    * One payslip as a PDF. An employee may download their own; HR and Finance may
@@ -17282,7 +17634,9 @@ export type Query = {
    * at most a handful from each — this answers "take me to that record", not "report on it".
    */
   search: Array<SearchGroup>;
+  /** Searches CRM companies with text, filters, sorts and an optional map circle, one page at a time. Archived ones only when asked. */
   searchCompanies: CompanyPage;
+  /** Searches CRM contacts with text, filters, sorts and an optional map circle, one page at a time. Archived ones only when asked. */
   searchContacts: ContactPage;
   /**
    * Any signed-in user: published articles matching a phrase, best match first.
@@ -17293,6 +17647,7 @@ export type Query = {
   searchKnowledgeBase: Array<KbArticle>;
   /** One page (up to 20) of Google Places Text Search results. */
   searchLeadPlaces: LeadSearchPage;
+  /** Searches leads with text, filters and sorts, one page at a time. Archived leads only when asked. */
   searchLeads: LeadPage;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
@@ -17318,6 +17673,7 @@ export type Query = {
   socialFeed: SocialFeedPage;
   /** Posts, newest first, optionally for one account or in one state. MARKETING. */
   socialMediaPosts: Array<SocialMediaPost>;
+  /** Lists each social network's posting rules: whether it can publish, its character limit, image needs and whether posts can be deleted. */
   socialNetworkRules: Array<SocialNetworkRule>;
   /** One post, for its own page. */
   socialPost: SocialPost;
@@ -17347,11 +17703,13 @@ export type Query = {
   tableExport: TableFile;
   /** The sample file to fill in for an import into this list. */
   tableImportTemplate: TableFile;
+  /** Reads what a paged list supports: the fields it can filter and sort on, and whether and how it takes imports. */
   tableInfo: TableInfo;
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
   /** One ticket by its key, e.g. EXY-14. Null when no ticket has that key. */
   taskByKey?: Maybe<Task>;
+  /** Lists a ticket's comments, oldest first. */
   taskComments: Array<TaskComment>;
   /** The regimes on file, one per key, for anyone who sets salaries (HR and Finance). */
   taxRegimeChoices: Array<TaxRegimeChoice>;
@@ -17364,6 +17722,7 @@ export type Query = {
   /** Manager: pending and recently decided requests from direct reports. */
   teamRequests: Array<EmployeeRequest>;
   techConfigItems: Array<TechConfigItem>;
+  /** Lists the Tech > Email templates that can be used as a starting point for a campaign template. */
   techEmailTemplateOptions: Array<TechEmailTemplateOption>;
   /** One saved account password in full. Logged; needs the vault open. */
   techProviderLoginPassword: Scalars['String']['output'];
@@ -17375,6 +17734,7 @@ export type Query = {
   techVaultSessionsPaged: TechVaultSessionPage;
   /** The caller's open Environment Variables session; null while locked. */
   techVaultStatus?: Maybe<TechVaultSession>;
+  /** Lists every employee who has been given or lost tracker access, newest first (TRACKER role). */
   trackerAccessList: Array<TrackerAccess>;
   /**
    * Billing for tracked time over a range. Active time only — idle minutes are time at a
@@ -17388,9 +17748,13 @@ export type Query = {
   trackerBillingByProject: Array<ProjectBillingRow>;
   /** Every published tracker build, newest first. */
   trackerBuildReleases: Array<TrackerBuildRelease>;
+  /** Platform TECH: reads the Slack channels tracker builds and status alerts are posted to. */
   trackerBuildSettings: TrackerBuildSettings;
+  /** One employee's tracked active and idle time, input counts, sessions and approved off-computer time per local day over a range (TRACKER role). */
   trackerCalendar: Array<TrackerDayBucket>;
+  /** One employee's intervals, screenshots, sessions and app usage between two instants (TRACKER role). */
   trackerDay: TrackerDay;
+  /** Lists tracker devices, most recently seen first (TRACKER role). */
   trackerDevices: Array<TrackerDevice>;
   /** One employee's contracted hours per day over a range of at most 62 days. */
   trackerExpected: TrackerExpected;
@@ -17407,6 +17771,7 @@ export type Query = {
   trackerLatestRelease?: Maybe<TrackerRelease>;
   /** One employee's off-computer entries in a range, any status (TRACKER role). */
   trackerManualEntries: Array<TrackerManualEntry>;
+  /** Desktop or phone app (device token): the signed-in employee, consent state, tracker settings and effective timezone and language. */
   trackerMe: TrackerMe;
   /** One employee's conversation, oldest message first (TRACKER role). */
   trackerMessageThread: Array<TrackerMessage>;
@@ -17423,6 +17788,7 @@ export type Query = {
    * time form. Any signed-in employee may read it — it is a list of project names.
    */
   trackerProjectOptions: Array<TrackerProject>;
+  /** Reads the workspace tracker settings: interval, screenshots, blur, window titles and idle rules (TRACKER role). */
   trackerSettings: TrackerSettings;
   /**
    * Tickets the CALLER may book time against on a project, their own assigned ones first.
@@ -17431,9 +17797,11 @@ export type Query = {
   trackerTaskOptions: Array<TrackerTask>;
   /** Every IANA zone the server resolves, sorted - the phone zone picker has no runtime list. */
   trackerTimezones: Array<Scalars['String']['output']>;
+  /** One employee's all-time tracked active, idle and off-computer time, screenshots and sessions (TRACKER role). */
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
+  /** Estimates the tokens and cost of sending a scraped page and an instruction to the AI, without calling it. */
   webScrapeAiEstimate: WebScrapeAiEstimate;
   /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
   webhookEvents: Array<Scalars['String']['output']>;
@@ -17443,19 +17811,24 @@ export type Query = {
   websiteChatAgentCandidates: Array<WebsiteChatAgent>;
   /** Both threads of one chat, oldest first. */
   websiteChatMessages: Array<WebsiteChatMessage>;
+  /** Reads one website chat with its visitor, status, assignee and support ticket. */
   websiteChatSession: WebsiteChatSession;
   /** Website > Chatbot > Sessions: totals by status and site. */
   websiteChatSessionStats: TableStats;
   /** Website > Chatbot > Sessions (website staff). */
   websiteChatSessionsPaged: WebsiteChatSessionPage;
+  /** Reads the website chatbot's settings: messages, opening hours, AI model, uploads, timeouts and who chats are handed to. */
   websiteChatSettings: WebsiteChatSettings;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
   whatsappChannel: WhatsappChannelSettings;
+  /** Tells whether AI parsing is set up for the demo chat, and which model it uses. */
   whatsappDemoAiStatus: WhatsappAiStatus;
   /** Every active demo of one channel (whatsapp when left out) with its published workflows, for the chat. */
   whatsappDemoCatalog: Array<WhatsappDemoBundle>;
+  /** Counts the distinct sessions that reached each step of one workflow in a date range, in the order they were first reached. */
   whatsappDemoFunnel: Array<WhatsappFunnelStep>;
+  /** Reads one chat session of the demo with its recorded events, oldest first; null when not found. */
   whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
   /** One channel's sessions (whatsapp when left out). */
   whatsappDemoSessions: WhatsappDemoSessionPage;
@@ -17469,7 +17842,9 @@ export type Query = {
   whatsappDemoVisitorsPaged: WhatsappDemoVisitorPage;
   /** One channel's demos (whatsapp when left out). */
   whatsappDemos: Array<WhatsappDemo>;
+  /** Reads one demo workflow with its draft and published graphs; null when it does not exist. */
   whatsappWorkflow?: Maybe<WhatsappWorkflow>;
+  /** Lists the demo workflows, with their draft and published graphs, for Tech staff and admins. */
   whatsappWorkflows: Array<WhatsappWorkflow>;
   /** The workspace's working week. Readable by any signed-in person. */
   workWeek: WorkWeek;
@@ -19065,6 +19440,8 @@ export type QueryMcpActivityArgs = {
   days: Scalars['Int']['input'];
   endpoint: McpEndpoint;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  ok?: InputMaybe<Scalars['Boolean']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -19074,6 +19451,12 @@ export type QueryMcpAuthorizationRequestArgs = {
 
 
 export type QueryMcpConnectionsArgs = {
+  endpoint: McpEndpoint;
+};
+
+
+export type QueryMcpErrorsArgs = {
+  days: Scalars['Int']['input'];
   endpoint: McpEndpoint;
 };
 
@@ -24868,10 +25251,16 @@ export type ResolversTypes = ResolversObject<{
   MarketingSuppressionsResult: ResolverTypeWrapper<MarketingSuppressionsResult>;
   McpAuthorizationRequest: ResolverTypeWrapper<McpAuthorizationRequest>;
   McpCall: ResolverTypeWrapper<McpCall>;
+  McpClientUsage: ResolverTypeWrapper<McpClientUsage>;
   McpConnection: ResolverTypeWrapper<McpConnection>;
   McpEndpoint: McpEndpoint;
+  McpErrorCodeCount: ResolverTypeWrapper<McpErrorCodeCount>;
+  McpErrorGroup: ResolverTypeWrapper<McpErrorGroup>;
+  McpModuleUsage: ResolverTypeWrapper<McpModuleUsage>;
   McpPersonUsage: ResolverTypeWrapper<McpPersonUsage>;
   McpServer: ResolverTypeWrapper<McpServer>;
+  McpSettings: ResolverTypeWrapper<McpSettings>;
+  McpSettingsInput: McpSettingsInput;
   McpTool: ResolverTypeWrapper<McpTool>;
   McpToolArgument: ResolverTypeWrapper<McpToolArgument>;
   McpToolKind: McpToolKind;
@@ -26024,9 +26413,15 @@ export type ResolversParentTypes = ResolversObject<{
   MarketingSuppressionsResult: MarketingSuppressionsResult;
   McpAuthorizationRequest: McpAuthorizationRequest;
   McpCall: McpCall;
+  McpClientUsage: McpClientUsage;
   McpConnection: McpConnection;
+  McpErrorCodeCount: McpErrorCodeCount;
+  McpErrorGroup: McpErrorGroup;
+  McpModuleUsage: McpModuleUsage;
   McpPersonUsage: McpPersonUsage;
   McpServer: McpServer;
+  McpSettings: McpSettings;
+  McpSettingsInput: McpSettingsInput;
   McpTool: McpTool;
   McpToolArgument: McpToolArgument;
   McpToolUsage: McpToolUsage;
@@ -31288,16 +31683,28 @@ export type McpAuthorizationRequestResolvers<ContextType = GraphQLContext, Paren
 }>;
 
 export type McpCallResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpCall'] = ResolversParentTypes['McpCall']> = ResolversObject<{
+  answerChars?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  argNames?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   durationMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  endpoint?: Resolver<Maybe<ResolversTypes['McpEndpoint']>, ParentType, ContextType>;
   error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  errorCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['McpToolKind'], ParentType, ContextType>;
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   tool?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  traceId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  truncated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type McpClientUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpClientUsage'] = ResolversParentTypes['McpClientUsage']> = ResolversObject<{
+  calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -31307,7 +31714,33 @@ export type McpConnectionResolvers<ContextType = GraphQLContext, ParentType exte
   endpoint?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUsedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  readOnly?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type McpErrorCodeCountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpErrorCodeCount'] = ResolversParentTypes['McpErrorCodeCount']> = ResolversObject<{
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type McpErrorGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpErrorGroup'] = ResolversParentTypes['McpErrorGroup']> = ResolversObject<{
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  errorCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  lastAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  lastTraceId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  people?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
+  tool?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type McpModuleUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpModuleUsage'] = ResolversParentTypes['McpModuleUsage']> = ResolversObject<{
+  calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -31329,9 +31762,26 @@ export type McpServerResolvers<ContextType = GraphQLContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type McpSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpSettings'] = ResolversParentTypes['McpSettings']> = ResolversObject<{
+  alertErrorRatePercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  alertMinCalls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  alertP95Ms?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  alertSlackChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  alertsEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  callsPerHourPerConnection?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  callsPerHourPerPerson?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dailyDigest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  disabledTools?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  lastAlertAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  readOnlyServers?: Resolver<Array<ResolversTypes['McpEndpoint']>, ParentType, ContextType>;
+  writesPerHourPerPerson?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type McpToolResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpTool'] = ResolversParentTypes['McpTool']> = ResolversObject<{
   arguments?: Resolver<Array<ResolversTypes['McpToolArgument']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['McpToolKind'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   server?: Resolver<ResolversTypes['McpEndpoint'], ParentType, ContextType>;
@@ -31350,17 +31800,25 @@ export type McpToolUsageResolvers<ContextType = GraphQLContext, ParentType exten
   averageMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   failures?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  p95Ms?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   tool?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type McpUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpUsage'] = ResolversParentTypes['McpUsage']> = ResolversObject<{
   calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  clients?: Resolver<Array<ResolversTypes['McpClientUsage']>, ParentType, ContextType>;
   days?: Resolver<Array<ResolversTypes['McpUsageDay']>, ParentType, ContextType>;
+  errorCodes?: Resolver<Array<ResolversTypes['McpErrorCodeCount']>, ParentType, ContextType>;
   failures?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  p50Ms?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  p95Ms?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   people?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  servers?: Resolver<Array<ResolversTypes['McpModuleUsage']>, ParentType, ContextType>;
   tools?: Resolver<Array<ResolversTypes['McpToolUsage']>, ParentType, ContextType>;
   users?: Resolver<Array<ResolversTypes['McpPersonUsage']>, ParentType, ContextType>;
+  writes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -32242,6 +32700,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
   updateManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationUpdateManagementReviewArgs, 'id' | 'input'>>;
   updateMarketingSuppressionNote?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationUpdateMarketingSuppressionNoteArgs, 'id' | 'note'>>;
+  updateMcpSettings?: Resolver<ResolversTypes['McpSettings'], ParentType, ContextType, RequireFields<MutationUpdateMcpSettingsArgs, 'input'>>;
   updateMeetingType?: Resolver<ResolversTypes['MeetingType'], ParentType, ContextType, RequireFields<MutationUpdateMeetingTypeArgs, 'id' | 'input'>>;
   updateMilestone?: Resolver<ResolversTypes['Milestone'], ParentType, ContextType, RequireFields<MutationUpdateMilestoneArgs, 'id' | 'input'>>;
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
@@ -33881,7 +34340,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   mcpActivity?: Resolver<Array<ResolversTypes['McpCall']>, ParentType, ContextType, RequireFields<QueryMcpActivityArgs, 'days' | 'endpoint'>>;
   mcpAuthorizationRequest?: Resolver<ResolversTypes['McpAuthorizationRequest'], ParentType, ContextType, RequireFields<QueryMcpAuthorizationRequestArgs, 'id'>>;
   mcpConnections?: Resolver<Array<ResolversTypes['McpConnection']>, ParentType, ContextType, RequireFields<QueryMcpConnectionsArgs, 'endpoint'>>;
+  mcpErrors?: Resolver<Array<ResolversTypes['McpErrorGroup']>, ParentType, ContextType, RequireFields<QueryMcpErrorsArgs, 'days' | 'endpoint'>>;
   mcpServers?: Resolver<Array<ResolversTypes['McpServer']>, ParentType, ContextType>;
+  mcpSettings?: Resolver<ResolversTypes['McpSettings'], ParentType, ContextType>;
+  mcpSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
   mcpTools?: Resolver<Array<ResolversTypes['McpTool']>, ParentType, ContextType, RequireFields<QueryMcpToolsArgs, 'endpoint'>>;
   mcpUsage?: Resolver<ResolversTypes['McpUsage'], ParentType, ContextType, RequireFields<QueryMcpUsageArgs, 'days' | 'endpoint'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -36794,9 +37256,14 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MarketingSuppressionsResult?: MarketingSuppressionsResultResolvers<ContextType>;
   McpAuthorizationRequest?: McpAuthorizationRequestResolvers<ContextType>;
   McpCall?: McpCallResolvers<ContextType>;
+  McpClientUsage?: McpClientUsageResolvers<ContextType>;
   McpConnection?: McpConnectionResolvers<ContextType>;
+  McpErrorCodeCount?: McpErrorCodeCountResolvers<ContextType>;
+  McpErrorGroup?: McpErrorGroupResolvers<ContextType>;
+  McpModuleUsage?: McpModuleUsageResolvers<ContextType>;
   McpPersonUsage?: McpPersonUsageResolvers<ContextType>;
   McpServer?: McpServerResolvers<ContextType>;
+  McpSettings?: McpSettingsResolvers<ContextType>;
   McpTool?: McpToolResolvers<ContextType>;
   McpToolArgument?: McpToolArgumentResolvers<ContextType>;
   McpToolUsage?: McpToolUsageResolvers<ContextType>;

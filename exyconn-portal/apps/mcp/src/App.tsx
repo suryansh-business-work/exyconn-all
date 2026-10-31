@@ -6,6 +6,7 @@ import { Login } from '@exyconn/login';
 import { McpDashboardPage } from './pages/dashboard';
 import { McpConnectPage } from './pages/connect';
 import { McpServerPage } from './pages/server';
+import { McpSettingsPage } from './pages/settings';
 
 /**
  * MCP micro-frontend: Claude's connectors to Exyconn — one server per module and a global one
@@ -17,6 +18,7 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.EMPLOYEE} homePath="/mcp">
       <Route path="/mcp" element={<McpDashboardPage />} />
       <Route path="/mcp/connect" element={<McpConnectPage />} />
+      <Route path="/mcp/settings" element={<McpSettingsPage />} />
       <Route path="/mcp/crm/:tab?" element={<McpServerPage endpoint={McpEndpoint.Crm} />} />
       <Route
         path="/mcp/marketing/:tab?"

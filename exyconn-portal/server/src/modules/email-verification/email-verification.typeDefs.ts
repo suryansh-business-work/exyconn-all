@@ -101,7 +101,9 @@ export const emailVerificationTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists the email addresses that were checked and their latest result, one page at a time."
     emailVerificationsPaged(input: TableQueryInput!): EmailVerificationPage!
+    "Lists the latest 50 CSV verification batches with their progress and counts of verified, risky, invalid and unknown addresses."
     emailVerificationBatches: [EmailVerificationBatch!]!
     emailVerifierConfigs: [EmailVerifierConfig!]!
   }

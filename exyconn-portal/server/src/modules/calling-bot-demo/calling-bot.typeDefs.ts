@@ -223,6 +223,7 @@ export const callingBotTypeDefs = gql`
     callingBotConfigs: [CallingBotConfig!]!
     "The most recent calls, newest first."
     callingBotRecentCalls(limit: Int): [CallingBotCall!]!
+    "Tells whether the calling bot is set up right now, whether it can ring phones, and its language and call length limit."
     callingBotAvailability: CallingBotAvailability!
     "One of the caller's own calls, to follow it as it happens."
     callingBotCall(id: ID!): CallingBotCall!
@@ -242,6 +243,7 @@ export const callingBotTypeDefs = gql`
     testCallingBotKey(input: CallingBotKeyTestInput!): String!
     "Checks the OpenAI key and model, and the Sarvam key, language and voice."
     testCallingBotConfig(id: ID!): Boolean!
+    "Starts a call with the demo bot: returns a socket address for a browser call, or rings the given phone number. Rate limited; confirm the number with the person before a phone call."
     startCallingBotCall(input: StartCallingBotCallInput!): CallingBotCallStart!
     createCallingBotScenario(input: CallingBotScenarioInput!): CallingBotScenario!
     updateCallingBotScenario(id: ID!, input: CallingBotScenarioInput!): CallingBotScenario!

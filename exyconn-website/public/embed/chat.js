@@ -181,10 +181,18 @@
     document.body.appendChild(frame);
   }
 
-  // Never compete with the page's own first paint.
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(start, { timeout: 4000 });
-  } else {
-    window.setTimeout(start, 2000);
+  // The chat app is the heaviest thing on the page; load it once the visitor first moves,
+  // scrolls, taps or types, so it never competes with the page's own first paint.
+  var INTERACTIONS = ["pointermove", "pointerdown", "keydown", "scroll", "touchstart"];
+
+  function onFirstInteraction() {
+    INTERACTIONS.forEach(function (type) {
+      window.removeEventListener(type, onFirstInteraction);
+    });
+    start();
   }
+
+  INTERACTIONS.forEach(function (type) {
+    window.addEventListener(type, onFirstInteraction, { passive: true });
+  });
 })();

@@ -4,7 +4,7 @@ import type { SeoImage } from "@exyconn/seo";
 export const SHARE_IMAGE_WIDTH = 1200;
 export const SHARE_IMAGE_HEIGHT = 630;
 
-const IMAGEKIT_HOST = "ik.imagekit.io";
+export const IMAGEKIT_HOST = "ik.imagekit.io";
 
 const MIME_BY_EXTENSION = new Map([
   ["jpg", "image/jpeg"],

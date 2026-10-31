@@ -58,8 +58,15 @@ export const gigTypeDefs = gql`
     listGigsPaged(input: TableQueryInput!): GigPage!
     listGigsStats: TableStats!
     getGig(id: ID!): Gig!
-    publicGigs(site: String): [Gig!]!
-    publicGig(gigCode: String!, site: String): Gig
+    "Public: lists a site's gigs, newest first."
+    publicGigs("The site's key; the default site when left out." site: String): [Gig!]!
+    "Public: reads one gig by its code; null when there is none."
+    publicGig(
+      "The gig's public code."
+      gigCode: String!
+      "The site's key; the default site when left out."
+      site: String
+    ): Gig
   }
 
   extend type Mutation {

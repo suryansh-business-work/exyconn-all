@@ -310,19 +310,37 @@ export const cmsTypeDefs = gql`
     cmsSiteDns(siteId: ID!): CmsSiteDns!
     "The Google Fonts catalogue, most used first; category is Sans Serif, Serif, Display, Handwriting or Monospace."
     cmsGoogleFonts(search: String, category: String, limit: Int): CmsGoogleFontPage!
+    "Lists the company's websites, the default one first."
     cmsSites: [CmsSite!]!
+    "Reads one website with its domains, SEO defaults, header and footer."
     cmsSite(id: ID!): CmsSite!
-    cmsSiteBySlug(slug: String!): CmsSite!
+    "Reads one website by its key."
+    cmsSiteBySlug("The website's key, as used in its URLs." slug: String!): CmsSite!
+    "Lists a website's design systems (colour, font, radius, shadow and spacing tokens) by name."
     cmsDesignSystems(siteId: ID!): [CmsDesignSystem!]!
+    "Reads one design system with its tokens and extra CSS."
     cmsDesignSystem(id: ID!): CmsDesignSystem!
+    "Lists a website's pages and templates by path, a page at a time, filtered by search, status or kind."
     cmsPages(siteId: ID!, input: CmsPageListInput!): CmsPagePage!
+    "Reads one page with its settings, SEO, draft and published version."
     cmsPage(id: ID!): CmsPage!
+    "Lists a page's published versions, newest first (up to 100)."
     cmsPageRevisions(pageId: ID!): [CmsPageRevision!]!
     "A link token that shows the page's draft on the website for two hours."
     cmsPreviewToken(pageId: ID!): String!
+    "Lists a website's fragments (shared headers, footers and sections), without their content."
     cmsFragments(siteId: ID!): [CmsFragment!]!
+    "Reads one fragment with its draft and published content."
     cmsFragment(id: ID!): CmsFragment!
-    cmsAssets(siteId: ID!, page: Int!, pageSize: Int!, search: String): CmsAssetPage!
+    "Lists a website's media library (images, PDFs and fonts), newest first, a page at a time."
+    cmsAssets(
+      siteId: ID!
+      "Zero-based page."
+      page: Int!
+      pageSize: Int!
+      "Matches the file name or alt text."
+      search: String
+    ): CmsAssetPage!
     "The dynamic components an editor can drop into a page."
     cmsComponents: [CmsComponentDef!]!
   }
@@ -332,27 +350,41 @@ export const cmsTypeDefs = gql`
     setCmsSiteARecord(siteId: ID!, domain: String!, ip: String!, ttl: Int!): CmsDomainDns!
     createCmsSite(input: CmsSiteInput!): CmsSite!
     updateCmsSite(id: ID!, input: CmsSiteInput!): CmsSite!
+    "Makes this the default website, served for unknown hosts; the previous default stops being one."
     setDefaultCmsSite(id: ID!): CmsSite!
     deleteCmsSite(id: ID!): Boolean!
     createCmsDesignSystem(input: CmsDesignSystemInput!): CmsDesignSystem!
     updateCmsDesignSystem(id: ID!, input: CmsDesignSystemInput!): CmsDesignSystem!
     deleteCmsDesignSystem(id: ID!): Boolean!
     createCmsPage(siteId: ID!, input: CmsPageSettingsInput!): CmsPage!
+    "Changes a page's path, title, kind, layout and SEO. The path must be free on the site."
     updateCmsPageSettings(id: ID!, input: CmsPageSettingsInput!): CmsPage!
+    "Saves the page's editor content as its draft; the live page does not change until it is published."
     saveCmsPageDraft(id: ID!, draft: CmsDraftInput!): CmsPage!
+    "Puts the page's draft live on the website and keeps it as a new revision. Confirm with the person first."
     publishCmsPage(id: ID!): CmsPage!
+    "Takes the page off the website; the draft is kept. Confirm with the person first."
     unpublishCmsPage(id: ID!): CmsPage!
-    duplicateCmsPage(id: ID!, path: String!): CmsPage!
+    "Copies a page's settings and draft to a new unpublished page at another path."
+    duplicateCmsPage(
+      id: ID!
+      "The new page's path; must be free on the site."
+      path: String!
+    ): CmsPage!
     deleteCmsPage(id: ID!): Boolean!
     "Copies a published version back into the draft (publish it to put it live)."
     restoreCmsPageRevision(revisionId: ID!): CmsPage!
     createCmsFragment(siteId: ID!, input: CmsFragmentInput!): CmsFragment!
     updateCmsFragment(id: ID!, input: CmsFragmentInput!): CmsFragment!
+    "Saves the fragment's editor content as its draft; the live version does not change until it is published."
     saveCmsFragmentDraft(id: ID!, draft: CmsDraftInput!): CmsFragment!
+    "Puts the fragment's draft live on every page that uses it. Confirm with the person first."
     publishCmsFragment(id: ID!): CmsFragment!
     deleteCmsFragment(id: ID!): Boolean!
+    "Uploads an image, PDF or web font to ImageKit and adds it to the website's media library."
     uploadCmsAsset(input: CmsAssetUploadInput!): CmsAsset!
-    updateCmsAssetAlt(id: ID!, alt: String!): CmsAsset!
+    "Changes the alt text of a media library file."
+    updateCmsAssetAlt(id: ID!, "The new alt text, up to 300 characters." alt: String!): CmsAsset!
     deleteCmsAsset(id: ID!): Boolean!
   }
 `;

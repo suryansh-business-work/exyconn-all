@@ -94,9 +94,15 @@ export const toolTypeDefs = gql`
     listToolsPaged(input: TableQueryInput!): ToolPage!
     listToolsStats: TableStats!
     getTool(id: ID!): Tool!
+    "Public: lists the active website tool categories in their display order."
     publicToolCategories: [ToolCategory!]!
-    publicTools(categorySlug: String): [Tool!]!
-    publicTool(toolCode: String!): Tool
+    "Public: lists the active website tools in their display order."
+    publicTools(
+      "Only tools in this category; every category when left out."
+      categorySlug: String
+    ): [Tool!]!
+    "Public: reads one active website tool by its code; null when there is none."
+    publicTool("The tool's public code." toolCode: String!): Tool
   }
 
   extend type Mutation {

@@ -140,17 +140,22 @@ export const clientRecordsTypeDefs = gql`
   extend type Query {
     "Admin > Clients > client: counts for each tab."
     clientSummary(clientId: ID!): ClientSummary!
+    "Lists the links saved on a client (Admin > Clients), newest first."
     clientLinks(clientId: ID!): [ClientLink!]!
     "Every client's communication log; filter on clientId for one client."
     listClientCommunicationsPaged(input: TableQueryInput!): ClientCommunicationPage!
+    "Lists the Legal records shared with a client, including ones since deleted in Legal (status REMOVED)."
     clientSharedItems(clientId: ID!): [ClientSharedItem!]!
     "Legal records of one kind that may be shared with a client (up to 200, latest first)."
     clientShareOptions(kind: ClientSharedKind!): [ClientShareOption!]!
+    "Lists the addresses emailClient may send to: the client's own address, then each active client hub contact."
     clientEmailRecipients(clientId: ID!): [ClientEmailRecipient!]!
 
     "The signed-in client hub contact's own client's links."
     clientHubLinks: [ClientLink!]!
+    "Lists the signed-in contact's client communication log, one page at a time."
     clientHubCommunications(input: TableQueryInput!): ClientCommunicationPage!
+    "Lists the Legal records shared with the signed-in contact's client. Records deleted in Legal are left out."
     clientHubSharedItems: [ClientSharedItem!]!
     "A shared record's text as sanitised HTML."
     clientHubSharedContent(id: ID!): String!
@@ -165,6 +170,7 @@ export const clientRecordsTypeDefs = gql`
     deleteClientCommunication(id: ID!): Boolean!
     "Shares a Legal record with the client; sharing it again only updates the note."
     shareWithClient(clientId: ID!, input: ClientShareInput!): ClientSharedItem!
+    "Stops sharing a Legal record with a client, removing it from their client hub. The Legal record itself is kept."
     unshareWithClient(id: ID!): Boolean!
     "Emails the client and files it in their communication log. Returns how many were sent."
     emailClient(clientId: ID!, input: EmailClientInput!): Int!

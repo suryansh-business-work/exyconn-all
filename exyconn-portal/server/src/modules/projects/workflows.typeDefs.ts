@@ -68,6 +68,7 @@ export const workflowsTypeDefs = gql`
   extend type Query {
     "Every workflow, most recently changed first. Nodes and edges are empty in this list."
     projectWorkflows: [ProjectWorkflow!]!
+    "Reads one workflow with its nodes and edges."
     projectWorkflow(id: ID!): ProjectWorkflow!
   }
 
@@ -75,7 +76,12 @@ export const workflowsTypeDefs = gql`
     "A new workflow opens with a Start joined to an End."
     createProjectWorkflow(input: ProjectWorkflowInput!): ProjectWorkflow!
     updateProjectWorkflow(id: ID!, input: ProjectWorkflowInput!): ProjectWorkflow!
-    saveProjectWorkflowGraph(id: ID!, graph: WorkflowGraphInput!): ProjectWorkflow!
+    "Replaces a workflow's nodes and edges after checking the graph is valid."
+    saveProjectWorkflowGraph(
+      id: ID!
+      "The whole graph: every node and edge."
+      graph: WorkflowGraphInput!
+    ): ProjectWorkflow!
     deleteProjectWorkflow(id: ID!): Boolean!
   }
 `;

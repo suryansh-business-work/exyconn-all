@@ -48,6 +48,8 @@ const mcpAuthCodeSchema = new Schema({
   redirectUri: { type: String, required: true },
   codeChallenge: { type: String, required: true },
   scopes: { type: [String], default: [] },
+  /** The person allowed reading only: the connection is never offered a change. */
+  readOnly: { type: Boolean, default: false },
   usedAt: { type: Date, default: null },
   expiresAt: { type: Date, required: true, expires: REQUEST_TTL_SECONDS },
 });
@@ -67,6 +69,8 @@ const mcpTokenSchema = new Schema(
     accessHash: { type: String, required: true, unique: true },
     refreshHash: { type: String, required: true, unique: true },
     scopes: { type: [String], default: [] },
+    /** Allowed for reading only (chosen on the consent page); carried over on every refresh. */
+    readOnly: { type: Boolean, default: false },
     accessExpiresAt: { type: Date, required: true },
     refreshExpiresAt: { type: Date, required: true },
     lastUsedAt: { type: Date, default: null },
@@ -86,15 +90,31 @@ const mcpCallSchema = new Schema({
   userId: { type: String, required: true },
   userName: { type: String, default: '' },
   clientName: { type: String, default: '' },
+  /** The client (one Claude connector registration); with the person, one connection. */
+  clientId: { type: String, default: '' },
   tool: { type: String, required: true },
   kind: { type: String, enum: ['QUERY', 'MUTATION'], required: true },
   ok: { type: Boolean, required: true },
   error: { type: String, default: '' },
+  /** The failure's kind: the GraphQL error code (FORBIDDEN, BAD_USER_INPUT…), or INTERNAL. */
+  errorCode: { type: String, default: '' },
   durationMs: { type: Number, default: 0 },
+  /** Handed back to Claude with the answer, so one call can be found from what the person saw. */
+  traceId: { type: String, default: '' },
+  /** The endpoint the call came through: the module's own, or `all`. */
+  endpoint: { type: String, enum: [...MCP_ENDPOINTS, ''], default: '' },
+  /** The arguments given, by name only: their values can carry personal data. */
+  argNames: { type: [String], default: [] },
+  /** How long the answer handed to Claude was, in characters, and whether it was cut. */
+  answerChars: { type: Number, default: 0 },
+  truncated: { type: Boolean, default: false },
   at: { type: Date, required: true, default: Date.now, expires: CALL_TTL_SECONDS },
 });
 mcpCallSchema.index({ server: 1, at: -1 });
 mcpCallSchema.index({ at: -1 });
+mcpCallSchema.index({ traceId: 1 });
+// Rate limits count a person's (and a connection's) calls in the last hour.
+mcpCallSchema.index({ userId: 1, at: -1 });
 
 export type McpClientDocument = InferSchemaType<typeof mcpClientSchema>;
 export type McpAuthRequestDocument = InferSchemaType<typeof mcpAuthRequestSchema>;

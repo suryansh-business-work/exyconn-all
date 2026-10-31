@@ -142,6 +142,7 @@ export const logsTypeDefs = gql`
     session when there is one. Rate-limited per user, else per IP.
     """
     reportClientLogs(input: AppLogBatchInput!): Boolean!
+    "Platform TECH: marks one app log group open, resolved or ignored."
     setAppLogGroupStatus(id: ID!, status: AppLogStatus!): AppLogGroup!
     "Deletes the group and every stored occurrence of it."
     deleteAppLogGroup(id: ID!): Boolean!

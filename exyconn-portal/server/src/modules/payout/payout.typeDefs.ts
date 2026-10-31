@@ -103,6 +103,7 @@ export const payoutTypeDefs = gql`
     deleteEmployeePayoutAccount(employeeId: ID!, id: ID!): Boolean!
     "Adds (no id) or replaces one of the signed-in client's refund accounts."
     clientHubSavePayoutAccount(id: ID, input: PayoutAccountInput!): PayoutAccount!
+    "Removes one of the signed-in client contact's refund accounts. Audited. Confirm with the person first."
     clientHubDeletePayoutAccount(id: ID!): Boolean!
   }
 `;

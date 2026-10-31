@@ -7,27 +7,40 @@
  */
 import type { HTMLAttributes } from "astro/types";
 import { BRANDING_FALLBACK, type Branding } from "../lib/portal";
+import { sizedImage } from "../lib/chrome/sized-image";
 
 type Props = Readonly<
-  Omit<HTMLAttributes<"img">, "src"> & {
+  Omit<HTMLAttributes<"img">, "src" | "height"> & {
     branding: Branding;
     alt: string;
+    /** The drawn height in CSS pixels; the image is fetched at twice it. */
+    height: number;
   }
 >;
 
-const { branding, class: className, ...imgProps } = Astro.props;
+const { branding, class: className, height, ...imgProps } = Astro.props;
 
-const lightSrc = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
-const darkSrc = branding.logoDarkUrl || lightSrc;
+const lightSrc = sizedImage(branding.logoUrl || BRANDING_FALLBACK.logoUrl, height);
+const darkSrc = branding.logoDarkUrl ? sizedImage(branding.logoDarkUrl, height) : lightSrc;
 ---
 
 {
   darkSrc === lightSrc ? (
-    <img class:list={[className, "dark:brightness-0 dark:invert"]} src={lightSrc} {...imgProps} />
+    <img
+      class:list={[className, "dark:brightness-0 dark:invert"]}
+      src={lightSrc}
+      height={height}
+      {...imgProps}
+    />
   ) : (
     <>
-      <img class:list={[className, "dark:hidden"]} src={lightSrc} {...imgProps} />
-      <img class:list={[className, "hidden dark:inline"]} src={darkSrc} {...imgProps} />
+      <img class:list={[className, "dark:hidden"]} src={lightSrc} height={height} {...imgProps} />
+      <img
+        class:list={[className, "hidden dark:inline"]}
+        src={darkSrc}
+        height={height}
+        {...imgProps}
+      />
     </>
   )
 }

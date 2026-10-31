@@ -49,6 +49,7 @@ export const myMailboxesTypeDefs = gql`
   extend type Query {
     "The caller's own mailboxes, the default one first."
     myMailboxes: [MyMailbox!]!
+    "Tells whether Gmail and Microsoft mailboxes can be connected, that is whether the company has set up each provider's sign-in app."
     myMailboxProviders: MyMailboxProviders!
   }
 

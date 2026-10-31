@@ -58,9 +58,20 @@ export const cmsPublicTypeDefs = gql`
     publicCmsSite(host: String!): CmsPublicSite!
     "The page at a path, else the template it fits; a draft with a valid preview token. Null for 404."
     publicCmsPage(siteId: ID!, path: String!, previewToken: String): CmsPublicPage
+    "Public: lists the paths of a site's published pages that search engines may index, with when each changed, for the sitemap."
     publicCmsPaths(siteId: ID!): [CmsPublicPath!]!
-    publicNewsletterIssues(site: String): [NewsletterIssue!]!
-    publicNewsletterIssue(slug: String!, site: String): NewsletterIssue
+    "Public: lists a site's active newsletter issues, newest first, without their bodies."
+    publicNewsletterIssues(
+      "The site's key; the default site when left out."
+      site: String
+    ): [NewsletterIssue!]!
+    "Public: reads one active newsletter issue by its address; null when there is none."
+    publicNewsletterIssue(
+      "The issue's URL slug."
+      slug: String!
+      "The site's key; the default site when left out."
+      site: String
+    ): NewsletterIssue
   }
 
   extend type Mutation {

@@ -135,12 +135,14 @@ export const socialPostsTypeDefs = gql`
     socialCalendar(from: DateTime!, to: DateTime!, accountIds: [ID!]): [SocialMediaPost!]!
     "What the posts did over the last days (1-365). MARKETING."
     socialAnalytics(days: Int = 30): SocialAnalytics!
+    "Lists each social network's posting rules: whether it can publish, its character limit, image needs and whether posts can be deleted."
     socialNetworkRules: [SocialNetworkRule!]!
   }
 
   extend type Mutation {
     "Reads one account's posts and numbers from the network now. MARKETING."
     syncSocialAccount(id: ID!): SocialSyncResult!
+    "Reads the latest posts and numbers from every connected social account, one at a time, and returns each account's result."
     syncAllSocialAccounts: [SocialSyncResult!]!
     "One post per account: published now, scheduled, or kept as a draft. MARKETING."
     composeSocialMediaPost(input: SocialMediaPostInput!): [SocialMediaPost!]!

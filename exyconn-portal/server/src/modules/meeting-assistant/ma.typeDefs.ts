@@ -283,12 +283,30 @@ export const maMeetingTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists the saved recording streams of a meeting (TAB and MIC audio, SCREEN video) with their length and size."
     maRecording(meetingId: ID!): [MaRecordingTrack!]!
     "One saved audio chunk (TAB or MIC) as a base64 string of a 16 kHz mono 16-bit PCM WAV file."
     maRecordingChunkBase64(meetingId: ID!, stream: String!, seq: Int!): String!
-    maEventsPaged(input: TableQueryInput!, scope: MaScope, meetingId: ID): MaEventPage!
-    maDashboard(filter: MaDashboardFilter): MaDashboard!
-    maMeetingsPaged(input: TableQueryInput!, scope: MaScope): MaMeetingPage!
+    "Lists Meeting Assistant activity events (sign-ins, consent, capture, imports, notes, emails, errors) one page at a time."
+    maEventsPaged(
+      input: TableQueryInput!
+      "MINE (default) for meetings the caller can see; ALL for the whole company, which needs company view permission."
+      scope: MaScope
+      "Limits the result to one meeting; scope is then ignored."
+      meetingId: ID
+    ): MaEventPage!
+    "Reads Meeting Assistant totals: meetings, duration, notes, action counts, transcription failures, AI cost and breakdowns by language and day."
+    maDashboard(
+      "Optional date range, owner, participant, status, language and scope."
+      filter: MaDashboardFilter
+    ): MaDashboard!
+    "Lists recorded meetings one page at a time."
+    maMeetingsPaged(
+      input: TableQueryInput!
+      "MINE (default) for meetings the caller can see; ALL for the whole company, which needs company view permission."
+      scope: MaScope
+    ): MaMeetingPage!
+    "Reads one recorded meeting the caller may see, with its status, speakers and summary and email state."
     maMeeting(id: ID!): MaMeeting!
     "A slice of one meeting's transcript, in time order. limit is capped at 500."
     maTranscript(
@@ -297,22 +315,41 @@ export const maMeetingTypeDefs = gql`
       afterMs: Int
       limit: Int
     ): [MaTranscriptSegment!]!
-    maTranscriptSearch(input: TableQueryInput!, scope: MaScope): MaTranscriptHitPage!
+    "Searches transcript lines across meetings, one page at a time, returning each hit with its meeting."
+    maTranscriptSearch(
+      input: TableQueryInput!
+      "MINE (default) for meetings the caller can see; ALL for the whole company, which needs company view permission."
+      scope: MaScope
+    ): MaTranscriptHitPage!
+    "Lists the participants of one meeting."
     maParticipants(meetingId: ID!): [MaParticipant!]!
-    maParticipantsPaged(input: TableQueryInput!, scope: MaScope): MaParticipantPage!
+    "Lists meeting participants across meetings, one page at a time."
+    maParticipantsPaged(
+      input: TableQueryInput!
+      "MINE (default) for meetings the caller can see; ALL for the whole company, which needs company view permission."
+      scope: MaScope
+    ): MaParticipantPage!
   }
 
   extend type Mutation {
+    "Renames a meeting and sets its language."
     maUpdateMeeting(id: ID!, input: MaUpdateMeetingInput!): MaMeeting!
     "Deletes the meeting and everything recorded for it: transcript, notes, actions, emails."
     maDeleteMeeting(id: ID!): Boolean!
+    "Confirms who a transcript speaker label is; linking a portal user also lets them see the meeting."
     maConfirmSpeaker(meetingId: ID!, input: MaSpeakerInput!): MaMeeting!
     "Opens (or finds again, after a reload or reconnect) the caller's session for a call."
     maStartSession(input: MaStartSessionInput!): MaMeeting!
     "The owner confirms participants were told the call is being transcribed."
     maRecordConsent(meetingId: ID!): MaMeeting!
+    "Called by the Chrome extension during a live call it owns to report transcription and capture state and participant count."
     maHeartbeat(meetingId: ID!, input: MaHeartbeatInput!): MaMeeting!
-    maRecordParticipantEvents(meetingId: ID!, events: [MaParticipantEventInput!]!): Int!
+    "Called by the Chrome extension to record people joining and leaving a call it owns; returns how many events were applied."
+    maRecordParticipantEvents(
+      meetingId: ID!
+      "Join and leave events seen in the Meet UI."
+      events: [MaParticipantEventInput!]!
+    ): Int!
     "Ends the call and queues the after-meeting pipeline (import, notes, email). Idempotent."
     maFinalizeSession(meetingId: ID!, endedAt: DateTime!): MaMeeting!
     "A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes."

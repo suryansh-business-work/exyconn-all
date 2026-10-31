@@ -1695,6 +1695,14 @@ export const MODULES: ModuleDefinition[] = [
         icon: PublicIcon,
         group: 'MCP servers',
       },
+      // Rate limits, switched-off tools, read-only servers and alerts for the whole company.
+      {
+        key: 'mcp-settings',
+        label: 'Settings',
+        path: '/mcp/settings',
+        icon: SettingsIcon,
+        role: ROLES.ADMIN,
+      },
     ],
   },
   {

@@ -134,10 +134,12 @@ export const dnsTypeDefs = gql`
     createGodaddyConfig(input: GodaddyConfigInput!): GodaddyConfig!
     updateGodaddyConfig(id: ID!, input: GodaddyConfigInput!): GodaddyConfig!
     deleteGodaddyConfig(id: ID!): Boolean!
+    "Platform TECH: checks that a saved GoDaddy API credential works by calling GoDaddy. Changes nothing."
     testGodaddyConnection(id: ID!): Boolean!
     createCloudflareConfig(input: CloudflareConfigInput!): CloudflareConfig!
     updateCloudflareConfig(id: ID!, input: CloudflareConfigInput!): CloudflareConfig!
     deleteCloudflareConfig(id: ID!): Boolean!
+    "Platform TECH: checks that a saved Cloudflare API token works by calling Cloudflare. Changes nothing."
     testCloudflareConnection(id: ID!): Boolean!
     "Copies every GoDaddy record Cloudflare lacks into the domain's zone, creating the zone first."
     migrateDnsToCloudflare(domain: String!): DnsMigrationResult!

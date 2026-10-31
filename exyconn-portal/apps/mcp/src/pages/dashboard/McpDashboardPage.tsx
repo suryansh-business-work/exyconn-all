@@ -12,13 +12,14 @@ import {
   useMcpUsageQuery,
 } from '@exyconn/shell/graphql/generated';
 import { McpServerCards } from './McpServerCards';
+import { successRate } from '../server/McpUsageInsights';
 
 /** The window the dashboard's numbers cover, in days. */
 const DAYS = 30;
 
 /** Calls over the window across every server the person may use: per day and by tool. */
 function UsageCharts() {
-  const { formatNumber } = useFormatters();
+  const { formatNumber, formatPercent } = useFormatters();
   const { data, error } = useMcpUsageQuery({
     variables: { endpoint: McpEndpoint.All, days: DAYS },
     fetchPolicy: 'cache-and-network',
@@ -36,7 +37,9 @@ function UsageCharts() {
       <StatRow
         stats={[
           { label: 'Calls (30 days)', value: count(usage.calls), accent: color.blue[400] },
+          { label: 'Success rate', value: formatPercent(successRate(usage)) },
           { label: 'Failed', value: count(usage.failures), accent: color.red[400] },
+          { label: 'Slowest 5% over', value: `${count(Math.round(usage.p95Ms))} ms` },
           { label: 'People', value: count(usage.people) },
         ]}
       />

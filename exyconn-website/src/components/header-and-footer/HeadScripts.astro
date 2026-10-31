@@ -2,7 +2,8 @@
 /**
  * The scripts every page runs in <head>: light/dark and the accessibility preferences applied
  * before first paint (so a night visitor never sees a white flash and a larger text size never
- * jumps in late), then Google Analytics (one tag: G-6FLH9QJ5FS) and Google Tag Manager.
+ * jumps in late), then Google Tag Manager. Analytics (G-6FLH9QJ5FS) is a tag inside the GTM
+ * container: loading gtag.js here as well fetched it twice and counted every page view twice.
  */
 import { DARK_MEDIA_QUERY, THEME_ATTRIBUTE, THEME_STORAGE_KEY, THEMES } from "../../lib/theme";
 import { A11Y_STORAGE_KEY, A11Y_TOGGLE_IDS } from "../../lib/chrome/preferences";
@@ -37,17 +38,6 @@ import { A11Y_STORAGE_KEY, A11Y_TOGGLE_IDS } from "../../lib/chrome/preferences"
     root.style.fontSize = a11y.fontSize + "%";
   }
 </script>
-<!-- Google tag (gtag.js) -->
-<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6FLH9QJ5FS"></script>
-<script is:inline>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    dataLayer.push(arguments);
-  }
-  gtag("js", new Date());
-  gtag("config", "G-6FLH9QJ5FS");
-</script>
-
 <!-- Google Tag Manager -->
 <script is:inline>
   (function (w, d, s, l, i) {

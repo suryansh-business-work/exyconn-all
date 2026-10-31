@@ -290,20 +290,33 @@ export const campaignStudioTypeDefs = gql`
   }
 
   extend type Query {
+    "Lists what the campaign editor offers: verified sender addresses, personalisation variables and active preference categories."
     campaignStudioOptions: CampaignStudioOptions!
+    "Renders unsaved campaign content as one recipient would get it, with MJML issues and missing variables. Sends nothing."
     previewCampaignContent(input: CampaignPreviewInput!): CampaignPreviewResult!
-    campaignQualityChecks(id: ID!, audienceListId: ID): CampaignQualityReport!
+    "Runs the pre-send checks on a campaign draft and, with an audience, counts who can receive it. Tells whether it can be sent."
+    campaignQualityChecks(
+      id: ID!
+      "Audience to count against the campaign's category; skipped when empty."
+      audienceListId: ID
+    ): CampaignQualityReport!
     "Contacts and companies matching a search, to preview the email as one of them."
     previewRecordOptions(search: String!): [PreviewRecordOption!]!
+    "Lists a campaign's saved revisions, newest first."
     campaignRevisions(campaignId: ID!): [CampaignRevision!]!
+    "Reads what a campaign's latest send did: queued, sent, failed, skipped and unsubscribed counts and its send state."
     campaignDeliveryStats(campaignId: ID!): CampaignDeliveryStats!
+    "Reads the marketing dashboard: campaign counts by state, last-30-day sends, clicks and unsubscribes, suppressions, audiences and upcoming sends."
     marketingDashboard: MarketingDashboard!
     listCampaignTemplates: [CampaignTemplate!]!
+    "Lists the saved versions of a campaign template, newest first."
     campaignTemplateVersions(templateId: ID!): [CampaignTemplateVersion!]!
+    "Lists the Tech > Email templates that can be used as a starting point for a campaign template."
     techEmailTemplateOptions: [TechEmailTemplateOption!]!
     listPreferenceCategories: [PreferenceCategory!]!
     listPreferenceCategoriesPaged(input: TableQueryInput!): PreferenceCategoryPage!
     getPreferenceCategory(id: ID!): PreferenceCategory!
+    "Reads the footer added to every marketing email: company name, contact line, postal address, links and colours."
     marketingFooter: MarketingFooter!
     "Public: a recipient's choices, by the token in their email."
     emailPreferences(token: String!): PublicEmailPreferences!
@@ -325,13 +338,26 @@ export const campaignStudioTypeDefs = gql`
       recordKind: PreviewRecordKind
       recordId: String
     ): Boolean!
-    saveCampaignTemplate(id: ID, input: CampaignTemplateInput!): CampaignTemplate!
+    "Creates a campaign template, or saves a new version of an existing one."
+    saveCampaignTemplate(
+      "The template to update; leave empty to create one."
+      id: ID
+      input: CampaignTemplateInput!
+    ): CampaignTemplate!
+    "Copies a campaign template into a new one with a free copy name."
     duplicateCampaignTemplate(id: ID!): CampaignTemplate!
-    restoreCampaignTemplateVersion(templateId: ID!, version: Int!): CampaignTemplate!
+    "Restores an earlier version of a campaign template by saving it as the newest version."
+    restoreCampaignTemplateVersion(
+      "The campaign template."
+      templateId: ID!
+      "The saved version number to restore."
+      version: Int!
+    ): CampaignTemplate!
     deleteCampaignTemplate(id: ID!): Boolean!
     createPreferenceCategory(input: PreferenceCategoryInput!): PreferenceCategory!
     updatePreferenceCategory(id: ID!, input: PreferenceCategoryInput!): PreferenceCategory!
     deletePreferenceCategory(id: ID!): Boolean!
+    "Saves the footer added to every marketing email from now on."
     saveMarketingFooter(input: MarketingFooterInput!): MarketingFooter!
     "Public: saves a recipient's choices. Unsubscribing from all goes on the suppression list."
     updateEmailPreferences(

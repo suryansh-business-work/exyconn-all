@@ -67,10 +67,12 @@ export const walletGatewayTypeDefs = gql`
     createPaypalConfig(input: PaypalConfigInput!): PaypalConfig!
     updatePaypalConfig(id: ID!, input: PaypalConfigInput!): PaypalConfig!
     deletePaypalConfig(id: ID!): Boolean!
+    "Checks a saved PayPal account by requesting an access token with its stored credentials. True on success; fails with PayPal's message otherwise."
     testPaypalConnection(id: ID!): Boolean!
     createPayoneerConfig(input: PayoneerConfigInput!): PayoneerConfig!
     updatePayoneerConfig(id: ID!, input: PayoneerConfigInput!): PayoneerConfig!
     deletePayoneerConfig(id: ID!): Boolean!
+    "Checks a saved Payoneer account by calling Payoneer with its stored token. True on success; fails with Payoneer's message otherwise."
     testPayoneerConnection(id: ID!): Boolean!
   }
 `;
