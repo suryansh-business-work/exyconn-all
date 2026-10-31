@@ -1,4 +1,5 @@
 import { SupportTicketModel } from '../../../../src/modules/employee/support.model';
+import { logger } from '../../../../src/utils/logger';
 import { ClientModel } from '../../../../src/modules/clients/clients.model';
 import {
   assertValid,
@@ -108,6 +109,18 @@ describe('createClientSupportTicket', () => {
     const reference = await createClientSupportTicket(input(), 'AGENT');
 
     expect((await SupportTicketModel.findOne({ reference }).lean())?.channel).toBe('AGENT');
+  });
+
+  it('logs the reference and channel, never the requester address', async () => {
+    const info = jest.spyOn(logger, 'info').mockImplementation(() => logger);
+    const ticket = input();
+
+    const reference = await createClientSupportTicket(ticket, 'AGENT');
+
+    expect(info).toHaveBeenCalledWith(`Support ticket ${reference} filed (AGENT)`);
+    const logged = info.mock.calls.map((call) => JSON.stringify(call)).join('\n');
+    expect(logged).not.toContain(ticket.requesterEmail);
+    info.mockRestore();
   });
 });
 

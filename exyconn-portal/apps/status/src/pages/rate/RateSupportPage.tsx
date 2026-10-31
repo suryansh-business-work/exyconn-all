@@ -5,6 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Box, Card, Flex, Typography, fontWeight, iconSize } from '@exyconn/shell/components/ui';
 import { FormSkeleton, SkeletonStatus } from '@exyconn/shell/components/feedback/skeletons';
 import { useSupportCsatSurveyQuery } from '@exyconn/shell/graphql/generated';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { LinkExpiredCard } from '../../components/LinkExpiredCard';
 import { RateSupportForm } from './forms/rate-support';
 
@@ -74,7 +75,10 @@ export function RateSupportPage() {
           token={token}
           onRated={() => {
             setRated(true);
-            refetch().catch(() => undefined);
+            // The thanks shows either way; a failed refresh is only worth a log line.
+            refetch().catch((error: unknown) =>
+              portalLogger.error('Status: refreshing the rated survey failed', error),
+            );
           }}
           onCancel={() => navigate('/')}
         />

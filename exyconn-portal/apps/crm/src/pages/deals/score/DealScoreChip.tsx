@@ -32,6 +32,9 @@ export function DealScoreChip({ deal }: Readonly<{ deal: Scored }>) {
         size="small"
         color={scoreColor(deal.score)}
         label={t('{score}/100', { score: deal.score })}
+        // A plain chip is a div, which may not carry a name; as an image it may, and focus
+        // still opens the reasons for keyboard users.
+        role="img"
         aria-label={t('Deal score {score} out of 100', { score: deal.score })}
         tabIndex={0}
       />

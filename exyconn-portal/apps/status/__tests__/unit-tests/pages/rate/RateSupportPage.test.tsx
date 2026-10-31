@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { MockLink } from '@apollo/client/testing';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { RateSupportPage } from '../../../../src/pages/rate';
 import { renderWithProviders } from '../../test-utils';
 import { currentUrl } from '../../form-helpers';
@@ -30,15 +31,22 @@ describe('RateSupportPage', () => {
     expect(await screen.findByText('Thank you for your feedback')).toBeInTheDocument();
   });
 
-  it('keeps thanking the customer when the survey cannot be read back afterwards', async () => {
+  it('keeps thanking the customer, and logs it, when the survey cannot be read back', async () => {
+    const logError = vi.spyOn(portalLogger, 'error').mockImplementation(() => undefined);
     renderPage([surveyLookup(survey()), rated(3, '')]);
     await userEvent.click(await screen.findByRole('radio', { name: '3 — Neutral' }));
 
     await userEvent.click(screen.getByRole('button', { name: 'Send rating' }));
 
     expect(await screen.findByText('Thank you for your feedback')).toBeInTheDocument();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() =>
+      expect(logError).toHaveBeenCalledWith(
+        'Status: refreshing the rated survey failed',
+        expect.any(Error),
+      ),
+    );
     expect(screen.getByText('Thank you for your feedback')).toBeInTheDocument();
+    logError.mockRestore();
   });
 
   it('shows an earlier answer instead of asking again', async () => {

@@ -106,17 +106,29 @@ export async function scoreDeal(id: string, now = new Date()) {
 }
 
 /**
- * Rescores every open deal of the company in scope, one after another so a big pipeline does
- * not fan out hundreds of queries at once. Returns how many were scored.
+ * Scores the deals one after another, so a big pipeline does not fan out hundreds of queries
+ * at once. A deal that fails (deleted mid-pass, say) is logged and skipped: the rest of the
+ * company's deals still get their new score. Returns how many were scored.
  */
+async function scoreEach(deals: LeanDeal[], now: Date): Promise<number> {
+  let scored = 0;
+  for (const deal of deals) {
+    try {
+      await persistScore(deal, now);
+      scored += 1;
+    } catch (error) {
+      logger.error({ err: error }, `Deal ${String(deal._id)} could not be rescored`);
+    }
+  }
+  return scored;
+}
+
+/** Rescores every open deal of the company in scope. Returns how many were scored. */
 export async function scoreOpenDeals(now = new Date()): Promise<number> {
   const deals = await DealModel.find({ stage: { $nin: [...CLOSED_DEAL_STAGES] } }).lean<
     LeanDeal[]
   >();
-  for (const deal of deals) {
-    await persistScore(deal, now);
-  }
-  return deals.length;
+  return scoreEach(deals, now);
 }
 
 /** Rescores the open deals of these contacts, after something new was logged on them. */
@@ -125,10 +137,7 @@ export async function scoreDealsOfContacts(contactIds: string[]): Promise<void> 
     contactId: { $in: contactIds },
     stage: { $nin: [...CLOSED_DEAL_STAGES] },
   }).lean<LeanDeal[]>();
-  const now = new Date();
-  for (const deal of deals) {
-    await persistScore(deal, now);
-  }
+  await scoreEach(deals, new Date());
 }
 
 /**

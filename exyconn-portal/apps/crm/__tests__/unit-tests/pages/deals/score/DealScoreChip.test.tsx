@@ -28,7 +28,7 @@ describe('DealScoreChip', () => {
   it('shows the score out of 100, can be focused, and lists its reasons on hover', async () => {
     renderWithProviders(<DealScoreChip deal={{ score: 40, scoreReasons: reasons }} />);
 
-    const chip = screen.getByLabelText('Deal score 40 out of 100');
+    const chip = screen.getByRole('img', { name: 'Deal score 40 out of 100' });
     expect(chip).toHaveTextContent('40/100');
     await userEvent.tab();
     expect(chip).toHaveFocus();

@@ -200,6 +200,25 @@ describe('scoreOpenDeals and scoreDealsOfContacts', () => {
     expect(scores.find((d) => String(d._id) === theirDeal)?.score).toBeNull();
   });
 
+  it('logs a deal that fails mid-pass and still scores the rest', async () => {
+    const first = await deal({ contactId: 'c1' });
+    const second = await deal({ contactId: 'c1' });
+    const error = jest.spyOn(logger, 'error').mockImplementation(() => logger);
+    // Whichever deal the pass reaches first has been deleted by the time it is saved.
+    jest.spyOn(DealModel, 'findByIdAndUpdate').mockReturnValueOnce({
+      lean: () => Promise.resolve(null),
+    } as never);
+
+    await expect(scoreOpenDeals(NOW)).resolves.toBe(1);
+
+    const scores = await DealModel.find({ _id: { $in: [first, second] } })
+      .select('score')
+      .lean();
+    expect(scores.filter((d) => d.score != null)).toHaveLength(1);
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(error.mock.calls[0][1]).toMatch(/^Deal [\da-f]{24} could not be rescored$/);
+  });
+
   it("rescores the open deals of the given contacts and nobody else's", async () => {
     const theirs = await deal({ contactId: 'c1' });
     const closed = await deal({ contactId: 'c1', stage: 'LOST' });

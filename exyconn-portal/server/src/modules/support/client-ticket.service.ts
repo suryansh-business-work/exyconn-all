@@ -148,7 +148,8 @@ export async function fileClientTicket(
     attachments,
     dueAt: await dueAtForPriority(input.priority, createdAt),
   });
-  logger.info(`Support ticket ${ticket.reference} raised by ${input.requesterEmail} (${channel})`);
+  // The reference and channel find the ticket; the requester's address stays out of the logs.
+  logger.info(`Support ticket ${ticket.reference} filed (${channel})`);
   announceTicketFiled(ticket);
   return ticket;
 }
