@@ -25,6 +25,8 @@ describe('quickFilters', () => {
     ['customers', equals('requesterType', 'CLIENT')],
     ['employees', equals('requesterType', 'EMPLOYEE')],
     ['emailed', equals('channel', 'EMAIL')],
+    ['chats', equals('channel', 'CHAT')],
+    ['whatsapp', equals('channel', 'WHATSAPP')],
   ])('turns %s into one server-side condition', (filter, expected) => {
     expect(quickFilters(filter, 'agent-7')).toEqual(expected);
   });
@@ -40,11 +42,14 @@ describe('TicketQuickFilter', () => {
     renderWithProviders(<TicketQuickFilter value="all" onChange={onChange} />);
 
     const group = screen.getByRole('group', { name: 'Quick filter' });
-    expect(group.querySelectorAll('button')).toHaveLength(8);
+    expect(group.querySelectorAll('button')).toHaveLength(10);
     expect(screen.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
 
     await userEvent.click(screen.getByRole('button', { name: 'Emailed in' }));
     expect(onChange).toHaveBeenCalledWith('emailed');
+
+    await userEvent.click(screen.getByRole('button', { name: 'WhatsApp' }));
+    expect(onChange).toHaveBeenCalledWith('whatsapp');
   });
 
   it('ignores a click on the view already chosen, so one is always selected', async () => {

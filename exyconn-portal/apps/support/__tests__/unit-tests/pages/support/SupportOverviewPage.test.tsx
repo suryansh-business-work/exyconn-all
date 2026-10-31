@@ -33,6 +33,7 @@ const state = vi.hoisted(() => ({
   props: null as null | OverviewProps,
   stats: vi.fn(),
   open: vi.fn(),
+  sla: vi.fn(),
   refetch: vi.fn(),
 }));
 
@@ -50,6 +51,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useListSupportTicketsStatsQuery: state.stats,
   useListSupportTicketsPagedQuery: state.open,
+  useSupportSlaSummaryQuery: state.sla,
 }));
 
 type TicketRow = ListSupportTicketsPagedQuery['listSupportTicketsPaged']['rows'][number];
@@ -77,6 +79,7 @@ describe('SupportOverviewPage', () => {
   beforeEach(() => {
     state.props = null;
     state.refetch.mockReset().mockResolvedValue({ data: {} });
+    state.sla.mockReset().mockReturnValue({ data: undefined });
     answerStats(undefined, true);
     answerOpen(undefined, true);
   });
@@ -99,8 +102,15 @@ describe('SupportOverviewPage', () => {
   it('shows placeholders and a loading table until the first answer', () => {
     renderWithProviders(<SupportOverviewPage />);
     expect(props().statsLoading).toBe(true);
-    expect(tiles()).toEqual({ Tickets: '0', Open: '0', 'High priority': '0', Resolved: '0' });
-    expect(props().breakdowns.map((breakdown) => breakdown.buckets)).toEqual([[], []]);
+    // CSAT shows a dash, not a zero, until somebody has answered a survey.
+    expect(tiles()).toEqual({
+      Tickets: '0',
+      Open: '0',
+      'High priority': '0',
+      Resolved: '0',
+      CSAT: '—',
+    });
+    expect(props().breakdowns.map((breakdown) => breakdown.buckets)).toEqual([[], [], []]);
     expect(screen.queryByText('No open tickets.')).not.toBeInTheDocument();
   });
 
@@ -110,10 +120,25 @@ describe('SupportOverviewPage', () => {
         status: { OPEN: 5, IN_PROGRESS: 3, RESOLVED: 12 },
         priority: { HIGH: 4 },
         category: { IT: 9, HR: 11 },
+        channel: { PORTAL: 11, EMAIL: 5, WHATSAPP: 4 },
       }),
     });
     answerOpen([]);
+    state.sla.mockReturnValue({
+      data: {
+        supportSlaSummary: {
+          onTrack: 0,
+          dueSoon: 0,
+          breached: 0,
+          csatSent: 4,
+          csatResponses: 3,
+          csatAverage: 4.7,
+          csatPercent: 100,
+        },
+      },
+    });
     renderWithProviders(<SupportOverviewPage />);
+    expect(state.sla).toHaveBeenCalledWith({ fetchPolicy: 'cache-and-network' });
     expect(props()).toMatchObject({
       title: 'Support',
       subtitle: 'Tickets at a glance',
@@ -121,7 +146,13 @@ describe('SupportOverviewPage', () => {
       recentTitle: 'Open tickets',
       links: [{ label: 'Open ticket console', to: '/support/tickets' }],
     });
-    expect(tiles()).toEqual({ Tickets: '20', Open: '8', 'High priority': '4', Resolved: '12' });
+    expect(tiles()).toEqual({
+      Tickets: '20',
+      Open: '8',
+      'High priority': '4',
+      Resolved: '12',
+      CSAT: '100% (3)',
+    });
     expect(props().breakdowns.map((breakdown) => [breakdown.title, breakdown.buckets])).toEqual([
       [
         'By status',
@@ -136,6 +167,14 @@ describe('SupportOverviewPage', () => {
         [
           { value: 'IT', count: 9 },
           { value: 'HR', count: 11 },
+        ],
+      ],
+      [
+        'By channel',
+        [
+          { value: 'PORTAL', count: 11 },
+          { value: 'EMAIL', count: 5 },
+          { value: 'WHATSAPP', count: 4 },
         ],
       ],
     ]);
