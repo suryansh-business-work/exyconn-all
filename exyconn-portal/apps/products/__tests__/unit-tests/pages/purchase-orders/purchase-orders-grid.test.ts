@@ -13,8 +13,27 @@ describe('PURCHASE_ORDER_COLUMNS', () => {
       'status',
       'orderDate',
       'expectedDate',
+      'acknowledgedAt',
       'actions',
     ]);
+  });
+
+  it("dates the supplier's acknowledgement in the viewer's format, or a dash before it", () => {
+    const formatDate = (value: string) => `on ${value.slice(0, 10)}`;
+    const row = purchaseOrderRow();
+
+    expect(
+      formatCell(PURCHASE_ORDER_COLUMNS, 'acknowledgedAt', row, {
+        value: '2026-11-02T09:30:00.000Z',
+        context: { formatDate },
+      }),
+    ).toBe('on 2026-11-02');
+    expect(
+      formatCell(PURCHASE_ORDER_COLUMNS, 'acknowledgedAt', row, {
+        value: null,
+        context: { formatDate },
+      }),
+    ).toBe('—');
   });
 
   it('names the supplier, falling back to its id when the name is missing', () => {
