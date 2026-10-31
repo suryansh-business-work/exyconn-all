@@ -332,6 +332,9 @@ export const CRM_PROPERTY_KEY = /^[a-z][a-z\d_]{0,39}$/;
  */
 export const GOOGLE_MEET_CODE = /^\/([a-z]{3}-[a-z]{4}-[a-z]{3})(?:$|[/?#])/;
 
+/** A whole Google Meet call link as people paste it: `https://meet.google.com/abc-defg-hij`. */
+export const GOOGLE_MEET_URL = /^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}(?:[/?#]\S*)?$/i;
+
 /**
  * Where Chrome hands an extension's sign-in back: `https://<32-letter extension id>.chromiumapp.org/…`.
  * Chrome writes extension ids with the letters a–p only. A consent screen redirects the browser

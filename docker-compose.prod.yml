@@ -276,6 +276,28 @@ services:
       MONGODB_URI: ${MONGODB_URI}
       PUBLIC_URL: https://demos.exyconn.com/calling-bot-demo/api
 
+  # The Meeting Assistant's meeting bot: joins Google Meet calls in Chromium on a virtual
+  # display and records them for their owner. No published port: it only calls portal-server
+  # over the compose network. The bot's Google sign-in is the Chrome profile in the volume
+  # (docs/portal/meeting-assistant/bot.md); without one it joins as a guest the host admits.
+  meet-bot:
+    <<: *hardened-node
+    image: ${DOCKERHUB_USERNAME}/exyconn-meet-bot:${TAG:-latest}
+    container_name: exyconn-meet-bot
+    restart: unless-stopped
+    # Chromium needs a larger /dev/shm than Docker's 64 MB; ~1 CPU and 1 GB per call.
+    shm_size: 1gb
+    mem_limit: 3g
+    environment:
+      NODE_ENV: production
+      PORTAL_API_URL: http://portal-server:4004
+      MEET_BOT_TOKEN: ${MEET_BOT_TOKEN:-}
+      MEET_BOT_CONCURRENCY: 2
+    volumes:
+      - /opt/exyconn-meet-bot/profile:/data/profile
+    depends_on:
+      - portal-server
+
   # Reacher (github.com/reacherhq/check-if-email-exists): checks that an email address exists
   # without sending anything, for CRM > Tools > Email verifier. No published port: only the
   # portal server calls it, over the compose network (REACHER_URL, default http://reacher:8080).
@@ -354,6 +376,8 @@ services:
       # and outside the database on purpose: a backup's record must survive the thing it
       # is insuring.
       BACKUP_STATUS_FILE: /var/lib/exyconn/backup/status.json
+      # The meeting bot service's shared secret (the meet-bot service holds the same one).
+      MEET_BOT_TOKEN: ${MEET_BOT_TOKEN:-}
     volumes:
       # Only the status directory, never the archive directory: a dump of the whole
       # company has no business being readable inside a web-facing container.

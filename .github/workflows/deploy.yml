@@ -248,6 +248,10 @@ jobs:
             dockerfile: docker/calling-bot-voice.Dockerfile
             context: .
             build_args: ''
+          - service: meet-bot
+            dockerfile: docker/meet-bot.Dockerfile
+            context: .
+            build_args: ''
           - service: portal-mcp
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -359,6 +363,8 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_MAP_API: ${{ secrets.GOOGLE_MAP_API }}
+          # Shared by portal-server and meet-bot; empty leaves the meeting bot idle.
+          MEET_BOT_TOKEN: ${{ secrets.MEET_BOT_TOKEN }}
           # The server's own address: Website › Settings offers it as the A record for a site.
           WEBSITE_SERVER_IP: ${{ secrets.SSH_HOST }}
         with:
@@ -369,14 +375,14 @@ jobs:
           # Secrets reach the server as environment variables (the action single-quotes
           # each value), never spliced into the script text, so a `$` or backtick in a
           # secret is not expanded by the remote shell.
-          envs: TAG,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,MONGODB_URI,JWT_SECRET,OPENAI_API_KEY,GOOGLE_MAP_API,WEBSITE_SERVER_IP
+          envs: TAG,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,MONGODB_URI,JWT_SECRET,OPENAI_API_KEY,GOOGLE_MAP_API,WEBSITE_SERVER_IP,MEET_BOT_TOKEN
           script: |
             set -e
             umask 077
             cd /opt/exyconn
             # Single-quoted .env values are taken literally by docker compose (no ${...}
             # interpolation); such a value cannot itself contain a quote or a newline.
-            for name in DOCKERHUB_USERNAME TAG MONGODB_URI JWT_SECRET OPENAI_API_KEY GOOGLE_MAP_API WEBSITE_SERVER_IP; do
+            for name in DOCKERHUB_USERNAME TAG MONGODB_URI JWT_SECRET OPENAI_API_KEY GOOGLE_MAP_API WEBSITE_SERVER_IP MEET_BOT_TOKEN; do
               value="$(printenv "$name" || true)"
               case "$value" in
                 *"'"* | *"

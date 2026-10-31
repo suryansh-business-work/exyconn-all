@@ -2708,6 +2708,25 @@ export type MaAuthorizeExtensionInput = {
   state: Scalars['String']['input'];
 };
 
+/** Who sent the bot: a person, or the calendar scan before an event. */
+export type MaBotSource =
+  | 'CALENDAR'
+  | 'MANUAL';
+
+/** Where a meeting bot trip is. */
+export type MaBotStatus =
+  | 'CANCELLED'
+  | 'DONE'
+  | 'FAILED'
+  /** The bot is in the call, recording. */
+  | 'IN_CALL'
+  /** A bot is opening the call. */
+  | 'JOINING'
+  /** Waiting for a free bot (or for the calendar event's start). */
+  | 'QUEUED'
+  /** The bot is in the lobby, waiting for the host to admit it. */
+  | 'WAITING_ADMIT';
+
 export type MaBulkActionInput = {
   ids: Array<Scalars['ID']['input']>;
   priority: InputMaybe<MaPriority>;
@@ -2864,6 +2883,12 @@ export type MaSettingsInput = {
   audioRetentionDays: Scalars['Int']['input'];
   autoEmail: Scalars['Boolean']['input'];
   autoGenerateSummary: Scalars['Boolean']['input'];
+  /** Whether the bot joins connected people's Google Calendar Meet events on its own. */
+  botAutoJoin: Scalars['Boolean']['input'];
+  /** Whether the meeting bot may be sent into calls. */
+  botEnabled: Scalars['Boolean']['input'];
+  /** The name the bot joins calls under, 1 to 60 characters. */
+  botName: Scalars['String']['input'];
   defaultRecipients: Array<Scalars['String']['input']>;
   diarization: Scalars['Boolean']['input'];
   emailAllowedDomains: Array<Scalars['String']['input']>;

@@ -13,6 +13,7 @@ in the AI portal (whole company) and the employee portal (my meetings).
 | [privacy.md](privacy.md) | Security, privacy, consent, what goes to OpenAI, retention |
 | [api.md](api.md) | GraphQL operations, REST endpoints, environment variables |
 | [testing.md](testing.md) | Automated tests and the manual Google Meet test matrix |
+| [bot.md](bot.md) | The meeting bot: how it joins and records, its Google sign-in, deployment, limits |
 | [`exyconn-meet-extension/README.md`](../../../exyconn-meet-extension/README.md) | Extension commands, build modes, permissions, source layout |
 
 ## Architecture
@@ -38,6 +39,8 @@ Portal server (modules/meeting-assistant)
   ├─ email: exactly once per recipient per notes version (delivery rows)
   ├─ event log (MaEvent) + audit log (person's Activity) for every step
   └─ release registry (platform model) + signed, expiring downloads
+Meeting bot (exyconn-meet-bot, Docker `meet-bot`): claims a trip (`/meet-assistant/bot/claim`), joins the call
+  in Chromium on Xvfb, then records exactly like the extension with the owner's bot session — see bot.md
 Portals: packages/meetings-ui mounted in apps/ai (/ai/meeting-assistant/*, scope ALL)
          and apps/employee (/me/meetings/*, scope MINE)
 ```
@@ -55,6 +58,7 @@ Portals: packages/meetings-ui mounted in apps/ai (/ai/meeting-assistant/*, scope
 | Audio and screen capture | Chrome "Share this tab" (`getDisplayMedia`) in the Meet page; mic through Meet's own permission | Needs a click on Start in the in-Meet panel |
 | Transcript (independent) | OpenAI `gpt-4o-transcribe` / `-diarize` via the server | Hindi, English, Hinglish; diarization gives labels, never names |
 | Transcript (official) | Google Meet REST API v2 (`meetings.space.readonly`) | Only where the Workspace edition, organizer and language allow it; Hindi is not assumed |
+| Meeting bot | `exyconn-meet-bot` in Chromium on Xvfb, see [bot.md](bot.md) | Best effort on the visible Meet UI; recording and transcription as reliable as the extension |
 | Notes, decisions, actions | OpenAI GPT-4o (JSON mode + Zod) via the server, written in the meeting's language (English, Hindi in Devanagari, Hinglish in Roman letters; AUTO = the language mostly spoken) | Items without valid transcript evidence are dropped |
 
 ## Data model (`server/src/modules/meeting-assistant/models`)

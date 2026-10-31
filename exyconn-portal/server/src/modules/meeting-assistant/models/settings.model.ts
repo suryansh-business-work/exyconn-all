@@ -44,6 +44,12 @@ const settingsSchema = new Schema(
     participantTracking: { type: Boolean, default: true },
     liveTranscript: { type: Boolean, default: true },
     releaseChannel: { type: String, enum: RELEASE_CHANNELS, default: 'STABLE' },
+    /** The meeting bot may be sent into calls (on request, or from the calendar). */
+    botEnabled: { type: Boolean, default: true },
+    /** Send the bot into every Google Calendar event with a Meet link of a connected user. */
+    botAutoJoin: { type: Boolean, default: false },
+    /** The name the bot joins under, shown to everyone in the call. */
+    botName: { type: String, default: 'Exyconn Notetaker', trim: true, maxlength: 60 },
     updatedByName: { type: String, default: '' },
   },
   { timestamps: true },

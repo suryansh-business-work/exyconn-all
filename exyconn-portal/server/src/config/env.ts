@@ -197,6 +197,11 @@ export const env = Object.freeze({
     audioBodyLimit: process.env.MEET_ASSISTANT_AUDIO_LIMIT ?? '12mb',
     /** The ffmpeg binary that turns screen recordings into MP4 downloads (on PATH in the image). */
     ffmpegPath: process.env.FFMPEG_PATH ?? 'ffmpeg',
+    /**
+     * The shared secret the meeting bot service (exyconn-meet-bot) presents to pick up work.
+     * Empty switches the bot endpoints off.
+     */
+    botToken: process.env.MEET_BOT_TOKEN ?? '',
     /** AI › Meeting Assistant › Releases, linked from the "new build for QA" Slack post. */
     releasesUrl:
       process.env.MEET_ASSISTANT_RELEASES_URL ??

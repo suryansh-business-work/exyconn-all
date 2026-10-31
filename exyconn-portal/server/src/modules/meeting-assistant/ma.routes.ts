@@ -22,6 +22,7 @@ import { readDownloadToken, MA_DOWNLOAD_PATH } from './download-links';
 import { openReleaseArtifact } from './releases.service';
 import { streamReleaseZip } from './releases.store';
 import { addReleaseUploadRoute } from './releases.upload';
+import { addBotRoutes } from './bot.routes';
 import { streamMergedWav } from './recording.store';
 import {
   saveScreenPiece,
@@ -452,6 +453,7 @@ export function meetAssistantRouter(): Router {
     });
   });
   addReleaseUploadRoute(router);
+  addBotRoutes(router);
   router.get(MA_DOWNLOAD_PATH.replace(MA_REST_PATH, ''), (req, res) => {
     downloadEndpoint(req, res).catch((error: unknown) => logger.error({ err: error }, 'download'));
   });

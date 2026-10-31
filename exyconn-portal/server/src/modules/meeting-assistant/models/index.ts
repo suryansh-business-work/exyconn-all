@@ -12,3 +12,4 @@ export * from './release.model';
 export * from './release-settings.model';
 export * from './google.model';
 export * from './event.model';
+export * from './bot-dispatch.model';

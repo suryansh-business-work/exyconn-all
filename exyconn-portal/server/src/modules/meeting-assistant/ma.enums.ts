@@ -126,6 +126,32 @@ export type MaJobKind = (typeof JOB_KINDS)[number];
 export const JOB_STATUSES = ['QUEUED', 'RUNNING', 'DONE', 'FAILED'] as const;
 export type MaJobStatus = (typeof JOB_STATUSES)[number];
 
+/**
+ * Where a meeting bot is: waiting to be picked up, joining (or waiting in the lobby for the
+ * host to admit it), in the call recording, or finished one way or another.
+ */
+export const BOT_STATUSES = [
+  'QUEUED',
+  'JOINING',
+  'WAITING_ADMIT',
+  'IN_CALL',
+  'DONE',
+  'FAILED',
+  'CANCELLED',
+] as const;
+export type MaBotStatus = (typeof BOT_STATUSES)[number];
+
+/** Statuses after which a bot dispatch never changes again. */
+export const FINAL_BOT_STATUSES: ReadonlySet<MaBotStatus> = new Set([
+  'DONE',
+  'FAILED',
+  'CANCELLED',
+]);
+
+/** Who sent the bot: a person on request, or the calendar scan before an event. */
+export const BOT_SOURCES = ['MANUAL', 'CALENDAR'] as const;
+export type MaBotSource = (typeof BOT_SOURCES)[number];
+
 export const DELIVERY_STATUSES = ['PENDING', 'SENT', 'FAILED'] as const;
 export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
 
