@@ -39,6 +39,9 @@ export interface NewDispatch {
   joinAt: Date;
 }
 
+/** A call's path before its code: `/`, or `/meet/` where Meet now redirects calls. */
+const MEET_CALL_PATH = /^\/(?:meet\/)?/;
+
 /** The Meet code of a meet.google.com link, or a bad-request error. */
 export function meetCodeOfUrl(raw: string): string {
   let url: URL | null;
@@ -47,7 +50,7 @@ export function meetCodeOfUrl(raw: string): string {
   } catch {
     url = null;
   }
-  const code = url?.pathname.slice(1).toLowerCase() ?? '';
+  const code = url?.pathname.replace(MEET_CALL_PATH, '').toLowerCase() ?? '';
   if (url?.protocol !== 'https:' || url.hostname !== MEET_HOST || !MEET_CODE.test(code)) {
     badRequest('Paste a Google Meet link, like https://meet.google.com/abc-defg-hij.');
   }

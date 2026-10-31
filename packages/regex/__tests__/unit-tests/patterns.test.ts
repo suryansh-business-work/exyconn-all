@@ -9,6 +9,7 @@ import {
   GITHUB_NAME,
   GITHUB_REPOSITORY,
   GOOGLE_MEET_CODE,
+  GOOGLE_MEET_URL,
   GSTIN,
   GST_STATE_CODE,
   HEX_COLOR,
@@ -171,6 +172,25 @@ const CASES: ReadonlyArray<{
       '/abc-defg-hijk',
       '/abcd-efg-hij',
       'abc-defg-hij',
+    ],
+  },
+  {
+    name: 'GOOGLE_MEET_URL',
+    pattern: GOOGLE_MEET_URL,
+    valid: [
+      'https://meet.google.com/abc-defg-hij',
+      'https://meet.google.com/abc-defg-hij?authuser=0',
+      'https://meet.google.com/meet/abc-defg-hij',
+      'https://meet.google.com/meet/abc-defg-hij?authuser=0',
+    ],
+    invalid: [
+      '',
+      'https://meet.google.com/',
+      'https://meet.google.com/meet/',
+      'https://meet.google.com/other/abc-defg-hij',
+      'http://meet.google.com/abc-defg-hij',
+      'https://zoom.us/j/1',
+      'https://meet.google.com.evil.example/abc-defg-hij',
     ],
   },
   {

@@ -215,7 +215,15 @@ describe('sending the bot', () => {
   it('refuses without agreement to the recording terms, or for a link that is not Meet', async () => {
     await expect(send$(asha, MEET, false)).rejects.toThrow('Agree to the recording terms');
     await expect(send$(asha, 'https://zoom.us/j/1')).rejects.toThrow();
+    await expect(send$(asha, 'https://meet.google.com/other/abc-defg-hij')).rejects.toThrow(
+      'Paste a Google Meet link',
+    );
     expect(await inDemo(() => MeetingBotDemoTripModel.countDocuments())).toBe(0);
+  });
+
+  it('takes the /meet/ link Meet now shows in the address bar', async () => {
+    const trip = await send$(asha, 'https://meet.google.com/meet/abc-defg-hij?authuser=0');
+    expect(trip).toMatchObject({ meetingCode: 'abc-defg-hij', meetUrl: MEET });
   });
 
   it('queues the bot in the demo company, keeps the terms agreed to and audits it', async () => {

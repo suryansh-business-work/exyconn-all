@@ -332,8 +332,12 @@ export const CRM_PROPERTY_KEY = /^[a-z][a-z\d_]{0,39}$/;
  */
 export const GOOGLE_MEET_CODE = /^\/(?:meet\/)?([a-z]{3}-[a-z]{4}-[a-z]{3})(?:$|[/?#])/;
 
-/** A whole Google Meet call link as people paste it: `https://meet.google.com/abc-defg-hij`. */
-export const GOOGLE_MEET_URL = /^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}(?:[/?#]\S*)?$/i;
+/**
+ * A whole Google Meet call link as people paste it: `https://meet.google.com/abc-defg-hij`,
+ * or `https://meet.google.com/meet/abc-defg-hij` as copied from the address bar.
+ */
+export const GOOGLE_MEET_URL =
+  /^https:\/\/meet\.google\.com\/(?:meet\/)?[a-z]{3}-[a-z]{4}-[a-z]{3}(?:[/?#]\S*)?$/i;
 
 /**
  * Where Chrome hands an extension's sign-in back: `https://<32-letter extension id>.chromiumapp.org/…`.
