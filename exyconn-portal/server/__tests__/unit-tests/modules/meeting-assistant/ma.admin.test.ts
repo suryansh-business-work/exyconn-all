@@ -122,6 +122,7 @@ describe('settings', () => {
       defaultRecipients: [' OPS@exyconn.com ', ''],
       emailAllowedDomains: ['Exyconn.com'],
       monthlyBudgetUsd: 50,
+      botName: '  Exyconn Notetaker ',
       ...overrides,
     }) as MaSettingsInput;
 
@@ -148,19 +149,22 @@ describe('settings', () => {
       allowedUserIds: [manager.id, employee.id],
       defaultRecipients: ['ops@exyconn.com'],
       emailAllowedDomains: ['exyconn.com'],
+      botName: 'Exyconn Notetaker',
       updatedByName: 'Root',
     });
     const refused = [
       input({ emailAllowedDomains: ['not a domain'] }),
       input({ defaultRecipients: ['not-an-email'] }),
       input({ defaultRecipients: ['ops@gmail.com'] }),
+      input({ botName: '   ' }),
+      input({ botName: 'x'.repeat(61) }),
     ];
     const codes = await Promise.all(
       refused.map((each) =>
         codeOf(maAdminMutations.maUpdateSettings(null, { input: each }, asManager)),
       ),
     );
-    expect(codes).toEqual(['BAD_USER_INPUT', 'BAD_USER_INPUT', 'BAD_USER_INPUT']);
+    expect(codes).toEqual(Array.from({ length: 5 }, () => 'BAD_USER_INPUT'));
     expect(
       await codeOf(
         maAdminMutations.maUpdateSettings(

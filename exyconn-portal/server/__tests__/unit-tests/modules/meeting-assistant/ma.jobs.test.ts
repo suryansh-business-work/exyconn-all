@@ -592,7 +592,7 @@ describe('the worker', () => {
     expect(await MaSegmentModel.countDocuments()).toBe(1);
   });
 
-  it('starts the pipeline and the retention sweep for every company, on timers that never hold the process', async () => {
+  it('starts the pipeline, the retention sweep and the bot calendar scan for every company, on timers that never hold the process', async () => {
     clearJobRuns();
     const unref = jest.fn();
     const timer = jest.spyOn(globalThis, 'setInterval').mockReturnValue({ unref } as never);
@@ -600,8 +600,8 @@ describe('the worker', () => {
     startMeetingAssistantWorker();
 
     await new Promise((resolve) => setTimeout(resolve, 500));
-    expect(timer.mock.calls.map((call) => call[1])).toEqual([15_000, 3_600_000]);
-    expect(unref).toHaveBeenCalledTimes(2);
+    expect(timer.mock.calls.map((call) => call[1])).toEqual([15_000, 300_000, 3_600_000]);
+    expect(unref).toHaveBeenCalledTimes(3);
     expect(readJobRuns().get(JOB_KEYS.meetingAssistant)?.summary).toBe('Nothing due');
     expect(readJobRuns().get(JOB_KEYS.meetingAssistantRetention)?.summary).toBe(
       'Removed 0 expired record(s)',
