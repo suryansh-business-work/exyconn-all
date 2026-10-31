@@ -125,6 +125,10 @@ describe('supportSlaSummary', () => {
       onTrack: 0,
       dueSoon: 0,
       breached: 1,
+      csatSent: 0,
+      csatResponses: 0,
+      csatAverage: null,
+      csatPercent: null,
     });
     await expect(Q.supportSlaSummary(null, {}, ctx([ROLES.SUPPORT]))).resolves.toMatchObject({
       breached: 2,

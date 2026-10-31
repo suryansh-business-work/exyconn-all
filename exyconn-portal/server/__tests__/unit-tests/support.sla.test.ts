@@ -163,7 +163,15 @@ describe('SLA on a ticket', () => {
 
     const summary = await supportSlaSummary();
 
-    expect(summary).toEqual({ onTrack: 1, dueSoon: 0, breached: 2 });
+    expect(summary).toEqual({
+      onTrack: 1,
+      dueSoon: 0,
+      breached: 2,
+      csatSent: 0,
+      csatResponses: 0,
+      csatAverage: null,
+      csatPercent: null,
+    });
   });
 
   it('reports a ticket past its deadline as breached through the API', async () => {
