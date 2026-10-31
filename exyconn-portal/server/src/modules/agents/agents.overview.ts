@@ -75,7 +75,7 @@ export async function agentsOverview(days: number, now = new Date()) {
     websiteAgentSessions: website.sessions,
     websiteChats: chats.total,
     websiteChatsAnsweredByPeople: chats.answeredByPeople,
-    deflectionRate: chats.total > 0 ? 1 - share(chats.answeredByPeople, chats.total) : 0,
+    deflectionRate: share(chats.total - chats.answeredByPeople, chats.total),
     calls: callCounts.total,
     callsCompleted: callCounts.completed,
     callsFailed: callCounts.failed,
