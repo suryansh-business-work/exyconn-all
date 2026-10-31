@@ -92,10 +92,11 @@ export function EmailCodeSignInForm({
     }
   };
 
-  const checkCode = async ({ code }: SignInCodeValues) => {
+  /** Checks the code against the address it was sent to (the code step only exists once sent). */
+  const checkCode = async (email: string, { code }: SignInCodeValues) => {
     setError(null);
     try {
-      const pass = await verifyCode(sentTo ?? '', code);
+      const pass = await verifyCode(email, code);
       if (pass) onSignedIn(pass);
     } catch (err) {
       setError(errorMessage(err, t('The code could not be checked. Try again.')));
@@ -131,7 +132,7 @@ export function EmailCodeSignInForm({
   return (
     <StepFrame
       methods={codeForm}
-      onSubmit={checkCode}
+      onSubmit={(values) => checkCode(sentTo, values)}
       error={error}
       accentColor={accentColor}
       submitLabel={t('Sign in')}
