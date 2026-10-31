@@ -13,13 +13,15 @@ export interface DashboardProps {
   exportFileName: string;
   stats: StatItem[];
   statsLoading: boolean;
-  crud: { open: boolean; editing: unknown; openCreate: () => void };
-  renderForm: (initial: never) => ReactNode;
+  /** Absent on a read-only dashboard (one with no create/edit form). */
+  crud?: { open: boolean; editing: unknown; openCreate: () => void };
+  renderForm?: (initial: never) => ReactNode;
   columnDefs: ColDef[];
   fetchRows: unknown;
   context: { actions: Record<string, RowAction>; formatDate?: (value: string) => string };
   searchPlaceholder: string;
   extraDialogs?: ReactNode;
+  refreshSignal?: number;
 }
 
 /** The last props the stand-in rendered with. */
@@ -47,10 +49,12 @@ export function CrudDashboardStub(props: Readonly<DashboardProps>) {
           <li key={stat.label}>{`${stat.label}: ${stat.value}`}</li>
         ))}
       </ul>
-      <button type="button" onClick={props.crud.openCreate}>
-        Open new form
-      </button>
-      {props.crud.open && props.renderForm(props.crud.editing as never)}
+      {props.crud && (
+        <button type="button" onClick={props.crud.openCreate}>
+          Open new form
+        </button>
+      )}
+      {props.crud?.open && props.renderForm?.(props.crud.editing as never)}
       {props.extraDialogs}
     </div>
   );
