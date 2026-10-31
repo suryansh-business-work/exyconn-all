@@ -30,9 +30,9 @@ describe('buildPortalEntries', () => {
     const byDescription = buildPortalEntries([ROLES.ADMIN], 'hub', 'REIMBURSEMENTS');
     expect(byDescription.map((e) => e.key)).toEqual(['finance']);
 
-    // Client Hub's description names invoices too, so both match.
+    // The Vendor Portal and Client Hub descriptions name invoices too, so all three match.
     const shared = buildPortalEntries([ROLES.ADMIN], 'hub', 'invoices');
-    expect(shared.map((e) => e.key)).toEqual(['finance', 'clienthub']);
+    expect(shared.map((e) => e.key)).toEqual(['finance', 'vendors', 'clienthub']);
   });
 
   it('returns nothing when the query matches no portal', () => {

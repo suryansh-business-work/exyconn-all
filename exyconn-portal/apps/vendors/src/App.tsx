@@ -32,8 +32,8 @@ export function App() {
             </VendorGate>
           }
         >
-          <Route path={PATHS.orders} element={page(<OrdersPage />)} />
-          <Route path={PATHS.invoices} element={page(<InvoicesPage />)} />
+          <Route path="/orders" element={page(<OrdersPage />)} />
+          <Route path="/invoices" element={page(<InvoicesPage />)} />
         </Route>
       }
     >

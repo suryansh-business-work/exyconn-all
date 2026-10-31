@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { Box } from '@/components/ui';
 import { env } from '@/config/env';
 import type { Role } from '@/auth/roles';
-import { useAuth } from '@/auth/AuthContext';
 import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import { PortalSwitcher } from '@/layout/PortalSwitcher';
 import { navModules, navTree, type NavNode } from './moduleNav';
@@ -15,6 +14,8 @@ import { SidebarNav } from './SidebarNav';
 
 interface SidebarProps {
   roles: Role[];
+  /** The roles the company's plan opens; absent or null means no plan limit. */
+  planRoles?: readonly Role[] | null;
   onNavigate?: () => void;
   /** Icon-rail mode. The mobile drawer never collapses, so it leaves this false. */
   collapsed?: boolean;
@@ -29,6 +30,7 @@ interface SidebarProps {
  */
 export function Sidebar({
   roles,
+  planRoles,
   onNavigate,
   collapsed = false,
   onToggleCollapse,
@@ -39,7 +41,6 @@ export function Sidebar({
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const isHub = env.portalApp === 'hub';
-  const planRoles = useAuth().user?.planRoles;
   const scoped = useMemo(() => navModules(roles, env.portalApp, planRoles), [roles, planRoles]);
   const tree = useMemo(() => navTree(scoped, isHub), [scoped, isHub]);
   const scopedPrefixes = useMemo(
@@ -77,7 +78,12 @@ export function Sidebar({
         onQueryChange={setQuery}
       />
 
-      <PortalSwitcher roles={roles} open={switcherOpen} onClose={() => setSwitcherOpen(false)} />
+      <PortalSwitcher
+        roles={roles}
+        planRoles={planRoles}
+        open={switcherOpen}
+        onClose={() => setSwitcherOpen(false)}
+      />
 
       {collapsed ? (
         <SidebarRail nodes={tree} trail={nav.trail} onSelect={selectFromRail} />

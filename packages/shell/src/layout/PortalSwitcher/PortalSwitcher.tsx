@@ -5,7 +5,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Box, Divider, Drawer, InputAdornment, List, TextField, Typography } from '@/components/ui';
 import { env } from '@/config/env';
 import type { Role } from '@/auth/roles';
-import { useAuth } from '@/auth/AuthContext';
 import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import { PortalListItem, type PortalEntry } from './PortalListItem';
 import { allPortalEntries, buildPortalEntries } from './portalEntries';
@@ -13,6 +12,8 @@ import { allPortalEntries, buildPortalEntries } from './portalEntries';
 interface PortalSwitcherProps {
   /** Roles of the signed-in user; `null` on the login screen, where every portal is listed. */
   roles: Role[] | null;
+  /** The roles the company's plan opens; absent or null means no plan limit. */
+  planRoles?: readonly Role[] | null;
   open: boolean;
   onClose: () => void;
 }
@@ -24,12 +25,11 @@ interface PortalSwitcherProps {
  * lists them all: the target portal's own gate decides whether the visitor is
  * let in on the shared session cookie or shown its login screen.
  */
-export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcherProps>) {
+export function PortalSwitcher({ roles, planRoles, open, onClose }: Readonly<PortalSwitcherProps>) {
   const t = useT();
   const headingId = useId();
   const [query, setQuery] = useState('');
   const navigateTo = useCrossAppNavigate();
-  const planRoles = useAuth().user?.planRoles;
 
   const entries = useMemo<PortalEntry[]>(
     () =>
