@@ -243,8 +243,9 @@ describe('sandbox tokens', () => {
     expect(audits).toHaveLength(1);
   });
 
-  it('reads an expired token as inactive', async () => {
-    const { sandboxToken } = await issue(asha);
+  it('reads an expired token as inactive, and the endpoint refuses it', async () => {
+    const { token, sandboxToken } = await issue(asha);
+    expect((await rpc(token, 'tools/list')).status).toBe(200);
     await runAsPlatform(() =>
       McpTokenModel.updateOne(
         { _id: sandboxToken.id },
@@ -253,6 +254,7 @@ describe('sandbox tokens', () => {
     );
     const [listed] = await Query.mcpSandboxTokens(undefined, {}, asha);
     expect(listed.active).toBe(false);
+    expect((await rpc(token, 'tools/list')).status).toBe(401);
   });
 });
 
