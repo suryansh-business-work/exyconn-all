@@ -6,6 +6,7 @@ import {
   CrmGmailReadyDocument,
   CrmIntegrationStatusDocument,
   CrmEmailSendersDocument,
+  MailDomainHealthDocument,
   GmailAccountsDocument,
   useDisconnectGmailAccountMutation,
   useSetGmailAccountEnabledMutation,
@@ -30,6 +31,7 @@ export function useGmailAccountActions() {
     CrmGmailReadyDocument,
     CrmIntegrationStatusDocument,
     CrmEmailSendersDocument,
+    MailDomainHealthDocument,
   ];
   const [start, { loading: connecting }] = useStartGmailConnectMutation();
   const [testAccount] = useTestGmailAccountMutation({ refetchQueries });

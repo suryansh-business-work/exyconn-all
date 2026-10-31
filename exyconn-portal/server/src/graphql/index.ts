@@ -6,6 +6,7 @@ import { authResolvers } from '../modules/auth/auth.resolvers';
 import { googleSignInTypeDefs, googleSignInResolvers } from '../modules/auth/google';
 import { gmailTypeDefs, gmailResolvers } from '../modules/gmail';
 import { microsoftMailTypeDefs, microsoftMailResolvers } from '../modules/microsoft-mail';
+import { mailHealthTypeDefs, mailHealthResolvers } from '../modules/mail-health';
 import { myMailboxesTypeDefs, myMailboxesResolvers } from '../modules/my-mailboxes';
 import { crmIntegrationsTypeDefs, crmIntegrationsResolvers } from '../modules/crm-integrations';
 import { crmMailTypeDefs, crmMailResolvers } from '../modules/crm-mail';
@@ -268,6 +269,7 @@ export const typeDefs = [
   googleSignInTypeDefs,
   gmailTypeDefs,
   microsoftMailTypeDefs,
+  mailHealthTypeDefs,
   myMailboxesTypeDefs,
   crmIntegrationsTypeDefs,
   crmMailTypeDefs,
@@ -394,6 +396,7 @@ export const resolvers = mergeResolvers([
   googleSignInResolvers,
   gmailResolvers,
   microsoftMailResolvers,
+  mailHealthResolvers,
   myMailboxesResolvers,
   crmIntegrationsResolvers,
   crmMailResolvers,

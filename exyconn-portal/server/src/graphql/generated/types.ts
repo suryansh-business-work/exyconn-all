@@ -8505,6 +8505,55 @@ export type MaUpdateMeetingInput = {
   title: Scalars['String']['input'];
 };
 
+/** A domain the CRM mailboxes send from, with its last health check. */
+export type MailDomainHealth = {
+  __typename?: 'MailDomainHealth';
+  /** When it was last checked; the daily pass re-checks every domain. */
+  checkedAt?: Maybe<Scalars['DateTime']['output']>;
+  checks: Array<MailHealthCheck>;
+  domain: Scalars['String']['output'];
+  /** The connected mailboxes on the domain. */
+  mailboxes: Array<Scalars['String']['output']>;
+  /** The score before the last check; null on a first check. */
+  previousScore?: Maybe<Scalars['Int']['output']>;
+  /** The providers its mailboxes are on: GMAIL, MICROSOFT. */
+  providers: Array<Scalars['String']['output']>;
+  /** 0–100 Setup Score of the last check; null until the domain has been checked. */
+  score?: Maybe<Scalars['Int']['output']>;
+};
+
+/** One check on a sending domain, with what to change when it is not a pass. */
+export type MailHealthCheck = {
+  __typename?: 'MailHealthCheck';
+  code: MailHealthCheckCode;
+  /** What to change; empty on a pass. */
+  fix: Scalars['String']['output'];
+  /** What was found, in one sentence. */
+  message: Scalars['String']['output'];
+  /** The DNS record (or blocklist) the check is about, as found; empty when there is none. */
+  record: Scalars['String']['output'];
+  status: MailHealthCheckStatus;
+  /** A DNS value to paste in to fix it; empty when there is nothing to paste. */
+  suggested: Scalars['String']['output'];
+};
+
+/** What one health check is about. */
+export enum MailHealthCheckCode {
+  Blacklist = 'BLACKLIST',
+  Dkim = 'DKIM',
+  Dmarc = 'DMARC',
+  Mx = 'MX',
+  Spf = 'SPF'
+}
+
+/** How a health check came out. UNKNOWN means the lookup failed, and it is left out of the score. */
+export enum MailHealthCheckStatus {
+  Fail = 'FAIL',
+  Pass = 'PASS',
+  Unknown = 'UNKNOWN',
+  Warn = 'WARN'
+}
+
 /**
  * A management review (clause 9.3) — the meeting at which the people who run the company look
  * at whether the management system is working and decide what to change.
@@ -9258,6 +9307,8 @@ export type Mutation = {
   /** Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first. */
   cancelMeetingBooking: MeetingBooking;
   changePassword: Scalars['Boolean']['output'];
+  /** Runs the health checks on one of the company's sending domains now and keeps the result. */
+  checkMailDomainHealth: MailDomainHealth;
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
   /** Removes the Apify token: Clutch searches use Clutch's own server. */
@@ -10671,6 +10722,11 @@ export type MutationCancelMeetingBookingArgs = {
 export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
+};
+
+
+export type MutationCheckMailDomainHealthArgs = {
+  domain: Scalars['String']['input'];
 };
 
 
@@ -17339,6 +17395,8 @@ export type Query = {
   maTranscript: Array<MaTranscriptSegment>;
   /** Searches transcript lines across meetings, one page at a time, returning each hit with its meeting. */
   maTranscriptSearch: MaTranscriptHitPage;
+  /** Health (SPF, DKIM, DMARC, MX, blocklists and Setup Score) of every domain the company's CRM mailboxes send from. */
+  mailDomainHealth: Array<MailDomainHealth>;
   /** Reads the marketing dashboard: campaign counts by state, last-30-day sends, clicks and unsubscribes, suppressions, audiences and upcoming sends. */
   marketingDashboard: MarketingDashboard;
   /** Reads the footer added to every marketing email: company name, contact line, postal address, links and colours. */
@@ -25231,6 +25289,10 @@ export type ResolversTypes = ResolversObject<{
   MaTranscriptSource: MaTranscriptSource;
   MaTranscriptionState: MaTranscriptionState;
   MaUpdateMeetingInput: MaUpdateMeetingInput;
+  MailDomainHealth: ResolverTypeWrapper<MailDomainHealth>;
+  MailHealthCheck: ResolverTypeWrapper<MailHealthCheck>;
+  MailHealthCheckCode: MailHealthCheckCode;
+  MailHealthCheckStatus: MailHealthCheckStatus;
   ManagementReview: ResolverTypeWrapper<ManagementReview>;
   ManagementReviewAction: ResolverTypeWrapper<ManagementReviewAction>;
   ManagementReviewActionInput: ManagementReviewActionInput;
@@ -26395,6 +26457,8 @@ export type ResolversParentTypes = ResolversObject<{
   MaTranscriptHitPage: MaTranscriptHitPage;
   MaTranscriptSegment: MaTranscriptSegment;
   MaUpdateMeetingInput: MaUpdateMeetingInput;
+  MailDomainHealth: MailDomainHealth;
+  MailHealthCheck: MailHealthCheck;
   ManagementReview: ManagementReview;
   ManagementReviewAction: ManagementReviewAction;
   ManagementReviewActionInput: ManagementReviewActionInput;
@@ -31565,6 +31629,27 @@ export type MaTranscriptSegmentResolvers<ContextType = GraphQLContext, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MailDomainHealthResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MailDomainHealth'] = ResolversParentTypes['MailDomainHealth']> = ResolversObject<{
+  checkedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  checks?: Resolver<Array<ResolversTypes['MailHealthCheck']>, ParentType, ContextType>;
+  domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mailboxes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  previousScore?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  providers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  score?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MailHealthCheckResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MailHealthCheck'] = ResolversParentTypes['MailHealthCheck']> = ResolversObject<{
+  code?: Resolver<ResolversTypes['MailHealthCheckCode'], ParentType, ContextType>;
+  fix?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  record?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['MailHealthCheckStatus'], ParentType, ContextType>;
+  suggested?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ManagementReviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ManagementReview'] = ResolversParentTypes['ManagementReview']> = ResolversObject<{
   actions?: Resolver<Array<ResolversTypes['ManagementReviewAction']>, ParentType, ContextType>;
   attendees?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -32027,6 +32112,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
+  checkMailDomainHealth?: Resolver<ResolversTypes['MailDomainHealth'], ParentType, ContextType, RequireFields<MutationCheckMailDomainHealthArgs, 'domain'>>;
   claimWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationClaimWebsiteChatSessionArgs, 'id'>>;
   clearApifyToken?: Resolver<ResolversTypes['LeadSourceSettings'], ParentType, ContextType>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
@@ -34332,6 +34418,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   maSettings?: Resolver<ResolversTypes['MaSettings'], ParentType, ContextType>;
   maTranscript?: Resolver<Array<ResolversTypes['MaTranscriptSegment']>, ParentType, ContextType, RequireFields<QueryMaTranscriptArgs, 'meetingId'>>;
   maTranscriptSearch?: Resolver<ResolversTypes['MaTranscriptHitPage'], ParentType, ContextType, RequireFields<QueryMaTranscriptSearchArgs, 'input'>>;
+  mailDomainHealth?: Resolver<Array<ResolversTypes['MailDomainHealth']>, ParentType, ContextType>;
   marketingDashboard?: Resolver<ResolversTypes['MarketingDashboard'], ParentType, ContextType>;
   marketingFooter?: Resolver<ResolversTypes['MarketingFooter'], ParentType, ContextType>;
   marketingSuppressionHistory?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryMarketingSuppressionHistoryArgs, 'email'>>;
@@ -37244,6 +37331,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MaTranscriptHit?: MaTranscriptHitResolvers<ContextType>;
   MaTranscriptHitPage?: MaTranscriptHitPageResolvers<ContextType>;
   MaTranscriptSegment?: MaTranscriptSegmentResolvers<ContextType>;
+  MailDomainHealth?: MailDomainHealthResolvers<ContextType>;
+  MailHealthCheck?: MailHealthCheckResolvers<ContextType>;
   ManagementReview?: ManagementReviewResolvers<ContextType>;
   ManagementReviewAction?: ManagementReviewActionResolvers<ContextType>;
   ManagementReviewPage?: ManagementReviewPageResolvers<ContextType>;

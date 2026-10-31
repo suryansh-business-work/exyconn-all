@@ -2933,6 +2933,21 @@ export type MaUpdateMeetingInput = {
   title: Scalars['String']['input'];
 };
 
+/** What one health check is about. */
+export type MailHealthCheckCode =
+  | 'BLACKLIST'
+  | 'DKIM'
+  | 'DMARC'
+  | 'MX'
+  | 'SPF';
+
+/** How a health check came out. UNKNOWN means the lookup failed, and it is left out of the score. */
+export type MailHealthCheckStatus =
+  | 'FAIL'
+  | 'PASS'
+  | 'UNKNOWN'
+  | 'WARN';
+
 export type ManagementReviewActionInput = {
   description: Scalars['String']['input'];
   done: Scalars['Boolean']['input'];

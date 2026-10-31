@@ -8506,6 +8506,55 @@ export type MaUpdateMeetingInput = {
   title: Scalars['String']['input'];
 };
 
+/** A domain the CRM mailboxes send from, with its last health check. */
+export type MailDomainHealth = {
+  __typename?: 'MailDomainHealth';
+  /** When it was last checked; the daily pass re-checks every domain. */
+  checkedAt?: Maybe<Scalars['DateTime']['output']>;
+  checks: Array<MailHealthCheck>;
+  domain: Scalars['String']['output'];
+  /** The connected mailboxes on the domain. */
+  mailboxes: Array<Scalars['String']['output']>;
+  /** The score before the last check; null on a first check. */
+  previousScore?: Maybe<Scalars['Int']['output']>;
+  /** The providers its mailboxes are on: GMAIL, MICROSOFT. */
+  providers: Array<Scalars['String']['output']>;
+  /** 0–100 Setup Score of the last check; null until the domain has been checked. */
+  score?: Maybe<Scalars['Int']['output']>;
+};
+
+/** One check on a sending domain, with what to change when it is not a pass. */
+export type MailHealthCheck = {
+  __typename?: 'MailHealthCheck';
+  code: MailHealthCheckCode;
+  /** What to change; empty on a pass. */
+  fix: Scalars['String']['output'];
+  /** What was found, in one sentence. */
+  message: Scalars['String']['output'];
+  /** The DNS record (or blocklist) the check is about, as found; empty when there is none. */
+  record: Scalars['String']['output'];
+  status: MailHealthCheckStatus;
+  /** A DNS value to paste in to fix it; empty when there is nothing to paste. */
+  suggested: Scalars['String']['output'];
+};
+
+/** What one health check is about. */
+export enum MailHealthCheckCode {
+  Blacklist = 'BLACKLIST',
+  Dkim = 'DKIM',
+  Dmarc = 'DMARC',
+  Mx = 'MX',
+  Spf = 'SPF'
+}
+
+/** How a health check came out. UNKNOWN means the lookup failed, and it is left out of the score. */
+export enum MailHealthCheckStatus {
+  Fail = 'FAIL',
+  Pass = 'PASS',
+  Unknown = 'UNKNOWN',
+  Warn = 'WARN'
+}
+
 /**
  * A management review (clause 9.3) — the meeting at which the people who run the company look
  * at whether the management system is working and decide what to change.
@@ -9259,6 +9308,8 @@ export type Mutation = {
   /** Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first. */
   cancelMeetingBooking: MeetingBooking;
   changePassword: Scalars['Boolean']['output'];
+  /** Runs the health checks on one of the company's sending domains now and keeps the result. */
+  checkMailDomainHealth: MailDomainHealth;
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
   /** Removes the Apify token: Clutch searches use Clutch's own server. */
@@ -10672,6 +10723,11 @@ export type MutationCancelMeetingBookingArgs = {
 export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
+};
+
+
+export type MutationCheckMailDomainHealthArgs = {
+  domain: Scalars['String']['input'];
 };
 
 
@@ -17340,6 +17396,8 @@ export type Query = {
   maTranscript: Array<MaTranscriptSegment>;
   /** Searches transcript lines across meetings, one page at a time, returning each hit with its meeting. */
   maTranscriptSearch: MaTranscriptHitPage;
+  /** Health (SPF, DKIM, DMARC, MX, blocklists and Setup Score) of every domain the company's CRM mailboxes send from. */
+  mailDomainHealth: Array<MailDomainHealth>;
   /** Reads the marketing dashboard: campaign counts by state, last-30-day sends, clicks and unsubscribes, suppressions, audiences and upcoming sends. */
   marketingDashboard: MarketingDashboard;
   /** Reads the footer added to every marketing email: company name, contact line, postal address, links and colours. */
@@ -29381,6 +29439,20 @@ export type DeleteAppLogGroupMutationVariables = Exact<{
 
 export type DeleteAppLogGroupMutation = { __typename?: 'Mutation', deleteAppLogGroup: boolean };
 
+export type MailDomainHealthFieldsFragment = { __typename?: 'MailDomainHealth', domain: string, providers: Array<string>, mailboxes: Array<string>, score?: number | null, previousScore?: number | null, checkedAt?: string | null, checks: Array<{ __typename?: 'MailHealthCheck', code: MailHealthCheckCode, status: MailHealthCheckStatus, message: string, fix: string, record: string, suggested: string }> };
+
+export type MailDomainHealthQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MailDomainHealthQuery = { __typename?: 'Query', mailDomainHealth: Array<{ __typename?: 'MailDomainHealth', domain: string, providers: Array<string>, mailboxes: Array<string>, score?: number | null, previousScore?: number | null, checkedAt?: string | null, checks: Array<{ __typename?: 'MailHealthCheck', code: MailHealthCheckCode, status: MailHealthCheckStatus, message: string, fix: string, record: string, suggested: string }> }> };
+
+export type CheckMailDomainHealthMutationVariables = Exact<{
+  domain: Scalars['String']['input'];
+}>;
+
+
+export type CheckMailDomainHealthMutation = { __typename?: 'Mutation', checkMailDomainHealth: { __typename?: 'MailDomainHealth', domain: string, providers: Array<string>, mailboxes: Array<string>, score?: number | null, previousScore?: number | null, checkedAt?: string | null, checks: Array<{ __typename?: 'MailHealthCheck', code: MailHealthCheckCode, status: MailHealthCheckStatus, message: string, fix: string, record: string, suggested: string }> } };
+
 export type CampaignFieldsFragment = { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string };
 
 export type ListCampaignsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -36111,6 +36183,24 @@ export const AppLogEventFieldsFragmentDoc = gql`
   sessionId
   userAgent
   ip
+}
+    `;
+export const MailDomainHealthFieldsFragmentDoc = gql`
+    fragment MailDomainHealthFields on MailDomainHealth {
+  domain
+  providers
+  mailboxes
+  score
+  previousScore
+  checkedAt
+  checks {
+    code
+    status
+    message
+    fix
+    record
+    suggested
+  }
 }
     `;
 export const CampaignFieldsFragmentDoc = gql`
@@ -65864,6 +65954,79 @@ export function useDeleteAppLogGroupMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<DeleteAppLogGroupMutation, DeleteAppLogGroupMutationVariables>(DeleteAppLogGroupDocument, options);
       }
 export type DeleteAppLogGroupMutationHookResult = ReturnType<typeof useDeleteAppLogGroupMutation>;
+export const MailDomainHealthDocument = gql`
+    query MailDomainHealth {
+  mailDomainHealth {
+    ...MailDomainHealthFields
+  }
+}
+    ${MailDomainHealthFieldsFragmentDoc}`;
+
+/**
+ * __useMailDomainHealthQuery__
+ *
+ * To run a query within a React component, call `useMailDomainHealthQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMailDomainHealthQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMailDomainHealthQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMailDomainHealthQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MailDomainHealthQuery, MailDomainHealthQueryVariables>(MailDomainHealthDocument, options);
+      }
+export function useMailDomainHealthLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MailDomainHealthQuery, MailDomainHealthQueryVariables>(MailDomainHealthDocument, options);
+        }
+// @ts-ignore
+export function useMailDomainHealthSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MailDomainHealthQuery, MailDomainHealthQueryVariables>;
+// @ts-ignore
+export function useMailDomainHealthSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MailDomainHealthQuery | undefined, MailDomainHealthQueryVariables>;
+export function useMailDomainHealthSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MailDomainHealthQuery, MailDomainHealthQueryVariables>(MailDomainHealthDocument, options);
+        }
+export type MailDomainHealthQueryHookResult = ReturnType<typeof useMailDomainHealthQuery>;
+export type MailDomainHealthLazyQueryHookResult = ReturnType<typeof useMailDomainHealthLazyQuery>;
+export type MailDomainHealthSuspenseQueryHookResult = ReturnType<typeof useMailDomainHealthSuspenseQuery>;
+export const CheckMailDomainHealthDocument = gql`
+    mutation CheckMailDomainHealth($domain: String!) {
+  checkMailDomainHealth(domain: $domain) {
+    ...MailDomainHealthFields
+  }
+}
+    ${MailDomainHealthFieldsFragmentDoc}`;
+
+/**
+ * __useCheckMailDomainHealthMutation__
+ *
+ * To run a mutation, you first call `useCheckMailDomainHealthMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCheckMailDomainHealthMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [checkMailDomainHealthMutation, { data, loading, error }] = useCheckMailDomainHealthMutation({
+ *   variables: {
+ *      domain: // value for 'domain'
+ *   },
+ * });
+ */
+export function useCheckMailDomainHealthMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CheckMailDomainHealthMutation, CheckMailDomainHealthMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CheckMailDomainHealthMutation, CheckMailDomainHealthMutationVariables>(CheckMailDomainHealthDocument, options);
+      }
+export type CheckMailDomainHealthMutationHookResult = ReturnType<typeof useCheckMailDomainHealthMutation>;
 export const ListCampaignsDocument = gql`
     query ListCampaigns {
   listCampaigns {
