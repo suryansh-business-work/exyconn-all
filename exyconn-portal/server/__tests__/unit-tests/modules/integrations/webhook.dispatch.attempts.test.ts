@@ -61,12 +61,15 @@ describe('generateWebhookSecret', () => {
 describe('emitWebhookBestEffort', () => {
   it('queues the event without the caller awaiting it', async () => {
     await hook();
+    const insert = jest.spyOn(WebhookDeliveryModel, 'insertMany');
 
-    emitWebhookBestEffort('invoice.paid', { id: 'inv-1' });
+    expect(emitWebhookBestEffort('invoice.paid', { id: 'inv-1' })).toBeUndefined();
 
-    expect(await eventually(async () => (await WebhookDeliveryModel.countDocuments()) === 1)).toBe(
-      true,
-    );
+    // The first insert into an empty collection can take seconds, so wait on the insert itself
+    // rather than on a clock.
+    expect(await eventually(() => insert.mock.calls.length === 1)).toBe(true);
+    await insert.mock.results[0].value;
+    expect(await WebhookDeliveryModel.countDocuments()).toBe(1);
   });
 
   it('logs a queueing failure instead of passing it to the caller', async () => {
