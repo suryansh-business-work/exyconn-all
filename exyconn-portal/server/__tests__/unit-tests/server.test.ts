@@ -88,6 +88,9 @@ jest.mock('../../src/modules/calling-bot-demo', () => ({
 }));
 jest.mock('../../src/modules/mcp/data/mcp.migrate', () => ({ assignLegacyMcpToCrm: jest.fn() }));
 jest.mock('../../src/modules/mcp/data/mcp.alerts', () => ({ startMcpAlerts: jest.fn() }));
+jest.mock('../../src/modules/mail-health/mail-health.job', () => ({
+  startMailHealthChecks: jest.fn(),
+}));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/table-transfer', () => ({ startTableBulkJobs: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
@@ -146,6 +149,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/tracker', 'startTrackerDigest'],
   ['../../src/modules/tracker', 'startEmployeeReports'],
   ['../../src/modules/mcp/data/mcp.alerts', 'startMcpAlerts'],
+  ['../../src/modules/mail-health/mail-health.job', 'startMailHealthChecks'],
   ['../../src/modules/marketing', 'startCampaignSchedule'],
   ['../../src/modules/social-accounts', 'startSocialSchedule'],
   ['../../src/modules/finance', 'startRecurringInvoiceSchedule'],

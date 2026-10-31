@@ -243,7 +243,10 @@ describe('video uploader', () => {
     expect(parsed.origin + parsed.pathname).toBe('https://api.test/meet-assistant/video/m1/4');
     expect(Object.fromEntries(parsed.searchParams)).toEqual({ part: '2', durationMs: '5000' });
     expect(init.method).toBe('POST');
-    expect(init.headers).toEqual({ Authorization: 'Bearer a1', 'Content-Type': 'video/webm' });
+    expect(init.headers).toEqual({
+      Authorization: 'Bearer a1',
+      'Content-Type': 'video/webm;codecs=h264,opus',
+    });
     expect(init.body).toEqual(Uint8Array.from([0x1a, 0x45, 0xdf, 0xa3]));
   });
 

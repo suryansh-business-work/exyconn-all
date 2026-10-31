@@ -18,7 +18,7 @@
 | Data | Where | Retention |
 | --- | --- | --- |
 | Saved audio from older extension builds (16 kHz PCM WAV, when `saveRecordings` is on) | MongoDB GridFS `ma_recordings`, company-scoped | `audioRetentionDays` (default 90; 0 = until the meeting is deleted) |
-| Screen recording (tab video + call audio, WebM, when `saveRecordings` is on) | MongoDB GridFS `ma_screen`, company-scoped | `audioRetentionDays`, same as saved audio |
+| Screen recording (tab video + call audio, stored as WebM and downloaded as MP4, when `saveRecordings` is on) | MongoDB GridFS `ma_screen`, company-scoped | `audioRetentionDays`, same as saved audio |
 | Transcript lines, event log, chunk receipts | MongoDB, company-scoped | `transcriptRetentionDays` (default 180) |
 | Notes, decisions, actions, deliveries | MongoDB, company-scoped | Until the meeting is deleted |
 | Google refresh token | MongoDB, AES-256-GCM sealed | Until the user disconnects |

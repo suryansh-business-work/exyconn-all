@@ -12,6 +12,7 @@ import {
 } from './meeting-settings.schema';
 import {
   AccessSection,
+  BotSection,
   EmailSection,
   LimitsSection,
   NotesSection,
@@ -50,6 +51,7 @@ export function MeetingSettingsForm({ settings }: Readonly<{ settings: MeetingSe
       <AccessSection people={people} />
       <NotesSection />
       <EmailSection />
+      <BotSection />
       <LimitsSection />
     </EntityForm>
   );

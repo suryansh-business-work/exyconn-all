@@ -10,12 +10,16 @@ import { requeueAbandonedJobs, runNextMaJob } from './jobs.runner';
 import { deleteRecordings } from './recording.store';
 import { deleteScreenPieces } from './screen.store';
 import { getMaSettings } from './settings.service';
+import { failStuckBots } from './bot.service';
+import { scheduleCalendarBots } from './bot.calendar';
 
 /** How often the pipeline looks for due steps and silent sessions. */
 const TICK_MS = 15_000;
 /** Steps one company may run per tick, so one busy company cannot starve the rest. */
 const STEPS_PER_TICK = 3;
 const RETENTION_MS = 60 * 60_000;
+/** How often upcoming calendar events are checked for a meeting bot (the scan looks 15 min ahead). */
+const BOT_SCAN_MS = 5 * 60_000;
 const DAY_MS = 86_400_000;
 
 /**
@@ -49,6 +53,7 @@ export function startDueSteps(): void {
 export async function runPipelinePass(): Promise<number> {
   await requeueAbandonedJobs();
   await recoverStaleSessions();
+  await failStuckBots();
   return drain(STEPS_PER_TICK);
 }
 
@@ -113,9 +118,18 @@ export function startMeetingAssistantWorker(): void {
       )
       .catch((error: unknown) => logger.error(error, 'Meeting assistant retention failed'));
   };
+  const scanCalendars = () => {
+    forEachOrganization(async () => {
+      await scheduleCalendarBots();
+    }, 'Meeting bot calendar scan').catch((error: unknown) =>
+      logger.error(error, 'Meeting bot calendar scan failed'),
+    );
+  };
   tick();
   sweep();
+  scanCalendars();
   globalThis.setInterval(tick, TICK_MS).unref();
+  globalThis.setInterval(scanCalendars, BOT_SCAN_MS).unref();
   globalThis.setInterval(sweep, RETENTION_MS).unref();
   logger.info('Meeting assistant worker started');
 }

@@ -5,6 +5,7 @@ import { maAdminTypeDefs } from '../../meeting-assistant/ma.admin.typeDefs';
 import { maModelsTypeDefs } from '../../meeting-assistant/ma.models.typeDefs';
 import { maReleaseTypeDefs } from '../../meeting-assistant/ma.release.typeDefs';
 import { maCalendarTypeDefs } from '../../meeting-assistant/ma.calendar.typeDefs';
+import { maBotTypeDefs } from '../../meeting-assistant/ma.bot.typeDefs';
 import { ROLES } from '../../../constants/roles';
 import type { McpServerSpec } from './spec';
 
@@ -31,5 +32,6 @@ export const AI_MCP: McpServerSpec = {
     maModelsTypeDefs,
     maReleaseTypeDefs,
     maCalendarTypeDefs,
+    maBotTypeDefs,
   ],
 };

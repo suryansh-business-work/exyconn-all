@@ -7813,6 +7813,47 @@ export type MaAuthorizeExtensionInput = {
   state: Scalars['String']['input'];
 };
 
+/** One trip of the meeting bot into a call, recorded as the owner's meeting. */
+export type MaBotDispatch = {
+  __typename?: 'MaBotDispatch';
+  createdAt: Scalars['DateTime']['output'];
+  /** Why the trip failed, when it did. */
+  error: Scalars['String']['output'];
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  joinAt: Scalars['DateTime']['output'];
+  meetUrl: Scalars['String']['output'];
+  meetingCode: Scalars['String']['output'];
+  /** The meeting the bot recorded, once it is in the call. */
+  meetingId?: Maybe<Scalars['ID']['output']>;
+  ownerId: Scalars['String']['output'];
+  ownerName: Scalars['String']['output'];
+  source: MaBotSource;
+  status: MaBotStatus;
+  title: Scalars['String']['output'];
+};
+
+/** Who sent the bot: a person, or the calendar scan before an event. */
+export enum MaBotSource {
+  Calendar = 'CALENDAR',
+  Manual = 'MANUAL'
+}
+
+/** Where a meeting bot trip is. */
+export enum MaBotStatus {
+  Cancelled = 'CANCELLED',
+  Done = 'DONE',
+  Failed = 'FAILED',
+  /** The bot is in the call, recording. */
+  InCall = 'IN_CALL',
+  /** A bot is opening the call. */
+  Joining = 'JOINING',
+  /** Waiting for a free bot (or for the calendar event's start). */
+  Queued = 'QUEUED',
+  /** The bot is in the lobby, waiting for the host to admit it. */
+  WaitingAdmit = 'WAITING_ADMIT'
+}
+
 export type MaBulkActionInput = {
   ids: Array<Scalars['ID']['input']>;
   priority?: InputMaybe<MaPriority>;
@@ -8239,7 +8280,7 @@ export enum MaPriority {
   Medium = 'MEDIUM'
 }
 
-/** One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as WebM video. */
+/** One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as MP4 video. */
 export type MaRecordingTrack = {
   __typename?: 'MaRecordingTrack';
   chunkCount: Scalars['Int']['output'];
@@ -8357,6 +8398,12 @@ export type MaSettings = {
   audioRetentionDays: Scalars['Int']['output'];
   autoEmail: Scalars['Boolean']['output'];
   autoGenerateSummary: Scalars['Boolean']['output'];
+  /** Send the bot into every Google Calendar event with a Meet link of a person who connected Google. */
+  botAutoJoin: Scalars['Boolean']['output'];
+  /** The meeting bot may be sent into Google Meet calls. */
+  botEnabled: Scalars['Boolean']['output'];
+  /** The name the bot joins calls under. */
+  botName: Scalars['String']['output'];
   defaultRecipients: Array<Scalars['String']['output']>;
   diarization: Scalars['Boolean']['output'];
   emailAllowedDomains: Array<Scalars['String']['output']>;
@@ -8388,6 +8435,12 @@ export type MaSettingsInput = {
   audioRetentionDays: Scalars['Int']['input'];
   autoEmail: Scalars['Boolean']['input'];
   autoGenerateSummary: Scalars['Boolean']['input'];
+  /** Whether the bot joins connected people's Google Calendar Meet events on its own. */
+  botAutoJoin: Scalars['Boolean']['input'];
+  /** Whether the meeting bot may be sent into calls. */
+  botEnabled: Scalars['Boolean']['input'];
+  /** The name the bot joins calls under, 1 to 60 characters. */
+  botName: Scalars['String']['input'];
   defaultRecipients: Array<Scalars['String']['input']>;
   diarization: Scalars['Boolean']['input'];
   emailAllowedDomains: Array<Scalars['String']['input']>;
@@ -8505,6 +8558,55 @@ export type MaUpdateMeetingInput = {
   language: MaLanguage;
   title: Scalars['String']['input'];
 };
+
+/** A domain the CRM mailboxes send from, with its last health check. */
+export type MailDomainHealth = {
+  __typename?: 'MailDomainHealth';
+  /** When it was last checked; the daily pass re-checks every domain. */
+  checkedAt?: Maybe<Scalars['DateTime']['output']>;
+  checks: Array<MailHealthCheck>;
+  domain: Scalars['String']['output'];
+  /** The connected mailboxes on the domain. */
+  mailboxes: Array<Scalars['String']['output']>;
+  /** The score before the last check; null on a first check. */
+  previousScore?: Maybe<Scalars['Int']['output']>;
+  /** The providers its mailboxes are on: GMAIL, MICROSOFT. */
+  providers: Array<Scalars['String']['output']>;
+  /** 0–100 Setup Score of the last check; null until the domain has been checked. */
+  score?: Maybe<Scalars['Int']['output']>;
+};
+
+/** One check on a sending domain, with what to change when it is not a pass. */
+export type MailHealthCheck = {
+  __typename?: 'MailHealthCheck';
+  code: MailHealthCheckCode;
+  /** What to change; empty on a pass. */
+  fix: Scalars['String']['output'];
+  /** What was found, in one sentence. */
+  message: Scalars['String']['output'];
+  /** The DNS record (or blocklist) the check is about, as found; empty when there is none. */
+  record: Scalars['String']['output'];
+  status: MailHealthCheckStatus;
+  /** A DNS value to paste in to fix it; empty when there is nothing to paste. */
+  suggested: Scalars['String']['output'];
+};
+
+/** What one health check is about. */
+export enum MailHealthCheckCode {
+  Blacklist = 'BLACKLIST',
+  Dkim = 'DKIM',
+  Dmarc = 'DMARC',
+  Mx = 'MX',
+  Spf = 'SPF'
+}
+
+/** How a health check came out. UNKNOWN means the lookup failed, and it is left out of the score. */
+export enum MailHealthCheckStatus {
+  Fail = 'FAIL',
+  Pass = 'PASS',
+  Unknown = 'UNKNOWN',
+  Warn = 'WARN'
+}
 
 /**
  * A management review (clause 9.3) — the meeting at which the people who run the company look
@@ -9259,6 +9361,8 @@ export type Mutation = {
   /** Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first. */
   cancelMeetingBooking: MeetingBooking;
   changePassword: Scalars['Boolean']['output'];
+  /** Runs the health checks on one of the company's sending domains now and keeps the result. */
+  checkMailDomainHealth: MailDomainHealth;
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
   /** Removes the Apify token: Clutch searches use Clutch's own server. */
@@ -9737,6 +9841,8 @@ export type Mutation = {
   maAuthorizeExtension: Scalars['String']['output'];
   /** Sets the status and/or priority of up to 200 action items at once; returns how many were updated. */
   maBulkUpdateActionItems: Scalars['Int']['output'];
+  /** Calls a meeting bot back: a queued trip never starts and a bot in the call leaves. Your own trips, or any with the company scope. */
+  maCancelBot: MaBotDispatch;
   /** Confirms who a transcript speaker label is; linking a portal user also lets them see the meeting. */
   maConfirmSpeaker: MaMeeting;
   /** Adds an action item to a meeting the caller may edit. */
@@ -9757,7 +9863,7 @@ export type Mutation = {
   maRecordConsent: MaMeeting;
   /** Called by the Chrome extension to record people joining and leaving a call it owns; returns how many events were applied. */
   maRecordParticipantEvents: Scalars['Int']['output'];
-  /** A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes. */
+  /** A link that downloads one stream as a single file (WAV for TAB or MIC, MP4 for a SCREEN track), valid for a few minutes. */
   maRecordingDownloadLink: MaDownloadLink;
   /** Queues a fresh analysis. Existing actions keep their ids, statuses and every edit. */
   maRegenerateNotes: MaMeeting;
@@ -9767,6 +9873,8 @@ export type Mutation = {
   maRetryEmailDelivery: MaEmailDelivery;
   /** Signs one of the caller's Chrome extension sessions out. Returns false if it was already revoked or not theirs. */
   maRevokeExtensionSession: Scalars['Boolean']['output'];
+  /** Sends the meeting bot into a Google Meet call now, to record and transcribe it as your meeting. The bot announces itself in the call's chat. */
+  maSendBot: MaBotDispatch;
   /** Sends (or approves sending) the summary of the current notes version, once per recipient. */
   maSendSummaryEmail: MaMeeting;
   /** Changes only the status of an action item. */
@@ -10672,6 +10780,11 @@ export type MutationCancelMeetingBookingArgs = {
 export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
+};
+
+
+export type MutationCheckMailDomainHealthArgs = {
+  domain: Scalars['String']['input'];
 };
 
 
@@ -12478,6 +12591,11 @@ export type MutationMaBulkUpdateActionItemsArgs = {
 };
 
 
+export type MutationMaCancelBotArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationMaConfirmSpeakerArgs = {
   input: MaSpeakerInput;
   meetingId: Scalars['ID']['input'];
@@ -12552,6 +12670,12 @@ export type MutationMaRetryEmailDeliveryArgs = {
 
 export type MutationMaRevokeExtensionSessionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationMaSendBotArgs = {
+  meetUrl: Scalars['String']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -17290,6 +17414,8 @@ export type Query = {
   maActionStats: MaActionStats;
   /** The models the platform's OpenAI key can use for a purpose, sorted (cached for 10 minutes). */
   maAvailableModels: Array<Scalars['String']['output']>;
+  /** The latest meeting bot trips (newest first, up to 50): your own (MINE), or the company's (ALL, AI role or ADMIN). */
+  maBotDispatches: Array<MaBotDispatch>;
   /** Meetings started in [from, to) that the scope covers, with the viewer's Meet events. At most 42 days. */
   maCalendar: MaCalendar;
   /** Reads Meeting Assistant totals: meetings, duration, notes, action counts, transcription failures, AI cost and breakdowns by language and day. */
@@ -17340,6 +17466,8 @@ export type Query = {
   maTranscript: Array<MaTranscriptSegment>;
   /** Searches transcript lines across meetings, one page at a time, returning each hit with its meeting. */
   maTranscriptSearch: MaTranscriptHitPage;
+  /** Health (SPF, DKIM, DMARC, MX, blocklists and Setup Score) of every domain the company's CRM mailboxes send from. */
+  mailDomainHealth: Array<MailDomainHealth>;
   /** Reads the marketing dashboard: campaign counts by state, last-30-day sends, clicks and unsubscribes, suppressions, audiences and upcoming sends. */
   marketingDashboard: MarketingDashboard;
   /** Reads the footer added to every marketing email: company name, contact line, postal address, links and colours. */
@@ -19332,6 +19460,11 @@ export type QueryMaActionStatsArgs = {
 
 export type QueryMaAvailableModelsArgs = {
   purpose: MaModelPurpose;
+};
+
+
+export type QueryMaBotDispatchesArgs = {
+  scope?: InputMaybe<MaScope>;
 };
 
 
@@ -29381,6 +29514,20 @@ export type DeleteAppLogGroupMutationVariables = Exact<{
 
 export type DeleteAppLogGroupMutation = { __typename?: 'Mutation', deleteAppLogGroup: boolean };
 
+export type MailDomainHealthFieldsFragment = { __typename?: 'MailDomainHealth', domain: string, providers: Array<string>, mailboxes: Array<string>, score?: number | null, previousScore?: number | null, checkedAt?: string | null, checks: Array<{ __typename?: 'MailHealthCheck', code: MailHealthCheckCode, status: MailHealthCheckStatus, message: string, fix: string, record: string, suggested: string }> };
+
+export type MailDomainHealthQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MailDomainHealthQuery = { __typename?: 'Query', mailDomainHealth: Array<{ __typename?: 'MailDomainHealth', domain: string, providers: Array<string>, mailboxes: Array<string>, score?: number | null, previousScore?: number | null, checkedAt?: string | null, checks: Array<{ __typename?: 'MailHealthCheck', code: MailHealthCheckCode, status: MailHealthCheckStatus, message: string, fix: string, record: string, suggested: string }> }> };
+
+export type CheckMailDomainHealthMutationVariables = Exact<{
+  domain: Scalars['String']['input'];
+}>;
+
+
+export type CheckMailDomainHealthMutation = { __typename?: 'Mutation', checkMailDomainHealth: { __typename?: 'MailDomainHealth', domain: string, providers: Array<string>, mailboxes: Array<string>, score?: number | null, previousScore?: number | null, checkedAt?: string | null, checks: Array<{ __typename?: 'MailHealthCheck', code: MailHealthCheckCode, status: MailHealthCheckStatus, message: string, fix: string, record: string, suggested: string }> } };
+
 export type CampaignFieldsFragment = { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, budgetCurrency: string, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null, campaignType: CampaignType, preferenceCategoryId: string, senderName: string, senderEmail: string, replyTo: string, preheader: string, editorMode: EditorMode, blocks: any, mjml: string, contentVersion: number, trackOpens: boolean, trackClicks: boolean, sendState: CampaignSendState, sendingRevisionId: string };
 
 export type ListCampaignsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -29858,19 +30005,19 @@ export type MaRetryEmailDeliveryMutationVariables = Exact<{
 
 export type MaRetryEmailDeliveryMutation = { __typename?: 'Mutation', maRetryEmailDelivery: { __typename?: 'MaEmailDelivery', id: string, status: MaDeliveryStatus, attempts: number, error: string, sentAt?: string | null } };
 
-export type MaSettingsFieldsFragment = { __typename?: 'MaSettings', enabled: boolean, saveRecordings: boolean, audioRetentionDays: number, allowedUserIds: Array<string>, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, preferredLanguage: MaLanguage, summaryStyle: MaSummaryStyle, transcriptRetentionDays: number, autoGenerateSummary: boolean, autoEmail: boolean, emailRequiresApproval: boolean, defaultRecipients: Array<string>, emailParticipants: boolean, emailAllowedDomains: Array<string>, analysisModel: string, transcriptionModel: string, diarization: boolean, monthlyBudgetUsd: number, maxMeetingMinutes: number, participantTracking: boolean, liveTranscript: boolean, releaseChannel: MaReleaseChannel, monthSpendUsd: number, updatedByName: string, updatedAt?: string | null };
+export type MaSettingsFieldsFragment = { __typename?: 'MaSettings', enabled: boolean, saveRecordings: boolean, audioRetentionDays: number, allowedUserIds: Array<string>, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, preferredLanguage: MaLanguage, summaryStyle: MaSummaryStyle, transcriptRetentionDays: number, autoGenerateSummary: boolean, autoEmail: boolean, emailRequiresApproval: boolean, defaultRecipients: Array<string>, emailParticipants: boolean, emailAllowedDomains: Array<string>, analysisModel: string, transcriptionModel: string, diarization: boolean, monthlyBudgetUsd: number, maxMeetingMinutes: number, participantTracking: boolean, liveTranscript: boolean, releaseChannel: MaReleaseChannel, botEnabled: boolean, botAutoJoin: boolean, botName: string, monthSpendUsd: number, updatedByName: string, updatedAt?: string | null };
 
 export type MaSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MaSettingsQuery = { __typename?: 'Query', maSettings: { __typename?: 'MaSettings', enabled: boolean, saveRecordings: boolean, audioRetentionDays: number, allowedUserIds: Array<string>, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, preferredLanguage: MaLanguage, summaryStyle: MaSummaryStyle, transcriptRetentionDays: number, autoGenerateSummary: boolean, autoEmail: boolean, emailRequiresApproval: boolean, defaultRecipients: Array<string>, emailParticipants: boolean, emailAllowedDomains: Array<string>, analysisModel: string, transcriptionModel: string, diarization: boolean, monthlyBudgetUsd: number, maxMeetingMinutes: number, participantTracking: boolean, liveTranscript: boolean, releaseChannel: MaReleaseChannel, monthSpendUsd: number, updatedByName: string, updatedAt?: string | null } };
+export type MaSettingsQuery = { __typename?: 'Query', maSettings: { __typename?: 'MaSettings', enabled: boolean, saveRecordings: boolean, audioRetentionDays: number, allowedUserIds: Array<string>, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, preferredLanguage: MaLanguage, summaryStyle: MaSummaryStyle, transcriptRetentionDays: number, autoGenerateSummary: boolean, autoEmail: boolean, emailRequiresApproval: boolean, defaultRecipients: Array<string>, emailParticipants: boolean, emailAllowedDomains: Array<string>, analysisModel: string, transcriptionModel: string, diarization: boolean, monthlyBudgetUsd: number, maxMeetingMinutes: number, participantTracking: boolean, liveTranscript: boolean, releaseChannel: MaReleaseChannel, botEnabled: boolean, botAutoJoin: boolean, botName: string, monthSpendUsd: number, updatedByName: string, updatedAt?: string | null } };
 
 export type MaUpdateSettingsMutationVariables = Exact<{
   input: MaSettingsInput;
 }>;
 
 
-export type MaUpdateSettingsMutation = { __typename?: 'Mutation', maUpdateSettings: { __typename?: 'MaSettings', enabled: boolean, saveRecordings: boolean, audioRetentionDays: number, allowedUserIds: Array<string>, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, preferredLanguage: MaLanguage, summaryStyle: MaSummaryStyle, transcriptRetentionDays: number, autoGenerateSummary: boolean, autoEmail: boolean, emailRequiresApproval: boolean, defaultRecipients: Array<string>, emailParticipants: boolean, emailAllowedDomains: Array<string>, analysisModel: string, transcriptionModel: string, diarization: boolean, monthlyBudgetUsd: number, maxMeetingMinutes: number, participantTracking: boolean, liveTranscript: boolean, releaseChannel: MaReleaseChannel, monthSpendUsd: number, updatedByName: string, updatedAt?: string | null } };
+export type MaUpdateSettingsMutation = { __typename?: 'Mutation', maUpdateSettings: { __typename?: 'MaSettings', enabled: boolean, saveRecordings: boolean, audioRetentionDays: number, allowedUserIds: Array<string>, remindersEnabled: boolean, reminderIntervalMinutes: number, maxRemindersPerMeeting: number, preferredLanguage: MaLanguage, summaryStyle: MaSummaryStyle, transcriptRetentionDays: number, autoGenerateSummary: boolean, autoEmail: boolean, emailRequiresApproval: boolean, defaultRecipients: Array<string>, emailParticipants: boolean, emailAllowedDomains: Array<string>, analysisModel: string, transcriptionModel: string, diarization: boolean, monthlyBudgetUsd: number, maxMeetingMinutes: number, participantTracking: boolean, liveTranscript: boolean, releaseChannel: MaReleaseChannel, botEnabled: boolean, botAutoJoin: boolean, botName: string, monthSpendUsd: number, updatedByName: string, updatedAt?: string | null } };
 
 export type MaAuthorizeExtensionMutationVariables = Exact<{
   input: MaAuthorizeExtensionInput;
@@ -29956,6 +30103,30 @@ export type MaEventsPagedQueryVariables = Exact<{
 
 
 export type MaEventsPagedQuery = { __typename?: 'Query', maEventsPaged: { __typename?: 'MaEventPage', totalCount: number, rows: Array<{ __typename?: 'MaEvent', id: string, meetingId?: string | null, meetingTitle: string, actorName: string, type: string, level: MaEventLevel, message: string, details: string, createdAt: string }> } };
+
+export type MaBotDispatchFieldsFragment = { __typename?: 'MaBotDispatch', id: string, ownerName: string, meetingCode: string, meetUrl: string, title: string, source: MaBotSource, status: MaBotStatus, meetingId?: string | null, error: string, joinAt: string, createdAt: string, finishedAt?: string | null };
+
+export type MaBotDispatchesQueryVariables = Exact<{
+  scope?: InputMaybe<MaScope>;
+}>;
+
+
+export type MaBotDispatchesQuery = { __typename?: 'Query', maBotDispatches: Array<{ __typename?: 'MaBotDispatch', id: string, ownerName: string, meetingCode: string, meetUrl: string, title: string, source: MaBotSource, status: MaBotStatus, meetingId?: string | null, error: string, joinAt: string, createdAt: string, finishedAt?: string | null }> };
+
+export type MaSendBotMutationVariables = Exact<{
+  meetUrl: Scalars['String']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type MaSendBotMutation = { __typename?: 'Mutation', maSendBot: { __typename?: 'MaBotDispatch', id: string, ownerName: string, meetingCode: string, meetUrl: string, title: string, source: MaBotSource, status: MaBotStatus, meetingId?: string | null, error: string, joinAt: string, createdAt: string, finishedAt?: string | null } };
+
+export type MaCancelBotMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type MaCancelBotMutation = { __typename?: 'Mutation', maCancelBot: { __typename?: 'MaBotDispatch', id: string, ownerName: string, meetingCode: string, meetUrl: string, title: string, source: MaBotSource, status: MaBotStatus, meetingId?: string | null, error: string, joinAt: string, createdAt: string, finishedAt?: string | null } };
 
 export type MeetingTypeFieldsFragment = { __typename?: 'MeetingType', id: string, title: string, slug: string, bookingPath: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> };
 
@@ -36113,6 +36284,24 @@ export const AppLogEventFieldsFragmentDoc = gql`
   ip
 }
     `;
+export const MailDomainHealthFieldsFragmentDoc = gql`
+    fragment MailDomainHealthFields on MailDomainHealth {
+  domain
+  providers
+  mailboxes
+  score
+  previousScore
+  checkedAt
+  checks {
+    code
+    status
+    message
+    fix
+    record
+    suggested
+  }
+}
+    `;
 export const CampaignFieldsFragmentDoc = gql`
     fragment CampaignFields on Campaign {
   id
@@ -36352,9 +36541,28 @@ export const MaSettingsFieldsFragmentDoc = gql`
   participantTracking
   liveTranscript
   releaseChannel
+  botEnabled
+  botAutoJoin
+  botName
   monthSpendUsd
   updatedByName
   updatedAt
+}
+    `;
+export const MaBotDispatchFieldsFragmentDoc = gql`
+    fragment MaBotDispatchFields on MaBotDispatch {
+  id
+  ownerName
+  meetingCode
+  meetUrl
+  title
+  source
+  status
+  meetingId
+  error
+  joinAt
+  createdAt
+  finishedAt
 }
     `;
 export const MeetingTypeFieldsFragmentDoc = gql`
@@ -65864,6 +66072,79 @@ export function useDeleteAppLogGroupMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<DeleteAppLogGroupMutation, DeleteAppLogGroupMutationVariables>(DeleteAppLogGroupDocument, options);
       }
 export type DeleteAppLogGroupMutationHookResult = ReturnType<typeof useDeleteAppLogGroupMutation>;
+export const MailDomainHealthDocument = gql`
+    query MailDomainHealth {
+  mailDomainHealth {
+    ...MailDomainHealthFields
+  }
+}
+    ${MailDomainHealthFieldsFragmentDoc}`;
+
+/**
+ * __useMailDomainHealthQuery__
+ *
+ * To run a query within a React component, call `useMailDomainHealthQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMailDomainHealthQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMailDomainHealthQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMailDomainHealthQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MailDomainHealthQuery, MailDomainHealthQueryVariables>(MailDomainHealthDocument, options);
+      }
+export function useMailDomainHealthLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MailDomainHealthQuery, MailDomainHealthQueryVariables>(MailDomainHealthDocument, options);
+        }
+// @ts-ignore
+export function useMailDomainHealthSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MailDomainHealthQuery, MailDomainHealthQueryVariables>;
+// @ts-ignore
+export function useMailDomainHealthSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MailDomainHealthQuery | undefined, MailDomainHealthQueryVariables>;
+export function useMailDomainHealthSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MailDomainHealthQuery, MailDomainHealthQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MailDomainHealthQuery, MailDomainHealthQueryVariables>(MailDomainHealthDocument, options);
+        }
+export type MailDomainHealthQueryHookResult = ReturnType<typeof useMailDomainHealthQuery>;
+export type MailDomainHealthLazyQueryHookResult = ReturnType<typeof useMailDomainHealthLazyQuery>;
+export type MailDomainHealthSuspenseQueryHookResult = ReturnType<typeof useMailDomainHealthSuspenseQuery>;
+export const CheckMailDomainHealthDocument = gql`
+    mutation CheckMailDomainHealth($domain: String!) {
+  checkMailDomainHealth(domain: $domain) {
+    ...MailDomainHealthFields
+  }
+}
+    ${MailDomainHealthFieldsFragmentDoc}`;
+
+/**
+ * __useCheckMailDomainHealthMutation__
+ *
+ * To run a mutation, you first call `useCheckMailDomainHealthMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCheckMailDomainHealthMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [checkMailDomainHealthMutation, { data, loading, error }] = useCheckMailDomainHealthMutation({
+ *   variables: {
+ *      domain: // value for 'domain'
+ *   },
+ * });
+ */
+export function useCheckMailDomainHealthMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CheckMailDomainHealthMutation, CheckMailDomainHealthMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CheckMailDomainHealthMutation, CheckMailDomainHealthMutationVariables>(CheckMailDomainHealthDocument, options);
+      }
+export type CheckMailDomainHealthMutationHookResult = ReturnType<typeof useCheckMailDomainHealthMutation>;
 export const ListCampaignsDocument = gql`
     query ListCampaigns {
   listCampaigns {
@@ -69163,6 +69444,111 @@ export function useMaEventsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.Ski
 export type MaEventsPagedQueryHookResult = ReturnType<typeof useMaEventsPagedQuery>;
 export type MaEventsPagedLazyQueryHookResult = ReturnType<typeof useMaEventsPagedLazyQuery>;
 export type MaEventsPagedSuspenseQueryHookResult = ReturnType<typeof useMaEventsPagedSuspenseQuery>;
+export const MaBotDispatchesDocument = gql`
+    query MaBotDispatches($scope: MaScope) {
+  maBotDispatches(scope: $scope) {
+    ...MaBotDispatchFields
+  }
+}
+    ${MaBotDispatchFieldsFragmentDoc}`;
+
+/**
+ * __useMaBotDispatchesQuery__
+ *
+ * To run a query within a React component, call `useMaBotDispatchesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMaBotDispatchesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMaBotDispatchesQuery({
+ *   variables: {
+ *      scope: // value for 'scope'
+ *   },
+ * });
+ */
+export function useMaBotDispatchesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>(MaBotDispatchesDocument, options);
+      }
+export function useMaBotDispatchesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>(MaBotDispatchesDocument, options);
+        }
+// @ts-ignore
+export function useMaBotDispatchesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>;
+// @ts-ignore
+export function useMaBotDispatchesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MaBotDispatchesQuery | undefined, MaBotDispatchesQueryVariables>;
+export function useMaBotDispatchesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MaBotDispatchesQuery, MaBotDispatchesQueryVariables>(MaBotDispatchesDocument, options);
+        }
+export type MaBotDispatchesQueryHookResult = ReturnType<typeof useMaBotDispatchesQuery>;
+export type MaBotDispatchesLazyQueryHookResult = ReturnType<typeof useMaBotDispatchesLazyQuery>;
+export type MaBotDispatchesSuspenseQueryHookResult = ReturnType<typeof useMaBotDispatchesSuspenseQuery>;
+export const MaSendBotDocument = gql`
+    mutation MaSendBot($meetUrl: String!, $title: String) {
+  maSendBot(meetUrl: $meetUrl, title: $title) {
+    ...MaBotDispatchFields
+  }
+}
+    ${MaBotDispatchFieldsFragmentDoc}`;
+
+/**
+ * __useMaSendBotMutation__
+ *
+ * To run a mutation, you first call `useMaSendBotMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMaSendBotMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [maSendBotMutation, { data, loading, error }] = useMaSendBotMutation({
+ *   variables: {
+ *      meetUrl: // value for 'meetUrl'
+ *      title: // value for 'title'
+ *   },
+ * });
+ */
+export function useMaSendBotMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MaSendBotMutation, MaSendBotMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MaSendBotMutation, MaSendBotMutationVariables>(MaSendBotDocument, options);
+      }
+export type MaSendBotMutationHookResult = ReturnType<typeof useMaSendBotMutation>;
+export const MaCancelBotDocument = gql`
+    mutation MaCancelBot($id: ID!) {
+  maCancelBot(id: $id) {
+    ...MaBotDispatchFields
+  }
+}
+    ${MaBotDispatchFieldsFragmentDoc}`;
+
+/**
+ * __useMaCancelBotMutation__
+ *
+ * To run a mutation, you first call `useMaCancelBotMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMaCancelBotMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [maCancelBotMutation, { data, loading, error }] = useMaCancelBotMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useMaCancelBotMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MaCancelBotMutation, MaCancelBotMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MaCancelBotMutation, MaCancelBotMutationVariables>(MaCancelBotDocument, options);
+      }
+export type MaCancelBotMutationHookResult = ReturnType<typeof useMaCancelBotMutation>;
 export const MeetingTypesDocument = gql`
     query MeetingTypes {
   meetingTypes {

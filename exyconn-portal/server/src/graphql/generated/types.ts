@@ -7812,6 +7812,47 @@ export type MaAuthorizeExtensionInput = {
   state: Scalars['String']['input'];
 };
 
+/** One trip of the meeting bot into a call, recorded as the owner's meeting. */
+export type MaBotDispatch = {
+  __typename?: 'MaBotDispatch';
+  createdAt: Scalars['DateTime']['output'];
+  /** Why the trip failed, when it did. */
+  error: Scalars['String']['output'];
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  joinAt: Scalars['DateTime']['output'];
+  meetUrl: Scalars['String']['output'];
+  meetingCode: Scalars['String']['output'];
+  /** The meeting the bot recorded, once it is in the call. */
+  meetingId?: Maybe<Scalars['ID']['output']>;
+  ownerId: Scalars['String']['output'];
+  ownerName: Scalars['String']['output'];
+  source: MaBotSource;
+  status: MaBotStatus;
+  title: Scalars['String']['output'];
+};
+
+/** Who sent the bot: a person, or the calendar scan before an event. */
+export enum MaBotSource {
+  Calendar = 'CALENDAR',
+  Manual = 'MANUAL'
+}
+
+/** Where a meeting bot trip is. */
+export enum MaBotStatus {
+  Cancelled = 'CANCELLED',
+  Done = 'DONE',
+  Failed = 'FAILED',
+  /** The bot is in the call, recording. */
+  InCall = 'IN_CALL',
+  /** A bot is opening the call. */
+  Joining = 'JOINING',
+  /** Waiting for a free bot (or for the calendar event's start). */
+  Queued = 'QUEUED',
+  /** The bot is in the lobby, waiting for the host to admit it. */
+  WaitingAdmit = 'WAITING_ADMIT'
+}
+
 export type MaBulkActionInput = {
   ids: Array<Scalars['ID']['input']>;
   priority?: InputMaybe<MaPriority>;
@@ -8238,7 +8279,7 @@ export enum MaPriority {
   Medium = 'MEDIUM'
 }
 
-/** One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as WebM video. */
+/** One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as MP4 video. */
 export type MaRecordingTrack = {
   __typename?: 'MaRecordingTrack';
   chunkCount: Scalars['Int']['output'];
@@ -8356,6 +8397,12 @@ export type MaSettings = {
   audioRetentionDays: Scalars['Int']['output'];
   autoEmail: Scalars['Boolean']['output'];
   autoGenerateSummary: Scalars['Boolean']['output'];
+  /** Send the bot into every Google Calendar event with a Meet link of a person who connected Google. */
+  botAutoJoin: Scalars['Boolean']['output'];
+  /** The meeting bot may be sent into Google Meet calls. */
+  botEnabled: Scalars['Boolean']['output'];
+  /** The name the bot joins calls under. */
+  botName: Scalars['String']['output'];
   defaultRecipients: Array<Scalars['String']['output']>;
   diarization: Scalars['Boolean']['output'];
   emailAllowedDomains: Array<Scalars['String']['output']>;
@@ -8387,6 +8434,12 @@ export type MaSettingsInput = {
   audioRetentionDays: Scalars['Int']['input'];
   autoEmail: Scalars['Boolean']['input'];
   autoGenerateSummary: Scalars['Boolean']['input'];
+  /** Whether the bot joins connected people's Google Calendar Meet events on its own. */
+  botAutoJoin: Scalars['Boolean']['input'];
+  /** Whether the meeting bot may be sent into calls. */
+  botEnabled: Scalars['Boolean']['input'];
+  /** The name the bot joins calls under, 1 to 60 characters. */
+  botName: Scalars['String']['input'];
   defaultRecipients: Array<Scalars['String']['input']>;
   diarization: Scalars['Boolean']['input'];
   emailAllowedDomains: Array<Scalars['String']['input']>;
@@ -8504,6 +8557,55 @@ export type MaUpdateMeetingInput = {
   language: MaLanguage;
   title: Scalars['String']['input'];
 };
+
+/** A domain the CRM mailboxes send from, with its last health check. */
+export type MailDomainHealth = {
+  __typename?: 'MailDomainHealth';
+  /** When it was last checked; the daily pass re-checks every domain. */
+  checkedAt?: Maybe<Scalars['DateTime']['output']>;
+  checks: Array<MailHealthCheck>;
+  domain: Scalars['String']['output'];
+  /** The connected mailboxes on the domain. */
+  mailboxes: Array<Scalars['String']['output']>;
+  /** The score before the last check; null on a first check. */
+  previousScore?: Maybe<Scalars['Int']['output']>;
+  /** The providers its mailboxes are on: GMAIL, MICROSOFT. */
+  providers: Array<Scalars['String']['output']>;
+  /** 0–100 Setup Score of the last check; null until the domain has been checked. */
+  score?: Maybe<Scalars['Int']['output']>;
+};
+
+/** One check on a sending domain, with what to change when it is not a pass. */
+export type MailHealthCheck = {
+  __typename?: 'MailHealthCheck';
+  code: MailHealthCheckCode;
+  /** What to change; empty on a pass. */
+  fix: Scalars['String']['output'];
+  /** What was found, in one sentence. */
+  message: Scalars['String']['output'];
+  /** The DNS record (or blocklist) the check is about, as found; empty when there is none. */
+  record: Scalars['String']['output'];
+  status: MailHealthCheckStatus;
+  /** A DNS value to paste in to fix it; empty when there is nothing to paste. */
+  suggested: Scalars['String']['output'];
+};
+
+/** What one health check is about. */
+export enum MailHealthCheckCode {
+  Blacklist = 'BLACKLIST',
+  Dkim = 'DKIM',
+  Dmarc = 'DMARC',
+  Mx = 'MX',
+  Spf = 'SPF'
+}
+
+/** How a health check came out. UNKNOWN means the lookup failed, and it is left out of the score. */
+export enum MailHealthCheckStatus {
+  Fail = 'FAIL',
+  Pass = 'PASS',
+  Unknown = 'UNKNOWN',
+  Warn = 'WARN'
+}
 
 /**
  * A management review (clause 9.3) — the meeting at which the people who run the company look
@@ -9258,6 +9360,8 @@ export type Mutation = {
   /** Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first. */
   cancelMeetingBooking: MeetingBooking;
   changePassword: Scalars['Boolean']['output'];
+  /** Runs the health checks on one of the company's sending domains now and keeps the result. */
+  checkMailDomainHealth: MailDomainHealth;
   /** Takes the chat: it is shown as yours to answer. */
   claimWebsiteChatSession: WebsiteChatSession;
   /** Removes the Apify token: Clutch searches use Clutch's own server. */
@@ -9736,6 +9840,8 @@ export type Mutation = {
   maAuthorizeExtension: Scalars['String']['output'];
   /** Sets the status and/or priority of up to 200 action items at once; returns how many were updated. */
   maBulkUpdateActionItems: Scalars['Int']['output'];
+  /** Calls a meeting bot back: a queued trip never starts and a bot in the call leaves. Your own trips, or any with the company scope. */
+  maCancelBot: MaBotDispatch;
   /** Confirms who a transcript speaker label is; linking a portal user also lets them see the meeting. */
   maConfirmSpeaker: MaMeeting;
   /** Adds an action item to a meeting the caller may edit. */
@@ -9756,7 +9862,7 @@ export type Mutation = {
   maRecordConsent: MaMeeting;
   /** Called by the Chrome extension to record people joining and leaving a call it owns; returns how many events were applied. */
   maRecordParticipantEvents: Scalars['Int']['output'];
-  /** A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes. */
+  /** A link that downloads one stream as a single file (WAV for TAB or MIC, MP4 for a SCREEN track), valid for a few minutes. */
   maRecordingDownloadLink: MaDownloadLink;
   /** Queues a fresh analysis. Existing actions keep their ids, statuses and every edit. */
   maRegenerateNotes: MaMeeting;
@@ -9766,6 +9872,8 @@ export type Mutation = {
   maRetryEmailDelivery: MaEmailDelivery;
   /** Signs one of the caller's Chrome extension sessions out. Returns false if it was already revoked or not theirs. */
   maRevokeExtensionSession: Scalars['Boolean']['output'];
+  /** Sends the meeting bot into a Google Meet call now, to record and transcribe it as your meeting. The bot announces itself in the call's chat. */
+  maSendBot: MaBotDispatch;
   /** Sends (or approves sending) the summary of the current notes version, once per recipient. */
   maSendSummaryEmail: MaMeeting;
   /** Changes only the status of an action item. */
@@ -10671,6 +10779,11 @@ export type MutationCancelMeetingBookingArgs = {
 export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
+};
+
+
+export type MutationCheckMailDomainHealthArgs = {
+  domain: Scalars['String']['input'];
 };
 
 
@@ -12477,6 +12590,11 @@ export type MutationMaBulkUpdateActionItemsArgs = {
 };
 
 
+export type MutationMaCancelBotArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationMaConfirmSpeakerArgs = {
   input: MaSpeakerInput;
   meetingId: Scalars['ID']['input'];
@@ -12551,6 +12669,12 @@ export type MutationMaRetryEmailDeliveryArgs = {
 
 export type MutationMaRevokeExtensionSessionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationMaSendBotArgs = {
+  meetUrl: Scalars['String']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -17289,6 +17413,8 @@ export type Query = {
   maActionStats: MaActionStats;
   /** The models the platform's OpenAI key can use for a purpose, sorted (cached for 10 minutes). */
   maAvailableModels: Array<Scalars['String']['output']>;
+  /** The latest meeting bot trips (newest first, up to 50): your own (MINE), or the company's (ALL, AI role or ADMIN). */
+  maBotDispatches: Array<MaBotDispatch>;
   /** Meetings started in [from, to) that the scope covers, with the viewer's Meet events. At most 42 days. */
   maCalendar: MaCalendar;
   /** Reads Meeting Assistant totals: meetings, duration, notes, action counts, transcription failures, AI cost and breakdowns by language and day. */
@@ -17339,6 +17465,8 @@ export type Query = {
   maTranscript: Array<MaTranscriptSegment>;
   /** Searches transcript lines across meetings, one page at a time, returning each hit with its meeting. */
   maTranscriptSearch: MaTranscriptHitPage;
+  /** Health (SPF, DKIM, DMARC, MX, blocklists and Setup Score) of every domain the company's CRM mailboxes send from. */
+  mailDomainHealth: Array<MailDomainHealth>;
   /** Reads the marketing dashboard: campaign counts by state, last-30-day sends, clicks and unsubscribes, suppressions, audiences and upcoming sends. */
   marketingDashboard: MarketingDashboard;
   /** Reads the footer added to every marketing email: company name, contact line, postal address, links and colours. */
@@ -19331,6 +19459,11 @@ export type QueryMaActionStatsArgs = {
 
 export type QueryMaAvailableModelsArgs = {
   purpose: MaModelPurpose;
+};
+
+
+export type QueryMaBotDispatchesArgs = {
+  scope?: InputMaybe<MaScope>;
 };
 
 
@@ -25168,6 +25301,9 @@ export type ResolversTypes = ResolversObject<{
   MaActionStatus: MaActionStatus;
   MaAttendance: ResolverTypeWrapper<MaAttendance>;
   MaAuthorizeExtensionInput: MaAuthorizeExtensionInput;
+  MaBotDispatch: ResolverTypeWrapper<MaBotDispatch>;
+  MaBotSource: MaBotSource;
+  MaBotStatus: MaBotStatus;
   MaBulkActionInput: MaBulkActionInput;
   MaCalendar: ResolverTypeWrapper<MaCalendar>;
   MaCalendarAttendee: ResolverTypeWrapper<MaCalendarAttendee>;
@@ -25231,6 +25367,10 @@ export type ResolversTypes = ResolversObject<{
   MaTranscriptSource: MaTranscriptSource;
   MaTranscriptionState: MaTranscriptionState;
   MaUpdateMeetingInput: MaUpdateMeetingInput;
+  MailDomainHealth: ResolverTypeWrapper<MailDomainHealth>;
+  MailHealthCheck: ResolverTypeWrapper<MailHealthCheck>;
+  MailHealthCheckCode: MailHealthCheckCode;
+  MailHealthCheckStatus: MailHealthCheckStatus;
   ManagementReview: ResolverTypeWrapper<ManagementReview>;
   ManagementReviewAction: ResolverTypeWrapper<ManagementReviewAction>;
   ManagementReviewActionInput: ManagementReviewActionInput;
@@ -26350,6 +26490,7 @@ export type ResolversParentTypes = ResolversObject<{
   MaActionStats: MaActionStats;
   MaAttendance: MaAttendance;
   MaAuthorizeExtensionInput: MaAuthorizeExtensionInput;
+  MaBotDispatch: MaBotDispatch;
   MaBulkActionInput: MaBulkActionInput;
   MaCalendar: MaCalendar;
   MaCalendarAttendee: MaCalendarAttendee;
@@ -26395,6 +26536,8 @@ export type ResolversParentTypes = ResolversObject<{
   MaTranscriptHitPage: MaTranscriptHitPage;
   MaTranscriptSegment: MaTranscriptSegment;
   MaUpdateMeetingInput: MaUpdateMeetingInput;
+  MailDomainHealth: MailDomainHealth;
+  MailHealthCheck: MailHealthCheck;
   ManagementReview: ManagementReview;
   ManagementReviewAction: ManagementReviewAction;
   ManagementReviewActionInput: ManagementReviewActionInput;
@@ -31147,6 +31290,23 @@ export type MaAttendanceResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MaBotDispatchResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MaBotDispatch'] = ResolversParentTypes['MaBotDispatch']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  finishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  joinAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  meetUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  meetingCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  meetingId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  ownerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['MaBotSource'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['MaBotStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MaCalendarResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MaCalendar'] = ResolversParentTypes['MaCalendar']> = ResolversObject<{
   events?: Resolver<Array<ResolversTypes['MaCalendarEvent']>, ParentType, ContextType>;
   google?: Resolver<ResolversTypes['MaCalendarGoogleState'], ParentType, ContextType>;
@@ -31498,6 +31658,9 @@ export type MaSettingsResolvers<ContextType = GraphQLContext, ParentType extends
   audioRetentionDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   autoEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   autoGenerateSummary?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  botAutoJoin?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  botEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  botName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultRecipients?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   diarization?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   emailAllowedDomains?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -31562,6 +31725,27 @@ export type MaTranscriptSegmentResolvers<ContextType = GraphQLContext, ParentTyp
   startMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   stream?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MailDomainHealthResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MailDomainHealth'] = ResolversParentTypes['MailDomainHealth']> = ResolversObject<{
+  checkedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  checks?: Resolver<Array<ResolversTypes['MailHealthCheck']>, ParentType, ContextType>;
+  domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mailboxes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  previousScore?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  providers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  score?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MailHealthCheckResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MailHealthCheck'] = ResolversParentTypes['MailHealthCheck']> = ResolversObject<{
+  code?: Resolver<ResolversTypes['MailHealthCheckCode'], ParentType, ContextType>;
+  fix?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  record?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['MailHealthCheckStatus'], ParentType, ContextType>;
+  suggested?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -32027,6 +32211,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
+  checkMailDomainHealth?: Resolver<ResolversTypes['MailDomainHealth'], ParentType, ContextType, RequireFields<MutationCheckMailDomainHealthArgs, 'domain'>>;
   claimWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationClaimWebsiteChatSessionArgs, 'id'>>;
   clearApifyToken?: Resolver<ResolversTypes['LeadSourceSettings'], ParentType, ContextType>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
@@ -32378,6 +32563,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   maApproveRelease?: Resolver<ResolversTypes['MaRelease'], ParentType, ContextType, RequireFields<MutationMaApproveReleaseArgs, 'channel' | 'id'>>;
   maAuthorizeExtension?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationMaAuthorizeExtensionArgs, 'input'>>;
   maBulkUpdateActionItems?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMaBulkUpdateActionItemsArgs, 'input'>>;
+  maCancelBot?: Resolver<ResolversTypes['MaBotDispatch'], ParentType, ContextType, RequireFields<MutationMaCancelBotArgs, 'id'>>;
   maConfirmSpeaker?: Resolver<ResolversTypes['MaMeeting'], ParentType, ContextType, RequireFields<MutationMaConfirmSpeakerArgs, 'input' | 'meetingId'>>;
   maCreateActionItem?: Resolver<ResolversTypes['MaActionItem'], ParentType, ContextType, RequireFields<MutationMaCreateActionItemArgs, 'input' | 'meetingId'>>;
   maDeleteActionItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMaDeleteActionItemArgs, 'id'>>;
@@ -32393,6 +32579,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   maReleaseDownloadLink?: Resolver<ResolversTypes['MaDownloadLink'], ParentType, ContextType, RequireFields<MutationMaReleaseDownloadLinkArgs, 'id'>>;
   maRetryEmailDelivery?: Resolver<ResolversTypes['MaEmailDelivery'], ParentType, ContextType, RequireFields<MutationMaRetryEmailDeliveryArgs, 'id'>>;
   maRevokeExtensionSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMaRevokeExtensionSessionArgs, 'id'>>;
+  maSendBot?: Resolver<ResolversTypes['MaBotDispatch'], ParentType, ContextType, RequireFields<MutationMaSendBotArgs, 'meetUrl'>>;
   maSendSummaryEmail?: Resolver<ResolversTypes['MaMeeting'], ParentType, ContextType, RequireFields<MutationMaSendSummaryEmailArgs, 'meetingId'>>;
   maSetActionStatus?: Resolver<ResolversTypes['MaActionItem'], ParentType, ContextType, RequireFields<MutationMaSetActionStatusArgs, 'id' | 'status'>>;
   maSetReleaseStatus?: Resolver<ResolversTypes['MaRelease'], ParentType, ContextType, RequireFields<MutationMaSetReleaseStatusArgs, 'id' | 'input'>>;
@@ -34307,6 +34494,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   maActionItemsPaged?: Resolver<ResolversTypes['MaActionItemPage'], ParentType, ContextType, RequireFields<QueryMaActionItemsPagedArgs, 'input'>>;
   maActionStats?: Resolver<ResolversTypes['MaActionStats'], ParentType, ContextType, Partial<QueryMaActionStatsArgs>>;
   maAvailableModels?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryMaAvailableModelsArgs, 'purpose'>>;
+  maBotDispatches?: Resolver<Array<ResolversTypes['MaBotDispatch']>, ParentType, ContextType, Partial<QueryMaBotDispatchesArgs>>;
   maCalendar?: Resolver<ResolversTypes['MaCalendar'], ParentType, ContextType, RequireFields<QueryMaCalendarArgs, 'from' | 'to'>>;
   maDashboard?: Resolver<ResolversTypes['MaDashboard'], ParentType, ContextType, Partial<QueryMaDashboardArgs>>;
   maDecisions?: Resolver<Array<ResolversTypes['MaDecision']>, ParentType, ContextType, RequireFields<QueryMaDecisionsArgs, 'meetingId'>>;
@@ -34332,6 +34520,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   maSettings?: Resolver<ResolversTypes['MaSettings'], ParentType, ContextType>;
   maTranscript?: Resolver<Array<ResolversTypes['MaTranscriptSegment']>, ParentType, ContextType, RequireFields<QueryMaTranscriptArgs, 'meetingId'>>;
   maTranscriptSearch?: Resolver<ResolversTypes['MaTranscriptHitPage'], ParentType, ContextType, RequireFields<QueryMaTranscriptSearchArgs, 'input'>>;
+  mailDomainHealth?: Resolver<Array<ResolversTypes['MailDomainHealth']>, ParentType, ContextType>;
   marketingDashboard?: Resolver<ResolversTypes['MarketingDashboard'], ParentType, ContextType>;
   marketingFooter?: Resolver<ResolversTypes['MarketingFooter'], ParentType, ContextType>;
   marketingSuppressionHistory?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryMarketingSuppressionHistoryArgs, 'email'>>;
@@ -37210,6 +37399,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MaActionItemPage?: MaActionItemPageResolvers<ContextType>;
   MaActionStats?: MaActionStatsResolvers<ContextType>;
   MaAttendance?: MaAttendanceResolvers<ContextType>;
+  MaBotDispatch?: MaBotDispatchResolvers<ContextType>;
   MaCalendar?: MaCalendarResolvers<ContextType>;
   MaCalendarAttendee?: MaCalendarAttendeeResolvers<ContextType>;
   MaCalendarEvent?: MaCalendarEventResolvers<ContextType>;
@@ -37244,6 +37434,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MaTranscriptHit?: MaTranscriptHitResolvers<ContextType>;
   MaTranscriptHitPage?: MaTranscriptHitPageResolvers<ContextType>;
   MaTranscriptSegment?: MaTranscriptSegmentResolvers<ContextType>;
+  MailDomainHealth?: MailDomainHealthResolvers<ContextType>;
+  MailHealthCheck?: MailHealthCheckResolvers<ContextType>;
   ManagementReview?: ManagementReviewResolvers<ContextType>;
   ManagementReviewAction?: ManagementReviewActionResolvers<ContextType>;
   ManagementReviewPage?: ManagementReviewPageResolvers<ContextType>;

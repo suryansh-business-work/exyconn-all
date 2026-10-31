@@ -42,6 +42,7 @@ function renderTable(row: MailboxRow, microsoft: MailboxActions, onViewDetails =
       rows={[row]}
       loading={false}
       actions={{ GMAIL: actions(), MICROSOFT: microsoft }}
+      healthDomains={[]}
       onRefresh={vi.fn()}
       onViewDetails={onViewDetails}
     />,

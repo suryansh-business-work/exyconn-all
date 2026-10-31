@@ -12,6 +12,7 @@ import { meetingPaths, type MeetingPageProps } from '../lib/scope';
 import { DashboardFilters } from './DashboardFilters';
 import { toDashboardFilter } from './dashboard-filter';
 import { dashboardStats } from './dashboard-stats';
+import { BotTrips } from '../bot/BotTrips';
 
 /**
  * Meeting Assistant → Dashboard: how many calls were recorded, how long they ran, what the AI
@@ -60,6 +61,9 @@ export function MeetingDashboardPage({ scope, basePath }: Readonly<MeetingPagePr
           labelHeading="Day"
           integer
         />
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <BotTrips scope={scope} basePath={basePath} />
       </Box>
     </>
   );

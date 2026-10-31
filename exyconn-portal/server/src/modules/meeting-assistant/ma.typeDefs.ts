@@ -248,7 +248,7 @@ export const maMeetingTypeDefs = gql`
     title: String
   }
 
-  "One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as WebM video."
+  "One saved stream of a meeting: TAB (meeting audio) or MIC (the user's microphone) as WAV, or SCREEN, SCREEN_2 and so on (one per recording start) as MP4 video."
   type MaRecordingTrack {
     stream: String!
     chunkCount: Int!
@@ -352,7 +352,7 @@ export const maMeetingTypeDefs = gql`
     ): Int!
     "Ends the call and queues the after-meeting pipeline (import, notes, email). Idempotent."
     maFinalizeSession(meetingId: ID!, endedAt: DateTime!): MaMeeting!
-    "A link that downloads one stream as a single file (WAV for TAB or MIC, WebM for a SCREEN track), valid for a few minutes."
+    "A link that downloads one stream as a single file (WAV for TAB or MIC, MP4 for a SCREEN track), valid for a few minutes."
     maRecordingDownloadLink(meetingId: ID!, stream: String!): MaDownloadLink!
   }
 `;

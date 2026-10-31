@@ -85,6 +85,9 @@ export const meetingSettingsSchema = z.object({
   participantTracking: z.boolean(),
   liveTranscript: z.boolean(),
   releaseChannel: z.enum(MaReleaseChannel),
+  botEnabled: z.boolean(),
+  botAutoJoin: z.boolean(),
+  botName: z.string().trim().min(1, 'The bot needs a name').max(60, 'At most 60 characters'),
 });
 
 export type MeetingSettingsFormInput = z.input<typeof meetingSettingsSchema>;
@@ -117,5 +120,8 @@ export function toSettingsValues(row: MeetingSettingsRow): MeetingSettingsInput 
     participantTracking: row.participantTracking,
     liveTranscript: row.liveTranscript,
     releaseChannel: row.releaseChannel,
+    botEnabled: row.botEnabled,
+    botAutoJoin: row.botAutoJoin,
+    botName: row.botName,
   };
 }

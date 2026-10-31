@@ -144,3 +144,19 @@ export function LimitsSection() {
     </FormSection>
   );
 }
+
+/** The meeting bot: whether it may be sent, whether it follows the calendar, and its name. */
+export function BotSection() {
+  return (
+    <FormSection title="Meeting bot">
+      <RhfSwitch name="botEnabled" label="Let people send the bot into their calls" />
+      <RhfSwitch name="botAutoJoin" label="Send the bot into calendar meetings automatically" />
+      <RhfTextField
+        name="botName"
+        label="Bot name"
+        helperText="Everyone in the call sees this name, e.g. Exyconn Notetaker."
+        slotProps={{ htmlInput: { maxLength: 60 } }}
+      />
+    </FormSection>
+  );
+}

@@ -160,7 +160,7 @@ export async function analyseMeeting(
   const caller: Caller = {
     apiKey: config.apiKey,
     model,
-    system: systemPrompt(style),
+    system: systemPrompt(style, meeting.language),
     usage: { promptTokens: 0, completionTokens: 0 },
   };
   const parts = windows(lines);

@@ -34,6 +34,7 @@ export const JOB_KEYS = {
   meetingAssistantReleaseRetention: 'meetingAssistantReleaseRetention',
   fxRates: 'fxRates',
   mcpAlerts: 'mcpAlerts',
+  mailHealth: 'mailHealth',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

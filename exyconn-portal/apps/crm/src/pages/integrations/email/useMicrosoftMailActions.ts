@@ -4,6 +4,7 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import {
   CrmEmailSendersDocument,
+  MailDomainHealthDocument,
   CrmIntegrationStatusDocument,
   MicrosoftMailAccountsDocument,
   useDisconnectMicrosoftMailAccountMutation,
@@ -28,6 +29,7 @@ export function useMicrosoftMailActions() {
     MicrosoftMailAccountsDocument,
     CrmIntegrationStatusDocument,
     CrmEmailSendersDocument,
+    MailDomainHealthDocument,
   ];
   const [start, { loading: connecting }] = useStartMicrosoftMailConnectMutation();
   const [testAccount] = useTestMicrosoftMailAccountMutation({ refetchQueries });

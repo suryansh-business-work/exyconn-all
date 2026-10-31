@@ -14,8 +14,8 @@ export type AudioStream = 'TAB' | 'MIC';
 
 /** How transcription audio is encoded: self-contained WebM/Opus files from MediaRecorder. */
 export const AUDIO_MIME = 'audio/webm';
-/** The screen recording: one continuous WebM (VP8 video, Opus audio) per recording part. */
-export const VIDEO_MIME = 'video/webm';
+/** The screen recording: one continuous WebM (H.264 video, Opus audio) per recording part. */
+export const VIDEO_MIME = 'video/webm;codecs=h264,opus';
 
 /** What the worker hands the in-page recorder once a start has been checked. */
 export interface CapturePlan {

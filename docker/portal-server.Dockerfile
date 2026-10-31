@@ -63,7 +63,7 @@ RUN pnpm --filter exyconn-portal-server run build \
 
 # --- Runtime ------------------------------------------------------------------
 FROM node:22-alpine AS runtime
-RUN apk add --no-cache wget && \
+RUN apk add --no-cache wget ffmpeg && \
     addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 WORKDIR /app
 COPY --from=build --chown=nodejs:nodejs /app /app
