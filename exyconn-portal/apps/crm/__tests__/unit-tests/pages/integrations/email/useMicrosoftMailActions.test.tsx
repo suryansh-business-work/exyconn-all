@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import {
   CrmEmailSendersDocument,
   CrmIntegrationStatusDocument,
+  MailDomainHealthDocument,
   MicrosoftMailAccountsDocument,
 } from '@exyconn/shell/graphql/generated';
 import { useMicrosoftMailActions } from '../../../../../src/pages/integrations/email/useMicrosoftMailActions';
@@ -61,6 +62,7 @@ describe('useMicrosoftMailActions', () => {
       MicrosoftMailAccountsDocument,
       CrmIntegrationStatusDocument,
       CrmEmailSendersDocument,
+      MailDomainHealthDocument,
     ];
 
     expect(gql.options).toHaveBeenCalledWith('setEnabled', { refetchQueries });

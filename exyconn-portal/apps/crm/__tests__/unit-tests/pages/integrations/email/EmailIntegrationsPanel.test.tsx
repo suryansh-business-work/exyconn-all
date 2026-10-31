@@ -69,6 +69,7 @@ describe('EmailIntegrationsPanel', () => {
     expect(headers).toEqual([
       'Mailbox',
       'Status',
+      'Health',
       'Use for CRM',
       'Last activity',
       'Connected by',

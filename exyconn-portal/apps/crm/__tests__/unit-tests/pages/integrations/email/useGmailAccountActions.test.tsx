@@ -6,6 +6,7 @@ import {
   CrmGmailReadyDocument,
   CrmIntegrationStatusDocument,
   GmailAccountsDocument,
+  MailDomainHealthDocument,
 } from '@exyconn/shell/graphql/generated';
 import { useGmailAccountActions } from '../../../../../src/pages/integrations/email/useGmailAccountActions';
 import { renderHookWithProviders } from '../../../test-utils';
@@ -80,6 +81,7 @@ describe('useGmailAccountActions', () => {
       CrmGmailReadyDocument,
       CrmIntegrationStatusDocument,
       CrmEmailSendersDocument,
+      MailDomainHealthDocument,
     ];
 
     expect(gql.options).toHaveBeenCalledWith('setEnabled', { refetchQueries });

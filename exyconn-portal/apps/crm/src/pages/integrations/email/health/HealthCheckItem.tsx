@@ -44,7 +44,7 @@ export function HealthCheckItem({ check }: Readonly<{ check: DomainHealthCheck }
   return (
     <Flex direction="row" spacing={1.5} alignItems="flex-start">
       <Box
-        sx={{ color: iconColor, display: 'flex', pt: 0.25 }}
+        sx={{ color: iconColor, display: 'flex', pt: 0.5 }}
         role="img"
         aria-label={t(view.label)}
       >
