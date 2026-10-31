@@ -9,6 +9,7 @@ fragment SignInResult on AuthPayload {
     name
     email
     roles
+    planRoles
     avatarUrl
   }
 }
@@ -74,6 +75,7 @@ query Me {
     name
     email
     roles
+    planRoles
     avatarUrl
     timezone
     locale

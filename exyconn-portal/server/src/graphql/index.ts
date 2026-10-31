@@ -12,6 +12,12 @@ import { crmIntegrationsTypeDefs, crmIntegrationsResolvers } from '../modules/cr
 import { crmMailTypeDefs, crmMailResolvers } from '../modules/crm-mail';
 import { meetingTypeDefs, meetingResolvers } from '../modules/crm/meetings';
 import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
+import {
+  billingTypeDefs,
+  billingResolvers,
+  signupTypeDefs,
+  signupResolvers,
+} from '../modules/billing';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
 import { reportingResolvers } from '../modules/admin/reporting';
@@ -280,6 +286,8 @@ export const typeDefs = [
   meetingTypeDefs,
   organizationsTypeDefs,
   adminTypeDefs,
+  billingTypeDefs,
+  signupTypeDefs,
   financeTypeDefs,
   financeBillingTypeDefs,
   financeCompanyTypeDefs,
@@ -410,6 +418,8 @@ export const resolvers = mergeResolvers([
   meetingResolvers,
   organizationsResolvers,
   adminResolvers,
+  billingResolvers,
+  signupResolvers,
   reportingResolvers,
   presenceResolvers,
   financeResolvers,

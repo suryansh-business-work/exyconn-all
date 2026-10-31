@@ -12,6 +12,11 @@
 export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   // The tenancy itself.
   'Organization',
+  // The subscription plans companies choose from (Admin › Plans), and the ledger of Stripe and
+  // Razorpay subscription webhooks, deduplicated by event id before any company is known.
+  // Each company's own subscription (BillingSubscription) is its own data.
+  'BillingPlan',
+  'BillingWebhookEvent',
   // Shared infrastructure, configured once for the install (Tech portal).
   'EmailConfig',
   'ImageConfig',

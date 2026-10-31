@@ -33,6 +33,7 @@ import { imageUploader } from '../../utils/imagekit';
 import { isDateFormat, isTimeFormat } from '../../utils/dateFormats';
 import type { AttachmentInput } from '../../lib/attachments';
 import { normalizeWorkDays } from './work-week';
+import { assertSeatAvailable, confirmSeatOrUndo } from '../billing/seats';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
 const USER_TABLE_CONFIG: TableConfig = {
@@ -486,6 +487,8 @@ class AdminService {
     if (exists?.deletedAt) badRequest('This email belongs to a deleted employee');
     if (exists) badRequest('A user with this email already exists');
     if (!input.roles.length) badRequest('At least one role is required');
+    const active = input.isActive ?? true;
+    if (active) await assertSeatAvailable();
 
     const tempPassword = generateTempPassword();
     const passwordHash = await hashPassword(tempPassword);
@@ -494,9 +497,10 @@ class AdminService {
       email: input.email,
       passwordHash,
       roles: input.roles,
-      isActive: input.isActive ?? true,
+      isActive: active,
       ...(await hrFields(input)),
     });
+    if (active) await confirmSeatOrUndo(() => UserModel.deleteOne({ _id: user._id }));
 
     tryEmail('Welcome', () =>
       mailer.sendWelcomeEmail({
@@ -606,8 +610,11 @@ class AdminService {
       assertPasswordPolicy(input.password, input.email ?? current?.email ?? '');
       update.passwordHash = await hashPassword(input.password);
     }
+    const activating = input.isActive === true && (await this.isInactive(id));
+    if (activating) await assertSeatAvailable();
     const user = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!user) notFound('User');
+    if (activating) await confirmSeatOrUndo(() => this.deactivate(id));
     // A password set by an administrator signs the person out everywhere they were signed in.
     if (input.password) await bumpTokenVersion(id);
     return user;
@@ -629,9 +636,22 @@ class AdminService {
 
   /** Activates or deactivates a user (deactivated users cannot sign in). */
   async setUserActive(id: string, isActive: boolean) {
+    const activating = isActive && (await this.isInactive(id));
+    if (activating) await assertSeatAvailable();
     const user = await UserModel.findByIdAndUpdate(id, { isActive }, { new: true }).lean();
     if (!user) notFound('User');
+    if (activating) await confirmSeatOrUndo(() => this.deactivate(id));
     return user;
+  }
+
+  /** Whether the account exists and is switched off — turning it on takes a seat (billing). */
+  private async isInactive(id: string): Promise<boolean> {
+    const user = await UserModel.findById(id).select('isActive').lean();
+    return user?.isActive === false;
+  }
+
+  private deactivate(id: string) {
+    return UserModel.updateOne({ _id: id }, { isActive: false });
   }
 
   /** Temporarily blocks or unblocks a user, recording the reason when blocking. */

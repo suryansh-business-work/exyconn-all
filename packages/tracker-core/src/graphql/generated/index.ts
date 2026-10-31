@@ -418,6 +418,15 @@ export type BenefitKind =
   | 'PF'
   | 'WELLNESS';
 
+export type BillingCheckoutInput = {
+  /** ISO 4217 currency to pay in; the plan must have a price in it. */
+  currency: Scalars['String']['input'];
+  /** The plan to subscribe to. */
+  planId: Scalars['ID']['input'];
+  /** The gateway to pay through. */
+  provider: CheckoutProvider;
+};
+
 export type BillingKeyConfigInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   /** Required when adding. Leave empty when editing to keep the stored key. */
@@ -426,9 +435,40 @@ export type BillingKeyConfigInput = {
   provider: BillingProvider;
 };
 
+export type BillingPlanInput = {
+  /** AI spend allowed per calendar month in USD; 0 is unlimited. */
+  aiMonthlyUsdCap: Scalars['Float']['input'];
+  /** Include every module. */
+  allModules: Scalars['Boolean']['input'];
+  description: InputMaybe<Scalars['String']['input']>;
+  interval: PlanInterval;
+  /** False retires it: subscribers keep it, nobody new can choose it. */
+  isActive: Scalars['Boolean']['input'];
+  /** Offer it on the public sign-up page. */
+  isPublic: Scalars['Boolean']['input'];
+  /** URL-safe handle (lower-case letters, digits, dashes). Fixed once the plan exists. */
+  key: Scalars['String']['input'];
+  /** Module roles included when allModules is false (ADMIN and EMPLOYEE are always open). */
+  modules: Array<Role>;
+  name: Scalars['String']['input'];
+  /** One price per currency it is sold in. No price (or all 0) makes it free. */
+  prices: Array<PlanPriceInput>;
+  /** Active people allowed; 0 is unlimited. */
+  seatLimit: Scalars['Int']['input'];
+  /** Position in lists, lowest first. */
+  sortOrder: InputMaybe<Scalars['Int']['input']>;
+  /** Free trial length for a new sign-up, 0 to 365 days. */
+  trialDays: Scalars['Int']['input'];
+};
+
 /** A provider whose real bill a billing key can read. */
 export type BillingProvider =
-  | 'OPENAI';
+  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
+  | 'MANUAL'
+  | 'NONE'
+  | 'OPENAI'
+  | 'RAZORPAY'
+  | 'STRIPE';
 
 export type BlogAuthorInput = {
   initials: InputMaybe<Scalars['String']['input']>;
@@ -761,6 +801,11 @@ export type CheckSeverity =
   | 'ERROR'
   | 'INFO'
   | 'WARNING';
+
+/** A gateway a company can pay its subscription through. */
+export type CheckoutProvider =
+  | 'RAZORPAY'
+  | 'STRIPE';
 
 export type ClientCommunicationInput = {
   details: InputMaybe<Scalars['String']['input']>;
@@ -3549,6 +3594,18 @@ export type PexelsSearchFilters = {
   size: InputMaybe<Scalars['String']['input']>;
 };
 
+/** How often a plan is charged. */
+export type PlanInterval =
+  | 'MONTH'
+  | 'YEAR';
+
+export type PlanPriceInput = {
+  /** Price per interval in that currency's main unit (dollars, rupees). */
+  amount: Scalars['Float']['input'];
+  /** ISO 4217 currency code, e.g. USD or INR. */
+  currency: Scalars['String']['input'];
+};
+
 export type PolicyAudience =
   | 'ALL_STAFF'
   | 'HR_ONLY'
@@ -4023,6 +4080,24 @@ export type ShiftInput = {
   startTime: Scalars['String']['input'];
 };
 
+export type SignupInput = {
+  /** The six-digit code from the email. */
+  code: Scalars['String']['input'];
+  companyName: Scalars['String']['input'];
+  /** ISO 3166-1 alpha-2 country code. */
+  country: InputMaybe<Scalars['String']['input']>;
+  /** ISO 4217 currency the company keeps its books in. */
+  currency: Scalars['String']['input'];
+  /** The address the code was sent to; becomes the administrator's sign-in. */
+  email: Scalars['String']['input'];
+  /** The administrator's full name. */
+  name: Scalars['String']['input'];
+  /** The public plan to start a trial of. */
+  planId: Scalars['ID']['input'];
+  /** IANA timezone. */
+  timezone: InputMaybe<Scalars['String']['input']>;
+};
+
 /** How a ticket stands against the resolution time promised for its priority. */
 export type SlaState =
   | 'BREACHED'
@@ -4241,6 +4316,17 @@ export type SubmitProblemReportInput = {
   severity: ProblemSeverity;
   subject: Scalars['String']['input'];
 };
+
+/** Where a company's subscription stands. */
+export type SubscriptionStatus =
+  /** Paid and current. */
+  | 'ACTIVE'
+  /** Ended; only Admin and My Workspace stay open. */
+  | 'CANCELLED'
+  /** A renewal failed; access continues while the provider retries. */
+  | 'PAST_DUE'
+  /** On a free trial; modules close when it ends unpaid. */
+  | 'TRIALING';
 
 /** How much, and in what shape, a summary comes back. */
 export type SummaryStyle =

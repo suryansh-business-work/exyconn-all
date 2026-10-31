@@ -1156,6 +1156,15 @@ export type BilledDay = {
   day: Scalars['String']['output'];
 };
 
+export type BillingCheckoutInput = {
+  /** ISO 4217 currency to pay in; the plan must have a price in it. */
+  currency: Scalars['String']['input'];
+  /** The plan to subscribe to. */
+  planId: Scalars['ID']['input'];
+  /** The gateway to pay through. */
+  provider: CheckoutProvider;
+};
+
 /** An extra key that reads a provider's real bill (OpenAI's Admin key). Write-only, sealed at rest. */
 export type BillingKeyConfig = {
   __typename?: 'BillingKeyConfig';
@@ -1176,10 +1185,105 @@ export type BillingKeyConfigInput = {
   provider: BillingProvider;
 };
 
+/** A company's plan, status and usage against its limits. */
+export type BillingOverview = {
+  __typename?: 'BillingOverview';
+  aiSpentThisMonthUsd: Scalars['Float']['output'];
+  /** True when the trial ran out unpaid or the subscription was cancelled. */
+  lapsed: Scalars['Boolean']['output'];
+  plan?: Maybe<BillingPlan>;
+  /** The plans this company can switch to. */
+  plans: Array<BillingPlan>;
+  /** The gateways configured for checkout. */
+  providers: Array<CheckoutProvider>;
+  seatsUsed: Scalars['Int']['output'];
+  /** Null for a company that has never been put on a plan (no limits apply). */
+  subscription?: Maybe<BillingSubscription>;
+};
+
+/** A subscription plan companies choose from. Limits of 0 are unlimited. */
+export type BillingPlan = {
+  __typename?: 'BillingPlan';
+  /** AI spend allowed per calendar month, in USD; 0 is unlimited. */
+  aiMonthlyUsdCap: Scalars['Float']['output'];
+  /** Every module, present and future. When false, modules lists what is included. */
+  allModules: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  interval: PlanInterval;
+  /** A retired plan keeps its subscribers but cannot be chosen. */
+  isActive: Scalars['Boolean']['output'];
+  /** Offered on the public sign-up page. */
+  isPublic: Scalars['Boolean']['output'];
+  /** The platform's own grandfathered plan; cannot be deleted or retired. */
+  isSystem: Scalars['Boolean']['output'];
+  /** URL-safe handle, unique across the platform. */
+  key: Scalars['String']['output'];
+  /** Module roles included besides ADMIN and EMPLOYEE, which every plan opens. */
+  modules: Array<Role>;
+  name: Scalars['String']['output'];
+  prices: Array<PlanPrice>;
+  /** Active people a company on this plan may have; 0 is unlimited. */
+  seatLimit: Scalars['Int']['output'];
+  sortOrder: Scalars['Int']['output'];
+  trialDays: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BillingPlanInput = {
+  /** AI spend allowed per calendar month in USD; 0 is unlimited. */
+  aiMonthlyUsdCap: Scalars['Float']['input'];
+  /** Include every module. */
+  allModules: Scalars['Boolean']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  interval: PlanInterval;
+  /** False retires it: subscribers keep it, nobody new can choose it. */
+  isActive: Scalars['Boolean']['input'];
+  /** Offer it on the public sign-up page. */
+  isPublic: Scalars['Boolean']['input'];
+  /** URL-safe handle (lower-case letters, digits, dashes). Fixed once the plan exists. */
+  key: Scalars['String']['input'];
+  /** Module roles included when allModules is false (ADMIN and EMPLOYEE are always open). */
+  modules: Array<Role>;
+  name: Scalars['String']['input'];
+  /** One price per currency it is sold in. No price (or all 0) makes it free. */
+  prices: Array<PlanPriceInput>;
+  /** Active people allowed; 0 is unlimited. */
+  seatLimit: Scalars['Int']['input'];
+  /** Position in lists, lowest first. */
+  sortOrder?: InputMaybe<Scalars['Int']['input']>;
+  /** Free trial length for a new sign-up, 0 to 365 days. */
+  trialDays: Scalars['Int']['input'];
+};
+
 /** A provider whose real bill a billing key can read. */
 export enum BillingProvider {
-  Openai = 'OPENAI'
+  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
+  Manual = 'MANUAL',
+  None = 'NONE',
+  Openai = 'OPENAI',
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
 }
+
+/** A company's subscription. */
+export type BillingSubscription = {
+  __typename?: 'BillingSubscription';
+  /** True when it will end with the period already paid for. */
+  cancelAtPeriodEnd: Scalars['Boolean']['output'];
+  cancelledAt?: Maybe<Scalars['DateTime']['output']>;
+  /** ISO 4217 currency it is charged in, or empty before the first payment. */
+  currency: Scalars['String']['output'];
+  currentPeriodEnd?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  planId: Scalars['ID']['output'];
+  planKey: Scalars['String']['output'];
+  provider: BillingProvider;
+  status: SubscriptionStatus;
+  trialEndsAt?: Maybe<Scalars['DateTime']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
 
 export type BlogAuthor = {
   __typename?: 'BlogAuthor';
@@ -2110,6 +2214,12 @@ export enum CheckSeverity {
   Error = 'ERROR',
   Info = 'INFO',
   Warning = 'WARNING'
+}
+
+/** A gateway a company can pay its subscription through. */
+export enum CheckoutProvider {
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
 }
 
 export type Client = {
@@ -9400,10 +9510,14 @@ export type Mutation = {
   assignLegalItems: Array<LegalAssignment>;
   /** Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN). */
   assignOrganizationAdmin: User;
+  /** Places a company on a plan by hand, e.g. an invoiced deal (SUPER_ADMIN). */
+  assignOrganizationPlan: BillingSubscription;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
   /** Public: books a free start from a booking link. */
   bookMeeting: BookedMeeting;
+  /** Cancels the caller's company subscription: a paid one ends with its period, a trial or manual one ends now (ADMIN). */
+  cancelBillingSubscription: BillingOverview;
   /** Unschedules a queued send, or stops a running one before its next batch. */
   cancelCampaignSend: Campaign;
   /** Withdraw a request that has not been carried out. */
@@ -9437,6 +9551,8 @@ export type Mutation = {
   commentOnTeamGoal: Goal;
   /** Redeems the one-time ticket Google's callback handed the page. Public. */
   completeGoogleSignIn: AuthPayload;
+  /** Creates the company and its administrator with the emailed code, starts the plan's trial and signs the administrator in. */
+  completeSignup: AuthPayload;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
   completeSprint: Sprint;
   /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
@@ -9463,6 +9579,8 @@ export type Mutation = {
   createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBillingKeyConfig: BillingKeyConfig;
+  /** Adds a plan to the catalogue (SUPER_ADMIN). */
+  createBillingPlan: BillingPlan;
   createBlogPost: BlogPost;
   createBudget: Budget;
   createBug: Bug;
@@ -9661,6 +9779,8 @@ export type Mutation = {
   deleteAudienceList: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBillingKeyConfig: Scalars['Boolean']['output'];
+  /** Deletes a plan nobody is on; retire one with subscribers instead (SUPER_ADMIN). */
+  deleteBillingPlan: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
@@ -10032,6 +10152,8 @@ export type Mutation = {
    * Always true, so the answer does not reveal which addresses have accounts.
    */
   requestPasswordReset: Scalars['Boolean']['output'];
+  /** Emails a sign-up code to the person creating a company. No sign-in needed. */
+  requestSignupCode: Scalars['Boolean']['output'];
   /** Emails a one-time code to the address the caller signs in with. */
   requestTechVaultCode: Scalars['Boolean']['output'];
   /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
@@ -10306,6 +10428,8 @@ export type Mutation = {
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
+  /** Opens a hosted Stripe or Razorpay checkout to subscribe the caller's company to a plan, and returns its URL. The subscription changes when the provider confirms payment (ADMIN). */
+  startBillingCheckout: Scalars['String']['output'];
   /** Starts a call with the demo bot: returns a socket address for a browser call, or rings the given phone number. Rate limited; confirm the number with the person before a phone call. */
   startCallingBotCall: CallingBotCallStart;
   /** Starts a Clutch search; it finishes in the background (poll clutchRun). */
@@ -10521,6 +10645,8 @@ export type Mutation = {
   updateAudienceList: AudienceList;
   updateBenefit: Benefit;
   updateBillingKeyConfig: BillingKeyConfig;
+  /** Changes a plan; companies on it get the new limits within a minute (SUPER_ADMIN). */
+  updateBillingPlan: BillingPlan;
   updateBlogPost: BlogPost;
   /** Saves your company's branding (logos, colours, names, invoice details). Admins only; changes every portal and email at once. */
   updateBranding: Branding;
@@ -10813,6 +10939,13 @@ export type MutationAssignOrganizationAdminArgs = {
 };
 
 
+export type MutationAssignOrganizationPlanArgs = {
+  organizationId: Scalars['ID']['input'];
+  planId: Scalars['ID']['input'];
+  status: SubscriptionStatus;
+};
+
+
 export type MutationAssignSupportTicketArgs = {
   assigneeId: Scalars['String']['input'];
   id: Scalars['ID']['input'];
@@ -10913,6 +11046,11 @@ export type MutationCompleteGoogleSignInArgs = {
 };
 
 
+export type MutationCompleteSignupArgs = {
+  input: SignupInput;
+};
+
+
 export type MutationCompleteSprintArgs = {
   id: Scalars['ID']['input'];
 };
@@ -10988,6 +11126,11 @@ export type MutationCreateBenefitArgs = {
 
 export type MutationCreateBillingKeyConfigArgs = {
   input: BillingKeyConfigInput;
+};
+
+
+export type MutationCreateBillingPlanArgs = {
+  input: BillingPlanInput;
 };
 
 
@@ -11776,6 +11919,11 @@ export type MutationDeleteBenefitArgs = {
 
 
 export type MutationDeleteBillingKeyConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteBillingPlanArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -12978,6 +13126,11 @@ export type MutationRequestPasswordResetArgs = {
 };
 
 
+export type MutationRequestSignupCodeArgs = {
+  email: Scalars['String']['input'];
+};
+
+
 export type MutationRequestWhatsappDemoCodeArgs = {
   captcha?: InputMaybe<WebsiteCaptchaAnswer>;
   input: WhatsappDemoCodeInput;
@@ -13595,6 +13748,11 @@ export type MutationSocialMediaInsightsArgs = {
 };
 
 
+export type MutationStartBillingCheckoutArgs = {
+  input: BillingCheckoutInput;
+};
+
+
 export type MutationStartCallingBotCallArgs = {
   input: StartCallingBotCallInput;
 };
@@ -14015,6 +14173,12 @@ export type MutationUpdateBenefitArgs = {
 export type MutationUpdateBillingKeyConfigArgs = {
   id: Scalars['ID']['input'];
   input: BillingKeyConfigInput;
+};
+
+
+export type MutationUpdateBillingPlanArgs = {
+  id: Scalars['ID']['input'];
+  input: BillingPlanInput;
 };
 
 
@@ -15858,6 +16022,27 @@ export type PexelsSearchFilters = {
   size?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** How often a plan is charged. */
+export enum PlanInterval {
+  Month = 'MONTH',
+  Year = 'YEAR'
+}
+
+/** A plan's price in one currency, per interval. */
+export type PlanPrice = {
+  __typename?: 'PlanPrice';
+  amount: Scalars['Float']['output'];
+  /** ISO 4217 currency code. */
+  currency: Scalars['String']['output'];
+};
+
+export type PlanPriceInput = {
+  /** Price per interval in that currency's main unit (dollars, rupees). */
+  amount: Scalars['Float']['input'];
+  /** ISO 4217 currency code, e.g. USD or INR. */
+  currency: Scalars['String']['input'];
+};
+
 /** Every organization on the platform. */
 export type PlatformAnalytics = {
   __typename?: 'PlatformAnalytics';
@@ -16759,6 +16944,10 @@ export type Query = {
   /** TECH: every background loop, with what its last pass did. */
   backgroundJobs: Array<BackgroundJob>;
   billingKeyConfigs: Array<BillingKeyConfig>;
+  /** The caller's company: its plan, subscription status, seats and AI used, and the plans it can move to (ADMIN). */
+  billingOverview: BillingOverview;
+  /** Every plan in the catalogue, retired ones included (SUPER_ADMIN). */
+  billingPlans: Array<BillingPlan>;
   /** Reads your company's branding: names, logos, colours, contact and invoice details, and login pages. */
   branding: Branding;
   /**
@@ -17714,6 +17903,8 @@ export type Query = {
   organization: Organization;
   /** Everything done to one organization, newest first: created, edited, suspended, people invited (SUPER_ADMIN). */
   organizationHistory: Array<AuditLog>;
+  /** One company's subscription, or null when it has none (SUPER_ADMIN). */
+  organizationSubscription?: Maybe<BillingSubscription>;
   /** Every organization on the platform (SUPER_ADMIN). */
   organizations: Array<Organization>;
   /** Every active employee and whether the month can be run for them, with the figures it would store. */
@@ -17870,6 +18061,8 @@ export type Query = {
   sharedGccEstimate?: Maybe<GccSharedEstimate>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
+  /** The plans offered on the public sign-up page. No sign-in needed. */
+  signupPlans: Array<BillingPlan>;
   /** The company's connected accounts. MARKETING. */
   socialAccounts: Array<SocialAccount>;
   /** What the posts did over the last days (1-365). MARKETING. */
@@ -19829,6 +20022,11 @@ export type QueryOrganizationHistoryArgs = {
 };
 
 
+export type QueryOrganizationSubscriptionArgs = {
+  organizationId: Scalars['ID']['input'];
+};
+
+
 export type QueryPayrollRunPlanArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -21018,6 +21216,24 @@ export type ShiftPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type SignupInput = {
+  /** The six-digit code from the email. */
+  code: Scalars['String']['input'];
+  companyName: Scalars['String']['input'];
+  /** ISO 3166-1 alpha-2 country code. */
+  country?: InputMaybe<Scalars['String']['input']>;
+  /** ISO 4217 currency the company keeps its books in. */
+  currency: Scalars['String']['input'];
+  /** The address the code was sent to; becomes the administrator's sign-in. */
+  email: Scalars['String']['input'];
+  /** The administrator's full name. */
+  name: Scalars['String']['input'];
+  /** The public plan to start a trial of. */
+  planId: Scalars['ID']['input'];
+  /** IANA timezone. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** How a ticket stands against the resolution time promised for its priority. */
 export enum SlaState {
   Breached = 'BREACHED',
@@ -21840,6 +22056,18 @@ export type SubmitProblemReportInput = {
   severity: ProblemSeverity;
   subject: Scalars['String']['input'];
 };
+
+/** Where a company's subscription stands. */
+export enum SubscriptionStatus {
+  /** Paid and current. */
+  Active = 'ACTIVE',
+  /** Ended; only Admin and My Workspace stay open. */
+  Cancelled = 'CANCELLED',
+  /** A renewal failed; access continues while the provider retries. */
+  PastDue = 'PAST_DUE',
+  /** On a free trial; modules close when it ends unpaid. */
+  Trialing = 'TRIALING'
+}
 
 /** How much, and in what shape, a summary comes back. */
 export enum SummaryStyle {
@@ -23748,6 +23976,8 @@ export type User = {
   personalEmailVerifiedAt?: Maybe<Scalars['DateTime']['output']>;
   /** A number colleagues can reach the person on; set by the person in their profile. */
   phone?: Maybe<Scalars['String']['output']>;
+  /** The module roles this person's company plan opens besides ADMIN and EMPLOYEE; null when every module is open. */
+  planRoles?: Maybe<Array<Role>>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   /** The state or region the person works in, which decides regional holidays. Set by HR only. */
@@ -24892,9 +25122,14 @@ export type ResolversTypes = ResolversObject<{
   BenefitKind: BenefitKind;
   BenefitPage: ResolverTypeWrapper<BenefitPage>;
   BilledDay: ResolverTypeWrapper<BilledDay>;
+  BillingCheckoutInput: BillingCheckoutInput;
   BillingKeyConfig: ResolverTypeWrapper<BillingKeyConfig>;
   BillingKeyConfigInput: BillingKeyConfigInput;
+  BillingOverview: ResolverTypeWrapper<BillingOverview>;
+  BillingPlan: ResolverTypeWrapper<BillingPlan>;
+  BillingPlanInput: BillingPlanInput;
   BillingProvider: BillingProvider;
+  BillingSubscription: ResolverTypeWrapper<BillingSubscription>;
   BlogAuthor: ResolverTypeWrapper<BlogAuthor>;
   BlogAuthorInput: BlogAuthorInput;
   BlogPost: ResolverTypeWrapper<BlogPost>;
@@ -24963,6 +25198,7 @@ export type ResolversTypes = ResolversObject<{
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: ResolverTypeWrapper<CaseStudyPage>;
   CheckSeverity: CheckSeverity;
+  CheckoutProvider: CheckoutProvider;
   Client: ResolverTypeWrapper<Client>;
   ClientCommunication: ResolverTypeWrapper<ClientCommunication>;
   ClientCommunicationInput: ClientCommunicationInput;
@@ -25691,6 +25927,9 @@ export type ResolversTypes = ResolversObject<{
   PexelsConfigInput: PexelsConfigInput;
   PexelsMedia: ResolverTypeWrapper<PexelsMedia>;
   PexelsSearchFilters: PexelsSearchFilters;
+  PlanInterval: PlanInterval;
+  PlanPrice: ResolverTypeWrapper<PlanPrice>;
+  PlanPriceInput: PlanPriceInput;
   PlatformAnalytics: ResolverTypeWrapper<PlatformAnalytics>;
   Policy: ResolverTypeWrapper<Policy>;
   PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
@@ -25810,6 +26049,7 @@ export type ResolversTypes = ResolversObject<{
   Shift: ResolverTypeWrapper<Shift>;
   ShiftInput: ShiftInput;
   ShiftPage: ResolverTypeWrapper<ShiftPage>;
+  SignupInput: SignupInput;
   SlaState: SlaState;
   SlackChannel: ResolverTypeWrapper<SlackChannel>;
   SlackConfig: ResolverTypeWrapper<SlackConfig>;
@@ -25887,6 +26127,7 @@ export type ResolversTypes = ResolversObject<{
   StripeConfig: ResolverTypeWrapper<StripeConfig>;
   StripeConfigInput: StripeConfigInput;
   SubmitProblemReportInput: SubmitProblemReportInput;
+  SubscriptionStatus: SubscriptionStatus;
   SummaryStyle: SummaryStyle;
   Supplier: ResolverTypeWrapper<Supplier>;
   SupplierInput: SupplierInput;
@@ -26199,8 +26440,13 @@ export type ResolversParentTypes = ResolversObject<{
   BenefitInput: BenefitInput;
   BenefitPage: BenefitPage;
   BilledDay: BilledDay;
+  BillingCheckoutInput: BillingCheckoutInput;
   BillingKeyConfig: BillingKeyConfig;
   BillingKeyConfigInput: BillingKeyConfigInput;
+  BillingOverview: BillingOverview;
+  BillingPlan: BillingPlan;
+  BillingPlanInput: BillingPlanInput;
+  BillingSubscription: BillingSubscription;
   BlogAuthor: BlogAuthor;
   BlogAuthorInput: BlogAuthorInput;
   BlogPost: BlogPost;
@@ -26839,6 +27085,8 @@ export type ResolversParentTypes = ResolversObject<{
   PexelsConfigInput: PexelsConfigInput;
   PexelsMedia: PexelsMedia;
   PexelsSearchFilters: PexelsSearchFilters;
+  PlanPrice: PlanPrice;
+  PlanPriceInput: PlanPriceInput;
   PlatformAnalytics: PlatformAnalytics;
   Policy: Policy;
   PolicyAcknowledgement: PolicyAcknowledgement;
@@ -26933,6 +27181,7 @@ export type ResolversParentTypes = ResolversObject<{
   Shift: Shift;
   ShiftInput: ShiftInput;
   ShiftPage: ShiftPage;
+  SignupInput: SignupInput;
   SlackChannel: SlackChannel;
   SlackConfig: SlackConfig;
   SlackConfigInput: SlackConfigInput;
@@ -27784,6 +28033,53 @@ export type BillingKeyConfigResolvers<ContextType = GraphQLContext, ParentType e
   keyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   provider?: Resolver<ResolversTypes['BillingProvider'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BillingOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BillingOverview'] = ResolversParentTypes['BillingOverview']> = ResolversObject<{
+  aiSpentThisMonthUsd?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  lapsed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  plan?: Resolver<Maybe<ResolversTypes['BillingPlan']>, ParentType, ContextType>;
+  plans?: Resolver<Array<ResolversTypes['BillingPlan']>, ParentType, ContextType>;
+  providers?: Resolver<Array<ResolversTypes['CheckoutProvider']>, ParentType, ContextType>;
+  seatsUsed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subscription?: Resolver<Maybe<ResolversTypes['BillingSubscription']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BillingPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BillingPlan'] = ResolversParentTypes['BillingPlan']> = ResolversObject<{
+  aiMonthlyUsdCap?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  allModules?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  interval?: Resolver<ResolversTypes['PlanInterval'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isPublic?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isSystem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  modules?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  prices?: Resolver<Array<ResolversTypes['PlanPrice']>, ParentType, ContextType>;
+  seatLimit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  trialDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BillingSubscriptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BillingSubscription'] = ResolversParentTypes['BillingSubscription']> = ResolversObject<{
+  cancelAtPeriodEnd?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  cancelledAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  currentPeriodEnd?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  planId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  planKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['BillingProvider'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['SubscriptionStatus'], ParentType, ContextType>;
+  trialEndsAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -32417,8 +32713,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
   assignLegalItems?: Resolver<Array<ResolversTypes['LegalAssignment']>, ParentType, ContextType, RequireFields<MutationAssignLegalItemsArgs, 'items' | 'userId'>>;
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
+  assignOrganizationPlan?: Resolver<ResolversTypes['BillingSubscription'], ParentType, ContextType, RequireFields<MutationAssignOrganizationPlanArgs, 'organizationId' | 'planId' | 'status'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'org' | 'page' | 'slug'>>;
+  cancelBillingSubscription?: Resolver<ResolversTypes['BillingOverview'], ParentType, ContextType>;
   cancelCampaignSend?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCancelCampaignSendArgs, 'id'>>;
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
@@ -32436,6 +32734,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   closeWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationCloseWebsiteChatSessionArgs, 'id'>>;
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
   completeGoogleSignIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationCompleteGoogleSignInArgs, 'ticket'>>;
+  completeSignup?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationCompleteSignupArgs, 'input'>>;
   completeSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationCompleteSprintArgs, 'id'>>;
   composeSocialMediaPost?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType, RequireFields<MutationComposeSocialMediaPostArgs, 'input'>>;
   confirmMfaEnrolment?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationConfirmMfaEnrolmentArgs, 'code'>>;
@@ -32451,6 +32750,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<MutationCreateAudienceListArgs, 'input'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
   createBillingKeyConfig?: Resolver<ResolversTypes['BillingKeyConfig'], ParentType, ContextType, RequireFields<MutationCreateBillingKeyConfigArgs, 'input'>>;
+  createBillingPlan?: Resolver<ResolversTypes['BillingPlan'], ParentType, ContextType, RequireFields<MutationCreateBillingPlanArgs, 'input'>>;
   createBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationCreateBlogPostArgs, 'input'>>;
   createBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationCreateBudgetArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
@@ -32602,6 +32902,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteAudienceList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAudienceListArgs, 'id'>>;
   deleteBenefit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBenefitArgs, 'id'>>;
   deleteBillingKeyConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBillingKeyConfigArgs, 'id'>>;
+  deleteBillingPlan?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBillingPlanArgs, 'id'>>;
   deleteBlogPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBlogPostArgs, 'id'>>;
   deleteBudget?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBudgetArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
@@ -32835,6 +33136,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestEmployeeEmailCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestEmployeeEmailCodeArgs, 'employeeId' | 'kind'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
+  requestSignupCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestSignupCodeArgs, 'email'>>;
   requestTechVaultCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
@@ -32945,6 +33247,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signatureImage' | 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
+  startBillingCheckout?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartBillingCheckoutArgs, 'input'>>;
   startCallingBotCall?: Resolver<ResolversTypes['CallingBotCallStart'], ParentType, ContextType, RequireFields<MutationStartCallingBotCallArgs, 'input'>>;
   startClutchSearch?: Resolver<ResolversTypes['ClutchRun'], ParentType, ContextType, RequireFields<MutationStartClutchSearchArgs, 'input'>>;
   startCrmCall?: Resolver<ResolversTypes['CrmCallResult'], ParentType, ContextType, RequireFields<MutationStartCrmCallArgs, 'input'>>;
@@ -33028,6 +33331,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<MutationUpdateAudienceListArgs, 'id' | 'input'>>;
   updateBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationUpdateBenefitArgs, 'id' | 'input'>>;
   updateBillingKeyConfig?: Resolver<ResolversTypes['BillingKeyConfig'], ParentType, ContextType, RequireFields<MutationUpdateBillingKeyConfigArgs, 'id' | 'input'>>;
+  updateBillingPlan?: Resolver<ResolversTypes['BillingPlan'], ParentType, ContextType, RequireFields<MutationUpdateBillingPlanArgs, 'id' | 'input'>>;
   updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
   updateBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType, RequireFields<MutationUpdateBrandingArgs, 'input'>>;
   updateBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationUpdateBudgetArgs, 'id' | 'input'>>;
@@ -33666,6 +33970,12 @@ export type PexelsMediaResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PlanPriceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PlanPrice'] = ResolversParentTypes['PlanPrice']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PlatformAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PlatformAnalytics'] = ResolversParentTypes['PlatformAnalytics']> = ResolversObject<{
   activeOrganizations?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   employees?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -34175,6 +34485,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   audienceResolution?: Resolver<ResolversTypes['AudienceResolution'], ParentType, ContextType, RequireFields<QueryAudienceResolutionArgs, 'id'>>;
   backgroundJobs?: Resolver<Array<ResolversTypes['BackgroundJob']>, ParentType, ContextType>;
   billingKeyConfigs?: Resolver<Array<ResolversTypes['BillingKeyConfig']>, ParentType, ContextType>;
+  billingOverview?: Resolver<ResolversTypes['BillingOverview'], ParentType, ContextType>;
+  billingPlans?: Resolver<Array<ResolversTypes['BillingPlan']>, ParentType, ContextType>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   budgetVsActual?: Resolver<Array<ResolversTypes['BudgetVariance']>, ParentType, ContextType, RequireFields<QueryBudgetVsActualArgs, 'from' | 'to'>>;
   callingBotAvailability?: Resolver<ResolversTypes['CallingBotAvailability'], ParentType, ContextType>;
@@ -34815,6 +35127,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   orgChart?: Resolver<Array<ResolversTypes['OrgNode']>, ParentType, ContextType>;
   organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<QueryOrganizationArgs, 'id'>>;
   organizationHistory?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryOrganizationHistoryArgs, 'id'>>;
+  organizationSubscription?: Resolver<Maybe<ResolversTypes['BillingSubscription']>, ParentType, ContextType, RequireFields<QueryOrganizationSubscriptionArgs, 'organizationId'>>;
   organizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
   payrollRunPlan?: Resolver<ResolversTypes['PayrollRunPlan'], ParentType, ContextType, RequireFields<QueryPayrollRunPlanArgs, 'month' | 'year'>>;
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
@@ -34883,6 +35196,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   sharedGccEstimate?: Resolver<Maybe<ResolversTypes['GccSharedEstimate']>, ParentType, ContextType, RequireFields<QuerySharedGccEstimateArgs, 'token'>>;
   sharedProject?: Resolver<Maybe<ResolversTypes['SharedProjectView']>, ParentType, ContextType, RequireFields<QuerySharedProjectArgs, 'token'>>;
+  signupPlans?: Resolver<Array<ResolversTypes['BillingPlan']>, ParentType, ContextType>;
   socialAccounts?: Resolver<Array<ResolversTypes['SocialAccount']>, ParentType, ContextType>;
   socialAnalytics?: Resolver<ResolversTypes['SocialAnalytics'], ParentType, ContextType, RequireFields<QuerySocialAnalyticsArgs, 'days'>>;
   socialAppConfigs?: Resolver<Array<ResolversTypes['SocialAppConfig']>, ParentType, ContextType>;
@@ -36712,6 +37026,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   personalEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   personalEmailVerifiedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  planRoles?: Resolver<Maybe<Array<ResolversTypes['Role']>>, ParentType, ContextType>;
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   region?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
@@ -37322,6 +37637,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   BenefitPage?: BenefitPageResolvers<ContextType>;
   BilledDay?: BilledDayResolvers<ContextType>;
   BillingKeyConfig?: BillingKeyConfigResolvers<ContextType>;
+  BillingOverview?: BillingOverviewResolvers<ContextType>;
+  BillingPlan?: BillingPlanResolvers<ContextType>;
+  BillingSubscription?: BillingSubscriptionResolvers<ContextType>;
   BlogAuthor?: BlogAuthorResolvers<ContextType>;
   BlogPost?: BlogPostResolvers<ContextType>;
   BlogPostPage?: BlogPostPageResolvers<ContextType>;
@@ -37783,6 +38101,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PerformanceReviewPage?: PerformanceReviewPageResolvers<ContextType>;
   PexelsConfig?: PexelsConfigResolvers<ContextType>;
   PexelsMedia?: PexelsMediaResolvers<ContextType>;
+  PlanPrice?: PlanPriceResolvers<ContextType>;
   PlatformAnalytics?: PlatformAnalyticsResolvers<ContextType>;
   Policy?: PolicyResolvers<ContextType>;
   PolicyAcknowledgement?: PolicyAcknowledgementResolvers<ContextType>;

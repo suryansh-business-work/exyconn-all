@@ -16,12 +16,16 @@ export interface PaletteItem {
 }
 
 /** Modules whose name contains what was typed — the palette's instant half. */
-export function moduleItems(roles: Role[], query: string): PaletteItem[] {
+export function moduleItems(
+  roles: Role[],
+  query: string,
+  planRoles?: readonly Role[] | null,
+): PaletteItem[] {
   const needle = query.trim().toLowerCase();
   if (!needle) {
     return [];
   }
-  return accessibleModules(roles)
+  return accessibleModules(roles, planRoles)
     .filter((module: ModuleDefinition) => module.label.toLowerCase().includes(needle))
     .map((module) => ({
       id: `module:${module.key}`,

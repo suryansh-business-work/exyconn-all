@@ -86,3 +86,64 @@ export function validStripeSignature(
   const expected = hmacHex(webhookSecret, `${timestamp}.${raw.toString('utf8')}`);
   return (parts.get('v1') ?? []).some((signature) => sameHex(signature, expected));
 }
+
+/** A recurring price for a subscription checkout (Exyconn's own plans, modules/billing). */
+export interface SubscriptionCheckoutRequest {
+  planName: string;
+  amount: number;
+  currency: string;
+  interval: 'month' | 'year';
+  /** Trial days still owed; 0 starts billing at once. */
+  trialDays: number;
+  customerEmail: string;
+  organizationId: string;
+  planId: string;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+/**
+ * A hosted Stripe Checkout page that starts a subscription. The company is carried in the
+ * session's and the subscription's metadata (`billing: saas`), which is how the webhook tells
+ * these events from a client hub payment and finds the company they belong to.
+ */
+export async function createStripeSubscriptionCheckout(
+  secretKey: string,
+  request: SubscriptionCheckoutRequest,
+) {
+  const body = new URLSearchParams({
+    mode: 'subscription',
+    'line_items[0][quantity]': '1',
+    'line_items[0][price_data][currency]': request.currency.toLowerCase(),
+    'line_items[0][price_data][unit_amount]': String(minorUnits(request.amount, request.currency)),
+    'line_items[0][price_data][recurring][interval]': request.interval,
+    'line_items[0][price_data][product_data][name]': request.planName,
+    customer_email: request.customerEmail,
+    client_reference_id: request.organizationId,
+    'metadata[billing]': 'saas',
+    'metadata[organizationId]': request.organizationId,
+    'subscription_data[metadata][billing]': 'saas',
+    'metadata[planId]': request.planId,
+    'subscription_data[metadata][organizationId]': request.organizationId,
+    'subscription_data[metadata][planId]': request.planId,
+    success_url: request.successUrl,
+    cancel_url: request.cancelUrl,
+  });
+  if (request.trialDays > 0) {
+    body.set('subscription_data[trial_period_days]', String(request.trialDays));
+  }
+  const session = await call<{ id: string; url: string }>(secretKey, '/checkout/sessions', body);
+  return { externalId: session.id, url: session.url };
+}
+
+/** Ends a Stripe subscription when the period already paid for runs out, not before. */
+export async function cancelStripeSubscriptionAtPeriodEnd(
+  secretKey: string,
+  subscriptionId: string,
+): Promise<void> {
+  await call(
+    secretKey,
+    `/subscriptions/${encodeURIComponent(subscriptionId)}`,
+    new URLSearchParams({ cancel_at_period_end: 'true' }),
+  );
+}

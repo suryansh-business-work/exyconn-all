@@ -102,3 +102,48 @@ export function validRazorpaySignature(
   }
   return sameHex(signature, hmacHex(webhookSecret, raw));
 }
+
+/** A Razorpay plan: the amount and period its subscriptions are charged (modules/billing). */
+export async function createRazorpayPlan(
+  keys: RazorpayKeys,
+  plan: { name: string; amount: number; currency: string; period: 'monthly' | 'yearly' },
+): Promise<string> {
+  const created = await call<{ id: string }>(keys, '/plans', {
+    period: plan.period,
+    interval: 1,
+    item: {
+      name: plan.name,
+      amount: minorUnits(plan.amount, plan.currency),
+      currency: plan.currency.toUpperCase(),
+    },
+  });
+  return created.id;
+}
+
+/**
+ * A Razorpay subscription on a plan, paid through its hosted page (`short_url`). The company
+ * rides in `notes`, which every subscription webhook carries back.
+ */
+export async function createRazorpaySubscription(
+  keys: RazorpayKeys,
+  request: { planId: string; totalCount: number; startAt?: number; notes: Record<string, string> },
+) {
+  const subscription = await call<{ id: string; short_url: string }>(keys, '/subscriptions', {
+    plan_id: request.planId,
+    total_count: request.totalCount,
+    customer_notify: 1,
+    ...(request.startAt ? { start_at: request.startAt } : {}),
+    notes: request.notes,
+  });
+  return { externalId: subscription.id, url: subscription.short_url };
+}
+
+/** Ends a Razorpay subscription at the end of the cycle already paid for. */
+export async function cancelRazorpaySubscriptionAtCycleEnd(
+  keys: RazorpayKeys,
+  subscriptionId: string,
+): Promise<void> {
+  await call(keys, `/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`, {
+    cancel_at_cycle_end: 1,
+  });
+}

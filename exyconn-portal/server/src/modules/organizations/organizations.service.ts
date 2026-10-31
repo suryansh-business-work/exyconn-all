@@ -16,6 +16,7 @@ import { provisionOrganization } from './organization.provision';
 import { adminService } from '../admin/admin.service';
 import { logger } from '../../utils/logger';
 import { inSequence } from '../../utils/inSequence';
+import { assertSeatAvailable } from '../billing/seats';
 
 export interface OrganizationInput {
   name: string;
@@ -223,6 +224,9 @@ class OrganizationService {
       if (belongsTo === null && existing.roles.includes(ROLES.SUPER_ADMIN)) {
         badRequest('That email belongs to a platform administrator, who cannot join a company.');
       }
+      // Somebody not yet active in this company takes a seat on its plan.
+      const takesSeat = belongsTo === null || !existing.isActive;
+      if (takesSeat) await runForOrganization(organizationId, assertSeatAvailable);
       existing.roles = [...new Set([...existing.roles, ...roles])] as Role[];
       setOrganizationOf(existing, organizationId);
       existing.isActive = true;

@@ -10,6 +10,8 @@ import { AppSettingsPage } from './pages/app-settings';
 import { LocalizationPage } from './pages/localization';
 import { ClientsPage, ClientDetailPage } from './pages/clients';
 import { OrganizationsPage } from './pages/organizations';
+import { PlansPage } from './pages/plans';
+import { BillingPage } from './pages/billing';
 import { ProtectedRoute } from '@exyconn/shell/routes/ProtectedRoute';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { PermissionsPage } from './pages/permissions';
@@ -33,6 +35,15 @@ export function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/plans"
+        element={
+          <ProtectedRoute requiredRole={ROLES.SUPER_ADMIN}>
+            <PlansPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/admin/billing" element={<BillingPage />} />
       <Route path="/admin/branding/:tab?" element={<BrandingPage />} />
       <Route path="/admin/settings" element={<AppSettingsPage />} />
       <Route path="/admin/localization" element={<LocalizationPage />} />

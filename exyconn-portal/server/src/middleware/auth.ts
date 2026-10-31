@@ -17,6 +17,9 @@ import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth
 import { sessionIsLive } from '../modules/auth/session.service';
 import { extensionMayRun } from '../modules/meeting-assistant/extension.fields';
 import { extensionSessionIsLive } from '../modules/meeting-assistant/extension.auth';
+import { planAccessFor } from '../modules/billing/access';
+import { ALWAYS_OPEN_ROLES } from '../modules/billing/plan.service';
+import { ROLES, type Role } from '../constants/roles';
 
 export interface GraphQLContext {
   user: TokenPayload | null;
@@ -59,6 +62,12 @@ export interface GraphQLContext {
    * client hub's own operations accept it, and they enter the client's company themselves.
    */
   clientContact?: ClientHubContact;
+  /**
+   * The module roles the company's plan opens (see modules/billing/access); null or absent
+   * when every module is open. `user.roles` is already narrowed to it; assertRole also uses it
+   * to stop an ADMIN reaching a module the plan leaves out.
+   */
+  planRoles?: Role[] | null;
 }
 
 /** How long a company's ACTIVE/SUSPENDED status is trusted before it is read again. */
@@ -190,14 +199,16 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
     const organizationId = organizationOf(principal);
     setScopeOrganization(organizationId, false);
     setRequestActor(principal.id, `${principal.name} (API key)`);
+    const plan = await planGate(principal.roles, organizationId);
     return {
       user: {
         id: principal.id,
         email: `${principal.name} (API key)`,
-        roles: principal.roles,
+        roles: plan.roles,
         organizationId,
       },
       organizationId,
+      planRoles: plan.planRoles,
       ip,
       origin,
       userAgent,
@@ -233,13 +244,36 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   // Drives "online" on profiles. Not awaited: it never slows or fails the request.
   recordActivity(decoded.id).catch(() => undefined);
 
+  const plan = await planGate(roles, organizationId);
   return {
-    user: { ...decoded, roles, organizationId },
+    user: { ...decoded, roles: plan.roles, organizationId },
     organizationId,
+    planRoles: plan.planRoles,
     ip,
     origin,
     userAgent,
     deviceId: decoded.deviceId,
+  };
+}
+
+/**
+ * Narrows a caller's roles to the modules their company's plan opens. A platform
+ * administrator is never narrowed: they stand above every company's plan.
+ */
+async function planGate(
+  roles: Role[],
+  organizationId: string | null,
+): Promise<{ roles: Role[]; planRoles: Role[] | null }> {
+  if (roles.includes(ROLES.SUPER_ADMIN)) {
+    return { roles, planRoles: null };
+  }
+  const planRoles = (await planAccessFor(organizationId)).roles;
+  if (planRoles === null) {
+    return { roles, planRoles };
+  }
+  return {
+    roles: roles.filter((role) => ALWAYS_OPEN_ROLES.has(role) || planRoles.includes(role)),
+    planRoles,
   };
 }
 

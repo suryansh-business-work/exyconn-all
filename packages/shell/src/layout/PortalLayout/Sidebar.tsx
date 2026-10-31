@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Box } from '@/components/ui';
 import { env } from '@/config/env';
 import type { Role } from '@/auth/roles';
+import { useAuth } from '@/auth/AuthContext';
 import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import { PortalSwitcher } from '@/layout/PortalSwitcher';
 import { navModules, navTree, type NavNode } from './moduleNav';
@@ -38,7 +39,8 @@ export function Sidebar({
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const isHub = env.portalApp === 'hub';
-  const scoped = useMemo(() => navModules(roles, env.portalApp), [roles]);
+  const planRoles = useAuth().user?.planRoles;
+  const scoped = useMemo(() => navModules(roles, env.portalApp, planRoles), [roles, planRoles]);
   const tree = useMemo(() => navTree(scoped, isHub), [scoped, isHub]);
   const scopedPrefixes = useMemo(
     () => scoped.flatMap((module) => (module.scopedPrefix ? [module.scopedPrefix] : [])),

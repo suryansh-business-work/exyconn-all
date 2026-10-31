@@ -27,6 +27,8 @@ import TerminalIcon from '@mui/icons-material/Terminal';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import BusinessIcon from '@mui/icons-material/Business';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PasswordIcon from '@mui/icons-material/Password';
@@ -120,7 +122,7 @@ import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import HttpsIcon from '@mui/icons-material/Https';
-import { ROLES, type Role } from '@/auth/roles';
+import { ROLES, canAccess, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
 import type { NavGroup } from './navGroups';
 import { color } from '@exyconn/ui';
@@ -986,6 +988,14 @@ export const MODULES: ModuleDefinition[] = [
         role: ROLES.SUPER_ADMIN,
         group: 'Administration',
       },
+      {
+        key: 'admin-plans',
+        label: 'Plans',
+        path: '/admin/plans',
+        icon: WorkspacePremiumIcon,
+        role: ROLES.SUPER_ADMIN,
+        group: 'Administration',
+      },
       { key: 'admin-users', label: 'Users', path: '/admin/users', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       {
@@ -993,6 +1003,13 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Roles & Permissions',
         path: '/admin/permissions',
         icon: LockPersonIcon,
+      },
+      {
+        key: 'admin-billing',
+        label: 'Billing',
+        path: '/admin/billing',
+        icon: CreditCardIcon,
+        group: 'Configuration',
       },
       {
         key: 'admin-branding',
@@ -1730,9 +1747,12 @@ export const MODULES: ModuleDefinition[] = [
   },
 ];
 
-/** Returns only the modules the given roles may access. */
-export function accessibleModules(roles: Role[]): ModuleDefinition[] {
-  return MODULES.filter((m) => roles.includes(ROLES.ADMIN) || roles.includes(m.role));
+/** Returns only the modules the given roles may access, within the company's plan. */
+export function accessibleModules(
+  roles: Role[],
+  planRoles?: readonly Role[] | null,
+): ModuleDefinition[] {
+  return MODULES.filter((m) => canAccess(roles, m.role, planRoles));
 }
 
 /** Every path under a list of children, however deeply they nest. */

@@ -39,6 +39,9 @@ export const RESET_PASSWORD_PATH = '/reset-password';
  */
 export const UNSUBSCRIBE_PATH = '/unsubscribe';
 
+/** Self sign-up: a new company and its administrator (modules/billing). Public, like /login. */
+export const SIGNUP_PATH = '/signup';
+
 /** Where a campaign email's "Manage preferences" link lands. Public, like unsubscribe. */
 export const EMAIL_PREFERENCES_PATH = '/email-preferences';
 
@@ -98,6 +101,7 @@ export function PortalApp({
                     <Routes>
                       <Route path="/login" element={loginElement} />
                       <Route path={RESET_PASSWORD_PATH} element={loginElement} />
+                      <Route path={SIGNUP_PATH} element={loginElement} />
                       <Route path={UNSUBSCRIBE_PATH} element={loginElement} />
                       <Route path={EMAIL_PREFERENCES_PATH} element={loginElement} />
                       {publicRoutes}

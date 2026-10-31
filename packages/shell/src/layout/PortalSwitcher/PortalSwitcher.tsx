@@ -5,6 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Box, Divider, Drawer, InputAdornment, List, TextField, Typography } from '@/components/ui';
 import { env } from '@/config/env';
 import type { Role } from '@/auth/roles';
+import { useAuth } from '@/auth/AuthContext';
 import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import { PortalListItem, type PortalEntry } from './PortalListItem';
 import { allPortalEntries, buildPortalEntries } from './portalEntries';
@@ -28,13 +29,14 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
   const headingId = useId();
   const [query, setQuery] = useState('');
   const navigateTo = useCrossAppNavigate();
+  const planRoles = useAuth().user?.planRoles;
 
   const entries = useMemo<PortalEntry[]>(
     () =>
       roles
-        ? buildPortalEntries(roles, env.portalApp, query)
+        ? buildPortalEntries(roles, env.portalApp, query, planRoles)
         : allPortalEntries(env.portalApp, query),
-    [roles, query],
+    [roles, query, planRoles],
   );
 
   const caption = t(captionFor(entries.length, roles !== null), { count: entries.length });

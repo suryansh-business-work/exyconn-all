@@ -446,6 +446,22 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
         </mj-text>`),
   },
   {
+    key: 'saas-signup-code',
+    name: 'Sign-up — company email code',
+    description:
+      'Sent when somebody signs their company up for the portal. {{code}} confirms their email; it works once and expires in {{expiresIn}}.',
+    subject: '{{code}} is your {{companyName}} sign-up code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Confirm your email</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Enter this code to finish creating your company's workspace.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nothing is created without the code.
+        </mj-text>`),
+  },
+  {
     key: 'employee-email-code',
     name: 'Employee — email verification code',
     description:

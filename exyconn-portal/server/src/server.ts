@@ -55,6 +55,7 @@ import { startCrmReminderEmails } from './modules/crm/calendar/crm.reminder.emai
 import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
+import { ensureGrandfatheredPlan, grandfatherOrganization } from './modules/billing';
 import { ensureWhatsappDemoSeeds } from '../../../demos/whatsapp-demo/server/src';
 import { startWhatsappReminders } from '../../../demos/whatsapp-demo/server/src/channel';
 import { startEmailVerification } from './modules/email-verification';
@@ -157,6 +158,13 @@ async function bootstrap(): Promise<void> {
   await forEachOrganization(
     () => runOnce('crm-deal-closed-at', backfillDealClosedAt),
     'backfillDealClosedAt',
+  );
+  // Plans arrived after companies did: every company that predates them is put on the
+  // grandfathered plan (no limits, no charge) once, so introducing billing changes nothing.
+  await ensureGrandfatheredPlan();
+  await forEachOrganization(
+    () => runOnce('billing-grandfathered-plan', grandfatherOrganization),
+    'grandfatherOrganization',
   );
   // exyconn.com is the CMS's first site: seeded insert-only from the migrated pages, so an
   // editor's change is never undone and a page added in a later release still arrives.

@@ -12,7 +12,7 @@ const CODE_DIGITS = 6;
 
 /** Which sign-in a code belongs to; a code for one never opens the other. */
 export type EmailCodePurpose =
-  'whatsapp-demo' | 'client-hub' | 'website-chat' | 'employee-email' | 'tech-vault';
+  'whatsapp-demo' | 'client-hub' | 'website-chat' | 'employee-email' | 'tech-vault' | 'saas-signup';
 
 const hashOf = (purpose: EmailCodePurpose, email: string, code: string): string =>
   createHmac('sha256', derivedKey(`email-code:${purpose}`))

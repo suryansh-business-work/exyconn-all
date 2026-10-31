@@ -17,15 +17,41 @@ function assertNotDevice(ctx: GraphQLContext, user: TokenPayload): void {
   }
 }
 
+/** Open on every plan: a company can always administer itself and its people can self-serve. */
+const PLAN_FREE_ROLES: ReadonlySet<Role> = new Set([
+  ROLES.SUPER_ADMIN,
+  ROLES.ADMIN,
+  ROLES.EMPLOYEE,
+]);
+
+/**
+ * Refuses a module the company's plan does not include (modules/billing). The caller's roles
+ * are already narrowed to the plan; this closes the one gap left, the ADMIN superuser.
+ */
+function assertPlanIncludes(ctx: GraphQLContext, allowed: Role[]): void {
+  const planRoles = ctx.planRoles;
+  if (!planRoles) {
+    return;
+  }
+  if (allowed.some((role) => PLAN_FREE_ROLES.has(role) || planRoles.includes(role))) {
+    return;
+  }
+  forbidden(
+    'Your plan does not include this module. An administrator can upgrade it in Admin › Billing.',
+  );
+}
+
 /**
  * Asserts the request is authenticated and the user holds one of the allowed
- * roles. ADMIN is a superuser and passes every guard. Returns the user.
+ * roles. ADMIN is a superuser and passes every guard — within the modules the company's
+ * plan includes. Returns the user.
  */
 export function assertRole(ctx: GraphQLContext, allowed: Role[]): TokenPayload {
   if (!ctx.user) {
     unauthenticated();
   }
   assertNotDevice(ctx, ctx.user);
+  assertPlanIncludes(ctx, allowed);
   const userRoles = ctx.user.roles ?? [];
   const isAdmin = userRoles.includes(ROLES.ADMIN);
   const intersects = userRoles.some((role) => allowed.includes(role));

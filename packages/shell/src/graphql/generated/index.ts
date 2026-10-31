@@ -1157,6 +1157,15 @@ export type BilledDay = {
   day: Scalars['String']['output'];
 };
 
+export type BillingCheckoutInput = {
+  /** ISO 4217 currency to pay in; the plan must have a price in it. */
+  currency: Scalars['String']['input'];
+  /** The plan to subscribe to. */
+  planId: Scalars['ID']['input'];
+  /** The gateway to pay through. */
+  provider: CheckoutProvider;
+};
+
 /** An extra key that reads a provider's real bill (OpenAI's Admin key). Write-only, sealed at rest. */
 export type BillingKeyConfig = {
   __typename?: 'BillingKeyConfig';
@@ -1177,10 +1186,105 @@ export type BillingKeyConfigInput = {
   provider: BillingProvider;
 };
 
+/** A company's plan, status and usage against its limits. */
+export type BillingOverview = {
+  __typename?: 'BillingOverview';
+  aiSpentThisMonthUsd: Scalars['Float']['output'];
+  /** True when the trial ran out unpaid or the subscription was cancelled. */
+  lapsed: Scalars['Boolean']['output'];
+  plan?: Maybe<BillingPlan>;
+  /** The plans this company can switch to. */
+  plans: Array<BillingPlan>;
+  /** The gateways configured for checkout. */
+  providers: Array<CheckoutProvider>;
+  seatsUsed: Scalars['Int']['output'];
+  /** Null for a company that has never been put on a plan (no limits apply). */
+  subscription?: Maybe<BillingSubscription>;
+};
+
+/** A subscription plan companies choose from. Limits of 0 are unlimited. */
+export type BillingPlan = {
+  __typename?: 'BillingPlan';
+  /** AI spend allowed per calendar month, in USD; 0 is unlimited. */
+  aiMonthlyUsdCap: Scalars['Float']['output'];
+  /** Every module, present and future. When false, modules lists what is included. */
+  allModules: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  interval: PlanInterval;
+  /** A retired plan keeps its subscribers but cannot be chosen. */
+  isActive: Scalars['Boolean']['output'];
+  /** Offered on the public sign-up page. */
+  isPublic: Scalars['Boolean']['output'];
+  /** The platform's own grandfathered plan; cannot be deleted or retired. */
+  isSystem: Scalars['Boolean']['output'];
+  /** URL-safe handle, unique across the platform. */
+  key: Scalars['String']['output'];
+  /** Module roles included besides ADMIN and EMPLOYEE, which every plan opens. */
+  modules: Array<Role>;
+  name: Scalars['String']['output'];
+  prices: Array<PlanPrice>;
+  /** Active people a company on this plan may have; 0 is unlimited. */
+  seatLimit: Scalars['Int']['output'];
+  sortOrder: Scalars['Int']['output'];
+  trialDays: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BillingPlanInput = {
+  /** AI spend allowed per calendar month in USD; 0 is unlimited. */
+  aiMonthlyUsdCap: Scalars['Float']['input'];
+  /** Include every module. */
+  allModules: Scalars['Boolean']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  interval: PlanInterval;
+  /** False retires it: subscribers keep it, nobody new can choose it. */
+  isActive: Scalars['Boolean']['input'];
+  /** Offer it on the public sign-up page. */
+  isPublic: Scalars['Boolean']['input'];
+  /** URL-safe handle (lower-case letters, digits, dashes). Fixed once the plan exists. */
+  key: Scalars['String']['input'];
+  /** Module roles included when allModules is false (ADMIN and EMPLOYEE are always open). */
+  modules: Array<Role>;
+  name: Scalars['String']['input'];
+  /** One price per currency it is sold in. No price (or all 0) makes it free. */
+  prices: Array<PlanPriceInput>;
+  /** Active people allowed; 0 is unlimited. */
+  seatLimit: Scalars['Int']['input'];
+  /** Position in lists, lowest first. */
+  sortOrder?: InputMaybe<Scalars['Int']['input']>;
+  /** Free trial length for a new sign-up, 0 to 365 days. */
+  trialDays: Scalars['Int']['input'];
+};
+
 /** A provider whose real bill a billing key can read. */
 export enum BillingProvider {
-  Openai = 'OPENAI'
+  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
+  Manual = 'MANUAL',
+  None = 'NONE',
+  Openai = 'OPENAI',
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
 }
+
+/** A company's subscription. */
+export type BillingSubscription = {
+  __typename?: 'BillingSubscription';
+  /** True when it will end with the period already paid for. */
+  cancelAtPeriodEnd: Scalars['Boolean']['output'];
+  cancelledAt?: Maybe<Scalars['DateTime']['output']>;
+  /** ISO 4217 currency it is charged in, or empty before the first payment. */
+  currency: Scalars['String']['output'];
+  currentPeriodEnd?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  planId: Scalars['ID']['output'];
+  planKey: Scalars['String']['output'];
+  provider: BillingProvider;
+  status: SubscriptionStatus;
+  trialEndsAt?: Maybe<Scalars['DateTime']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
 
 export type BlogAuthor = {
   __typename?: 'BlogAuthor';
@@ -2111,6 +2215,12 @@ export enum CheckSeverity {
   Error = 'ERROR',
   Info = 'INFO',
   Warning = 'WARNING'
+}
+
+/** A gateway a company can pay its subscription through. */
+export enum CheckoutProvider {
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
 }
 
 export type Client = {
@@ -9401,10 +9511,14 @@ export type Mutation = {
   assignLegalItems: Array<LegalAssignment>;
   /** Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN). */
   assignOrganizationAdmin: User;
+  /** Places a company on a plan by hand, e.g. an invoiced deal (SUPER_ADMIN). */
+  assignOrganizationPlan: BillingSubscription;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
   /** Public: books a free start from a booking link. */
   bookMeeting: BookedMeeting;
+  /** Cancels the caller's company subscription: a paid one ends with its period, a trial or manual one ends now (ADMIN). */
+  cancelBillingSubscription: BillingOverview;
   /** Unschedules a queued send, or stops a running one before its next batch. */
   cancelCampaignSend: Campaign;
   /** Withdraw a request that has not been carried out. */
@@ -9438,6 +9552,8 @@ export type Mutation = {
   commentOnTeamGoal: Goal;
   /** Redeems the one-time ticket Google's callback handed the page. Public. */
   completeGoogleSignIn: AuthPayload;
+  /** Creates the company and its administrator with the emailed code, starts the plan's trial and signs the administrator in. */
+  completeSignup: AuthPayload;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
   completeSprint: Sprint;
   /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
@@ -9464,6 +9580,8 @@ export type Mutation = {
   createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBillingKeyConfig: BillingKeyConfig;
+  /** Adds a plan to the catalogue (SUPER_ADMIN). */
+  createBillingPlan: BillingPlan;
   createBlogPost: BlogPost;
   createBudget: Budget;
   createBug: Bug;
@@ -9662,6 +9780,8 @@ export type Mutation = {
   deleteAudienceList: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBillingKeyConfig: Scalars['Boolean']['output'];
+  /** Deletes a plan nobody is on; retire one with subscribers instead (SUPER_ADMIN). */
+  deleteBillingPlan: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
@@ -10033,6 +10153,8 @@ export type Mutation = {
    * Always true, so the answer does not reveal which addresses have accounts.
    */
   requestPasswordReset: Scalars['Boolean']['output'];
+  /** Emails a sign-up code to the person creating a company. No sign-in needed. */
+  requestSignupCode: Scalars['Boolean']['output'];
   /** Emails a one-time code to the address the caller signs in with. */
   requestTechVaultCode: Scalars['Boolean']['output'];
   /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
@@ -10307,6 +10429,8 @@ export type Mutation = {
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
+  /** Opens a hosted Stripe or Razorpay checkout to subscribe the caller's company to a plan, and returns its URL. The subscription changes when the provider confirms payment (ADMIN). */
+  startBillingCheckout: Scalars['String']['output'];
   /** Starts a call with the demo bot: returns a socket address for a browser call, or rings the given phone number. Rate limited; confirm the number with the person before a phone call. */
   startCallingBotCall: CallingBotCallStart;
   /** Starts a Clutch search; it finishes in the background (poll clutchRun). */
@@ -10522,6 +10646,8 @@ export type Mutation = {
   updateAudienceList: AudienceList;
   updateBenefit: Benefit;
   updateBillingKeyConfig: BillingKeyConfig;
+  /** Changes a plan; companies on it get the new limits within a minute (SUPER_ADMIN). */
+  updateBillingPlan: BillingPlan;
   updateBlogPost: BlogPost;
   /** Saves your company's branding (logos, colours, names, invoice details). Admins only; changes every portal and email at once. */
   updateBranding: Branding;
@@ -10814,6 +10940,13 @@ export type MutationAssignOrganizationAdminArgs = {
 };
 
 
+export type MutationAssignOrganizationPlanArgs = {
+  organizationId: Scalars['ID']['input'];
+  planId: Scalars['ID']['input'];
+  status: SubscriptionStatus;
+};
+
+
 export type MutationAssignSupportTicketArgs = {
   assigneeId: Scalars['String']['input'];
   id: Scalars['ID']['input'];
@@ -10914,6 +11047,11 @@ export type MutationCompleteGoogleSignInArgs = {
 };
 
 
+export type MutationCompleteSignupArgs = {
+  input: SignupInput;
+};
+
+
 export type MutationCompleteSprintArgs = {
   id: Scalars['ID']['input'];
 };
@@ -10989,6 +11127,11 @@ export type MutationCreateBenefitArgs = {
 
 export type MutationCreateBillingKeyConfigArgs = {
   input: BillingKeyConfigInput;
+};
+
+
+export type MutationCreateBillingPlanArgs = {
+  input: BillingPlanInput;
 };
 
 
@@ -11777,6 +11920,11 @@ export type MutationDeleteBenefitArgs = {
 
 
 export type MutationDeleteBillingKeyConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteBillingPlanArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -12979,6 +13127,11 @@ export type MutationRequestPasswordResetArgs = {
 };
 
 
+export type MutationRequestSignupCodeArgs = {
+  email: Scalars['String']['input'];
+};
+
+
 export type MutationRequestWhatsappDemoCodeArgs = {
   captcha?: InputMaybe<WebsiteCaptchaAnswer>;
   input: WhatsappDemoCodeInput;
@@ -13596,6 +13749,11 @@ export type MutationSocialMediaInsightsArgs = {
 };
 
 
+export type MutationStartBillingCheckoutArgs = {
+  input: BillingCheckoutInput;
+};
+
+
 export type MutationStartCallingBotCallArgs = {
   input: StartCallingBotCallInput;
 };
@@ -14016,6 +14174,12 @@ export type MutationUpdateBenefitArgs = {
 export type MutationUpdateBillingKeyConfigArgs = {
   id: Scalars['ID']['input'];
   input: BillingKeyConfigInput;
+};
+
+
+export type MutationUpdateBillingPlanArgs = {
+  id: Scalars['ID']['input'];
+  input: BillingPlanInput;
 };
 
 
@@ -15859,6 +16023,27 @@ export type PexelsSearchFilters = {
   size?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** How often a plan is charged. */
+export enum PlanInterval {
+  Month = 'MONTH',
+  Year = 'YEAR'
+}
+
+/** A plan's price in one currency, per interval. */
+export type PlanPrice = {
+  __typename?: 'PlanPrice';
+  amount: Scalars['Float']['output'];
+  /** ISO 4217 currency code. */
+  currency: Scalars['String']['output'];
+};
+
+export type PlanPriceInput = {
+  /** Price per interval in that currency's main unit (dollars, rupees). */
+  amount: Scalars['Float']['input'];
+  /** ISO 4217 currency code, e.g. USD or INR. */
+  currency: Scalars['String']['input'];
+};
+
 /** Every organization on the platform. */
 export type PlatformAnalytics = {
   __typename?: 'PlatformAnalytics';
@@ -16760,6 +16945,10 @@ export type Query = {
   /** TECH: every background loop, with what its last pass did. */
   backgroundJobs: Array<BackgroundJob>;
   billingKeyConfigs: Array<BillingKeyConfig>;
+  /** The caller's company: its plan, subscription status, seats and AI used, and the plans it can move to (ADMIN). */
+  billingOverview: BillingOverview;
+  /** Every plan in the catalogue, retired ones included (SUPER_ADMIN). */
+  billingPlans: Array<BillingPlan>;
   /** Reads your company's branding: names, logos, colours, contact and invoice details, and login pages. */
   branding: Branding;
   /**
@@ -17715,6 +17904,8 @@ export type Query = {
   organization: Organization;
   /** Everything done to one organization, newest first: created, edited, suspended, people invited (SUPER_ADMIN). */
   organizationHistory: Array<AuditLog>;
+  /** One company's subscription, or null when it has none (SUPER_ADMIN). */
+  organizationSubscription?: Maybe<BillingSubscription>;
   /** Every organization on the platform (SUPER_ADMIN). */
   organizations: Array<Organization>;
   /** Every active employee and whether the month can be run for them, with the figures it would store. */
@@ -17871,6 +18062,8 @@ export type Query = {
   sharedGccEstimate?: Maybe<GccSharedEstimate>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
+  /** The plans offered on the public sign-up page. No sign-in needed. */
+  signupPlans: Array<BillingPlan>;
   /** The company's connected accounts. MARKETING. */
   socialAccounts: Array<SocialAccount>;
   /** What the posts did over the last days (1-365). MARKETING. */
@@ -19830,6 +20023,11 @@ export type QueryOrganizationHistoryArgs = {
 };
 
 
+export type QueryOrganizationSubscriptionArgs = {
+  organizationId: Scalars['ID']['input'];
+};
+
+
 export type QueryPayrollRunPlanArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -21019,6 +21217,24 @@ export type ShiftPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type SignupInput = {
+  /** The six-digit code from the email. */
+  code: Scalars['String']['input'];
+  companyName: Scalars['String']['input'];
+  /** ISO 3166-1 alpha-2 country code. */
+  country?: InputMaybe<Scalars['String']['input']>;
+  /** ISO 4217 currency the company keeps its books in. */
+  currency: Scalars['String']['input'];
+  /** The address the code was sent to; becomes the administrator's sign-in. */
+  email: Scalars['String']['input'];
+  /** The administrator's full name. */
+  name: Scalars['String']['input'];
+  /** The public plan to start a trial of. */
+  planId: Scalars['ID']['input'];
+  /** IANA timezone. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** How a ticket stands against the resolution time promised for its priority. */
 export enum SlaState {
   Breached = 'BREACHED',
@@ -21841,6 +22057,18 @@ export type SubmitProblemReportInput = {
   severity: ProblemSeverity;
   subject: Scalars['String']['input'];
 };
+
+/** Where a company's subscription stands. */
+export enum SubscriptionStatus {
+  /** Paid and current. */
+  Active = 'ACTIVE',
+  /** Ended; only Admin and My Workspace stay open. */
+  Cancelled = 'CANCELLED',
+  /** A renewal failed; access continues while the provider retries. */
+  PastDue = 'PAST_DUE',
+  /** On a free trial; modules close when it ends unpaid. */
+  Trialing = 'TRIALING'
+}
 
 /** How much, and in what shape, a summary comes back. */
 export enum SummaryStyle {
@@ -23749,6 +23977,8 @@ export type User = {
   personalEmailVerifiedAt?: Maybe<Scalars['DateTime']['output']>;
   /** A number colleagues can reach the person on; set by the person in their profile. */
   phone?: Maybe<Scalars['String']['output']>;
+  /** The module roles this person's company plan opens besides ADMIN and EMPLOYEE; null when every module is open. */
+  planRoles?: Maybe<Array<Role>>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   /** The state or region the person works in, which decides regional holidays. Set by HR only. */
@@ -25311,7 +25541,7 @@ export type ListUserActivityPagedQueryVariables = Exact<{
 
 export type ListUserActivityPagedQuery = { __typename?: 'Query', listUserActivityPaged: { __typename?: 'AuditLogPage', totalCount: number, rows: Array<{ __typename?: 'AuditLog', id: string, actorId: string, actorName: string, actorEmail: string, action: AuditAction, module: string, entityId: string, entityLabel: string, summary: string, changes: string, ip: string, createdAt: string }> } };
 
-export type SignInResultFragment = { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null };
+export type SignInResultFragment = { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, planRoles?: Array<Role> | null, avatarUrl?: string | null } | null };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -25319,7 +25549,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, planRoles?: Array<Role> | null, avatarUrl?: string | null } | null } };
 
 export type VerifyMfaMutationVariables = Exact<{
   challenge: Scalars['String']['input'];
@@ -25327,7 +25557,7 @@ export type VerifyMfaMutationVariables = Exact<{
 }>;
 
 
-export type VerifyMfaMutation = { __typename?: 'Mutation', verifyMfa: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null } };
+export type VerifyMfaMutation = { __typename?: 'Mutation', verifyMfa: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, planRoles?: Array<Role> | null, avatarUrl?: string | null } | null } };
 
 export type MySessionsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -25373,7 +25603,7 @@ export type DisableMfaMutation = { __typename?: 'Mutation', disableMfa: boolean 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null, dateFormat?: string | null, timeFormat?: string | null, organizationId?: string | null, department?: string | null, designation?: string | null, brief?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, planRoles?: Array<Role> | null, avatarUrl?: string | null, timezone?: string | null, locale?: string | null, dateFormat?: string | null, timeFormat?: string | null, organizationId?: string | null, department?: string | null, designation?: string | null, brief?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
 
 export type AppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -25422,7 +25652,92 @@ export type CompleteGoogleSignInMutationVariables = Exact<{
 }>;
 
 
-export type CompleteGoogleSignInMutation = { __typename?: 'Mutation', completeGoogleSignIn: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null } };
+export type CompleteGoogleSignInMutation = { __typename?: 'Mutation', completeGoogleSignIn: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, planRoles?: Array<Role> | null, avatarUrl?: string | null } | null } };
+
+export type BillingPlanFieldsFragment = { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> };
+
+export type BillingSubscriptionFieldsFragment = { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null };
+
+export type BillingOverviewFieldsFragment = { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> };
+
+export type BillingPlansQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BillingPlansQuery = { __typename?: 'Query', billingPlans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> };
+
+export type BillingOverviewQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BillingOverviewQuery = { __typename?: 'Query', billingOverview: { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> } };
+
+export type OrganizationSubscriptionQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input'];
+}>;
+
+
+export type OrganizationSubscriptionQuery = { __typename?: 'Query', organizationSubscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null };
+
+export type CreateBillingPlanMutationVariables = Exact<{
+  input: BillingPlanInput;
+}>;
+
+
+export type CreateBillingPlanMutation = { __typename?: 'Mutation', createBillingPlan: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } };
+
+export type UpdateBillingPlanMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: BillingPlanInput;
+}>;
+
+
+export type UpdateBillingPlanMutation = { __typename?: 'Mutation', updateBillingPlan: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } };
+
+export type DeleteBillingPlanMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteBillingPlanMutation = { __typename?: 'Mutation', deleteBillingPlan: boolean };
+
+export type StartBillingCheckoutMutationVariables = Exact<{
+  input: BillingCheckoutInput;
+}>;
+
+
+export type StartBillingCheckoutMutation = { __typename?: 'Mutation', startBillingCheckout: string };
+
+export type CancelBillingSubscriptionMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CancelBillingSubscriptionMutation = { __typename?: 'Mutation', cancelBillingSubscription: { __typename?: 'BillingOverview', lapsed: boolean, seatsUsed: number, aiSpentThisMonthUsd: number, providers: Array<CheckoutProvider>, subscription?: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } | null, plan?: { __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> } | null, plans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> } };
+
+export type AssignOrganizationPlanMutationVariables = Exact<{
+  organizationId: Scalars['ID']['input'];
+  planId: Scalars['ID']['input'];
+  status: SubscriptionStatus;
+}>;
+
+
+export type AssignOrganizationPlanMutation = { __typename?: 'Mutation', assignOrganizationPlan: { __typename?: 'BillingSubscription', id: string, planId: string, planKey: string, status: SubscriptionStatus, provider: BillingProvider, currency: string, trialEndsAt?: string | null, currentPeriodEnd?: string | null, cancelAtPeriodEnd: boolean, cancelledAt?: string | null } };
+
+export type SignupPlansQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SignupPlansQuery = { __typename?: 'Query', signupPlans: Array<{ __typename?: 'BillingPlan', id: string, key: string, name: string, description: string, interval: PlanInterval, trialDays: number, seatLimit: number, allModules: boolean, modules: Array<Role>, aiMonthlyUsdCap: number, isPublic: boolean, isActive: boolean, isSystem: boolean, sortOrder: number, prices: Array<{ __typename?: 'PlanPrice', currency: string, amount: number }> }> };
+
+export type RequestSignupCodeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type RequestSignupCodeMutation = { __typename?: 'Mutation', requestSignupCode: boolean };
+
+export type CompleteSignupMutationVariables = Exact<{
+  input: SignupInput;
+}>;
+
+
+export type CompleteSignupMutation = { __typename?: 'Mutation', completeSignup: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, planRoles?: Array<Role> | null, avatarUrl?: string | null } | null } };
 
 export type TaskAttachmentFieldsFragment = { __typename?: 'TaskAttachment', url: string, name: string, contentType: string, uploadedByName: string, uploadedAt: string };
 
@@ -35018,7 +35333,61 @@ export const SignInResultFragmentDoc = gql`
     name
     email
     roles
+    planRoles
     avatarUrl
+  }
+}
+    `;
+export const BillingSubscriptionFieldsFragmentDoc = gql`
+    fragment BillingSubscriptionFields on BillingSubscription {
+  id
+  planId
+  planKey
+  status
+  provider
+  currency
+  trialEndsAt
+  currentPeriodEnd
+  cancelAtPeriodEnd
+  cancelledAt
+}
+    `;
+export const BillingPlanFieldsFragmentDoc = gql`
+    fragment BillingPlanFields on BillingPlan {
+  id
+  key
+  name
+  description
+  prices {
+    currency
+    amount
+  }
+  interval
+  trialDays
+  seatLimit
+  allModules
+  modules
+  aiMonthlyUsdCap
+  isPublic
+  isActive
+  isSystem
+  sortOrder
+}
+    `;
+export const BillingOverviewFieldsFragmentDoc = gql`
+    fragment BillingOverviewFields on BillingOverview {
+  lapsed
+  seatsUsed
+  aiSpentThisMonthUsd
+  providers
+  subscription {
+    ...BillingSubscriptionFields
+  }
+  plan {
+    ...BillingPlanFields
+  }
+  plans {
+    ...BillingPlanFields
   }
 }
     `;
@@ -42282,6 +42651,7 @@ export const MeDocument = gql`
     name
     email
     roles
+    planRoles
     avatarUrl
     timezone
     locale
@@ -42616,6 +42986,423 @@ export function useCompleteGoogleSignInMutation(baseOptions?: ApolloReactHooks.M
         return ApolloReactHooks.useMutation<CompleteGoogleSignInMutation, CompleteGoogleSignInMutationVariables>(CompleteGoogleSignInDocument, options);
       }
 export type CompleteGoogleSignInMutationHookResult = ReturnType<typeof useCompleteGoogleSignInMutation>;
+export const BillingPlansDocument = gql`
+    query BillingPlans {
+  billingPlans {
+    ...BillingPlanFields
+  }
+}
+    ${BillingPlanFieldsFragmentDoc}`;
+
+/**
+ * __useBillingPlansQuery__
+ *
+ * To run a query within a React component, call `useBillingPlansQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBillingPlansQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBillingPlansQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBillingPlansQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<BillingPlansQuery, BillingPlansQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<BillingPlansQuery, BillingPlansQueryVariables>(BillingPlansDocument, options);
+      }
+export function useBillingPlansLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<BillingPlansQuery, BillingPlansQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<BillingPlansQuery, BillingPlansQueryVariables>(BillingPlansDocument, options);
+        }
+// @ts-ignore
+export function useBillingPlansSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<BillingPlansQuery, BillingPlansQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BillingPlansQuery, BillingPlansQueryVariables>;
+// @ts-ignore
+export function useBillingPlansSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BillingPlansQuery, BillingPlansQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BillingPlansQuery | undefined, BillingPlansQueryVariables>;
+export function useBillingPlansSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BillingPlansQuery, BillingPlansQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<BillingPlansQuery, BillingPlansQueryVariables>(BillingPlansDocument, options);
+        }
+export type BillingPlansQueryHookResult = ReturnType<typeof useBillingPlansQuery>;
+export type BillingPlansLazyQueryHookResult = ReturnType<typeof useBillingPlansLazyQuery>;
+export type BillingPlansSuspenseQueryHookResult = ReturnType<typeof useBillingPlansSuspenseQuery>;
+export const BillingOverviewDocument = gql`
+    query BillingOverview {
+  billingOverview {
+    ...BillingOverviewFields
+  }
+}
+    ${BillingOverviewFieldsFragmentDoc}
+${BillingSubscriptionFieldsFragmentDoc}
+${BillingPlanFieldsFragmentDoc}`;
+
+/**
+ * __useBillingOverviewQuery__
+ *
+ * To run a query within a React component, call `useBillingOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBillingOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBillingOverviewQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBillingOverviewQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<BillingOverviewQuery, BillingOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<BillingOverviewQuery, BillingOverviewQueryVariables>(BillingOverviewDocument, options);
+      }
+export function useBillingOverviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<BillingOverviewQuery, BillingOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<BillingOverviewQuery, BillingOverviewQueryVariables>(BillingOverviewDocument, options);
+        }
+// @ts-ignore
+export function useBillingOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<BillingOverviewQuery, BillingOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BillingOverviewQuery, BillingOverviewQueryVariables>;
+// @ts-ignore
+export function useBillingOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BillingOverviewQuery, BillingOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BillingOverviewQuery | undefined, BillingOverviewQueryVariables>;
+export function useBillingOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BillingOverviewQuery, BillingOverviewQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<BillingOverviewQuery, BillingOverviewQueryVariables>(BillingOverviewDocument, options);
+        }
+export type BillingOverviewQueryHookResult = ReturnType<typeof useBillingOverviewQuery>;
+export type BillingOverviewLazyQueryHookResult = ReturnType<typeof useBillingOverviewLazyQuery>;
+export type BillingOverviewSuspenseQueryHookResult = ReturnType<typeof useBillingOverviewSuspenseQuery>;
+export const OrganizationSubscriptionDocument = gql`
+    query OrganizationSubscription($organizationId: ID!) {
+  organizationSubscription(organizationId: $organizationId) {
+    ...BillingSubscriptionFields
+  }
+}
+    ${BillingSubscriptionFieldsFragmentDoc}`;
+
+/**
+ * __useOrganizationSubscriptionQuery__
+ *
+ * To run a query within a React component, call `useOrganizationSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOrganizationSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOrganizationSubscriptionQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useOrganizationSubscriptionQuery(baseOptions: ApolloReactHooks.QueryHookOptions<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables> & ({ variables: OrganizationSubscriptionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>(OrganizationSubscriptionDocument, options);
+      }
+export function useOrganizationSubscriptionLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>(OrganizationSubscriptionDocument, options);
+        }
+// @ts-ignore
+export function useOrganizationSubscriptionSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>;
+// @ts-ignore
+export function useOrganizationSubscriptionSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrganizationSubscriptionQuery | undefined, OrganizationSubscriptionQueryVariables>;
+export function useOrganizationSubscriptionSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<OrganizationSubscriptionQuery, OrganizationSubscriptionQueryVariables>(OrganizationSubscriptionDocument, options);
+        }
+export type OrganizationSubscriptionQueryHookResult = ReturnType<typeof useOrganizationSubscriptionQuery>;
+export type OrganizationSubscriptionLazyQueryHookResult = ReturnType<typeof useOrganizationSubscriptionLazyQuery>;
+export type OrganizationSubscriptionSuspenseQueryHookResult = ReturnType<typeof useOrganizationSubscriptionSuspenseQuery>;
+export const CreateBillingPlanDocument = gql`
+    mutation CreateBillingPlan($input: BillingPlanInput!) {
+  createBillingPlan(input: $input) {
+    ...BillingPlanFields
+  }
+}
+    ${BillingPlanFieldsFragmentDoc}`;
+
+/**
+ * __useCreateBillingPlanMutation__
+ *
+ * To run a mutation, you first call `useCreateBillingPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBillingPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBillingPlanMutation, { data, loading, error }] = useCreateBillingPlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateBillingPlanMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateBillingPlanMutation, CreateBillingPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateBillingPlanMutation, CreateBillingPlanMutationVariables>(CreateBillingPlanDocument, options);
+      }
+export type CreateBillingPlanMutationHookResult = ReturnType<typeof useCreateBillingPlanMutation>;
+export const UpdateBillingPlanDocument = gql`
+    mutation UpdateBillingPlan($id: ID!, $input: BillingPlanInput!) {
+  updateBillingPlan(id: $id, input: $input) {
+    ...BillingPlanFields
+  }
+}
+    ${BillingPlanFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateBillingPlanMutation__
+ *
+ * To run a mutation, you first call `useUpdateBillingPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBillingPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBillingPlanMutation, { data, loading, error }] = useUpdateBillingPlanMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBillingPlanMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateBillingPlanMutation, UpdateBillingPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateBillingPlanMutation, UpdateBillingPlanMutationVariables>(UpdateBillingPlanDocument, options);
+      }
+export type UpdateBillingPlanMutationHookResult = ReturnType<typeof useUpdateBillingPlanMutation>;
+export const DeleteBillingPlanDocument = gql`
+    mutation DeleteBillingPlan($id: ID!) {
+  deleteBillingPlan(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteBillingPlanMutation__
+ *
+ * To run a mutation, you first call `useDeleteBillingPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBillingPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBillingPlanMutation, { data, loading, error }] = useDeleteBillingPlanMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteBillingPlanMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteBillingPlanMutation, DeleteBillingPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteBillingPlanMutation, DeleteBillingPlanMutationVariables>(DeleteBillingPlanDocument, options);
+      }
+export type DeleteBillingPlanMutationHookResult = ReturnType<typeof useDeleteBillingPlanMutation>;
+export const StartBillingCheckoutDocument = gql`
+    mutation StartBillingCheckout($input: BillingCheckoutInput!) {
+  startBillingCheckout(input: $input)
+}
+    `;
+
+/**
+ * __useStartBillingCheckoutMutation__
+ *
+ * To run a mutation, you first call `useStartBillingCheckoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartBillingCheckoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startBillingCheckoutMutation, { data, loading, error }] = useStartBillingCheckoutMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useStartBillingCheckoutMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartBillingCheckoutMutation, StartBillingCheckoutMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartBillingCheckoutMutation, StartBillingCheckoutMutationVariables>(StartBillingCheckoutDocument, options);
+      }
+export type StartBillingCheckoutMutationHookResult = ReturnType<typeof useStartBillingCheckoutMutation>;
+export const CancelBillingSubscriptionDocument = gql`
+    mutation CancelBillingSubscription {
+  cancelBillingSubscription {
+    ...BillingOverviewFields
+  }
+}
+    ${BillingOverviewFieldsFragmentDoc}
+${BillingSubscriptionFieldsFragmentDoc}
+${BillingPlanFieldsFragmentDoc}`;
+
+/**
+ * __useCancelBillingSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useCancelBillingSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelBillingSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelBillingSubscriptionMutation, { data, loading, error }] = useCancelBillingSubscriptionMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCancelBillingSubscriptionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CancelBillingSubscriptionMutation, CancelBillingSubscriptionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CancelBillingSubscriptionMutation, CancelBillingSubscriptionMutationVariables>(CancelBillingSubscriptionDocument, options);
+      }
+export type CancelBillingSubscriptionMutationHookResult = ReturnType<typeof useCancelBillingSubscriptionMutation>;
+export const AssignOrganizationPlanDocument = gql`
+    mutation AssignOrganizationPlan($organizationId: ID!, $planId: ID!, $status: SubscriptionStatus!) {
+  assignOrganizationPlan(
+    organizationId: $organizationId
+    planId: $planId
+    status: $status
+  ) {
+    ...BillingSubscriptionFields
+  }
+}
+    ${BillingSubscriptionFieldsFragmentDoc}`;
+
+/**
+ * __useAssignOrganizationPlanMutation__
+ *
+ * To run a mutation, you first call `useAssignOrganizationPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignOrganizationPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignOrganizationPlanMutation, { data, loading, error }] = useAssignOrganizationPlanMutation({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      planId: // value for 'planId'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useAssignOrganizationPlanMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AssignOrganizationPlanMutation, AssignOrganizationPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AssignOrganizationPlanMutation, AssignOrganizationPlanMutationVariables>(AssignOrganizationPlanDocument, options);
+      }
+export type AssignOrganizationPlanMutationHookResult = ReturnType<typeof useAssignOrganizationPlanMutation>;
+export const SignupPlansDocument = gql`
+    query SignupPlans {
+  signupPlans {
+    ...BillingPlanFields
+  }
+}
+    ${BillingPlanFieldsFragmentDoc}`;
+
+/**
+ * __useSignupPlansQuery__
+ *
+ * To run a query within a React component, call `useSignupPlansQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSignupPlansQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSignupPlansQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSignupPlansQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SignupPlansQuery, SignupPlansQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SignupPlansQuery, SignupPlansQueryVariables>(SignupPlansDocument, options);
+      }
+export function useSignupPlansLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SignupPlansQuery, SignupPlansQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SignupPlansQuery, SignupPlansQueryVariables>(SignupPlansDocument, options);
+        }
+// @ts-ignore
+export function useSignupPlansSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SignupPlansQuery, SignupPlansQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SignupPlansQuery, SignupPlansQueryVariables>;
+// @ts-ignore
+export function useSignupPlansSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SignupPlansQuery, SignupPlansQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SignupPlansQuery | undefined, SignupPlansQueryVariables>;
+export function useSignupPlansSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SignupPlansQuery, SignupPlansQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SignupPlansQuery, SignupPlansQueryVariables>(SignupPlansDocument, options);
+        }
+export type SignupPlansQueryHookResult = ReturnType<typeof useSignupPlansQuery>;
+export type SignupPlansLazyQueryHookResult = ReturnType<typeof useSignupPlansLazyQuery>;
+export type SignupPlansSuspenseQueryHookResult = ReturnType<typeof useSignupPlansSuspenseQuery>;
+export const RequestSignupCodeDocument = gql`
+    mutation RequestSignupCode($email: String!) {
+  requestSignupCode(email: $email)
+}
+    `;
+
+/**
+ * __useRequestSignupCodeMutation__
+ *
+ * To run a mutation, you first call `useRequestSignupCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestSignupCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestSignupCodeMutation, { data, loading, error }] = useRequestSignupCodeMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useRequestSignupCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RequestSignupCodeMutation, RequestSignupCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RequestSignupCodeMutation, RequestSignupCodeMutationVariables>(RequestSignupCodeDocument, options);
+      }
+export type RequestSignupCodeMutationHookResult = ReturnType<typeof useRequestSignupCodeMutation>;
+export const CompleteSignupDocument = gql`
+    mutation CompleteSignup($input: SignupInput!) {
+  completeSignup(input: $input) {
+    ...SignInResult
+  }
+}
+    ${SignInResultFragmentDoc}`;
+
+/**
+ * __useCompleteSignupMutation__
+ *
+ * To run a mutation, you first call `useCompleteSignupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteSignupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeSignupMutation, { data, loading, error }] = useCompleteSignupMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCompleteSignupMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CompleteSignupMutation, CompleteSignupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CompleteSignupMutation, CompleteSignupMutationVariables>(CompleteSignupDocument, options);
+      }
+export type CompleteSignupMutationHookResult = ReturnType<typeof useCompleteSignupMutation>;
 export const ProjectBoardDocument = gql`
     query ProjectBoard($projectId: ID!) {
   projectBoard(projectId: $projectId) {

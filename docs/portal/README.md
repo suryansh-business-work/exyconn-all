@@ -83,6 +83,8 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
 
 - [multi-tenancy.md](./multi-tenancy.md) — one portal, many companies: how a record is tied
   to its organization, what is platform-wide instead, and how to migrate an existing install.
+- [billing.md](./billing.md) — self sign-up, plans, subscriptions through Stripe and Razorpay,
+  and how seats, modules and AI are enforced against a company's plan.
 - [compliance.md](./compliance.md) — the ISO management system: one set of registers for
   ISO 9001, 27001, 45001 and 14001, and the rules the API enforces about closing a finding.
 - [packages.md](./packages.md) — what lives in each package and what it exports.

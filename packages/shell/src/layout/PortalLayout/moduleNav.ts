@@ -32,10 +32,14 @@ export interface NavNode {
  * portal, so it shows only that one — jumping elsewhere is what the portal
  * switcher is for. An app the roles cannot open yields nothing.
  */
-export function navModules(roles: Role[], currentApp: PortalAppKey): ModuleDefinition[] {
-  const all = accessibleModules(roles).map((module) => ({
+export function navModules(
+  roles: Role[],
+  currentApp: PortalAppKey,
+  planRoles?: readonly Role[] | null,
+): ModuleDefinition[] {
+  const all = accessibleModules(roles, planRoles).map((module) => ({
     ...module,
-    children: visiblePages(module.children, roles),
+    children: visiblePages(module.children, roles, planRoles),
   }));
   if (currentApp === 'hub') return all;
   return all.filter((module) => module.key === currentApp);
@@ -46,10 +50,14 @@ export function navModules(roles: Role[], currentApp: PortalAppKey): ModuleDefin
  * module's — the platform's own screens sit inside the Admin portal, and a company's
  * administrator must not be shown them.
  */
-function visiblePages(children: ModuleChild[] | undefined, roles: Role[]): ModuleChild[] {
+function visiblePages(
+  children: ModuleChild[] | undefined,
+  roles: Role[],
+  planRoles?: readonly Role[] | null,
+): ModuleChild[] {
   return (children ?? [])
-    .filter((child) => child.role === undefined || canAccess(roles, child.role))
-    .map((child) => ({ ...child, children: visiblePages(child.children, roles) }));
+    .filter((child) => child.role === undefined || canAccess(roles, child.role, planRoles))
+    .map((child) => ({ ...child, children: visiblePages(child.children, roles, planRoles) }));
 }
 
 function pageNode(child: ModuleChild, module: ModuleDefinition): NavNode {

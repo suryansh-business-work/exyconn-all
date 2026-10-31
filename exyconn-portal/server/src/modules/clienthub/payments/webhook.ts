@@ -6,6 +6,12 @@ import { PaymentAttemptModel, type PaymentGateway } from './attempt.model';
 import { activeRazorpay, activeStripe } from './gateway.service';
 import { validStripeSignature } from './stripe.client';
 import { fetchRazorpayLink, validRazorpaySignature } from './razorpay.client';
+import {
+  isRazorpayBillingEvent,
+  isStripeBillingEvent,
+  receiveRazorpayBillingEvent,
+  receiveStripeBillingEvent,
+} from '../../billing/billing.webhook';
 
 export { STRIPE_WEBHOOK_PATH, RAZORPAY_WEBHOOK_PATH } from './webhook.paths';
 const BODY_LIMIT = '1mb';
@@ -97,12 +103,20 @@ interface StripeEvent {
   data?: { object?: { id?: string; payment_status?: string; payment_intent?: string } };
 }
 
+/** A webhook request's other headers, for the receivers that need more than the signature. */
+type HeaderOf = (name: string) => string | undefined;
+
 async function receiveStripe(raw: Buffer, signature: string | undefined): Promise<number> {
   const keys = await activeStripe();
   if (!keys || !validStripeSignature(raw, signature, keys.webhookSecret)) {
     return 400;
   }
   const event = JSON.parse(raw.toString('utf8')) as StripeEvent;
+  // Subscriptions to Exyconn's own plans share this endpoint (modules/billing).
+  if (isStripeBillingEvent(event)) {
+    await receiveStripeBillingEvent(event);
+    return 200;
+  }
   const session = event.data?.object;
   if (!session?.id) {
     return 200;
@@ -128,6 +142,7 @@ interface RazorpayEvent {
   payload?: {
     payment_link?: { entity?: { id?: string } };
     payment?: { entity?: { id?: string; method?: string } };
+    subscription?: { entity?: Record<string, unknown> };
   };
 }
 
@@ -158,12 +173,21 @@ export async function settleRazorpayLink(linkId: string): Promise<void> {
   }
 }
 
-async function receiveRazorpay(raw: Buffer, signature: string | undefined): Promise<number> {
+async function receiveRazorpay(
+  raw: Buffer,
+  signature: string | undefined,
+  header: HeaderOf,
+): Promise<number> {
   const keys = await activeRazorpay();
   if (!keys || !validRazorpaySignature(raw, signature, keys.webhookSecret)) {
     return 400;
   }
   const event = JSON.parse(raw.toString('utf8')) as RazorpayEvent;
+  // Subscriptions to Exyconn's own plans share this endpoint (modules/billing).
+  if (isRazorpayBillingEvent(event)) {
+    const accepted = await receiveRazorpayBillingEvent(event, header('x-razorpay-event-id'));
+    return accepted ? 200 : 400;
+  }
   const linkId = event.payload?.payment_link?.entity?.id;
   if (!linkId) {
     return 200;
@@ -184,13 +208,13 @@ async function receiveRazorpay(raw: Buffer, signature: string | undefined): Prom
 
 /** One gateway's webhook: the raw body is kept, because the signature is over those bytes. */
 function webhookRouter(
-  receive: (raw: Buffer, signature: string | undefined) => Promise<number>,
+  receive: (raw: Buffer, signature: string | undefined, header: HeaderOf) => Promise<number>,
   signatureHeader: string,
 ): Router {
   const router = Router();
   router.post('/', express.raw({ type: 'application/json', limit: BODY_LIMIT }), (req, res) => {
     const raw = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
-    receive(raw, req.get(signatureHeader))
+    receive(raw, req.get(signatureHeader), (name) => req.get(name))
       .then((status) => res.sendStatus(status))
       .catch((error: unknown) => {
         logger.error({ err: error }, 'Payment webhook failed');

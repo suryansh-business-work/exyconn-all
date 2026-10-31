@@ -67,11 +67,36 @@ export function roleList(roles: readonly string[], t: (text: string) => string):
   return roles.map((role) => t(roleLabel(role))).join(', ');
 }
 
-/** ADMIN sees everything in their own company; otherwise the user must hold the module's role. */
-export function canAccess(roles: Role[], moduleRole: Role): boolean {
+/** Open on every plan: a company can always administer itself, and its people self-serve. */
+const PLAN_FREE_ROLES: ReadonlySet<Role> = new Set([
+  ROLES.SUPER_ADMIN,
+  ROLES.ADMIN,
+  ROLES.EMPLOYEE,
+]);
+
+/**
+ * Whether the company's plan includes a module. `planRoles` null or absent means every module
+ * is; the server enforces the same rule (roleGuard), this only keeps the navigation honest.
+ */
+export function planIncludes(moduleRole: Role, planRoles?: readonly Role[] | null): boolean {
+  return !planRoles || PLAN_FREE_ROLES.has(moduleRole) || planRoles.includes(moduleRole);
+}
+
+/**
+ * ADMIN sees everything in their own company; otherwise the user must hold the module's role.
+ * Either way the company's plan must include the module.
+ */
+export function canAccess(
+  roles: Role[],
+  moduleRole: Role,
+  planRoles?: readonly Role[] | null,
+): boolean {
   if (moduleRole === ROLES.SUPER_ADMIN) {
     // The platform's own screens: ADMIN is the top of ONE company and never passes here.
     return roles.includes(ROLES.SUPER_ADMIN);
+  }
+  if (!planIncludes(moduleRole, planRoles)) {
+    return false;
   }
   return roles.includes(ROLES.ADMIN) || roles.includes(moduleRole);
 }
