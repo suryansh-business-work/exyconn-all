@@ -8,3 +8,5 @@ export { forEachOrganization } from './organization.each';
 export { migrateLegacyDataIntoFirstOrganization } from './organization.migrate';
 export { ensurePlatformOperatorOrganization } from './organization.operator';
 export { repairStoredCurrencies } from './organization.currency';
+export { ensureDemoOrganization } from './organization.demo';
+export type { DemoOrganization, DemoOrganizationSpec } from './organization.demo';

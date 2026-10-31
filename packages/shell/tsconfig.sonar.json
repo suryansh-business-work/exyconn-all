@@ -14,7 +14,9 @@
     "../../demos/whatsapp-demo/ui/src",
     "../../demos/whatsapp-demo/ui/__tests__",
     "../../demos/calling-bot-demo/ui/src",
-    "../../demos/website-chat-demo/ui/src"
+    "../../demos/website-chat-demo/ui/src",
+    "../../demos/meeting-bot-demo/ui/src",
+    "../../demos/mcp-sandbox-demo/ui/src"
   ],
   "exclude": [
     "**/node_modules",

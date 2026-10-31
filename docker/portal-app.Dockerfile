@@ -77,6 +77,8 @@ COPY demos/whatsapp-demo/server/package.json demos/whatsapp-demo/server/
 COPY demos/calling-bot-demo/ui/package.json demos/calling-bot-demo/ui/
 COPY demos/calling-bot-demo/server/package.json demos/calling-bot-demo/server/
 COPY demos/website-chat-demo/ui/package.json demos/website-chat-demo/ui/
+COPY demos/meeting-bot-demo/ui/package.json demos/meeting-bot-demo/ui/
+COPY demos/mcp-sandbox-demo/ui/package.json demos/mcp-sandbox-demo/ui/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # The root `prepare` script runs on every install, this one included; it needs its own

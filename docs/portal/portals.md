@@ -33,6 +33,8 @@ running identical code.
 | Compliance             | `compliance`    | https://compliance.exyconn.com           | https://compliance.exyconn.com/login          | 4037     | `COMPLIANCE`                 |
 | Social                 | `social`        | https://social.exyconn.com               | https://social.exyconn.com/login              | 4036     | `EMPLOYEE`                   |
 | WhatsApp Demo          | `whatsapp-demo` | https://demos.exyconn.com/whatsapp-demo/ | https://demos.exyconn.com/whatsapp-demo/login | 4038     | `EMPLOYEE`                   |
+| Meeting Bot Demo | `meeting-bot-demo` | https://demos.exyconn.com/meeting-bot-demo/ | https://demos.exyconn.com/meeting-bot-demo/login | 4048     | demo visitor (email code) |
+| MCP Sandbox Demo | `mcp-sandbox-demo` | https://demos.exyconn.com/mcp-sandbox-demo/ | https://demos.exyconn.com/mcp-sandbox-demo/login | 4049     | demo visitor (email code) |
 | Client Hub             | `clienthub`     | https://clienthub.exyconn.com            | https://clienthub.exyconn.com/login           | 4039     | client contacts (email code) |
 | Agents                 | `agents`        | https://agents.exyconn.com               | https://agents.exyconn.com/login              | 4045     | `AGENTS`                     |
 | Developers             | `developers`    | https://developers.exyconn.com           | https://developers.exyconn.com/login          | 4046     | `ADMIN`                      |

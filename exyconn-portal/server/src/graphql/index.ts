@@ -182,6 +182,8 @@ import {
 } from '../../../../demos/whatsapp-demo/server/src';
 import { callingBotTypeDefs, callingBotResolvers } from '../modules/calling-bot-demo';
 import { agentsTypeDefs, agentsResolvers } from '../modules/agents';
+import { meetingBotDemoTypeDefs, meetingBotDemoResolvers } from '../modules/meeting-bot-demo';
+import { mcpSandboxTypeDefs, mcpSandboxResolvers } from '../modules/mcp/sandbox';
 import {
   emailVerificationTypeDefs,
   emailVerificationResolvers,
@@ -386,6 +388,8 @@ export const typeDefs = [
   whatsappDemoTypeDefs,
   callingBotTypeDefs,
   agentsTypeDefs,
+  meetingBotDemoTypeDefs,
+  mcpSandboxTypeDefs,
   emailVerificationTypeDefs,
   googleMapsTypeDefs,
   webScraperTypeDefs,
@@ -511,6 +515,8 @@ export const resolvers = mergeResolvers([
   whatsappDemoResolvers,
   callingBotResolvers,
   agentsResolvers,
+  meetingBotDemoResolvers,
+  mcpSandboxResolvers,
   emailVerificationResolvers,
   googleMapsResolvers,
   webScraperResolvers,

@@ -74,3 +74,26 @@ The password is never stored by Exyconn: only the signed-in profile is.
 - Hosts can turn off chat for participants; the recording notice is then not posted (the log says so).
 - People are counted from Meet's video tiles; "alone" ends the trip after 2 minutes.
 - Chromium runs with `--no-sandbox` inside the container (no user namespaces); it only opens Meet.
+
+## The public demo (demos.exyconn.com/meeting-bot-demo)
+
+A demo visitor (email code, `x-demo-visitor`) or any employee pastes a Google Meet link, agrees
+to the recording terms and sends the same bot into their call. Server code:
+`exyconn-portal/server/src/modules/meeting-bot-demo`; UI: `demos/meeting-bot-demo/ui`.
+
+- **Its own company.** Trips run in the demo company `exyconn-meeting-bot-demo`, made at boot by
+  `ensureDemoOrganization`, as its account `notetaker@exyconn-meeting-bot-demo.example`
+  (EMPLOYEE, AI; no known password). Every boot sets that company's Meeting Assistant settings:
+  bot on, notes made automatically, the assistant's own emails off, recordings and transcripts
+  kept `MEETING_BOT_DEMO_RETENTION_DAYS` (default 7), calls capped at
+  `MEETING_BOT_DEMO_MAX_MINUTES` (default 30).
+- **A trip** (`MeetingBotDemoTrip`) keeps who sent it (`visitor:<id>` or `user:<id>`), the
+  recording terms exactly as agreed and when, the IP, and the bot dispatch it made. Sending is
+  audited (module `Meeting bot demo`). A visitor sends at most `MEETING_BOT_DEMO_TRIPS_PER_DAY`
+  (default 3) in 24 hours and only ever sees or calls back their own trips. The bot introduces
+  itself as joining for the visitor's name. Without `MEET_BOT_TOKEN` the page says the bot is
+  not set up and sending is refused.
+- **The sweep** (`meetingBotDemo.sweep.ts`, every 5 minutes) emails each visitor the
+  `meeting-assistant-summary` template once their notes exist (claimed before the send, so it
+  goes once; a failure is kept on the trip), linking to the demo page (`MEETING_BOT_DEMO_URL`),
+  and deletes each recorded meeting (`deleteMeetingData`) when its retention ends.

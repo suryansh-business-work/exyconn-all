@@ -9098,6 +9098,51 @@ export type McpPersonUsage = {
   userName: Scalars['String']['output'];
 };
 
+/** What the MCP sandbox offers before a token is taken. */
+export type McpSandboxInfo = {
+  __typename?: 'McpSandboxInfo';
+  /** Tool calls one token may make an hour. */
+  callsPerHour: Scalars['Int']['output'];
+  /** The MCP address the token is good at (every module, /mcp/all). */
+  endpointUrl: Scalars['String']['output'];
+  /** The modules whose read-only tools the token reaches. */
+  modules: Array<Scalars['String']['output']>;
+  /** The sample company the sandbox reads. */
+  organizationName: Scalars['String']['output'];
+  sample: Array<McpSandboxSample>;
+  /** The MCP server name Claude shows. */
+  serverName: Scalars['String']['output'];
+  tokenTtlMinutes: Scalars['Int']['output'];
+  tokensLeftToday: Scalars['Int']['output'];
+  tokensPerDay: Scalars['Int']['output'];
+};
+
+/** A new sandbox token: the secret is shown this once. */
+export type McpSandboxIssued = {
+  __typename?: 'McpSandboxIssued';
+  sandboxToken: McpSandboxToken;
+  token: Scalars['String']['output'];
+};
+
+/** How many sample records of one kind the sandbox company holds. */
+export type McpSandboxSample = {
+  __typename?: 'McpSandboxSample';
+  count: Scalars['Int']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** A read-only sandbox MCP token, without its secret. */
+export type McpSandboxToken = {
+  __typename?: 'McpSandboxToken';
+  /** Neither revoked nor expired. */
+  active: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
 /** One MCP server the person may use, and what they need to connect Claude to it. */
 export type McpServer = {
   __typename?: 'McpServer';
@@ -9251,6 +9296,65 @@ export enum MeetingBookingStatus {
   Cancelled = 'CANCELLED',
   Confirmed = 'CONFIRMED'
 }
+
+/** One action item from a demo meeting's notes. */
+export type MeetingBotDemoAction = {
+  __typename?: 'MeetingBotDemoAction';
+  assignedTo?: Maybe<Scalars['String']['output']>;
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  /** The deadline as it was said, when it could not be pinned to a date. */
+  dueText?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** What the meeting bot demo offers the caller before anything is sent. */
+export type MeetingBotDemoInfo = {
+  __typename?: 'MeetingBotDemoInfo';
+  /** The name the bot joins calls under. */
+  botName: Scalars['String']['output'];
+  /** The recording terms the caller agrees to before sending the bot. */
+  consentText: Scalars['String']['output'];
+  /** False until the meeting bot service is set up on this server. */
+  enabled: Scalars['Boolean']['output'];
+  /** The longest stretch of a call the bot records. */
+  maxMeetingMinutes: Scalars['Int']['output'];
+  /** Days before a demo recording, transcript and notes are deleted. */
+  retentionDays: Scalars['Int']['output'];
+  tripsLeftToday: Scalars['Int']['output'];
+  tripsPerDay: Scalars['Int']['output'];
+};
+
+/** A demo meeting's notes. */
+export type MeetingBotDemoSummary = {
+  __typename?: 'MeetingBotDemoSummary';
+  actionItems: Array<MeetingBotDemoAction>;
+  decisions: Array<Scalars['String']['output']>;
+  discussionPoints: Array<Scalars['String']['output']>;
+  executiveSummary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** One trip of the demo meeting bot into the caller's Google Meet call, and its notes once ready. */
+export type MeetingBotDemoTrip = {
+  __typename?: 'MeetingBotDemoTrip';
+  createdAt: Scalars['DateTime']['output'];
+  /** When the notes were emailed to the caller. */
+  emailedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Why the trip failed, when it did. */
+  error: Scalars['String']['output'];
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  meetUrl: Scalars['String']['output'];
+  meetingCode: Scalars['String']['output'];
+  /** When the recording, transcript and notes are deleted. */
+  purgeAfter: Scalars['DateTime']['output'];
+  purged: Scalars['Boolean']['output'];
+  status: MaBotStatus;
+  summary?: Maybe<MeetingBotDemoSummary>;
+  /** Where the notes are: NOT_STARTED, QUEUED, RUNNING, READY, FAILED or SKIPPED. */
+  summaryStatus: Scalars['String']['output'];
+};
 
 /** CRM > Meetings > Settings: the booking page address, Slack and the fixed video rooms. */
 export type MeetingSettings = {
@@ -9549,6 +9653,8 @@ export type Mutation = {
   cancelItAccessRequest: ItAccessRequest;
   /** Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first. */
   cancelMeetingBooking: MeetingBooking;
+  /** Public demo: calls the bot back from one of the caller's own trips. */
+  cancelMeetingBotDemo: MeetingBotDemoTrip;
   changePassword: Scalars['Boolean']['output'];
   /** Runs the health checks on one of the company's sending domains now and keeps the result. */
   checkMailDomainHealth: MailDomainHealth;
@@ -10018,6 +10124,8 @@ export type Mutation = {
    * with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
    */
   inviteOrganizationMembers: Array<User>;
+  /** Public demo: a short-lived, read-only MCP token for the sandbox company at /mcp/all. Revokes the caller's earlier ones; limited per day; audited. */
+  issueMcpSandboxToken: McpSandboxIssued;
   /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
    * and never the caller. Admin's setUserActive remains the general way to deactivate anyone.
@@ -10223,6 +10331,8 @@ export type Mutation = {
   revokeGccShare: Scalars['Boolean']['output'];
   /** Signs one connection out; Claude has to connect again. */
   revokeMcpConnection: Scalars['Boolean']['output'];
+  /** Public demo: revokes one of the caller's own sandbox tokens at once; audited. */
+  revokeMcpSandboxToken: McpSandboxToken;
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   /** Revokes a client project link so it stops working at once. */
@@ -10327,6 +10437,8 @@ export type Mutation = {
   sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
+  /** Public demo: sends the meeting bot into the caller's Google Meet call. The caller must agree to the recording terms; limited per day. */
+  sendMeetingBotDemo: MeetingBotDemoTrip;
   /** Sends an email from one of the caller's own mailboxes. Not kept on any CRM record. */
   sendMyEmail: MyEmailSent;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -11022,6 +11134,11 @@ export type MutationCancelItAccessRequestArgs = {
 
 
 export type MutationCancelMeetingBookingArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationCancelMeetingBotDemoArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -13276,6 +13393,11 @@ export type MutationRevokeMcpConnectionArgs = {
 };
 
 
+export type MutationRevokeMcpSandboxTokenArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRevokeProjectShareArgs = {
   id: Scalars['ID']['input'];
 };
@@ -13499,6 +13621,12 @@ export type MutationSendInvoiceArgs = {
   email: Scalars['String']['input'];
   id: Scalars['ID']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSendMeetingBotDemoArgs = {
+  consent: Scalars['Boolean']['input'];
+  meetUrl: Scalars['String']['input'];
 };
 
 
@@ -17870,6 +17998,10 @@ export type Query = {
   mcpConnections: Array<McpConnection>;
   /** Failed calls to a server over the last days, 1 to 180, grouped by tool, code and message, most frequent first. */
   mcpErrors: Array<McpErrorGroup>;
+  /** Public demo (demo visitor pass or employee): the sandbox's MCP address, token window, limits, modules and sample records. */
+  mcpSandboxInfo: McpSandboxInfo;
+  /** Public demo: the caller's own sandbox tokens, newest first. */
+  mcpSandboxTokens: Array<McpSandboxToken>;
   /** Every MCP server the caller may use (its module's role), the global ALL server last. */
   mcpServers: Array<McpServer>;
   /** ADMIN: the company's MCP settings. */
@@ -17885,6 +18017,12 @@ export type Query = {
   meetingBookingPagePath: Scalars['String']['output'];
   /** Lists meetings people have booked, latest start first, one page at a time. */
   meetingBookings: MeetingBookingPage;
+  /** Public demo (demo visitor pass or employee): the bot's name, the daily limit left, the retention and the recording terms. */
+  meetingBotDemoInfo: MeetingBotDemoInfo;
+  /** Public demo: one of the caller's own demo bot trips. */
+  meetingBotDemoTrip: MeetingBotDemoTrip;
+  /** Public demo: the caller's own demo bot trips, newest first, with their notes once ready. */
+  meetingBotDemoTrips: Array<MeetingBotDemoTrip>;
   /** Reads the booking page settings: its address, the Slack channel bookings go to, and the Meet and Zoom links. */
   meetingSettings: MeetingSettings;
   /** Slack channels a booking can be posted to (needs Tech > Environment Variables > Slack). */
@@ -20043,6 +20181,11 @@ export type QueryMcpUsageArgs = {
 export type QueryMeetingBookingsArgs = {
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
+};
+
+
+export type QueryMeetingBotDemoTripArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -26104,6 +26247,10 @@ export type ResolversTypes = ResolversObject<{
   McpErrorGroup: ResolverTypeWrapper<McpErrorGroup>;
   McpModuleUsage: ResolverTypeWrapper<McpModuleUsage>;
   McpPersonUsage: ResolverTypeWrapper<McpPersonUsage>;
+  McpSandboxInfo: ResolverTypeWrapper<McpSandboxInfo>;
+  McpSandboxIssued: ResolverTypeWrapper<McpSandboxIssued>;
+  McpSandboxSample: ResolverTypeWrapper<McpSandboxSample>;
+  McpSandboxToken: ResolverTypeWrapper<McpSandboxToken>;
   McpServer: ResolverTypeWrapper<McpServer>;
   McpSettings: ResolverTypeWrapper<McpSettings>;
   McpSettingsInput: McpSettingsInput;
@@ -26116,6 +26263,10 @@ export type ResolversTypes = ResolversObject<{
   MeetingBooking: ResolverTypeWrapper<MeetingBooking>;
   MeetingBookingPage: ResolverTypeWrapper<MeetingBookingPage>;
   MeetingBookingStatus: MeetingBookingStatus;
+  MeetingBotDemoAction: ResolverTypeWrapper<MeetingBotDemoAction>;
+  MeetingBotDemoInfo: ResolverTypeWrapper<MeetingBotDemoInfo>;
+  MeetingBotDemoSummary: ResolverTypeWrapper<MeetingBotDemoSummary>;
+  MeetingBotDemoTrip: ResolverTypeWrapper<MeetingBotDemoTrip>;
   MeetingSettings: ResolverTypeWrapper<MeetingSettings>;
   MeetingSettingsInput: MeetingSettingsInput;
   MeetingTracking: ResolverTypeWrapper<MeetingTracking>;
@@ -27298,6 +27449,10 @@ export type ResolversParentTypes = ResolversObject<{
   McpErrorGroup: McpErrorGroup;
   McpModuleUsage: McpModuleUsage;
   McpPersonUsage: McpPersonUsage;
+  McpSandboxInfo: McpSandboxInfo;
+  McpSandboxIssued: McpSandboxIssued;
+  McpSandboxSample: McpSandboxSample;
+  McpSandboxToken: McpSandboxToken;
   McpServer: McpServer;
   McpSettings: McpSettings;
   McpSettingsInput: McpSettingsInput;
@@ -27308,6 +27463,10 @@ export type ResolversParentTypes = ResolversObject<{
   McpUsageDay: McpUsageDay;
   MeetingBooking: MeetingBooking;
   MeetingBookingPage: MeetingBookingPage;
+  MeetingBotDemoAction: MeetingBotDemoAction;
+  MeetingBotDemoInfo: MeetingBotDemoInfo;
+  MeetingBotDemoSummary: MeetingBotDemoSummary;
+  MeetingBotDemoTrip: MeetingBotDemoTrip;
   MeetingSettings: MeetingSettings;
   MeetingSettingsInput: MeetingSettingsInput;
   MeetingTracking: MeetingTracking;
@@ -32777,6 +32936,41 @@ export type McpPersonUsageResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type McpSandboxInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpSandboxInfo'] = ResolversParentTypes['McpSandboxInfo']> = ResolversObject<{
+  callsPerHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  endpointUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  modules?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  organizationName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sample?: Resolver<Array<ResolversTypes['McpSandboxSample']>, ParentType, ContextType>;
+  serverName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tokenTtlMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tokensLeftToday?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tokensPerDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type McpSandboxIssuedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpSandboxIssued'] = ResolversParentTypes['McpSandboxIssued']> = ResolversObject<{
+  sandboxToken?: Resolver<ResolversTypes['McpSandboxToken'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type McpSandboxSampleResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpSandboxSample'] = ResolversParentTypes['McpSandboxSample']> = ResolversObject<{
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type McpSandboxTokenResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpSandboxToken'] = ResolversParentTypes['McpSandboxToken']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastUsedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type McpServerResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['McpServer'] = ResolversParentTypes['McpServer']> = ResolversObject<{
   connectionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -32878,6 +33072,51 @@ export type MeetingBookingResolvers<ContextType = GraphQLContext, ParentType ext
 export type MeetingBookingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBookingPage'] = ResolversParentTypes['MeetingBookingPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['MeetingBooking']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingBotDemoActionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBotDemoAction'] = ResolversParentTypes['MeetingBotDemoAction']> = ResolversObject<{
+  assignedTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  dueDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  dueText?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingBotDemoInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBotDemoInfo'] = ResolversParentTypes['MeetingBotDemoInfo']> = ResolversObject<{
+  botName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  consentText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  maxMeetingMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  retentionDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tripsLeftToday?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tripsPerDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingBotDemoSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBotDemoSummary'] = ResolversParentTypes['MeetingBotDemoSummary']> = ResolversObject<{
+  actionItems?: Resolver<Array<ResolversTypes['MeetingBotDemoAction']>, ParentType, ContextType>;
+  decisions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  discussionPoints?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  executiveSummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MeetingBotDemoTripResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingBotDemoTrip'] = ResolversParentTypes['MeetingBotDemoTrip']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  emailedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  finishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  meetUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  meetingCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  purgeAfter?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  purged?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['MaBotStatus'], ParentType, ContextType>;
+  summary?: Resolver<Maybe<ResolversTypes['MeetingBotDemoSummary']>, ParentType, ContextType>;
+  summaryStatus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -33057,6 +33296,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   cancelCampaignSend?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCancelCampaignSendArgs, 'id'>>;
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
+  cancelMeetingBotDemo?: Resolver<ResolversTypes['MeetingBotDemoTrip'], ParentType, ContextType, RequireFields<MutationCancelMeetingBotDemoArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   checkMailDomainHealth?: Resolver<ResolversTypes['MailDomainHealth'], ParentType, ContextType, RequireFields<MutationCheckMailDomainHealthArgs, 'domain'>>;
   claimWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationClaimWebsiteChatSessionArgs, 'id'>>;
@@ -33405,6 +33645,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   importTableRows?: Resolver<ResolversTypes['TableImportResult'], ParentType, ContextType, RequireFields<MutationImportTableRowsArgs, 'firstRowNumber' | 'list' | 'mode' | 'rows'>>;
   importTechConfigs?: Resolver<ResolversTypes['TechImportResult'], ParentType, ContextType, RequireFields<MutationImportTechConfigsArgs, 'json'>>;
   inviteOrganizationMembers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationInviteOrganizationMembersArgs, 'members' | 'organizationId'>>;
+  issueMcpSandboxToken?: Resolver<ResolversTypes['McpSandboxIssued'], ParentType, ContextType>;
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
   itRevokeAllAccess?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItRevokeAllAccessArgs, 'employeeId'>>;
@@ -33493,6 +33734,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
   revokeGccShare?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeGccShareArgs, 'revokeKey' | 'token'>>;
   revokeMcpConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeMcpConnectionArgs, 'id'>>;
+  revokeMcpSandboxToken?: Resolver<ResolversTypes['McpSandboxToken'], ParentType, ContextType, RequireFields<MutationRevokeMcpSandboxTokenArgs, 'id'>>;
   revokeOtherSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   revokeProjectShare?: Resolver<ResolversTypes['ProjectShare'], ParentType, ContextType, RequireFields<MutationRevokeProjectShareArgs, 'id'>>;
   revokeSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeSessionArgs, 'id'>>;
@@ -33536,6 +33778,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendCrmEmail?: Resolver<ResolversTypes['CrmEmailMessage'], ParentType, ContextType, RequireFields<MutationSendCrmEmailArgs, 'input'>>;
   sendCrmSms?: Resolver<ResolversTypes['CrmSmsResult'], ParentType, ContextType, RequireFields<MutationSendCrmSmsArgs, 'input'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
+  sendMeetingBotDemo?: Resolver<ResolversTypes['MeetingBotDemoTrip'], ParentType, ContextType, RequireFields<MutationSendMeetingBotDemoArgs, 'consent' | 'meetUrl'>>;
   sendMyEmail?: Resolver<ResolversTypes['MyEmailSent'], ParentType, ContextType, RequireFields<MutationSendMyEmailArgs, 'input'>>;
   sendMyTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendMyTrackerMessageArgs, 'body'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
@@ -35412,6 +35655,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   mcpAuthorizationRequest?: Resolver<ResolversTypes['McpAuthorizationRequest'], ParentType, ContextType, RequireFields<QueryMcpAuthorizationRequestArgs, 'id'>>;
   mcpConnections?: Resolver<Array<ResolversTypes['McpConnection']>, ParentType, ContextType, RequireFields<QueryMcpConnectionsArgs, 'endpoint'>>;
   mcpErrors?: Resolver<Array<ResolversTypes['McpErrorGroup']>, ParentType, ContextType, RequireFields<QueryMcpErrorsArgs, 'days' | 'endpoint'>>;
+  mcpSandboxInfo?: Resolver<ResolversTypes['McpSandboxInfo'], ParentType, ContextType>;
+  mcpSandboxTokens?: Resolver<Array<ResolversTypes['McpSandboxToken']>, ParentType, ContextType>;
   mcpServers?: Resolver<Array<ResolversTypes['McpServer']>, ParentType, ContextType>;
   mcpSettings?: Resolver<ResolversTypes['McpSettings'], ParentType, ContextType>;
   mcpSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
@@ -35420,6 +35665,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   meetingBookingPagePath?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   meetingBookings?: Resolver<ResolversTypes['MeetingBookingPage'], ParentType, ContextType, RequireFields<QueryMeetingBookingsArgs, 'page' | 'pageSize'>>;
+  meetingBotDemoInfo?: Resolver<ResolversTypes['MeetingBotDemoInfo'], ParentType, ContextType>;
+  meetingBotDemoTrip?: Resolver<ResolversTypes['MeetingBotDemoTrip'], ParentType, ContextType, RequireFields<QueryMeetingBotDemoTripArgs, 'id'>>;
+  meetingBotDemoTrips?: Resolver<Array<ResolversTypes['MeetingBotDemoTrip']>, ParentType, ContextType>;
   meetingSettings?: Resolver<ResolversTypes['MeetingSettings'], ParentType, ContextType>;
   meetingSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
   meetingTracking?: Resolver<ResolversTypes['MeetingTracking'], ParentType, ContextType, RequireFields<QueryMeetingTrackingArgs, 'days'>>;
@@ -38482,6 +38730,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   McpErrorGroup?: McpErrorGroupResolvers<ContextType>;
   McpModuleUsage?: McpModuleUsageResolvers<ContextType>;
   McpPersonUsage?: McpPersonUsageResolvers<ContextType>;
+  McpSandboxInfo?: McpSandboxInfoResolvers<ContextType>;
+  McpSandboxIssued?: McpSandboxIssuedResolvers<ContextType>;
+  McpSandboxSample?: McpSandboxSampleResolvers<ContextType>;
+  McpSandboxToken?: McpSandboxTokenResolvers<ContextType>;
   McpServer?: McpServerResolvers<ContextType>;
   McpSettings?: McpSettingsResolvers<ContextType>;
   McpTool?: McpToolResolvers<ContextType>;
@@ -38491,6 +38743,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   McpUsageDay?: McpUsageDayResolvers<ContextType>;
   MeetingBooking?: MeetingBookingResolvers<ContextType>;
   MeetingBookingPage?: MeetingBookingPageResolvers<ContextType>;
+  MeetingBotDemoAction?: MeetingBotDemoActionResolvers<ContextType>;
+  MeetingBotDemoInfo?: MeetingBotDemoInfoResolvers<ContextType>;
+  MeetingBotDemoSummary?: MeetingBotDemoSummaryResolvers<ContextType>;
+  MeetingBotDemoTrip?: MeetingBotDemoTripResolvers<ContextType>;
   MeetingSettings?: MeetingSettingsResolvers<ContextType>;
   MeetingTracking?: MeetingTrackingResolvers<ContextType>;
   MeetingTrackingCountry?: MeetingTrackingCountryResolvers<ContextType>;

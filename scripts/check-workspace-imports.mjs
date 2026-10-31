@@ -31,6 +31,8 @@ const ROOTS = [
   'demos/whatsapp-demo',
   'demos/calling-bot-demo',
   'demos/website-chat-demo',
+  'demos/meeting-bot-demo',
+  'demos/mcp-sandbox-demo',
 ];
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts']);
 /** `from '@exyconn/shell/components/ui'` -> `@exyconn/shell`. */

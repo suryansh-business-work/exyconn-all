@@ -58,8 +58,11 @@ function actionLine(item: {
   return `${item.title} — ${owner}, ${due}${flag}`;
 }
 
-/** The template's values, built only from saved notes: nothing is generated here. */
-async function summaryVariables(meeting: LeanMeeting) {
+/**
+ * The template's values, built only from saved notes: nothing is generated here. `meetingUrl`
+ * replaces the portal link for a reader who has no portal account (the public demo).
+ */
+export async function summaryVariables(meeting: LeanMeeting, meetingUrl?: string) {
   const meetingId = String(meeting._id);
   const notes = await MaNotesModel.findOne({ meetingId }).lean();
   if (!notes) {
@@ -79,7 +82,8 @@ async function summaryVariables(meeting: LeanMeeting) {
       discussionPoints: rawHtml(htmlList(notes.content.discussionPoints)),
       decisions: rawHtml(htmlList(decisions.map((decision) => decision.text))),
       actionItems: rawHtml(htmlList(actions.map(actionLine))),
-      meetingUrl: `${env.meetAssistant.portalUrl}/me/meetings/list/${meetingId}/summary`,
+      meetingUrl:
+        meetingUrl ?? `${env.meetAssistant.portalUrl}/me/meetings/list/${meetingId}/summary`,
     },
   };
 }

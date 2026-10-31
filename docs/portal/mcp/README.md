@@ -172,3 +172,32 @@ The server enforces every rule (`core/mcp.policy.ts`); the portal only edits the
     people hit, first and latest time and the latest trace id, which opens in the activity log
     (`mcpErrors`).
   - The **Dashboard** shows the success rate and p95 time across every server the person may use.
+
+## The public MCP sandbox (demos.exyconn.com/mcp-sandbox-demo)
+
+A demo visitor (email code, `x-demo-visitor`) or any employee can try the global server without
+an Exyconn account. Server code: `exyconn-portal/server/src/modules/mcp/sandbox`; UI:
+`demos/mcp-sandbox-demo/ui`.
+
+- **The sandbox company** (`sandbox.org.ts`, slug `exyconn-mcp-sandbox`) is made at boot through
+  `ensureDemoOrganization` (`modules/organizations/organization.demo.ts`) with one account,
+  `analyst@exyconn-sandbox.example` (EMPLOYEE, CRM, PROJECTS, HR), whose password nobody knows.
+  Its sample team, HR masters, CRM pipeline and two project boards (`sandbox.data.ts`, all
+  invented, every address under `.example`) are seeded once through the `runOnce` ledger
+  (`mcp-sandbox-sample-records`). Every boot re-applies its MCP settings: every server read only,
+  the tools that spend a paid quota or read a mailbox switched off (`SANDBOX_DISABLED_TOOLS`), and
+  `callsPerHourPerConnection` from `MCP_SANDBOX_CALLS_PER_HOUR`.
+- **Tokens** (`sandbox.tokens.ts`): `issueMcpSandboxToken` writes an `McpToken` for `/mcp/all`
+  as the analyst, `readOnly: true`, expiring after `MCP_SANDBOX_TOKEN_TTL_MINUTES` (default 60)
+  with a refresh token nobody is given. The client id is `mcp-sandbox:<visitor key>`, so the
+  hourly limit is per visitor and the activity log names them. A new token revokes the visitor's
+  earlier ones; `MCP_SANDBOX_TOKENS_PER_DAY` (default 5) caps them. Taking and revoking a token
+  are audited in the sandbox company (module `MCP sandbox`) under the visitor's email and IP.
+  `mcpSandboxTokens` and `revokeMcpSandboxToken` only ever reach the caller's own tokens.
+- **The page** shows the sample counts (`mcpSandboxInfo`), the Claude Code command and the Claude
+  Desktop (`mcp-remote`) config with the token filled in, and a **browser playground** that calls
+  the endpoint itself (`tools/list`, `tools/call`, JSON-RPC with the bearer token; `/mcp/*`
+  answers every origin), so it sees exactly what Claude sees: read-only tools only, and a change
+  refused as `READ_ONLY`.
+- The sandbox operations are public-demo plumbing, not a module, so they are not offered as MCP
+  tools themselves.

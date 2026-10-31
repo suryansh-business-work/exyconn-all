@@ -244,6 +244,22 @@ jobs:
               APP_DIR=demos/website-chat-demo/ui
               PORT=4043
               VITE_PORTAL_APP=website-chat-demo
+          - service: meeting-bot-demo
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/meeting-bot-demo-ui
+              APP_DIR=demos/meeting-bot-demo/ui
+              PORT=4048
+              VITE_PORTAL_APP=meeting-bot-demo
+          - service: mcp-sandbox-demo
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/mcp-sandbox-demo-ui
+              APP_DIR=demos/mcp-sandbox-demo/ui
+              PORT=4049
+              VITE_PORTAL_APP=mcp-sandbox-demo
           - service: calling-bot-voice
             dockerfile: docker/calling-bot-voice.Dockerfile
             context: .
@@ -498,6 +514,8 @@ jobs:
             "https://demos.exyconn.com/calling-bot-demo/"
             "https://demos.exyconn.com/calling-bot-demo/api/health"
             "https://demos.exyconn.com/website-chat-demo/"
+            "https://demos.exyconn.com/meeting-bot-demo/"
+            "https://demos.exyconn.com/mcp-sandbox-demo/"
             "https://clienthub.exyconn.com"
             "https://mcp.exyconn.com"
             "https://agents.exyconn.com"

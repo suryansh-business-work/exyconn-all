@@ -12,6 +12,8 @@ const DEMO_KEYS: readonly PortalAppKey[] = [
   'calling-bot-demo',
   'whatsapp-demo',
   'website-chat-demo',
+  'meeting-bot-demo',
+  'mcp-sandbox-demo',
 ];
 
 /** "WhatsApp Demo · Exyconn" -> "WhatsApp Demo": the registry title without the brand suffix. */

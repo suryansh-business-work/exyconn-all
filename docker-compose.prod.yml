@@ -261,6 +261,24 @@ services:
     ports:
       - '127.0.0.1:4043:4043'
 
+  # demos.exyconn.com/meeting-bot-demo/: the AI meeting bot joins a visitor's Google Meet call.
+  meeting-bot-demo:
+    <<: *hardened
+    image: ${DOCKERHUB_USERNAME}/exyconn-meeting-bot-demo:${TAG:-latest}
+    container_name: exyconn-meeting-bot-demo
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4048:4048'
+
+  # demos.exyconn.com/mcp-sandbox-demo/: a read-only MCP token on the sandbox company.
+  mcp-sandbox-demo:
+    <<: *hardened
+    image: ${DOCKERHUB_USERNAME}/exyconn-mcp-sandbox-demo:${TAG:-latest}
+    container_name: exyconn-mcp-sandbox-demo
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4049:4049'
+
   # The calling bot's voice server (demos.exyconn.com/calling-bot-demo/api/): live audio from a
   # browser or a Vobiz phone call through Sarvam AI and OpenAI. Its credentials live in the
   # active calling bot config in the database (Agents > Calling bot), none here.

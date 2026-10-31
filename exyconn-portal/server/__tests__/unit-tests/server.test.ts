@@ -87,6 +87,16 @@ jest.mock('../../src/modules/calling-bot-demo', () => ({
   backfillPhoneFields: jest.fn(),
   ensureCallingBotScenarios: jest.fn(),
 }));
+jest.mock('../../src/modules/billing', () => ({
+  ensureGrandfatheredPlan: jest.fn(),
+  grandfatherOrganization: jest.fn(),
+}));
+jest.mock('../../src/modules/agents', () => ({ grantAgentsRole: jest.fn() }));
+jest.mock('../../src/modules/meeting-bot-demo', () => ({
+  ensureMeetingBotDemo: jest.fn(),
+  startMeetingBotDemoSweep: jest.fn(),
+}));
+jest.mock('../../src/modules/mcp/sandbox', () => ({ ensureMcpSandbox: jest.fn() }));
 jest.mock('../../src/modules/mcp/data/mcp.migrate', () => ({ assignLegacyMcpToCrm: jest.fn() }));
 jest.mock('../../src/modules/mcp/data/mcp.alerts', () => ({ startMcpAlerts: jest.fn() }));
 jest.mock('../../src/modules/mail-health/mail-health.job', () => ({
@@ -132,6 +142,8 @@ const MODULES = {
   dealClosed: '../../src/modules/crm/crm.deal-closed.backfill',
   callingBot: '../../src/modules/calling-bot-demo',
   mcp: '../../src/modules/mcp/data/mcp.migrate',
+  meetingBotDemo: '../../src/modules/meeting-bot-demo',
+  mcpSandbox: '../../src/modules/mcp/sandbox',
 } as const;
 
 type Loaded = Record<keyof typeof MODULES, Mocked> & {
@@ -162,6 +174,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/website-chat', 'startChatHandoff'],
   ['../../src/modules/ai', 'startAiWorker'],
   ['../../src/modules/meeting-assistant', 'startMeetingAssistantWorker'],
+  ['../../src/modules/meeting-bot-demo', 'startMeetingBotDemoSweep'],
   ['../../src/modules/reminders', 'startReminderSweep'],
   ['../../src/modules/crm/calendar/crm.reminder.email', 'startCrmReminderEmails'],
   ['../../src/modules/crm/deal-score', 'startDealScoring'],
@@ -243,9 +256,11 @@ describe('server bootstrap', () => {
       'marketing-suppression-origins',
       'marketing-email-studio',
       'crm-deal-closed-at',
+      'billing-grandfathered-plan',
       'calling-bot-phone-provider',
       'calling-bot-phone-fields',
       'mcp-servers-crm',
+      'agents-role-grant',
     ]);
     expect(m.logs.backfillAppLogGroupUsers).toHaveBeenCalled();
     expect(m.hr.backfillPositionDefaults).toHaveBeenCalled();
@@ -265,6 +280,8 @@ describe('server bootstrap', () => {
     expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
     expect(m.callingBot.ensureCallingBotScenarios).toHaveBeenCalled();
     expect(m.mcp.assignLegacyMcpToCrm).toHaveBeenCalled();
+    expect(m.meetingBotDemo.ensureMeetingBotDemo).toHaveBeenCalledTimes(1);
+    expect(m.mcpSandbox.ensureMcpSandbox).toHaveBeenCalledTimes(1);
     expect(m.organizations.forEachOrganization.mock.calls.map(([, label]) => label)).toEqual([
       'repairStoredCurrencies',
       'ensureEmailDefaults',
@@ -279,6 +296,8 @@ describe('server bootstrap', () => {
       'backfillSuppressionOrigins',
       'migrateLegacyCampaigns',
       'backfillDealClosedAt',
+      'grandfatherOrganization',
+      'grantAgentsRole',
       'ensureWhatsappDemoSeeds',
     ]);
     // Admin access, the log-group backfill, status monitors, the Gmail account migration, the

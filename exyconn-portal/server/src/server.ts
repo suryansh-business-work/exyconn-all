@@ -27,6 +27,8 @@ import { startSocialSchedule } from './modules/social-accounts';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { startMeetingAssistantWorker } from './modules/meeting-assistant';
+import { ensureMeetingBotDemo, startMeetingBotDemoSweep } from './modules/meeting-bot-demo';
+import { ensureMcpSandbox } from './modules/mcp/sandbox';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
@@ -184,6 +186,10 @@ async function bootstrap(): Promise<void> {
   // once (ledger line per industry key), so a new one ships on the next boot and an edited
   // one is never overwritten.
   await forEachOrganization(ensureWhatsappDemoSeeds, 'ensureWhatsappDemoSeeds');
+  // The meeting bot demo and the MCP sandbox each run in a demo company of their own, created
+  // (and the sandbox's sample records seeded, once) here; a failure is logged, never fatal.
+  await ensureMeetingBotDemo();
+  await ensureMcpSandbox();
   startStatusMonitor();
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.
@@ -235,6 +241,8 @@ async function bootstrap(): Promise<void> {
   // something has to drain the queue whether or not anyone has the AI module open.
   startAiWorker();
   startMeetingAssistantWorker();
+  // Demo visitors get their notes by email, and demo recordings are deleted on time.
+  startMeetingBotDemoSweep();
   // Due dates are the one thing in the portal nobody is watching: a contract expires, a
   // corrective action falls overdue, a follow-up is missed, and the record simply sits
   // there. The sweep asks every module what has come due and tells the people who own it.

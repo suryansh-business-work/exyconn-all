@@ -240,6 +240,31 @@ export const env = Object.freeze({
     accessTokenTtlSeconds: Number(process.env.MCP_ACCESS_TOKEN_TTL_SECONDS ?? 3600),
     refreshTokenTtlDays: Number(process.env.MCP_REFRESH_TOKEN_TTL_DAYS ?? 30),
   },
+  /** The public demos on demos.exyconn.com that run on a demo company of their own. */
+  demos: {
+    /** demos.exyconn.com/meeting-bot-demo: the meeting bot joins a visitor's Google Meet call. */
+    meetingBot: {
+      /** Bot trips one visitor may start in 24 hours. */
+      tripsPerDay: Number(process.env.MEETING_BOT_DEMO_TRIPS_PER_DAY ?? 3),
+      /** Days a demo meeting (recording, transcript, notes) is kept before it is deleted. */
+      retentionDays: Number(process.env.MEETING_BOT_DEMO_RETENTION_DAYS ?? 7),
+      /** Longest demo call the bot stays in and transcribes. */
+      maxMeetingMinutes: Number(process.env.MEETING_BOT_DEMO_MAX_MINUTES ?? 30),
+      /** The demo page, linked from the notes email. */
+      pageUrl: (
+        process.env.MEETING_BOT_DEMO_URL ?? 'https://demos.exyconn.com/meeting-bot-demo'
+      ).replace(/\/$/, ''),
+    },
+    /** demos.exyconn.com/mcp-sandbox-demo: a read-only MCP token on the sandbox company. */
+    mcpSandbox: {
+      /** How long one sandbox token lasts. */
+      tokenTtlMinutes: Number(process.env.MCP_SANDBOX_TOKEN_TTL_MINUTES ?? 60),
+      /** Tokens one visitor may take in 24 hours. */
+      tokensPerDay: Number(process.env.MCP_SANDBOX_TOKENS_PER_DAY ?? 5),
+      /** Tool calls one sandbox token may make in an hour. */
+      callsPerHour: Number(process.env.MCP_SANDBOX_CALLS_PER_HOUR ?? 120),
+    },
+  },
   /** OpenAI's Costs API, read with the Admin key saved in Tech > Environment Variables > Billing keys. */
   openAiBilling: {
     costsUrl: process.env.OPENAI_COSTS_URL ?? 'https://api.openai.com/v1/organization/costs',

@@ -9099,6 +9099,51 @@ export type McpPersonUsage = {
   userName: Scalars['String']['output'];
 };
 
+/** What the MCP sandbox offers before a token is taken. */
+export type McpSandboxInfo = {
+  __typename?: 'McpSandboxInfo';
+  /** Tool calls one token may make an hour. */
+  callsPerHour: Scalars['Int']['output'];
+  /** The MCP address the token is good at (every module, /mcp/all). */
+  endpointUrl: Scalars['String']['output'];
+  /** The modules whose read-only tools the token reaches. */
+  modules: Array<Scalars['String']['output']>;
+  /** The sample company the sandbox reads. */
+  organizationName: Scalars['String']['output'];
+  sample: Array<McpSandboxSample>;
+  /** The MCP server name Claude shows. */
+  serverName: Scalars['String']['output'];
+  tokenTtlMinutes: Scalars['Int']['output'];
+  tokensLeftToday: Scalars['Int']['output'];
+  tokensPerDay: Scalars['Int']['output'];
+};
+
+/** A new sandbox token: the secret is shown this once. */
+export type McpSandboxIssued = {
+  __typename?: 'McpSandboxIssued';
+  sandboxToken: McpSandboxToken;
+  token: Scalars['String']['output'];
+};
+
+/** How many sample records of one kind the sandbox company holds. */
+export type McpSandboxSample = {
+  __typename?: 'McpSandboxSample';
+  count: Scalars['Int']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** A read-only sandbox MCP token, without its secret. */
+export type McpSandboxToken = {
+  __typename?: 'McpSandboxToken';
+  /** Neither revoked nor expired. */
+  active: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
 /** One MCP server the person may use, and what they need to connect Claude to it. */
 export type McpServer = {
   __typename?: 'McpServer';
@@ -9252,6 +9297,65 @@ export enum MeetingBookingStatus {
   Cancelled = 'CANCELLED',
   Confirmed = 'CONFIRMED'
 }
+
+/** One action item from a demo meeting's notes. */
+export type MeetingBotDemoAction = {
+  __typename?: 'MeetingBotDemoAction';
+  assignedTo?: Maybe<Scalars['String']['output']>;
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  /** The deadline as it was said, when it could not be pinned to a date. */
+  dueText?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** What the meeting bot demo offers the caller before anything is sent. */
+export type MeetingBotDemoInfo = {
+  __typename?: 'MeetingBotDemoInfo';
+  /** The name the bot joins calls under. */
+  botName: Scalars['String']['output'];
+  /** The recording terms the caller agrees to before sending the bot. */
+  consentText: Scalars['String']['output'];
+  /** False until the meeting bot service is set up on this server. */
+  enabled: Scalars['Boolean']['output'];
+  /** The longest stretch of a call the bot records. */
+  maxMeetingMinutes: Scalars['Int']['output'];
+  /** Days before a demo recording, transcript and notes are deleted. */
+  retentionDays: Scalars['Int']['output'];
+  tripsLeftToday: Scalars['Int']['output'];
+  tripsPerDay: Scalars['Int']['output'];
+};
+
+/** A demo meeting's notes. */
+export type MeetingBotDemoSummary = {
+  __typename?: 'MeetingBotDemoSummary';
+  actionItems: Array<MeetingBotDemoAction>;
+  decisions: Array<Scalars['String']['output']>;
+  discussionPoints: Array<Scalars['String']['output']>;
+  executiveSummary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** One trip of the demo meeting bot into the caller's Google Meet call, and its notes once ready. */
+export type MeetingBotDemoTrip = {
+  __typename?: 'MeetingBotDemoTrip';
+  createdAt: Scalars['DateTime']['output'];
+  /** When the notes were emailed to the caller. */
+  emailedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Why the trip failed, when it did. */
+  error: Scalars['String']['output'];
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  meetUrl: Scalars['String']['output'];
+  meetingCode: Scalars['String']['output'];
+  /** When the recording, transcript and notes are deleted. */
+  purgeAfter: Scalars['DateTime']['output'];
+  purged: Scalars['Boolean']['output'];
+  status: MaBotStatus;
+  summary?: Maybe<MeetingBotDemoSummary>;
+  /** Where the notes are: NOT_STARTED, QUEUED, RUNNING, READY, FAILED or SKIPPED. */
+  summaryStatus: Scalars['String']['output'];
+};
 
 /** CRM > Meetings > Settings: the booking page address, Slack and the fixed video rooms. */
 export type MeetingSettings = {
@@ -9550,6 +9654,8 @@ export type Mutation = {
   cancelItAccessRequest: ItAccessRequest;
   /** Marks a booked meeting as cancelled. Sends no email to the booker; confirm with the person first. */
   cancelMeetingBooking: MeetingBooking;
+  /** Public demo: calls the bot back from one of the caller's own trips. */
+  cancelMeetingBotDemo: MeetingBotDemoTrip;
   changePassword: Scalars['Boolean']['output'];
   /** Runs the health checks on one of the company's sending domains now and keeps the result. */
   checkMailDomainHealth: MailDomainHealth;
@@ -10019,6 +10125,8 @@ export type Mutation = {
    * with a temporary password. Somebody already in that company gains the roles (SUPER_ADMIN).
    */
   inviteOrganizationMembers: Array<User>;
+  /** Public demo: a short-lived, read-only MCP token for the sandbox company at /mcp/all. Revokes the caller's earlier ones; limited per day; audited. */
+  issueMcpSandboxToken: McpSandboxIssued;
   /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
    * and never the caller. Admin's setUserActive remains the general way to deactivate anyone.
@@ -10224,6 +10332,8 @@ export type Mutation = {
   revokeGccShare: Scalars['Boolean']['output'];
   /** Signs one connection out; Claude has to connect again. */
   revokeMcpConnection: Scalars['Boolean']['output'];
+  /** Public demo: revokes one of the caller's own sandbox tokens at once; audited. */
+  revokeMcpSandboxToken: McpSandboxToken;
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   /** Revokes a client project link so it stops working at once. */
@@ -10328,6 +10438,8 @@ export type Mutation = {
   sendCrmSms: CrmSmsResult;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
+  /** Public demo: sends the meeting bot into the caller's Google Meet call. The caller must agree to the recording terms; limited per day. */
+  sendMeetingBotDemo: MeetingBotDemoTrip;
   /** Sends an email from one of the caller's own mailboxes. Not kept on any CRM record. */
   sendMyEmail: MyEmailSent;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -11023,6 +11135,11 @@ export type MutationCancelItAccessRequestArgs = {
 
 
 export type MutationCancelMeetingBookingArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationCancelMeetingBotDemoArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -13277,6 +13394,11 @@ export type MutationRevokeMcpConnectionArgs = {
 };
 
 
+export type MutationRevokeMcpSandboxTokenArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRevokeProjectShareArgs = {
   id: Scalars['ID']['input'];
 };
@@ -13500,6 +13622,12 @@ export type MutationSendInvoiceArgs = {
   email: Scalars['String']['input'];
   id: Scalars['ID']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSendMeetingBotDemoArgs = {
+  consent: Scalars['Boolean']['input'];
+  meetUrl: Scalars['String']['input'];
 };
 
 
@@ -17871,6 +17999,10 @@ export type Query = {
   mcpConnections: Array<McpConnection>;
   /** Failed calls to a server over the last days, 1 to 180, grouped by tool, code and message, most frequent first. */
   mcpErrors: Array<McpErrorGroup>;
+  /** Public demo (demo visitor pass or employee): the sandbox's MCP address, token window, limits, modules and sample records. */
+  mcpSandboxInfo: McpSandboxInfo;
+  /** Public demo: the caller's own sandbox tokens, newest first. */
+  mcpSandboxTokens: Array<McpSandboxToken>;
   /** Every MCP server the caller may use (its module's role), the global ALL server last. */
   mcpServers: Array<McpServer>;
   /** ADMIN: the company's MCP settings. */
@@ -17886,6 +18018,12 @@ export type Query = {
   meetingBookingPagePath: Scalars['String']['output'];
   /** Lists meetings people have booked, latest start first, one page at a time. */
   meetingBookings: MeetingBookingPage;
+  /** Public demo (demo visitor pass or employee): the bot's name, the daily limit left, the retention and the recording terms. */
+  meetingBotDemoInfo: MeetingBotDemoInfo;
+  /** Public demo: one of the caller's own demo bot trips. */
+  meetingBotDemoTrip: MeetingBotDemoTrip;
+  /** Public demo: the caller's own demo bot trips, newest first, with their notes once ready. */
+  meetingBotDemoTrips: Array<MeetingBotDemoTrip>;
   /** Reads the booking page settings: its address, the Slack channel bookings go to, and the Meet and Zoom links. */
   meetingSettings: MeetingSettings;
   /** Slack channels a booking can be posted to (needs Tech > Environment Variables > Slack). */
@@ -20044,6 +20182,11 @@ export type QueryMcpUsageArgs = {
 export type QueryMeetingBookingsArgs = {
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
+};
+
+
+export type QueryMeetingBotDemoTripArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -30446,6 +30589,30 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
+export type McpSandboxTokenFieldsFragment = { __typename?: 'McpSandboxToken', id: string, expiresAt: string, createdAt: string, revokedAt?: string | null, lastUsedAt?: string | null, active: boolean };
+
+export type McpSandboxInfoQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type McpSandboxInfoQuery = { __typename?: 'Query', mcpSandboxInfo: { __typename?: 'McpSandboxInfo', organizationName: string, serverName: string, endpointUrl: string, tokenTtlMinutes: number, tokensPerDay: number, tokensLeftToday: number, callsPerHour: number, modules: Array<string>, sample: Array<{ __typename?: 'McpSandboxSample', label: string, count: number }> } };
+
+export type McpSandboxTokensQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type McpSandboxTokensQuery = { __typename?: 'Query', mcpSandboxTokens: Array<{ __typename?: 'McpSandboxToken', id: string, expiresAt: string, createdAt: string, revokedAt?: string | null, lastUsedAt?: string | null, active: boolean }> };
+
+export type IssueMcpSandboxTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IssueMcpSandboxTokenMutation = { __typename?: 'Mutation', issueMcpSandboxToken: { __typename?: 'McpSandboxIssued', token: string, sandboxToken: { __typename?: 'McpSandboxToken', id: string, expiresAt: string, createdAt: string, revokedAt?: string | null, lastUsedAt?: string | null, active: boolean } } };
+
+export type RevokeMcpSandboxTokenMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RevokeMcpSandboxTokenMutation = { __typename?: 'Mutation', revokeMcpSandboxToken: { __typename?: 'McpSandboxToken', id: string, expiresAt: string, createdAt: string, revokedAt?: string | null, lastUsedAt?: string | null, active: boolean } };
+
 export type McpServersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -30959,6 +31126,33 @@ export type MaCancelBotMutationVariables = Exact<{
 
 
 export type MaCancelBotMutation = { __typename?: 'Mutation', maCancelBot: { __typename?: 'MaBotDispatch', id: string, ownerName: string, meetingCode: string, meetUrl: string, title: string, source: MaBotSource, status: MaBotStatus, meetingId?: string | null, error: string, joinAt: string, createdAt: string, finishedAt?: string | null } };
+
+export type MeetingBotDemoTripFieldsFragment = { __typename?: 'MeetingBotDemoTrip', id: string, meetingCode: string, meetUrl: string, status: MaBotStatus, error: string, createdAt: string, finishedAt?: string | null, summaryStatus: string, emailedAt?: string | null, purgeAfter: string, purged: boolean, summary?: { __typename?: 'MeetingBotDemoSummary', title: string, executiveSummary: string, discussionPoints: Array<string>, decisions: Array<string>, actionItems: Array<{ __typename?: 'MeetingBotDemoAction', id: string, title: string, assignedTo?: string | null, dueDate?: string | null, dueText?: string | null }> } | null };
+
+export type MeetingBotDemoInfoQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeetingBotDemoInfoQuery = { __typename?: 'Query', meetingBotDemoInfo: { __typename?: 'MeetingBotDemoInfo', enabled: boolean, botName: string, tripsPerDay: number, tripsLeftToday: number, retentionDays: number, maxMeetingMinutes: number, consentText: string } };
+
+export type MeetingBotDemoTripsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeetingBotDemoTripsQuery = { __typename?: 'Query', meetingBotDemoTrips: Array<{ __typename?: 'MeetingBotDemoTrip', id: string, meetingCode: string, meetUrl: string, status: MaBotStatus, error: string, createdAt: string, finishedAt?: string | null, summaryStatus: string, emailedAt?: string | null, purgeAfter: string, purged: boolean, summary?: { __typename?: 'MeetingBotDemoSummary', title: string, executiveSummary: string, discussionPoints: Array<string>, decisions: Array<string>, actionItems: Array<{ __typename?: 'MeetingBotDemoAction', id: string, title: string, assignedTo?: string | null, dueDate?: string | null, dueText?: string | null }> } | null }> };
+
+export type SendMeetingBotDemoMutationVariables = Exact<{
+  meetUrl: Scalars['String']['input'];
+  consent: Scalars['Boolean']['input'];
+}>;
+
+
+export type SendMeetingBotDemoMutation = { __typename?: 'Mutation', sendMeetingBotDemo: { __typename?: 'MeetingBotDemoTrip', id: string, meetingCode: string, meetUrl: string, status: MaBotStatus, error: string, createdAt: string, finishedAt?: string | null, summaryStatus: string, emailedAt?: string | null, purgeAfter: string, purged: boolean, summary?: { __typename?: 'MeetingBotDemoSummary', title: string, executiveSummary: string, discussionPoints: Array<string>, decisions: Array<string>, actionItems: Array<{ __typename?: 'MeetingBotDemoAction', id: string, title: string, assignedTo?: string | null, dueDate?: string | null, dueText?: string | null }> } | null } };
+
+export type CancelMeetingBotDemoMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CancelMeetingBotDemoMutation = { __typename?: 'Mutation', cancelMeetingBotDemo: { __typename?: 'MeetingBotDemoTrip', id: string, meetingCode: string, meetUrl: string, status: MaBotStatus, error: string, createdAt: string, finishedAt?: string | null, summaryStatus: string, emailedAt?: string | null, purgeAfter: string, purged: boolean, summary?: { __typename?: 'MeetingBotDemoSummary', title: string, executiveSummary: string, discussionPoints: Array<string>, decisions: Array<string>, actionItems: Array<{ __typename?: 'MeetingBotDemoAction', id: string, title: string, assignedTo?: string | null, dueDate?: string | null, dueText?: string | null }> } | null } };
 
 export type MeetingTypeFieldsFragment = { __typename?: 'MeetingType', id: string, title: string, slug: string, bookingPath: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> };
 
@@ -37372,6 +37566,16 @@ export const CampaignFieldsFragmentDoc = gql`
   sendingRevisionId
 }
     `;
+export const McpSandboxTokenFieldsFragmentDoc = gql`
+    fragment McpSandboxTokenFields on McpSandboxToken {
+  id
+  expiresAt
+  createdAt
+  revokedAt
+  lastUsedAt
+  active
+}
+    `;
 export const McpSettingsFieldsFragmentDoc = gql`
     fragment McpSettingsFields on McpSettings {
   callsPerHourPerPerson
@@ -37599,6 +37803,34 @@ export const MaBotDispatchFieldsFragmentDoc = gql`
   joinAt
   createdAt
   finishedAt
+}
+    `;
+export const MeetingBotDemoTripFieldsFragmentDoc = gql`
+    fragment MeetingBotDemoTripFields on MeetingBotDemoTrip {
+  id
+  meetingCode
+  meetUrl
+  status
+  error
+  createdAt
+  finishedAt
+  summaryStatus
+  emailedAt
+  purgeAfter
+  purged
+  summary {
+    title
+    executiveSummary
+    discussionPoints
+    decisions
+    actionItems {
+      id
+      title
+      assignedTo
+      dueDate
+      dueText
+    }
+  }
 }
     `;
 export const MeetingTypeFieldsFragmentDoc = gql`
@@ -68546,6 +68778,165 @@ export function useCampaignMetricsSuspenseQuery(baseOptions?: ApolloReactHooks.S
 export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
 export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
 export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
+export const McpSandboxInfoDocument = gql`
+    query McpSandboxInfo {
+  mcpSandboxInfo {
+    organizationName
+    serverName
+    endpointUrl
+    tokenTtlMinutes
+    tokensPerDay
+    tokensLeftToday
+    callsPerHour
+    modules
+    sample {
+      label
+      count
+    }
+  }
+}
+    `;
+
+/**
+ * __useMcpSandboxInfoQuery__
+ *
+ * To run a query within a React component, call `useMcpSandboxInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpSandboxInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpSandboxInfoQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMcpSandboxInfoQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>(McpSandboxInfoDocument, options);
+      }
+export function useMcpSandboxInfoLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>(McpSandboxInfoDocument, options);
+        }
+// @ts-ignore
+export function useMcpSandboxInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>;
+// @ts-ignore
+export function useMcpSandboxInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSandboxInfoQuery | undefined, McpSandboxInfoQueryVariables>;
+export function useMcpSandboxInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpSandboxInfoQuery, McpSandboxInfoQueryVariables>(McpSandboxInfoDocument, options);
+        }
+export type McpSandboxInfoQueryHookResult = ReturnType<typeof useMcpSandboxInfoQuery>;
+export type McpSandboxInfoLazyQueryHookResult = ReturnType<typeof useMcpSandboxInfoLazyQuery>;
+export type McpSandboxInfoSuspenseQueryHookResult = ReturnType<typeof useMcpSandboxInfoSuspenseQuery>;
+export const McpSandboxTokensDocument = gql`
+    query McpSandboxTokens {
+  mcpSandboxTokens {
+    ...McpSandboxTokenFields
+  }
+}
+    ${McpSandboxTokenFieldsFragmentDoc}`;
+
+/**
+ * __useMcpSandboxTokensQuery__
+ *
+ * To run a query within a React component, call `useMcpSandboxTokensQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMcpSandboxTokensQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMcpSandboxTokensQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMcpSandboxTokensQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>(McpSandboxTokensDocument, options);
+      }
+export function useMcpSandboxTokensLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>(McpSandboxTokensDocument, options);
+        }
+// @ts-ignore
+export function useMcpSandboxTokensSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>;
+// @ts-ignore
+export function useMcpSandboxTokensSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<McpSandboxTokensQuery | undefined, McpSandboxTokensQueryVariables>;
+export function useMcpSandboxTokensSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<McpSandboxTokensQuery, McpSandboxTokensQueryVariables>(McpSandboxTokensDocument, options);
+        }
+export type McpSandboxTokensQueryHookResult = ReturnType<typeof useMcpSandboxTokensQuery>;
+export type McpSandboxTokensLazyQueryHookResult = ReturnType<typeof useMcpSandboxTokensLazyQuery>;
+export type McpSandboxTokensSuspenseQueryHookResult = ReturnType<typeof useMcpSandboxTokensSuspenseQuery>;
+export const IssueMcpSandboxTokenDocument = gql`
+    mutation IssueMcpSandboxToken {
+  issueMcpSandboxToken {
+    token
+    sandboxToken {
+      ...McpSandboxTokenFields
+    }
+  }
+}
+    ${McpSandboxTokenFieldsFragmentDoc}`;
+
+/**
+ * __useIssueMcpSandboxTokenMutation__
+ *
+ * To run a mutation, you first call `useIssueMcpSandboxTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useIssueMcpSandboxTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [issueMcpSandboxTokenMutation, { data, loading, error }] = useIssueMcpSandboxTokenMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useIssueMcpSandboxTokenMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<IssueMcpSandboxTokenMutation, IssueMcpSandboxTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<IssueMcpSandboxTokenMutation, IssueMcpSandboxTokenMutationVariables>(IssueMcpSandboxTokenDocument, options);
+      }
+export type IssueMcpSandboxTokenMutationHookResult = ReturnType<typeof useIssueMcpSandboxTokenMutation>;
+export const RevokeMcpSandboxTokenDocument = gql`
+    mutation RevokeMcpSandboxToken($id: ID!) {
+  revokeMcpSandboxToken(id: $id) {
+    ...McpSandboxTokenFields
+  }
+}
+    ${McpSandboxTokenFieldsFragmentDoc}`;
+
+/**
+ * __useRevokeMcpSandboxTokenMutation__
+ *
+ * To run a mutation, you first call `useRevokeMcpSandboxTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeMcpSandboxTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeMcpSandboxTokenMutation, { data, loading, error }] = useRevokeMcpSandboxTokenMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRevokeMcpSandboxTokenMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevokeMcpSandboxTokenMutation, RevokeMcpSandboxTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevokeMcpSandboxTokenMutation, RevokeMcpSandboxTokenMutationVariables>(RevokeMcpSandboxTokenDocument, options);
+      }
+export type RevokeMcpSandboxTokenMutationHookResult = ReturnType<typeof useRevokeMcpSandboxTokenMutation>;
 export const McpServersDocument = gql`
     query McpServers {
   mcpServers {
@@ -71406,6 +71797,159 @@ export function useMaCancelBotMutation(baseOptions?: ApolloReactHooks.MutationHo
         return ApolloReactHooks.useMutation<MaCancelBotMutation, MaCancelBotMutationVariables>(MaCancelBotDocument, options);
       }
 export type MaCancelBotMutationHookResult = ReturnType<typeof useMaCancelBotMutation>;
+export const MeetingBotDemoInfoDocument = gql`
+    query MeetingBotDemoInfo {
+  meetingBotDemoInfo {
+    enabled
+    botName
+    tripsPerDay
+    tripsLeftToday
+    retentionDays
+    maxMeetingMinutes
+    consentText
+  }
+}
+    `;
+
+/**
+ * __useMeetingBotDemoInfoQuery__
+ *
+ * To run a query within a React component, call `useMeetingBotDemoInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingBotDemoInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingBotDemoInfoQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeetingBotDemoInfoQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>(MeetingBotDemoInfoDocument, options);
+      }
+export function useMeetingBotDemoInfoLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>(MeetingBotDemoInfoDocument, options);
+        }
+// @ts-ignore
+export function useMeetingBotDemoInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>;
+// @ts-ignore
+export function useMeetingBotDemoInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBotDemoInfoQuery | undefined, MeetingBotDemoInfoQueryVariables>;
+export function useMeetingBotDemoInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingBotDemoInfoQuery, MeetingBotDemoInfoQueryVariables>(MeetingBotDemoInfoDocument, options);
+        }
+export type MeetingBotDemoInfoQueryHookResult = ReturnType<typeof useMeetingBotDemoInfoQuery>;
+export type MeetingBotDemoInfoLazyQueryHookResult = ReturnType<typeof useMeetingBotDemoInfoLazyQuery>;
+export type MeetingBotDemoInfoSuspenseQueryHookResult = ReturnType<typeof useMeetingBotDemoInfoSuspenseQuery>;
+export const MeetingBotDemoTripsDocument = gql`
+    query MeetingBotDemoTrips {
+  meetingBotDemoTrips {
+    ...MeetingBotDemoTripFields
+  }
+}
+    ${MeetingBotDemoTripFieldsFragmentDoc}`;
+
+/**
+ * __useMeetingBotDemoTripsQuery__
+ *
+ * To run a query within a React component, call `useMeetingBotDemoTripsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingBotDemoTripsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingBotDemoTripsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeetingBotDemoTripsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>(MeetingBotDemoTripsDocument, options);
+      }
+export function useMeetingBotDemoTripsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>(MeetingBotDemoTripsDocument, options);
+        }
+// @ts-ignore
+export function useMeetingBotDemoTripsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>;
+// @ts-ignore
+export function useMeetingBotDemoTripsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBotDemoTripsQuery | undefined, MeetingBotDemoTripsQueryVariables>;
+export function useMeetingBotDemoTripsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingBotDemoTripsQuery, MeetingBotDemoTripsQueryVariables>(MeetingBotDemoTripsDocument, options);
+        }
+export type MeetingBotDemoTripsQueryHookResult = ReturnType<typeof useMeetingBotDemoTripsQuery>;
+export type MeetingBotDemoTripsLazyQueryHookResult = ReturnType<typeof useMeetingBotDemoTripsLazyQuery>;
+export type MeetingBotDemoTripsSuspenseQueryHookResult = ReturnType<typeof useMeetingBotDemoTripsSuspenseQuery>;
+export const SendMeetingBotDemoDocument = gql`
+    mutation SendMeetingBotDemo($meetUrl: String!, $consent: Boolean!) {
+  sendMeetingBotDemo(meetUrl: $meetUrl, consent: $consent) {
+    ...MeetingBotDemoTripFields
+  }
+}
+    ${MeetingBotDemoTripFieldsFragmentDoc}`;
+
+/**
+ * __useSendMeetingBotDemoMutation__
+ *
+ * To run a mutation, you first call `useSendMeetingBotDemoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendMeetingBotDemoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendMeetingBotDemoMutation, { data, loading, error }] = useSendMeetingBotDemoMutation({
+ *   variables: {
+ *      meetUrl: // value for 'meetUrl'
+ *      consent: // value for 'consent'
+ *   },
+ * });
+ */
+export function useSendMeetingBotDemoMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendMeetingBotDemoMutation, SendMeetingBotDemoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SendMeetingBotDemoMutation, SendMeetingBotDemoMutationVariables>(SendMeetingBotDemoDocument, options);
+      }
+export type SendMeetingBotDemoMutationHookResult = ReturnType<typeof useSendMeetingBotDemoMutation>;
+export const CancelMeetingBotDemoDocument = gql`
+    mutation CancelMeetingBotDemo($id: ID!) {
+  cancelMeetingBotDemo(id: $id) {
+    ...MeetingBotDemoTripFields
+  }
+}
+    ${MeetingBotDemoTripFieldsFragmentDoc}`;
+
+/**
+ * __useCancelMeetingBotDemoMutation__
+ *
+ * To run a mutation, you first call `useCancelMeetingBotDemoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelMeetingBotDemoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelMeetingBotDemoMutation, { data, loading, error }] = useCancelMeetingBotDemoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCancelMeetingBotDemoMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CancelMeetingBotDemoMutation, CancelMeetingBotDemoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CancelMeetingBotDemoMutation, CancelMeetingBotDemoMutationVariables>(CancelMeetingBotDemoDocument, options);
+      }
+export type CancelMeetingBotDemoMutationHookResult = ReturnType<typeof useCancelMeetingBotDemoMutation>;
 export const MeetingTypesDocument = gql`
     query MeetingTypes {
   meetingTypes {
