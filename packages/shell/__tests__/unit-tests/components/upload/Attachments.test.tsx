@@ -250,6 +250,47 @@ describe('AttachmentPicker', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it('uploads through the given uploader instead of the portal upload', async () => {
+    const uploader = vi.fn().mockResolvedValue('https://cdn.example.com/vendor/report.pdf');
+    const toDataUrl = vi.spyOn(fileUtils, 'fileToDataUrl');
+    const onChange = vi.fn();
+    const file = pdfFile();
+    renderWithProviders(
+      <AttachmentPicker value={[]} onChange={onChange} folder="vendor" uploader={uploader} />,
+    );
+
+    pick(file);
+
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith([
+        {
+          url: 'https://cdn.example.com/vendor/report.pdf',
+          name: 'report.pdf',
+          contentType: 'application/pdf',
+        },
+      ]),
+    );
+    expect(uploader).toHaveBeenCalledWith(file);
+    expect(toDataUrl).not.toHaveBeenCalled();
+  });
+
+  it('reports an uploader that fails or answers no URL', async () => {
+    const uploader = vi
+      .fn()
+      .mockResolvedValueOnce('')
+      .mockRejectedValueOnce(new Error('Vendor upload refused'));
+    const onChange = vi.fn();
+    renderWithProviders(
+      <AttachmentPicker value={[]} onChange={onChange} folder="vendor" uploader={uploader} />,
+    );
+
+    pick(pdfFile());
+    expect(await screen.findByText('Upload returned no URL')).toBeInTheDocument();
+    pick(pdfFile());
+    expect(await screen.findByText('Vendor upload refused')).toBeInTheDocument();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it('removes an attached file', async () => {
     const onChange = renderPicker([PHOTO, PDF]);
 
@@ -287,6 +328,28 @@ describe('RhfAttachmentPicker', () => {
     );
 
     expect(screen.getByText('Capturas del problema.')).toBeInTheDocument();
+  });
+
+  it('hands its uploader to the picker and stores what it uploaded', async () => {
+    const uploader = vi.fn().mockResolvedValue('https://cdn.example.com/vendor/report.pdf');
+    renderWithProviders(
+      <FormHarness defaultValues={{ files: [] }}>
+        <RhfAttachmentPicker name="files" folder="vendor" uploader={uploader} />
+      </FormHarness>,
+    );
+
+    pick(pdfFile());
+
+    await waitFor(() =>
+      expect(formValues().files).toEqual([
+        {
+          url: 'https://cdn.example.com/vendor/report.pdf',
+          name: 'report.pdf',
+          contentType: 'application/pdf',
+        },
+      ]),
+    );
+    expect(uploader).toHaveBeenCalledTimes(1);
   });
 
   it('starts with no files when the form has none', () => {

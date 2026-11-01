@@ -1,0 +1,1 @@
+export { RateSupportPage } from './RateSupportPage';

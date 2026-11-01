@@ -418,12 +418,47 @@ export type BenefitKind =
   | 'PF'
   | 'WELLNESS';
 
+export type BillingCheckoutInput = {
+  /** ISO 4217 currency to pay in; the plan must have a price in it. */
+  currency: Scalars['String']['input'];
+  /** The plan to subscribe to. */
+  planId: Scalars['ID']['input'];
+  /** The gateway to pay through. */
+  provider: CheckoutProvider;
+};
+
 export type BillingKeyConfigInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   /** Required when adding. Leave empty when editing to keep the stored key. */
   key: Scalars['String']['input'];
   label: Scalars['String']['input'];
   provider: BillingProvider;
+};
+
+export type BillingPlanInput = {
+  /** AI spend allowed per calendar month in USD; 0 is unlimited. */
+  aiMonthlyUsdCap: Scalars['Float']['input'];
+  /** Include every module. */
+  allModules: Scalars['Boolean']['input'];
+  description: InputMaybe<Scalars['String']['input']>;
+  interval: PlanInterval;
+  /** False retires it: subscribers keep it, nobody new can choose it. */
+  isActive: Scalars['Boolean']['input'];
+  /** Offer it on the public sign-up page. */
+  isPublic: Scalars['Boolean']['input'];
+  /** URL-safe handle (lower-case letters, digits, dashes). Fixed once the plan exists. */
+  key: Scalars['String']['input'];
+  /** Module roles included when allModules is false (ADMIN and EMPLOYEE are always open). */
+  modules: Array<Role>;
+  name: Scalars['String']['input'];
+  /** One price per currency it is sold in. No price (or all 0) makes it free. */
+  prices: Array<PlanPriceInput>;
+  /** Active people allowed; 0 is unlimited. */
+  seatLimit: Scalars['Int']['input'];
+  /** Position in lists, lowest first. */
+  sortOrder: InputMaybe<Scalars['Int']['input']>;
+  /** Free trial length for a new sign-up, 0 to 365 days. */
+  trialDays: Scalars['Int']['input'];
 };
 
 /** A provider whose real bill a billing key can read. */
@@ -761,6 +796,11 @@ export type CheckSeverity =
   | 'ERROR'
   | 'INFO'
   | 'WARNING';
+
+/** A gateway a company can pay its subscription through. */
+export type CheckoutProvider =
+  | 'RAZORPAY'
+  | 'STRIPE';
 
 export type ClientCommunicationInput = {
   details: InputMaybe<Scalars['String']['input']>;
@@ -3040,6 +3080,7 @@ export type MarketingSuppressionsInput = {
 /** An MCP server: one module's (CRM, MARKETING, HR and the rest), or ALL, which combines every module's tools. */
 export type McpEndpoint =
   | 'ADMIN'
+  | 'AGENTS'
   | 'AI'
   | 'ALL'
   | 'CLIENTHUB'
@@ -3548,6 +3589,18 @@ export type PexelsSearchFilters = {
   size: InputMaybe<Scalars['String']['input']>;
 };
 
+/** How often a plan is charged. */
+export type PlanInterval =
+  | 'MONTH'
+  | 'YEAR';
+
+export type PlanPriceInput = {
+  /** Price per interval in that currency's main unit (dollars, rupees). */
+  amount: Scalars['Float']['input'];
+  /** ISO 4217 currency code, e.g. USD or INR. */
+  currency: Scalars['String']['input'];
+};
+
 export type PolicyAudience =
   | 'ALL_STAFF'
   | 'HR_ONLY'
@@ -3897,6 +3950,7 @@ export type RiskTreatment =
 
 export type Role =
   | 'ADMIN'
+  | 'AGENTS'
   | 'AI'
   | 'COMPLIANCE'
   | 'CRM'
@@ -4019,6 +4073,24 @@ export type ShiftInput = {
   graceMinutes: Scalars['Int']['input'];
   name: Scalars['String']['input'];
   startTime: Scalars['String']['input'];
+};
+
+export type SignupInput = {
+  /** The six-digit code from the email. */
+  code: Scalars['String']['input'];
+  companyName: Scalars['String']['input'];
+  /** ISO 3166-1 alpha-2 country code. */
+  country: InputMaybe<Scalars['String']['input']>;
+  /** ISO 4217 currency the company keeps its books in. */
+  currency: Scalars['String']['input'];
+  /** The address the code was sent to; becomes the administrator's sign-in. */
+  email: Scalars['String']['input'];
+  /** The administrator's full name. */
+  name: Scalars['String']['input'];
+  /** The public plan to start a trial of. */
+  planId: Scalars['ID']['input'];
+  /** IANA timezone. */
+  timezone: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How a ticket stands against the resolution time promised for its priority. */
@@ -4239,6 +4311,25 @@ export type SubmitProblemReportInput = {
   severity: ProblemSeverity;
   subject: Scalars['String']['input'];
 };
+
+/** Who collects a subscription's money. */
+export type SubscriptionProvider =
+  /** Set by a platform administrator (invoiced, courtesy or grandfathered). */
+  | 'MANUAL'
+  | 'NONE'
+  | 'RAZORPAY'
+  | 'STRIPE';
+
+/** Where a company's subscription stands. */
+export type SubscriptionStatus =
+  /** Paid and current. */
+  | 'ACTIVE'
+  /** Ended; only Admin and My Workspace stay open. */
+  | 'CANCELLED'
+  /** A renewal failed; access continues while the provider retries. */
+  | 'PAST_DUE'
+  /** On a free trial; modules close when it ends unpaid. */
+  | 'TRIALING';
 
 /** How much, and in what shape, a summary comes back. */
 export type SummaryStyle =
@@ -4534,12 +4625,14 @@ export type TechSecret =
 export type TicketChannel =
   /** Typed into the console by an agent, usually off a call. */
   | 'AGENT'
-  /** Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot). */
+  /** Opened by a chat on exyconn.com or tools.exyconn.com (Agents > Website chat). */
   | 'CHAT'
   /** Arrived in the support mailbox and was imported. */
   | 'EMAIL'
   /** Raised on a form in the portal — the employee desk or the public customer form. */
-  | 'PORTAL';
+  | 'PORTAL'
+  /** Opened by a message to the company's WhatsApp number. The chat itself stays in WhatsApp. */
+  | 'WHATSAPP';
 
 export type ToolCategoryInput = {
   category: Scalars['String']['input'];
@@ -4869,6 +4962,40 @@ export type VaultLocationState =
   | 'DENIED'
   | 'GRANTED'
   | 'UNAVAILABLE';
+
+export type VendorContactInput = {
+  /** The address they sign in with; it may have vendor portal access at one supplier only. */
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  /** The supplier the person works for. */
+  supplierId: Scalars['ID']['input'];
+};
+
+export type VendorInvoiceInput = {
+  /** The invoice total, in the order's currency. */
+  amount: Scalars['Float']['input'];
+  dueDate: Scalars['DateTime']['input'];
+  fileName: Scalars['String']['input'];
+  /** The uploaded invoice document's URL, from vendorUploadInvoiceFile. */
+  fileUrl: Scalars['String']['input'];
+  invoiceDate: Scalars['DateTime']['input'];
+  /** The supplier's own invoice number. */
+  invoiceNumber: Scalars['String']['input'];
+  notes: InputMaybe<Scalars['String']['input']>;
+  /** The purchase order this invoice bills. */
+  purchaseOrderId: Scalars['ID']['input'];
+};
+
+export type VendorInvoiceStatus =
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'SUBMITTED';
+
+/** NOT_BILLED until the buyer approves the invoice; then the Finance bill's UNPAID or PAID. */
+export type VendorPaymentStatus =
+  | 'NOT_BILLED'
+  | 'PAID'
+  | 'UNPAID';
 
 export type WebsiteCaptchaAnswer = {
   answer: Scalars['String']['input'];

@@ -6,7 +6,7 @@ import { useCallingBotScenarioOptionsQuery } from '@exyconn/shell/graphql/genera
 const PARAM = 'example';
 
 /**
- * The example call the visitor picked (Tech > Demos > Calling bot > Examples), kept in the
+ * The example call the visitor picked (Agents > Calling bot > Examples), kept in the
  * address so the browser call and the phone call play the same one, and a shared link opens on
  * it. No pick (or one no longer offered) means the bot's own settings.
  */

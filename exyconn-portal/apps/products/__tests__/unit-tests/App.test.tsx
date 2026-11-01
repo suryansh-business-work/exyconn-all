@@ -8,6 +8,7 @@ import { ProductsOverviewPage, ProductsPage } from '../../src/pages/products';
 import { SuppliersPage } from '../../src/pages/suppliers';
 import { StockPage } from '../../src/pages/stock';
 import { PurchaseOrdersPage } from '../../src/pages/purchase-orders';
+import { VendorInvoicesPage } from '../../src/pages/vendor-invoices/VendorInvoicesPage';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -57,6 +58,7 @@ describe('App', () => {
       ['/products/suppliers', SuppliersPage],
       ['/products/purchase-orders', PurchaseOrdersPage],
       ['/products/stock', StockPage],
+      ['/products/vendor-invoices', VendorInvoicesPage],
     ]);
   });
 });

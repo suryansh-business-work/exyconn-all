@@ -89,7 +89,11 @@ export function PortalLayout() {
             '& .MuiDrawer-paper': drawerPaper(t, DRAWER_WIDTH, true),
           })}
         >
-          <Sidebar roles={user.roles} onNavigate={() => setMobileOpen(false)} />
+          <Sidebar
+            roles={user.roles}
+            planRoles={user.planRoles}
+            onNavigate={() => setMobileOpen(false)}
+          />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -101,7 +105,12 @@ export function PortalLayout() {
               : drawerPaper(t, width, false),
           })}
         >
-          <Sidebar roles={user.roles} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
+          <Sidebar
+            roles={user.roles}
+            planRoles={user.planRoles}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapsed}
+          />
         </Drawer>
       </Box>
 

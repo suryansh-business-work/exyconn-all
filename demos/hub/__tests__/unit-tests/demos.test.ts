@@ -8,6 +8,8 @@ describe('the demos the hub lists', () => {
     const keys = DEMOS.map((demo) => demo.key);
     expect([...keys].sort((a, b) => a.localeCompare(b))).toEqual([
       'calling-bot-demo',
+      'mcp-sandbox-demo',
+      'meeting-bot-demo',
       'website-chat-demo',
       'whatsapp-demo',
     ]);

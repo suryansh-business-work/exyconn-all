@@ -56,6 +56,7 @@ export function App() {
       <Route path="/mcp/tech/:tab?" element={<McpServerPage endpoint={McpEndpoint.Tech} />} />
       <Route path="/mcp/tracker/:tab?" element={<McpServerPage endpoint={McpEndpoint.Tracker} />} />
       <Route path="/mcp/website/:tab?" element={<McpServerPage endpoint={McpEndpoint.Website} />} />
+      <Route path="/mcp/agents/:tab?" element={<McpServerPage endpoint={McpEndpoint.Agents} />} />
       <Route path="/mcp/all/:tab?" element={<McpServerPage endpoint={McpEndpoint.All} />} />
     </PortalApp>
   );

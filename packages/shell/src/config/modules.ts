@@ -27,6 +27,8 @@ import TerminalIcon from '@mui/icons-material/Terminal';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import BusinessIcon from '@mui/icons-material/Business';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PasswordIcon from '@mui/icons-material/Password';
@@ -69,6 +71,9 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import WebhookIcon from '@mui/icons-material/Webhook';
+import CodeIcon from '@mui/icons-material/Code';
+import KeyIcon from '@mui/icons-material/Key';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -120,7 +125,7 @@ import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import HttpsIcon from '@mui/icons-material/Https';
-import { ROLES, type Role } from '@/auth/roles';
+import { ROLES, canAccess, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
 import type { NavGroup } from './navGroups';
 import { color } from '@exyconn/ui';
@@ -654,6 +659,12 @@ export const MODULES: ModuleDefinition[] = [
         icon: ShoppingCartIcon,
       },
       { key: 'products-stock', label: 'Stock', path: '/products/stock', icon: BuildIcon },
+      {
+        key: 'products-vendor-invoices',
+        label: 'Vendor invoices',
+        path: '/products/vendor-invoices',
+        icon: ReceiptLongIcon,
+      },
     ],
   },
   {
@@ -986,6 +997,14 @@ export const MODULES: ModuleDefinition[] = [
         role: ROLES.SUPER_ADMIN,
         group: 'Administration',
       },
+      {
+        key: 'admin-plans',
+        label: 'Plans',
+        path: '/admin/plans',
+        icon: WorkspacePremiumIcon,
+        role: ROLES.SUPER_ADMIN,
+        group: 'Administration',
+      },
       { key: 'admin-users', label: 'Users', path: '/admin/users', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       {
@@ -993,6 +1012,13 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Roles & Permissions',
         path: '/admin/permissions',
         icon: LockPersonIcon,
+      },
+      {
+        key: 'admin-billing',
+        label: 'Billing',
+        path: '/admin/billing',
+        icon: CreditCardIcon,
+        group: 'Configuration',
       },
       {
         key: 'admin-branding',
@@ -1020,13 +1046,6 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Audit Log',
         path: '/admin/audit',
         icon: HistoryIcon,
-        group: 'System',
-      },
-      {
-        key: 'admin-integrations',
-        label: 'Integrations',
-        path: '/admin/integrations',
-        icon: WebhookIcon,
         group: 'System',
       },
       {
@@ -1173,41 +1192,6 @@ export const MODULES: ModuleDefinition[] = [
         icon: MarkEmailUnreadIcon,
         group: 'Inbox',
       },
-      {
-        key: 'website-whatsapp-leads',
-        label: 'WhatsApp Leads',
-        path: '/website/whatsapp-leads',
-        icon: WhatsAppIcon,
-        group: 'Inbox',
-      },
-      {
-        key: 'website-chat-sessions',
-        label: 'Chat Sessions',
-        path: '/website/chat/sessions',
-        icon: ForumIcon,
-        group: 'Chatbot',
-      },
-      {
-        key: 'website-chat-knowledge',
-        label: 'Knowledge Base',
-        path: '/website/chat/knowledge',
-        icon: LibraryBooksIcon,
-        group: 'Chatbot',
-      },
-      {
-        key: 'website-chat-faqs',
-        label: 'FAQs',
-        path: '/website/chat/faqs',
-        icon: QuizIcon,
-        group: 'Chatbot',
-      },
-      {
-        key: 'website-chat-settings',
-        label: 'Chatbot Settings',
-        path: '/website/chat/settings',
-        icon: TuneIcon,
-        group: 'Chatbot',
-      },
     ],
   },
   {
@@ -1345,31 +1329,6 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tech/settings',
         icon: TuneIcon,
         group: 'Configuration',
-      },
-      {
-        // The AI calling bot at demos.exyconn.com/calling-bot-demo: its keys, voice and calls.
-        key: 'tech-demos-calling-bot',
-        label: 'Calling bot',
-        path: '/tech/demos/calling-bot',
-        icon: PhoneInTalkIcon,
-        group: 'Demos',
-      },
-      {
-        // The AI website chat agent (demos.exyconn.com/website-chat-demo): its workflows in the
-        // React Flow designer, analytics, sessions and setup.
-        key: 'tech-demos-website-bot',
-        label: 'Website chat bot',
-        path: '/tech/demos/website-bot',
-        icon: ForumIcon,
-        group: 'Demos',
-      },
-      {
-        // The WhatsApp demo's real number: its Meta credentials, tested from the form.
-        key: 'tech-demos-whatsapp-bot',
-        label: 'WhatsApp bot',
-        path: '/tech/demos/whatsapp-bot',
-        icon: WhatsAppIcon,
-        group: 'Demos',
       },
       {
         // Moving exyconn.com's DNS from GoDaddy to Cloudflare and switching its nameservers.
@@ -1657,6 +1616,77 @@ export const MODULES: ModuleDefinition[] = [
     ],
   },
   {
+    // The console for every AI agent: WhatsApp workflows, the calling bot, the website chat agent
+    // with its knowledge, FAQs and live sessions, and the leads they capture. These screens lived
+    // in Tech (Demos) and Website (Chatbot); their old addresses redirect here.
+    key: 'agents',
+    label: 'Agents',
+    path: '/agents',
+    role: ROLES.AGENTS,
+    icon: SmartToyIcon,
+    description: 'WhatsApp, calling and website chat agents, their sessions and leads',
+    accent: color.emerald[600],
+    children: [
+      { key: 'agents-overview', label: 'Overview', path: '/agents', icon: DashboardIcon },
+      {
+        key: 'agents-whatsapp',
+        label: 'WhatsApp agent',
+        path: '/agents/whatsapp',
+        icon: WhatsAppIcon,
+        group: 'AI agents',
+      },
+      {
+        key: 'agents-calling-bot',
+        label: 'Calling bot',
+        path: '/agents/calling-bot',
+        icon: PhoneInTalkIcon,
+        group: 'AI agents',
+      },
+      {
+        key: 'agents-website-bot',
+        label: 'Website chat agent',
+        path: '/agents/website-bot',
+        icon: ForumIcon,
+        group: 'AI agents',
+      },
+      {
+        key: 'agents-chat-sessions',
+        label: 'Chat Sessions',
+        path: '/agents/chat/sessions',
+        icon: ForumIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-chat-knowledge',
+        label: 'Knowledge Base',
+        path: '/agents/chat/knowledge',
+        icon: LibraryBooksIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-chat-faqs',
+        label: 'FAQs',
+        path: '/agents/chat/faqs',
+        icon: QuizIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-chat-settings',
+        label: 'Chatbot Settings',
+        path: '/agents/chat/settings',
+        icon: TuneIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'agents-whatsapp-leads',
+        label: 'WhatsApp Leads',
+        path: '/agents/whatsapp-leads',
+        icon: WhatsAppIcon,
+        group: 'Inbox',
+      },
+    ],
+  },
+  {
     // Claude's connectors: one MCP server per module (each opens with that module's role) and a
     // global one combining them. Listed for everyone; the pages say which servers they can use.
     key: 'mcp',
@@ -1688,6 +1718,7 @@ export const MODULES: ModuleDefinition[] = [
       mcpServerNav('tech', 'Tech', TerminalIcon, ROLES.TECH),
       mcpServerNav('tracker', 'Tracker', AccessTimeIcon, ROLES.TRACKER),
       mcpServerNav('website', 'Website', LanguageIcon, ROLES.WEBSITE),
+      mcpServerNav('agents', 'Agents', SmartToyIcon, ROLES.AGENTS),
       {
         key: 'mcp-all',
         label: 'All tools (global)',
@@ -1706,6 +1737,51 @@ export const MODULES: ModuleDefinition[] = [
     ],
   },
   {
+    // Integrations live here: API keys, webhooks and what reaches them, the event catalogue, the
+    // API reference and how to connect Claude. An administrator's, like the keys themselves.
+    key: 'developers',
+    label: 'Developers',
+    path: '/developers',
+    role: ROLES.ADMIN,
+    icon: CodeIcon,
+    description: 'API keys, webhooks, the API reference and MCP',
+    accent: color.slate[500],
+    children: [
+      { key: 'dev-api-keys', label: 'API keys', path: '/developers/api-keys', icon: KeyIcon },
+      { key: 'dev-webhooks', label: 'Webhooks', path: '/developers/webhooks', icon: WebhookIcon },
+      {
+        key: 'dev-deliveries',
+        label: 'Delivery log',
+        path: '/developers/deliveries',
+        icon: HistoryIcon,
+      },
+      {
+        key: 'dev-events',
+        label: 'Event catalogue',
+        path: '/developers/events',
+        icon: EventNoteIcon,
+      },
+      {
+        key: 'dev-reference',
+        label: 'API reference',
+        path: '/developers/reference',
+        icon: MenuBookIcon,
+      },
+      { key: 'dev-mcp', label: 'Claude (MCP)', path: '/developers/mcp', icon: HubIcon },
+    ],
+  },
+  {
+    // Listed for Products staff so a supplier can be pointed at it; the portal itself signs a
+    // supplier's people in with an emailed code, not with a portal role.
+    key: 'vendors',
+    label: 'Vendor Portal',
+    path: '/orders',
+    role: ROLES.PRODUCTS,
+    icon: LocalShippingIcon,
+    description: 'Where suppliers see purchase orders and send invoices',
+    accent: color.orange[500],
+  },
+  {
     // Listed for everyone in the company so a client can be pointed at it; the hub itself signs
     // clients in with an emailed code, not with a portal role.
     key: 'clienthub',
@@ -1718,9 +1794,12 @@ export const MODULES: ModuleDefinition[] = [
   },
 ];
 
-/** Returns only the modules the given roles may access. */
-export function accessibleModules(roles: Role[]): ModuleDefinition[] {
-  return MODULES.filter((m) => roles.includes(ROLES.ADMIN) || roles.includes(m.role));
+/** Returns only the modules the given roles may access, within the company's plan. */
+export function accessibleModules(
+  roles: Role[],
+  planRoles?: readonly Role[] | null,
+): ModuleDefinition[] {
+  return MODULES.filter((m) => canAccess(roles, m.role, planRoles));
 }
 
 /** Every path under a list of children, however deeply they nest. */

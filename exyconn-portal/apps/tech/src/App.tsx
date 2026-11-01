@@ -1,5 +1,6 @@
 import { Navigate, Route } from 'react-router-dom';
 import { PortalApp } from '@exyconn/shell';
+import { MovedRedirect } from '@exyconn/shell/routes/MovedRedirect';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { TechOverviewPage } from './pages/overview';
@@ -17,7 +18,6 @@ import { InfrastructurePage } from './pages/infrastructure';
 import { IncidentsPage } from './pages/incidents';
 import { LogsPage } from './pages/logs';
 import { JobsPage } from './pages/jobs';
-import { CallingBotPage, WebsiteBotPage, WhatsappBotPage } from './pages/demos';
 import { CloudflarePage } from './pages/security/cloudflare';
 import { SonarPage, SslCertificatesPage } from './pages/security';
 import { TechVaultGate } from './pages/environment-variables/vault/TechVaultGate';
@@ -57,10 +57,33 @@ export function App() {
       <Route path="/tech/incidents/:tab?" element={<IncidentsPage />} />
       <Route path="/tech/logs" element={<LogsPage />} />
       <Route path="/tech/jobs" element={<JobsPage />} />
-      <Route path="/tech/demos/calling-bot/:tab?" element={<CallingBotPage />} />
-      <Route path="/tech/demos/whatsapp-bot" element={<WhatsappBotPage />} />
-      <Route path="/tech/demos/website-bot/*" element={<WebsiteBotPage />} />
-      <Route path="/tech/demos" element={<Navigate to="/tech/demos/calling-bot" replace />} />
+      {/* Tech > Demos moved to the Agents console; old addresses land on the same screen there. */}
+      <Route
+        path="/tech/demos/calling-bot/*"
+        element={
+          <MovedRedirect app="agents" from="/tech/demos/calling-bot" to="/agents/calling-bot" />
+        }
+      />
+      <Route
+        path="/tech/demos/website-bot/*"
+        element={
+          <MovedRedirect app="agents" from="/tech/demos/website-bot" to="/agents/website-bot" />
+        }
+      />
+      <Route
+        path="/tech/demos/whatsapp-bot"
+        element={
+          <MovedRedirect
+            app="agents"
+            from="/tech/demos/whatsapp-bot"
+            to="/agents/whatsapp/whatsapp-number"
+          />
+        }
+      />
+      <Route
+        path="/tech/demos"
+        element={<MovedRedirect app="agents" from="/tech/demos" to="/agents" />}
+      />
       <Route path="/tech/settings" element={<SettingsPage />} />
       <Route path="/tech/security/cloudflare" element={<CloudflarePage />} />
       <Route path="/tech/security/ssl" element={<SslCertificatesPage />} />

@@ -1,6 +1,8 @@
 import { AiJobModel } from './ai.model';
 import { AiSpendLimitModel, AI_SPEND_LIMIT_KEY } from './ai-spend-limit.model';
 import { badRequest } from '../../utils/errors';
+import { currentOrganizationId } from '../../lib/tenant';
+import { planAccessFor } from '../billing/access';
 
 /** Where the caps are edited, named in every refusal so the message is actionable. */
 const WHERE_TO_EDIT = 'Tech › Environment Variables › AI Pricing';
@@ -66,6 +68,7 @@ async function spend(match: Record<string, unknown>): Promise<number> {
  * what has already gone on it — "over budget" on its own tells nobody what to do next.
  */
 export async function assertWithinAiBudget(userId: string, now = new Date()): Promise<void> {
+  await assertWithinPlanAiCap(now);
   const limit = await readAiSpendLimit();
   if (!limit.enabled) {
     return;
@@ -87,6 +90,26 @@ export async function assertWithinAiBudget(userId: string, now = new Date()): Pr
         `Your daily AI budget of ${usd(limit.perUserDailyUsdCap)} is used up — ${usd(today)} spent today. Raise it in ${WHERE_TO_EDIT}.`,
       );
     }
+  }
+}
+
+/**
+ * The company's subscription caps AI too: a lapsed subscription runs none, and a plan with a
+ * monthly cap stops at it. Checked before the company's own caps, which can only be lower.
+ */
+async function assertWithinPlanAiCap(now: Date): Promise<void> {
+  const access = await planAccessFor(currentOrganizationId());
+  if (access.lapsed) {
+    badRequest('Your subscription has ended, so AI is paused. Renew it in Admin › Billing.');
+  }
+  if (access.aiMonthlyUsdCap <= 0) {
+    return;
+  }
+  const month = await spend({ ranAt: { $gte: startOfMonth(now) } });
+  if (month >= access.aiMonthlyUsdCap) {
+    badRequest(
+      `Your plan includes ${usd(access.aiMonthlyUsdCap)} of AI a month and ${usd(month)} is used. Upgrade the plan in Admin › Billing.`,
+    );
   }
 }
 

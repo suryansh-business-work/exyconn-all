@@ -115,6 +115,12 @@ fragment DealFields on Deal {
   owner
   notes
   clientId
+  score
+  scoreReasons {
+    text
+    impact
+  }
+  scoredAt
 }
 
 fragment ActivityFields on Activity {
@@ -396,4 +402,14 @@ query CrmTags($object: CrmTagObject!) {
 
 mutation SetCrmTags($object: CrmTagObject!, $id: ID!, $tags: [String!]!) {
   setCrmTags(object: $object, id: $id, tags: $tags)
+}
+
+mutation ScoreDeal($id: ID!) {
+  scoreDeal(id: $id) {
+    ...DealFields
+  }
+}
+
+mutation ScoreOpenDeals {
+  scoreOpenDeals
 }

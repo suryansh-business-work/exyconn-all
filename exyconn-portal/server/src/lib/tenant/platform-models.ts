@@ -12,6 +12,11 @@
 export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   // The tenancy itself.
   'Organization',
+  // The subscription plans companies choose from (Admin › Plans), and the ledger of Stripe and
+  // Razorpay subscription webhooks, deduplicated by event id before any company is known.
+  // Each company's own subscription (BillingSubscription) is its own data.
+  'BillingPlan',
+  'BillingWebhookEvent',
   // Shared infrastructure, configured once for the install (Tech portal).
   'EmailConfig',
   'ImageConfig',
@@ -142,6 +147,8 @@ export const PLATFORM_UNIQUE_PATHS: ReadonlyMap<string, ReadonlySet<string>> = n
   ['User', new Set(['email'])],
   // A client hub contact signs in by address alone, so an address names one contact.
   ['ClientContact', new Set(['email'])],
+  // A vendor portal contact signs in the same way, so the same holds for a supplier's people.
+  ['VendorContact', new Set(['email'])],
   // A booking link (status.exyconn.com/book/<slug>) names no company, so a slug names one type.
   ['MeetingType', new Set(['slug'])],
 ]);

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -14,6 +15,7 @@ import {
   type PagedSupplierRow,
   type SuppliersGridContext,
 } from './suppliers-grid';
+import { VendorAccessDialog } from './vendor-access/VendorAccessDialog';
 
 /** Products → Suppliers: who stock is bought from. */
 export function SuppliersPage() {
@@ -23,6 +25,7 @@ export function SuppliersPage() {
     refetch: refetchStats,
   } = useListSuppliersStatsQuery();
   const [deleteSupplier] = useDeleteSupplierMutation();
+  const [accessFor, setAccessFor] = useState<PagedSupplierRow | null>(null);
   const crud = useCrudResource<SupplierRow, PagedSupplierRow>({
     label: 'Supplier',
     onDelete: (row) => deleteSupplier({ variables: { id: row.id } }),
@@ -55,7 +58,7 @@ export function SuppliersPage() {
   ];
 
   const gridContext: SuppliersGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: { vendorAccess: setAccessFor, edit: crud.openEdit, delete: crud.remove },
   };
 
   return (
@@ -75,6 +78,7 @@ export function SuppliersPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search by name, code, contact or email…"
+      extraDialogs={<VendorAccessDialog supplier={accessFor} onClose={() => setAccessFor(null)} />}
     />
   );
 }

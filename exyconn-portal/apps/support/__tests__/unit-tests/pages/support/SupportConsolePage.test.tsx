@@ -45,7 +45,7 @@ describe('SupportConsolePage', () => {
     renderConsole();
     expect(dashboardProps()).toMatchObject({
       title: 'Support',
-      subtitle: 'Employee & customer tickets',
+      subtitle: 'Employee & customer tickets from every channel',
       entityLabel: 'ticket',
       searchPlaceholder: 'Search by subject, requester, reference or assignee…',
       refreshSignal: 0,
@@ -59,7 +59,8 @@ describe('SupportConsolePage', () => {
   it('shows placeholders until the numbers first answer', () => {
     renderConsole();
     expect(dashboardProps().statsLoading).toBe(true);
-    expect(Object.values(statValues())).toEqual(['0', '0', '0', '0', '0']);
+    // CSAT shows a dash, not a zero, until somebody has answered a survey.
+    expect(Object.values(statValues())).toEqual(['0', '0', '0', '0', '0', '—']);
   });
 
   it('counts tickets by status and priority, and the SLA breaches', () => {
@@ -74,7 +75,17 @@ describe('SupportConsolePage', () => {
       refetch: gql.refetchStats,
     });
     gql.sla.mockReturnValue({
-      data: { supportSlaSummary: { onTrack: 6, dueSoon: 2, breached: 4 } },
+      data: {
+        supportSlaSummary: {
+          onTrack: 6,
+          dueSoon: 2,
+          breached: 4,
+          csatSent: 8,
+          csatResponses: 5,
+          csatAverage: 4.2,
+          csatPercent: 80,
+        },
+      },
       refetch: gql.refetchSla,
     });
     renderConsole();
@@ -84,6 +95,7 @@ describe('SupportConsolePage', () => {
       'In progress': '3',
       'High priority': '2',
       'SLA breached': '4',
+      CSAT: '80% (5)',
     });
     expect(dashboardProps().statsLoading).toBe(false);
   });

@@ -10,7 +10,16 @@ import {
 } from '@/graphql/generated';
 
 export type QuickFilter =
-  'all' | 'unassigned' | 'mine' | 'open' | 'overdue' | 'customers' | 'employees' | 'emailed';
+  | 'all'
+  | 'unassigned'
+  | 'mine'
+  | 'open'
+  | 'overdue'
+  | 'customers'
+  | 'employees'
+  | 'emailed'
+  | 'chats'
+  | 'whatsapp';
 
 const OPTIONS: Array<{ value: QuickFilter; label: string }> = [
   { value: 'all', label: 'All' },
@@ -21,6 +30,8 @@ const OPTIONS: Array<{ value: QuickFilter; label: string }> = [
   { value: 'customers', label: 'Customers' },
   { value: 'employees', label: 'Employees' },
   { value: 'emailed', label: 'Emailed in' },
+  { value: 'chats', label: 'Website chat' },
+  { value: 'whatsapp', label: 'WhatsApp' },
 ];
 
 const equals = (field: string, value: string): TableFilterInput[] => [
@@ -42,6 +53,8 @@ const FILTERS: Record<QuickFilter, (userId: string) => TableFilterInput[]> = {
   customers: () => equals('requesterType', SupportRequester.Client),
   employees: () => equals('requesterType', SupportRequester.Employee),
   emailed: () => equals('channel', TicketChannel.Email),
+  chats: () => equals('channel', TicketChannel.Chat),
+  whatsapp: () => equals('channel', TicketChannel.Whatsapp),
 };
 
 export function quickFilters(filter: QuickFilter, userId: string): TableFilterInput[] {

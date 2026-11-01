@@ -6,7 +6,7 @@ import { Login } from '@exyconn/login';
 import { App } from '../../src/App';
 import * as website from '../../src/pages/website';
 import * as liveEdit from '../../src/pages/website/live-edit';
-import * as chat from '../../src/pages/chat';
+import { MovedRedirect } from '@exyconn/shell/routes/MovedRedirect';
 import * as site from '../../src/pages/cms/site';
 import { WebsiteOverviewPage } from '../../src/pages/overview';
 import { WebsitesPage } from '../../src/pages/cms/websites';
@@ -54,22 +54,11 @@ vi.mock('../../src/pages/website', () =>
     'ToolCategoriesPage',
     'ToolsPage',
     'NavLinksPage',
-    'WhatsappLeadsPage',
   ]),
 );
 vi.mock('../../src/pages/overview', () => stubs(['WebsiteOverviewPage']));
 vi.mock('../../src/pages/website/live-edit', () =>
   stubs(['BlogLiveEditRoute', 'CaseStudyLiveEditRoute']),
-);
-vi.mock('../../src/pages/chat', () =>
-  stubs([
-    'ChatConversationPage',
-    'ChatFaqsPage',
-    'ChatKnowledgePage',
-    'ChatLayout',
-    'ChatSessionsPage',
-    'ChatSettingsPage',
-  ]),
 );
 vi.mock('../../src/pages/cms/site', () => ({
   ...stubs(['SiteLayout', 'SiteRedirect']),
@@ -129,16 +118,16 @@ describe('App', () => {
       ['/website/*', site.SiteRedirect],
       ['/website/sites', WebsitesPage],
       ['/website/submissions', website.WebsiteSubmissionsPage],
-      ['/website/whatsapp-leads', website.WhatsappLeadsPage],
+      ['/website/whatsapp-leads', MovedRedirect],
+      ['/website/chat/*', MovedRedirect],
       ['/website/tool-categories', website.ToolCategoriesPage],
       ['/website/tools', website.ToolsPage],
       ['/website/s/:siteSlug', site.SiteLayout],
-      [undefined, chat.ChatLayout],
     ]);
   });
 
   it('puts every page of one site under its slug, with the overview as the index', () => {
-    expect(childRoutesAt(7)).toEqual([
+    expect(childRoutesAt(8)).toEqual([
       ['index', WebsiteOverviewPage],
       ['pages', PagesPage],
       ['pages/:id/edit', PageBuilderRoute],
@@ -157,16 +146,6 @@ describe('App', () => {
       ['jobs', website.JobsPage],
       ['companies', website.JobCompaniesPage],
       ['gigs', website.GigsPage],
-    ]);
-  });
-
-  it('shares one chat layout between every Chatbot screen', () => {
-    expect(childRoutesAt(8)).toEqual([
-      ['/website/chat/sessions', chat.ChatSessionsPage],
-      ['/website/chat/sessions/:id/*', chat.ChatConversationPage],
-      ['/website/chat/knowledge', chat.ChatKnowledgePage],
-      ['/website/chat/faqs', chat.ChatFaqsPage],
-      ['/website/chat/settings', chat.ChatSettingsPage],
     ]);
   });
 });

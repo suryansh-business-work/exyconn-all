@@ -13,7 +13,7 @@ import {
   useTestRazorpayConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { RazorpayConfigForm, type RazorpayConfigRow } from './forms/razorpay-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 import { WebhookInfo } from './WebhookInfo';
 
 /** The payment link events the webhook settles or closes attempts on (see webhook.ts). */

@@ -1,15 +1,17 @@
-import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Navigate, Link as RouterLink, useLocation, useSearchParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Heading, Text } from '@exyconn/shell/components/ui';
+import { Heading, Link, Text } from '@exyconn/shell/components/ui';
 import {
   EMAIL_PREFERENCES_PATH,
   RESET_PASSWORD_PATH,
+  SIGNUP_PATH,
   UNSUBSCRIBE_PATH,
 } from '@exyconn/shell/app/PortalApp';
 import { LoginForm } from './forms/login';
 import { LoginShell } from './LoginShell';
 import { ResetPasswordPage } from '../ResetPassword/ResetPasswordPage';
 import { UnsubscribePage } from '../Unsubscribe/UnsubscribePage';
+import { SignupPage } from '../Signup/SignupPage';
 import { EmailPreferencesPage } from '../Unsubscribe/EmailPreferencesPage';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { safeNext } from '@exyconn/shell/utils/redirect';
@@ -34,6 +36,7 @@ export function Login() {
   // page they were after (or the portal home).
   if (user) return <Navigate to={safeNext(params.get('next'))} replace />;
   if (pathname === RESET_PASSWORD_PATH) return <ResetPasswordPage />;
+  if (pathname === SIGNUP_PATH) return <SignupPage />;
 
   return (
     <LoginShell>
@@ -47,6 +50,12 @@ export function Login() {
           <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
             {t('Authorized personnel only.')}
             {page.supportEmail ? ` ${t('Need access? {email}', { email: page.supportEmail })}` : ''}
+          </Text>
+          <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+            {t('New to the portal?')}{' '}
+            <Link component={RouterLink} to={SIGNUP_PATH}>
+              {t('Create your company')}
+            </Link>
           </Text>
         </>
       )}

@@ -1,0 +1,46 @@
+fragment McpSandboxTokenFields on McpSandboxToken {
+  id
+  expiresAt
+  createdAt
+  revokedAt
+  lastUsedAt
+  active
+}
+
+query McpSandboxInfo {
+  mcpSandboxInfo {
+    organizationName
+    serverName
+    endpointUrl
+    tokenTtlMinutes
+    tokensPerDay
+    tokensLeftToday
+    callsPerHour
+    modules
+    sample {
+      label
+      count
+    }
+  }
+}
+
+query McpSandboxTokens {
+  mcpSandboxTokens {
+    ...McpSandboxTokenFields
+  }
+}
+
+mutation IssueMcpSandboxToken {
+  issueMcpSandboxToken {
+    token
+    sandboxToken {
+      ...McpSandboxTokenFields
+    }
+  }
+}
+
+mutation RevokeMcpSandboxToken($id: ID!) {
+  revokeMcpSandboxToken(id: $id) {
+    ...McpSandboxTokenFields
+  }
+}

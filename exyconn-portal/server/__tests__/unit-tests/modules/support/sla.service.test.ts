@@ -11,6 +11,8 @@ import { asArg } from '../../../mockAs';
 const HOUR = 60 * 60 * 1000;
 const NOW = new Date('2026-09-01T12:00:00.000Z');
 const hours = (n: number) => new Date(NOW.getTime() + n * HOUR);
+/** No survey has gone out in these queues, so the satisfaction figures are empty. */
+const NO_CSAT = { csatSent: 0, csatResponses: 0, csatAverage: null, csatPercent: null };
 
 const ticket = (category: string, extra: Record<string, unknown>) =>
   SupportTicketModel.create({
@@ -62,6 +64,7 @@ describe('supportSlaSummary', () => {
       onTrack: 1,
       dueSoon: 1,
       breached: 1,
+      ...NO_CSAT,
     });
   });
 
@@ -74,11 +77,13 @@ describe('supportSlaSummary', () => {
       onTrack: 0,
       dueSoon: 1,
       breached: 0,
+      ...NO_CSAT,
     });
     await expect(supportSlaSummary({ category: 'HR' }, NOW)).resolves.toEqual({
       onTrack: 0,
       dueSoon: 0,
       breached: 2,
+      ...NO_CSAT,
     });
   });
 });

@@ -64,8 +64,8 @@ export function CommandPalette({ open, onClose }: Readonly<CommandPaletteProps>)
   });
 
   const items = useMemo(
-    () => [...moduleItems(user?.roles ?? [], typed), ...recordItems(data)],
-    [user?.roles, typed, data],
+    () => [...moduleItems(user?.roles ?? [], typed, user?.planRoles), ...recordItems(data)],
+    [user?.roles, user?.planRoles, typed, data],
   );
 
   useEffect(() => setCursor(0), [items.length]);

@@ -15,6 +15,11 @@ export interface AuthUser {
   avatarUrl?: string | null;
   /** The company this person belongs to; null for a platform administrator. */
   organizationId?: string | null;
+  /**
+   * The module roles their company's plan opens besides ADMIN and EMPLOYEE; null or absent
+   * when every module is open (see canAccess).
+   */
+  planRoles?: Role[] | null;
 }
 
 interface AuthContextValue {

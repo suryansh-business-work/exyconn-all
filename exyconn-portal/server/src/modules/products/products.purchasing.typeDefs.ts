@@ -52,6 +52,10 @@ export const productsPurchasingTypeDefs = gql`
     notes: String!
     firstReceivedAt: DateTime
     receivedAt: DateTime
+    "When the supplier confirmed the order in the vendor portal; null until then."
+    acknowledgedAt: DateTime
+    "Who confirmed it at the supplier, as name and email."
+    acknowledgedBy: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

@@ -9,6 +9,7 @@ import {
   derivedStatusColumn,
   useCrudResource,
   type DatedCrudGridContext,
+  activeStatus,
 } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -18,7 +19,6 @@ import {
   type NewsletterIssuesQuery,
 } from '@exyconn/shell/graphql/generated';
 import { NewsletterIssueForm, type NewsletterIssueRow } from '../../website/forms/newsletter-issue';
-import { activeStatus } from '../../website/active-status';
 import { useCurrentSite, useSitePagedFetcher } from '../site';
 
 const COLUMNS: ColDef<NewsletterIssueRow>[] = [

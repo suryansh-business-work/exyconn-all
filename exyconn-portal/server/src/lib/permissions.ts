@@ -15,6 +15,7 @@ import { currentOrganizationId } from './tenant';
  * lists them without every resolver file needing a registration line of its own.
  */
 const HAND_WRITTEN_MODULES = [
+  'AgentConsole',
   'AppLog',
   'AppSettings',
   'AuditLog',

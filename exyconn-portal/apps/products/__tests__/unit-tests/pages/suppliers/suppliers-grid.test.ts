@@ -15,8 +15,16 @@ describe('SUPPLIER_COLUMNS', () => {
     ]);
   });
 
-  it('offers the standard edit and delete actions', () => {
-    expect(actionSpecs(SUPPLIER_COLUMNS).map((spec) => spec.key)).toEqual(['edit', 'delete']);
+  it('offers vendor portal access first, then the standard edit and delete', () => {
+    expect(actionSpecs(SUPPLIER_COLUMNS).map((spec) => spec.key)).toEqual([
+      'vendorAccess',
+      'edit',
+      'delete',
+    ]);
+    expect(actionSpecs(SUPPLIER_COLUMNS)[0]).toMatchObject({
+      label: 'vendor portal access',
+      color: 'primary',
+    });
   });
 });
 

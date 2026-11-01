@@ -22,11 +22,16 @@ import {
 } from './calling-bot.config.service';
 import { callingBotScenarios, type CallingBotScenarioInput } from './calling-bot.scenarios.service';
 import { saveScenarioFlow } from './calling-bot.flows.service';
+import { AGENTS_MODULE, assertAgentStaff } from '../agents/agents.access';
 
-/** The settings sit with the install's other credentials: the platform's own Tech staff only. */
+/**
+ * The settings sit with the install's other credentials: the platform's own Tech and Agents
+ * staff, and changing or revealing one needs the Tech vault open. The examples, their call flows
+ * and the calls are the Agents console's (assertAgentStaff), with no vault in the way.
+ */
 const TECH_MODULE = 'TechConfig';
 const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
-  assertPlatformStaff(ctx, TECH_MODULE, [ROLES.TECH], action);
+  assertPlatformStaff(ctx, TECH_MODULE, [ROLES.TECH, ROLES.AGENTS], action);
 
 /** How many calls the Tech screen lists when it does not say. */
 const RECENT_CALLS = 50;
@@ -78,7 +83,7 @@ const auditScenario = (
 ) =>
   recordAudit(ctx, {
     action,
-    module: TECH_MODULE,
+    module: AGENTS_MODULE,
     entityId: scenario._id,
     entityLabel: scenario.title,
     summary,
@@ -114,7 +119,7 @@ export const callingBotResolvers = {
       { limit }: { limit?: number | null },
       ctx: GraphQLContext,
     ) => {
-      await techStaff(ctx, 'VIEW');
+      await assertAgentStaff(ctx, 'VIEW');
       return withIds(await callingBotCalls.recent(Math.min(limit ?? RECENT_CALLS, 200)));
     },
     callingBotAvailability: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -124,7 +129,7 @@ export const callingBotResolvers = {
     callingBotCall: async (_p: unknown, { id }: Id, ctx: GraphQLContext) =>
       withId(await callingBotCalls.ownCall(await callerOf(ctx), id)),
     callingBotScenarios: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await techStaff(ctx, 'VIEW');
+      await assertAgentStaff(ctx, 'VIEW');
       return withIds(await callingBotScenarios.list());
     },
     callingBotScenarioOptions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -201,7 +206,7 @@ export const callingBotResolvers = {
       { input }: { input: CallingBotScenarioInput },
       ctx: GraphQLContext,
     ) => {
-      await techStaff(ctx, 'CREATE');
+      await assertAgentStaff(ctx, 'CREATE');
       const created = await callingBotScenarios.create(input);
       await auditScenario(ctx, 'CREATE', created, `Added the calling bot example ${created.title}`);
       return withId(created);
@@ -211,7 +216,7 @@ export const callingBotResolvers = {
       { id, input }: ScenarioArgs,
       ctx: GraphQLContext,
     ) => {
-      await techStaff(ctx, 'EDIT');
+      await assertAgentStaff(ctx, 'EDIT');
       const updated = await callingBotScenarios.update(id, input);
       await auditScenario(
         ctx,
@@ -226,7 +231,7 @@ export const callingBotResolvers = {
       { id, flow }: Id & { flow?: unknown },
       ctx: GraphQLContext,
     ) => {
-      await techStaff(ctx, 'EDIT');
+      await assertAgentStaff(ctx, 'EDIT');
       const saved = await saveScenarioFlow(id, flow);
       await auditScenario(
         ctx,
@@ -237,7 +242,7 @@ export const callingBotResolvers = {
       return withId(saved);
     },
     deleteCallingBotScenario: async (_p: unknown, { id }: Id, ctx: GraphQLContext) => {
-      await techStaff(ctx, 'DELETE');
+      await assertAgentStaff(ctx, 'DELETE');
       const removed = await callingBotScenarios.remove(id);
       await auditScenario(
         ctx,

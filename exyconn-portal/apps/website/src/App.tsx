@@ -1,5 +1,6 @@
 import { Route } from 'react-router-dom';
 import { PortalApp } from '@exyconn/shell';
+import { MovedRedirect } from '@exyconn/shell/routes/MovedRedirect';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import {
@@ -12,18 +13,9 @@ import {
   ToolCategoriesPage,
   ToolsPage,
   NavLinksPage,
-  WhatsappLeadsPage,
 } from './pages/website';
 import { WebsiteOverviewPage } from './pages/overview';
 import { BlogLiveEditRoute, CaseStudyLiveEditRoute } from './pages/website/live-edit';
-import {
-  ChatConversationPage,
-  ChatFaqsPage,
-  ChatKnowledgePage,
-  ChatLayout,
-  ChatSessionsPage,
-  ChatSettingsPage,
-} from './pages/chat';
 import { SITE_BASE, SiteLayout, SiteRedirect } from './pages/cms/site';
 import { WebsitesPage } from './pages/cms/websites';
 import { PagesPage } from './pages/cms/pages';
@@ -48,7 +40,17 @@ export function App() {
       <Route path="/website/*" element={<SiteRedirect />} />
       <Route path="/website/sites" element={<WebsitesPage />} />
       <Route path="/website/submissions" element={<WebsiteSubmissionsPage />} />
-      <Route path="/website/whatsapp-leads" element={<WhatsappLeadsPage />} />
+      {/* WhatsApp Leads and the Chatbot screens moved to the Agents console. */}
+      <Route
+        path="/website/whatsapp-leads"
+        element={
+          <MovedRedirect app="agents" from="/website/whatsapp-leads" to="/agents/whatsapp-leads" />
+        }
+      />
+      <Route
+        path="/website/chat/*"
+        element={<MovedRedirect app="agents" from="/website/chat" to="/agents/chat" />}
+      />
       <Route path="/website/tool-categories" element={<ToolCategoriesPage />} />
       <Route path="/website/tools" element={<ToolsPage />} />
       <Route path={`${SITE_BASE}/:siteSlug`} element={<SiteLayout />}>
@@ -70,14 +72,6 @@ export function App() {
         <Route path="jobs" element={<JobsPage />} />
         <Route path="companies" element={<JobCompaniesPage />} />
         <Route path="gigs" element={<GigsPage />} />
-      </Route>
-      {/* One chat socket per tab, shared by every Chatbot screen. */}
-      <Route element={<ChatLayout />}>
-        <Route path="/website/chat/sessions" element={<ChatSessionsPage />} />
-        <Route path="/website/chat/sessions/:id/*" element={<ChatConversationPage />} />
-        <Route path="/website/chat/knowledge" element={<ChatKnowledgePage />} />
-        <Route path="/website/chat/faqs" element={<ChatFaqsPage />} />
-        <Route path="/website/chat/settings" element={<ChatSettingsPage />} />
       </Route>
     </PortalApp>
   );

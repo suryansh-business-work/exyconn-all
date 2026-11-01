@@ -10,6 +10,7 @@ import {
   type ListDealsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { DealForm, type DealRow } from './forms/deal';
+import { DealScorePanel } from './score/DealScorePanel';
 import { DEAL_COLUMNS, type PagedDealRow, type DealsGridContext } from './deals-grid';
 import { DealsViewToggle } from './DealsViewToggle';
 import { useCreateInvoiceFromDeal } from './useCreateInvoiceFromDeal';
@@ -64,7 +65,10 @@ export function DealsListPage() {
         statsLoading={!statsData && statsLoading}
         crud={crud}
         renderForm={(initial) => (
-          <DealForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+          <>
+            {initial && <DealScorePanel deal={initial} />}
+            <DealForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+          </>
         )}
         columnDefs={DEAL_COLUMNS}
         fetchRows={fetchRows}

@@ -23,7 +23,7 @@ export { visitorForPass, type DemoVisitor } from './visitor.service';
 
 /** The leads list sits with the website's own form submissions, under the same permission. */
 const LEADS_MODULE = 'WebsiteSubmission';
-const LEADS_ROLES = [ROLES.WEBSITE];
+const LEADS_ROLES = [ROLES.WEBSITE, ROLES.AGENTS];
 
 /**
  * Email-and-code sign-in for prospects trying the WhatsApp demo, and the leads it files.

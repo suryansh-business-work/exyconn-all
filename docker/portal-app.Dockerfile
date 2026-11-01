@@ -68,12 +68,17 @@ COPY exyconn-portal/apps/tracker/package.json exyconn-portal/apps/tracker/
 COPY exyconn-portal/apps/website/package.json exyconn-portal/apps/website/
 COPY exyconn-portal/apps/clienthub/package.json exyconn-portal/apps/clienthub/
 COPY exyconn-portal/apps/mcp/package.json exyconn-portal/apps/mcp/
+COPY exyconn-portal/apps/agents/package.json exyconn-portal/apps/agents/
+COPY exyconn-portal/apps/developers/package.json exyconn-portal/apps/developers/
+COPY exyconn-portal/apps/vendors/package.json exyconn-portal/apps/vendors/
 COPY demos/hub/package.json demos/hub/
 COPY demos/whatsapp-demo/ui/package.json demos/whatsapp-demo/ui/
 COPY demos/whatsapp-demo/server/package.json demos/whatsapp-demo/server/
 COPY demos/calling-bot-demo/ui/package.json demos/calling-bot-demo/ui/
 COPY demos/calling-bot-demo/server/package.json demos/calling-bot-demo/server/
 COPY demos/website-chat-demo/ui/package.json demos/website-chat-demo/ui/
+COPY demos/meeting-bot-demo/ui/package.json demos/meeting-bot-demo/ui/
+COPY demos/mcp-sandbox-demo/ui/package.json demos/mcp-sandbox-demo/ui/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # The root `prepare` script runs on every install, this one included; it needs its own

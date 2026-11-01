@@ -23,7 +23,7 @@ export function AccountMenu({ anchorEl, onClose }: Readonly<AccountMenuProps>) {
   const install = useInstallPrompt();
   const t = useT();
   const navigate = useNavigate();
-  const integrations = canAccess(user?.roles ?? [], ROLES.CRM);
+  const integrations = canAccess(user?.roles ?? [], ROLES.CRM, user?.planRoles);
 
   const go = (path: string) => () => {
     onClose();

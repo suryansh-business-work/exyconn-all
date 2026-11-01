@@ -5,7 +5,7 @@ import {
   maskedSecret,
   secretField,
   webhookUrl,
-} from '../../../../src/pages/environment-variables/secret';
+} from '@exyconn/shell/utils/secret';
 
 const startsWithXoxb = {
   test: (value: string) => value.startsWith('xoxb-'),

@@ -4,7 +4,7 @@ import { credential } from '../tech/tech.fixtures';
 
 export { credential };
 
-/** Every setting Tech > Demos > Calling bot sends, with browser calls only. */
+/** Every setting Agents > Calling bot sends, with browser calls only. */
 export const configInput = (
   overrides: Partial<CallingBotConfigInput> = {},
 ): CallingBotConfigInput => ({

@@ -65,6 +65,7 @@ describe('App', () => {
       McpEndpoint.Tech,
       McpEndpoint.Tracker,
       McpEndpoint.Website,
+      McpEndpoint.Agents,
       McpEndpoint.All,
     ];
     expect(new Set(servers)).toEqual(new Set(Object.values(McpEndpoint)));

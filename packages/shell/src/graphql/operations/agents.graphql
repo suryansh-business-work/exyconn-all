@@ -1,0 +1,19 @@
+# The Agents console's overview (agents.exyconn.com/agents).
+query AgentsOverview($days: Int) {
+  agentsOverview(days: $days) {
+    days
+    from
+    to
+    conversations
+    whatsappSessions
+    whatsappCompletionRate
+    websiteAgentSessions
+    websiteChats
+    websiteChatsAnsweredByPeople
+    deflectionRate
+    calls
+    callsCompleted
+    callsFailed
+    leadsCaptured
+  }
+}

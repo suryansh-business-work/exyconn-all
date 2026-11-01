@@ -15,7 +15,6 @@ describe('website pages entry point', () => {
       'ToolCategoriesPage',
       'ToolsPage',
       'WebsiteSubmissionsPage',
-      'WhatsappLeadsPage',
     ]);
     expect(website.BlogPage).toBe(BlogPage);
     expect(website.WebsiteSubmissionsPage).toBe(WebsiteSubmissionsPage);

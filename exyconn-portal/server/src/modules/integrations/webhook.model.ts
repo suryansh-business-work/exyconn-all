@@ -14,6 +14,8 @@ export const WEBHOOK_EVENTS = [
   'deal.won',
   'ticket.created',
   'purchase_order.received',
+  'purchase_order.acknowledged',
+  'vendor_invoice.submitted',
 ] as const;
 
 /** Where a delivery has got to. PENDING and FAILED are both retried; DEAD is given up on. */

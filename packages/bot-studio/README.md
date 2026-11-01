@@ -6,7 +6,7 @@ browser. Consumed as TypeScript source (no build step).
 | Entry | What | Used by |
 | --- | --- | --- |
 | `@exyconn/bot-studio/runtime` | The chat loop on the engine (`useChatRuntime`, reply pacing, per-viewer storage), the published catalogue per channel (`useCatalog(channel)`), AI parses, formatters, analytics (`useDemoAnalytics`) | WhatsApp demo, website chat widget |
-| `@exyconn/bot-studio/studio` | The bot studio's screens for one channel: workflow list + React Flow editor, analytics, sessions; plus the generic `FlowWorkspace` / `useGraphEditor` for a stored graph | WhatsApp demo `/admin`, Tech > Demos > Website chat bot, Tech > Demos > Calling bot > Call flows |
+| `@exyconn/bot-studio/studio` | The bot studio's screens for one channel: workflow list + React Flow editor, analytics, sessions; plus the generic `FlowWorkspace` / `useGraphEditor` for a stored graph | WhatsApp demo `/admin`, Agents > Website chat agent, Agents > Calling bot > Call flows |
 | `@exyconn/bot-studio/widget` | The website chat widget (`ChatWidget`, `useLiveWidgetChat`) and its in-memory `WidgetPreview` | website chat agent demo, the studio's preview for website bots and call-flow rehearsals |
 | `@exyconn/bot-studio/icons` | `WA_ICONS`: the MUI icon behind each `ICON_KEYS` name | every skin and the editor |
 | `@exyconn/bot-studio/shared` | Accent tints, `FormattedText` (`*bold*` markup), `.ics` calendar files | every skin |
@@ -25,7 +25,7 @@ Wrap the screens in a `StudioProvider` naming the channel and the host's routes:
 const STUDIO: StudioConfig = {
   channel: 'website',
   name: 'Website chat agent',                     // page titles: "{name} analytics"
-  workflowsPath: '/tech/demos/website-bot/bot-workflows', // editor: `${workflowsPath}/<id>`
+  workflowsPath: '/agents/website-bot/bot-workflows', // editor: `${workflowsPath}/<id>`
   renderPreview: (bundle, start) => <WidgetPreview bundle={bundle} startWorkflow={start} />,
   forbidden: <DemosForbidden />,
 };

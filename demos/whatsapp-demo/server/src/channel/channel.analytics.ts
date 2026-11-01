@@ -20,7 +20,7 @@ export interface ChatIdentity {
 }
 
 /** Everything but the last four digits hidden. */
-const maskedNumber = (waId: string) =>
+export const maskedNumber = (waId: string) =>
   `+${'•'.repeat(Math.max(waId.length - 4, 0))}${waId.slice(-4)}`;
 
 export function actorOf(chat: ChatIdentity): EventActor {

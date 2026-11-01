@@ -15,7 +15,7 @@ const chatDaySchema = new Schema(
 /**
  * How the website chat behaves, one row per company (the operator's is the one that counts).
  * Created with these defaults the first time anything reads it, and edited in
- * Website > Chatbot > Settings.
+ * Agents > Website chat > Settings.
  */
 const chatSettingsSchema = new Schema(
   {

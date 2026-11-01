@@ -14,7 +14,7 @@ const persona = (role: string): string => `${role} ${DEMO_RULES}`;
 
 /**
  * The examples a fresh install offers on the calling bot demo. Each is inserted once, by key
- * (see ensureCallingBotScenarios): edits and deletions in Tech > Demos > Calling bot > Examples
+ * (see ensureCallingBotScenarios): edits and deletions in Agents > Calling bot > Examples
  * stand, and an example added here in a later release still arrives.
  */
 export const SCENARIO_SEEDS: readonly ScenarioSeed[] = [

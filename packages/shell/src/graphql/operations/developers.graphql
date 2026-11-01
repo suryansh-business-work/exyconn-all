@@ -1,0 +1,68 @@
+query ApiKeyUsage($id: ID!, $days: Int!) {
+  apiKeyUsage(id: $id, days: $days) {
+    day
+    count
+  }
+}
+
+query WebhookEventCatalogue {
+  webhookEventCatalogue {
+    event
+    module
+    description
+    fields
+  }
+}
+
+query ListWebhookDeliveriesPaged($input: TableQueryInput!) {
+  listWebhookDeliveriesPaged(input: $input) {
+    rows {
+      id
+      webhookId
+      webhookName
+      event
+      status
+      attempts
+      responseStatus
+      error
+      payload
+      nextAttemptAt
+      deliveredAt
+      createdAt
+    }
+    totalCount
+  }
+}
+
+query ListWebhookDeliveriesStats {
+  listWebhookDeliveriesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query ApiReference($endpoint: McpEndpoint!) {
+  apiReference(endpoint: $endpoint) {
+    name
+    kind
+    description
+    arguments {
+      name
+      type
+      required
+      description
+    }
+    returnType
+    example
+  }
+}

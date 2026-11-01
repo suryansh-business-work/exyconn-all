@@ -46,7 +46,7 @@ describe('the live chat', () => {
   it('says when no site is published yet', () => {
     renderWithProviders(<LiveChat demo={demo({})} />);
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'No demo website is published yet. Publish one in Tech > Demos > Website chat bot.',
+      'No demo website is published yet. Publish one in Agents > Website chat agent.',
     );
   });
 

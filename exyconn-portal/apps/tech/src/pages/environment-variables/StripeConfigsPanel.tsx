@@ -13,7 +13,7 @@ import {
   useTestStripeConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { StripeConfigForm, type StripeConfigRow } from './forms/stripe-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 const COLUMNS: Column<StripeConfigRow>[] = [
   { key: 'label', label: 'Label' },

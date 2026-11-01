@@ -33,7 +33,7 @@ const chatSessionSchema = new Schema(
     /** The page the chat was started from, as the browser reported it. */
     pageUrl: { type: String, default: '', trim: true },
     status: { type: String, enum: CHAT_STATUSES, required: true, default: 'OPEN', index: true },
-    ticketId: { type: String, default: '', trim: true },
+    ticketId: { type: String, default: '', trim: true, index: true },
     ticketReference: { type: String, default: '', trim: true },
     assigneeId: { type: String, default: '', trim: true },
     assigneeName: { type: String, default: '', trim: true },

@@ -248,6 +248,23 @@ const TEMPLATES = [
         </mj-text>`),
   },
   {
+    key: 'support-csat',
+    name: 'Support — satisfaction survey',
+    description:
+      'Sent once to the customer when their ticket is first resolved. {{ratingUrl}} opens the public rating page on the status site; the link works for one answer.',
+    subject: 'How did we do on {{reference}}?',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">How did we do?</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          We have marked <strong>{{ticketSubject}}</strong> ({{reference}}) as resolved. Tell us how it went —
+          it takes one click and helps us get better.
+        </mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{ratingUrl}}" padding="24px 0 8px">Rate our support</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          Still stuck? Reply to this email and quote {{reference}} to reopen the conversation.
+        </mj-text>`),
+  },
+  {
     key: 'password-reset',
     name: 'Password reset — self-service link',
     description:
@@ -429,6 +446,22 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
         </mj-text>`),
   },
   {
+    key: 'saas-signup-code',
+    name: 'Sign-up — company email code',
+    description:
+      'Sent when somebody signs their company up for the portal. {{code}} confirms their email; it works once and expires in {{expiresIn}}.',
+    subject: '{{code}} is your {{companyName}} sign-up code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Confirm your email</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Enter this code to finish creating your company's workspace.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nothing is created without the code.
+        </mj-text>`),
+  },
+  {
     key: 'employee-email-code',
     name: 'Employee — email verification code',
     description:
@@ -475,6 +508,40 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
           see every transaction, raise support tickets and follow your projects.
         </mj-text>
         <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">Open the client hub</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          Sign in with this email address — we send you a one-time code, no password needed.
+        </mj-text>`),
+  },
+  {
+    key: 'vendor-portal-code',
+    name: 'Vendor portal — sign-in code',
+    description:
+      'Sent when a supplier contact signs in to the vendor portal. {{code}} works once and expires in {{expiresIn}}.',
+    subject: '{{code}} is your {{companyName}} vendor portal code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your sign-in code</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Enter this code in the vendor portal to see your purchase orders, send invoices and follow payments.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nobody can sign in without the code.
+        </mj-text>`),
+  },
+  {
+    key: 'vendor-portal-invite',
+    name: 'Vendor portal — access granted',
+    description:
+      'Sent when Products staff give a supplier contact access to the vendor portal. {{supplierName}} is the supplier; {{portalUrl}} is where they sign in with their email.',
+    subject: 'Your {{companyName}} vendor portal is ready',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Welcome to the vendor portal</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          You now have access to the {{companyName}} vendor portal for {{supplierName}}: see your purchase orders,
+          acknowledge them, send invoices against them and follow when they are paid.
+        </mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{portalUrl}}" padding="24px 0 8px">Open the vendor portal</mj-button>
         <mj-text font-size="13px" color="#94a3b8">
           Sign in with this email address — we send you a one-time code, no password needed.
         </mj-text>`),
@@ -558,7 +625,7 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
     key: 'website-chat-transcript',
     name: 'Website chat — conversation transcript',
     description:
-      'Sent when a website chat ends, if Website > Chatbot > Settings asks for it. The whole conversation is attached as a text file. {{reference}} is the chat’s support ticket.',
+      'Sent when a website chat ends, if Agents > Website chat > Settings asks for it. The whole conversation is attached as a text file. {{reference}} is the chat’s support ticket.',
     subject: 'Your chat with {{companyName}} ({{reference}})',
     mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your chat transcript</mj-text>
         <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>

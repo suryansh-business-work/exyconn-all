@@ -66,7 +66,7 @@ export const RESUME_UPLOAD: UploadPolicy = {
 };
 
 /**
- * A picture, video clip or voice note sent in a website chat (Website > Chatbot). 10 MB keeps
+ * A picture, video clip or voice note sent in a website chat (Agents > Website chat). 10 MB keeps
  * the base64 frame inside the chat socket's payload cap.
  */
 export const CHAT_UPLOAD: UploadPolicy = {

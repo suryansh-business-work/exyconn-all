@@ -4,7 +4,7 @@ import type { DemoQuestion, DemoStep } from '@exyconn/demo-visitor/page';
 export const HUB_STEPS: readonly DemoStep[] = [
   {
     title: 'Pick a demo',
-    body: 'Choose the AI calling bot, the WhatsApp automation or the website chat agent below.',
+    body: 'Choose the AI calling bot, the WhatsApp automation, the website chat agent, the meeting bot or the MCP sandbox below.',
   },
   {
     title: 'Sign in with a code',

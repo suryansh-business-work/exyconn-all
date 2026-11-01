@@ -9,6 +9,7 @@ import { useNotify } from '@/components/feedback/NotificationProvider';
 import { AttachmentPicker, SUPPORT_UPLOAD_FOLDER, type AttachmentItem } from '@/components/upload';
 import { useAddSupportReplyMutation } from '@/graphql/generated';
 import { CannedReplyPicker } from './CannedReplyPicker';
+import { SuggestReplyButton } from './SuggestReplyButton';
 
 const schema = z.object({
   body: z.string().trim().min(1, 'Write something before sending'),
@@ -82,12 +83,13 @@ export function SupportReplyForm({ ticketId, onDone, onCancel }: Readonly<Suppor
         helperText="A reply goes to the requester; an internal note is seen only by the support team."
       />
       <CannedReplyPicker onPick={insertSnippet} />
+      <SuggestReplyButton ticketId={ticketId} onSuggest={insertSnippet} />
       <RhfTextField
         name="body"
         label="Message"
         multiline
         rows={4}
-        helperText="Write it yourself or start from a canned reply above."
+        helperText="Write it yourself, start from a canned reply, or let AI suggest one to edit."
       />
       <AttachmentPicker
         value={attachments}

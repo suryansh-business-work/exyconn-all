@@ -84,6 +84,8 @@ fragment PurchaseOrderFields on PurchaseOrder {
   expectedDate
   notes
   receivedAt
+  acknowledgedAt
+  acknowledgedBy
   createdAt
   updatedAt
 }

@@ -7,7 +7,7 @@ import { RhfSecretField, RhfSwitch, RhfTextField } from '@exyconn/shell/componen
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { useSaveSocialAppConfigMutation, TechSecret } from '@exyconn/shell/graphql/generated';
-import { KEEP_SECRET_HINT } from '../../secret';
+import { KEEP_SECRET_HINT } from '@exyconn/shell/utils/secret';
 import type { SocialAppRow } from './social-app.types';
 import { useTechSecretReveal } from '../../useTechSecretReveal';
 

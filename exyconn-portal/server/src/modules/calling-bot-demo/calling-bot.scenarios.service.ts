@@ -8,7 +8,7 @@ import { CallingBotScenarioModel } from './calling-bot.models';
 import { SCENARIO_SEEDS, type ScenarioSeed } from './calling-bot.scenarios.seed';
 import { ensureCallingBotFlows } from './calling-bot.flows.service';
 
-/** What Tech > Demos > Calling bot > Examples sends for one example. */
+/** What Agents > Calling bot > Examples sends for one example. */
 export interface CallingBotScenarioInput {
   title: string;
   description: string;

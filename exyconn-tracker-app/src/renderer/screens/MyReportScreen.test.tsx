@@ -9,6 +9,7 @@ beforeAll(installDomShims);
 afterEach(() => {
   unmountAll();
   vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 
 describe('MyReportScreen', () => {
@@ -37,6 +38,9 @@ describe('MyReportScreen', () => {
   });
 
   it('says when the month could not be read, and reads the day that is picked', async () => {
+    // Mid-month, so the 1st is never the day already picked (on the 1st, clicking it reads nothing).
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-15T12:00:00Z'));
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const getReport = vi.fn(() => Promise.reject(new Error('Offline')));
     const getDay = vi.fn(() => new Promise<DayDetail>(() => undefined));

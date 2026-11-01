@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { contactForPass } from '../../../src/modules/clienthub';
 import { visitorForPass } from '../../../../../demos/whatsapp-demo/server/src/visitor';
 import { principalForApiKey } from '../../../src/modules/integrations/api-key.service';
@@ -21,6 +22,8 @@ jest.mock('../../../src/modules/admin/presence', () => ({
   recordActivity: jest.fn().mockResolvedValue(undefined),
 }));
 
+/** API keys always belong to a real company, so the id is an ObjectId like any other. */
+const KEY_ORG = new Types.ObjectId().toHexString();
 const contact = { id: 'contact-1', email: 'client@example.com' };
 const visitor = { id: 'visitor-1', email: 'visitor@example.com' };
 const anonymousShape = { user: null, organizationId: null, ip: '198.51.100.4' };
@@ -102,18 +105,18 @@ describe('buildContext for an API key', () => {
       id: 'key-1',
       name: 'Zapier',
       roles: [ROLES.CRM],
-      organizationId: 'org-1',
+      organizationId: KEY_ORG,
     });
     const { ctx, scope } = await contextOf(
       requestWith({ ip: '198.51.100.4', headers: { 'x-api-key': 'exy_live_123' } }),
     );
     expect(principalForApiKey).toHaveBeenCalledWith('exy_live_123');
     expect(ctx).toMatchObject({
-      user: { id: 'key-1', email: 'Zapier (API key)', roles: [ROLES.CRM], organizationId: 'org-1' },
-      organizationId: 'org-1',
+      user: { id: 'key-1', email: 'Zapier (API key)', roles: [ROLES.CRM], organizationId: KEY_ORG },
+      organizationId: KEY_ORG,
       ip: '198.51.100.4',
     });
-    expect(scope).toEqual({ organizationId: 'org-1', platform: false });
+    expect(scope).toEqual({ organizationId: KEY_ORG, platform: false });
   });
 
   it('is nobody when the key is not recognised', async () => {

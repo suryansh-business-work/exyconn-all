@@ -28,7 +28,7 @@ export function ProtectedRoute({ children, requiredRole }: Readonly<ProtectedRou
     const next = encodeURIComponent(location.pathname + location.search);
     return <Navigate to={`/login?next=${next}`} replace />;
   }
-  if (requiredRole && !canAccess(user.roles, requiredRole)) {
+  if (requiredRole && !canAccess(user.roles, requiredRole, user.planRoles)) {
     // This app is a single module, so a missing role means there is nothing here
     // to fall back to — send the user to the hub's launcher instead.
     return <ExternalRedirect to={HUB_URL} />;

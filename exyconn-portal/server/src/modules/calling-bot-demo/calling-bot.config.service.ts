@@ -11,7 +11,7 @@ import { openAiClient } from '../../utils/openai';
 import { requireSecret, withoutBlankSecret } from '../tech/tech.service';
 import { CallingBotConfigModel } from './calling-bot.models';
 
-/** What Tech > Demos > Calling bot sends: every setting, with the keys write-only. */
+/** What Agents > Calling bot sends: every setting, with the keys write-only. */
 export interface CallingBotConfigInput {
   label: string;
   /** Empty when editing keeps the stored key, as on every credential screen. */

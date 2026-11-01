@@ -52,7 +52,7 @@ website widget and the bot studio (React Flow editor, analytics, sessions) are i
 ## Call flows (`src/voice.ts`)
 
 The calling bot draws each example call as a graph of voice-safe nodes (`VOICE_NODE_TYPES`:
-text, buttons, list, input, ai, condition, handoff, end) in Tech > Demos > Calling bot > Call
+text, buttons, list, input, ai, condition, handoff, end) in Agents > Calling bot > Call
 flows. The server checks it (`nonVoiceNodes`, `validateGraph`) and stores
 `toCallScript(graph)` — numbered steps saying what to say, what to ask and where each answer
 leads — which the voice server appends to the example's prompt.

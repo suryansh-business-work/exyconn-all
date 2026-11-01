@@ -31,9 +31,14 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Demos · AI calling bot | 4041 | demos.exyconn.com/calling-bot-demo/ | `exyconn-calling-bot-demo` |
 | Demos · calling bot voice server | 4042 | demos.exyconn.com/calling-bot-demo/api/ | `exyconn-calling-bot-voice` |
 | Demos · AI website chat agent | 4043 | demos.exyconn.com/website-chat-demo/ | `exyconn-website-chat-demo` |
+| Demos · AI meeting bot | 4048 | demos.exyconn.com/meeting-bot-demo/ | `exyconn-meeting-bot-demo` |
+| Demos · MCP sandbox | 4049 | demos.exyconn.com/mcp-sandbox-demo/ | `exyconn-mcp-sandbox-demo` |
 | Demos · WhatsApp Demo | 4038 | demos.exyconn.com/whatsapp-demo/ (whatsapp-demo.exyconn.com redirects) | `exyconn-portal-whatsapp-demo` |
 | Portal · Client Hub | 4039 | clienthub.exyconn.com | `exyconn-portal-clienthub` |
 | Portal · MCP (Claude connectors) | 4044 | mcp.exyconn.com | `exyconn-portal-mcp` |
+| Portal · Agents (AI agents console) | 4045 | agents.exyconn.com | `exyconn-portal-agents` |
+| Portal · Developers (API keys, webhooks, API reference) | 4046 | developers.exyconn.com | `exyconn-portal-developers` |
+| Portal · Vendor Portal (suppliers) | 4047 | vendors.exyconn.com | `exyconn-portal-vendors` |
 | Status page (public, no sign-in) | 4035 | status.exyconn.com | `exyconn-portal-status` |
 | Portal API | 4004 | portal-server.exyconn.com | `exyconn-portal-server` |
 | Docker socket proxy (internal, GET-only) | — | — | `tecnativa/docker-socket-proxy` |
@@ -175,7 +180,7 @@ that answer from the internet are:
 | 8883 | MQTT over TLS (certificate `CN=iot.exyconn.com`) |
 
 Nothing else leaks: `docker-compose.prod.yml` binds every container to `127.0.0.1`, so
-the 4000–4044 app ports, MongoDB and the Docker API are all unreachable.
+the 4000–4047 app ports, MongoDB and the Docker API are all unreachable.
 
 The MQTT broker belongs to the Infinity Home stack, not this repo. It does require
 credentials (an anonymous CONNECT is refused with CONNACK `0x05`), but 1883 carries

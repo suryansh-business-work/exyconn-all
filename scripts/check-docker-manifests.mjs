@@ -28,6 +28,8 @@ const ROOTS = [
   'demos/whatsapp-demo',
   'demos/calling-bot-demo',
   'demos/website-chat-demo',
+  'demos/meeting-bot-demo',
+  'demos/mcp-sandbox-demo',
 ];
 
 const WEBSITE_DOCKERFILE = 'docker/website.Dockerfile';

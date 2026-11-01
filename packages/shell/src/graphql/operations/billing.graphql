@@ -1,0 +1,117 @@
+# Plans, subscriptions and self sign-up (modules/billing on the server).
+
+fragment BillingPlanFields on BillingPlan {
+  id
+  key
+  name
+  description
+  prices {
+    currency
+    amount
+  }
+  interval
+  trialDays
+  seatLimit
+  allModules
+  modules
+  aiMonthlyUsdCap
+  isPublic
+  isActive
+  isSystem
+  sortOrder
+}
+
+fragment BillingSubscriptionFields on BillingSubscription {
+  id
+  planId
+  planKey
+  status
+  provider
+  currency
+  trialEndsAt
+  currentPeriodEnd
+  cancelAtPeriodEnd
+  cancelledAt
+}
+
+fragment BillingOverviewFields on BillingOverview {
+  lapsed
+  seatsUsed
+  aiSpentThisMonthUsd
+  providers
+  subscription {
+    ...BillingSubscriptionFields
+  }
+  plan {
+    ...BillingPlanFields
+  }
+  plans {
+    ...BillingPlanFields
+  }
+}
+
+query BillingPlans {
+  billingPlans {
+    ...BillingPlanFields
+  }
+}
+
+query BillingOverview {
+  billingOverview {
+    ...BillingOverviewFields
+  }
+}
+
+query OrganizationSubscription($organizationId: ID!) {
+  organizationSubscription(organizationId: $organizationId) {
+    ...BillingSubscriptionFields
+  }
+}
+
+mutation CreateBillingPlan($input: BillingPlanInput!) {
+  createBillingPlan(input: $input) {
+    ...BillingPlanFields
+  }
+}
+
+mutation UpdateBillingPlan($id: ID!, $input: BillingPlanInput!) {
+  updateBillingPlan(id: $id, input: $input) {
+    ...BillingPlanFields
+  }
+}
+
+mutation DeleteBillingPlan($id: ID!) {
+  deleteBillingPlan(id: $id)
+}
+
+mutation StartBillingCheckout($input: BillingCheckoutInput!) {
+  startBillingCheckout(input: $input)
+}
+
+mutation CancelBillingSubscription {
+  cancelBillingSubscription {
+    ...BillingOverviewFields
+  }
+}
+
+mutation AssignOrganizationPlan($organizationId: ID!, $planId: ID!, $status: SubscriptionStatus!) {
+  assignOrganizationPlan(organizationId: $organizationId, planId: $planId, status: $status) {
+    ...BillingSubscriptionFields
+  }
+}
+
+query SignupPlans {
+  signupPlans {
+    ...BillingPlanFields
+  }
+}
+
+mutation RequestSignupCode($email: String!) {
+  requestSignupCode(email: $email)
+}
+
+mutation CompleteSignup($input: SignupInput!) {
+  completeSignup(input: $input) {
+    ...SignInResult
+  }
+}

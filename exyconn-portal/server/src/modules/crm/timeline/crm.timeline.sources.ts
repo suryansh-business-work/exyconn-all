@@ -120,7 +120,7 @@ async function chats({ addresses, limit }: TimelineTarget): Promise<TimelineItem
       summary: row.lastMessagePreview,
       actor: row.assigneeName,
       status: row.status,
-      url: `/website/chat/sessions/${idOf(row)}`,
+      url: `/agents/chat/sessions/${idOf(row)}`,
       opensPage: true,
     }),
   );
@@ -203,7 +203,7 @@ async function whatsappLeads(target: TimelineTarget): Promise<TimelineItem[]> {
       title: 'Signed up for the WhatsApp demo',
       summary: row.company ?? '',
       status: row.source,
-      url: '/website/whatsapp-leads',
+      url: '/agents/whatsapp-leads',
     }),
   );
 }

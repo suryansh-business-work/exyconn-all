@@ -14,6 +14,7 @@ describe('DEAL_COLUMNS', () => {
       'stage',
       'value',
       'probability',
+      'score',
       'expectedCloseDate',
       'owner',
       'actions',
@@ -35,6 +36,12 @@ describe('DEAL_COLUMNS', () => {
 
     expect(formatCell(DEAL_COLUMNS, 'value', row)).toBe(formatMoney(98000));
     expect(formatCell(DEAL_COLUMNS, 'probability', row)).toBe('75%');
+  });
+
+  it('shows the server score out of 100, or a dash before the deal is scored', () => {
+    expect(formatCell(DEAL_COLUMNS, 'score', dealRow({ score: 72 }))).toBe('72/100');
+    expect(formatCell(DEAL_COLUMNS, 'score', dealRow({ score: 0 }))).toBe('0/100');
+    expect(formatCell(DEAL_COLUMNS, 'score', dealRow({ score: null }))).toBe('—');
   });
 
   it('formats the expected close date through the viewer settings, or a dash when unset', () => {

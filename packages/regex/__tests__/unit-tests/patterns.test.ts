@@ -9,6 +9,7 @@ import {
   GITHUB_NAME,
   GITHUB_REPOSITORY,
   GOOGLE_MEET_CODE,
+  GOOGLE_MEET_URL,
   GSTIN,
   GST_STATE_CODE,
   HEX_COLOR,
@@ -151,16 +152,45 @@ const CASES: ReadonlyArray<{
   {
     name: 'GOOGLE_MEET_CODE',
     pattern: GOOGLE_MEET_CODE,
-    valid: ['/abc-defg-hij', '/abc-defg-hij/', '/abc-defg-hij?authuser=0', '/abc-defg-hij#x'],
+    valid: [
+      '/abc-defg-hij',
+      '/abc-defg-hij/',
+      '/abc-defg-hij?authuser=0',
+      '/abc-defg-hij#x',
+      '/meet/abc-defg-hij',
+      '/meet/abc-defg-hij/',
+    ],
     invalid: [
       '',
       '/',
       '/landing',
       '/new',
+      '/meet/',
+      '/meet/new',
+      '/other/abc-defg-hij',
       '/ABC-DEFG-HIJ',
       '/abc-defg-hijk',
       '/abcd-efg-hij',
       'abc-defg-hij',
+    ],
+  },
+  {
+    name: 'GOOGLE_MEET_URL',
+    pattern: GOOGLE_MEET_URL,
+    valid: [
+      'https://meet.google.com/abc-defg-hij',
+      'https://meet.google.com/abc-defg-hij?authuser=0',
+      'https://meet.google.com/meet/abc-defg-hij',
+      'https://meet.google.com/meet/abc-defg-hij?authuser=0',
+    ],
+    invalid: [
+      '',
+      'https://meet.google.com/',
+      'https://meet.google.com/meet/',
+      'https://meet.google.com/other/abc-defg-hij',
+      'http://meet.google.com/abc-defg-hij',
+      'https://zoom.us/j/1',
+      'https://meet.google.com.evil.example/abc-defg-hij',
     ],
   },
   {
@@ -239,5 +269,9 @@ describe.each(CASES)('$name', ({ pattern, valid, invalid }) => {
 describe('GOOGLE_MEET_CODE capture', () => {
   it('captures the meeting code from a call path', () => {
     expect(GOOGLE_MEET_CODE.exec('/abc-defg-hij/details')?.[1]).toBe('abc-defg-hij');
+  });
+
+  it('captures the meeting code from the /meet/ path Meet redirects calls to', () => {
+    expect(GOOGLE_MEET_CODE.exec('/meet/pbs-bnim-vnx')?.[1]).toBe('pbs-bnim-vnx');
   });
 });

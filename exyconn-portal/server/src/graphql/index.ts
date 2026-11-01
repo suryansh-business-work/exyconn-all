@@ -12,6 +12,12 @@ import { crmIntegrationsTypeDefs, crmIntegrationsResolvers } from '../modules/cr
 import { crmMailTypeDefs, crmMailResolvers } from '../modules/crm-mail';
 import { meetingTypeDefs, meetingResolvers } from '../modules/crm/meetings';
 import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
+import {
+  billingTypeDefs,
+  billingResolvers,
+  signupTypeDefs,
+  signupResolvers,
+} from '../modules/billing';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
 import { reportingResolvers } from '../modules/admin/reporting';
@@ -39,7 +45,12 @@ import {
   licencesTypeDefs,
   licencesResolvers,
 } from '../modules/assets';
-import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
+import {
+  integrationsTypeDefs,
+  integrationsResolvers,
+  developerTypeDefs,
+  developerResolvers,
+} from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { attendanceTypeDefs } from '../modules/hr/attendance.typeDefs';
 import { itsmTypeDefs, itsmResolvers } from '../modules/itsm';
@@ -56,6 +67,8 @@ import {
   supportResolvers,
   supportLibraryTypeDefs,
   supportLibraryResolvers,
+  supportOmnichannelTypeDefs,
+  supportOmnichannelResolvers,
 } from '../modules/support';
 import {
   marketingTypeDefs,
@@ -168,6 +181,9 @@ import {
   whatsappDemoResolvers,
 } from '../../../../demos/whatsapp-demo/server/src';
 import { callingBotTypeDefs, callingBotResolvers } from '../modules/calling-bot-demo';
+import { agentsTypeDefs, agentsResolvers } from '../modules/agents';
+import { meetingBotDemoTypeDefs, meetingBotDemoResolvers } from '../modules/meeting-bot-demo';
+import { mcpSandboxTypeDefs, mcpSandboxResolvers } from '../modules/mcp/sandbox';
 import {
   emailVerificationTypeDefs,
   emailVerificationResolvers,
@@ -179,6 +195,7 @@ import { crmGeoTypeDefs } from '../modules/crm/crm.geo.typeDefs';
 import { crmCalendarTypeDefs, crmCalendarModuleResolvers } from '../modules/crm/calendar';
 import { crmDashboardTypeDefs, crmDashboardResolvers } from '../modules/crm/dashboard';
 import { coldEmailTypeDefs, coldEmailResolvers } from '../modules/crm/cold-email';
+import { dealScoreTypeDefs, dealScoreResolvers } from '../modules/crm/deal-score';
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
@@ -196,6 +213,11 @@ import {
   walletGatewayResolvers,
 } from '../modules/clienthub';
 import { payoutTypeDefs, payoutResolvers } from '../modules/payout';
+import {
+  vendorPortalTypeDefs,
+  vendorStaffTypeDefs,
+  vendorPortalResolvers,
+} from '../modules/vendor-portal';
 import { techVaultTypeDefs, techVaultResolvers } from '../modules/tech/vault';
 import { providerProfileTypeDefs, providerProfileResolvers } from '../modules/tech/providers';
 import { techTransferTypeDefs, techTransferResolvers } from '../modules/tech/transfer';
@@ -276,6 +298,8 @@ export const typeDefs = [
   meetingTypeDefs,
   organizationsTypeDefs,
   adminTypeDefs,
+  billingTypeDefs,
+  signupTypeDefs,
   financeTypeDefs,
   financeBillingTypeDefs,
   financeCompanyTypeDefs,
@@ -297,11 +321,13 @@ export const typeDefs = [
   productsInventoryTypeDefs,
   productsPurchasingTypeDefs,
   integrationsTypeDefs,
+  developerTypeDefs,
   hrTypeDefs,
   attendanceTypeDefs,
   employeeTypeDefs,
   supportTypeDefs,
   supportLibraryTypeDefs,
+  supportOmnichannelTypeDefs,
   marketingTypeDefs,
   audienceTypeDefs,
   suppressionTypeDefs,
@@ -361,6 +387,9 @@ export const typeDefs = [
   logsTypeDefs,
   whatsappDemoTypeDefs,
   callingBotTypeDefs,
+  agentsTypeDefs,
+  meetingBotDemoTypeDefs,
+  mcpSandboxTypeDefs,
   emailVerificationTypeDefs,
   googleMapsTypeDefs,
   webScraperTypeDefs,
@@ -368,11 +397,14 @@ export const typeDefs = [
   crmCalendarTypeDefs,
   crmDashboardTypeDefs,
   coldEmailTypeDefs,
+  dealScoreTypeDefs,
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
   clientRecordsTypeDefs,
   walletGatewayTypeDefs,
+  vendorPortalTypeDefs,
+  vendorStaffTypeDefs,
   payoutTypeDefs,
   techVaultTypeDefs,
   providerProfileTypeDefs,
@@ -403,6 +435,8 @@ export const resolvers = mergeResolvers([
   meetingResolvers,
   organizationsResolvers,
   adminResolvers,
+  billingResolvers,
+  signupResolvers,
   reportingResolvers,
   presenceResolvers,
   financeResolvers,
@@ -422,10 +456,12 @@ export const resolvers = mergeResolvers([
   productsInventoryResolvers,
   productsPurchasingResolvers,
   integrationsResolvers,
+  developerResolvers,
   hrResolvers,
   employeeResolvers,
   supportResolvers,
   supportLibraryResolvers,
+  supportOmnichannelResolvers,
   marketingResolvers,
   marketingMetricsResolvers,
   legalResolvers,
@@ -478,6 +514,9 @@ export const resolvers = mergeResolvers([
   logsResolvers,
   whatsappDemoResolvers,
   callingBotResolvers,
+  agentsResolvers,
+  meetingBotDemoResolvers,
+  mcpSandboxResolvers,
   emailVerificationResolvers,
   googleMapsResolvers,
   webScraperResolvers,
@@ -485,11 +524,13 @@ export const resolvers = mergeResolvers([
   crmCalendarModuleResolvers,
   crmDashboardResolvers,
   coldEmailResolvers,
+  dealScoreResolvers,
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,
   clientRecordsResolvers,
   walletGatewayResolvers,
+  vendorPortalResolvers,
   payoutResolvers,
   techVaultResolvers,
   providerProfileResolvers,

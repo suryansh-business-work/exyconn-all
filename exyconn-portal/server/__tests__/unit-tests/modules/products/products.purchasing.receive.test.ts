@@ -139,6 +139,8 @@ describe('PurchaseOrder fields', () => {
   it('reads an order stored without a supplier name or lines as blank and empty', () => {
     expect(fields.supplierName({})).toBe('');
     expect(fields.supplierName({ supplierName: null })).toBe('');
+    expect(fields.acknowledgedBy({})).toBe('');
+    expect(fields.acknowledgedBy({ acknowledgedBy: null })).toBe('');
     expect(fields.lines({})).toEqual([]);
     expect(fields.total({})).toBe(0);
   });
@@ -147,6 +149,9 @@ describe('PurchaseOrder fields', () => {
     const lines = [{ quantity: 2, unitCost: 50, taxPercent: 10 }];
 
     expect(fields.supplierName({ supplierName: 'Widgets Ltd' })).toBe('Widgets Ltd');
+    expect(fields.acknowledgedBy({ acknowledgedBy: 'Sam <sam@widgets.test>' })).toBe(
+      'Sam <sam@widgets.test>',
+    );
     expect(fields.lines({ lines })).toBe(lines);
     expect(fields.total({ lines })).toBe(110);
   });

@@ -9,11 +9,13 @@ describe('demoLinks', () => {
     expect(shortTitle('')).toBe('');
   });
 
-  it('lists the three demos in site order, named and addressed by the app registry', () => {
+  it('lists the demos in site order, named and addressed by the app registry', () => {
     expect(DEMO_LINKS.map((demo) => demo.key)).toEqual([
       'calling-bot-demo',
       'whatsapp-demo',
       'website-chat-demo',
+      'meeting-bot-demo',
+      'mcp-sandbox-demo',
     ]);
     for (const demo of DEMO_LINKS) {
       expect(demo.label).toBe(shortTitle(PORTAL_APPS[demo.key].title));

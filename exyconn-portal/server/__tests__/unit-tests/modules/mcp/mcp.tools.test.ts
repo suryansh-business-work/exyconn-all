@@ -224,6 +224,7 @@ describe('the module servers', () => {
       'tech',
       'tracker',
       'website',
+      'agents',
     ]);
   });
 

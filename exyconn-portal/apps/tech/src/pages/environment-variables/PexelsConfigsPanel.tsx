@@ -12,7 +12,7 @@ import {
   useTestPexelsConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { PexelsConfigForm, type PexelsConfigRow } from './forms/pexels-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 /**
  * Environment Variables sub-panel: the Pexels API key behind the stock photo and

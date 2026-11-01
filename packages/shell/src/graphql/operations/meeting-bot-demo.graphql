@@ -1,0 +1,56 @@
+fragment MeetingBotDemoTripFields on MeetingBotDemoTrip {
+  id
+  meetingCode
+  meetUrl
+  status
+  error
+  createdAt
+  finishedAt
+  summaryStatus
+  emailedAt
+  purgeAfter
+  purged
+  summary {
+    title
+    executiveSummary
+    discussionPoints
+    decisions
+    actionItems {
+      id
+      title
+      assignedTo
+      dueDate
+      dueText
+    }
+  }
+}
+
+query MeetingBotDemoInfo {
+  meetingBotDemoInfo {
+    enabled
+    botName
+    tripsPerDay
+    tripsLeftToday
+    retentionDays
+    maxMeetingMinutes
+    consentText
+  }
+}
+
+query MeetingBotDemoTrips {
+  meetingBotDemoTrips {
+    ...MeetingBotDemoTripFields
+  }
+}
+
+mutation SendMeetingBotDemo($meetUrl: String!, $consent: Boolean!) {
+  sendMeetingBotDemo(meetUrl: $meetUrl, consent: $consent) {
+    ...MeetingBotDemoTripFields
+  }
+}
+
+mutation CancelMeetingBotDemo($id: ID!) {
+  cancelMeetingBotDemo(id: $id) {
+    ...MeetingBotDemoTripFields
+  }
+}

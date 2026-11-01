@@ -87,7 +87,7 @@ export const visitorFrameSchema = z.discriminatedUnion('t', [
 ]);
 export type VisitorFrame = z.infer<typeof visitorFrameSchema>;
 
-/** What Website > Chatbot > Sessions may send over the socket. */
+/** What Agents > Website chat > Sessions may send over the socket. */
 export const staffFrameSchema = z.discriminatedUnion('t', [
   z.object({ t: z.literal('watch'), sessionId: sessionId.nullable() }),
   z.object({ t: z.literal('send'), sessionId, clientId: z.string().max(64), body, files }),
@@ -108,7 +108,7 @@ const daySchema = z
 
 const text = (min: number, max: number) => z.string().trim().min(min).max(max);
 
-/** Website > Chatbot > Settings, checked again here: the client is never the only gate. */
+/** Agents > Website chat > Settings, checked again here: the client is never the only gate. */
 export const settingsSchema = z.object({
   enabled: z.boolean(),
   botName: text(2, 60),

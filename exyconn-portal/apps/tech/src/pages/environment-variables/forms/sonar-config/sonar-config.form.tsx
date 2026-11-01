@@ -16,7 +16,7 @@ import {
   TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { SonarConfigFormValues, SonarConfigRow } from './sonar-config.types';
-import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { KEEP_SECRET_HINT, secretField } from '@exyconn/shell/utils/secret';
 import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [

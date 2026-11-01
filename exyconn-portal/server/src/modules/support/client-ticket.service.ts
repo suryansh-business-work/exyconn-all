@@ -99,6 +99,10 @@ export function assertValid(input: ClientSupportTicketInput): void {
  * still gets a ticket, it is simply not attributed to an account.
  */
 async function resolveClient(email: string): Promise<{ id: string; name: string } | null> {
+  // A WhatsApp requester has a number, not an address — and '' must not match a client without one.
+  if (!email) {
+    return null;
+  }
   const exact = await ClientModel.findOne({ email }).select('name').lean();
   if (exact) {
     return { id: exact._id.toString(), name: exact.name };
@@ -144,7 +148,8 @@ export async function fileClientTicket(
     attachments,
     dueAt: await dueAtForPriority(input.priority, createdAt),
   });
-  logger.info(`Support ticket ${ticket.reference} raised by ${input.requesterEmail} (${channel})`);
+  // The reference and channel find the ticket; the requester's address stays out of the logs.
+  logger.info(`Support ticket ${ticket.reference} filed (${channel})`);
   announceTicketFiled(ticket);
   return ticket;
 }

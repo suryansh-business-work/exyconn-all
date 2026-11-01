@@ -10,6 +10,8 @@ interface RhfAttachmentPickerProps {
   folder: string;
   /** What belongs here, shown under the picker. */
   helperText?: string;
+  /** See AttachmentPicker: an upload for someone who is not a portal user. */
+  uploader?: (file: File) => Promise<string>;
 }
 
 /**
@@ -23,6 +25,7 @@ export function RhfAttachmentPicker({
   name,
   folder,
   helperText,
+  uploader,
 }: Readonly<RhfAttachmentPickerProps>) {
   const { control } = useFormContext();
   const t = useT();
@@ -31,7 +34,12 @@ export function RhfAttachmentPicker({
 
   return (
     <Box>
-      <AttachmentPicker value={value} onChange={(next) => field.onChange(next)} folder={folder} />
+      <AttachmentPicker
+        value={value}
+        onChange={(next) => field.onChange(next)}
+        folder={folder}
+        uploader={uploader}
+      />
       {helperText && (
         <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
           {t(helperText)}

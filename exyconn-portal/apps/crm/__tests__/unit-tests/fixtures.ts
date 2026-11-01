@@ -70,6 +70,9 @@ export function dealRow(overrides: Partial<DealFieldsFragment> = {}): DealFields
     owner: 'Priya',
     notes: '',
     clientId: '',
+    score: null,
+    scoreReasons: [],
+    scoredAt: null,
     ...overrides,
   };
 }

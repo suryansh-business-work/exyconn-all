@@ -30,6 +30,21 @@ vi.mock('../../../../src/pages/suppliers/forms/supplier', async () => ({
   SupplierForm: (await import('../../form-stub')).FormStub,
 }));
 
+vi.mock('../../../../src/pages/suppliers/vendor-access/VendorAccessDialog', () => ({
+  VendorAccessDialog: ({
+    supplier,
+    onClose,
+  }: Readonly<{ supplier: { name: string } | null; onClose: () => void }>) =>
+    supplier && (
+      <div>
+        <p>{`Vendor access for ${supplier.name}`}</p>
+        <button type="button" onClick={onClose}>
+          Close vendor access
+        </button>
+      </div>
+    ),
+}));
+
 describe('SuppliersPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -100,5 +115,16 @@ describe('SuppliersPage', () => {
 
     expect(await screen.findByText('Supplier has open orders')).toBeInTheDocument();
     expect(gql.refetch).not.toHaveBeenCalled();
+  });
+
+  it("opens the supplier's vendor portal access from its row action, and closes it again", async () => {
+    renderWithProviders(<SuppliersPage />);
+    expect(screen.queryByText(/Vendor access for/)).not.toBeInTheDocument();
+
+    await runRowAction('vendorAccess', supplierRow({ name: 'Globex Parts' }));
+
+    expect(screen.getByText('Vendor access for Globex Parts')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Close vendor access' }));
+    expect(screen.queryByText(/Vendor access for/)).not.toBeInTheDocument();
   });
 });

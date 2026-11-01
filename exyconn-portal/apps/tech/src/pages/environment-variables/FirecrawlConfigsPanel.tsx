@@ -12,7 +12,7 @@ import {
   useFirecrawlConfigsQuery,
   useTestFirecrawlConfigMutation,
 } from '@exyconn/shell/graphql/generated';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 import {
   FirecrawlConfigForm,
   isHostedFirecrawl,

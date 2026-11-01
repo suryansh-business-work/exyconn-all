@@ -48,8 +48,9 @@ export function buildPortalEntries(
   roles: Role[],
   currentApp: PortalAppKey,
   query = '',
+  planRoles?: readonly Role[] | null,
 ): PortalEntry[] {
-  return search(toEntries(accessibleModules(roles), currentApp), query);
+  return search(toEntries(accessibleModules(roles, planRoles), currentApp), query);
 }
 
 /**

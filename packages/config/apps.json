@@ -111,7 +111,7 @@
     "subdomain": "demos",
     "port": 4040,
     "title": "Exyconn Demos",
-    "description": "Try Exyconn's AI products live — a WhatsApp Business automation, an AI calling bot that talks in real time and an AI chat agent for websites."
+    "description": "Try Exyconn's AI products live — a WhatsApp Business automation, an AI calling bot that talks in real time, an AI chat agent for websites, an AI meeting notetaker and an MCP sandbox for Claude."
   },
   "whatsapp-demo": {
     "subdomain": "demos",
@@ -134,6 +134,20 @@
     "title": "AI Website Chat Agent Demo · Exyconn",
     "description": "Chat with an AI agent on sample service and product websites, and see how it plugs into any website."
   },
+  "meeting-bot-demo": {
+    "subdomain": "demos",
+    "basePath": "/meeting-bot-demo",
+    "port": 4048,
+    "title": "AI Meeting Bot Demo · Exyconn",
+    "description": "Send an AI notetaker into your own Google Meet call and get the summary, decisions and action items by email."
+  },
+  "mcp-sandbox-demo": {
+    "subdomain": "demos",
+    "basePath": "/mcp-sandbox-demo",
+    "port": 4049,
+    "title": "MCP Sandbox Demo · Exyconn",
+    "description": "Connect Claude to a sample company's CRM, projects and HR with a short-lived read-only MCP token, or try the tools in your browser."
+  },
   "status": {
     "subdomain": "status",
     "port": 4035,
@@ -151,5 +165,23 @@
     "port": 4044,
     "title": "MCP · Exyconn Track",
     "description": "Exyconn Track MCP — connect Claude to the CRM, Marketing or every module at once: server addresses, tools, usage, activity and connections."
+  },
+  "agents": {
+    "subdomain": "agents",
+    "port": 4045,
+    "title": "Agents · Exyconn Track",
+    "description": "Exyconn Track Agents — the console for AI agents: WhatsApp workflows, the calling bot, the website chat agent, its knowledge and sessions, and the leads they capture."
+  },
+  "developers": {
+    "subdomain": "developers",
+    "port": 4046,
+    "title": "Developers · Exyconn Track",
+    "description": "Exyconn Track Developers — API keys and their usage, webhooks and their delivery log, the event catalogue, the GraphQL API reference and connecting Claude over MCP."
+  },
+  "vendors": {
+    "subdomain": "vendors",
+    "port": 4047,
+    "title": "Vendor Portal · Exyconn",
+    "description": "Exyconn Vendor Portal — suppliers see their purchase orders, acknowledge them, send invoices against them and follow when they are paid."
   }
 }

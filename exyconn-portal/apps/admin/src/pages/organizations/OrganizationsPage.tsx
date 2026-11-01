@@ -13,9 +13,11 @@ import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import BlockIcon from '@mui/icons-material/Block';
 import RestoreIcon from '@mui/icons-material/Restore';
 import HistoryIcon from '@mui/icons-material/History';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import { OrganizationForm, type OrganizationRow } from './forms/organization';
 import { OrganizationAdminForm } from './forms/organization-admin';
 import { OrganizationHistory } from './OrganizationHistory';
+import { OrganizationPlanDialog } from './OrganizationPlanDialog';
 
 /** Whether the company may sign in at all — a column cell, so it can translate its own word. */
 function OrganizationStatusChip({ status }: Readonly<{ status: OrganizationStatus }>) {
@@ -71,6 +73,7 @@ export function OrganizationsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [appointing, setAppointing] = useState<OrganizationRow | null>(null);
   const [history, setHistory] = useState<OrganizationRow | null>(null);
+  const [planFor, setPlanFor] = useState<OrganizationRow | null>(null);
 
   const rows = data?.organizations ?? [];
 
@@ -82,6 +85,7 @@ export function OrganizationsPage() {
   const close = () => {
     setFormOpen(false);
     setAppointing(null);
+    setPlanFor(null);
     refetch().catch((error: unknown) => console.error('Could not reload organizations', error));
   };
 
@@ -106,6 +110,12 @@ export function OrganizationsPage() {
       tooltip: 'History',
       ariaLabel: 'History',
       onClick: (row) => setHistory(row),
+    },
+    {
+      icon: <WorkspacePremiumIcon fontSize="small" />,
+      tooltip: 'Plan',
+      ariaLabel: 'Plan',
+      onClick: (row) => setPlanFor(row),
     },
     {
       icon: <PersonAddAlt1Icon fontSize="small" />,
@@ -169,6 +179,7 @@ export function OrganizationsPage() {
           />
         ) : null}
       </CrudDialog>
+      <OrganizationPlanDialog organization={planFor} onClose={close} />
       <CrudDialog
         open={history !== null}
         title={history ? t('History of {name}', { name: history.name }) : t('History')}

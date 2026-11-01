@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "Everything the conversation bots built on @exyconn/wa-flow share in the browser: the chat runtime (engine loop, reply queue, storage, analytics, AI parse), the icon map, the website chat widget, and the bot studio \u2014 the React Flow workflow editor, analytics and session screens \u2014 used by the WhatsApp demo, the website chat agent demo and Tech > Demos.",
+  "description": "Everything the conversation bots built on @exyconn/wa-flow share in the browser: the chat runtime (engine loop, reply queue, storage, analytics, AI parse), the icon map, the website chat widget, and the bot studio \u2014 the React Flow workflow editor, analytics and session screens \u2014 used by the WhatsApp demo, the website chat agent demo and the Agents console.",
   "main": "./src/runtime/index.ts",
   "exports": {
     "./runtime": "./src/runtime/index.ts",

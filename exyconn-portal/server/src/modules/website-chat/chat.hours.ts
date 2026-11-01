@@ -1,6 +1,6 @@
 import { toZonedTime } from 'date-fns-tz';
 
-/** One weekday's opening hours, as Website > Chatbot > Settings stores them. */
+/** One weekday's opening hours, as Agents > Website chat > Settings stores them. */
 export interface ChatDay {
   day: number;
   enabled: boolean;

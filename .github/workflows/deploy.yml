@@ -244,6 +244,22 @@ jobs:
               APP_DIR=demos/website-chat-demo/ui
               PORT=4043
               VITE_PORTAL_APP=website-chat-demo
+          - service: meeting-bot-demo
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/meeting-bot-demo-ui
+              APP_DIR=demos/meeting-bot-demo/ui
+              PORT=4048
+              VITE_PORTAL_APP=meeting-bot-demo
+          - service: mcp-sandbox-demo
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/mcp-sandbox-demo-ui
+              APP_DIR=demos/mcp-sandbox-demo/ui
+              PORT=4049
+              VITE_PORTAL_APP=mcp-sandbox-demo
           - service: calling-bot-voice
             dockerfile: docker/calling-bot-voice.Dockerfile
             context: .
@@ -260,6 +276,30 @@ jobs:
               APP_DIR=exyconn-portal/apps/mcp
               PORT=4044
               VITE_PORTAL_APP=mcp
+          - service: portal-agents
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-agents
+              APP_DIR=exyconn-portal/apps/agents
+              PORT=4045
+              VITE_PORTAL_APP=agents
+          - service: portal-developers
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-developers
+              APP_DIR=exyconn-portal/apps/developers
+              PORT=4046
+              VITE_PORTAL_APP=developers
+          - service: portal-vendors
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-vendors
+              APP_DIR=exyconn-portal/apps/vendors
+              PORT=4047
+              VITE_PORTAL_APP=vendors
           - service: portal-clienthub
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -474,8 +514,13 @@ jobs:
             "https://demos.exyconn.com/calling-bot-demo/"
             "https://demos.exyconn.com/calling-bot-demo/api/health"
             "https://demos.exyconn.com/website-chat-demo/"
+            "https://demos.exyconn.com/meeting-bot-demo/"
+            "https://demos.exyconn.com/mcp-sandbox-demo/"
             "https://clienthub.exyconn.com"
             "https://mcp.exyconn.com"
+            "https://agents.exyconn.com"
+            "https://developers.exyconn.com"
+            "https://vendors.exyconn.com"
             "https://status.exyconn.com"
             "https://hr.exyconn.com"
             "https://marketing.exyconn.com"

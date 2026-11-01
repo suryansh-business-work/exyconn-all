@@ -12,6 +12,8 @@ import { allPortalEntries, buildPortalEntries } from './portalEntries';
 interface PortalSwitcherProps {
   /** Roles of the signed-in user; `null` on the login screen, where every portal is listed. */
   roles: Role[] | null;
+  /** The roles the company's plan opens; absent or null means no plan limit. */
+  planRoles?: readonly Role[] | null;
   open: boolean;
   onClose: () => void;
 }
@@ -23,7 +25,7 @@ interface PortalSwitcherProps {
  * lists them all: the target portal's own gate decides whether the visitor is
  * let in on the shared session cookie or shown its login screen.
  */
-export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcherProps>) {
+export function PortalSwitcher({ roles, planRoles, open, onClose }: Readonly<PortalSwitcherProps>) {
   const t = useT();
   const headingId = useId();
   const [query, setQuery] = useState('');
@@ -32,9 +34,9 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
   const entries = useMemo<PortalEntry[]>(
     () =>
       roles
-        ? buildPortalEntries(roles, env.portalApp, query)
+        ? buildPortalEntries(roles, env.portalApp, query, planRoles)
         : allPortalEntries(env.portalApp, query),
-    [roles, query],
+    [roles, query, planRoles],
   );
 
   const caption = t(captionFor(entries.length, roles !== null), { count: entries.length });

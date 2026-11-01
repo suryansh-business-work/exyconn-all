@@ -133,7 +133,7 @@ export const env = Object.freeze({
   chatKnowledgeMarket: process.env.CHAT_KNOWLEDGE_MARKET ?? 'en-us',
   /**
    * Public sites the website chat widget may open its socket from. The portals in CORS_ORIGIN
-   * are allowed as well (Website > Chatbot answers over the same socket).
+   * are allowed as well (Agents > Website chat answers over the same socket).
    */
   chatOrigins: (process.env.CHAT_ORIGINS ?? 'https://exyconn.com,https://tools.exyconn.com')
     .split(',')
@@ -144,14 +144,19 @@ export const env = Object.freeze({
    * A record for a site's domains. Empty leaves the address to type.
    */
   websiteServerIp: process.env.WEBSITE_SERVER_IP ?? '',
-  /** Website > Chatbot > Sessions, linked from the support ticket every chat opens. */
+  /** Agents > Chat Sessions, linked from the support ticket every chat opens. */
   websiteChatConsoleUrl: (
-    process.env.WEBSITE_CHAT_CONSOLE_URL ?? 'https://website.exyconn.com/website/chat/sessions'
+    process.env.WEBSITE_CHAT_CONSOLE_URL ?? 'https://agents.exyconn.com/agents/chat/sessions'
   ).replace(/\/$/, ''),
   /** The client hub: where invoice emails' "Pay now" links and payment gateways send a client. */
   /** The CRM portal's address, for links in CRM reminder emails. */
   crmUrl: (process.env.CRM_URL ?? 'https://crm.exyconn.com').replace(/\/$/, ''),
   clientHubUrl: (process.env.CLIENT_HUB_URL ?? 'https://clienthub.exyconn.com').replace(/\/$/, ''),
+  /** The vendor portal: where a supplier's people sign in to see and invoice purchase orders. */
+  vendorPortalUrl: (process.env.VENDOR_PORTAL_URL ?? 'https://vendors.exyconn.com').replace(
+    /\/$/,
+    '',
+  ),
   /**
    * Where a self-service password reset link opens when the request did not come from a
    * portal origin CORS trusts (a curl, say). A request from a portal links back to itself.
@@ -235,6 +240,31 @@ export const env = Object.freeze({
     accessTokenTtlSeconds: Number(process.env.MCP_ACCESS_TOKEN_TTL_SECONDS ?? 3600),
     refreshTokenTtlDays: Number(process.env.MCP_REFRESH_TOKEN_TTL_DAYS ?? 30),
   },
+  /** The public demos on demos.exyconn.com that run on a demo company of their own. */
+  demos: {
+    /** demos.exyconn.com/meeting-bot-demo: the meeting bot joins a visitor's Google Meet call. */
+    meetingBot: {
+      /** Bot trips one visitor may start in 24 hours. */
+      tripsPerDay: Number(process.env.MEETING_BOT_DEMO_TRIPS_PER_DAY ?? 3),
+      /** Days a demo meeting (recording, transcript, notes) is kept before it is deleted. */
+      retentionDays: Number(process.env.MEETING_BOT_DEMO_RETENTION_DAYS ?? 7),
+      /** Longest demo call the bot stays in and transcribes. */
+      maxMeetingMinutes: Number(process.env.MEETING_BOT_DEMO_MAX_MINUTES ?? 30),
+      /** The demo page, linked from the notes email. */
+      pageUrl: (
+        process.env.MEETING_BOT_DEMO_URL ?? 'https://demos.exyconn.com/meeting-bot-demo'
+      ).replace(/\/$/, ''),
+    },
+    /** demos.exyconn.com/mcp-sandbox-demo: a read-only MCP token on the sandbox company. */
+    mcpSandbox: {
+      /** How long one sandbox token lasts. */
+      tokenTtlMinutes: Number(process.env.MCP_SANDBOX_TOKEN_TTL_MINUTES ?? 60),
+      /** Tokens one visitor may take in 24 hours. */
+      tokensPerDay: Number(process.env.MCP_SANDBOX_TOKENS_PER_DAY ?? 5),
+      /** Tool calls one sandbox token may make in an hour. */
+      callsPerHour: Number(process.env.MCP_SANDBOX_CALLS_PER_HOUR ?? 120),
+    },
+  },
   /** OpenAI's Costs API, read with the Admin key saved in Tech > Environment Variables > Billing keys. */
   openAiBilling: {
     costsUrl: process.env.OPENAI_COSTS_URL ?? 'https://api.openai.com/v1/organization/costs',
@@ -266,6 +296,14 @@ export const env = Object.freeze({
    * site, which is the one app with no sign-in and no portal chrome.
    */
   projectShareBaseUrl: (process.env.PROJECT_SHARE_BASE_URL ?? 'https://status.exyconn.com').replace(
+    /\/$/,
+    '',
+  ),
+  /**
+   * Where a support satisfaction survey's link opens: the public status site, which needs no
+   * account. The ticket's one-time token is appended as the last path segment.
+   */
+  supportCsatUrl: (process.env.SUPPORT_CSAT_URL ?? 'https://status.exyconn.com/help/rate').replace(
     /\/$/,
     '',
   ),

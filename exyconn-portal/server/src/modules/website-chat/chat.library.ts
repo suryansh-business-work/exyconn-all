@@ -30,7 +30,7 @@ const knowledgeService = createCrudService<KnowledgeInput>(
 
 const faqs = createCrudResolvers(faqService, {
   name: 'WebsiteChatFaq',
-  roles: [ROLES.WEBSITE],
+  roles: [ROLES.WEBSITE, ROLES.AGENTS],
   table: {
     searchFields: ['question', 'answer'],
     filterFields: ['isActive'],
@@ -43,7 +43,7 @@ const faqs = createCrudResolvers(faqService, {
 const knowledge = createCrudResolvers(knowledgeService, {
   name: 'WebsiteChatKnowledge',
   plural: 'WebsiteChatKnowledgeEntries',
-  roles: [ROLES.WEBSITE],
+  roles: [ROLES.WEBSITE, ROLES.AGENTS],
   table: {
     searchFields: ['title', 'url', 'content'],
     filterFields: ['source', 'isActive'],

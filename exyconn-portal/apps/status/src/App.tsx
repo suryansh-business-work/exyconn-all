@@ -12,6 +12,7 @@ import { ConfirmSubscriptionPage, UnsubscribePage } from './pages/subscribe';
 import { SharedProjectPage } from './pages/project';
 import { SignContractPage } from './pages/sign';
 import { PublicTicketPage } from './pages/ticket';
+import { RateSupportPage } from './pages/rate';
 
 /**
  * Public status site. Unlike every other micro-frontend it deliberately does not use
@@ -31,6 +32,8 @@ export function App() {
                 <Route path="/report" element={<ReportPage />} />
                 {/* Support, for a customer with no account: the one app without a sign-in. */}
                 <Route path="/help" element={<HelpPage />} />
+                {/* The satisfaction survey a customer is emailed when their ticket is resolved. */}
+                <Route path="/help/rate/:token" element={<RateSupportPage />} />
                 <Route path="/subscribe/confirm" element={<ConfirmSubscriptionPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
                 {/* A counterparty signing a contract from the link they were emailed. */}

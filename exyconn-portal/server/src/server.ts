@@ -17,6 +17,7 @@ import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startEmployeeReports, startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startMcpAlerts } from './modules/mcp/data/mcp.alerts';
 import { startMailHealthChecks } from './modules/mail-health/mail-health.job';
+import { startDealScoring } from './modules/crm/deal-score';
 import { startTrackerBuildRetention } from './modules/tech/tracker-releases.service';
 import { startReleaseRetention } from './modules/meeting-assistant/releases.cleanup';
 import { startFxRates } from './modules/tech/fx/fx.service';
@@ -26,6 +27,8 @@ import { startSocialSchedule } from './modules/social-accounts';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { startMeetingAssistantWorker } from './modules/meeting-assistant';
+import { ensureMeetingBotDemo, startMeetingBotDemoSweep } from './modules/meeting-bot-demo';
+import { ensureMcpSandbox } from './modules/mcp/sandbox';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
@@ -54,11 +57,13 @@ import { startCrmReminderEmails } from './modules/crm/calendar/crm.reminder.emai
 import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
+import { ensureGrandfatheredPlan, grandfatherOrganization } from './modules/billing';
 import { ensureWhatsappDemoSeeds } from '../../../demos/whatsapp-demo/server/src';
 import { startWhatsappReminders } from '../../../demos/whatsapp-demo/server/src/channel';
 import { startEmailVerification } from './modules/email-verification';
 import { attachChatSocket, startChatHandoff } from './modules/website-chat';
 import { assignLegacyMcpToCrm } from './modules/mcp/data/mcp.migrate';
+import { grantAgentsRole } from './modules/agents';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -156,6 +161,13 @@ async function bootstrap(): Promise<void> {
     () => runOnce('crm-deal-closed-at', backfillDealClosedAt),
     'backfillDealClosedAt',
   );
+  // Plans arrived after companies did: every company that predates them is put on the
+  // grandfathered plan (no limits, no charge) once, so introducing billing changes nothing.
+  await ensureGrandfatheredPlan();
+  await forEachOrganization(
+    () => runOnce('billing-grandfathered-plan', grandfatherOrganization),
+    'grandfatherOrganization',
+  );
   // exyconn.com is the CMS's first site: seeded insert-only from the migrated pages, so an
   // editor's change is never undone and a page added in a later release still arrives.
   await ensureCmsDefaults();
@@ -165,6 +177,8 @@ async function bootstrap(): Promise<void> {
   await runAsPlatform(() => runOnce('calling-bot-phone-fields', backfillPhoneFields));
   // MCP connections and calls from when the CRM was the only server are the CRM's, once.
   await runAsPlatform(() => runOnce('mcp-servers-crm', assignLegacyMcpToCrm));
+  // The Agents console took over the Tech demos and the Website chatbot: their people gain AGENTS, once.
+  await forEachOrganization(() => runOnce('agents-role-grant', grantAgentsRole), 'grantAgentsRole');
   // The calling bot demo's example calls: each seeded once by key (its own ledger line), so an
   // edited or deleted one stays that way and one added in a later release still arrives.
   await runAsPlatform(ensureCallingBotScenarios);
@@ -172,6 +186,10 @@ async function bootstrap(): Promise<void> {
   // once (ledger line per industry key), so a new one ships on the next boot and an edited
   // one is never overwritten.
   await forEachOrganization(ensureWhatsappDemoSeeds, 'ensureWhatsappDemoSeeds');
+  // The meeting bot demo and the MCP sandbox each run in a demo company of their own, created
+  // (and the sandbox's sample records seeded, once) here; a failure is logged, never fatal.
+  await ensureMeetingBotDemo();
+  await ensureMcpSandbox();
   startStatusMonitor();
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.
@@ -223,12 +241,16 @@ async function bootstrap(): Promise<void> {
   // something has to drain the queue whether or not anyone has the AI module open.
   startAiWorker();
   startMeetingAssistantWorker();
+  // Demo visitors get their notes by email, and demo recordings are deleted on time.
+  startMeetingBotDemoSweep();
   // Due dates are the one thing in the portal nobody is watching: a contract expires, a
   // corrective action falls overdue, a follow-up is missed, and the record simply sits
   // there. The sweep asks every module what has come due and tells the people who own it.
   startReminderSweep();
   // A CRM reminder set for 10:00 is emailed to its assignee at 10:00, signed in or not.
   startCrmReminderEmails();
+  // Deal scores age with their activities and email, so open deals are rescored on a timer too.
+  startDealScoring();
   // Does nothing until somebody sets a window in Admin > Settings; see audit.retention.ts.
   startAuditRetention();
   const app = await createApp();

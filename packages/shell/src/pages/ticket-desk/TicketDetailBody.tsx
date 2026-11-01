@@ -9,6 +9,8 @@ import { TicketThread } from './TicketThread';
 import { TicketTriage } from './TicketTriage';
 import { TicketEscalate } from './TicketEscalate';
 import { SupportReplyForm } from './forms/support-reply';
+import { TicketSource } from './TicketSource';
+import { TicketCsat } from './TicketCsat';
 
 /** Everything the detail view renders, whether it is in a drawer or on its own page. */
 export interface DetailTicket {
@@ -30,6 +32,11 @@ export interface DetailTicket {
   requesterEmail: string;
   employeeName?: string | null;
   attachments: readonly AttachmentItem[];
+  /** How it reached the desk; a chat or WhatsApp ticket links to its live conversation. */
+  channel?: string;
+  csatSentAt?: string | null;
+  csatScore?: number | null;
+  csatComment?: string | null;
 }
 
 /** Who to say the ticket came from, in the words the agent would use on the phone. */
@@ -98,6 +105,12 @@ export function TicketDetailBody({
         {ticket.description}
       </Text>
       <AttachmentList items={ticket.attachments} />
+      <TicketSource ticketId={ticket.id} channel={ticket.channel ?? ''} />
+      <TicketCsat
+        csatSentAt={ticket.csatSentAt}
+        csatScore={ticket.csatScore}
+        csatComment={ticket.csatComment}
+      />
 
       <TicketTriage
         ticketId={ticket.id}

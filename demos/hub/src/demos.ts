@@ -2,6 +2,8 @@ import type { SvgIconComponent } from '@mui/icons-material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
+import HubIcon from '@mui/icons-material/Hub';
 import { PORTAL_APPS, appBaseUrl, type PortalAppKey } from '@exyconn/shell/config/apps';
 import { DEMO_PHOTOS, shortTitle, type DemoPhoto } from '@exyconn/demo-visitor/page';
 
@@ -46,6 +48,24 @@ const DEMO_LOOKS: Partial<Record<PortalAppKey, DemoLook>> = {
       'Chat with a sample services site and a sample online store',
       '12+ ready workflows: quotes, bookings, product finder, orders, returns',
       'One script tag puts it on your own website',
+    ],
+  },
+  'meeting-bot-demo': {
+    icon: VideoCameraFrontIcon,
+    photo: DEMO_PHOTOS.team,
+    highlights: [
+      'Paste a Google Meet link: the notetaker asks to join your call',
+      'Summary, decisions and action items when the call ends',
+      'The notes arrive in your inbox; the recording is deleted after a few days',
+    ],
+  },
+  'mcp-sandbox-demo': {
+    icon: HubIcon,
+    photo: DEMO_PHOTOS.chat,
+    highlights: [
+      'A sample company with a CRM pipeline, projects and a team',
+      'A short-lived, read-only MCP token for Claude Code or Claude Desktop',
+      'Or list and run the read-only tools right in your browser',
     ],
   },
 };

@@ -12,7 +12,7 @@ import {
   useTestOpenAiConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { OpenAiConfigForm, type OpenAiConfigRow } from './forms/openai-config';
-import { maskedSecret } from './secret';
+import { maskedSecret } from '@exyconn/shell/utils/secret';
 
 /**
  * Environment Variables sub-panel: the OpenAI key and model the platform's AI features

@@ -1,6 +1,15 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { applyDealClosedHooks, dealClosedFields } from './crm.deal-closed';
 
+/** One signal behind a deal's score: what was seen, and how many points it moved the score. */
+const scoreReasonSchema = new Schema(
+  {
+    text: { type: String, required: true, trim: true },
+    impact: { type: Number, required: true },
+  },
+  { _id: false },
+);
+
 /** The pipeline, in the order a deal moves through it. */
 export const DEAL_STAGES = [
   'QUALIFYING',
@@ -35,6 +44,14 @@ const dealSchema = new Schema(
     /** The client this deal is billed to, stamped when it is won. */
     clientId: { type: String, default: '', trim: true },
     ...dealClosedFields,
+    /**
+     * How likely the deal is to close, 0-100, computed on the server from its activities, how
+     * long it has sat in its stage and how the contact engages by email (crm.deal-score). Null
+     * until it is first scored. Unlike `probability`, nobody types it.
+     */
+    score: { type: Number, default: null, min: 0, max: 100 },
+    scoreReasons: { type: [scoreReasonSchema], default: [] },
+    scoredAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

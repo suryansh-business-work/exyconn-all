@@ -40,5 +40,7 @@ export const PURCHASE_ORDER_COLUMNS: ColDef<PurchaseOrderRow>[] = [
   statusColumn('status', 'Status'),
   dateColumn('orderDate', 'Ordered'),
   dateColumn('expectedDate', 'Expected', '—'),
+  // When the supplier confirmed it in the vendor portal.
+  dateColumn('acknowledgedAt', 'Acknowledged', '—'),
   actionsColumn([RECEIVE_ACTION, EDIT_ACTION, DELETE_ACTION]),
 ];

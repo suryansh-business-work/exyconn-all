@@ -5,9 +5,9 @@ import {
   textColumn,
   valueColumn,
   type CrudGridContext,
+  activeStatus,
 } from '@exyconn/crud';
 import type { ListJobCompaniesPagedQuery } from '@exyconn/shell/graphql/generated';
-import { activeStatus } from './active-status';
 
 export type PagedJobCompanyRow =
   ListJobCompaniesPagedQuery['listJobCompaniesPaged']['rows'][number];

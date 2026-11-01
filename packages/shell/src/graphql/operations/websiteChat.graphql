@@ -1,4 +1,4 @@
-# Website > Chatbot: the chat widget on exyconn.com and tools.exyconn.com. Sessions, their
+# Agents > Website chat: the chat widget on exyconn.com and tools.exyconn.com. Sessions, their
 # conversations, settings, FAQs and the knowledge bot's knowledge. Live messages and typing
 # travel over the chat socket (/chat/ws); everything here is the console's request/response side.
 

@@ -3,7 +3,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Alert, Flex, IconButton, Text, Tooltip } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { copyToClipboard } from '@exyconn/shell/utils/clipboard';
-import { webhookUrl } from './secret';
+import { webhookUrl } from '@exyconn/shell/utils/secret';
 
 interface WebhookInfoProps {
   /** What the address is called in the gateway's dashboard. */

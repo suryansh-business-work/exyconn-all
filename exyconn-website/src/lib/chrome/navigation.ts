@@ -242,6 +242,18 @@ const DEMOS: NavGroup = {
       text: "Chat with an AI website agent",
       external: true,
     },
+    {
+      label: "AI meeting bot demo",
+      href: `${DEMOS_SITE_URL}/meeting-bot-demo/`,
+      text: "Get notes from your own Meet call",
+      external: true,
+    },
+    {
+      label: "MCP sandbox",
+      href: `${DEMOS_SITE_URL}/mcp-sandbox-demo/`,
+      text: "Connect Claude to sample data",
+      external: true,
+    },
   ],
   overview: ALL_DEMOS,
 };

@@ -12,9 +12,9 @@ import { announceSession, markReadByStaff, postMessage } from './chat.messages';
 import { readChatSettings } from './chat.settings';
 import { relayToSlack } from './chat.slack';
 
-/** The permission matrix row Website > Chatbot is governed by. */
+/** The permission matrix row the website chat (Agents > Website chat) is governed by. */
 export const CHAT_MODULE = 'WebsiteChatSession';
-export const CHAT_ROLES = [ROLES.WEBSITE];
+export const CHAT_ROLES = [ROLES.WEBSITE, ROLES.AGENTS];
 
 /** A website team member acting in the chat. */
 export interface ChatAgent {
