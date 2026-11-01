@@ -36,7 +36,7 @@ const MOBILE = 'exyconn-tracker-mobile';
 /** The tools site is an npm project outside the workspace that compiles @exyconn/seo from source. */
 const TOOLS = [/^exyconn-tools\//, /^packages\/seo\//];
 const CT_GROUPS = 3;
-const UNIT_GROUPS = 4;
+const UNIT_GROUPS = 6;
 
 const sh = (command) => execSync(command, { encoding: 'utf8' }).trim();
 
