@@ -205,6 +205,24 @@ nginx -t || rollback
 systemctl reload nginx
 
 echo "==> 4/4  Obtaining/renewing TLS certificates (certbot skips ones already valid)"
+# Certbot runs one instance per host, and this box is shared: a duncit deploy or a renew
+# timer can hold the lock while we run. "Busy" is not "missing", so wait for the lock
+# (up to 5 minutes) instead of reporting every remaining domain as without TLS.
+certbot_when_free() {
+  local attempt out
+  for attempt in $(seq 1 20); do
+    if out="$(certbot "$@" 2>&1)"; then
+      echo "${out}"
+      return 0
+    fi
+    echo "${out}"
+    grep -q "Another instance of Certbot is already running" <<< "${out}" || return 1
+    echo "    certbot is busy (attempt ${attempt}/20) — retrying in 15s"
+    sleep 15
+  done
+  return 1
+}
+
 # One certificate per domain, and a failure on one (e.g. DNS not propagated yet)
 # must not abort the rest — report them together at the end instead.
 FAILED=()
@@ -213,7 +231,7 @@ for entry in "${DOMAINS[@]}"; do
   IFS='|' read -ra names <<< "${entry}"
   for n in "${names[@]}"; do args+=("-d" "${n}"); done
   echo "    certbot: ${entry}"
-  if ! certbot --nginx --non-interactive --agree-tos -m "${EMAIL}" --redirect --keep-until-expiring "${args[@]}"; then
+  if ! certbot_when_free --nginx --non-interactive --agree-tos -m "${EMAIL}" --redirect --keep-until-expiring "${args[@]}"; then
     FAILED+=("${entry}")
   fi
 done
