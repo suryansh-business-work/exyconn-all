@@ -379,7 +379,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
   deploy:
-    timeout-minutes: 20
+    # Rollout (pull + compose --wait up to 7 min) plus up to 10 min waiting on certbot's lock.
+    timeout-minutes: 30
     name: Deploy to server
     needs: build
     runs-on: ubuntu-latest
